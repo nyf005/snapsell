@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SnapSell — Design Directions</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; line-height: 1.5; color: #1a1a1a; background: #f5f5f5; }
+    body { max-width: 720px; margin: 0 auto; padding: 2rem; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.15rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    p, ul { margin: 0.5rem 0; }
+    .direction { background: #fff; border-radius: 8px; padding: 1rem 1.25rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .chosen { border-left: 4px solid #0ea5e9; }
+    .meta { color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }
+  </style>
+</head>
+<body>
+  <h1>SnapSell — Design Directions</h1>
+  <p class="meta">Directions explorées à partir de la fondation visuelle et du design system. Voir <code>ux-design-specification.md</code> pour le détail.</p>
+
+  <h2>Direction 1 — Sobre & ops (choisie)</h2>
+  <div class="direction chosen">
+    <p>Dashboard dense mais lisible ; listes commandes en tableau avec badges de statut (couleurs sémantiques) ; Proofs inbox dans le flux (une ligne = commande + preuve à valider) ; navigation simple (Commandes, Live Ops, Proofs, Paramètres). Alignée avec « familiarité &gt; innovation » et console ops.</p>
+    <p><strong>Layout :</strong> Tableau (VF-XXXX, code, statut, client, preuve, actions). Filtres statut/date. Proofs = même liste avec filtre « Preuve en attente » ou onglet.</p>
+  </div>
+
+  <h2>Direction 2 — Dense & efficace</h2>
+  <div class="direction">
+    <p>Même structure, densité plus forte (plus de lignes visibles, filtres inline) ; couleurs statuts plus marquées ; actions rapides (Valider / Refuser, Libérer) en boutons courts. Pour vendeurs/agents qui enchaînent beaucoup de commandes.</p>
+  </div>
+
+  <h2>Direction 3 — Spacieux & lisible</h2>
+  <div class="direction">
+    <p>Plus de blanc entre blocs ; cartes par commande plutôt que lignes serrées ; Proofs inbox en cartes avec preview preuve. Pour priorité lisibilité et réduction de charge cognitive.</p>
+  </div>
+
+  <h2>Critères d’évaluation</h2>
+  <ul>
+    <li>Layout intuitif — hiérarchie d’info alignée avec les priorités</li>
+    <li>Style d’interaction — adapté à l’expérience centrale (liste prête à livrer, proofs dans le flux)</li>
+    <li>Poids visuel — cohérent avec la marque et les objectifs émotionnels (clarté, confiance)</li>
+    <li>Navigation — pattern attendu pour une console ops (Commandes, Live Ops, Proofs, Paramètres)</li>
+  </ul>
+</body>
+</html>

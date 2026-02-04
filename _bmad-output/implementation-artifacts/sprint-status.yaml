@@ -1,0 +1,103 @@
+# generated: 2026-02-04
+# project: SnapSell
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: "2026-02-04"
+project: SnapSell
+project_key: NOKEY
+tracking_system: file-system
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  epic-1: in-progress
+  1-1-initialiser-le-projet-t3-app-prisma-structure-de-base: done
+  1-2-inscription-vendeur-creation-de-compte-et-tenant: backlog
+  1-3-connexion-au-dashboard-authentification: backlog
+  1-4-configurer-la-grille-categories-prix: backlog
+  1-5-configurer-les-frais-de-livraison-optionnel: backlog
+  1-6-connecter-whatsapp-twilio-au-tenant: backlog
+  1-7-inviter-un-agent-manager: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-route-webhook-reception-verif-signature-idempotence-200-1-s: backlog
+  2-2-attribuer-le-message-au-tenant-et-router-vendeur-vs-client: backlog
+  2-3-event-log-minimal-webhook-received-message-sent-idempotent-ignored: backlog
+  2-4-envoi-sortant-via-outbox-retries-dlq: backlog
+  2-5-respect-du-stop-scope-tenant: backlog
+  2-6-creation-et-fermeture-automatiques-de-la-session-live: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-appliquer-le-prix-au-code-via-la-grille-categorie-prix: backlog
+  3-2-unicite-du-code-par-tenant-id-live-session-id-code: backlog
+  3-3-creer-un-item-unique-code-non-prepare-quantite-1: backlog
+  3-4-enregistrer-du-stock-prepare-via-whatsapp-code-xqte-photo-optionnelle: backlog
+  3-5-photo-vendeur-dernier-code-fenetre-2-min: backlog
+  3-6-blocage-a-la-reservation-reserved-qty-decrement-a-la-confirmation: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-reserver-un-article-code-et-fournir-ladresse: backlog
+  4-2-code-inexistant-ou-typo-message-clair-suggestion: backlog
+  4-3-file-dattente-et-promotion-automatique-a-lexpiration: backlog
+  4-4-rappel-t-2-min-avant-expiration: backlog
+  4-5-regle-acompte-soft-locked-et-etats-de-paiement: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-creer-une-commande-vf-xxxx-a-partir-dune-reservation-confirmee: backlog
+  5-2-gerer-les-statuts-de-commande-new-confirmed-delivered-cancelled: backlog
+  5-3-valider-ou-refuser-une-preuve-dacompte: backlog
+  5-4-notifier-la-cliente-par-whatsapp-des-changements-de-statut: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-liste-des-commandes-avec-filtres-et-statuts: backlog
+  6-2-proofs-inbox-preuves-a-valider-dans-le-flux: backlog
+  6-3-mettre-a-jour-le-statut-dune-commande-prepa-livraison-livre-annule: backlog
+  6-4-live-ops-session-en-cours-reservations-liberer: backlog
+  6-5-export-csv-manager-et-affichage-audit-trail: backlog
+  epic-6-retrospective: optional
+
+  epic-7A: backlog
+  7A-1-landing-de-presentation-du-produit: backlog
+  7A-2-gerer-labonnement-les-entitlements-du-tenant: backlog
+  epic-7A-retrospective: optional
+
+  epic-7B: backlog
+  7B-1-consulter-les-logs-devenements-correlation-id: backlog
+  7B-2-consulter-la-file-derreurs-dlq-media-envoi-echoue: backlog
+  7B-3-definir-le-scope-stop-tenant-et-messages-autorises-apres-stop: backlog
+  epic-7B-retrospective: optional
