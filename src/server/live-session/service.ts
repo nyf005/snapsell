@@ -1,6 +1,5 @@
-import { PrismaClientKnownRequestError } from "../../../generated/prisma";
+import { LiveSessionStatus, Prisma } from "../../../generated/prisma";
 import { db } from "~/server/db";
-import { LiveSessionStatus } from "../../../generated/prisma";
 import { getInactivityWindowMinutes } from "./config";
 
 const MAX_RETRY_ON_CONFLICT = 1;
@@ -64,7 +63,7 @@ export async function getOrCreateCurrentSession(
     };
   } catch (error) {
     const isUniqueViolation =
-      error instanceof PrismaClientKnownRequestError && error.code === "P2002";
+      error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
     if (isUniqueViolation && !isRetryAfterConflict && MAX_RETRY_ON_CONFLICT > 0) {
       return getOrCreateCurrentSession(tenantId, true);
     }

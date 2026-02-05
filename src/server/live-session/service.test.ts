@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { PrismaClientKnownRequestError } from "../../../generated/prisma";
+import { Prisma } from "../../../generated/prisma";
 import { getOrCreateCurrentSession, updateLastActivity } from "./service";
 import { db } from "~/server/db";
 
@@ -103,7 +103,7 @@ describe("live-session service", () => {
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(sessionCreatedByOther as never);
       vi.mocked(db.liveSession.create).mockRejectedValue(
-        new PrismaClientKnownRequestError("Unique constraint failed", {
+        new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
           code: "P2002",
           clientVersion: "test",
         }),

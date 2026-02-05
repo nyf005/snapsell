@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { PrismaClientKnownRequestError } from "../../../../generated/prisma";
+import { Prisma } from "../../../../generated/prisma";
 
 import { canManageGrid } from "~/lib/rbac";
 import { db } from "~/server/db";
@@ -146,7 +146,7 @@ export const settingsRouter = createTRPCRouter({
           data: { whatsappPhoneNumber: phone },
         });
       } catch (err) {
-        if (err instanceof PrismaClientKnownRequestError && err.code === "P2002") {
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
           throw new TRPCError({
             code: "CONFLICT",
             message: "Ce numéro est déjà associé à un autre vendeur.",
