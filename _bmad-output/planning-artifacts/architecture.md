@@ -289,7 +289,7 @@ npm create t3-app@latest
 **Architectural Decisions Provided by Starter:**
 
 - **Language & Runtime:** TypeScript strict ; Node.js ; Next.js (App Router).
-- **Styling:** Tailwind CSS ; compatible shadcn/ui pour la console ops.
+- **Styling:** shadcn/ui + Tailwind CSS comme base pour toutes les interfaces (formulaires, dashboard, console ops). Utiliser les composants shadcn (Input, Button, Label, Card, etc.) pour cohérence et accessibilité.
 - **Build:** Next.js (Turbopack en dev) ; pas de config custom requise pour le MVP.
 - **Testing:** À configurer (Vitest ou Jest) ; non inclus par défaut dans T3.
 - **Code Organization:** Structure T3 (src/app, src/server, src/components) ; couche tRPC pour l'API ; DB via Prisma ou Drizzle.

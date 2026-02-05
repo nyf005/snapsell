@@ -11,26 +11,299 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Tenant {
-    id        String   @id @default(cuid())
-    name      String
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-    users     User[]
+// Roles for RBAC (Owner = vendeur créateur du tenant)
+enum Role {
+  OWNER
+  MANAGER
+  VENDEUR
+  AGENT
+}
 
-    @@map("tenants")
+model Tenant {
+  id                    String                @id @default(cuid())
+  name                  String
+  whatsappPhoneNumber   String?               @unique @map("whatsapp_phone_number")
+  createdAt             DateTime              @default(now()) @map("created_at")
+  updatedAt             DateTime              @updatedAt @map("updated_at")
+  users                 User[]
+  categoryPrices        CategoryPrice[]
+  deliveryZones         DeliveryZone[]
+  deliveryFeeCommune    DeliveryFeeCommune[]
+  invitations           Invitation[]
+  messagesIn            MessageIn[]
+  messagesOut           MessageOut[]
+  sellerPhones          SellerPhone[]
+  eventLogs             EventLog[]
+  deadLetterJobs        DeadLetterJob[]
+  optOuts               OptOut[]
+  liveSessions          LiveSession[]
+
+  @@map("tenants")
+}
+
+// Invitation envoyée par un Owner/Manager pour ajouter un agent au tenant (story 1-7)
+model Invitation {
+  id         String    @id @default(cuid())
+  tenantId   String    @map("tenant_id")
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email      String
+  role       Role      @default(AGENT)
+  token      String?   @unique // Temporaire pour migration, sera supprimé après
+  tokenHash  String?   @unique @map("token_hash") // Hash SHA-256 du token
+  expiresAt  DateTime  @map("expires_at")
+  consumedAt DateTime? @map("consumed_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@index([token])
+  @@index([tokenHash])
+  // Note: Contrainte unique partielle (tenantId, email) où consumedAt IS NULL
+  // sera créée via migration SQL car Prisma ne supporte pas directement les contraintes partielles
+  @@map("invitations")
+}
+
+// Zone regroupant plusieurs communes (ex. Abidjan, Intérieur du pays)
+model DeliveryZone {
+  id           String                 @id @default(cuid())
+  tenantId     String                 @map("tenant_id")
+  tenant       Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name         String                 // ex. "Abidjan", "Intérieur du pays"
+  amountCents  Int                    @map("amount_cents")
+  communes     DeliveryZoneCommune[]
+  createdAt    DateTime               @default(now()) @map("created_at")
+  updatedAt    DateTime               @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@map("delivery_zones")
+}
+
+// Communes appartenant à une zone (identifiées par nom, pas de code en Côte d'Ivoire)
+model DeliveryZoneCommune {
+  id          String       @id @default(cuid())
+  zoneId      String       @map("zone_id")
+  zone        DeliveryZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  communeName String       @map("commune_name") // ex. "Cocody", "Marcory", "Yopougon"
+
+  @@unique([zoneId, communeName])
+  @@index([zoneId])
+  @@map("delivery_zone_communes")
+}
+
+// Prix par commune (hors zone ou surcharge), identifié par nom
+model DeliveryFeeCommune {
+  id           String   @id @default(cuid())
+  tenantId     String   @map("tenant_id")
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  communeName  String   @map("commune_name") // ex. "Cocody", "Bouaké"
+  amountCents  Int      @map("amount_cents")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, communeName])
+  @@index([tenantId])
+  @@map("delivery_fee_communes")
 }
 
 model User {
-    id        String   @id @default(cuid())
-    tenantId  String   @map("tenant_id")
-    tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    email     String
-    name      String?
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
+  id           String    @id @default(cuid())
+  tenantId     String    @map("tenant_id")
+  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email        String    @unique
+  emailVerified DateTime? @map("email_verified")
+  name         String?
+  image        String?
+  passwordHash String?   @map("password_hash")
+  role         Role      @default(OWNER)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  accounts     Account[]
+  sessions     Session[]
 
-    @@unique([tenantId, email])
-    @@index([tenantId])
-    @@map("users")
+  @@index([tenantId])
+  @@map("users")
+}
+
+// NextAuth / Auth.js Prisma adapter models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model CategoryPrice {
+  id             String   @id @default(cuid())
+  tenantId       String   @map("tenant_id")
+  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  categoryLetter String   @map("category_letter") // code libre (ex. A, AB, Premium)
+  amountCents    Int      @map("amount_cents")
+  description    String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, categoryLetter])
+  @@index([tenantId])
+  @@map("category_prices")
+}
+
+// Message entrant WhatsApp (webhook) - Story 2.1
+model MessageIn {
+  id                String   @id @default(cuid())
+  tenantId          String?  @map("tenant_id") // nullable si tenant non résolu
+  tenant            Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  providerMessageId String   @map("provider_message_id") // ex. MessageSid Twilio
+  from              String   // numéro WhatsApp expéditeur
+  body              String   @db.Text
+  mediaUrl          String?  @map("media_url")
+  correlationId     String   @map("correlation_id") // UUID ou message_sid pour traçabilité
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@unique([tenantId, providerMessageId])
+  @@index([tenantId, providerMessageId])
+  @@index([tenantId])
+  @@map("messages_in")
+}
+
+// Numéro de téléphone vendeur par tenant (Story 2.2)
+// Permet de distinguer les messages vendeur des messages client
+model SellerPhone {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  phoneNumber String   @map("phone_number") // Format E.164 normalisé (ex. +33612345678)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([tenantId, phoneNumber])
+  @@index([tenantId])
+  @@map("seller_phones")
+}
+
+// Event Log pour traçabilité des événements critiques (Story 2.3)
+// Architecture §9: Event Log avec correlationId pour diagnostic bout en bout
+// Architecture §426-430: event_type verbe/nom explicite, correlation_id propagé, payload JSON structuré sans PII
+model EventLog {
+  id            String   @id @default(cuid())
+  tenantId      String   @map("tenant_id") // NOT NULL: isolation tenant stricte
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  eventType     String   @map("event_type") // webhook_received, message_sent, idempotent_ignored
+  entityType    String   @map("entity_type") // message_in, message_out, etc.
+  entityId      String?  @map("entity_id") // ID de l'entité concernée (nullable si pas d'entité)
+  correlationId String   @map("correlation_id") // UUID ou message_sid pour traçabilité bout en bout
+  actorType     String   @map("actor_type") // system, seller, client
+  payload       Json     // JSON structuré, pas de PII (Architecture §430)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, correlationId]) // Lookup rapide par flux
+  @@index([tenantId, eventType, createdAt]) // Filtrage par type et date
+  @@index([tenantId])
+  @@map("event_log")
+}
+
+// Opt-out STOP par tenant (Story 2.5) - scope tenant, isolation stricte
+model OptOut {
+  id           String   @id @default(cuid())
+  tenantId     String   @map("tenant_id") // NOT NULL: isolation tenant stricte
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  phoneNumber  String   @map("phone_number") // Format E.164 normalisé
+  optedOutAt   DateTime @default(now()) @map("opted_out_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, phoneNumber]) // index unique implicite pour lookup rapide
+  @@map("opt_outs")
+}
+
+// Message sortant via outbox (Story 2.4)
+// Architecture §4.5: Outbound messaging via outbox + retries + DLQ
+// Tout envoi sortant écrit d'abord dans MessageOut (outbox) avec statut pending
+model MessageOut {
+  id                String   @id @default(cuid())
+  tenantId           String   @map("tenant_id") // NOT NULL: isolation tenant stricte
+  tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  to                 String   // destinataire (format E.164 normalisé)
+  body               String   @db.Text
+  status             String   // pending | sending | sent | failed | blocked (STOP)
+  attempts           Int      @default(0)
+  nextAttemptAt      DateTime? @map("next_attempt_at")
+  lastError          String?  @db.Text @map("last_error")
+  correlationId      String   @map("correlation_id") // UUID ou message_sid pour traçabilité
+  providerMessageId  String?  @map("provider_message_id") // MessageSid Twilio après envoi réussi
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, correlationId, to]) // Anti-doublon : même message pas écrit deux fois (optionnel Story 2.4)
+  @@index([tenantId, status]) // Lookup rapide des messages pending
+  @@index([tenantId, correlationId]) // Traçabilité par correlationId
+  @@index([tenantId])
+  @@map("messages_out")
+}
+
+// Session live par tenant - création/fermeture auto (Story 2.6)
+// Une seule session active par tenant à la fois (contrainte applicative)
+enum LiveSessionStatus {
+  active
+  closed
+}
+
+model LiveSession {
+  id              String           @id @default(cuid())
+  tenantId        String           @map("tenant_id")
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  status          LiveSessionStatus @default(active)
+  lastActivityAt  DateTime         @map("last_activity_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  @@index([tenantId, status])
+  @@map("live_sessions")
+}
+
+// Dead Letter Queue pour messages échoués après N retries (Story 2.4)
+// Architecture §4.5: DLQ après échec répété pour traçabilité ops
+model DeadLetterJob {
+  id          String    @id @default(cuid())
+  tenantId    String    @map("tenant_id") // NOT NULL: isolation tenant stricte
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  jobType     String    @map("job_type") // ex. 'message_out'
+  payload     Json      // Payload original (JSON)
+  errorMessage String?  @db.Text @map("error_message")
+  errorStack   String?  @db.Text @map("error_stack")
+  attempts     Int      @default(0)
+  createdAt    DateTime @default(now()) @map("created_at")
+  resolvedAt   DateTime? @map("resolved_at") // null si non résolu
+
+  @@index([tenantId, jobType, resolvedAt]) // Filtrage ops
+  @@index([tenantId])
+  @@map("dead_letter_jobs")
 }

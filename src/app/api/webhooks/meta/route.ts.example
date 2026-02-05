@@ -1,0 +1,226 @@
+/**
+ * EXEMPLE : Route webhook Meta WhatsApp Business API
+ * 
+ * Ce fichier est un exemple/template pour la future migration vers Meta.
+ * Ne pas utiliser en production avant implémentation complète et tests.
+ * 
+ * Architecture §4.1: Webhook léger sur Vercel (< 1 s)
+ * Architecture §7.1: Provider-agnostic via interface MessagingProvider
+ */
+
+import { NextResponse } from "next/server";
+import { db } from "~/server/db";
+import { MetaAdapter } from "~/server/messaging/providers/meta/adapter";
+import { webhookProcessingQueue } from "~/server/workers/queues";
+import { env } from "~/env";
+import { webhookLogger } from "~/lib/logger";
+import {
+  logWebhookReceived,
+  logIdempotentIgnored,
+} from "~/server/events/eventLog";
+
+/**
+ * Route webhook Meta WhatsApp Business API
+ * 
+ * GET: Webhook verification challenge (Meta)
+ * POST: Réception des messages entrants
+ */
+export async function GET(request: Request) {
+  const searchParams = request.nextUrl.searchParams;
+  const mode = searchParams.get("hub.mode");
+  const token = searchParams.get("hub.verify_token");
+  const challenge = searchParams.get("hub.challenge");
+
+  webhookLogger.debug("Meta webhook verification request", {
+    mode,
+    hasToken: !!token,
+    hasChallenge: !!challenge,
+  });
+
+  // Meta envoie un challenge GET pour vérifier le webhook
+  // Mode doit être "subscribe" et token doit correspondre au verify token configuré
+  if (mode === "subscribe" && token === env.META_WEBHOOK_VERIFY_TOKEN) {
+    webhookLogger.info("Meta webhook verified successfully");
+    return new NextResponse(challenge, { status: 200 });
+  }
+
+  webhookLogger.warn("Meta webhook verification failed", {
+    mode,
+    tokenMatch: token === env.META_WEBHOOK_VERIFY_TOKEN,
+  });
+
+  return new NextResponse("Verification failed", { status: 403 });
+}
+
+/**
+ * Route POST pour réception des messages Meta
+ */
+export async function POST(request: Request) {
+  const startTime = Date.now();
+  const correlationId = crypto.randomUUID();
+
+  webhookLogger.debug("Meta webhook request received", {
+    correlationId,
+    userAgent: request.headers.get("user-agent"),
+    url: request.url,
+    hasSignature: !!request.headers.get("X-Hub-Signature-256"),
+  });
+
+  try {
+    // 1. Lire le body une seule fois
+    const bodyText = await request.text();
+
+    // 2. Vérifier la signature Meta
+    if (!env.META_APP_SECRET) {
+      webhookLogger.error("META_APP_SECRET not configured", undefined, {
+        correlationId,
+      });
+      return new NextResponse("Configuration error", { status: 200 });
+    }
+
+    // Créer adaptateur Meta temporaire pour vérification signature
+    // Note: En production, récupérer config depuis tenant_messaging_config
+    const adapter = new MetaAdapter({
+      appId: env.META_APP_ID ?? "",
+      appSecret: env.META_APP_SECRET,
+      phoneNumberId: env.META_PHONE_NUMBER_ID ?? "",
+      accessToken: env.META_ACCESS_TOKEN ?? "",
+      wabaId: env.META_WABA_ID ?? "",
+    });
+
+    const signatureValid = await adapter.verifySignature(
+      request,
+      env.META_APP_SECRET,
+      bodyText,
+    );
+
+    if (!signatureValid) {
+      webhookLogger.warn("Invalid Meta signature", {
+        correlationId,
+      });
+      // En production, rejeter les requêtes avec signature invalide
+      return new NextResponse("Invalid signature", { status: 401 });
+    }
+
+    // 3. Parser le webhook Meta
+    const requestClone = new Request(request.url, {
+      method: "POST",
+      headers: request.headers,
+      body: bodyText,
+    });
+
+    const normalizedMessage = await adapter.parseInbound(requestClone);
+
+    // 4. Résoudre tenantId depuis phoneNumberId
+    // TODO: Créer table de mapping phoneNumberId → tenantId
+    // Pour l'instant, utiliser META_PHONE_NUMBER_ID global
+    const phoneNumberId = env.META_PHONE_NUMBER_ID;
+    
+    // Chercher tenant depuis tenant_messaging_config
+    const tenantConfig = await db.tenantMessagingConfig.findFirst({
+      where: {
+        provider: "meta",
+        metaPhoneNumberId: phoneNumberId,
+      },
+      select: {
+        tenantId: true,
+      },
+    });
+
+    const tenantId = tenantConfig?.tenantId ?? null;
+
+    if (!tenantId) {
+      webhookLogger.warn("Tenant not found for Meta phoneNumberId", {
+        correlationId,
+        phoneNumberId,
+      });
+      // Retourner 200 pour éviter retries Meta
+      return new NextResponse("Tenant not found", { status: 200 });
+    }
+
+    // Mettre à jour tenantId dans le message normalisé
+    normalizedMessage.tenantId = tenantId;
+
+    // 5. Vérifier idempotence (MessageIn avec même providerMessageId)
+    const existingMessage = await db.messageIn.findUnique({
+      where: {
+        tenantId_providerMessageId: {
+          tenantId: tenantId,
+          providerMessageId: normalizedMessage.providerMessageId,
+        },
+      },
+    });
+
+    if (existingMessage) {
+      webhookLogger.info("Duplicate message detected (idempotence)", {
+        correlationId,
+        providerMessageId: normalizedMessage.providerMessageId,
+        tenantId,
+      });
+
+      // Logger événement idempotent_ignored
+      await logIdempotentIgnored(
+        tenantId,
+        normalizedMessage.correlationId,
+        normalizedMessage.providerMessageId,
+      ).catch((error) => {
+        webhookLogger.error("Error logging idempotent_ignored event", error, {
+          correlationId,
+        });
+      });
+
+      // Retourner 200 pour éviter retries Meta
+      return new NextResponse("Duplicate message", { status: 200 });
+    }
+
+    // 6. Persist MessageIn
+    const messageIn = await db.messageIn.create({
+      data: {
+        tenantId: tenantId,
+        providerMessageId: normalizedMessage.providerMessageId,
+        from: normalizedMessage.from,
+        body: normalizedMessage.body,
+        mediaUrl: normalizedMessage.mediaUrl,
+        correlationId: normalizedMessage.correlationId,
+      },
+    });
+
+    // 7. Logger événement webhook_received
+    await logWebhookReceived(
+      tenantId,
+      messageIn.id,
+      normalizedMessage.correlationId,
+      normalizedMessage.providerMessageId,
+    ).catch((error) => {
+      webhookLogger.error("Error logging webhook_received event", error, {
+        correlationId,
+      });
+    });
+
+    // 8. Enqueue job pour traitement asynchrone
+    await webhookProcessingQueue.add("webhook-processing", normalizedMessage, {
+      jobId: `${tenantId}-${normalizedMessage.providerMessageId}`, // Idempotence BullMQ
+    });
+
+    const processingTime = Date.now() - startTime;
+
+    webhookLogger.info("Meta webhook processed successfully", {
+      correlationId,
+      tenantId,
+      providerMessageId: normalizedMessage.providerMessageId,
+      processingTimeMs: processingTime,
+    });
+
+    // 9. Répondre 200 rapidement (< 1 s)
+    return new NextResponse("OK", { status: 200 });
+  } catch (error) {
+    const processingTime = Date.now() - startTime;
+    webhookLogger.error("Error processing Meta webhook", error, {
+      correlationId,
+      processingTimeMs: processingTime,
+    });
+
+    // Retourner 200 pour éviter retries Meta en cas d'erreur non critique
+    return new NextResponse("Error", { status: 200 });
+  }
+}

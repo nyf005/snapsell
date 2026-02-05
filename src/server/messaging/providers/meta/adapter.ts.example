@@ -1,0 +1,326 @@
+/**
+ * EXEMPLE : Adaptateur Meta WhatsApp Business API pour MessagingProvider
+ * 
+ * Ce fichier est un exemple/template pour la future migration vers Meta.
+ * Ne pas utiliser en production avant implémentation complète et tests.
+ * 
+ * Architecture §7.1: Provider-agnostic via interface MessagingProvider
+ */
+
+import type { MessagingProvider, InboundMessage, OutboundMessage, ProviderSendResult } from "../../types";
+import { webhookLogger, workerLogger } from "~/lib/logger";
+import { randomUUID } from "node:crypto";
+import crypto from "node:crypto";
+
+/**
+ * Adaptateur Meta WhatsApp Business API pour MessagingProvider
+ * Implémente l'interface provider-agnostic (§7.1)
+ * Le métier ne dépend jamais des types SDK Meta directement
+ */
+export class MetaAdapter implements MessagingProvider {
+  private readonly appId: string;
+  private readonly appSecret: string;
+  private readonly phoneNumberId: string;
+  private readonly accessToken: string;
+  private readonly wabaId: string;
+  private readonly apiVersion: string = "v21.0"; // Meta API version
+
+  constructor(config: {
+    appId: string;
+    appSecret: string;
+    phoneNumberId: string;
+    accessToken: string;
+    wabaId: string;
+  }) {
+    this.appId = config.appId;
+    this.appSecret = config.appSecret;
+    this.phoneNumberId = config.phoneNumberId;
+    this.accessToken = config.accessToken;
+    this.wabaId = config.wabaId;
+  }
+
+  /**
+   * Vérifie la signature du webhook Meta
+   * Meta utilise HMAC-SHA256 dans le header X-Hub-Signature-256
+   * @param req - Requête HTTP
+   * @param secret - Secret partagé (App Secret ou Webhook Verify Token)
+   * @param bodyText - Body de la requête en texte (optionnel)
+   * @param fullUrl - URL complète (non utilisé pour Meta)
+   */
+  async verifySignature(
+    req: Request,
+    secret: string,
+    bodyText?: string,
+    fullUrl?: string,
+  ): Promise<boolean> {
+    try {
+      const signature = req.headers.get("X-Hub-Signature-256");
+      if (!signature) {
+        webhookLogger.debug("Missing X-Hub-Signature-256 header");
+        return false;
+      }
+
+      // Meta envoie la signature au format "sha256=<hash>"
+      const receivedHash = signature.replace("sha256=", "");
+
+      // Lire le body si non fourni
+      const body = bodyText ?? (await req.clone().text());
+
+      // Calculer HMAC-SHA256
+      const calculatedHash = crypto
+        .createHmac("sha256", secret)
+        .update(body)
+        .digest("hex");
+
+      const isValid = calculatedHash === receivedHash;
+
+      if (!isValid) {
+        webhookLogger.warn("Invalid Meta signature", {
+          receivedHashPrefix: receivedHash.substring(0, 20) + "...",
+        });
+      } else {
+        webhookLogger.debug("Meta signature valid");
+      }
+
+      return isValid;
+    } catch (error) {
+      webhookLogger.error("Error verifying Meta signature", error);
+      return false;
+    }
+  }
+
+  /**
+   * Parse le webhook Meta et retourne un message normalisé
+   * @param req - Requête HTTP du webhook
+   * @returns Message normalisé InboundMessage
+   */
+  async parseInbound(req: Request): Promise<InboundMessage> {
+    try {
+      const payload = await req.json();
+
+      // Structure webhook Meta :
+      // {
+      //   "object": "whatsapp_business_account",
+      //   "entry": [{
+      //     "changes": [{
+      //       "value": {
+      //         "messages": [{
+      //           "from": "33612345678",
+      //           "id": "wamid.xxx",
+      //           "timestamp": "1234567890",
+      //           "text": { "body": "Hello" },
+      //           "type": "text"
+      //         }]
+      //       }
+      //     }]
+      //   }]
+      // }
+
+      const entry = payload.entry?.[0];
+      const change = entry?.changes?.[0];
+      const message = change?.value?.messages?.[0];
+
+      if (!message) {
+        throw new Error("No message found in Meta webhook payload");
+      }
+
+      // Extraire informations
+      const from = message.from;
+      const messageId = message.id;
+      const body = message.text?.body ?? "";
+      const mediaUrl = message.image?.url || message.video?.url || message.document?.url;
+
+      // Générer correlationId (utiliser messageId Meta comme base)
+      const correlationId = messageId || randomUUID();
+
+      // Note: tenantId sera résolu dans la route webhook depuis phoneNumberId
+      return {
+        tenantId: null, // Sera résolu dans la route depuis phoneNumberId → tenant
+        providerMessageId: messageId,
+        from: `+${from}`, // Meta envoie sans le +, l'ajouter pour format E.164
+        body,
+        mediaUrl,
+        correlationId,
+      };
+    } catch (error) {
+      webhookLogger.error("Error parsing Meta webhook", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Envoie un message sortant via Meta WhatsApp Business API
+   * @param message - Message normalisé OutboundMessage
+   * @returns Résultat d'envoi avec providerMessageId si succès
+   */
+  async send(message: OutboundMessage): Promise<ProviderSendResult> {
+    try {
+      workerLogger.debug("Sending outbound message via Meta", {
+        tenantId: message.tenantId,
+        to: message.to,
+        correlationId: message.correlationId,
+      });
+
+      // Format numéro pour Meta (enlever le + si présent)
+      const toNumber = message.to.replace(/^\+/, "");
+
+      // Appel Meta Cloud API
+      // Endpoint: https://graph.facebook.com/v21.0/{phone-number-id}/messages
+      const apiUrl = `https://graph.facebook.com/${this.apiVersion}/${this.phoneNumberId}/messages`;
+
+      const requestBody = {
+        messaging_product: "whatsapp",
+        to: toNumber,
+        type: "text",
+        text: {
+          body: message.body,
+        },
+      };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${this.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error?.message || `HTTP ${response.status}`;
+
+        workerLogger.error("Error sending message via Meta", new Error(errorMessage), {
+          tenantId: message.tenantId,
+          to: message.to,
+          correlationId: message.correlationId,
+          status: response.status,
+          errorData,
+        });
+
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      }
+
+      const result = await response.json();
+
+      // Meta retourne: { "messaging_product": "whatsapp", "contacts": [...], "messages": [{ "id": "wamid.xxx" }] }
+      const messageId = result.messages?.[0]?.id;
+
+      if (!messageId) {
+        workerLogger.warn("No message ID in Meta response", {
+          tenantId: message.tenantId,
+          to: message.to,
+          correlationId: message.correlationId,
+          result,
+        });
+
+        return {
+          success: false,
+          error: "No message ID in Meta response",
+        };
+      }
+
+      workerLogger.info("Message sent successfully via Meta", {
+        tenantId: message.tenantId,
+        to: message.to,
+        correlationId: message.correlationId,
+        providerMessageId: messageId,
+      });
+
+      return {
+        success: true,
+        providerMessageId: messageId,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      workerLogger.error("Error sending message via Meta", error, {
+        tenantId: message.tenantId,
+        to: message.to,
+        correlationId: message.correlationId,
+      });
+
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  }
+
+  /**
+   * Envoie un message template (pour messages hors fenêtre de conversation 24h)
+   * @param message - Message normalisé OutboundMessage
+   * @param templateName - Nom du template approuvé
+   * @param templateParams - Paramètres du template
+   * @returns Résultat d'envoi avec providerMessageId si succès
+   */
+  async sendTemplate(
+    message: OutboundMessage,
+    templateName: string,
+    templateParams: string[] = [],
+  ): Promise<ProviderSendResult> {
+    try {
+      const toNumber = message.to.replace(/^\+/, "");
+      const apiUrl = `https://graph.facebook.com/${this.apiVersion}/${this.phoneNumberId}/messages`;
+
+      const requestBody = {
+        messaging_product: "whatsapp",
+        to: toNumber,
+        type: "template",
+        template: {
+          name: templateName,
+          language: {
+            code: "fr", // TODO: Configurable par tenant
+          },
+          components: templateParams.length > 0
+            ? [
+                {
+                  type: "body",
+                  parameters: templateParams.map((param) => ({
+                    type: "text",
+                    text: param,
+                  })),
+                },
+              ]
+            : undefined,
+        },
+      };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${this.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error?.message || `HTTP ${response.status}`;
+
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      }
+
+      const result = await response.json();
+      const messageId = result.messages?.[0]?.id;
+
+      return {
+        success: true,
+        providerMessageId: messageId,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  }
+}

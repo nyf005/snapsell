@@ -44,3 +44,9 @@ yarn-error.log*
 
 # idea files
 .idea
+
+# local / IDE
+.pnpm-store
+.cursor
+.agent
+.opencode

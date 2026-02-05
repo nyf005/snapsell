@@ -127,7 +127,7 @@ Ce document fournit le découpage en epics et stories pour SnapSell, en décompo
 - Stack : Prisma, Prisma Migrate (dev/deploy + seed), Zod (tRPC + webhook + jobs), Redis pour BullMQ uniquement (pas de cache applicatif MVP).
 
 **UX (implémentation)**
-- Design system : Tailwind ; compatible shadcn/ui pour console ops.
+- Design system : **shadcn/ui + Tailwind** comme base pour toutes les interfaces (formulaires, inscription/connexion, dashboard, console ops). Utiliser les composants shadcn (Input, Button, Label, Card, etc.) pour cohérence et accessibilité.
 - Composants spécifiques : OrderRowWithProof, LiveOpsSessionView, StatusBadge, ProofsInboxFilter.
 - Même vocabulaire de statuts (réservé, confirmé, livré, expiré) sur WhatsApp et web.
 - Accessibilité : WCAG 2.1 Level AA ; contraste, focus clavier, labels ; statuts avec icône + texte (pas couleur seule).
