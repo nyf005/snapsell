@@ -1,0 +1,3 @@
+# Force Node 20 for Railway/Nixpacks (Vite 7 / Vitest 4 require Node 20+)
+[variables]
+NIXPACKS_NODE_VERSION = "20"
