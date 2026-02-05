@@ -50,3 +50,7 @@ yarn-error.log*
 .cursor
 .agent
 .opencode
+
+# BMAD (ne pas pousser vers GitHub)
+_bmad
+_bmad-output
