@@ -1,4 +1,4 @@
-import { validateRequest, Twilio } from "twilio";
+import twilio from "twilio";
 import type { MessagingProvider, InboundMessage, OutboundMessage, ProviderSendResult } from "../../types";
 import { twilioWebhookSchema } from "~/lib/zod/webhook";
 import { randomUUID } from "node:crypto";
@@ -14,7 +14,7 @@ export class TwilioAdapter implements MessagingProvider {
   private readonly authToken: string;
   private readonly accountSid: string;
   private readonly whatsappNumber: string;
-  private readonly client: Twilio;
+  private readonly client: twilio.Twilio;
 
   constructor(authToken: string, accountSid?: string, whatsappNumber?: string) {
     this.authToken = authToken;
@@ -28,7 +28,7 @@ export class TwilioAdapter implements MessagingProvider {
       throw new Error("TWILIO_WHATSAPP_NUMBER is required for TwilioAdapter");
     }
     
-    this.client = new Twilio(this.accountSid, this.authToken);
+    this.client = new twilio.Twilio(this.accountSid, this.authToken);
   }
 
   /**
@@ -81,7 +81,7 @@ export class TwilioAdapter implements MessagingProvider {
       // Valider avec twilio.validateRequest() pour form-urlencoded standard
       // Note: validateRequestWithBody() est uniquement pour URLs avec bodySHA256
       // Pour form-urlencoded standard, utiliser validateRequest() avec params parsés
-      const isValid = validateRequest(this.authToken, signature, url, params);
+      const isValid = twilio.validateRequest(this.authToken, signature, url, params);
       
       if (!isValid) {
         webhookLogger.warn("Invalid signature", {

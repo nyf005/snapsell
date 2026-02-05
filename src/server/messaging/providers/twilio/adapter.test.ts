@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { validateRequest } from "twilio";
 
 // Mock env so adapter can be instantiated without real env (DATABASE_URL etc.)
 vi.mock("~/env", () => ({
@@ -11,16 +10,23 @@ vi.mock("~/env", () => ({
   },
 }));
 
-// Mock twilio module (Twilio must be a constructor)
-vi.mock("twilio", () => ({
-  validateRequest: vi.fn(),
-  Twilio: class {
+// Mock twilio module: default export for ESM compatibility (adapter uses import twilio from "twilio")
+vi.mock("twilio", () => {
+  const validateRequest = vi.fn();
+  const Twilio = class {
     messages = {
       create: vi.fn().mockResolvedValue({ sid: "SM-MOCK" }),
     };
-  },
-}));
+  };
+  return {
+    __esModule: true,
+    default: { validateRequest, Twilio },
+    validateRequest,
+    Twilio,
+  };
+});
 
+import twilio from "twilio";
 import { TwilioAdapter } from "./adapter";
 
 describe("TwilioAdapter", () => {
@@ -45,7 +51,7 @@ describe("TwilioAdapter", () => {
     });
 
     it("should return true if signature is valid", async () => {
-      vi.mocked(validateRequest).mockReturnValue(true);
+      vi.mocked(twilio.validateRequest).mockReturnValue(true);
 
       const request = new Request("https://example.com/webhook", {
         method: "POST",
@@ -58,7 +64,7 @@ describe("TwilioAdapter", () => {
       const result = await adapter.verifySignature(request, "secret");
 
       expect(result).toBe(true);
-      expect(validateRequest).toHaveBeenCalledWith(
+      expect(twilio.validateRequest).toHaveBeenCalledWith(
         authToken,
         "valid-signature",
         expect.stringContaining("https://example.com/webhook"),
@@ -71,7 +77,7 @@ describe("TwilioAdapter", () => {
     });
 
     it("should return false if signature is invalid", async () => {
-      vi.mocked(validateRequest).mockReturnValue(false);
+      vi.mocked(twilio.validateRequest).mockReturnValue(false);
 
       const request = new Request("https://example.com/webhook", {
         method: "POST",
@@ -87,7 +93,7 @@ describe("TwilioAdapter", () => {
     });
 
     it("should use provided bodyText and fullUrl if available", async () => {
-      vi.mocked(validateRequest).mockReturnValue(true);
+      vi.mocked(twilio.validateRequest).mockReturnValue(true);
 
       const request = new Request("https://example.com/webhook", {
         method: "POST",
@@ -107,7 +113,7 @@ describe("TwilioAdapter", () => {
       );
 
       expect(result).toBe(true);
-      expect(validateRequest).toHaveBeenCalledWith(
+      expect(twilio.validateRequest).toHaveBeenCalledWith(
         authToken,
         "valid-signature",
         fullUrl,
@@ -119,7 +125,7 @@ describe("TwilioAdapter", () => {
     });
 
     it("should return false on error", async () => {
-      vi.mocked(validateRequest).mockImplementation(() => {
+      vi.mocked(twilio.validateRequest).mockImplementation(() => {
         throw new Error("Validation error");
       });
 
