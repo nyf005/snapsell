@@ -9,14 +9,10 @@ import { createTRPCContext } from "~/server/api/trpc";
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
  * handling a HTTP request (e.g. when you make requests from Client Components).
- * We pass { headers } (not the raw Request) so NextAuth uses the "API Routes" branch and calls
- * getSession() to read the session from cookies instead of the "Request" (middleware) branch.
+ * NextAuth v5 reads the request from the current execution context when auth() is called with no args.
  */
 const createContext = async (req: NextRequest) => {
-  const session = await auth(
-    { headers: req.headers } as Parameters<typeof auth>[0],
-    { headers: new Headers(), appendHeader: () => {} } as Parameters<typeof auth>[1]
-  );
+  const session = await auth();
   return createTRPCContext({
     headers: req.headers,
     session,
