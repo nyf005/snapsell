@@ -64,6 +64,7 @@ DATABASE_URL=<production-url> npx prisma migrate deploy
 Dans l'onglet **"Variables"** du service, ajouter :
 
 ```bash
+AUTH_SECRET=<secret-nextauth>   # Requis par la validation env en prod. Générer : openssl rand -base64 32
 DATABASE_URL=<votre-url-neon>
 REDIS_URL=<votre-url-upstash>
 NODE_ENV=production
@@ -198,6 +199,12 @@ Railway détectera automatiquement les changements et redéploiera. Sinon, cliqu
 - Vérifier variables d'environnement (DATABASE_URL, REDIS_URL)
 - Vérifier format URLs (postgresql://, redis:// ou rediss://)
 
+**"Can't reach database server at localhost:5432":**
+- La variable **DATABASE_URL** n'est pas définie (ou pas appliquée) sur le service Railway. Ajouter dans Variables l'URL Neon (ex. `postgresql://...@ep-xxx.aws.neon.tech/neondb?sslmode=require`). Vérifier que la variable est bien attachée au service qui exécute le worker.
+
+**"AUTH_SECRET is required in production":**
+- La validation env (src/env.js) exige **AUTH_SECRET** en production. Ajouter dans Variables du service webhook-worker une valeur secrète (ex. `openssl rand -base64 32`). Tu peux réutiliser le même AUTH_SECRET que sur Vercel.
+
 **Jobs non traités:**
 - Vérifier que le worker démarre (logs "Worker started successfully")
 - Vérifier Upstash dashboard (jobs dans la queue)
@@ -229,17 +236,17 @@ Railway détectera automatiquement les changements et redéploiera. Sinon, cliqu
 ## ✅ Checklist Finale
 
 **Story 2.2:**
-- [ ] Migration `20260208000000_add_seller_phones` appliquée en production
-- [ ] Service Railway créé et configuré
-- [ ] Variables d'environnement configurées
-- [ ] Worker démarre sans erreur
-- [ ] Jobs sont traités (vérifier Upstash)
-- [ ] Tests vendeur/client fonctionnent
+- [x] Migration `20260208000000_add_seller_phones` appliquée en production (Neon, 18 migrations déployées)
+- [x] Service Railway créé et configuré (webhook-worker, repo connecté)
+- [x] Variables d'environnement configurées (DATABASE_URL, REDIS_URL, AUTH_SECRET, TWILIO_*, NODE_ENV)
+- [x] Worker démarre sans erreur (logs : webhook processor + outbox sender + close-inactive démarrés)
+- [x] Jobs sont traités (logs : messageType "client" observé)
+- [ ] Tests vendeur/client fonctionnent (à valider : envoyer message client + ajouter seller_phone et tester vendeur)
 
 **Story 2.4:**
-- [ ] Migration `20260205171901_add_message_out_and_dead_letter_job` appliquée en production
-- [ ] Variables d'environnement Twilio configurées (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER)
-- [ ] Worker outbox-sender démarre sans erreur (logs "Outbox sender worker started successfully")
+- [x] Migration `20260205171901_add_message_out_and_dead_letter_job` appliquée en production
+- [x] Variables d'environnement Twilio configurées (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER)
+- [x] Worker outbox-sender démarre sans erreur (logs "Outbox sender worker started successfully")
 - [ ] Test envoi message sortant fonctionne (message écrit dans outbox → envoyé via Twilio)
 - [ ] Event log créé après envoi réussi
 
