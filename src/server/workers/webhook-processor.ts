@@ -4,8 +4,33 @@ import { workerLogger } from "~/lib/logger";
 import { webhookProcessingQueue } from "./queues";
 import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types";
 import { normalizeAndValidatePhoneNumber } from "~/lib/validations/phone";
-import { logOptOutRecorded, logLiveSessionCreated } from "~/server/events/eventLog";
+import {
+  logOptOutRecorded,
+  logLiveSessionCreated,
+  logLiveItemCreated,
+  logLiveItemDuplicateRejected,
+  logLiveItemPhotoLinked,
+} from "~/server/events/eventLog";
+import {
+  createReservation,
+  getActiveReservationForClient,
+  collectAddress,
+} from "~/server/reservation/service";
 import { getOrCreateCurrentSession } from "~/server/live-session/service";
+import {
+  createLiveItem,
+  messageCodeAlreadyUsed,
+  messageCodeUnknown,
+  messageCodeUnknownSuggestion,
+  normalizeCode,
+} from "~/server/live-item/createLiveItem";
+import { findLiveItemByCode } from "~/server/live-item/findLiveItemByCode";
+import { getLastEditedLiveItemInWindow } from "~/server/live-item/getLastEditedLiveItemInWindow";
+import { uploadMediaAndLinkToLiveItem } from "~/server/media/uploadMediaToLiveItem";
+import { writeToOutbox } from "~/server/messaging/outbox";
+
+/** Story 3.5: fenêtre (2 min) pour lier une photo seule au dernier code créé/édité (export pour tests/doc) */
+export const PHOTO_TO_LAST_CODE_WINDOW_MS = 2 * 60 * 1000;
 
 /**
  * Normalise un numéro de téléphone en enlevant le préfixe "whatsapp:" si présent
@@ -32,6 +57,43 @@ export function isStopMessage(body: string): boolean {
 
 /** Pattern « code » client : lettre(s) + chiffre(s) ex. A12, B7 (Story 2.6 Option A) */
 const CLIENT_CODE_PATTERN = /^[A-Za-z]+\d+$/;
+
+/** Story 4.2 : extrait un candidat code (strict ou typo) depuis le body client */
+const CLIENT_CODE_PREFIX = /^([A-Za-z]+\d+)/i;
+
+export type ClientCodeIntent = { code: string; isTypo: boolean };
+
+/**
+ * Parse le body client en intent « code » : strict (A12) ou typo (A12A → A12).
+ * Retourne { code normalisé, isTypo } ou null si pas un candidat code.
+ */
+export function parseClientCodeIntent(body: string): ClientCodeIntent | null {
+  const trimmed = body.trim();
+  if (!trimmed.length) return null;
+  const match = trimmed.match(CLIENT_CODE_PREFIX);
+  if (!match) return null;
+  const code = normalizeCode(match[1]);
+  if (!code.length) return null;
+  const isStrict = trimmed === match[1] || trimmed === code;
+  return { code, isTypo: !isStrict };
+}
+
+/** Pattern vendeur « créer item » : code seul ou "code x qte" (Story 3.2) ex. A12, A12 x1, B7 x 2 */
+const SELLER_CREATE_ITEM_PATTERN = /^([A-Za-z]+\d+)(?:\s*x\s*(\d+))?$/i;
+
+/**
+ * Parse le body vendeur pour intent « créer item ».
+ * @returns { code, quantity } ou null si pas un message créer item
+ */
+export function parseCreateItemIntent(body: string): { code: string; quantity: number } | null {
+  const trimmed = body.trim();
+  if (!trimmed.length) return null;
+  const match = trimmed.match(SELLER_CREATE_ITEM_PATTERN);
+  if (!match) return null;
+  const code = match[1];
+  const quantity = match[2] ? Math.max(1, parseInt(match[2], 10)) : 1;
+  return { code, quantity };
+}
 
 /**
  * Détecte si le message est un signal « live » : vendeur ou client avec body type code.
@@ -167,9 +229,11 @@ export async function processWebhookJob(
       }
     }
 
-    // Story 2.6 : création/réactivation session live au premier signal « live »
+    // Story 2.6 + 4.1 : création/réactivation session live au signal « live » ou message client non vide (pour récap/adresse)
     let liveSessionId: string | null = null;
-    if (tenantId && isLiveSignal(messageType, body)) {
+    const clientNonEmpty =
+      messageType === "client" && !isStopMessage(body) && body.trim().length > 0;
+    if (tenantId && (isLiveSignal(messageType, body) || clientNonEmpty)) {
       try {
         const session = await getOrCreateCurrentSession(tenantId);
         liveSessionId = session.id;
@@ -191,6 +255,254 @@ export async function processWebhookJob(
       }
     }
 
+    // Story 3.3 + 4.1 + 4.2 : intent client « code » → lookup seul ; si trouvé → réservation ; si non → Code inconnu (pas de création)
+    const clientCodeIntent = parseClientCodeIntent(body);
+    if (tenantId && messageType === "client" && liveSessionId && clientCodeIntent) {
+      try {
+        const to = normalizePhoneNumber(from);
+        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const liveItem = await findLiveItemByCode(tenantId, liveSessionId, clientCodeIntent.code);
+
+        if (!liveItem) {
+          // Story 4.2 : code inexistant ou typo non résolu → message clair, ne jamais créer de LiveItem
+          const msg = messageCodeUnknown(clientCodeIntent.code);
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: msg,
+            correlationId,
+          });
+        } else if (clientCodeIntent.isTypo) {
+          // Story 4.2 : typo (ex. A12A) mais code extrait (A12) existe en session → suggestion, pas de réservation
+          const msg = messageCodeUnknownSuggestion(liveItem.code);
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: msg,
+            correlationId,
+          });
+        } else {
+          // Code strict et trouvé → flux 4.1 (Réservé / File / Épuisé) ; « Épuisé » uniquement si code existe et stock = 0
+          const free = liveItem.availableQty - liveItem.reservedQty;
+          if (free <= 0) {
+            await writeToOutbox({
+              tenantId,
+              to: clientPhoneE164,
+              body: "Épuisé.",
+              correlationId,
+            });
+          } else {
+            const resResult = await createReservation(
+              tenantId,
+              liveSessionId,
+              liveItem.id,
+              clientPhoneE164,
+              correlationId,
+            );
+            if (resResult.reason === "exhausted") {
+              await writeToOutbox({
+                tenantId,
+                to: clientPhoneE164,
+                body: "Épuisé.",
+                correlationId,
+              });
+            } else {
+              await writeToOutbox({
+                tenantId,
+                to: clientPhoneE164,
+                body: "Réservé. Envoie ton adresse.",
+                correlationId,
+              });
+            }
+          }
+        }
+      } catch (error) {
+        workerLogger.error("Error findLiveItemByCode / createReservation (Story 4.1 / 4.2)", error, {
+          correlationId,
+          tenantId,
+          body: body.trim(),
+        });
+      }
+    }
+
+    // Story 4.1 : intent client « adresse » (réservation en reserved → address_collected + récap + OUI)
+    // Exclure tout intent code (strict ou typo) pour ne pas traiter A12 / A12A comme adresse
+    if (
+      tenantId &&
+      messageType === "client" &&
+      liveSessionId &&
+      !clientCodeIntent &&
+      body.trim().length > 0
+    ) {
+      try {
+        const to = normalizePhoneNumber(from);
+        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const active = await getActiveReservationForClient(
+          tenantId,
+          liveSessionId,
+          clientPhoneE164,
+        );
+        if (active?.status === "reserved") {
+          const collectResult = await collectAddress(
+            tenantId,
+            liveSessionId,
+            clientPhoneE164,
+            body,
+          );
+          if (collectResult.success) {
+            const { code, amountCents } = collectResult.reservation.liveItem;
+            const prix =
+              amountCents !== null
+                ? `${(amountCents / 100).toFixed(2)} €`
+                : "—";
+            const total =
+              amountCents !== null
+                ? `${(amountCents / 100).toFixed(2)} €`
+                : "—";
+            const recap = `Récap : ${code} — ${prix} — Total : ${total}. Réponds OUI pour confirmer.`;
+            await writeToOutbox({
+              tenantId,
+              to: clientPhoneE164,
+              body: recap,
+              correlationId,
+            });
+          }
+        }
+      } catch (error) {
+        workerLogger.error("Error collectAddress / récap (Story 4.1)", error, {
+          correlationId,
+          tenantId,
+        });
+      }
+    }
+
+    // Story 3.2 : intent vendeur « créer item » (code ou code x qte) → createLiveItem puis réponse outbox
+    if (tenantId && messageType === "seller") {
+      const createItem = parseCreateItemIntent(body);
+      if (createItem) {
+        try {
+          const result = await createLiveItem(tenantId, createItem.code, {
+            quantity: createItem.quantity,
+          });
+          const to = normalizePhoneNumber(from);
+          if (result.success) {
+            await writeToOutbox({
+              tenantId,
+              to,
+              body: `Créé : ${result.liveItem.code} (x${result.liveItem.quantity}).`,
+              correlationId,
+            });
+            await logLiveItemCreated(tenantId, result.liveItem.id, correlationId, {
+              code: result.liveItem.code,
+              live_session_id: result.liveItem.liveSessionId,
+              quantity: result.liveItem.quantity,
+              available_qty: result.liveItem.availableQty,
+              has_media: Boolean(mediaUrl),
+            }).catch((err) => {
+              workerLogger.error("Error logging live_item_created", err, {
+                correlationId,
+                tenantId,
+                liveItemId: result.success ? result.liveItem.id : undefined,
+              });
+            });
+            // Story 3.4: photo optionnelle — upload async (ne pas bloquer le worker)
+            if (mediaUrl) {
+              void uploadMediaAndLinkToLiveItem(
+                tenantId,
+                result.liveItem.id,
+                mediaUrl,
+                correlationId,
+              ).catch((err) => {
+                workerLogger.error("Error uploading media to R2 (Story 3.4)", err, {
+                  correlationId,
+                  tenantId,
+                  liveItemId: result.liveItem.id,
+                });
+              });
+            }
+          } else if (result.duplicate) {
+            await writeToOutbox({
+              tenantId,
+              to,
+              body: messageCodeAlreadyUsed(createItem.code),
+              correlationId,
+            });
+            await logLiveItemDuplicateRejected(tenantId, createItem.code, correlationId).catch(
+              (err) => {
+                workerLogger.error("Error logging live_item_duplicate_rejected", err, {
+                  correlationId,
+                  tenantId,
+                  code: createItem.code,
+                });
+              },
+            );
+          }
+          // invalid_code : pas de réponse outbox (code vide après normalisation)
+        } catch (error) {
+          workerLogger.error("Error createLiveItem (Story 3.2)", error, {
+            correlationId,
+            tenantId,
+            code: createItem.code,
+          });
+          // Ne pas faire échouer le job
+        }
+      } else if (mediaUrl) {
+        // Story 3.5: photo seule — body vide ou non parseable en CODE/CODE xQTE + mediaUrl
+        try {
+          const lastItem = await getLastEditedLiveItemInWindow(
+            tenantId,
+            PHOTO_TO_LAST_CODE_WINDOW_MS,
+          );
+          const to = normalizePhoneNumber(from);
+          if (lastItem) {
+            void uploadMediaAndLinkToLiveItem(
+              tenantId,
+              lastItem.id,
+              mediaUrl,
+              correlationId,
+            ).catch((err) => {
+              workerLogger.error("Error uploading media to last code (Story 3.5)", err, {
+                correlationId,
+                tenantId,
+                liveItemId: lastItem.id,
+              });
+            });
+            await writeToOutbox({
+              tenantId,
+              to,
+              body: `Photo ajoutée à ${lastItem.code}.`,
+              correlationId,
+            });
+            // Event log avant fin upload (async) : si l'upload R2 échoue, l'item n'aura pas de mediaStorageKey mais l'event reste cohérent avec l'intent (story 3.4 même choix).
+            await logLiveItemPhotoLinked(
+              tenantId,
+              lastItem.id,
+              lastItem.code,
+              correlationId,
+            ).catch((err) => {
+              workerLogger.error("Error logging live_item_photo_linked", err, {
+                correlationId,
+                tenantId,
+                liveItemId: lastItem.id,
+              });
+            });
+          } else {
+            await writeToOutbox({
+              tenantId,
+              to,
+              body: "Envoie d'abord CODE PRIX",
+              correlationId,
+            });
+          }
+        } catch (error) {
+          workerLogger.error("Error photo seule → dernier code (Story 3.5)", error, {
+            correlationId,
+            tenantId,
+          });
+        }
+      }
+    }
+
     // Enrichir le payload avec messageType et liveSessionId pour les workers suivants
     const enrichedMessage: EnrichedInboundMessage = {
       tenantId,
@@ -202,9 +514,6 @@ export async function processWebhookJob(
       messageType,
       liveSessionId: liveSessionId ?? undefined,
     };
-
-    // TODO Story 2.3+: Enqueue dans queue suivante ou traitement métier selon messageType
-    // Pour l'instant, on retourne juste le message enrichi
 
     return enrichedMessage;
   } catch (error) {
