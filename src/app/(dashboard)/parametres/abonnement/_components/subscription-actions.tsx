@@ -5,7 +5,6 @@ import Link from "next/link";
 import { CreditCard, Zap, X } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,9 +42,7 @@ export function SubscriptionActions({ data }: SubscriptionActionsProps) {
 
   const manageCardQuery = api.subscription.getManageCardLink.useQuery(
     undefined,
-    {
-      enabled: false, // Lazy — only on demand
-    },
+    { enabled: false },
   );
 
   const handleManageCard = async () => {
@@ -56,8 +53,7 @@ export function SubscriptionActions({ data }: SubscriptionActionsProps) {
   };
 
   const isFree = data.plan === "free";
-  const isPaid =
-    data.plan === "starter" || data.plan === "pro";
+  const isPaid = data.plan === "starter" || data.plan === "pro";
   const canCancel =
     isPaid &&
     data.status !== "cancelled" &&
@@ -68,29 +64,30 @@ export function SubscriptionActions({ data }: SubscriptionActionsProps) {
     (data.status === "active" || data.status === "attention");
 
   return (
-    <Card>
-      <CardHeader>
-        <h2 className="text-lg font-bold">Actions</h2>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Upgrade CTA for Free plan */}
+    <section
+      className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm"
+      aria-labelledby="actions-title"
+    >
+      <h2 id="actions-title" className="mb-5 font-semibold text-foreground">
+        Actions
+      </h2>
+      <div className="flex flex-wrap items-center gap-3">
         {isFree && (
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild>
+          <>
+            <Button asChild size="sm">
               <Link href="/tarifs">
                 <Zap className="mr-2 size-4" />
                 Passer au plan Starter
               </Link>
             </Button>
-            <Button variant="outline" asChild>
-              <Link href="/tarifs">Voir tous les plans</Link>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/tarifs">Voir les plans</Link>
             </Button>
-          </div>
+          </>
         )}
 
-        {/* Upgrade for Starter → Pro */}
         {data.plan === "starter" && data.status === "active" && (
-          <Button variant="outline" asChild>
+          <Button variant="outline" size="sm" asChild>
             <Link href="/tarifs">
               <Zap className="mr-2 size-4" />
               Passer au plan Pro
@@ -98,10 +95,10 @@ export function SubscriptionActions({ data }: SubscriptionActionsProps) {
           </Button>
         )}
 
-        {/* Update card */}
         {showUpdateCard && (
           <Button
             variant="outline"
+            size="sm"
             onClick={handleManageCard}
             disabled={manageCardQuery.isFetching}
           >
@@ -112,12 +109,11 @@ export function SubscriptionActions({ data }: SubscriptionActionsProps) {
           </Button>
         )}
 
-        {/* Cancel subscription */}
         {canCancel && (
-          <div>
+          <div className="flex items-center gap-2">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" className="text-destructive">
+                <Button variant="ghost" size="sm" className="text-destructive">
                   <X className="mr-2 size-4" />
                   Annuler l&apos;abonnement
                 </Button>
@@ -129,8 +125,8 @@ export function SubscriptionActions({ data }: SubscriptionActionsProps) {
                   </AlertDialogTitle>
                   <AlertDialogDescription>
                     Votre accès sera maintenu jusqu&apos;à la fin de votre
-                    période de facturation en cours. Après cela, votre compte
-                    passera au plan Free.
+                    période de facturation. Ensuite, votre compte passera au
+                    plan Free.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -148,22 +144,20 @@ export function SubscriptionActions({ data }: SubscriptionActionsProps) {
               </AlertDialogContent>
             </AlertDialog>
             {cancelError && (
-              <p className="mt-2 text-sm text-destructive">{cancelError}</p>
+              <p className="text-sm text-destructive">{cancelError}</p>
             )}
           </div>
         )}
 
-        {/* Status: already cancelled */}
         {data.status === "cancelled" && (
-          <div className="text-sm text-muted-foreground">
-            Votre abonnement est annulé.{" "}
+          <p className="text-sm text-muted-foreground">
+            Abonnement annulé.{" "}
             <Link href="/tarifs" className="text-primary hover:underline">
               Réabonnez-vous
-            </Link>{" "}
-            pour retrouver l&apos;accès complet.
-          </div>
+            </Link>
+          </p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

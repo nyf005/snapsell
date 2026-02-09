@@ -6,41 +6,40 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
+  Calendar,
 } from "lucide-react";
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
 import { formatPriceFCFA } from "~/lib/subscription-plans";
 
 const statusConfig = {
   active: {
     label: "Actif",
-    variant: "default" as const,
     icon: CheckCircle2,
-    className: "bg-green-500/10 text-green-600 border-green-500/20",
+    className: "text-green-600",
+    pill: "bg-green-500/10 text-green-700",
   },
   attention: {
     label: "Attention",
-    variant: "destructive" as const,
     icon: AlertTriangle,
-    className: "bg-red-500/10 text-red-600 border-red-500/20",
+    className: "text-amber-600",
+    pill: "bg-amber-500/10 text-amber-700",
   },
   non_renewing: {
-    label: "Non renouvellement",
-    variant: "secondary" as const,
+    label: "Non renouvelé",
     icon: Clock,
-    className: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+    className: "text-amber-600",
+    pill: "bg-amber-500/10 text-amber-700",
   },
   expired: {
     label: "Expiré",
-    variant: "destructive" as const,
     icon: XCircle,
-    className: "bg-red-500/10 text-red-600 border-red-500/20",
+    className: "text-red-600",
+    pill: "bg-red-500/10 text-red-700",
   },
   cancelled: {
     label: "Annulé",
-    variant: "secondary" as const,
     icon: XCircle,
-    className: "bg-muted text-muted-foreground",
+    className: "text-muted-foreground",
+    pill: "bg-muted text-muted-foreground",
   },
 };
 
@@ -62,100 +61,87 @@ export function SubscriptionCard({ data }: SubscriptionCardProps) {
   const StatusIcon = config.icon;
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
-            <CreditCard className="size-5 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold">Plan {data.planName}</h2>
-            <p className="text-sm text-muted-foreground">
-              {data.planPrice === 0
-                ? "Gratuit"
-                : `${formatPriceFCFA(data.planPrice)} / mois`}
-            </p>
-          </div>
-        </div>
-        <Badge className={config.className}>
-          <StatusIcon className="mr-1 size-3" />
-          {config.label}
-        </Badge>
-      </CardHeader>
-      <CardContent>
-        {/* Bandeaux conditionnels */}
-        {data.status === "attention" && (
-          <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-sm">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="size-4 text-red-500" />
-              <span className="font-medium text-red-600">
-                Échec du paiement
-              </span>
+    <section
+      className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm"
+      aria-labelledby="plan-title"
+    >
+      <div className="flex flex-col gap-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10">
+              <CreditCard className="size-5 text-primary" />
             </div>
-            <p className="mt-1 text-muted-foreground">
-              Le dernier paiement a échoué. Mettez à jour votre carte pour
-              maintenir votre abonnement.
+            <div>
+              <h2 id="plan-title" className="font-semibold text-foreground">
+                Plan {data.planName}
+              </h2>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {data.planPrice === 0
+                  ? "Gratuit"
+                  : `${formatPriceFCFA(data.planPrice)} / mois`}
+              </p>
+            </div>
+          </div>
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${config.pill}`}
+          >
+            <StatusIcon className="size-3.5" />
+            {config.label}
+          </span>
+        </div>
+
+        {/* Messages conditionnels — compacts */}
+        {data.status === "attention" && (
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm">
+            <p className="font-medium text-amber-800 dark:text-amber-200">
+              Échec du dernier paiement
+            </p>
+            <p className="mt-0.5 text-amber-700/80 dark:text-amber-300/80">
+              Mettez à jour votre carte pour maintenir l&apos;abonnement.
             </p>
           </div>
         )}
 
-        {data.status === "non_renewing" && (
-          <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm">
-            <div className="flex items-center gap-2">
-              <Clock className="size-4 text-amber-500" />
-              <span className="font-medium text-amber-600">
-                Annulation programmée
-              </span>
-            </div>
-            <p className="mt-1 text-muted-foreground">
-              Votre abonnement ne sera pas renouvelé. Accès maintenu jusqu&apos;au{" "}
-              {data.expiresAt
-                ? new Date(data.expiresAt).toLocaleDateString("fr-FR")
-                : "fin de période"}
-              .
+        {data.status === "non_renewing" && data.expiresAt && (
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm">
+            <p className="text-amber-800 dark:text-amber-200">
+              Accès jusqu&apos;au{" "}
+              {new Date(data.expiresAt).toLocaleDateString("fr-FR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
             </p>
           </div>
         )}
 
         {data.plan === "free" && (
-          <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
-            <p className="text-muted-foreground">
-              Vous êtes sur le plan gratuit. Passez au plan Starter ou Pro pour
-              débloquer plus de commandes, d&apos;agents et de fonctionnalités.
-            </p>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            Passez à Starter ou Pro pour plus de commandes, d&apos;agents et de
+            fonctionnalités.
+          </p>
         )}
 
-        {/* Infos supplémentaires */}
-        <div className="grid gap-4 sm:grid-cols-2">
-          {data.expiresAt && (
-            <div>
-              <p className="text-xs text-muted-foreground">
-                Prochaine échéance
-              </p>
-              <p className="font-medium">
-                {new Date(data.expiresAt).toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </p>
-            </div>
-          )}
-          {data.cycleStartedAt && (
-            <div>
-              <p className="text-xs text-muted-foreground">Début du cycle</p>
-              <p className="font-medium">
-                {new Date(data.cycleStartedAt).toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </p>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+        {/* Dates — une ligne discrète */}
+        {(data.expiresAt || data.cycleStartedAt) && (
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-border/60 pt-4 text-xs text-muted-foreground">
+            {data.expiresAt && (
+              <span className="flex items-center gap-1.5">
+                <Calendar className="size-3.5" />
+                Prochaine échéance :{" "}
+                {new Date(data.expiresAt).toLocaleDateString("fr-FR")}
+              </span>
+            )}
+            {data.cycleStartedAt && (
+              <span className="flex items-center gap-1.5">
+                <Calendar className="size-3.5" />
+                Cycle depuis le{" "}
+                {new Date(data.cycleStartedAt).toLocaleDateString("fr-FR")}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

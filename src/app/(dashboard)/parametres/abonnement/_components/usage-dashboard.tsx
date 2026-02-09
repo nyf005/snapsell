@@ -6,8 +6,6 @@ import {
   Users,
   AlertTriangle,
 } from "lucide-react";
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
 import { formatPriceFCFA } from "~/lib/subscription-plans";
 
 interface UsageDashboardProps {
@@ -41,18 +39,24 @@ function UsageBar({
   const isAtLimit = !isUnlimited && percentage >= 100;
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <Icon className="size-4 text-muted-foreground" />
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between text-sm">
+        <span className="flex items-center gap-2 text-muted-foreground">
+          <Icon className="size-3.5" />
           {label}
-        </div>
-        <span className="text-sm text-muted-foreground">
-          {current} / {isUnlimited ? "∞" : max}
+        </span>
+        <span className="font-medium tabular-nums text-foreground">
+          {current}
+          {!isUnlimited && (
+            <span className="font-normal text-muted-foreground"> / {max}</span>
+          )}
+          {isUnlimited && (
+            <span className="font-normal text-muted-foreground"> / ∞</span>
+          )}
         </span>
       </div>
       {!isUnlimited && (
-        <div className="h-2 overflow-hidden rounded-full bg-muted">
+        <div className="h-1.5 overflow-hidden rounded-full bg-muted/80">
           <div
             className={`h-full rounded-full transition-all ${
               isAtLimit
@@ -66,7 +70,7 @@ function UsageBar({
         </div>
       )}
       {isUnlimited && (
-        <div className="h-2 rounded-full bg-green-500/20" />
+        <div className="h-1.5 rounded-full bg-green-500/20" />
       )}
     </div>
   );
@@ -74,11 +78,14 @@ function UsageBar({
 
 export function UsageDashboard({ data }: UsageDashboardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <h2 className="text-lg font-bold">Usage ce cycle</h2>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <section
+      className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm"
+      aria-labelledby="usage-title"
+    >
+      <h2 id="usage-title" className="mb-5 font-semibold text-foreground">
+        Usage ce cycle
+      </h2>
+      <div className="space-y-5">
         <UsageBar
           current={data.confirmedOrders}
           max={data.maxConfirmedOrders}
@@ -94,44 +101,30 @@ export function UsageDashboard({ data }: UsageDashboardProps) {
         <UsageBar
           current={data.agents}
           max={data.maxAgents}
-          label="Agents utilisés"
+          label="Agents"
           icon={Users}
         />
+      </div>
 
-        {/* Overage banner */}
-        {data.overageCount > 0 && data.overageAmountFCFA > 0 && (
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="size-4 text-amber-500" />
-              <span className="font-medium text-amber-600">
-                Overage accumulé
-              </span>
-            </div>
-            <p className="mt-1 text-muted-foreground">
-              {data.overageCount} commandes au-delà du quota ·{" "}
-              <strong>{formatPriceFCFA(data.overageAmountFCFA)}</strong>{" "}
-              seront facturées en fin de cycle.
+      {data.overageCount > 0 && data.overageAmountFCFA > 0 && (
+        <div className="mt-5 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm">
+          <p className="flex items-center gap-2 font-medium text-amber-800 dark:text-amber-200">
+            <AlertTriangle className="size-4 shrink-0" />
+            Overage : {data.overageCount} commandes ·{" "}
+            {formatPriceFCFA(data.overageAmountFCFA)} en fin de cycle
+          </p>
+        </div>
+      )}
+
+      {data.plan === "free" &&
+        data.confirmedOrders >= data.maxConfirmedOrders && (
+          <div className="mt-5 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm">
+            <p className="flex items-center gap-2 font-medium text-red-800 dark:text-red-200">
+              <AlertTriangle className="size-4 shrink-0" />
+              Quota atteint — passez au plan Starter pour continuer
             </p>
           </div>
         )}
-
-        {/* Free plan quota reached */}
-        {data.plan === "free" &&
-          data.confirmedOrders >= data.maxConfirmedOrders && (
-            <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-sm">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="size-4 text-red-500" />
-                <span className="font-medium text-red-600">
-                  Limite atteinte
-                </span>
-              </div>
-              <p className="mt-1 text-muted-foreground">
-                Vous avez atteint votre quota de commandes gratuites. Passez au
-                plan Starter pour continuer à confirmer des commandes.
-              </p>
-            </div>
-          )}
-      </CardContent>
-    </Card>
+    </section>
   );
 }

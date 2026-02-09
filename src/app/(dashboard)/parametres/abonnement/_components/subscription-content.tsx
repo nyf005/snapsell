@@ -1,9 +1,6 @@
 "use client";
 
-import { Bell } from "lucide-react";
-
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
-import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { api } from "~/trpc/react";
 import { PaymentHistory } from "./payment-history";
@@ -19,17 +16,16 @@ export function SubscriptionContent() {
   if (subscription.isLoading || usage.isLoading) {
     return (
       <>
-        <DashboardHeader
-          right={
-            <Button variant="ghost" size="icon" className="text-muted-foreground" aria-label="Notifications">
-              <Bell className="size-5" />
-            </Button>
-          }
-        />
-        <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-48 w-full" />
+        <DashboardHeader />
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-6 md:p-8">
+          <div className="mx-auto w-full max-w-4xl space-y-8">
+            <Skeleton className="h-8 w-48" />
+            <div className="grid gap-6 md:grid-cols-2">
+              <Skeleton className="h-52 rounded-2xl" />
+              <Skeleton className="h-52 rounded-2xl" />
+            </div>
+            <Skeleton className="h-40 rounded-2xl" />
+          </div>
         </div>
       </>
     );
@@ -38,13 +34,7 @@ export function SubscriptionContent() {
   if (subscription.error || usage.error) {
     return (
       <>
-        <DashboardHeader
-          right={
-            <Button variant="ghost" size="icon" className="text-muted-foreground" aria-label="Notifications">
-              <Bell className="size-5" />
-            </Button>
-          }
-        />
+        <DashboardHeader />
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-6 md:p-8">
           <p className="text-destructive">
             Erreur lors du chargement des données d&apos;abonnement.
@@ -54,44 +44,40 @@ export function SubscriptionContent() {
     );
   }
 
-  // Guard: after loading check, data should be defined but TS can't prove it
   if (!subscription.data || !usage.data) {
     return null;
   }
 
   return (
     <>
-      <DashboardHeader
-        right={
-          <Button variant="ghost" size="icon" className="text-muted-foreground" aria-label="Notifications">
-            <Bell className="size-5" />
-          </Button>
-        }
-      />
-      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-            Abonnement
-          </h1>
-          <p className="mt-1 text-base text-muted-foreground">
-            Gérez votre plan, suivez votre usage et consultez vos paiements.
-          </p>
+      <DashboardHeader />
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-6 md:p-8">
+        <div className="mx-auto w-full max-w-4xl space-y-10">
+          {/* Titre discret */}
+          <header>
+            <h1 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+              Abonnement
+            </h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              Plan actuel, usage et paiements
+            </p>
+          </header>
+
+          {/* Plan + Usage côte à côte sur desktop */}
+          <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+            <SubscriptionCard data={subscription.data} />
+            <UsageDashboard data={usage.data} />
+          </div>
+
+          {/* Actions */}
+          <SubscriptionActions data={subscription.data} />
+
+          {/* Historique */}
+          <PaymentHistory
+            data={payments.data ?? []}
+            isLoading={payments.isLoading}
+          />
         </div>
-
-        {/* Plan card + status */}
-        <SubscriptionCard data={subscription.data} />
-
-        {/* Usage dashboard */}
-        <UsageDashboard data={usage.data} />
-
-        {/* Actions (subscribe/cancel/update card) */}
-        <SubscriptionActions data={subscription.data} />
-
-        {/* Payment history */}
-        <PaymentHistory
-          data={payments.data ?? []}
-          isLoading={payments.isLoading}
-        />
       </div>
     </>
   );
