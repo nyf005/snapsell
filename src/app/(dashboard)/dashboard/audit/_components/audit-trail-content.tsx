@@ -4,8 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { fr } from "react-day-picker/locale";
 import { api, type RouterOutputs } from "~/trpc/react";
+import type { z } from "zod";
+import { eventTypeEnumSchema } from "~/server/api/routers/eventLog.schema";
 
 type EventLogItem = RouterOutputs["eventLog"]["list"]["items"][number];
+type EventType = z.infer<typeof eventTypeEnumSchema>;
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -47,7 +50,7 @@ import {
 } from "~/components/ui/empty";
 import { ScrollText, CalendarIcon, Download, Info } from "lucide-react";
 
-const EVENT_TYPE_OPTIONS: { value: ""; label: string }[] = [
+const EVENT_TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: "", label: "Tous les types" },
   { value: "webhook_received", label: "Webhook reçu" },
   { value: "message_sent", label: "Message envoyé" },
@@ -84,7 +87,7 @@ function formatDateShort(date: Date) {
 }
 
 export function AuditTrailContent() {
-  const [eventTypeFilter, setEventTypeFilter] = useState("");
+  const [eventTypeFilter, setEventTypeFilter] = useState<EventType | "">("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [correlationIdSearch, setCorrelationIdSearch] = useState("");
@@ -92,7 +95,7 @@ export function AuditTrailContent() {
 
   const queryInput = useMemo(
     () => ({
-      eventType: eventTypeFilter || undefined,
+      eventType: (eventTypeFilter || undefined) as EventType | undefined,
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
       correlationId: correlationIdSearch.trim() || undefined,
@@ -104,7 +107,7 @@ export function AuditTrailContent() {
 
   const exportFilters = useMemo(
     () => ({
-      eventType: eventTypeFilter || undefined,
+      eventType: (eventTypeFilter || undefined) as EventType | undefined,
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
       correlationId: correlationIdSearch.trim() || undefined,
@@ -190,7 +193,7 @@ export function AuditTrailContent() {
                     <Select
                       value={eventTypeFilter || "all"}
                       onValueChange={(v) => {
-                        setEventTypeFilter(v === "all" ? "" : v);
+                        setEventTypeFilter(v === "all" ? "" : (v as EventType));
                         resetCursor();
                       }}
                     >

@@ -6,15 +6,17 @@
 import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import type { Prisma } from "../../../../generated/prisma";
 import {
   listEventLogsInputSchema,
   exportCsvEventLogsInputSchema,
+  type ListEventLogsInput,
 } from "./eventLog.schema";
 
 /** Plafond export CSV (CR 6-5) : évite timeout / OOM. */
 const EXPORT_CSV_MAX_ROWS = 10_000;
 
-type EventLogWhereInput = Parameters<typeof db.eventLog.findMany>[0]["where"];
+type EventLogWhereInput = Prisma.EventLogWhereInput;
 
 /** Construit le where pour list et exportCsv (évite duplication). */
 function buildEventLogWhere(
@@ -61,7 +63,7 @@ export const eventLogRouter = createTRPCRouter({
           message: "Tenant non identifié.",
         });
       }
-      const opts = input ?? {};
+      const opts: Partial<ListEventLogsInput> = input ?? {};
       const limit = opts.limit ?? 50;
       const where = buildEventLogWhere(tenantId, opts);
       const rows = await db.eventLog.findMany({

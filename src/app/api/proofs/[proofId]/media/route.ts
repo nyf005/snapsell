@@ -74,7 +74,7 @@ export async function GET(
     const bytes = await result.Body.transformToByteArray();
     const contentType = result.ContentType ?? "application/octet-stream";
 
-    return new NextResponse(bytes, {
+    return new NextResponse(new Uint8Array(bytes), {
       status: 200,
       headers: {
         "Content-Type": contentType,
