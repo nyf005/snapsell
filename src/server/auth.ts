@@ -60,6 +60,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.tenantId = (user as { tenantId?: string }).tenantId;
         token.role = (user as { role?: Role }).role;
       }
+      // Si le tenantId est manquant ou vide dans le token, le relire depuis la base
+      if (!token.tenantId && token.email) {
+        const dbUser = await db.user.findUnique({
+          where: { email: token.email as string },
+          select: { tenantId: true, role: true },
+        });
+        if (dbUser) {
+          token.tenantId = dbUser.tenantId;
+          token.role = dbUser.role;
+        }
+      }
       return token;
     },
     async session({ session, token }) {

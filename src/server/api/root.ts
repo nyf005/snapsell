@@ -1,7 +1,12 @@
 import { authRouter } from "~/server/api/routers/auth";
+import { dashboardRouter } from "~/server/api/routers/dashboard";
 import { deliveryRouter } from "~/server/api/routers/delivery";
+import { eventLogRouter } from "~/server/api/routers/eventLog";
 import { exampleRouter } from "~/server/api/routers/example";
 import { invitationsRouter } from "~/server/api/routers/invitations";
+import { liveRouter } from "~/server/api/routers/live";
+import { ordersRouter } from "~/server/api/routers/orders";
+import { proofsRouter } from "~/server/api/routers/proofs";
 import { sellerPhonesRouter } from "~/server/api/routers/sellerPhones";
 import { settingsRouter } from "~/server/api/routers/settings";
 import { teamRouter } from "~/server/api/routers/team";
@@ -15,10 +20,15 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 export const appRouter = createTRPCRouter({
   example: exampleRouter,
   auth: authRouter,
+  dashboard: dashboardRouter,
   settings: settingsRouter,
   sellerPhones: sellerPhonesRouter,
   delivery: deliveryRouter,
+  eventLog: eventLogRouter,
   invitations: invitationsRouter,
+  live: liveRouter,
+  orders: ordersRouter,
+  proofs: proofsRouter,
   team: teamRouter,
 });
 

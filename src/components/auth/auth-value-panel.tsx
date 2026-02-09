@@ -7,11 +7,11 @@ import {
 
 export function AuthValuePanel() {
   return (
-    <div className="hidden lg:flex flex-1 bg-primary/10 dark:bg-[#182634] items-center justify-center p-16 relative overflow-hidden">
+    <div className="hidden lg:flex flex-1 bg-primary/10 dark:bg-card items-center justify-center p-16 relative overflow-hidden">
       <div className="absolute top-[-10%] right-[-10%] w-[400px] h-[400px] bg-primary/20 rounded-full blur-3xl" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] bg-primary/10 rounded-full blur-3xl" />
       <div className="relative z-10 max-w-[500px] w-full flex flex-col gap-10">
-        <div className="rounded-xl overflow-hidden shadow-2xl bg-white dark:bg-[#101922] border border-slate-200 dark:border-white/5">
+        <div className="rounded-xl overflow-hidden shadow-2xl bg-card border border-border">
           <div
             className="h-[300px] bg-cover bg-center"
             style={{
@@ -24,26 +24,26 @@ export function AuthValuePanel() {
                 <Rocket className="text-primary size-8" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                <h3 className="text-xl font-bold text-foreground">
                   Passez à l&apos;automatisation
                 </h3>
-                <p className="mt-1 text-slate-600 dark:text-slate-400">
+                <p className="mt-1 text-muted-foreground">
                   Gagnez du temps en automatisant la prise de commandes et la gestion des réservations.
                 </p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2 p-4 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5">
+              <div className="flex flex-col gap-2 p-4 rounded-lg bg-muted border border-border">
                 <CreditCard className="text-primary size-5" />
                 <h4 className="font-bold text-sm">Tarification dynamique</h4>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                   Prix en temps réel selon les niveaux de stock.
                 </p>
               </div>
-              <div className="flex flex-col gap-2 p-4 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5">
+              <div className="flex flex-col gap-2 p-4 rounded-lg bg-muted border border-border">
                 <MessageCircle className="text-primary size-5" />
                 <h4 className="font-bold text-sm">WhatsApp natif</h4>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                   Intégration directe avec l&apos;API WhatsApp Business.
                 </p>
               </div>
@@ -51,16 +51,16 @@ export function AuthValuePanel() {
           </div>
         </div>
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-4 text-slate-600 dark:text-slate-400">
-            <CheckCircle2 className="size-5 shrink-0 text-green-500" />
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <CheckCircle2 className="size-5 shrink-0 text-success" />
             <span className="text-sm">Aucune carte bancaire requise pour commencer</span>
           </div>
-          <div className="flex items-center gap-4 text-slate-600 dark:text-slate-400">
-            <CheckCircle2 className="size-5 shrink-0 text-green-500" />
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <CheckCircle2 className="size-5 shrink-0 text-success" />
             <span className="text-sm">Mise en place de la boutique en 2 minutes</span>
           </div>
-          <div className="flex items-center gap-4 text-slate-600 dark:text-slate-400">
-            <CheckCircle2 className="size-5 shrink-0 text-green-500" />
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <CheckCircle2 className="size-5 shrink-0 text-success" />
             <span className="text-sm">Équipe support dédiée 24 h/24, 7 j/7</span>
           </div>
         </div>

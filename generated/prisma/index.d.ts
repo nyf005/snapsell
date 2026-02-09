@@ -94,6 +94,31 @@ export type MessageOut = $Result.DefaultSelection<Prisma.$MessageOutPayload>
  */
 export type LiveSession = $Result.DefaultSelection<Prisma.$LiveSessionPayload>
 /**
+ * Model LiveItem
+ * 
+ */
+export type LiveItem = $Result.DefaultSelection<Prisma.$LiveItemPayload>
+/**
+ * Model Reservation
+ * 
+ */
+export type Reservation = $Result.DefaultSelection<Prisma.$ReservationPayload>
+/**
+ * Model Order
+ * 
+ */
+export type Order = $Result.DefaultSelection<Prisma.$OrderPayload>
+/**
+ * Model PaymentProof
+ * 
+ */
+export type PaymentProof = $Result.DefaultSelection<Prisma.$PaymentProofPayload>
+/**
+ * Model Waitlist
+ * 
+ */
+export type Waitlist = $Result.DefaultSelection<Prisma.$WaitlistPayload>
+/**
  * Model DeadLetterJob
  * 
  */
@@ -120,6 +145,47 @@ export const LiveSessionStatus: {
 
 export type LiveSessionStatus = (typeof LiveSessionStatus)[keyof typeof LiveSessionStatus]
 
+
+export const ReservationStatus: {
+  reserved: 'reserved',
+  address_collected: 'address_collected',
+  confirmed: 'confirmed',
+  expired: 'expired'
+};
+
+export type ReservationStatus = (typeof ReservationStatus)[keyof typeof ReservationStatus]
+
+
+export const OrderStatus: {
+  confirmed: 'confirmed',
+  confirmed_pending_deposit: 'confirmed_pending_deposit',
+  preparing: 'preparing',
+  in_delivery: 'in_delivery',
+  delivered: 'delivered',
+  cancelled: 'cancelled'
+};
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const DepositStatus: {
+  no_deposit: 'no_deposit',
+  deposit_pending: 'deposit_pending',
+  deposit_approved: 'deposit_approved',
+  deposit_rejected: 'deposit_rejected'
+};
+
+export type DepositStatus = (typeof DepositStatus)[keyof typeof DepositStatus]
+
+
+export const PaymentProofStatus: {
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected'
+};
+
+export type PaymentProofStatus = (typeof PaymentProofStatus)[keyof typeof PaymentProofStatus]
+
 }
 
 export type Role = $Enums.Role
@@ -129,6 +195,22 @@ export const Role: typeof $Enums.Role
 export type LiveSessionStatus = $Enums.LiveSessionStatus
 
 export const LiveSessionStatus: typeof $Enums.LiveSessionStatus
+
+export type ReservationStatus = $Enums.ReservationStatus
+
+export const ReservationStatus: typeof $Enums.ReservationStatus
+
+export type OrderStatus = $Enums.OrderStatus
+
+export const OrderStatus: typeof $Enums.OrderStatus
+
+export type DepositStatus = $Enums.DepositStatus
+
+export const DepositStatus: typeof $Enums.DepositStatus
+
+export type PaymentProofStatus = $Enums.PaymentProofStatus
+
+export const PaymentProofStatus: typeof $Enums.PaymentProofStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -407,6 +489,56 @@ export class PrismaClient<
     * ```
     */
   get liveSession(): Prisma.LiveSessionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.liveItem`: Exposes CRUD operations for the **LiveItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LiveItems
+    * const liveItems = await prisma.liveItem.findMany()
+    * ```
+    */
+  get liveItem(): Prisma.LiveItemDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.reservation`: Exposes CRUD operations for the **Reservation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Reservations
+    * const reservations = await prisma.reservation.findMany()
+    * ```
+    */
+  get reservation(): Prisma.ReservationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.order`: Exposes CRUD operations for the **Order** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Orders
+    * const orders = await prisma.order.findMany()
+    * ```
+    */
+  get order(): Prisma.OrderDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paymentProof`: Exposes CRUD operations for the **PaymentProof** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaymentProofs
+    * const paymentProofs = await prisma.paymentProof.findMany()
+    * ```
+    */
+  get paymentProof(): Prisma.PaymentProofDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.waitlist`: Exposes CRUD operations for the **Waitlist** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Waitlists
+    * const waitlists = await prisma.waitlist.findMany()
+    * ```
+    */
+  get waitlist(): Prisma.WaitlistDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.deadLetterJob`: Exposes CRUD operations for the **DeadLetterJob** model.
@@ -874,6 +1006,11 @@ export namespace Prisma {
     OptOut: 'OptOut',
     MessageOut: 'MessageOut',
     LiveSession: 'LiveSession',
+    LiveItem: 'LiveItem',
+    Reservation: 'Reservation',
+    Order: 'Order',
+    PaymentProof: 'PaymentProof',
+    Waitlist: 'Waitlist',
     DeadLetterJob: 'DeadLetterJob'
   };
 
@@ -893,7 +1030,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "messageOut" | "liveSession" | "deadLetterJob"
+      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "messageOut" | "liveSession" | "liveItem" | "reservation" | "order" | "paymentProof" | "waitlist" | "deadLetterJob"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2081,6 +2218,376 @@ export namespace Prisma {
           }
         }
       }
+      LiveItem: {
+        payload: Prisma.$LiveItemPayload<ExtArgs>
+        fields: Prisma.LiveItemFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LiveItemFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiveItemPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LiveItemFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiveItemPayload>
+          }
+          findFirst: {
+            args: Prisma.LiveItemFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiveItemPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LiveItemFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiveItemPayload>
+          }
+          findMany: {
+            args: Prisma.LiveItemFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiveItemPayload>[]
+          }
+          create: {
+            args: Prisma.LiveItemCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiveItemPayload>
+          }
+          createMany: {
+            args: Prisma.LiveItemCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LiveItemCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiveItemPayload>[]
+          }
+          delete: {
+            args: Prisma.LiveItemDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiveItemPayload>
+          }
+          update: {
+            args: Prisma.LiveItemUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiveItemPayload>
+          }
+          deleteMany: {
+            args: Prisma.LiveItemDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LiveItemUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LiveItemUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiveItemPayload>[]
+          }
+          upsert: {
+            args: Prisma.LiveItemUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LiveItemPayload>
+          }
+          aggregate: {
+            args: Prisma.LiveItemAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLiveItem>
+          }
+          groupBy: {
+            args: Prisma.LiveItemGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LiveItemGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LiveItemCountArgs<ExtArgs>
+            result: $Utils.Optional<LiveItemCountAggregateOutputType> | number
+          }
+        }
+      }
+      Reservation: {
+        payload: Prisma.$ReservationPayload<ExtArgs>
+        fields: Prisma.ReservationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ReservationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReservationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservationPayload>
+          }
+          findFirst: {
+            args: Prisma.ReservationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReservationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservationPayload>
+          }
+          findMany: {
+            args: Prisma.ReservationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservationPayload>[]
+          }
+          create: {
+            args: Prisma.ReservationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservationPayload>
+          }
+          createMany: {
+            args: Prisma.ReservationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ReservationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservationPayload>[]
+          }
+          delete: {
+            args: Prisma.ReservationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservationPayload>
+          }
+          update: {
+            args: Prisma.ReservationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservationPayload>
+          }
+          deleteMany: {
+            args: Prisma.ReservationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReservationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ReservationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservationPayload>[]
+          }
+          upsert: {
+            args: Prisma.ReservationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ReservationPayload>
+          }
+          aggregate: {
+            args: Prisma.ReservationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateReservation>
+          }
+          groupBy: {
+            args: Prisma.ReservationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ReservationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReservationCountArgs<ExtArgs>
+            result: $Utils.Optional<ReservationCountAggregateOutputType> | number
+          }
+        }
+      }
+      Order: {
+        payload: Prisma.$OrderPayload<ExtArgs>
+        fields: Prisma.OrderFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OrderFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OrderFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          findFirst: {
+            args: Prisma.OrderFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OrderFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          findMany: {
+            args: Prisma.OrderFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>[]
+          }
+          create: {
+            args: Prisma.OrderCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          createMany: {
+            args: Prisma.OrderCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OrderCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>[]
+          }
+          delete: {
+            args: Prisma.OrderDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          update: {
+            args: Prisma.OrderUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          deleteMany: {
+            args: Prisma.OrderDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OrderUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OrderUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>[]
+          }
+          upsert: {
+            args: Prisma.OrderUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrderPayload>
+          }
+          aggregate: {
+            args: Prisma.OrderAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOrder>
+          }
+          groupBy: {
+            args: Prisma.OrderGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OrderGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OrderCountArgs<ExtArgs>
+            result: $Utils.Optional<OrderCountAggregateOutputType> | number
+          }
+        }
+      }
+      PaymentProof: {
+        payload: Prisma.$PaymentProofPayload<ExtArgs>
+        fields: Prisma.PaymentProofFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaymentProofFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentProofPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaymentProofFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentProofPayload>
+          }
+          findFirst: {
+            args: Prisma.PaymentProofFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentProofPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaymentProofFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentProofPayload>
+          }
+          findMany: {
+            args: Prisma.PaymentProofFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentProofPayload>[]
+          }
+          create: {
+            args: Prisma.PaymentProofCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentProofPayload>
+          }
+          createMany: {
+            args: Prisma.PaymentProofCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaymentProofCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentProofPayload>[]
+          }
+          delete: {
+            args: Prisma.PaymentProofDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentProofPayload>
+          }
+          update: {
+            args: Prisma.PaymentProofUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentProofPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaymentProofDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaymentProofUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaymentProofUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentProofPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaymentProofUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentProofPayload>
+          }
+          aggregate: {
+            args: Prisma.PaymentProofAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaymentProof>
+          }
+          groupBy: {
+            args: Prisma.PaymentProofGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaymentProofGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaymentProofCountArgs<ExtArgs>
+            result: $Utils.Optional<PaymentProofCountAggregateOutputType> | number
+          }
+        }
+      }
+      Waitlist: {
+        payload: Prisma.$WaitlistPayload<ExtArgs>
+        fields: Prisma.WaitlistFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WaitlistFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WaitlistPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WaitlistFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WaitlistPayload>
+          }
+          findFirst: {
+            args: Prisma.WaitlistFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WaitlistPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WaitlistFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WaitlistPayload>
+          }
+          findMany: {
+            args: Prisma.WaitlistFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WaitlistPayload>[]
+          }
+          create: {
+            args: Prisma.WaitlistCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WaitlistPayload>
+          }
+          createMany: {
+            args: Prisma.WaitlistCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WaitlistCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WaitlistPayload>[]
+          }
+          delete: {
+            args: Prisma.WaitlistDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WaitlistPayload>
+          }
+          update: {
+            args: Prisma.WaitlistUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WaitlistPayload>
+          }
+          deleteMany: {
+            args: Prisma.WaitlistDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WaitlistUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WaitlistUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WaitlistPayload>[]
+          }
+          upsert: {
+            args: Prisma.WaitlistUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WaitlistPayload>
+          }
+          aggregate: {
+            args: Prisma.WaitlistAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWaitlist>
+          }
+          groupBy: {
+            args: Prisma.WaitlistGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WaitlistGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WaitlistCountArgs<ExtArgs>
+            result: $Utils.Optional<WaitlistCountAggregateOutputType> | number
+          }
+        }
+      }
       DeadLetterJob: {
         payload: Prisma.$DeadLetterJobPayload<ExtArgs>
         fields: Prisma.DeadLetterJobFieldRefs
@@ -2267,6 +2774,11 @@ export namespace Prisma {
     optOut?: OptOutOmit
     messageOut?: MessageOutOmit
     liveSession?: LiveSessionOmit
+    liveItem?: LiveItemOmit
+    reservation?: ReservationOmit
+    order?: OrderOmit
+    paymentProof?: PaymentProofOmit
+    waitlist?: WaitlistOmit
     deadLetterJob?: DeadLetterJobOmit
   }
 
@@ -2360,6 +2872,11 @@ export namespace Prisma {
     deadLetterJobs: number
     optOuts: number
     liveSessions: number
+    liveItems: number
+    reservations: number
+    waitlists: number
+    orders: number
+    paymentProofs: number
   }
 
   export type TenantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2375,6 +2892,11 @@ export namespace Prisma {
     deadLetterJobs?: boolean | TenantCountOutputTypeCountDeadLetterJobsArgs
     optOuts?: boolean | TenantCountOutputTypeCountOptOutsArgs
     liveSessions?: boolean | TenantCountOutputTypeCountLiveSessionsArgs
+    liveItems?: boolean | TenantCountOutputTypeCountLiveItemsArgs
+    reservations?: boolean | TenantCountOutputTypeCountReservationsArgs
+    waitlists?: boolean | TenantCountOutputTypeCountWaitlistsArgs
+    orders?: boolean | TenantCountOutputTypeCountOrdersArgs
+    paymentProofs?: boolean | TenantCountOutputTypeCountPaymentProofsArgs
   }
 
   // Custom InputTypes
@@ -2472,6 +2994,41 @@ export namespace Prisma {
     where?: LiveSessionWhereInput
   }
 
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountLiveItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiveItemWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReservationWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountWaitlistsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WaitlistWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountOrdersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrderWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountPaymentProofsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentProofWhereInput
+  }
+
 
   /**
    * Count Type DeliveryZoneCountOutputType
@@ -2545,6 +3102,108 @@ export namespace Prisma {
 
 
   /**
+   * Count Type LiveSessionCountOutputType
+   */
+
+  export type LiveSessionCountOutputType = {
+    liveItems: number
+    reservations: number
+  }
+
+  export type LiveSessionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    liveItems?: boolean | LiveSessionCountOutputTypeCountLiveItemsArgs
+    reservations?: boolean | LiveSessionCountOutputTypeCountReservationsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * LiveSessionCountOutputType without action
+   */
+  export type LiveSessionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveSessionCountOutputType
+     */
+    select?: LiveSessionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * LiveSessionCountOutputType without action
+   */
+  export type LiveSessionCountOutputTypeCountLiveItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiveItemWhereInput
+  }
+
+  /**
+   * LiveSessionCountOutputType without action
+   */
+  export type LiveSessionCountOutputTypeCountReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReservationWhereInput
+  }
+
+
+  /**
+   * Count Type LiveItemCountOutputType
+   */
+
+  export type LiveItemCountOutputType = {
+    reservations: number
+  }
+
+  export type LiveItemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    reservations?: boolean | LiveItemCountOutputTypeCountReservationsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * LiveItemCountOutputType without action
+   */
+  export type LiveItemCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItemCountOutputType
+     */
+    select?: LiveItemCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * LiveItemCountOutputType without action
+   */
+  export type LiveItemCountOutputTypeCountReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReservationWhereInput
+  }
+
+
+  /**
+   * Count Type OrderCountOutputType
+   */
+
+  export type OrderCountOutputType = {
+    paymentProofs: number
+  }
+
+  export type OrderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    paymentProofs?: boolean | OrderCountOutputTypeCountPaymentProofsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * OrderCountOutputType without action
+   */
+  export type OrderCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderCountOutputType
+     */
+    select?: OrderCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * OrderCountOutputType without action
+   */
+  export type OrderCountOutputTypeCountPaymentProofsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentProofWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -2562,6 +3221,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     whatsappPhoneNumber: string | null
+    requireDeposit: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2570,6 +3230,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     whatsappPhoneNumber: string | null
+    requireDeposit: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2578,6 +3239,7 @@ export namespace Prisma {
     id: number
     name: number
     whatsappPhoneNumber: number
+    requireDeposit: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -2588,6 +3250,7 @@ export namespace Prisma {
     id?: true
     name?: true
     whatsappPhoneNumber?: true
+    requireDeposit?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2596,6 +3259,7 @@ export namespace Prisma {
     id?: true
     name?: true
     whatsappPhoneNumber?: true
+    requireDeposit?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2604,6 +3268,7 @@ export namespace Prisma {
     id?: true
     name?: true
     whatsappPhoneNumber?: true
+    requireDeposit?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -2685,6 +3350,7 @@ export namespace Prisma {
     id: string
     name: string
     whatsappPhoneNumber: string | null
+    requireDeposit: boolean
     createdAt: Date
     updatedAt: Date
     _count: TenantCountAggregateOutputType | null
@@ -2710,6 +3376,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     whatsappPhoneNumber?: boolean
+    requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     users?: boolean | Tenant$usersArgs<ExtArgs>
@@ -2724,6 +3391,11 @@ export namespace Prisma {
     deadLetterJobs?: boolean | Tenant$deadLetterJobsArgs<ExtArgs>
     optOuts?: boolean | Tenant$optOutsArgs<ExtArgs>
     liveSessions?: boolean | Tenant$liveSessionsArgs<ExtArgs>
+    liveItems?: boolean | Tenant$liveItemsArgs<ExtArgs>
+    reservations?: boolean | Tenant$reservationsArgs<ExtArgs>
+    waitlists?: boolean | Tenant$waitlistsArgs<ExtArgs>
+    orders?: boolean | Tenant$ordersArgs<ExtArgs>
+    paymentProofs?: boolean | Tenant$paymentProofsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
@@ -2731,6 +3403,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     whatsappPhoneNumber?: boolean
+    requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["tenant"]>
@@ -2739,6 +3412,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     whatsappPhoneNumber?: boolean
+    requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["tenant"]>
@@ -2747,11 +3421,12 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     whatsappPhoneNumber?: boolean
+    requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "whatsappPhoneNumber" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "whatsappPhoneNumber" | "requireDeposit" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     categoryPrices?: boolean | Tenant$categoryPricesArgs<ExtArgs>
@@ -2765,6 +3440,11 @@ export namespace Prisma {
     deadLetterJobs?: boolean | Tenant$deadLetterJobsArgs<ExtArgs>
     optOuts?: boolean | Tenant$optOutsArgs<ExtArgs>
     liveSessions?: boolean | Tenant$liveSessionsArgs<ExtArgs>
+    liveItems?: boolean | Tenant$liveItemsArgs<ExtArgs>
+    reservations?: boolean | Tenant$reservationsArgs<ExtArgs>
+    waitlists?: boolean | Tenant$waitlistsArgs<ExtArgs>
+    orders?: boolean | Tenant$ordersArgs<ExtArgs>
+    paymentProofs?: boolean | Tenant$paymentProofsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TenantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2785,11 +3465,17 @@ export namespace Prisma {
       deadLetterJobs: Prisma.$DeadLetterJobPayload<ExtArgs>[]
       optOuts: Prisma.$OptOutPayload<ExtArgs>[]
       liveSessions: Prisma.$LiveSessionPayload<ExtArgs>[]
+      liveItems: Prisma.$LiveItemPayload<ExtArgs>[]
+      reservations: Prisma.$ReservationPayload<ExtArgs>[]
+      waitlists: Prisma.$WaitlistPayload<ExtArgs>[]
+      orders: Prisma.$OrderPayload<ExtArgs>[]
+      paymentProofs: Prisma.$PaymentProofPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
       whatsappPhoneNumber: string | null
+      requireDeposit: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["tenant"]>
@@ -3198,6 +3884,11 @@ export namespace Prisma {
     deadLetterJobs<T extends Tenant$deadLetterJobsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$deadLetterJobsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeadLetterJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     optOuts<T extends Tenant$optOutsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$optOutsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptOutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     liveSessions<T extends Tenant$liveSessionsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$liveSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiveSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    liveItems<T extends Tenant$liveItemsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$liveItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reservations<T extends Tenant$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    waitlists<T extends Tenant$waitlistsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$waitlistsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    orders<T extends Tenant$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    paymentProofs<T extends Tenant$paymentProofsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$paymentProofsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3230,6 +3921,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Tenant", 'String'>
     readonly name: FieldRef<"Tenant", 'String'>
     readonly whatsappPhoneNumber: FieldRef<"Tenant", 'String'>
+    readonly requireDeposit: FieldRef<"Tenant", 'Boolean'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
   }
@@ -3905,6 +4597,126 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: LiveSessionScalarFieldEnum | LiveSessionScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.liveItems
+   */
+  export type Tenant$liveItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    where?: LiveItemWhereInput
+    orderBy?: LiveItemOrderByWithRelationInput | LiveItemOrderByWithRelationInput[]
+    cursor?: LiveItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LiveItemScalarFieldEnum | LiveItemScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.reservations
+   */
+  export type Tenant$reservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    where?: ReservationWhereInput
+    orderBy?: ReservationOrderByWithRelationInput | ReservationOrderByWithRelationInput[]
+    cursor?: ReservationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReservationScalarFieldEnum | ReservationScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.waitlists
+   */
+  export type Tenant$waitlistsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistInclude<ExtArgs> | null
+    where?: WaitlistWhereInput
+    orderBy?: WaitlistOrderByWithRelationInput | WaitlistOrderByWithRelationInput[]
+    cursor?: WaitlistWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WaitlistScalarFieldEnum | WaitlistScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.orders
+   */
+  export type Tenant$ordersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    where?: OrderWhereInput
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    cursor?: OrderWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.paymentProofs
+   */
+  export type Tenant$paymentProofsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+    where?: PaymentProofWhereInput
+    orderBy?: PaymentProofOrderByWithRelationInput | PaymentProofOrderByWithRelationInput[]
+    cursor?: PaymentProofWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaymentProofScalarFieldEnum | PaymentProofScalarFieldEnum[]
   }
 
   /**
@@ -19498,6 +20310,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveItems?: boolean | LiveSession$liveItemsArgs<ExtArgs>
+    reservations?: boolean | LiveSession$reservationsArgs<ExtArgs>
+    _count?: boolean | LiveSessionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["liveSession"]>
 
   export type LiveSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -19532,6 +20347,9 @@ export namespace Prisma {
   export type LiveSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "status" | "lastActivityAt" | "createdAt" | "updatedAt", ExtArgs["result"]["liveSession"]>
   export type LiveSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveItems?: boolean | LiveSession$liveItemsArgs<ExtArgs>
+    reservations?: boolean | LiveSession$reservationsArgs<ExtArgs>
+    _count?: boolean | LiveSessionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type LiveSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -19544,6 +20362,8 @@ export namespace Prisma {
     name: "LiveSession"
     objects: {
       tenant: Prisma.$TenantPayload<ExtArgs>
+      liveItems: Prisma.$LiveItemPayload<ExtArgs>[]
+      reservations: Prisma.$ReservationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -19947,6 +20767,8 @@ export namespace Prisma {
   export interface Prisma__LiveSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    liveItems<T extends LiveSession$liveItemsArgs<ExtArgs> = {}>(args?: Subset<T, LiveSession$liveItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    reservations<T extends LiveSession$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, LiveSession$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -20378,6 +21200,54 @@ export namespace Prisma {
   }
 
   /**
+   * LiveSession.liveItems
+   */
+  export type LiveSession$liveItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    where?: LiveItemWhereInput
+    orderBy?: LiveItemOrderByWithRelationInput | LiveItemOrderByWithRelationInput[]
+    cursor?: LiveItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LiveItemScalarFieldEnum | LiveItemScalarFieldEnum[]
+  }
+
+  /**
+   * LiveSession.reservations
+   */
+  export type LiveSession$reservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    where?: ReservationWhereInput
+    orderBy?: ReservationOrderByWithRelationInput | ReservationOrderByWithRelationInput[]
+    cursor?: ReservationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReservationScalarFieldEnum | ReservationScalarFieldEnum[]
+  }
+
+  /**
    * LiveSession without action
    */
   export type LiveSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -20393,6 +21263,5824 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: LiveSessionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model LiveItem
+   */
+
+  export type AggregateLiveItem = {
+    _count: LiveItemCountAggregateOutputType | null
+    _avg: LiveItemAvgAggregateOutputType | null
+    _sum: LiveItemSumAggregateOutputType | null
+    _min: LiveItemMinAggregateOutputType | null
+    _max: LiveItemMaxAggregateOutputType | null
+  }
+
+  export type LiveItemAvgAggregateOutputType = {
+    amountCents: number | null
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+  }
+
+  export type LiveItemSumAggregateOutputType = {
+    amountCents: number | null
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+  }
+
+  export type LiveItemMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    liveSessionId: string | null
+    code: string | null
+    amountCents: number | null
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+    mediaStorageKey: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LiveItemMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    liveSessionId: string | null
+    code: string | null
+    amountCents: number | null
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+    mediaStorageKey: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LiveItemCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    liveSessionId: number
+    code: number
+    amountCents: number
+    quantity: number
+    availableQty: number
+    reservedQty: number
+    mediaStorageKey: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LiveItemAvgAggregateInputType = {
+    amountCents?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+  }
+
+  export type LiveItemSumAggregateInputType = {
+    amountCents?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+  }
+
+  export type LiveItemMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    liveSessionId?: true
+    code?: true
+    amountCents?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+    mediaStorageKey?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LiveItemMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    liveSessionId?: true
+    code?: true
+    amountCents?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+    mediaStorageKey?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LiveItemCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    liveSessionId?: true
+    code?: true
+    amountCents?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+    mediaStorageKey?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LiveItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LiveItem to aggregate.
+     */
+    where?: LiveItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiveItems to fetch.
+     */
+    orderBy?: LiveItemOrderByWithRelationInput | LiveItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LiveItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiveItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiveItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LiveItems
+    **/
+    _count?: true | LiveItemCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: LiveItemAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LiveItemSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LiveItemMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LiveItemMaxAggregateInputType
+  }
+
+  export type GetLiveItemAggregateType<T extends LiveItemAggregateArgs> = {
+        [P in keyof T & keyof AggregateLiveItem]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLiveItem[P]>
+      : GetScalarType<T[P], AggregateLiveItem[P]>
+  }
+
+
+
+
+  export type LiveItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LiveItemWhereInput
+    orderBy?: LiveItemOrderByWithAggregationInput | LiveItemOrderByWithAggregationInput[]
+    by: LiveItemScalarFieldEnum[] | LiveItemScalarFieldEnum
+    having?: LiveItemScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LiveItemCountAggregateInputType | true
+    _avg?: LiveItemAvgAggregateInputType
+    _sum?: LiveItemSumAggregateInputType
+    _min?: LiveItemMinAggregateInputType
+    _max?: LiveItemMaxAggregateInputType
+  }
+
+  export type LiveItemGroupByOutputType = {
+    id: string
+    tenantId: string
+    liveSessionId: string
+    code: string
+    amountCents: number | null
+    quantity: number
+    availableQty: number
+    reservedQty: number
+    mediaStorageKey: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: LiveItemCountAggregateOutputType | null
+    _avg: LiveItemAvgAggregateOutputType | null
+    _sum: LiveItemSumAggregateOutputType | null
+    _min: LiveItemMinAggregateOutputType | null
+    _max: LiveItemMaxAggregateOutputType | null
+  }
+
+  type GetLiveItemGroupByPayload<T extends LiveItemGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LiveItemGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LiveItemGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LiveItemGroupByOutputType[P]>
+            : GetScalarType<T[P], LiveItemGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LiveItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    code?: boolean
+    amountCents?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    mediaStorageKey?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+    reservations?: boolean | LiveItem$reservationsArgs<ExtArgs>
+    _count?: boolean | LiveItemCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liveItem"]>
+
+  export type LiveItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    code?: boolean
+    amountCents?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    mediaStorageKey?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liveItem"]>
+
+  export type LiveItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    code?: boolean
+    amountCents?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    mediaStorageKey?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["liveItem"]>
+
+  export type LiveItemSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    code?: boolean
+    amountCents?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    mediaStorageKey?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LiveItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "code" | "amountCents" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "createdAt" | "updatedAt", ExtArgs["result"]["liveItem"]>
+  export type LiveItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+    reservations?: boolean | LiveItem$reservationsArgs<ExtArgs>
+    _count?: boolean | LiveItemCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type LiveItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+  }
+  export type LiveItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+  }
+
+  export type $LiveItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LiveItem"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+      liveSession: Prisma.$LiveSessionPayload<ExtArgs>
+      reservations: Prisma.$ReservationPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      liveSessionId: string
+      code: string
+      amountCents: number | null
+      quantity: number
+      availableQty: number
+      reservedQty: number
+      mediaStorageKey: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["liveItem"]>
+    composites: {}
+  }
+
+  type LiveItemGetPayload<S extends boolean | null | undefined | LiveItemDefaultArgs> = $Result.GetResult<Prisma.$LiveItemPayload, S>
+
+  type LiveItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LiveItemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LiveItemCountAggregateInputType | true
+    }
+
+  export interface LiveItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LiveItem'], meta: { name: 'LiveItem' } }
+    /**
+     * Find zero or one LiveItem that matches the filter.
+     * @param {LiveItemFindUniqueArgs} args - Arguments to find a LiveItem
+     * @example
+     * // Get one LiveItem
+     * const liveItem = await prisma.liveItem.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LiveItemFindUniqueArgs>(args: SelectSubset<T, LiveItemFindUniqueArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LiveItem that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LiveItemFindUniqueOrThrowArgs} args - Arguments to find a LiveItem
+     * @example
+     * // Get one LiveItem
+     * const liveItem = await prisma.liveItem.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LiveItemFindUniqueOrThrowArgs>(args: SelectSubset<T, LiveItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LiveItem that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiveItemFindFirstArgs} args - Arguments to find a LiveItem
+     * @example
+     * // Get one LiveItem
+     * const liveItem = await prisma.liveItem.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LiveItemFindFirstArgs>(args?: SelectSubset<T, LiveItemFindFirstArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LiveItem that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiveItemFindFirstOrThrowArgs} args - Arguments to find a LiveItem
+     * @example
+     * // Get one LiveItem
+     * const liveItem = await prisma.liveItem.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LiveItemFindFirstOrThrowArgs>(args?: SelectSubset<T, LiveItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LiveItems that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiveItemFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LiveItems
+     * const liveItems = await prisma.liveItem.findMany()
+     * 
+     * // Get first 10 LiveItems
+     * const liveItems = await prisma.liveItem.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const liveItemWithIdOnly = await prisma.liveItem.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LiveItemFindManyArgs>(args?: SelectSubset<T, LiveItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LiveItem.
+     * @param {LiveItemCreateArgs} args - Arguments to create a LiveItem.
+     * @example
+     * // Create one LiveItem
+     * const LiveItem = await prisma.liveItem.create({
+     *   data: {
+     *     // ... data to create a LiveItem
+     *   }
+     * })
+     * 
+     */
+    create<T extends LiveItemCreateArgs>(args: SelectSubset<T, LiveItemCreateArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LiveItems.
+     * @param {LiveItemCreateManyArgs} args - Arguments to create many LiveItems.
+     * @example
+     * // Create many LiveItems
+     * const liveItem = await prisma.liveItem.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LiveItemCreateManyArgs>(args?: SelectSubset<T, LiveItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LiveItems and returns the data saved in the database.
+     * @param {LiveItemCreateManyAndReturnArgs} args - Arguments to create many LiveItems.
+     * @example
+     * // Create many LiveItems
+     * const liveItem = await prisma.liveItem.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LiveItems and only return the `id`
+     * const liveItemWithIdOnly = await prisma.liveItem.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LiveItemCreateManyAndReturnArgs>(args?: SelectSubset<T, LiveItemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LiveItem.
+     * @param {LiveItemDeleteArgs} args - Arguments to delete one LiveItem.
+     * @example
+     * // Delete one LiveItem
+     * const LiveItem = await prisma.liveItem.delete({
+     *   where: {
+     *     // ... filter to delete one LiveItem
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LiveItemDeleteArgs>(args: SelectSubset<T, LiveItemDeleteArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LiveItem.
+     * @param {LiveItemUpdateArgs} args - Arguments to update one LiveItem.
+     * @example
+     * // Update one LiveItem
+     * const liveItem = await prisma.liveItem.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LiveItemUpdateArgs>(args: SelectSubset<T, LiveItemUpdateArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LiveItems.
+     * @param {LiveItemDeleteManyArgs} args - Arguments to filter LiveItems to delete.
+     * @example
+     * // Delete a few LiveItems
+     * const { count } = await prisma.liveItem.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LiveItemDeleteManyArgs>(args?: SelectSubset<T, LiveItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LiveItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiveItemUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LiveItems
+     * const liveItem = await prisma.liveItem.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LiveItemUpdateManyArgs>(args: SelectSubset<T, LiveItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LiveItems and returns the data updated in the database.
+     * @param {LiveItemUpdateManyAndReturnArgs} args - Arguments to update many LiveItems.
+     * @example
+     * // Update many LiveItems
+     * const liveItem = await prisma.liveItem.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LiveItems and only return the `id`
+     * const liveItemWithIdOnly = await prisma.liveItem.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LiveItemUpdateManyAndReturnArgs>(args: SelectSubset<T, LiveItemUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LiveItem.
+     * @param {LiveItemUpsertArgs} args - Arguments to update or create a LiveItem.
+     * @example
+     * // Update or create a LiveItem
+     * const liveItem = await prisma.liveItem.upsert({
+     *   create: {
+     *     // ... data to create a LiveItem
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LiveItem we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LiveItemUpsertArgs>(args: SelectSubset<T, LiveItemUpsertArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LiveItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiveItemCountArgs} args - Arguments to filter LiveItems to count.
+     * @example
+     * // Count the number of LiveItems
+     * const count = await prisma.liveItem.count({
+     *   where: {
+     *     // ... the filter for the LiveItems we want to count
+     *   }
+     * })
+    **/
+    count<T extends LiveItemCountArgs>(
+      args?: Subset<T, LiveItemCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LiveItemCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LiveItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiveItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LiveItemAggregateArgs>(args: Subset<T, LiveItemAggregateArgs>): Prisma.PrismaPromise<GetLiveItemAggregateType<T>>
+
+    /**
+     * Group by LiveItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LiveItemGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LiveItemGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LiveItemGroupByArgs['orderBy'] }
+        : { orderBy?: LiveItemGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LiveItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLiveItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LiveItem model
+   */
+  readonly fields: LiveItemFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LiveItem.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LiveItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    liveSession<T extends LiveSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LiveSessionDefaultArgs<ExtArgs>>): Prisma__LiveSessionClient<$Result.GetResult<Prisma.$LiveSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    reservations<T extends LiveItem$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, LiveItem$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LiveItem model
+   */
+  interface LiveItemFieldRefs {
+    readonly id: FieldRef<"LiveItem", 'String'>
+    readonly tenantId: FieldRef<"LiveItem", 'String'>
+    readonly liveSessionId: FieldRef<"LiveItem", 'String'>
+    readonly code: FieldRef<"LiveItem", 'String'>
+    readonly amountCents: FieldRef<"LiveItem", 'Int'>
+    readonly quantity: FieldRef<"LiveItem", 'Int'>
+    readonly availableQty: FieldRef<"LiveItem", 'Int'>
+    readonly reservedQty: FieldRef<"LiveItem", 'Int'>
+    readonly mediaStorageKey: FieldRef<"LiveItem", 'String'>
+    readonly createdAt: FieldRef<"LiveItem", 'DateTime'>
+    readonly updatedAt: FieldRef<"LiveItem", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LiveItem findUnique
+   */
+  export type LiveItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    /**
+     * Filter, which LiveItem to fetch.
+     */
+    where: LiveItemWhereUniqueInput
+  }
+
+  /**
+   * LiveItem findUniqueOrThrow
+   */
+  export type LiveItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    /**
+     * Filter, which LiveItem to fetch.
+     */
+    where: LiveItemWhereUniqueInput
+  }
+
+  /**
+   * LiveItem findFirst
+   */
+  export type LiveItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    /**
+     * Filter, which LiveItem to fetch.
+     */
+    where?: LiveItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiveItems to fetch.
+     */
+    orderBy?: LiveItemOrderByWithRelationInput | LiveItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LiveItems.
+     */
+    cursor?: LiveItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiveItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiveItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LiveItems.
+     */
+    distinct?: LiveItemScalarFieldEnum | LiveItemScalarFieldEnum[]
+  }
+
+  /**
+   * LiveItem findFirstOrThrow
+   */
+  export type LiveItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    /**
+     * Filter, which LiveItem to fetch.
+     */
+    where?: LiveItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiveItems to fetch.
+     */
+    orderBy?: LiveItemOrderByWithRelationInput | LiveItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LiveItems.
+     */
+    cursor?: LiveItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiveItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiveItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LiveItems.
+     */
+    distinct?: LiveItemScalarFieldEnum | LiveItemScalarFieldEnum[]
+  }
+
+  /**
+   * LiveItem findMany
+   */
+  export type LiveItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    /**
+     * Filter, which LiveItems to fetch.
+     */
+    where?: LiveItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LiveItems to fetch.
+     */
+    orderBy?: LiveItemOrderByWithRelationInput | LiveItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LiveItems.
+     */
+    cursor?: LiveItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LiveItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LiveItems.
+     */
+    skip?: number
+    distinct?: LiveItemScalarFieldEnum | LiveItemScalarFieldEnum[]
+  }
+
+  /**
+   * LiveItem create
+   */
+  export type LiveItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LiveItem.
+     */
+    data: XOR<LiveItemCreateInput, LiveItemUncheckedCreateInput>
+  }
+
+  /**
+   * LiveItem createMany
+   */
+  export type LiveItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LiveItems.
+     */
+    data: LiveItemCreateManyInput | LiveItemCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LiveItem createManyAndReturn
+   */
+  export type LiveItemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * The data used to create many LiveItems.
+     */
+    data: LiveItemCreateManyInput | LiveItemCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LiveItem update
+   */
+  export type LiveItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LiveItem.
+     */
+    data: XOR<LiveItemUpdateInput, LiveItemUncheckedUpdateInput>
+    /**
+     * Choose, which LiveItem to update.
+     */
+    where: LiveItemWhereUniqueInput
+  }
+
+  /**
+   * LiveItem updateMany
+   */
+  export type LiveItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LiveItems.
+     */
+    data: XOR<LiveItemUpdateManyMutationInput, LiveItemUncheckedUpdateManyInput>
+    /**
+     * Filter which LiveItems to update
+     */
+    where?: LiveItemWhereInput
+    /**
+     * Limit how many LiveItems to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LiveItem updateManyAndReturn
+   */
+  export type LiveItemUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * The data used to update LiveItems.
+     */
+    data: XOR<LiveItemUpdateManyMutationInput, LiveItemUncheckedUpdateManyInput>
+    /**
+     * Filter which LiveItems to update
+     */
+    where?: LiveItemWhereInput
+    /**
+     * Limit how many LiveItems to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LiveItem upsert
+   */
+  export type LiveItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LiveItem to update in case it exists.
+     */
+    where: LiveItemWhereUniqueInput
+    /**
+     * In case the LiveItem found by the `where` argument doesn't exist, create a new LiveItem with this data.
+     */
+    create: XOR<LiveItemCreateInput, LiveItemUncheckedCreateInput>
+    /**
+     * In case the LiveItem was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LiveItemUpdateInput, LiveItemUncheckedUpdateInput>
+  }
+
+  /**
+   * LiveItem delete
+   */
+  export type LiveItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    /**
+     * Filter which LiveItem to delete.
+     */
+    where: LiveItemWhereUniqueInput
+  }
+
+  /**
+   * LiveItem deleteMany
+   */
+  export type LiveItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LiveItems to delete
+     */
+    where?: LiveItemWhereInput
+    /**
+     * Limit how many LiveItems to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LiveItem.reservations
+   */
+  export type LiveItem$reservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    where?: ReservationWhereInput
+    orderBy?: ReservationOrderByWithRelationInput | ReservationOrderByWithRelationInput[]
+    cursor?: ReservationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReservationScalarFieldEnum | ReservationScalarFieldEnum[]
+  }
+
+  /**
+   * LiveItem without action
+   */
+  export type LiveItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Reservation
+   */
+
+  export type AggregateReservation = {
+    _count: ReservationCountAggregateOutputType | null
+    _min: ReservationMinAggregateOutputType | null
+    _max: ReservationMaxAggregateOutputType | null
+  }
+
+  export type ReservationMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    liveSessionId: string | null
+    liveItemId: string | null
+    clientPhone: string | null
+    status: $Enums.ReservationStatus | null
+    address: string | null
+    expiresAt: Date | null
+    reminderSentAt: Date | null
+    correlationId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReservationMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    liveSessionId: string | null
+    liveItemId: string | null
+    clientPhone: string | null
+    status: $Enums.ReservationStatus | null
+    address: string | null
+    expiresAt: Date | null
+    reminderSentAt: Date | null
+    correlationId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReservationCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    liveSessionId: number
+    liveItemId: number
+    clientPhone: number
+    status: number
+    address: number
+    expiresAt: number
+    reminderSentAt: number
+    correlationId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ReservationMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    liveSessionId?: true
+    liveItemId?: true
+    clientPhone?: true
+    status?: true
+    address?: true
+    expiresAt?: true
+    reminderSentAt?: true
+    correlationId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReservationMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    liveSessionId?: true
+    liveItemId?: true
+    clientPhone?: true
+    status?: true
+    address?: true
+    expiresAt?: true
+    reminderSentAt?: true
+    correlationId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReservationCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    liveSessionId?: true
+    liveItemId?: true
+    clientPhone?: true
+    status?: true
+    address?: true
+    expiresAt?: true
+    reminderSentAt?: true
+    correlationId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ReservationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Reservation to aggregate.
+     */
+    where?: ReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Reservations to fetch.
+     */
+    orderBy?: ReservationOrderByWithRelationInput | ReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Reservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Reservations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Reservations
+    **/
+    _count?: true | ReservationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReservationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReservationMaxAggregateInputType
+  }
+
+  export type GetReservationAggregateType<T extends ReservationAggregateArgs> = {
+        [P in keyof T & keyof AggregateReservation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReservation[P]>
+      : GetScalarType<T[P], AggregateReservation[P]>
+  }
+
+
+
+
+  export type ReservationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReservationWhereInput
+    orderBy?: ReservationOrderByWithAggregationInput | ReservationOrderByWithAggregationInput[]
+    by: ReservationScalarFieldEnum[] | ReservationScalarFieldEnum
+    having?: ReservationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReservationCountAggregateInputType | true
+    _min?: ReservationMinAggregateInputType
+    _max?: ReservationMaxAggregateInputType
+  }
+
+  export type ReservationGroupByOutputType = {
+    id: string
+    tenantId: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    status: $Enums.ReservationStatus
+    address: string | null
+    expiresAt: Date | null
+    reminderSentAt: Date | null
+    correlationId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: ReservationCountAggregateOutputType | null
+    _min: ReservationMinAggregateOutputType | null
+    _max: ReservationMaxAggregateOutputType | null
+  }
+
+  type GetReservationGroupByPayload<T extends ReservationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ReservationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReservationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReservationGroupByOutputType[P]>
+            : GetScalarType<T[P], ReservationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReservationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    liveItemId?: boolean
+    clientPhone?: boolean
+    status?: boolean
+    address?: boolean
+    expiresAt?: boolean
+    reminderSentAt?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+    order?: boolean | Reservation$orderArgs<ExtArgs>
+  }, ExtArgs["result"]["reservation"]>
+
+  export type ReservationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    liveItemId?: boolean
+    clientPhone?: boolean
+    status?: boolean
+    address?: boolean
+    expiresAt?: boolean
+    reminderSentAt?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reservation"]>
+
+  export type ReservationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    liveItemId?: boolean
+    clientPhone?: boolean
+    status?: boolean
+    address?: boolean
+    expiresAt?: boolean
+    reminderSentAt?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["reservation"]>
+
+  export type ReservationSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    liveItemId?: boolean
+    clientPhone?: boolean
+    status?: boolean
+    address?: boolean
+    expiresAt?: boolean
+    reminderSentAt?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ReservationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "liveItemId" | "clientPhone" | "status" | "address" | "expiresAt" | "reminderSentAt" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["reservation"]>
+  export type ReservationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+    order?: boolean | Reservation$orderArgs<ExtArgs>
+  }
+  export type ReservationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+  }
+  export type ReservationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
+    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+  }
+
+  export type $ReservationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Reservation"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+      liveSession: Prisma.$LiveSessionPayload<ExtArgs>
+      liveItem: Prisma.$LiveItemPayload<ExtArgs>
+      order: Prisma.$OrderPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      liveSessionId: string
+      liveItemId: string
+      clientPhone: string
+      status: $Enums.ReservationStatus
+      address: string | null
+      expiresAt: Date | null
+      reminderSentAt: Date | null
+      correlationId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["reservation"]>
+    composites: {}
+  }
+
+  type ReservationGetPayload<S extends boolean | null | undefined | ReservationDefaultArgs> = $Result.GetResult<Prisma.$ReservationPayload, S>
+
+  type ReservationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ReservationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ReservationCountAggregateInputType | true
+    }
+
+  export interface ReservationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Reservation'], meta: { name: 'Reservation' } }
+    /**
+     * Find zero or one Reservation that matches the filter.
+     * @param {ReservationFindUniqueArgs} args - Arguments to find a Reservation
+     * @example
+     * // Get one Reservation
+     * const reservation = await prisma.reservation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ReservationFindUniqueArgs>(args: SelectSubset<T, ReservationFindUniqueArgs<ExtArgs>>): Prisma__ReservationClient<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Reservation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ReservationFindUniqueOrThrowArgs} args - Arguments to find a Reservation
+     * @example
+     * // Get one Reservation
+     * const reservation = await prisma.reservation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ReservationFindUniqueOrThrowArgs>(args: SelectSubset<T, ReservationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ReservationClient<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Reservation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservationFindFirstArgs} args - Arguments to find a Reservation
+     * @example
+     * // Get one Reservation
+     * const reservation = await prisma.reservation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ReservationFindFirstArgs>(args?: SelectSubset<T, ReservationFindFirstArgs<ExtArgs>>): Prisma__ReservationClient<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Reservation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservationFindFirstOrThrowArgs} args - Arguments to find a Reservation
+     * @example
+     * // Get one Reservation
+     * const reservation = await prisma.reservation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ReservationFindFirstOrThrowArgs>(args?: SelectSubset<T, ReservationFindFirstOrThrowArgs<ExtArgs>>): Prisma__ReservationClient<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Reservations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Reservations
+     * const reservations = await prisma.reservation.findMany()
+     * 
+     * // Get first 10 Reservations
+     * const reservations = await prisma.reservation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const reservationWithIdOnly = await prisma.reservation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ReservationFindManyArgs>(args?: SelectSubset<T, ReservationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Reservation.
+     * @param {ReservationCreateArgs} args - Arguments to create a Reservation.
+     * @example
+     * // Create one Reservation
+     * const Reservation = await prisma.reservation.create({
+     *   data: {
+     *     // ... data to create a Reservation
+     *   }
+     * })
+     * 
+     */
+    create<T extends ReservationCreateArgs>(args: SelectSubset<T, ReservationCreateArgs<ExtArgs>>): Prisma__ReservationClient<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Reservations.
+     * @param {ReservationCreateManyArgs} args - Arguments to create many Reservations.
+     * @example
+     * // Create many Reservations
+     * const reservation = await prisma.reservation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ReservationCreateManyArgs>(args?: SelectSubset<T, ReservationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Reservations and returns the data saved in the database.
+     * @param {ReservationCreateManyAndReturnArgs} args - Arguments to create many Reservations.
+     * @example
+     * // Create many Reservations
+     * const reservation = await prisma.reservation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Reservations and only return the `id`
+     * const reservationWithIdOnly = await prisma.reservation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ReservationCreateManyAndReturnArgs>(args?: SelectSubset<T, ReservationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Reservation.
+     * @param {ReservationDeleteArgs} args - Arguments to delete one Reservation.
+     * @example
+     * // Delete one Reservation
+     * const Reservation = await prisma.reservation.delete({
+     *   where: {
+     *     // ... filter to delete one Reservation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ReservationDeleteArgs>(args: SelectSubset<T, ReservationDeleteArgs<ExtArgs>>): Prisma__ReservationClient<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Reservation.
+     * @param {ReservationUpdateArgs} args - Arguments to update one Reservation.
+     * @example
+     * // Update one Reservation
+     * const reservation = await prisma.reservation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ReservationUpdateArgs>(args: SelectSubset<T, ReservationUpdateArgs<ExtArgs>>): Prisma__ReservationClient<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Reservations.
+     * @param {ReservationDeleteManyArgs} args - Arguments to filter Reservations to delete.
+     * @example
+     * // Delete a few Reservations
+     * const { count } = await prisma.reservation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ReservationDeleteManyArgs>(args?: SelectSubset<T, ReservationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Reservations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Reservations
+     * const reservation = await prisma.reservation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ReservationUpdateManyArgs>(args: SelectSubset<T, ReservationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Reservations and returns the data updated in the database.
+     * @param {ReservationUpdateManyAndReturnArgs} args - Arguments to update many Reservations.
+     * @example
+     * // Update many Reservations
+     * const reservation = await prisma.reservation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Reservations and only return the `id`
+     * const reservationWithIdOnly = await prisma.reservation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ReservationUpdateManyAndReturnArgs>(args: SelectSubset<T, ReservationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Reservation.
+     * @param {ReservationUpsertArgs} args - Arguments to update or create a Reservation.
+     * @example
+     * // Update or create a Reservation
+     * const reservation = await prisma.reservation.upsert({
+     *   create: {
+     *     // ... data to create a Reservation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Reservation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ReservationUpsertArgs>(args: SelectSubset<T, ReservationUpsertArgs<ExtArgs>>): Prisma__ReservationClient<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Reservations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservationCountArgs} args - Arguments to filter Reservations to count.
+     * @example
+     * // Count the number of Reservations
+     * const count = await prisma.reservation.count({
+     *   where: {
+     *     // ... the filter for the Reservations we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReservationCountArgs>(
+      args?: Subset<T, ReservationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReservationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Reservation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReservationAggregateArgs>(args: Subset<T, ReservationAggregateArgs>): Prisma.PrismaPromise<GetReservationAggregateType<T>>
+
+    /**
+     * Group by Reservation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReservationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReservationGroupByArgs['orderBy'] }
+        : { orderBy?: ReservationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReservationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReservationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Reservation model
+   */
+  readonly fields: ReservationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Reservation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ReservationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    liveSession<T extends LiveSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LiveSessionDefaultArgs<ExtArgs>>): Prisma__LiveSessionClient<$Result.GetResult<Prisma.$LiveSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    liveItem<T extends LiveItemDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LiveItemDefaultArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    order<T extends Reservation$orderArgs<ExtArgs> = {}>(args?: Subset<T, Reservation$orderArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Reservation model
+   */
+  interface ReservationFieldRefs {
+    readonly id: FieldRef<"Reservation", 'String'>
+    readonly tenantId: FieldRef<"Reservation", 'String'>
+    readonly liveSessionId: FieldRef<"Reservation", 'String'>
+    readonly liveItemId: FieldRef<"Reservation", 'String'>
+    readonly clientPhone: FieldRef<"Reservation", 'String'>
+    readonly status: FieldRef<"Reservation", 'ReservationStatus'>
+    readonly address: FieldRef<"Reservation", 'String'>
+    readonly expiresAt: FieldRef<"Reservation", 'DateTime'>
+    readonly reminderSentAt: FieldRef<"Reservation", 'DateTime'>
+    readonly correlationId: FieldRef<"Reservation", 'String'>
+    readonly createdAt: FieldRef<"Reservation", 'DateTime'>
+    readonly updatedAt: FieldRef<"Reservation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Reservation findUnique
+   */
+  export type ReservationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    /**
+     * Filter, which Reservation to fetch.
+     */
+    where: ReservationWhereUniqueInput
+  }
+
+  /**
+   * Reservation findUniqueOrThrow
+   */
+  export type ReservationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    /**
+     * Filter, which Reservation to fetch.
+     */
+    where: ReservationWhereUniqueInput
+  }
+
+  /**
+   * Reservation findFirst
+   */
+  export type ReservationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    /**
+     * Filter, which Reservation to fetch.
+     */
+    where?: ReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Reservations to fetch.
+     */
+    orderBy?: ReservationOrderByWithRelationInput | ReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Reservations.
+     */
+    cursor?: ReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Reservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Reservations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Reservations.
+     */
+    distinct?: ReservationScalarFieldEnum | ReservationScalarFieldEnum[]
+  }
+
+  /**
+   * Reservation findFirstOrThrow
+   */
+  export type ReservationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    /**
+     * Filter, which Reservation to fetch.
+     */
+    where?: ReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Reservations to fetch.
+     */
+    orderBy?: ReservationOrderByWithRelationInput | ReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Reservations.
+     */
+    cursor?: ReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Reservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Reservations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Reservations.
+     */
+    distinct?: ReservationScalarFieldEnum | ReservationScalarFieldEnum[]
+  }
+
+  /**
+   * Reservation findMany
+   */
+  export type ReservationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    /**
+     * Filter, which Reservations to fetch.
+     */
+    where?: ReservationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Reservations to fetch.
+     */
+    orderBy?: ReservationOrderByWithRelationInput | ReservationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Reservations.
+     */
+    cursor?: ReservationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Reservations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Reservations.
+     */
+    skip?: number
+    distinct?: ReservationScalarFieldEnum | ReservationScalarFieldEnum[]
+  }
+
+  /**
+   * Reservation create
+   */
+  export type ReservationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Reservation.
+     */
+    data: XOR<ReservationCreateInput, ReservationUncheckedCreateInput>
+  }
+
+  /**
+   * Reservation createMany
+   */
+  export type ReservationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Reservations.
+     */
+    data: ReservationCreateManyInput | ReservationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Reservation createManyAndReturn
+   */
+  export type ReservationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * The data used to create many Reservations.
+     */
+    data: ReservationCreateManyInput | ReservationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Reservation update
+   */
+  export type ReservationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Reservation.
+     */
+    data: XOR<ReservationUpdateInput, ReservationUncheckedUpdateInput>
+    /**
+     * Choose, which Reservation to update.
+     */
+    where: ReservationWhereUniqueInput
+  }
+
+  /**
+   * Reservation updateMany
+   */
+  export type ReservationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Reservations.
+     */
+    data: XOR<ReservationUpdateManyMutationInput, ReservationUncheckedUpdateManyInput>
+    /**
+     * Filter which Reservations to update
+     */
+    where?: ReservationWhereInput
+    /**
+     * Limit how many Reservations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Reservation updateManyAndReturn
+   */
+  export type ReservationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * The data used to update Reservations.
+     */
+    data: XOR<ReservationUpdateManyMutationInput, ReservationUncheckedUpdateManyInput>
+    /**
+     * Filter which Reservations to update
+     */
+    where?: ReservationWhereInput
+    /**
+     * Limit how many Reservations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Reservation upsert
+   */
+  export type ReservationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Reservation to update in case it exists.
+     */
+    where: ReservationWhereUniqueInput
+    /**
+     * In case the Reservation found by the `where` argument doesn't exist, create a new Reservation with this data.
+     */
+    create: XOR<ReservationCreateInput, ReservationUncheckedCreateInput>
+    /**
+     * In case the Reservation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReservationUpdateInput, ReservationUncheckedUpdateInput>
+  }
+
+  /**
+   * Reservation delete
+   */
+  export type ReservationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    /**
+     * Filter which Reservation to delete.
+     */
+    where: ReservationWhereUniqueInput
+  }
+
+  /**
+   * Reservation deleteMany
+   */
+  export type ReservationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Reservations to delete
+     */
+    where?: ReservationWhereInput
+    /**
+     * Limit how many Reservations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Reservation.order
+   */
+  export type Reservation$orderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    where?: OrderWhereInput
+  }
+
+  /**
+   * Reservation without action
+   */
+  export type ReservationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Order
+   */
+
+  export type AggregateOrder = {
+    _count: OrderCountAggregateOutputType | null
+    _min: OrderMinAggregateOutputType | null
+    _max: OrderMaxAggregateOutputType | null
+  }
+
+  export type OrderMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    reservationId: string | null
+    orderNumber: string | null
+    status: $Enums.OrderStatus | null
+    depositStatus: $Enums.DepositStatus | null
+    depositExpiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrderMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    reservationId: string | null
+    orderNumber: string | null
+    status: $Enums.OrderStatus | null
+    depositStatus: $Enums.DepositStatus | null
+    depositExpiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrderCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    reservationId: number
+    orderNumber: number
+    status: number
+    depositStatus: number
+    depositExpiresAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OrderMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    reservationId?: true
+    orderNumber?: true
+    status?: true
+    depositStatus?: true
+    depositExpiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrderMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    reservationId?: true
+    orderNumber?: true
+    status?: true
+    depositStatus?: true
+    depositExpiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrderCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    reservationId?: true
+    orderNumber?: true
+    status?: true
+    depositStatus?: true
+    depositExpiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OrderAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Order to aggregate.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Orders
+    **/
+    _count?: true | OrderCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OrderMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OrderMaxAggregateInputType
+  }
+
+  export type GetOrderAggregateType<T extends OrderAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrder]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOrder[P]>
+      : GetScalarType<T[P], AggregateOrder[P]>
+  }
+
+
+
+
+  export type OrderGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrderWhereInput
+    orderBy?: OrderOrderByWithAggregationInput | OrderOrderByWithAggregationInput[]
+    by: OrderScalarFieldEnum[] | OrderScalarFieldEnum
+    having?: OrderScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OrderCountAggregateInputType | true
+    _min?: OrderMinAggregateInputType
+    _max?: OrderMaxAggregateInputType
+  }
+
+  export type OrderGroupByOutputType = {
+    id: string
+    tenantId: string
+    reservationId: string
+    orderNumber: string
+    status: $Enums.OrderStatus
+    depositStatus: $Enums.DepositStatus
+    depositExpiresAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: OrderCountAggregateOutputType | null
+    _min: OrderMinAggregateOutputType | null
+    _max: OrderMaxAggregateOutputType | null
+  }
+
+  type GetOrderGroupByPayload<T extends OrderGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OrderGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OrderGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OrderGroupByOutputType[P]>
+            : GetScalarType<T[P], OrderGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OrderSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    reservationId?: boolean
+    orderNumber?: boolean
+    status?: boolean
+    depositStatus?: boolean
+    depositExpiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    reservation?: boolean | ReservationDefaultArgs<ExtArgs>
+    paymentProofs?: boolean | Order$paymentProofsArgs<ExtArgs>
+    _count?: boolean | OrderCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["order"]>
+
+  export type OrderSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    reservationId?: boolean
+    orderNumber?: boolean
+    status?: boolean
+    depositStatus?: boolean
+    depositExpiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    reservation?: boolean | ReservationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["order"]>
+
+  export type OrderSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    reservationId?: boolean
+    orderNumber?: boolean
+    status?: boolean
+    depositStatus?: boolean
+    depositExpiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    reservation?: boolean | ReservationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["order"]>
+
+  export type OrderSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    reservationId?: boolean
+    orderNumber?: boolean
+    status?: boolean
+    depositStatus?: boolean
+    depositExpiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "reservationId" | "orderNumber" | "status" | "depositStatus" | "depositExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+  export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    reservation?: boolean | ReservationDefaultArgs<ExtArgs>
+    paymentProofs?: boolean | Order$paymentProofsArgs<ExtArgs>
+    _count?: boolean | OrderCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type OrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    reservation?: boolean | ReservationDefaultArgs<ExtArgs>
+  }
+  export type OrderIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    reservation?: boolean | ReservationDefaultArgs<ExtArgs>
+  }
+
+  export type $OrderPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Order"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+      reservation: Prisma.$ReservationPayload<ExtArgs>
+      paymentProofs: Prisma.$PaymentProofPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      reservationId: string
+      orderNumber: string
+      status: $Enums.OrderStatus
+      depositStatus: $Enums.DepositStatus
+      depositExpiresAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["order"]>
+    composites: {}
+  }
+
+  type OrderGetPayload<S extends boolean | null | undefined | OrderDefaultArgs> = $Result.GetResult<Prisma.$OrderPayload, S>
+
+  type OrderCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OrderFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OrderCountAggregateInputType | true
+    }
+
+  export interface OrderDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Order'], meta: { name: 'Order' } }
+    /**
+     * Find zero or one Order that matches the filter.
+     * @param {OrderFindUniqueArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OrderFindUniqueArgs>(args: SelectSubset<T, OrderFindUniqueArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Order that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OrderFindUniqueOrThrowArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OrderFindUniqueOrThrowArgs>(args: SelectSubset<T, OrderFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Order that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderFindFirstArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OrderFindFirstArgs>(args?: SelectSubset<T, OrderFindFirstArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Order that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderFindFirstOrThrowArgs} args - Arguments to find a Order
+     * @example
+     * // Get one Order
+     * const order = await prisma.order.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OrderFindFirstOrThrowArgs>(args?: SelectSubset<T, OrderFindFirstOrThrowArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Orders that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Orders
+     * const orders = await prisma.order.findMany()
+     * 
+     * // Get first 10 Orders
+     * const orders = await prisma.order.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const orderWithIdOnly = await prisma.order.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OrderFindManyArgs>(args?: SelectSubset<T, OrderFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Order.
+     * @param {OrderCreateArgs} args - Arguments to create a Order.
+     * @example
+     * // Create one Order
+     * const Order = await prisma.order.create({
+     *   data: {
+     *     // ... data to create a Order
+     *   }
+     * })
+     * 
+     */
+    create<T extends OrderCreateArgs>(args: SelectSubset<T, OrderCreateArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Orders.
+     * @param {OrderCreateManyArgs} args - Arguments to create many Orders.
+     * @example
+     * // Create many Orders
+     * const order = await prisma.order.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OrderCreateManyArgs>(args?: SelectSubset<T, OrderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Orders and returns the data saved in the database.
+     * @param {OrderCreateManyAndReturnArgs} args - Arguments to create many Orders.
+     * @example
+     * // Create many Orders
+     * const order = await prisma.order.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Orders and only return the `id`
+     * const orderWithIdOnly = await prisma.order.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OrderCreateManyAndReturnArgs>(args?: SelectSubset<T, OrderCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Order.
+     * @param {OrderDeleteArgs} args - Arguments to delete one Order.
+     * @example
+     * // Delete one Order
+     * const Order = await prisma.order.delete({
+     *   where: {
+     *     // ... filter to delete one Order
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OrderDeleteArgs>(args: SelectSubset<T, OrderDeleteArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Order.
+     * @param {OrderUpdateArgs} args - Arguments to update one Order.
+     * @example
+     * // Update one Order
+     * const order = await prisma.order.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OrderUpdateArgs>(args: SelectSubset<T, OrderUpdateArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Orders.
+     * @param {OrderDeleteManyArgs} args - Arguments to filter Orders to delete.
+     * @example
+     * // Delete a few Orders
+     * const { count } = await prisma.order.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OrderDeleteManyArgs>(args?: SelectSubset<T, OrderDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Orders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Orders
+     * const order = await prisma.order.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OrderUpdateManyArgs>(args: SelectSubset<T, OrderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Orders and returns the data updated in the database.
+     * @param {OrderUpdateManyAndReturnArgs} args - Arguments to update many Orders.
+     * @example
+     * // Update many Orders
+     * const order = await prisma.order.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Orders and only return the `id`
+     * const orderWithIdOnly = await prisma.order.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OrderUpdateManyAndReturnArgs>(args: SelectSubset<T, OrderUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Order.
+     * @param {OrderUpsertArgs} args - Arguments to update or create a Order.
+     * @example
+     * // Update or create a Order
+     * const order = await prisma.order.upsert({
+     *   create: {
+     *     // ... data to create a Order
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Order we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OrderUpsertArgs>(args: SelectSubset<T, OrderUpsertArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Orders.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderCountArgs} args - Arguments to filter Orders to count.
+     * @example
+     * // Count the number of Orders
+     * const count = await prisma.order.count({
+     *   where: {
+     *     // ... the filter for the Orders we want to count
+     *   }
+     * })
+    **/
+    count<T extends OrderCountArgs>(
+      args?: Subset<T, OrderCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OrderCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Order.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OrderAggregateArgs>(args: Subset<T, OrderAggregateArgs>): Prisma.PrismaPromise<GetOrderAggregateType<T>>
+
+    /**
+     * Group by Order.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrderGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OrderGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OrderGroupByArgs['orderBy'] }
+        : { orderBy?: OrderGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OrderGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrderGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Order model
+   */
+  readonly fields: OrderFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Order.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OrderClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    reservation<T extends ReservationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ReservationDefaultArgs<ExtArgs>>): Prisma__ReservationClient<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    paymentProofs<T extends Order$paymentProofsArgs<ExtArgs> = {}>(args?: Subset<T, Order$paymentProofsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Order model
+   */
+  interface OrderFieldRefs {
+    readonly id: FieldRef<"Order", 'String'>
+    readonly tenantId: FieldRef<"Order", 'String'>
+    readonly reservationId: FieldRef<"Order", 'String'>
+    readonly orderNumber: FieldRef<"Order", 'String'>
+    readonly status: FieldRef<"Order", 'OrderStatus'>
+    readonly depositStatus: FieldRef<"Order", 'DepositStatus'>
+    readonly depositExpiresAt: FieldRef<"Order", 'DateTime'>
+    readonly createdAt: FieldRef<"Order", 'DateTime'>
+    readonly updatedAt: FieldRef<"Order", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Order findUnique
+   */
+  export type OrderFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order findUniqueOrThrow
+   */
+  export type OrderFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order findFirst
+   */
+  export type OrderFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Orders.
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Orders.
+     */
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Order findFirstOrThrow
+   */
+  export type OrderFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter, which Order to fetch.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Orders.
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Orders.
+     */
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Order findMany
+   */
+  export type OrderFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter, which Orders to fetch.
+     */
+    where?: OrderWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orders to fetch.
+     */
+    orderBy?: OrderOrderByWithRelationInput | OrderOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Orders.
+     */
+    cursor?: OrderWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orders from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orders.
+     */
+    skip?: number
+    distinct?: OrderScalarFieldEnum | OrderScalarFieldEnum[]
+  }
+
+  /**
+   * Order create
+   */
+  export type OrderCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Order.
+     */
+    data: XOR<OrderCreateInput, OrderUncheckedCreateInput>
+  }
+
+  /**
+   * Order createMany
+   */
+  export type OrderCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Orders.
+     */
+    data: OrderCreateManyInput | OrderCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Order createManyAndReturn
+   */
+  export type OrderCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * The data used to create many Orders.
+     */
+    data: OrderCreateManyInput | OrderCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Order update
+   */
+  export type OrderUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Order.
+     */
+    data: XOR<OrderUpdateInput, OrderUncheckedUpdateInput>
+    /**
+     * Choose, which Order to update.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order updateMany
+   */
+  export type OrderUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Orders.
+     */
+    data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyInput>
+    /**
+     * Filter which Orders to update
+     */
+    where?: OrderWhereInput
+    /**
+     * Limit how many Orders to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Order updateManyAndReturn
+   */
+  export type OrderUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * The data used to update Orders.
+     */
+    data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyInput>
+    /**
+     * Filter which Orders to update
+     */
+    where?: OrderWhereInput
+    /**
+     * Limit how many Orders to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Order upsert
+   */
+  export type OrderUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Order to update in case it exists.
+     */
+    where: OrderWhereUniqueInput
+    /**
+     * In case the Order found by the `where` argument doesn't exist, create a new Order with this data.
+     */
+    create: XOR<OrderCreateInput, OrderUncheckedCreateInput>
+    /**
+     * In case the Order was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OrderUpdateInput, OrderUncheckedUpdateInput>
+  }
+
+  /**
+   * Order delete
+   */
+  export type OrderDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+    /**
+     * Filter which Order to delete.
+     */
+    where: OrderWhereUniqueInput
+  }
+
+  /**
+   * Order deleteMany
+   */
+  export type OrderDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Orders to delete
+     */
+    where?: OrderWhereInput
+    /**
+     * Limit how many Orders to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Order.paymentProofs
+   */
+  export type Order$paymentProofsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+    where?: PaymentProofWhereInput
+    orderBy?: PaymentProofOrderByWithRelationInput | PaymentProofOrderByWithRelationInput[]
+    cursor?: PaymentProofWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaymentProofScalarFieldEnum | PaymentProofScalarFieldEnum[]
+  }
+
+  /**
+   * Order without action
+   */
+  export type OrderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Order
+     */
+    select?: OrderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Order
+     */
+    omit?: OrderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PaymentProof
+   */
+
+  export type AggregatePaymentProof = {
+    _count: PaymentProofCountAggregateOutputType | null
+    _min: PaymentProofMinAggregateOutputType | null
+    _max: PaymentProofMaxAggregateOutputType | null
+  }
+
+  export type PaymentProofMinAggregateOutputType = {
+    id: string | null
+    orderId: string | null
+    tenantId: string | null
+    mediaStorageKey: string | null
+    textPayload: string | null
+    status: $Enums.PaymentProofStatus | null
+    reviewedAt: Date | null
+    correlationId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentProofMaxAggregateOutputType = {
+    id: string | null
+    orderId: string | null
+    tenantId: string | null
+    mediaStorageKey: string | null
+    textPayload: string | null
+    status: $Enums.PaymentProofStatus | null
+    reviewedAt: Date | null
+    correlationId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentProofCountAggregateOutputType = {
+    id: number
+    orderId: number
+    tenantId: number
+    mediaStorageKey: number
+    textPayload: number
+    status: number
+    reviewedAt: number
+    correlationId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PaymentProofMinAggregateInputType = {
+    id?: true
+    orderId?: true
+    tenantId?: true
+    mediaStorageKey?: true
+    textPayload?: true
+    status?: true
+    reviewedAt?: true
+    correlationId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentProofMaxAggregateInputType = {
+    id?: true
+    orderId?: true
+    tenantId?: true
+    mediaStorageKey?: true
+    textPayload?: true
+    status?: true
+    reviewedAt?: true
+    correlationId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentProofCountAggregateInputType = {
+    id?: true
+    orderId?: true
+    tenantId?: true
+    mediaStorageKey?: true
+    textPayload?: true
+    status?: true
+    reviewedAt?: true
+    correlationId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PaymentProofAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentProof to aggregate.
+     */
+    where?: PaymentProofWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentProofs to fetch.
+     */
+    orderBy?: PaymentProofOrderByWithRelationInput | PaymentProofOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaymentProofWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentProofs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentProofs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaymentProofs
+    **/
+    _count?: true | PaymentProofCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaymentProofMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaymentProofMaxAggregateInputType
+  }
+
+  export type GetPaymentProofAggregateType<T extends PaymentProofAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaymentProof]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaymentProof[P]>
+      : GetScalarType<T[P], AggregatePaymentProof[P]>
+  }
+
+
+
+
+  export type PaymentProofGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentProofWhereInput
+    orderBy?: PaymentProofOrderByWithAggregationInput | PaymentProofOrderByWithAggregationInput[]
+    by: PaymentProofScalarFieldEnum[] | PaymentProofScalarFieldEnum
+    having?: PaymentProofScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaymentProofCountAggregateInputType | true
+    _min?: PaymentProofMinAggregateInputType
+    _max?: PaymentProofMaxAggregateInputType
+  }
+
+  export type PaymentProofGroupByOutputType = {
+    id: string
+    orderId: string
+    tenantId: string
+    mediaStorageKey: string | null
+    textPayload: string | null
+    status: $Enums.PaymentProofStatus
+    reviewedAt: Date | null
+    correlationId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: PaymentProofCountAggregateOutputType | null
+    _min: PaymentProofMinAggregateOutputType | null
+    _max: PaymentProofMaxAggregateOutputType | null
+  }
+
+  type GetPaymentProofGroupByPayload<T extends PaymentProofGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaymentProofGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaymentProofGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaymentProofGroupByOutputType[P]>
+            : GetScalarType<T[P], PaymentProofGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaymentProofSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    tenantId?: boolean
+    mediaStorageKey?: boolean
+    textPayload?: boolean
+    status?: boolean
+    reviewedAt?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentProof"]>
+
+  export type PaymentProofSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    tenantId?: boolean
+    mediaStorageKey?: boolean
+    textPayload?: boolean
+    status?: boolean
+    reviewedAt?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentProof"]>
+
+  export type PaymentProofSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    tenantId?: boolean
+    mediaStorageKey?: boolean
+    textPayload?: boolean
+    status?: boolean
+    reviewedAt?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentProof"]>
+
+  export type PaymentProofSelectScalar = {
+    id?: boolean
+    orderId?: boolean
+    tenantId?: boolean
+    mediaStorageKey?: boolean
+    textPayload?: boolean
+    status?: boolean
+    reviewedAt?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PaymentProofOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "tenantId" | "mediaStorageKey" | "textPayload" | "status" | "reviewedAt" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentProof"]>
+  export type PaymentProofInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type PaymentProofIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type PaymentProofIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+
+  export type $PaymentProofPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaymentProof"
+    objects: {
+      order: Prisma.$OrderPayload<ExtArgs>
+      tenant: Prisma.$TenantPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      orderId: string
+      tenantId: string
+      mediaStorageKey: string | null
+      textPayload: string | null
+      status: $Enums.PaymentProofStatus
+      reviewedAt: Date | null
+      correlationId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["paymentProof"]>
+    composites: {}
+  }
+
+  type PaymentProofGetPayload<S extends boolean | null | undefined | PaymentProofDefaultArgs> = $Result.GetResult<Prisma.$PaymentProofPayload, S>
+
+  type PaymentProofCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaymentProofFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaymentProofCountAggregateInputType | true
+    }
+
+  export interface PaymentProofDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaymentProof'], meta: { name: 'PaymentProof' } }
+    /**
+     * Find zero or one PaymentProof that matches the filter.
+     * @param {PaymentProofFindUniqueArgs} args - Arguments to find a PaymentProof
+     * @example
+     * // Get one PaymentProof
+     * const paymentProof = await prisma.paymentProof.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaymentProofFindUniqueArgs>(args: SelectSubset<T, PaymentProofFindUniqueArgs<ExtArgs>>): Prisma__PaymentProofClient<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaymentProof that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaymentProofFindUniqueOrThrowArgs} args - Arguments to find a PaymentProof
+     * @example
+     * // Get one PaymentProof
+     * const paymentProof = await prisma.paymentProof.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaymentProofFindUniqueOrThrowArgs>(args: SelectSubset<T, PaymentProofFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaymentProofClient<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentProof that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentProofFindFirstArgs} args - Arguments to find a PaymentProof
+     * @example
+     * // Get one PaymentProof
+     * const paymentProof = await prisma.paymentProof.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaymentProofFindFirstArgs>(args?: SelectSubset<T, PaymentProofFindFirstArgs<ExtArgs>>): Prisma__PaymentProofClient<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentProof that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentProofFindFirstOrThrowArgs} args - Arguments to find a PaymentProof
+     * @example
+     * // Get one PaymentProof
+     * const paymentProof = await prisma.paymentProof.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaymentProofFindFirstOrThrowArgs>(args?: SelectSubset<T, PaymentProofFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaymentProofClient<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaymentProofs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentProofFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaymentProofs
+     * const paymentProofs = await prisma.paymentProof.findMany()
+     * 
+     * // Get first 10 PaymentProofs
+     * const paymentProofs = await prisma.paymentProof.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const paymentProofWithIdOnly = await prisma.paymentProof.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PaymentProofFindManyArgs>(args?: SelectSubset<T, PaymentProofFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaymentProof.
+     * @param {PaymentProofCreateArgs} args - Arguments to create a PaymentProof.
+     * @example
+     * // Create one PaymentProof
+     * const PaymentProof = await prisma.paymentProof.create({
+     *   data: {
+     *     // ... data to create a PaymentProof
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaymentProofCreateArgs>(args: SelectSubset<T, PaymentProofCreateArgs<ExtArgs>>): Prisma__PaymentProofClient<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaymentProofs.
+     * @param {PaymentProofCreateManyArgs} args - Arguments to create many PaymentProofs.
+     * @example
+     * // Create many PaymentProofs
+     * const paymentProof = await prisma.paymentProof.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaymentProofCreateManyArgs>(args?: SelectSubset<T, PaymentProofCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaymentProofs and returns the data saved in the database.
+     * @param {PaymentProofCreateManyAndReturnArgs} args - Arguments to create many PaymentProofs.
+     * @example
+     * // Create many PaymentProofs
+     * const paymentProof = await prisma.paymentProof.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaymentProofs and only return the `id`
+     * const paymentProofWithIdOnly = await prisma.paymentProof.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaymentProofCreateManyAndReturnArgs>(args?: SelectSubset<T, PaymentProofCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaymentProof.
+     * @param {PaymentProofDeleteArgs} args - Arguments to delete one PaymentProof.
+     * @example
+     * // Delete one PaymentProof
+     * const PaymentProof = await prisma.paymentProof.delete({
+     *   where: {
+     *     // ... filter to delete one PaymentProof
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaymentProofDeleteArgs>(args: SelectSubset<T, PaymentProofDeleteArgs<ExtArgs>>): Prisma__PaymentProofClient<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaymentProof.
+     * @param {PaymentProofUpdateArgs} args - Arguments to update one PaymentProof.
+     * @example
+     * // Update one PaymentProof
+     * const paymentProof = await prisma.paymentProof.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaymentProofUpdateArgs>(args: SelectSubset<T, PaymentProofUpdateArgs<ExtArgs>>): Prisma__PaymentProofClient<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaymentProofs.
+     * @param {PaymentProofDeleteManyArgs} args - Arguments to filter PaymentProofs to delete.
+     * @example
+     * // Delete a few PaymentProofs
+     * const { count } = await prisma.paymentProof.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaymentProofDeleteManyArgs>(args?: SelectSubset<T, PaymentProofDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentProofs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentProofUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaymentProofs
+     * const paymentProof = await prisma.paymentProof.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaymentProofUpdateManyArgs>(args: SelectSubset<T, PaymentProofUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentProofs and returns the data updated in the database.
+     * @param {PaymentProofUpdateManyAndReturnArgs} args - Arguments to update many PaymentProofs.
+     * @example
+     * // Update many PaymentProofs
+     * const paymentProof = await prisma.paymentProof.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaymentProofs and only return the `id`
+     * const paymentProofWithIdOnly = await prisma.paymentProof.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaymentProofUpdateManyAndReturnArgs>(args: SelectSubset<T, PaymentProofUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaymentProof.
+     * @param {PaymentProofUpsertArgs} args - Arguments to update or create a PaymentProof.
+     * @example
+     * // Update or create a PaymentProof
+     * const paymentProof = await prisma.paymentProof.upsert({
+     *   create: {
+     *     // ... data to create a PaymentProof
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaymentProof we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaymentProofUpsertArgs>(args: SelectSubset<T, PaymentProofUpsertArgs<ExtArgs>>): Prisma__PaymentProofClient<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaymentProofs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentProofCountArgs} args - Arguments to filter PaymentProofs to count.
+     * @example
+     * // Count the number of PaymentProofs
+     * const count = await prisma.paymentProof.count({
+     *   where: {
+     *     // ... the filter for the PaymentProofs we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaymentProofCountArgs>(
+      args?: Subset<T, PaymentProofCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaymentProofCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaymentProof.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentProofAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaymentProofAggregateArgs>(args: Subset<T, PaymentProofAggregateArgs>): Prisma.PrismaPromise<GetPaymentProofAggregateType<T>>
+
+    /**
+     * Group by PaymentProof.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentProofGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaymentProofGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaymentProofGroupByArgs['orderBy'] }
+        : { orderBy?: PaymentProofGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaymentProofGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaymentProofGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaymentProof model
+   */
+  readonly fields: PaymentProofFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaymentProof.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaymentProofClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    order<T extends OrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrderDefaultArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaymentProof model
+   */
+  interface PaymentProofFieldRefs {
+    readonly id: FieldRef<"PaymentProof", 'String'>
+    readonly orderId: FieldRef<"PaymentProof", 'String'>
+    readonly tenantId: FieldRef<"PaymentProof", 'String'>
+    readonly mediaStorageKey: FieldRef<"PaymentProof", 'String'>
+    readonly textPayload: FieldRef<"PaymentProof", 'String'>
+    readonly status: FieldRef<"PaymentProof", 'PaymentProofStatus'>
+    readonly reviewedAt: FieldRef<"PaymentProof", 'DateTime'>
+    readonly correlationId: FieldRef<"PaymentProof", 'String'>
+    readonly createdAt: FieldRef<"PaymentProof", 'DateTime'>
+    readonly updatedAt: FieldRef<"PaymentProof", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaymentProof findUnique
+   */
+  export type PaymentProofFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentProof to fetch.
+     */
+    where: PaymentProofWhereUniqueInput
+  }
+
+  /**
+   * PaymentProof findUniqueOrThrow
+   */
+  export type PaymentProofFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentProof to fetch.
+     */
+    where: PaymentProofWhereUniqueInput
+  }
+
+  /**
+   * PaymentProof findFirst
+   */
+  export type PaymentProofFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentProof to fetch.
+     */
+    where?: PaymentProofWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentProofs to fetch.
+     */
+    orderBy?: PaymentProofOrderByWithRelationInput | PaymentProofOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentProofs.
+     */
+    cursor?: PaymentProofWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentProofs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentProofs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentProofs.
+     */
+    distinct?: PaymentProofScalarFieldEnum | PaymentProofScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentProof findFirstOrThrow
+   */
+  export type PaymentProofFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentProof to fetch.
+     */
+    where?: PaymentProofWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentProofs to fetch.
+     */
+    orderBy?: PaymentProofOrderByWithRelationInput | PaymentProofOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentProofs.
+     */
+    cursor?: PaymentProofWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentProofs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentProofs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentProofs.
+     */
+    distinct?: PaymentProofScalarFieldEnum | PaymentProofScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentProof findMany
+   */
+  export type PaymentProofFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentProofs to fetch.
+     */
+    where?: PaymentProofWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentProofs to fetch.
+     */
+    orderBy?: PaymentProofOrderByWithRelationInput | PaymentProofOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaymentProofs.
+     */
+    cursor?: PaymentProofWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentProofs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentProofs.
+     */
+    skip?: number
+    distinct?: PaymentProofScalarFieldEnum | PaymentProofScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentProof create
+   */
+  export type PaymentProofCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaymentProof.
+     */
+    data: XOR<PaymentProofCreateInput, PaymentProofUncheckedCreateInput>
+  }
+
+  /**
+   * PaymentProof createMany
+   */
+  export type PaymentProofCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaymentProofs.
+     */
+    data: PaymentProofCreateManyInput | PaymentProofCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaymentProof createManyAndReturn
+   */
+  export type PaymentProofCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaymentProofs.
+     */
+    data: PaymentProofCreateManyInput | PaymentProofCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentProof update
+   */
+  export type PaymentProofUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaymentProof.
+     */
+    data: XOR<PaymentProofUpdateInput, PaymentProofUncheckedUpdateInput>
+    /**
+     * Choose, which PaymentProof to update.
+     */
+    where: PaymentProofWhereUniqueInput
+  }
+
+  /**
+   * PaymentProof updateMany
+   */
+  export type PaymentProofUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaymentProofs.
+     */
+    data: XOR<PaymentProofUpdateManyMutationInput, PaymentProofUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentProofs to update
+     */
+    where?: PaymentProofWhereInput
+    /**
+     * Limit how many PaymentProofs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentProof updateManyAndReturn
+   */
+  export type PaymentProofUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * The data used to update PaymentProofs.
+     */
+    data: XOR<PaymentProofUpdateManyMutationInput, PaymentProofUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentProofs to update
+     */
+    where?: PaymentProofWhereInput
+    /**
+     * Limit how many PaymentProofs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentProof upsert
+   */
+  export type PaymentProofUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaymentProof to update in case it exists.
+     */
+    where: PaymentProofWhereUniqueInput
+    /**
+     * In case the PaymentProof found by the `where` argument doesn't exist, create a new PaymentProof with this data.
+     */
+    create: XOR<PaymentProofCreateInput, PaymentProofUncheckedCreateInput>
+    /**
+     * In case the PaymentProof was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaymentProofUpdateInput, PaymentProofUncheckedUpdateInput>
+  }
+
+  /**
+   * PaymentProof delete
+   */
+  export type PaymentProofDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+    /**
+     * Filter which PaymentProof to delete.
+     */
+    where: PaymentProofWhereUniqueInput
+  }
+
+  /**
+   * PaymentProof deleteMany
+   */
+  export type PaymentProofDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentProofs to delete
+     */
+    where?: PaymentProofWhereInput
+    /**
+     * Limit how many PaymentProofs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentProof without action
+   */
+  export type PaymentProofDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentProof
+     */
+    select?: PaymentProofSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentProof
+     */
+    omit?: PaymentProofOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentProofInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Waitlist
+   */
+
+  export type AggregateWaitlist = {
+    _count: WaitlistCountAggregateOutputType | null
+    _avg: WaitlistAvgAggregateOutputType | null
+    _sum: WaitlistSumAggregateOutputType | null
+    _min: WaitlistMinAggregateOutputType | null
+    _max: WaitlistMaxAggregateOutputType | null
+  }
+
+  export type WaitlistAvgAggregateOutputType = {
+    position: number | null
+  }
+
+  export type WaitlistSumAggregateOutputType = {
+    position: number | null
+  }
+
+  export type WaitlistMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    liveSessionId: string | null
+    liveItemId: string | null
+    clientPhone: string | null
+    position: number | null
+    correlationId: string | null
+    createdAt: Date | null
+  }
+
+  export type WaitlistMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    liveSessionId: string | null
+    liveItemId: string | null
+    clientPhone: string | null
+    position: number | null
+    correlationId: string | null
+    createdAt: Date | null
+  }
+
+  export type WaitlistCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    liveSessionId: number
+    liveItemId: number
+    clientPhone: number
+    position: number
+    correlationId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type WaitlistAvgAggregateInputType = {
+    position?: true
+  }
+
+  export type WaitlistSumAggregateInputType = {
+    position?: true
+  }
+
+  export type WaitlistMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    liveSessionId?: true
+    liveItemId?: true
+    clientPhone?: true
+    position?: true
+    correlationId?: true
+    createdAt?: true
+  }
+
+  export type WaitlistMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    liveSessionId?: true
+    liveItemId?: true
+    clientPhone?: true
+    position?: true
+    correlationId?: true
+    createdAt?: true
+  }
+
+  export type WaitlistCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    liveSessionId?: true
+    liveItemId?: true
+    clientPhone?: true
+    position?: true
+    correlationId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type WaitlistAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Waitlist to aggregate.
+     */
+    where?: WaitlistWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Waitlists to fetch.
+     */
+    orderBy?: WaitlistOrderByWithRelationInput | WaitlistOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WaitlistWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Waitlists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Waitlists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Waitlists
+    **/
+    _count?: true | WaitlistCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: WaitlistAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WaitlistSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WaitlistMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WaitlistMaxAggregateInputType
+  }
+
+  export type GetWaitlistAggregateType<T extends WaitlistAggregateArgs> = {
+        [P in keyof T & keyof AggregateWaitlist]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWaitlist[P]>
+      : GetScalarType<T[P], AggregateWaitlist[P]>
+  }
+
+
+
+
+  export type WaitlistGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WaitlistWhereInput
+    orderBy?: WaitlistOrderByWithAggregationInput | WaitlistOrderByWithAggregationInput[]
+    by: WaitlistScalarFieldEnum[] | WaitlistScalarFieldEnum
+    having?: WaitlistScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WaitlistCountAggregateInputType | true
+    _avg?: WaitlistAvgAggregateInputType
+    _sum?: WaitlistSumAggregateInputType
+    _min?: WaitlistMinAggregateInputType
+    _max?: WaitlistMaxAggregateInputType
+  }
+
+  export type WaitlistGroupByOutputType = {
+    id: string
+    tenantId: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    position: number
+    correlationId: string
+    createdAt: Date
+    _count: WaitlistCountAggregateOutputType | null
+    _avg: WaitlistAvgAggregateOutputType | null
+    _sum: WaitlistSumAggregateOutputType | null
+    _min: WaitlistMinAggregateOutputType | null
+    _max: WaitlistMaxAggregateOutputType | null
+  }
+
+  type GetWaitlistGroupByPayload<T extends WaitlistGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WaitlistGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WaitlistGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WaitlistGroupByOutputType[P]>
+            : GetScalarType<T[P], WaitlistGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WaitlistSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    liveItemId?: boolean
+    clientPhone?: boolean
+    position?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["waitlist"]>
+
+  export type WaitlistSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    liveItemId?: boolean
+    clientPhone?: boolean
+    position?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["waitlist"]>
+
+  export type WaitlistSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    liveItemId?: boolean
+    clientPhone?: boolean
+    position?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["waitlist"]>
+
+  export type WaitlistSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    liveSessionId?: boolean
+    liveItemId?: boolean
+    clientPhone?: boolean
+    position?: boolean
+    correlationId?: boolean
+    createdAt?: boolean
+  }
+
+  export type WaitlistOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "liveItemId" | "clientPhone" | "position" | "correlationId" | "createdAt", ExtArgs["result"]["waitlist"]>
+  export type WaitlistInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type WaitlistIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type WaitlistIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+
+  export type $WaitlistPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Waitlist"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      liveSessionId: string
+      liveItemId: string
+      clientPhone: string
+      position: number
+      correlationId: string
+      createdAt: Date
+    }, ExtArgs["result"]["waitlist"]>
+    composites: {}
+  }
+
+  type WaitlistGetPayload<S extends boolean | null | undefined | WaitlistDefaultArgs> = $Result.GetResult<Prisma.$WaitlistPayload, S>
+
+  type WaitlistCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WaitlistFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WaitlistCountAggregateInputType | true
+    }
+
+  export interface WaitlistDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Waitlist'], meta: { name: 'Waitlist' } }
+    /**
+     * Find zero or one Waitlist that matches the filter.
+     * @param {WaitlistFindUniqueArgs} args - Arguments to find a Waitlist
+     * @example
+     * // Get one Waitlist
+     * const waitlist = await prisma.waitlist.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WaitlistFindUniqueArgs>(args: SelectSubset<T, WaitlistFindUniqueArgs<ExtArgs>>): Prisma__WaitlistClient<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Waitlist that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WaitlistFindUniqueOrThrowArgs} args - Arguments to find a Waitlist
+     * @example
+     * // Get one Waitlist
+     * const waitlist = await prisma.waitlist.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WaitlistFindUniqueOrThrowArgs>(args: SelectSubset<T, WaitlistFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WaitlistClient<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Waitlist that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WaitlistFindFirstArgs} args - Arguments to find a Waitlist
+     * @example
+     * // Get one Waitlist
+     * const waitlist = await prisma.waitlist.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WaitlistFindFirstArgs>(args?: SelectSubset<T, WaitlistFindFirstArgs<ExtArgs>>): Prisma__WaitlistClient<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Waitlist that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WaitlistFindFirstOrThrowArgs} args - Arguments to find a Waitlist
+     * @example
+     * // Get one Waitlist
+     * const waitlist = await prisma.waitlist.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WaitlistFindFirstOrThrowArgs>(args?: SelectSubset<T, WaitlistFindFirstOrThrowArgs<ExtArgs>>): Prisma__WaitlistClient<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Waitlists that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WaitlistFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Waitlists
+     * const waitlists = await prisma.waitlist.findMany()
+     * 
+     * // Get first 10 Waitlists
+     * const waitlists = await prisma.waitlist.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const waitlistWithIdOnly = await prisma.waitlist.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WaitlistFindManyArgs>(args?: SelectSubset<T, WaitlistFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Waitlist.
+     * @param {WaitlistCreateArgs} args - Arguments to create a Waitlist.
+     * @example
+     * // Create one Waitlist
+     * const Waitlist = await prisma.waitlist.create({
+     *   data: {
+     *     // ... data to create a Waitlist
+     *   }
+     * })
+     * 
+     */
+    create<T extends WaitlistCreateArgs>(args: SelectSubset<T, WaitlistCreateArgs<ExtArgs>>): Prisma__WaitlistClient<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Waitlists.
+     * @param {WaitlistCreateManyArgs} args - Arguments to create many Waitlists.
+     * @example
+     * // Create many Waitlists
+     * const waitlist = await prisma.waitlist.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WaitlistCreateManyArgs>(args?: SelectSubset<T, WaitlistCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Waitlists and returns the data saved in the database.
+     * @param {WaitlistCreateManyAndReturnArgs} args - Arguments to create many Waitlists.
+     * @example
+     * // Create many Waitlists
+     * const waitlist = await prisma.waitlist.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Waitlists and only return the `id`
+     * const waitlistWithIdOnly = await prisma.waitlist.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WaitlistCreateManyAndReturnArgs>(args?: SelectSubset<T, WaitlistCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Waitlist.
+     * @param {WaitlistDeleteArgs} args - Arguments to delete one Waitlist.
+     * @example
+     * // Delete one Waitlist
+     * const Waitlist = await prisma.waitlist.delete({
+     *   where: {
+     *     // ... filter to delete one Waitlist
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WaitlistDeleteArgs>(args: SelectSubset<T, WaitlistDeleteArgs<ExtArgs>>): Prisma__WaitlistClient<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Waitlist.
+     * @param {WaitlistUpdateArgs} args - Arguments to update one Waitlist.
+     * @example
+     * // Update one Waitlist
+     * const waitlist = await prisma.waitlist.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WaitlistUpdateArgs>(args: SelectSubset<T, WaitlistUpdateArgs<ExtArgs>>): Prisma__WaitlistClient<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Waitlists.
+     * @param {WaitlistDeleteManyArgs} args - Arguments to filter Waitlists to delete.
+     * @example
+     * // Delete a few Waitlists
+     * const { count } = await prisma.waitlist.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WaitlistDeleteManyArgs>(args?: SelectSubset<T, WaitlistDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Waitlists.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WaitlistUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Waitlists
+     * const waitlist = await prisma.waitlist.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WaitlistUpdateManyArgs>(args: SelectSubset<T, WaitlistUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Waitlists and returns the data updated in the database.
+     * @param {WaitlistUpdateManyAndReturnArgs} args - Arguments to update many Waitlists.
+     * @example
+     * // Update many Waitlists
+     * const waitlist = await prisma.waitlist.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Waitlists and only return the `id`
+     * const waitlistWithIdOnly = await prisma.waitlist.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WaitlistUpdateManyAndReturnArgs>(args: SelectSubset<T, WaitlistUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Waitlist.
+     * @param {WaitlistUpsertArgs} args - Arguments to update or create a Waitlist.
+     * @example
+     * // Update or create a Waitlist
+     * const waitlist = await prisma.waitlist.upsert({
+     *   create: {
+     *     // ... data to create a Waitlist
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Waitlist we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WaitlistUpsertArgs>(args: SelectSubset<T, WaitlistUpsertArgs<ExtArgs>>): Prisma__WaitlistClient<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Waitlists.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WaitlistCountArgs} args - Arguments to filter Waitlists to count.
+     * @example
+     * // Count the number of Waitlists
+     * const count = await prisma.waitlist.count({
+     *   where: {
+     *     // ... the filter for the Waitlists we want to count
+     *   }
+     * })
+    **/
+    count<T extends WaitlistCountArgs>(
+      args?: Subset<T, WaitlistCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WaitlistCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Waitlist.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WaitlistAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WaitlistAggregateArgs>(args: Subset<T, WaitlistAggregateArgs>): Prisma.PrismaPromise<GetWaitlistAggregateType<T>>
+
+    /**
+     * Group by Waitlist.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WaitlistGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WaitlistGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WaitlistGroupByArgs['orderBy'] }
+        : { orderBy?: WaitlistGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WaitlistGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWaitlistGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Waitlist model
+   */
+  readonly fields: WaitlistFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Waitlist.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WaitlistClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Waitlist model
+   */
+  interface WaitlistFieldRefs {
+    readonly id: FieldRef<"Waitlist", 'String'>
+    readonly tenantId: FieldRef<"Waitlist", 'String'>
+    readonly liveSessionId: FieldRef<"Waitlist", 'String'>
+    readonly liveItemId: FieldRef<"Waitlist", 'String'>
+    readonly clientPhone: FieldRef<"Waitlist", 'String'>
+    readonly position: FieldRef<"Waitlist", 'Int'>
+    readonly correlationId: FieldRef<"Waitlist", 'String'>
+    readonly createdAt: FieldRef<"Waitlist", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Waitlist findUnique
+   */
+  export type WaitlistFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistInclude<ExtArgs> | null
+    /**
+     * Filter, which Waitlist to fetch.
+     */
+    where: WaitlistWhereUniqueInput
+  }
+
+  /**
+   * Waitlist findUniqueOrThrow
+   */
+  export type WaitlistFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistInclude<ExtArgs> | null
+    /**
+     * Filter, which Waitlist to fetch.
+     */
+    where: WaitlistWhereUniqueInput
+  }
+
+  /**
+   * Waitlist findFirst
+   */
+  export type WaitlistFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistInclude<ExtArgs> | null
+    /**
+     * Filter, which Waitlist to fetch.
+     */
+    where?: WaitlistWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Waitlists to fetch.
+     */
+    orderBy?: WaitlistOrderByWithRelationInput | WaitlistOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Waitlists.
+     */
+    cursor?: WaitlistWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Waitlists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Waitlists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Waitlists.
+     */
+    distinct?: WaitlistScalarFieldEnum | WaitlistScalarFieldEnum[]
+  }
+
+  /**
+   * Waitlist findFirstOrThrow
+   */
+  export type WaitlistFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistInclude<ExtArgs> | null
+    /**
+     * Filter, which Waitlist to fetch.
+     */
+    where?: WaitlistWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Waitlists to fetch.
+     */
+    orderBy?: WaitlistOrderByWithRelationInput | WaitlistOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Waitlists.
+     */
+    cursor?: WaitlistWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Waitlists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Waitlists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Waitlists.
+     */
+    distinct?: WaitlistScalarFieldEnum | WaitlistScalarFieldEnum[]
+  }
+
+  /**
+   * Waitlist findMany
+   */
+  export type WaitlistFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistInclude<ExtArgs> | null
+    /**
+     * Filter, which Waitlists to fetch.
+     */
+    where?: WaitlistWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Waitlists to fetch.
+     */
+    orderBy?: WaitlistOrderByWithRelationInput | WaitlistOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Waitlists.
+     */
+    cursor?: WaitlistWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Waitlists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Waitlists.
+     */
+    skip?: number
+    distinct?: WaitlistScalarFieldEnum | WaitlistScalarFieldEnum[]
+  }
+
+  /**
+   * Waitlist create
+   */
+  export type WaitlistCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Waitlist.
+     */
+    data: XOR<WaitlistCreateInput, WaitlistUncheckedCreateInput>
+  }
+
+  /**
+   * Waitlist createMany
+   */
+  export type WaitlistCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Waitlists.
+     */
+    data: WaitlistCreateManyInput | WaitlistCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Waitlist createManyAndReturn
+   */
+  export type WaitlistCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * The data used to create many Waitlists.
+     */
+    data: WaitlistCreateManyInput | WaitlistCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Waitlist update
+   */
+  export type WaitlistUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Waitlist.
+     */
+    data: XOR<WaitlistUpdateInput, WaitlistUncheckedUpdateInput>
+    /**
+     * Choose, which Waitlist to update.
+     */
+    where: WaitlistWhereUniqueInput
+  }
+
+  /**
+   * Waitlist updateMany
+   */
+  export type WaitlistUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Waitlists.
+     */
+    data: XOR<WaitlistUpdateManyMutationInput, WaitlistUncheckedUpdateManyInput>
+    /**
+     * Filter which Waitlists to update
+     */
+    where?: WaitlistWhereInput
+    /**
+     * Limit how many Waitlists to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Waitlist updateManyAndReturn
+   */
+  export type WaitlistUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * The data used to update Waitlists.
+     */
+    data: XOR<WaitlistUpdateManyMutationInput, WaitlistUncheckedUpdateManyInput>
+    /**
+     * Filter which Waitlists to update
+     */
+    where?: WaitlistWhereInput
+    /**
+     * Limit how many Waitlists to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Waitlist upsert
+   */
+  export type WaitlistUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Waitlist to update in case it exists.
+     */
+    where: WaitlistWhereUniqueInput
+    /**
+     * In case the Waitlist found by the `where` argument doesn't exist, create a new Waitlist with this data.
+     */
+    create: XOR<WaitlistCreateInput, WaitlistUncheckedCreateInput>
+    /**
+     * In case the Waitlist was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WaitlistUpdateInput, WaitlistUncheckedUpdateInput>
+  }
+
+  /**
+   * Waitlist delete
+   */
+  export type WaitlistDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistInclude<ExtArgs> | null
+    /**
+     * Filter which Waitlist to delete.
+     */
+    where: WaitlistWhereUniqueInput
+  }
+
+  /**
+   * Waitlist deleteMany
+   */
+  export type WaitlistDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Waitlists to delete
+     */
+    where?: WaitlistWhereInput
+    /**
+     * Limit how many Waitlists to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Waitlist without action
+   */
+  export type WaitlistDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Waitlist
+     */
+    select?: WaitlistSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Waitlist
+     */
+    omit?: WaitlistOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WaitlistInclude<ExtArgs> | null
   }
 
 
@@ -21554,6 +28242,7 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     whatsappPhoneNumber: 'whatsappPhoneNumber',
+    requireDeposit: 'requireDeposit',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -21756,6 +28445,86 @@ export namespace Prisma {
   export type LiveSessionScalarFieldEnum = (typeof LiveSessionScalarFieldEnum)[keyof typeof LiveSessionScalarFieldEnum]
 
 
+  export const LiveItemScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    liveSessionId: 'liveSessionId',
+    code: 'code',
+    amountCents: 'amountCents',
+    quantity: 'quantity',
+    availableQty: 'availableQty',
+    reservedQty: 'reservedQty',
+    mediaStorageKey: 'mediaStorageKey',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LiveItemScalarFieldEnum = (typeof LiveItemScalarFieldEnum)[keyof typeof LiveItemScalarFieldEnum]
+
+
+  export const ReservationScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    liveSessionId: 'liveSessionId',
+    liveItemId: 'liveItemId',
+    clientPhone: 'clientPhone',
+    status: 'status',
+    address: 'address',
+    expiresAt: 'expiresAt',
+    reminderSentAt: 'reminderSentAt',
+    correlationId: 'correlationId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ReservationScalarFieldEnum = (typeof ReservationScalarFieldEnum)[keyof typeof ReservationScalarFieldEnum]
+
+
+  export const OrderScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    reservationId: 'reservationId',
+    orderNumber: 'orderNumber',
+    status: 'status',
+    depositStatus: 'depositStatus',
+    depositExpiresAt: 'depositExpiresAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+  export const PaymentProofScalarFieldEnum: {
+    id: 'id',
+    orderId: 'orderId',
+    tenantId: 'tenantId',
+    mediaStorageKey: 'mediaStorageKey',
+    textPayload: 'textPayload',
+    status: 'status',
+    reviewedAt: 'reviewedAt',
+    correlationId: 'correlationId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PaymentProofScalarFieldEnum = (typeof PaymentProofScalarFieldEnum)[keyof typeof PaymentProofScalarFieldEnum]
+
+
+  export const WaitlistScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    liveSessionId: 'liveSessionId',
+    liveItemId: 'liveItemId',
+    clientPhone: 'clientPhone',
+    position: 'position',
+    correlationId: 'correlationId',
+    createdAt: 'createdAt'
+  };
+
+  export type WaitlistScalarFieldEnum = (typeof WaitlistScalarFieldEnum)[keyof typeof WaitlistScalarFieldEnum]
+
+
   export const DeadLetterJobScalarFieldEnum: {
     id: 'id',
     tenantId: 'tenantId',
@@ -21831,6 +28600,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -21901,6 +28677,62 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'ReservationStatus'
+   */
+  export type EnumReservationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReservationStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ReservationStatus[]'
+   */
+  export type ListEnumReservationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ReservationStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'OrderStatus'
+   */
+  export type EnumOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrderStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'OrderStatus[]'
+   */
+  export type ListEnumOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrderStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DepositStatus'
+   */
+  export type EnumDepositStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DepositStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'DepositStatus[]'
+   */
+  export type ListEnumDepositStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DepositStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'PaymentProofStatus'
+   */
+  export type EnumPaymentProofStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentProofStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'PaymentProofStatus[]'
+   */
+  export type ListEnumPaymentProofStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentProofStatus[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -21924,6 +28756,7 @@ export namespace Prisma {
     id?: StringFilter<"Tenant"> | string
     name?: StringFilter<"Tenant"> | string
     whatsappPhoneNumber?: StringNullableFilter<"Tenant"> | string | null
+    requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     users?: UserListRelationFilter
@@ -21938,12 +28771,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobListRelationFilter
     optOuts?: OptOutListRelationFilter
     liveSessions?: LiveSessionListRelationFilter
+    liveItems?: LiveItemListRelationFilter
+    reservations?: ReservationListRelationFilter
+    waitlists?: WaitlistListRelationFilter
+    orders?: OrderListRelationFilter
+    paymentProofs?: PaymentProofListRelationFilter
   }
 
   export type TenantOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
     whatsappPhoneNumber?: SortOrderInput | SortOrder
+    requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     users?: UserOrderByRelationAggregateInput
@@ -21958,6 +28797,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobOrderByRelationAggregateInput
     optOuts?: OptOutOrderByRelationAggregateInput
     liveSessions?: LiveSessionOrderByRelationAggregateInput
+    liveItems?: LiveItemOrderByRelationAggregateInput
+    reservations?: ReservationOrderByRelationAggregateInput
+    waitlists?: WaitlistOrderByRelationAggregateInput
+    orders?: OrderOrderByRelationAggregateInput
+    paymentProofs?: PaymentProofOrderByRelationAggregateInput
   }
 
   export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -21967,6 +28811,7 @@ export namespace Prisma {
     OR?: TenantWhereInput[]
     NOT?: TenantWhereInput | TenantWhereInput[]
     name?: StringFilter<"Tenant"> | string
+    requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     users?: UserListRelationFilter
@@ -21981,12 +28826,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobListRelationFilter
     optOuts?: OptOutListRelationFilter
     liveSessions?: LiveSessionListRelationFilter
+    liveItems?: LiveItemListRelationFilter
+    reservations?: ReservationListRelationFilter
+    waitlists?: WaitlistListRelationFilter
+    orders?: OrderListRelationFilter
+    paymentProofs?: PaymentProofListRelationFilter
   }, "id" | "whatsappPhoneNumber">
 
   export type TenantOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
     whatsappPhoneNumber?: SortOrderInput | SortOrder
+    requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TenantCountOrderByAggregateInput
@@ -22001,6 +28852,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Tenant"> | string
     name?: StringWithAggregatesFilter<"Tenant"> | string
     whatsappPhoneNumber?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    requireDeposit?: BoolWithAggregatesFilter<"Tenant"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
   }
@@ -22956,6 +29808,8 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"LiveSession"> | Date | string
     updatedAt?: DateTimeFilter<"LiveSession"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    liveItems?: LiveItemListRelationFilter
+    reservations?: ReservationListRelationFilter
   }
 
   export type LiveSessionOrderByWithRelationInput = {
@@ -22966,6 +29820,8 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenant?: TenantOrderByWithRelationInput
+    liveItems?: LiveItemOrderByRelationAggregateInput
+    reservations?: ReservationOrderByRelationAggregateInput
   }
 
   export type LiveSessionWhereUniqueInput = Prisma.AtLeast<{
@@ -22979,6 +29835,8 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"LiveSession"> | Date | string
     updatedAt?: DateTimeFilter<"LiveSession"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    liveItems?: LiveItemListRelationFilter
+    reservations?: ReservationListRelationFilter
   }, "id">
 
   export type LiveSessionOrderByWithAggregationInput = {
@@ -23003,6 +29861,438 @@ export namespace Prisma {
     lastActivityAt?: DateTimeWithAggregatesFilter<"LiveSession"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"LiveSession"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"LiveSession"> | Date | string
+  }
+
+  export type LiveItemWhereInput = {
+    AND?: LiveItemWhereInput | LiveItemWhereInput[]
+    OR?: LiveItemWhereInput[]
+    NOT?: LiveItemWhereInput | LiveItemWhereInput[]
+    id?: StringFilter<"LiveItem"> | string
+    tenantId?: StringFilter<"LiveItem"> | string
+    liveSessionId?: StringFilter<"LiveItem"> | string
+    code?: StringFilter<"LiveItem"> | string
+    amountCents?: IntNullableFilter<"LiveItem"> | number | null
+    quantity?: IntFilter<"LiveItem"> | number
+    availableQty?: IntFilter<"LiveItem"> | number
+    reservedQty?: IntFilter<"LiveItem"> | number
+    mediaStorageKey?: StringNullableFilter<"LiveItem"> | string | null
+    createdAt?: DateTimeFilter<"LiveItem"> | Date | string
+    updatedAt?: DateTimeFilter<"LiveItem"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    liveSession?: XOR<LiveSessionScalarRelationFilter, LiveSessionWhereInput>
+    reservations?: ReservationListRelationFilter
+  }
+
+  export type LiveItemOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    code?: SortOrder
+    amountCents?: SortOrderInput | SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    mediaStorageKey?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    liveSession?: LiveSessionOrderByWithRelationInput
+    reservations?: ReservationOrderByRelationAggregateInput
+  }
+
+  export type LiveItemWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenantId_liveSessionId_code?: LiveItemTenantIdLiveSessionIdCodeCompoundUniqueInput
+    AND?: LiveItemWhereInput | LiveItemWhereInput[]
+    OR?: LiveItemWhereInput[]
+    NOT?: LiveItemWhereInput | LiveItemWhereInput[]
+    tenantId?: StringFilter<"LiveItem"> | string
+    liveSessionId?: StringFilter<"LiveItem"> | string
+    code?: StringFilter<"LiveItem"> | string
+    amountCents?: IntNullableFilter<"LiveItem"> | number | null
+    quantity?: IntFilter<"LiveItem"> | number
+    availableQty?: IntFilter<"LiveItem"> | number
+    reservedQty?: IntFilter<"LiveItem"> | number
+    mediaStorageKey?: StringNullableFilter<"LiveItem"> | string | null
+    createdAt?: DateTimeFilter<"LiveItem"> | Date | string
+    updatedAt?: DateTimeFilter<"LiveItem"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    liveSession?: XOR<LiveSessionScalarRelationFilter, LiveSessionWhereInput>
+    reservations?: ReservationListRelationFilter
+  }, "id" | "tenantId_liveSessionId_code">
+
+  export type LiveItemOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    code?: SortOrder
+    amountCents?: SortOrderInput | SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    mediaStorageKey?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: LiveItemCountOrderByAggregateInput
+    _avg?: LiveItemAvgOrderByAggregateInput
+    _max?: LiveItemMaxOrderByAggregateInput
+    _min?: LiveItemMinOrderByAggregateInput
+    _sum?: LiveItemSumOrderByAggregateInput
+  }
+
+  export type LiveItemScalarWhereWithAggregatesInput = {
+    AND?: LiveItemScalarWhereWithAggregatesInput | LiveItemScalarWhereWithAggregatesInput[]
+    OR?: LiveItemScalarWhereWithAggregatesInput[]
+    NOT?: LiveItemScalarWhereWithAggregatesInput | LiveItemScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"LiveItem"> | string
+    tenantId?: StringWithAggregatesFilter<"LiveItem"> | string
+    liveSessionId?: StringWithAggregatesFilter<"LiveItem"> | string
+    code?: StringWithAggregatesFilter<"LiveItem"> | string
+    amountCents?: IntNullableWithAggregatesFilter<"LiveItem"> | number | null
+    quantity?: IntWithAggregatesFilter<"LiveItem"> | number
+    availableQty?: IntWithAggregatesFilter<"LiveItem"> | number
+    reservedQty?: IntWithAggregatesFilter<"LiveItem"> | number
+    mediaStorageKey?: StringNullableWithAggregatesFilter<"LiveItem"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"LiveItem"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"LiveItem"> | Date | string
+  }
+
+  export type ReservationWhereInput = {
+    AND?: ReservationWhereInput | ReservationWhereInput[]
+    OR?: ReservationWhereInput[]
+    NOT?: ReservationWhereInput | ReservationWhereInput[]
+    id?: StringFilter<"Reservation"> | string
+    tenantId?: StringFilter<"Reservation"> | string
+    liveSessionId?: StringFilter<"Reservation"> | string
+    liveItemId?: StringFilter<"Reservation"> | string
+    clientPhone?: StringFilter<"Reservation"> | string
+    status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
+    address?: StringNullableFilter<"Reservation"> | string | null
+    expiresAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
+    reminderSentAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
+    correlationId?: StringFilter<"Reservation"> | string
+    createdAt?: DateTimeFilter<"Reservation"> | Date | string
+    updatedAt?: DateTimeFilter<"Reservation"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    liveSession?: XOR<LiveSessionScalarRelationFilter, LiveSessionWhereInput>
+    liveItem?: XOR<LiveItemScalarRelationFilter, LiveItemWhereInput>
+    order?: XOR<OrderNullableScalarRelationFilter, OrderWhereInput> | null
+  }
+
+  export type ReservationOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    liveItemId?: SortOrder
+    clientPhone?: SortOrder
+    status?: SortOrder
+    address?: SortOrderInput | SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    reminderSentAt?: SortOrderInput | SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    liveSession?: LiveSessionOrderByWithRelationInput
+    liveItem?: LiveItemOrderByWithRelationInput
+    order?: OrderOrderByWithRelationInput
+  }
+
+  export type ReservationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenantId_liveSessionId_clientPhone_liveItemId?: ReservationTenantIdLiveSessionIdClientPhoneLiveItemIdCompoundUniqueInput
+    AND?: ReservationWhereInput | ReservationWhereInput[]
+    OR?: ReservationWhereInput[]
+    NOT?: ReservationWhereInput | ReservationWhereInput[]
+    tenantId?: StringFilter<"Reservation"> | string
+    liveSessionId?: StringFilter<"Reservation"> | string
+    liveItemId?: StringFilter<"Reservation"> | string
+    clientPhone?: StringFilter<"Reservation"> | string
+    status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
+    address?: StringNullableFilter<"Reservation"> | string | null
+    expiresAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
+    reminderSentAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
+    correlationId?: StringFilter<"Reservation"> | string
+    createdAt?: DateTimeFilter<"Reservation"> | Date | string
+    updatedAt?: DateTimeFilter<"Reservation"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    liveSession?: XOR<LiveSessionScalarRelationFilter, LiveSessionWhereInput>
+    liveItem?: XOR<LiveItemScalarRelationFilter, LiveItemWhereInput>
+    order?: XOR<OrderNullableScalarRelationFilter, OrderWhereInput> | null
+  }, "id" | "tenantId_liveSessionId_clientPhone_liveItemId">
+
+  export type ReservationOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    liveItemId?: SortOrder
+    clientPhone?: SortOrder
+    status?: SortOrder
+    address?: SortOrderInput | SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    reminderSentAt?: SortOrderInput | SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ReservationCountOrderByAggregateInput
+    _max?: ReservationMaxOrderByAggregateInput
+    _min?: ReservationMinOrderByAggregateInput
+  }
+
+  export type ReservationScalarWhereWithAggregatesInput = {
+    AND?: ReservationScalarWhereWithAggregatesInput | ReservationScalarWhereWithAggregatesInput[]
+    OR?: ReservationScalarWhereWithAggregatesInput[]
+    NOT?: ReservationScalarWhereWithAggregatesInput | ReservationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Reservation"> | string
+    tenantId?: StringWithAggregatesFilter<"Reservation"> | string
+    liveSessionId?: StringWithAggregatesFilter<"Reservation"> | string
+    liveItemId?: StringWithAggregatesFilter<"Reservation"> | string
+    clientPhone?: StringWithAggregatesFilter<"Reservation"> | string
+    status?: EnumReservationStatusWithAggregatesFilter<"Reservation"> | $Enums.ReservationStatus
+    address?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
+    expiresAt?: DateTimeNullableWithAggregatesFilter<"Reservation"> | Date | string | null
+    reminderSentAt?: DateTimeNullableWithAggregatesFilter<"Reservation"> | Date | string | null
+    correlationId?: StringWithAggregatesFilter<"Reservation"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Reservation"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Reservation"> | Date | string
+  }
+
+  export type OrderWhereInput = {
+    AND?: OrderWhereInput | OrderWhereInput[]
+    OR?: OrderWhereInput[]
+    NOT?: OrderWhereInput | OrderWhereInput[]
+    id?: StringFilter<"Order"> | string
+    tenantId?: StringFilter<"Order"> | string
+    reservationId?: StringFilter<"Order"> | string
+    orderNumber?: StringFilter<"Order"> | string
+    status?: EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFilter<"Order"> | $Enums.DepositStatus
+    depositExpiresAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    createdAt?: DateTimeFilter<"Order"> | Date | string
+    updatedAt?: DateTimeFilter<"Order"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    reservation?: XOR<ReservationScalarRelationFilter, ReservationWhereInput>
+    paymentProofs?: PaymentProofListRelationFilter
+  }
+
+  export type OrderOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    reservationId?: SortOrder
+    orderNumber?: SortOrder
+    status?: SortOrder
+    depositStatus?: SortOrder
+    depositExpiresAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    reservation?: ReservationOrderByWithRelationInput
+    paymentProofs?: PaymentProofOrderByRelationAggregateInput
+  }
+
+  export type OrderWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    reservationId?: string
+    tenantId_orderNumber?: OrderTenantIdOrderNumberCompoundUniqueInput
+    AND?: OrderWhereInput | OrderWhereInput[]
+    OR?: OrderWhereInput[]
+    NOT?: OrderWhereInput | OrderWhereInput[]
+    tenantId?: StringFilter<"Order"> | string
+    orderNumber?: StringFilter<"Order"> | string
+    status?: EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFilter<"Order"> | $Enums.DepositStatus
+    depositExpiresAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    createdAt?: DateTimeFilter<"Order"> | Date | string
+    updatedAt?: DateTimeFilter<"Order"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    reservation?: XOR<ReservationScalarRelationFilter, ReservationWhereInput>
+    paymentProofs?: PaymentProofListRelationFilter
+  }, "id" | "reservationId" | "tenantId_orderNumber">
+
+  export type OrderOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    reservationId?: SortOrder
+    orderNumber?: SortOrder
+    status?: SortOrder
+    depositStatus?: SortOrder
+    depositExpiresAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OrderCountOrderByAggregateInput
+    _max?: OrderMaxOrderByAggregateInput
+    _min?: OrderMinOrderByAggregateInput
+  }
+
+  export type OrderScalarWhereWithAggregatesInput = {
+    AND?: OrderScalarWhereWithAggregatesInput | OrderScalarWhereWithAggregatesInput[]
+    OR?: OrderScalarWhereWithAggregatesInput[]
+    NOT?: OrderScalarWhereWithAggregatesInput | OrderScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Order"> | string
+    tenantId?: StringWithAggregatesFilter<"Order"> | string
+    reservationId?: StringWithAggregatesFilter<"Order"> | string
+    orderNumber?: StringWithAggregatesFilter<"Order"> | string
+    status?: EnumOrderStatusWithAggregatesFilter<"Order"> | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusWithAggregatesFilter<"Order"> | $Enums.DepositStatus
+    depositExpiresAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+  }
+
+  export type PaymentProofWhereInput = {
+    AND?: PaymentProofWhereInput | PaymentProofWhereInput[]
+    OR?: PaymentProofWhereInput[]
+    NOT?: PaymentProofWhereInput | PaymentProofWhereInput[]
+    id?: StringFilter<"PaymentProof"> | string
+    orderId?: StringFilter<"PaymentProof"> | string
+    tenantId?: StringFilter<"PaymentProof"> | string
+    mediaStorageKey?: StringNullableFilter<"PaymentProof"> | string | null
+    textPayload?: StringNullableFilter<"PaymentProof"> | string | null
+    status?: EnumPaymentProofStatusFilter<"PaymentProof"> | $Enums.PaymentProofStatus
+    reviewedAt?: DateTimeNullableFilter<"PaymentProof"> | Date | string | null
+    correlationId?: StringFilter<"PaymentProof"> | string
+    createdAt?: DateTimeFilter<"PaymentProof"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentProof"> | Date | string
+    order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }
+
+  export type PaymentProofOrderByWithRelationInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    tenantId?: SortOrder
+    mediaStorageKey?: SortOrderInput | SortOrder
+    textPayload?: SortOrderInput | SortOrder
+    status?: SortOrder
+    reviewedAt?: SortOrderInput | SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    order?: OrderOrderByWithRelationInput
+    tenant?: TenantOrderByWithRelationInput
+  }
+
+  export type PaymentProofWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PaymentProofWhereInput | PaymentProofWhereInput[]
+    OR?: PaymentProofWhereInput[]
+    NOT?: PaymentProofWhereInput | PaymentProofWhereInput[]
+    orderId?: StringFilter<"PaymentProof"> | string
+    tenantId?: StringFilter<"PaymentProof"> | string
+    mediaStorageKey?: StringNullableFilter<"PaymentProof"> | string | null
+    textPayload?: StringNullableFilter<"PaymentProof"> | string | null
+    status?: EnumPaymentProofStatusFilter<"PaymentProof"> | $Enums.PaymentProofStatus
+    reviewedAt?: DateTimeNullableFilter<"PaymentProof"> | Date | string | null
+    correlationId?: StringFilter<"PaymentProof"> | string
+    createdAt?: DateTimeFilter<"PaymentProof"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentProof"> | Date | string
+    order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }, "id">
+
+  export type PaymentProofOrderByWithAggregationInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    tenantId?: SortOrder
+    mediaStorageKey?: SortOrderInput | SortOrder
+    textPayload?: SortOrderInput | SortOrder
+    status?: SortOrder
+    reviewedAt?: SortOrderInput | SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PaymentProofCountOrderByAggregateInput
+    _max?: PaymentProofMaxOrderByAggregateInput
+    _min?: PaymentProofMinOrderByAggregateInput
+  }
+
+  export type PaymentProofScalarWhereWithAggregatesInput = {
+    AND?: PaymentProofScalarWhereWithAggregatesInput | PaymentProofScalarWhereWithAggregatesInput[]
+    OR?: PaymentProofScalarWhereWithAggregatesInput[]
+    NOT?: PaymentProofScalarWhereWithAggregatesInput | PaymentProofScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PaymentProof"> | string
+    orderId?: StringWithAggregatesFilter<"PaymentProof"> | string
+    tenantId?: StringWithAggregatesFilter<"PaymentProof"> | string
+    mediaStorageKey?: StringNullableWithAggregatesFilter<"PaymentProof"> | string | null
+    textPayload?: StringNullableWithAggregatesFilter<"PaymentProof"> | string | null
+    status?: EnumPaymentProofStatusWithAggregatesFilter<"PaymentProof"> | $Enums.PaymentProofStatus
+    reviewedAt?: DateTimeNullableWithAggregatesFilter<"PaymentProof"> | Date | string | null
+    correlationId?: StringWithAggregatesFilter<"PaymentProof"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"PaymentProof"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PaymentProof"> | Date | string
+  }
+
+  export type WaitlistWhereInput = {
+    AND?: WaitlistWhereInput | WaitlistWhereInput[]
+    OR?: WaitlistWhereInput[]
+    NOT?: WaitlistWhereInput | WaitlistWhereInput[]
+    id?: StringFilter<"Waitlist"> | string
+    tenantId?: StringFilter<"Waitlist"> | string
+    liveSessionId?: StringFilter<"Waitlist"> | string
+    liveItemId?: StringFilter<"Waitlist"> | string
+    clientPhone?: StringFilter<"Waitlist"> | string
+    position?: IntFilter<"Waitlist"> | number
+    correlationId?: StringFilter<"Waitlist"> | string
+    createdAt?: DateTimeFilter<"Waitlist"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }
+
+  export type WaitlistOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    liveItemId?: SortOrder
+    clientPhone?: SortOrder
+    position?: SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+  }
+
+  export type WaitlistWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenantId_liveSessionId_clientPhone_liveItemId?: WaitlistTenantIdLiveSessionIdClientPhoneLiveItemIdCompoundUniqueInput
+    AND?: WaitlistWhereInput | WaitlistWhereInput[]
+    OR?: WaitlistWhereInput[]
+    NOT?: WaitlistWhereInput | WaitlistWhereInput[]
+    tenantId?: StringFilter<"Waitlist"> | string
+    liveSessionId?: StringFilter<"Waitlist"> | string
+    liveItemId?: StringFilter<"Waitlist"> | string
+    clientPhone?: StringFilter<"Waitlist"> | string
+    position?: IntFilter<"Waitlist"> | number
+    correlationId?: StringFilter<"Waitlist"> | string
+    createdAt?: DateTimeFilter<"Waitlist"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }, "id" | "tenantId_liveSessionId_clientPhone_liveItemId">
+
+  export type WaitlistOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    liveItemId?: SortOrder
+    clientPhone?: SortOrder
+    position?: SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    _count?: WaitlistCountOrderByAggregateInput
+    _avg?: WaitlistAvgOrderByAggregateInput
+    _max?: WaitlistMaxOrderByAggregateInput
+    _min?: WaitlistMinOrderByAggregateInput
+    _sum?: WaitlistSumOrderByAggregateInput
+  }
+
+  export type WaitlistScalarWhereWithAggregatesInput = {
+    AND?: WaitlistScalarWhereWithAggregatesInput | WaitlistScalarWhereWithAggregatesInput[]
+    OR?: WaitlistScalarWhereWithAggregatesInput[]
+    NOT?: WaitlistScalarWhereWithAggregatesInput | WaitlistScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Waitlist"> | string
+    tenantId?: StringWithAggregatesFilter<"Waitlist"> | string
+    liveSessionId?: StringWithAggregatesFilter<"Waitlist"> | string
+    liveItemId?: StringWithAggregatesFilter<"Waitlist"> | string
+    clientPhone?: StringWithAggregatesFilter<"Waitlist"> | string
+    position?: IntWithAggregatesFilter<"Waitlist"> | number
+    correlationId?: StringWithAggregatesFilter<"Waitlist"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Waitlist"> | Date | string
   }
 
   export type DeadLetterJobWhereInput = {
@@ -23086,6 +30376,7 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -23100,12 +30391,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -23120,12 +30417,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -23140,12 +30443,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -23160,12 +30469,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateManyInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -23174,6 +30489,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -23182,6 +30498,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -24179,6 +31496,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutLiveSessionsInput
+    liveItems?: LiveItemCreateNestedManyWithoutLiveSessionInput
+    reservations?: ReservationCreateNestedManyWithoutLiveSessionInput
   }
 
   export type LiveSessionUncheckedCreateInput = {
@@ -24188,6 +31507,8 @@ export namespace Prisma {
     lastActivityAt: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutLiveSessionInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutLiveSessionInput
   }
 
   export type LiveSessionUpdateInput = {
@@ -24197,6 +31518,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutLiveSessionsNestedInput
+    liveItems?: LiveItemUpdateManyWithoutLiveSessionNestedInput
+    reservations?: ReservationUpdateManyWithoutLiveSessionNestedInput
   }
 
   export type LiveSessionUncheckedUpdateInput = {
@@ -24206,6 +31529,8 @@ export namespace Prisma {
     lastActivityAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    liveItems?: LiveItemUncheckedUpdateManyWithoutLiveSessionNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutLiveSessionNestedInput
   }
 
   export type LiveSessionCreateManyInput = {
@@ -24232,6 +31557,463 @@ export namespace Prisma {
     lastActivityAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LiveItemCreateInput = {
+    id?: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutLiveItemsInput
+    liveSession: LiveSessionCreateNestedOneWithoutLiveItemsInput
+    reservations?: ReservationCreateNestedManyWithoutLiveItemInput
+  }
+
+  export type LiveItemUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    liveSessionId: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutLiveItemInput
+  }
+
+  export type LiveItemUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutLiveItemsNestedInput
+    liveSession?: LiveSessionUpdateOneRequiredWithoutLiveItemsNestedInput
+    reservations?: ReservationUpdateManyWithoutLiveItemNestedInput
+  }
+
+  export type LiveItemUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutLiveItemNestedInput
+  }
+
+  export type LiveItemCreateManyInput = {
+    id?: string
+    tenantId: string
+    liveSessionId: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LiveItemUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LiveItemUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservationCreateInput = {
+    id?: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutReservationsInput
+    liveSession: LiveSessionCreateNestedOneWithoutReservationsInput
+    liveItem: LiveItemCreateNestedOneWithoutReservationsInput
+    order?: OrderCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    order?: OrderUncheckedCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
+    liveSession?: LiveSessionUpdateOneRequiredWithoutReservationsNestedInput
+    liveItem?: LiveItemUpdateOneRequiredWithoutReservationsNestedInput
+    order?: OrderUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUncheckedUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationCreateManyInput = {
+    id?: string
+    tenantId: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderCreateInput = {
+    id?: string
+    orderNumber: string
+    status: $Enums.OrderStatus
+    depositStatus: $Enums.DepositStatus
+    depositExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutOrdersInput
+    reservation: ReservationCreateNestedOneWithoutOrderInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    reservationId: string
+    orderNumber: string
+    status: $Enums.OrderStatus
+    depositStatus: $Enums.DepositStatus
+    depositExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutOrdersNestedInput
+    reservation?: ReservationUpdateOneRequiredWithoutOrderNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    reservationId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderCreateManyInput = {
+    id?: string
+    tenantId: string
+    reservationId: string
+    orderNumber: string
+    status: $Enums.OrderStatus
+    depositStatus: $Enums.DepositStatus
+    depositExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrderUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    reservationId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentProofCreateInput = {
+    id?: string
+    mediaStorageKey?: string | null
+    textPayload?: string | null
+    status?: $Enums.PaymentProofStatus
+    reviewedAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    order: OrderCreateNestedOneWithoutPaymentProofsInput
+    tenant: TenantCreateNestedOneWithoutPaymentProofsInput
+  }
+
+  export type PaymentProofUncheckedCreateInput = {
+    id?: string
+    orderId: string
+    tenantId: string
+    mediaStorageKey?: string | null
+    textPayload?: string | null
+    status?: $Enums.PaymentProofStatus
+    reviewedAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentProofUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    textPayload?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumPaymentProofStatusFieldUpdateOperationsInput | $Enums.PaymentProofStatus
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUpdateOneRequiredWithoutPaymentProofsNestedInput
+    tenant?: TenantUpdateOneRequiredWithoutPaymentProofsNestedInput
+  }
+
+  export type PaymentProofUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    textPayload?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumPaymentProofStatusFieldUpdateOperationsInput | $Enums.PaymentProofStatus
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentProofCreateManyInput = {
+    id?: string
+    orderId: string
+    tenantId: string
+    mediaStorageKey?: string | null
+    textPayload?: string | null
+    status?: $Enums.PaymentProofStatus
+    reviewedAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentProofUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    textPayload?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumPaymentProofStatusFieldUpdateOperationsInput | $Enums.PaymentProofStatus
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentProofUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    textPayload?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumPaymentProofStatusFieldUpdateOperationsInput | $Enums.PaymentProofStatus
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WaitlistCreateInput = {
+    id?: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    position: number
+    correlationId: string
+    createdAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutWaitlistsInput
+  }
+
+  export type WaitlistUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    position: number
+    correlationId: string
+    createdAt?: Date | string
+  }
+
+  export type WaitlistUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutWaitlistsNestedInput
+  }
+
+  export type WaitlistUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WaitlistCreateManyInput = {
+    id?: string
+    tenantId: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    position: number
+    correlationId: string
+    createdAt?: Date | string
+  }
+
+  export type WaitlistUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WaitlistUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DeadLetterJobCreateInput = {
@@ -24347,6 +32129,11 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -24430,6 +32217,36 @@ export namespace Prisma {
     none?: LiveSessionWhereInput
   }
 
+  export type LiveItemListRelationFilter = {
+    every?: LiveItemWhereInput
+    some?: LiveItemWhereInput
+    none?: LiveItemWhereInput
+  }
+
+  export type ReservationListRelationFilter = {
+    every?: ReservationWhereInput
+    some?: ReservationWhereInput
+    none?: ReservationWhereInput
+  }
+
+  export type WaitlistListRelationFilter = {
+    every?: WaitlistWhereInput
+    some?: WaitlistWhereInput
+    none?: WaitlistWhereInput
+  }
+
+  export type OrderListRelationFilter = {
+    every?: OrderWhereInput
+    some?: OrderWhereInput
+    none?: OrderWhereInput
+  }
+
+  export type PaymentProofListRelationFilter = {
+    every?: PaymentProofWhereInput
+    some?: PaymentProofWhereInput
+    none?: PaymentProofWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -24483,10 +32300,31 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type LiveItemOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ReservationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type WaitlistOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OrderOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PaymentProofOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type TenantCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     whatsappPhoneNumber?: SortOrder
+    requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24495,6 +32333,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     whatsappPhoneNumber?: SortOrder
+    requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24503,6 +32342,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     whatsappPhoneNumber?: SortOrder
+    requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24541,6 +32381,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -25303,6 +33151,341 @@ export namespace Prisma {
     _max?: NestedEnumLiveSessionStatusFilter<$PrismaModel>
   }
 
+  export type LiveSessionScalarRelationFilter = {
+    is?: LiveSessionWhereInput
+    isNot?: LiveSessionWhereInput
+  }
+
+  export type LiveItemTenantIdLiveSessionIdCodeCompoundUniqueInput = {
+    tenantId: string
+    liveSessionId: string
+    code: string
+  }
+
+  export type LiveItemCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    code?: SortOrder
+    amountCents?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    mediaStorageKey?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LiveItemAvgOrderByAggregateInput = {
+    amountCents?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+  }
+
+  export type LiveItemMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    code?: SortOrder
+    amountCents?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    mediaStorageKey?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LiveItemMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    code?: SortOrder
+    amountCents?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    mediaStorageKey?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LiveItemSumOrderByAggregateInput = {
+    amountCents?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+  }
+
+  export type EnumReservationStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReservationStatus | EnumReservationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReservationStatus[] | ListEnumReservationStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReservationStatus[] | ListEnumReservationStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReservationStatusFilter<$PrismaModel> | $Enums.ReservationStatus
+  }
+
+  export type LiveItemScalarRelationFilter = {
+    is?: LiveItemWhereInput
+    isNot?: LiveItemWhereInput
+  }
+
+  export type OrderNullableScalarRelationFilter = {
+    is?: OrderWhereInput | null
+    isNot?: OrderWhereInput | null
+  }
+
+  export type ReservationTenantIdLiveSessionIdClientPhoneLiveItemIdCompoundUniqueInput = {
+    tenantId: string
+    liveSessionId: string
+    clientPhone: string
+    liveItemId: string
+  }
+
+  export type ReservationCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    liveItemId?: SortOrder
+    clientPhone?: SortOrder
+    status?: SortOrder
+    address?: SortOrder
+    expiresAt?: SortOrder
+    reminderSentAt?: SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReservationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    liveItemId?: SortOrder
+    clientPhone?: SortOrder
+    status?: SortOrder
+    address?: SortOrder
+    expiresAt?: SortOrder
+    reminderSentAt?: SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReservationMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    liveItemId?: SortOrder
+    clientPhone?: SortOrder
+    status?: SortOrder
+    address?: SortOrder
+    expiresAt?: SortOrder
+    reminderSentAt?: SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumReservationStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReservationStatus | EnumReservationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReservationStatus[] | ListEnumReservationStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReservationStatus[] | ListEnumReservationStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReservationStatusWithAggregatesFilter<$PrismaModel> | $Enums.ReservationStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReservationStatusFilter<$PrismaModel>
+    _max?: NestedEnumReservationStatusFilter<$PrismaModel>
+  }
+
+  export type EnumOrderStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderStatus | EnumOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderStatus[] | ListEnumOrderStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrderStatus[] | ListEnumOrderStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrderStatusFilter<$PrismaModel> | $Enums.OrderStatus
+  }
+
+  export type EnumDepositStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DepositStatus | EnumDepositStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DepositStatus[] | ListEnumDepositStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DepositStatus[] | ListEnumDepositStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDepositStatusFilter<$PrismaModel> | $Enums.DepositStatus
+  }
+
+  export type ReservationScalarRelationFilter = {
+    is?: ReservationWhereInput
+    isNot?: ReservationWhereInput
+  }
+
+  export type OrderTenantIdOrderNumberCompoundUniqueInput = {
+    tenantId: string
+    orderNumber: string
+  }
+
+  export type OrderCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    reservationId?: SortOrder
+    orderNumber?: SortOrder
+    status?: SortOrder
+    depositStatus?: SortOrder
+    depositExpiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrderMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    reservationId?: SortOrder
+    orderNumber?: SortOrder
+    status?: SortOrder
+    depositStatus?: SortOrder
+    depositExpiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrderMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    reservationId?: SortOrder
+    orderNumber?: SortOrder
+    status?: SortOrder
+    depositStatus?: SortOrder
+    depositExpiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderStatus | EnumOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderStatus[] | ListEnumOrderStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrderStatus[] | ListEnumOrderStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrderStatusWithAggregatesFilter<$PrismaModel> | $Enums.OrderStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrderStatusFilter<$PrismaModel>
+    _max?: NestedEnumOrderStatusFilter<$PrismaModel>
+  }
+
+  export type EnumDepositStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DepositStatus | EnumDepositStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DepositStatus[] | ListEnumDepositStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DepositStatus[] | ListEnumDepositStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDepositStatusWithAggregatesFilter<$PrismaModel> | $Enums.DepositStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDepositStatusFilter<$PrismaModel>
+    _max?: NestedEnumDepositStatusFilter<$PrismaModel>
+  }
+
+  export type EnumPaymentProofStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentProofStatus | EnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentProofStatus[] | ListEnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentProofStatus[] | ListEnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentProofStatusFilter<$PrismaModel> | $Enums.PaymentProofStatus
+  }
+
+  export type OrderScalarRelationFilter = {
+    is?: OrderWhereInput
+    isNot?: OrderWhereInput
+  }
+
+  export type PaymentProofCountOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    tenantId?: SortOrder
+    mediaStorageKey?: SortOrder
+    textPayload?: SortOrder
+    status?: SortOrder
+    reviewedAt?: SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentProofMaxOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    tenantId?: SortOrder
+    mediaStorageKey?: SortOrder
+    textPayload?: SortOrder
+    status?: SortOrder
+    reviewedAt?: SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentProofMinOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    tenantId?: SortOrder
+    mediaStorageKey?: SortOrder
+    textPayload?: SortOrder
+    status?: SortOrder
+    reviewedAt?: SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumPaymentProofStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentProofStatus | EnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentProofStatus[] | ListEnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentProofStatus[] | ListEnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentProofStatusWithAggregatesFilter<$PrismaModel> | $Enums.PaymentProofStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPaymentProofStatusFilter<$PrismaModel>
+    _max?: NestedEnumPaymentProofStatusFilter<$PrismaModel>
+  }
+
+  export type WaitlistTenantIdLiveSessionIdClientPhoneLiveItemIdCompoundUniqueInput = {
+    tenantId: string
+    liveSessionId: string
+    clientPhone: string
+    liveItemId: string
+  }
+
+  export type WaitlistCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    liveItemId?: SortOrder
+    clientPhone?: SortOrder
+    position?: SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type WaitlistAvgOrderByAggregateInput = {
+    position?: SortOrder
+  }
+
+  export type WaitlistMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    liveItemId?: SortOrder
+    clientPhone?: SortOrder
+    position?: SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type WaitlistMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    liveSessionId?: SortOrder
+    liveItemId?: SortOrder
+    clientPhone?: SortOrder
+    position?: SortOrder
+    correlationId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type WaitlistSumOrderByAggregateInput = {
+    position?: SortOrder
+  }
+
   export type DeadLetterJobCountOrderByAggregateInput = {
     id?: SortOrder
     tenantId?: SortOrder
@@ -25429,6 +33612,41 @@ export namespace Prisma {
     connect?: LiveSessionWhereUniqueInput | LiveSessionWhereUniqueInput[]
   }
 
+  export type LiveItemCreateNestedManyWithoutTenantInput = {
+    create?: XOR<LiveItemCreateWithoutTenantInput, LiveItemUncheckedCreateWithoutTenantInput> | LiveItemCreateWithoutTenantInput[] | LiveItemUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: LiveItemCreateOrConnectWithoutTenantInput | LiveItemCreateOrConnectWithoutTenantInput[]
+    createMany?: LiveItemCreateManyTenantInputEnvelope
+    connect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+  }
+
+  export type ReservationCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ReservationCreateWithoutTenantInput, ReservationUncheckedCreateWithoutTenantInput> | ReservationCreateWithoutTenantInput[] | ReservationUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutTenantInput | ReservationCreateOrConnectWithoutTenantInput[]
+    createMany?: ReservationCreateManyTenantInputEnvelope
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+  }
+
+  export type WaitlistCreateNestedManyWithoutTenantInput = {
+    create?: XOR<WaitlistCreateWithoutTenantInput, WaitlistUncheckedCreateWithoutTenantInput> | WaitlistCreateWithoutTenantInput[] | WaitlistUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WaitlistCreateOrConnectWithoutTenantInput | WaitlistCreateOrConnectWithoutTenantInput[]
+    createMany?: WaitlistCreateManyTenantInputEnvelope
+    connect?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
+  }
+
+  export type OrderCreateNestedManyWithoutTenantInput = {
+    create?: XOR<OrderCreateWithoutTenantInput, OrderUncheckedCreateWithoutTenantInput> | OrderCreateWithoutTenantInput[] | OrderUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutTenantInput | OrderCreateOrConnectWithoutTenantInput[]
+    createMany?: OrderCreateManyTenantInputEnvelope
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+  }
+
+  export type PaymentProofCreateNestedManyWithoutTenantInput = {
+    create?: XOR<PaymentProofCreateWithoutTenantInput, PaymentProofUncheckedCreateWithoutTenantInput> | PaymentProofCreateWithoutTenantInput[] | PaymentProofUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: PaymentProofCreateOrConnectWithoutTenantInput | PaymentProofCreateOrConnectWithoutTenantInput[]
+    createMany?: PaymentProofCreateManyTenantInputEnvelope
+    connect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+  }
+
   export type UserUncheckedCreateNestedManyWithoutTenantInput = {
     create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
@@ -25513,12 +33731,51 @@ export namespace Prisma {
     connect?: LiveSessionWhereUniqueInput | LiveSessionWhereUniqueInput[]
   }
 
+  export type LiveItemUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<LiveItemCreateWithoutTenantInput, LiveItemUncheckedCreateWithoutTenantInput> | LiveItemCreateWithoutTenantInput[] | LiveItemUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: LiveItemCreateOrConnectWithoutTenantInput | LiveItemCreateOrConnectWithoutTenantInput[]
+    createMany?: LiveItemCreateManyTenantInputEnvelope
+    connect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+  }
+
+  export type ReservationUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ReservationCreateWithoutTenantInput, ReservationUncheckedCreateWithoutTenantInput> | ReservationCreateWithoutTenantInput[] | ReservationUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutTenantInput | ReservationCreateOrConnectWithoutTenantInput[]
+    createMany?: ReservationCreateManyTenantInputEnvelope
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+  }
+
+  export type WaitlistUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<WaitlistCreateWithoutTenantInput, WaitlistUncheckedCreateWithoutTenantInput> | WaitlistCreateWithoutTenantInput[] | WaitlistUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WaitlistCreateOrConnectWithoutTenantInput | WaitlistCreateOrConnectWithoutTenantInput[]
+    createMany?: WaitlistCreateManyTenantInputEnvelope
+    connect?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
+  }
+
+  export type OrderUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<OrderCreateWithoutTenantInput, OrderUncheckedCreateWithoutTenantInput> | OrderCreateWithoutTenantInput[] | OrderUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutTenantInput | OrderCreateOrConnectWithoutTenantInput[]
+    createMany?: OrderCreateManyTenantInputEnvelope
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+  }
+
+  export type PaymentProofUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<PaymentProofCreateWithoutTenantInput, PaymentProofUncheckedCreateWithoutTenantInput> | PaymentProofCreateWithoutTenantInput[] | PaymentProofUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: PaymentProofCreateOrConnectWithoutTenantInput | PaymentProofCreateOrConnectWithoutTenantInput[]
+    createMany?: PaymentProofCreateManyTenantInputEnvelope
+    connect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -25693,6 +33950,76 @@ export namespace Prisma {
     deleteMany?: LiveSessionScalarWhereInput | LiveSessionScalarWhereInput[]
   }
 
+  export type LiveItemUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<LiveItemCreateWithoutTenantInput, LiveItemUncheckedCreateWithoutTenantInput> | LiveItemCreateWithoutTenantInput[] | LiveItemUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: LiveItemCreateOrConnectWithoutTenantInput | LiveItemCreateOrConnectWithoutTenantInput[]
+    upsert?: LiveItemUpsertWithWhereUniqueWithoutTenantInput | LiveItemUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: LiveItemCreateManyTenantInputEnvelope
+    set?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    disconnect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    delete?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    connect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    update?: LiveItemUpdateWithWhereUniqueWithoutTenantInput | LiveItemUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: LiveItemUpdateManyWithWhereWithoutTenantInput | LiveItemUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: LiveItemScalarWhereInput | LiveItemScalarWhereInput[]
+  }
+
+  export type ReservationUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ReservationCreateWithoutTenantInput, ReservationUncheckedCreateWithoutTenantInput> | ReservationCreateWithoutTenantInput[] | ReservationUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutTenantInput | ReservationCreateOrConnectWithoutTenantInput[]
+    upsert?: ReservationUpsertWithWhereUniqueWithoutTenantInput | ReservationUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ReservationCreateManyTenantInputEnvelope
+    set?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    disconnect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    delete?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    update?: ReservationUpdateWithWhereUniqueWithoutTenantInput | ReservationUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ReservationUpdateManyWithWhereWithoutTenantInput | ReservationUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+  }
+
+  export type WaitlistUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<WaitlistCreateWithoutTenantInput, WaitlistUncheckedCreateWithoutTenantInput> | WaitlistCreateWithoutTenantInput[] | WaitlistUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WaitlistCreateOrConnectWithoutTenantInput | WaitlistCreateOrConnectWithoutTenantInput[]
+    upsert?: WaitlistUpsertWithWhereUniqueWithoutTenantInput | WaitlistUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: WaitlistCreateManyTenantInputEnvelope
+    set?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
+    disconnect?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
+    delete?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
+    connect?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
+    update?: WaitlistUpdateWithWhereUniqueWithoutTenantInput | WaitlistUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: WaitlistUpdateManyWithWhereWithoutTenantInput | WaitlistUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: WaitlistScalarWhereInput | WaitlistScalarWhereInput[]
+  }
+
+  export type OrderUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<OrderCreateWithoutTenantInput, OrderUncheckedCreateWithoutTenantInput> | OrderCreateWithoutTenantInput[] | OrderUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutTenantInput | OrderCreateOrConnectWithoutTenantInput[]
+    upsert?: OrderUpsertWithWhereUniqueWithoutTenantInput | OrderUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: OrderCreateManyTenantInputEnvelope
+    set?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    disconnect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    delete?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    update?: OrderUpdateWithWhereUniqueWithoutTenantInput | OrderUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: OrderUpdateManyWithWhereWithoutTenantInput | OrderUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
+  }
+
+  export type PaymentProofUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<PaymentProofCreateWithoutTenantInput, PaymentProofUncheckedCreateWithoutTenantInput> | PaymentProofCreateWithoutTenantInput[] | PaymentProofUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: PaymentProofCreateOrConnectWithoutTenantInput | PaymentProofCreateOrConnectWithoutTenantInput[]
+    upsert?: PaymentProofUpsertWithWhereUniqueWithoutTenantInput | PaymentProofUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: PaymentProofCreateManyTenantInputEnvelope
+    set?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    disconnect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    delete?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    connect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    update?: PaymentProofUpdateWithWhereUniqueWithoutTenantInput | PaymentProofUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: PaymentProofUpdateManyWithWhereWithoutTenantInput | PaymentProofUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: PaymentProofScalarWhereInput | PaymentProofScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutTenantNestedInput = {
     create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
@@ -25859,6 +34186,76 @@ export namespace Prisma {
     update?: LiveSessionUpdateWithWhereUniqueWithoutTenantInput | LiveSessionUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: LiveSessionUpdateManyWithWhereWithoutTenantInput | LiveSessionUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: LiveSessionScalarWhereInput | LiveSessionScalarWhereInput[]
+  }
+
+  export type LiveItemUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<LiveItemCreateWithoutTenantInput, LiveItemUncheckedCreateWithoutTenantInput> | LiveItemCreateWithoutTenantInput[] | LiveItemUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: LiveItemCreateOrConnectWithoutTenantInput | LiveItemCreateOrConnectWithoutTenantInput[]
+    upsert?: LiveItemUpsertWithWhereUniqueWithoutTenantInput | LiveItemUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: LiveItemCreateManyTenantInputEnvelope
+    set?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    disconnect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    delete?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    connect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    update?: LiveItemUpdateWithWhereUniqueWithoutTenantInput | LiveItemUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: LiveItemUpdateManyWithWhereWithoutTenantInput | LiveItemUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: LiveItemScalarWhereInput | LiveItemScalarWhereInput[]
+  }
+
+  export type ReservationUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ReservationCreateWithoutTenantInput, ReservationUncheckedCreateWithoutTenantInput> | ReservationCreateWithoutTenantInput[] | ReservationUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutTenantInput | ReservationCreateOrConnectWithoutTenantInput[]
+    upsert?: ReservationUpsertWithWhereUniqueWithoutTenantInput | ReservationUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ReservationCreateManyTenantInputEnvelope
+    set?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    disconnect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    delete?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    update?: ReservationUpdateWithWhereUniqueWithoutTenantInput | ReservationUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ReservationUpdateManyWithWhereWithoutTenantInput | ReservationUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+  }
+
+  export type WaitlistUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<WaitlistCreateWithoutTenantInput, WaitlistUncheckedCreateWithoutTenantInput> | WaitlistCreateWithoutTenantInput[] | WaitlistUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WaitlistCreateOrConnectWithoutTenantInput | WaitlistCreateOrConnectWithoutTenantInput[]
+    upsert?: WaitlistUpsertWithWhereUniqueWithoutTenantInput | WaitlistUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: WaitlistCreateManyTenantInputEnvelope
+    set?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
+    disconnect?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
+    delete?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
+    connect?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
+    update?: WaitlistUpdateWithWhereUniqueWithoutTenantInput | WaitlistUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: WaitlistUpdateManyWithWhereWithoutTenantInput | WaitlistUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: WaitlistScalarWhereInput | WaitlistScalarWhereInput[]
+  }
+
+  export type OrderUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<OrderCreateWithoutTenantInput, OrderUncheckedCreateWithoutTenantInput> | OrderCreateWithoutTenantInput[] | OrderUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: OrderCreateOrConnectWithoutTenantInput | OrderCreateOrConnectWithoutTenantInput[]
+    upsert?: OrderUpsertWithWhereUniqueWithoutTenantInput | OrderUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: OrderCreateManyTenantInputEnvelope
+    set?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    disconnect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    delete?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    connect?: OrderWhereUniqueInput | OrderWhereUniqueInput[]
+    update?: OrderUpdateWithWhereUniqueWithoutTenantInput | OrderUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: OrderUpdateManyWithWhereWithoutTenantInput | OrderUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: OrderScalarWhereInput | OrderScalarWhereInput[]
+  }
+
+  export type PaymentProofUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<PaymentProofCreateWithoutTenantInput, PaymentProofUncheckedCreateWithoutTenantInput> | PaymentProofCreateWithoutTenantInput[] | PaymentProofUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: PaymentProofCreateOrConnectWithoutTenantInput | PaymentProofCreateOrConnectWithoutTenantInput[]
+    upsert?: PaymentProofUpsertWithWhereUniqueWithoutTenantInput | PaymentProofUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: PaymentProofCreateManyTenantInputEnvelope
+    set?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    disconnect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    delete?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    connect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    update?: PaymentProofUpdateWithWhereUniqueWithoutTenantInput | PaymentProofUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: PaymentProofUpdateManyWithWhereWithoutTenantInput | PaymentProofUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: PaymentProofScalarWhereInput | PaymentProofScalarWhereInput[]
   }
 
   export type TenantCreateNestedOneWithoutInvitationsInput = {
@@ -26201,6 +34598,34 @@ export namespace Prisma {
     connect?: TenantWhereUniqueInput
   }
 
+  export type LiveItemCreateNestedManyWithoutLiveSessionInput = {
+    create?: XOR<LiveItemCreateWithoutLiveSessionInput, LiveItemUncheckedCreateWithoutLiveSessionInput> | LiveItemCreateWithoutLiveSessionInput[] | LiveItemUncheckedCreateWithoutLiveSessionInput[]
+    connectOrCreate?: LiveItemCreateOrConnectWithoutLiveSessionInput | LiveItemCreateOrConnectWithoutLiveSessionInput[]
+    createMany?: LiveItemCreateManyLiveSessionInputEnvelope
+    connect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+  }
+
+  export type ReservationCreateNestedManyWithoutLiveSessionInput = {
+    create?: XOR<ReservationCreateWithoutLiveSessionInput, ReservationUncheckedCreateWithoutLiveSessionInput> | ReservationCreateWithoutLiveSessionInput[] | ReservationUncheckedCreateWithoutLiveSessionInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutLiveSessionInput | ReservationCreateOrConnectWithoutLiveSessionInput[]
+    createMany?: ReservationCreateManyLiveSessionInputEnvelope
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+  }
+
+  export type LiveItemUncheckedCreateNestedManyWithoutLiveSessionInput = {
+    create?: XOR<LiveItemCreateWithoutLiveSessionInput, LiveItemUncheckedCreateWithoutLiveSessionInput> | LiveItemCreateWithoutLiveSessionInput[] | LiveItemUncheckedCreateWithoutLiveSessionInput[]
+    connectOrCreate?: LiveItemCreateOrConnectWithoutLiveSessionInput | LiveItemCreateOrConnectWithoutLiveSessionInput[]
+    createMany?: LiveItemCreateManyLiveSessionInputEnvelope
+    connect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+  }
+
+  export type ReservationUncheckedCreateNestedManyWithoutLiveSessionInput = {
+    create?: XOR<ReservationCreateWithoutLiveSessionInput, ReservationUncheckedCreateWithoutLiveSessionInput> | ReservationCreateWithoutLiveSessionInput[] | ReservationUncheckedCreateWithoutLiveSessionInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutLiveSessionInput | ReservationCreateOrConnectWithoutLiveSessionInput[]
+    createMany?: ReservationCreateManyLiveSessionInputEnvelope
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+  }
+
   export type EnumLiveSessionStatusFieldUpdateOperationsInput = {
     set?: $Enums.LiveSessionStatus
   }
@@ -26211,6 +34636,334 @@ export namespace Prisma {
     upsert?: TenantUpsertWithoutLiveSessionsInput
     connect?: TenantWhereUniqueInput
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutLiveSessionsInput, TenantUpdateWithoutLiveSessionsInput>, TenantUncheckedUpdateWithoutLiveSessionsInput>
+  }
+
+  export type LiveItemUpdateManyWithoutLiveSessionNestedInput = {
+    create?: XOR<LiveItemCreateWithoutLiveSessionInput, LiveItemUncheckedCreateWithoutLiveSessionInput> | LiveItemCreateWithoutLiveSessionInput[] | LiveItemUncheckedCreateWithoutLiveSessionInput[]
+    connectOrCreate?: LiveItemCreateOrConnectWithoutLiveSessionInput | LiveItemCreateOrConnectWithoutLiveSessionInput[]
+    upsert?: LiveItemUpsertWithWhereUniqueWithoutLiveSessionInput | LiveItemUpsertWithWhereUniqueWithoutLiveSessionInput[]
+    createMany?: LiveItemCreateManyLiveSessionInputEnvelope
+    set?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    disconnect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    delete?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    connect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    update?: LiveItemUpdateWithWhereUniqueWithoutLiveSessionInput | LiveItemUpdateWithWhereUniqueWithoutLiveSessionInput[]
+    updateMany?: LiveItemUpdateManyWithWhereWithoutLiveSessionInput | LiveItemUpdateManyWithWhereWithoutLiveSessionInput[]
+    deleteMany?: LiveItemScalarWhereInput | LiveItemScalarWhereInput[]
+  }
+
+  export type ReservationUpdateManyWithoutLiveSessionNestedInput = {
+    create?: XOR<ReservationCreateWithoutLiveSessionInput, ReservationUncheckedCreateWithoutLiveSessionInput> | ReservationCreateWithoutLiveSessionInput[] | ReservationUncheckedCreateWithoutLiveSessionInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutLiveSessionInput | ReservationCreateOrConnectWithoutLiveSessionInput[]
+    upsert?: ReservationUpsertWithWhereUniqueWithoutLiveSessionInput | ReservationUpsertWithWhereUniqueWithoutLiveSessionInput[]
+    createMany?: ReservationCreateManyLiveSessionInputEnvelope
+    set?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    disconnect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    delete?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    update?: ReservationUpdateWithWhereUniqueWithoutLiveSessionInput | ReservationUpdateWithWhereUniqueWithoutLiveSessionInput[]
+    updateMany?: ReservationUpdateManyWithWhereWithoutLiveSessionInput | ReservationUpdateManyWithWhereWithoutLiveSessionInput[]
+    deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+  }
+
+  export type LiveItemUncheckedUpdateManyWithoutLiveSessionNestedInput = {
+    create?: XOR<LiveItemCreateWithoutLiveSessionInput, LiveItemUncheckedCreateWithoutLiveSessionInput> | LiveItemCreateWithoutLiveSessionInput[] | LiveItemUncheckedCreateWithoutLiveSessionInput[]
+    connectOrCreate?: LiveItemCreateOrConnectWithoutLiveSessionInput | LiveItemCreateOrConnectWithoutLiveSessionInput[]
+    upsert?: LiveItemUpsertWithWhereUniqueWithoutLiveSessionInput | LiveItemUpsertWithWhereUniqueWithoutLiveSessionInput[]
+    createMany?: LiveItemCreateManyLiveSessionInputEnvelope
+    set?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    disconnect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    delete?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    connect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+    update?: LiveItemUpdateWithWhereUniqueWithoutLiveSessionInput | LiveItemUpdateWithWhereUniqueWithoutLiveSessionInput[]
+    updateMany?: LiveItemUpdateManyWithWhereWithoutLiveSessionInput | LiveItemUpdateManyWithWhereWithoutLiveSessionInput[]
+    deleteMany?: LiveItemScalarWhereInput | LiveItemScalarWhereInput[]
+  }
+
+  export type ReservationUncheckedUpdateManyWithoutLiveSessionNestedInput = {
+    create?: XOR<ReservationCreateWithoutLiveSessionInput, ReservationUncheckedCreateWithoutLiveSessionInput> | ReservationCreateWithoutLiveSessionInput[] | ReservationUncheckedCreateWithoutLiveSessionInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutLiveSessionInput | ReservationCreateOrConnectWithoutLiveSessionInput[]
+    upsert?: ReservationUpsertWithWhereUniqueWithoutLiveSessionInput | ReservationUpsertWithWhereUniqueWithoutLiveSessionInput[]
+    createMany?: ReservationCreateManyLiveSessionInputEnvelope
+    set?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    disconnect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    delete?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    update?: ReservationUpdateWithWhereUniqueWithoutLiveSessionInput | ReservationUpdateWithWhereUniqueWithoutLiveSessionInput[]
+    updateMany?: ReservationUpdateManyWithWhereWithoutLiveSessionInput | ReservationUpdateManyWithWhereWithoutLiveSessionInput[]
+    deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+  }
+
+  export type TenantCreateNestedOneWithoutLiveItemsInput = {
+    create?: XOR<TenantCreateWithoutLiveItemsInput, TenantUncheckedCreateWithoutLiveItemsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutLiveItemsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type LiveSessionCreateNestedOneWithoutLiveItemsInput = {
+    create?: XOR<LiveSessionCreateWithoutLiveItemsInput, LiveSessionUncheckedCreateWithoutLiveItemsInput>
+    connectOrCreate?: LiveSessionCreateOrConnectWithoutLiveItemsInput
+    connect?: LiveSessionWhereUniqueInput
+  }
+
+  export type ReservationCreateNestedManyWithoutLiveItemInput = {
+    create?: XOR<ReservationCreateWithoutLiveItemInput, ReservationUncheckedCreateWithoutLiveItemInput> | ReservationCreateWithoutLiveItemInput[] | ReservationUncheckedCreateWithoutLiveItemInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutLiveItemInput | ReservationCreateOrConnectWithoutLiveItemInput[]
+    createMany?: ReservationCreateManyLiveItemInputEnvelope
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+  }
+
+  export type ReservationUncheckedCreateNestedManyWithoutLiveItemInput = {
+    create?: XOR<ReservationCreateWithoutLiveItemInput, ReservationUncheckedCreateWithoutLiveItemInput> | ReservationCreateWithoutLiveItemInput[] | ReservationUncheckedCreateWithoutLiveItemInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutLiveItemInput | ReservationCreateOrConnectWithoutLiveItemInput[]
+    createMany?: ReservationCreateManyLiveItemInputEnvelope
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+  }
+
+  export type TenantUpdateOneRequiredWithoutLiveItemsNestedInput = {
+    create?: XOR<TenantCreateWithoutLiveItemsInput, TenantUncheckedCreateWithoutLiveItemsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutLiveItemsInput
+    upsert?: TenantUpsertWithoutLiveItemsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutLiveItemsInput, TenantUpdateWithoutLiveItemsInput>, TenantUncheckedUpdateWithoutLiveItemsInput>
+  }
+
+  export type LiveSessionUpdateOneRequiredWithoutLiveItemsNestedInput = {
+    create?: XOR<LiveSessionCreateWithoutLiveItemsInput, LiveSessionUncheckedCreateWithoutLiveItemsInput>
+    connectOrCreate?: LiveSessionCreateOrConnectWithoutLiveItemsInput
+    upsert?: LiveSessionUpsertWithoutLiveItemsInput
+    connect?: LiveSessionWhereUniqueInput
+    update?: XOR<XOR<LiveSessionUpdateToOneWithWhereWithoutLiveItemsInput, LiveSessionUpdateWithoutLiveItemsInput>, LiveSessionUncheckedUpdateWithoutLiveItemsInput>
+  }
+
+  export type ReservationUpdateManyWithoutLiveItemNestedInput = {
+    create?: XOR<ReservationCreateWithoutLiveItemInput, ReservationUncheckedCreateWithoutLiveItemInput> | ReservationCreateWithoutLiveItemInput[] | ReservationUncheckedCreateWithoutLiveItemInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutLiveItemInput | ReservationCreateOrConnectWithoutLiveItemInput[]
+    upsert?: ReservationUpsertWithWhereUniqueWithoutLiveItemInput | ReservationUpsertWithWhereUniqueWithoutLiveItemInput[]
+    createMany?: ReservationCreateManyLiveItemInputEnvelope
+    set?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    disconnect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    delete?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    update?: ReservationUpdateWithWhereUniqueWithoutLiveItemInput | ReservationUpdateWithWhereUniqueWithoutLiveItemInput[]
+    updateMany?: ReservationUpdateManyWithWhereWithoutLiveItemInput | ReservationUpdateManyWithWhereWithoutLiveItemInput[]
+    deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+  }
+
+  export type ReservationUncheckedUpdateManyWithoutLiveItemNestedInput = {
+    create?: XOR<ReservationCreateWithoutLiveItemInput, ReservationUncheckedCreateWithoutLiveItemInput> | ReservationCreateWithoutLiveItemInput[] | ReservationUncheckedCreateWithoutLiveItemInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutLiveItemInput | ReservationCreateOrConnectWithoutLiveItemInput[]
+    upsert?: ReservationUpsertWithWhereUniqueWithoutLiveItemInput | ReservationUpsertWithWhereUniqueWithoutLiveItemInput[]
+    createMany?: ReservationCreateManyLiveItemInputEnvelope
+    set?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    disconnect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    delete?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    update?: ReservationUpdateWithWhereUniqueWithoutLiveItemInput | ReservationUpdateWithWhereUniqueWithoutLiveItemInput[]
+    updateMany?: ReservationUpdateManyWithWhereWithoutLiveItemInput | ReservationUpdateManyWithWhereWithoutLiveItemInput[]
+    deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+  }
+
+  export type TenantCreateNestedOneWithoutReservationsInput = {
+    create?: XOR<TenantCreateWithoutReservationsInput, TenantUncheckedCreateWithoutReservationsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutReservationsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type LiveSessionCreateNestedOneWithoutReservationsInput = {
+    create?: XOR<LiveSessionCreateWithoutReservationsInput, LiveSessionUncheckedCreateWithoutReservationsInput>
+    connectOrCreate?: LiveSessionCreateOrConnectWithoutReservationsInput
+    connect?: LiveSessionWhereUniqueInput
+  }
+
+  export type LiveItemCreateNestedOneWithoutReservationsInput = {
+    create?: XOR<LiveItemCreateWithoutReservationsInput, LiveItemUncheckedCreateWithoutReservationsInput>
+    connectOrCreate?: LiveItemCreateOrConnectWithoutReservationsInput
+    connect?: LiveItemWhereUniqueInput
+  }
+
+  export type OrderCreateNestedOneWithoutReservationInput = {
+    create?: XOR<OrderCreateWithoutReservationInput, OrderUncheckedCreateWithoutReservationInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutReservationInput
+    connect?: OrderWhereUniqueInput
+  }
+
+  export type OrderUncheckedCreateNestedOneWithoutReservationInput = {
+    create?: XOR<OrderCreateWithoutReservationInput, OrderUncheckedCreateWithoutReservationInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutReservationInput
+    connect?: OrderWhereUniqueInput
+  }
+
+  export type EnumReservationStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ReservationStatus
+  }
+
+  export type TenantUpdateOneRequiredWithoutReservationsNestedInput = {
+    create?: XOR<TenantCreateWithoutReservationsInput, TenantUncheckedCreateWithoutReservationsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutReservationsInput
+    upsert?: TenantUpsertWithoutReservationsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutReservationsInput, TenantUpdateWithoutReservationsInput>, TenantUncheckedUpdateWithoutReservationsInput>
+  }
+
+  export type LiveSessionUpdateOneRequiredWithoutReservationsNestedInput = {
+    create?: XOR<LiveSessionCreateWithoutReservationsInput, LiveSessionUncheckedCreateWithoutReservationsInput>
+    connectOrCreate?: LiveSessionCreateOrConnectWithoutReservationsInput
+    upsert?: LiveSessionUpsertWithoutReservationsInput
+    connect?: LiveSessionWhereUniqueInput
+    update?: XOR<XOR<LiveSessionUpdateToOneWithWhereWithoutReservationsInput, LiveSessionUpdateWithoutReservationsInput>, LiveSessionUncheckedUpdateWithoutReservationsInput>
+  }
+
+  export type LiveItemUpdateOneRequiredWithoutReservationsNestedInput = {
+    create?: XOR<LiveItemCreateWithoutReservationsInput, LiveItemUncheckedCreateWithoutReservationsInput>
+    connectOrCreate?: LiveItemCreateOrConnectWithoutReservationsInput
+    upsert?: LiveItemUpsertWithoutReservationsInput
+    connect?: LiveItemWhereUniqueInput
+    update?: XOR<XOR<LiveItemUpdateToOneWithWhereWithoutReservationsInput, LiveItemUpdateWithoutReservationsInput>, LiveItemUncheckedUpdateWithoutReservationsInput>
+  }
+
+  export type OrderUpdateOneWithoutReservationNestedInput = {
+    create?: XOR<OrderCreateWithoutReservationInput, OrderUncheckedCreateWithoutReservationInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutReservationInput
+    upsert?: OrderUpsertWithoutReservationInput
+    disconnect?: OrderWhereInput | boolean
+    delete?: OrderWhereInput | boolean
+    connect?: OrderWhereUniqueInput
+    update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutReservationInput, OrderUpdateWithoutReservationInput>, OrderUncheckedUpdateWithoutReservationInput>
+  }
+
+  export type OrderUncheckedUpdateOneWithoutReservationNestedInput = {
+    create?: XOR<OrderCreateWithoutReservationInput, OrderUncheckedCreateWithoutReservationInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutReservationInput
+    upsert?: OrderUpsertWithoutReservationInput
+    disconnect?: OrderWhereInput | boolean
+    delete?: OrderWhereInput | boolean
+    connect?: OrderWhereUniqueInput
+    update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutReservationInput, OrderUpdateWithoutReservationInput>, OrderUncheckedUpdateWithoutReservationInput>
+  }
+
+  export type TenantCreateNestedOneWithoutOrdersInput = {
+    create?: XOR<TenantCreateWithoutOrdersInput, TenantUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutOrdersInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type ReservationCreateNestedOneWithoutOrderInput = {
+    create?: XOR<ReservationCreateWithoutOrderInput, ReservationUncheckedCreateWithoutOrderInput>
+    connectOrCreate?: ReservationCreateOrConnectWithoutOrderInput
+    connect?: ReservationWhereUniqueInput
+  }
+
+  export type PaymentProofCreateNestedManyWithoutOrderInput = {
+    create?: XOR<PaymentProofCreateWithoutOrderInput, PaymentProofUncheckedCreateWithoutOrderInput> | PaymentProofCreateWithoutOrderInput[] | PaymentProofUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: PaymentProofCreateOrConnectWithoutOrderInput | PaymentProofCreateOrConnectWithoutOrderInput[]
+    createMany?: PaymentProofCreateManyOrderInputEnvelope
+    connect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+  }
+
+  export type PaymentProofUncheckedCreateNestedManyWithoutOrderInput = {
+    create?: XOR<PaymentProofCreateWithoutOrderInput, PaymentProofUncheckedCreateWithoutOrderInput> | PaymentProofCreateWithoutOrderInput[] | PaymentProofUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: PaymentProofCreateOrConnectWithoutOrderInput | PaymentProofCreateOrConnectWithoutOrderInput[]
+    createMany?: PaymentProofCreateManyOrderInputEnvelope
+    connect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+  }
+
+  export type EnumOrderStatusFieldUpdateOperationsInput = {
+    set?: $Enums.OrderStatus
+  }
+
+  export type EnumDepositStatusFieldUpdateOperationsInput = {
+    set?: $Enums.DepositStatus
+  }
+
+  export type TenantUpdateOneRequiredWithoutOrdersNestedInput = {
+    create?: XOR<TenantCreateWithoutOrdersInput, TenantUncheckedCreateWithoutOrdersInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutOrdersInput
+    upsert?: TenantUpsertWithoutOrdersInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutOrdersInput, TenantUpdateWithoutOrdersInput>, TenantUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type ReservationUpdateOneRequiredWithoutOrderNestedInput = {
+    create?: XOR<ReservationCreateWithoutOrderInput, ReservationUncheckedCreateWithoutOrderInput>
+    connectOrCreate?: ReservationCreateOrConnectWithoutOrderInput
+    upsert?: ReservationUpsertWithoutOrderInput
+    connect?: ReservationWhereUniqueInput
+    update?: XOR<XOR<ReservationUpdateToOneWithWhereWithoutOrderInput, ReservationUpdateWithoutOrderInput>, ReservationUncheckedUpdateWithoutOrderInput>
+  }
+
+  export type PaymentProofUpdateManyWithoutOrderNestedInput = {
+    create?: XOR<PaymentProofCreateWithoutOrderInput, PaymentProofUncheckedCreateWithoutOrderInput> | PaymentProofCreateWithoutOrderInput[] | PaymentProofUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: PaymentProofCreateOrConnectWithoutOrderInput | PaymentProofCreateOrConnectWithoutOrderInput[]
+    upsert?: PaymentProofUpsertWithWhereUniqueWithoutOrderInput | PaymentProofUpsertWithWhereUniqueWithoutOrderInput[]
+    createMany?: PaymentProofCreateManyOrderInputEnvelope
+    set?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    disconnect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    delete?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    connect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    update?: PaymentProofUpdateWithWhereUniqueWithoutOrderInput | PaymentProofUpdateWithWhereUniqueWithoutOrderInput[]
+    updateMany?: PaymentProofUpdateManyWithWhereWithoutOrderInput | PaymentProofUpdateManyWithWhereWithoutOrderInput[]
+    deleteMany?: PaymentProofScalarWhereInput | PaymentProofScalarWhereInput[]
+  }
+
+  export type PaymentProofUncheckedUpdateManyWithoutOrderNestedInput = {
+    create?: XOR<PaymentProofCreateWithoutOrderInput, PaymentProofUncheckedCreateWithoutOrderInput> | PaymentProofCreateWithoutOrderInput[] | PaymentProofUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: PaymentProofCreateOrConnectWithoutOrderInput | PaymentProofCreateOrConnectWithoutOrderInput[]
+    upsert?: PaymentProofUpsertWithWhereUniqueWithoutOrderInput | PaymentProofUpsertWithWhereUniqueWithoutOrderInput[]
+    createMany?: PaymentProofCreateManyOrderInputEnvelope
+    set?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    disconnect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    delete?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    connect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+    update?: PaymentProofUpdateWithWhereUniqueWithoutOrderInput | PaymentProofUpdateWithWhereUniqueWithoutOrderInput[]
+    updateMany?: PaymentProofUpdateManyWithWhereWithoutOrderInput | PaymentProofUpdateManyWithWhereWithoutOrderInput[]
+    deleteMany?: PaymentProofScalarWhereInput | PaymentProofScalarWhereInput[]
+  }
+
+  export type OrderCreateNestedOneWithoutPaymentProofsInput = {
+    create?: XOR<OrderCreateWithoutPaymentProofsInput, OrderUncheckedCreateWithoutPaymentProofsInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutPaymentProofsInput
+    connect?: OrderWhereUniqueInput
+  }
+
+  export type TenantCreateNestedOneWithoutPaymentProofsInput = {
+    create?: XOR<TenantCreateWithoutPaymentProofsInput, TenantUncheckedCreateWithoutPaymentProofsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutPaymentProofsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type EnumPaymentProofStatusFieldUpdateOperationsInput = {
+    set?: $Enums.PaymentProofStatus
+  }
+
+  export type OrderUpdateOneRequiredWithoutPaymentProofsNestedInput = {
+    create?: XOR<OrderCreateWithoutPaymentProofsInput, OrderUncheckedCreateWithoutPaymentProofsInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutPaymentProofsInput
+    upsert?: OrderUpsertWithoutPaymentProofsInput
+    connect?: OrderWhereUniqueInput
+    update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutPaymentProofsInput, OrderUpdateWithoutPaymentProofsInput>, OrderUncheckedUpdateWithoutPaymentProofsInput>
+  }
+
+  export type TenantUpdateOneRequiredWithoutPaymentProofsNestedInput = {
+    create?: XOR<TenantCreateWithoutPaymentProofsInput, TenantUncheckedCreateWithoutPaymentProofsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutPaymentProofsInput
+    upsert?: TenantUpsertWithoutPaymentProofsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutPaymentProofsInput, TenantUpdateWithoutPaymentProofsInput>, TenantUncheckedUpdateWithoutPaymentProofsInput>
+  }
+
+  export type TenantCreateNestedOneWithoutWaitlistsInput = {
+    create?: XOR<TenantCreateWithoutWaitlistsInput, TenantUncheckedCreateWithoutWaitlistsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutWaitlistsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type TenantUpdateOneRequiredWithoutWaitlistsNestedInput = {
+    create?: XOR<TenantCreateWithoutWaitlistsInput, TenantUncheckedCreateWithoutWaitlistsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutWaitlistsInput
+    upsert?: TenantUpsertWithoutWaitlistsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutWaitlistsInput, TenantUpdateWithoutWaitlistsInput>, TenantUncheckedUpdateWithoutWaitlistsInput>
   }
 
   export type TenantCreateNestedOneWithoutDeadLetterJobsInput = {
@@ -26253,6 +35006,11 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -26320,6 +35078,14 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -26470,6 +35236,74 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumLiveSessionStatusFilter<$PrismaModel>
     _max?: NestedEnumLiveSessionStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumReservationStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReservationStatus | EnumReservationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReservationStatus[] | ListEnumReservationStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReservationStatus[] | ListEnumReservationStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReservationStatusFilter<$PrismaModel> | $Enums.ReservationStatus
+  }
+
+  export type NestedEnumReservationStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ReservationStatus | EnumReservationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ReservationStatus[] | ListEnumReservationStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ReservationStatus[] | ListEnumReservationStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumReservationStatusWithAggregatesFilter<$PrismaModel> | $Enums.ReservationStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumReservationStatusFilter<$PrismaModel>
+    _max?: NestedEnumReservationStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumOrderStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderStatus | EnumOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderStatus[] | ListEnumOrderStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrderStatus[] | ListEnumOrderStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrderStatusFilter<$PrismaModel> | $Enums.OrderStatus
+  }
+
+  export type NestedEnumDepositStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DepositStatus | EnumDepositStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DepositStatus[] | ListEnumDepositStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DepositStatus[] | ListEnumDepositStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDepositStatusFilter<$PrismaModel> | $Enums.DepositStatus
+  }
+
+  export type NestedEnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrderStatus | EnumOrderStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrderStatus[] | ListEnumOrderStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrderStatus[] | ListEnumOrderStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrderStatusWithAggregatesFilter<$PrismaModel> | $Enums.OrderStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrderStatusFilter<$PrismaModel>
+    _max?: NestedEnumOrderStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumDepositStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DepositStatus | EnumDepositStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DepositStatus[] | ListEnumDepositStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DepositStatus[] | ListEnumDepositStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDepositStatusWithAggregatesFilter<$PrismaModel> | $Enums.DepositStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDepositStatusFilter<$PrismaModel>
+    _max?: NestedEnumDepositStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumPaymentProofStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentProofStatus | EnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentProofStatus[] | ListEnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentProofStatus[] | ListEnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentProofStatusFilter<$PrismaModel> | $Enums.PaymentProofStatus
+  }
+
+  export type NestedEnumPaymentProofStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.PaymentProofStatus | EnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.PaymentProofStatus[] | ListEnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PaymentProofStatus[] | ListEnumPaymentProofStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumPaymentProofStatusWithAggregatesFilter<$PrismaModel> | $Enums.PaymentProofStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPaymentProofStatusFilter<$PrismaModel>
+    _max?: NestedEnumPaymentProofStatusFilter<$PrismaModel>
   }
 
   export type UserCreateWithoutTenantInput = {
@@ -26810,6 +35644,8 @@ export namespace Prisma {
     lastActivityAt: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    liveItems?: LiveItemCreateNestedManyWithoutLiveSessionInput
+    reservations?: ReservationCreateNestedManyWithoutLiveSessionInput
   }
 
   export type LiveSessionUncheckedCreateWithoutTenantInput = {
@@ -26818,6 +35654,8 @@ export namespace Prisma {
     lastActivityAt: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutLiveSessionInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutLiveSessionInput
   }
 
   export type LiveSessionCreateOrConnectWithoutTenantInput = {
@@ -26827,6 +35665,182 @@ export namespace Prisma {
 
   export type LiveSessionCreateManyTenantInputEnvelope = {
     data: LiveSessionCreateManyTenantInput | LiveSessionCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type LiveItemCreateWithoutTenantInput = {
+    id?: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    liveSession: LiveSessionCreateNestedOneWithoutLiveItemsInput
+    reservations?: ReservationCreateNestedManyWithoutLiveItemInput
+  }
+
+  export type LiveItemUncheckedCreateWithoutTenantInput = {
+    id?: string
+    liveSessionId: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutLiveItemInput
+  }
+
+  export type LiveItemCreateOrConnectWithoutTenantInput = {
+    where: LiveItemWhereUniqueInput
+    create: XOR<LiveItemCreateWithoutTenantInput, LiveItemUncheckedCreateWithoutTenantInput>
+  }
+
+  export type LiveItemCreateManyTenantInputEnvelope = {
+    data: LiveItemCreateManyTenantInput | LiveItemCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReservationCreateWithoutTenantInput = {
+    id?: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    liveSession: LiveSessionCreateNestedOneWithoutReservationsInput
+    liveItem: LiveItemCreateNestedOneWithoutReservationsInput
+    order?: OrderCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationUncheckedCreateWithoutTenantInput = {
+    id?: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    order?: OrderUncheckedCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationCreateOrConnectWithoutTenantInput = {
+    where: ReservationWhereUniqueInput
+    create: XOR<ReservationCreateWithoutTenantInput, ReservationUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ReservationCreateManyTenantInputEnvelope = {
+    data: ReservationCreateManyTenantInput | ReservationCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WaitlistCreateWithoutTenantInput = {
+    id?: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    position: number
+    correlationId: string
+    createdAt?: Date | string
+  }
+
+  export type WaitlistUncheckedCreateWithoutTenantInput = {
+    id?: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    position: number
+    correlationId: string
+    createdAt?: Date | string
+  }
+
+  export type WaitlistCreateOrConnectWithoutTenantInput = {
+    where: WaitlistWhereUniqueInput
+    create: XOR<WaitlistCreateWithoutTenantInput, WaitlistUncheckedCreateWithoutTenantInput>
+  }
+
+  export type WaitlistCreateManyTenantInputEnvelope = {
+    data: WaitlistCreateManyTenantInput | WaitlistCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OrderCreateWithoutTenantInput = {
+    id?: string
+    orderNumber: string
+    status: $Enums.OrderStatus
+    depositStatus: $Enums.DepositStatus
+    depositExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservation: ReservationCreateNestedOneWithoutOrderInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderUncheckedCreateWithoutTenantInput = {
+    id?: string
+    reservationId: string
+    orderNumber: string
+    status: $Enums.OrderStatus
+    depositStatus: $Enums.DepositStatus
+    depositExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderCreateOrConnectWithoutTenantInput = {
+    where: OrderWhereUniqueInput
+    create: XOR<OrderCreateWithoutTenantInput, OrderUncheckedCreateWithoutTenantInput>
+  }
+
+  export type OrderCreateManyTenantInputEnvelope = {
+    data: OrderCreateManyTenantInput | OrderCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PaymentProofCreateWithoutTenantInput = {
+    id?: string
+    mediaStorageKey?: string | null
+    textPayload?: string | null
+    status?: $Enums.PaymentProofStatus
+    reviewedAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    order: OrderCreateNestedOneWithoutPaymentProofsInput
+  }
+
+  export type PaymentProofUncheckedCreateWithoutTenantInput = {
+    id?: string
+    orderId: string
+    mediaStorageKey?: string | null
+    textPayload?: string | null
+    status?: $Enums.PaymentProofStatus
+    reviewedAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentProofCreateOrConnectWithoutTenantInput = {
+    where: PaymentProofWhereUniqueInput
+    create: XOR<PaymentProofCreateWithoutTenantInput, PaymentProofUncheckedCreateWithoutTenantInput>
+  }
+
+  export type PaymentProofCreateManyTenantInputEnvelope = {
+    data: PaymentProofCreateManyTenantInput | PaymentProofCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
@@ -27186,10 +36200,171 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"LiveSession"> | Date | string
   }
 
+  export type LiveItemUpsertWithWhereUniqueWithoutTenantInput = {
+    where: LiveItemWhereUniqueInput
+    update: XOR<LiveItemUpdateWithoutTenantInput, LiveItemUncheckedUpdateWithoutTenantInput>
+    create: XOR<LiveItemCreateWithoutTenantInput, LiveItemUncheckedCreateWithoutTenantInput>
+  }
+
+  export type LiveItemUpdateWithWhereUniqueWithoutTenantInput = {
+    where: LiveItemWhereUniqueInput
+    data: XOR<LiveItemUpdateWithoutTenantInput, LiveItemUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type LiveItemUpdateManyWithWhereWithoutTenantInput = {
+    where: LiveItemScalarWhereInput
+    data: XOR<LiveItemUpdateManyMutationInput, LiveItemUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type LiveItemScalarWhereInput = {
+    AND?: LiveItemScalarWhereInput | LiveItemScalarWhereInput[]
+    OR?: LiveItemScalarWhereInput[]
+    NOT?: LiveItemScalarWhereInput | LiveItemScalarWhereInput[]
+    id?: StringFilter<"LiveItem"> | string
+    tenantId?: StringFilter<"LiveItem"> | string
+    liveSessionId?: StringFilter<"LiveItem"> | string
+    code?: StringFilter<"LiveItem"> | string
+    amountCents?: IntNullableFilter<"LiveItem"> | number | null
+    quantity?: IntFilter<"LiveItem"> | number
+    availableQty?: IntFilter<"LiveItem"> | number
+    reservedQty?: IntFilter<"LiveItem"> | number
+    mediaStorageKey?: StringNullableFilter<"LiveItem"> | string | null
+    createdAt?: DateTimeFilter<"LiveItem"> | Date | string
+    updatedAt?: DateTimeFilter<"LiveItem"> | Date | string
+  }
+
+  export type ReservationUpsertWithWhereUniqueWithoutTenantInput = {
+    where: ReservationWhereUniqueInput
+    update: XOR<ReservationUpdateWithoutTenantInput, ReservationUncheckedUpdateWithoutTenantInput>
+    create: XOR<ReservationCreateWithoutTenantInput, ReservationUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ReservationUpdateWithWhereUniqueWithoutTenantInput = {
+    where: ReservationWhereUniqueInput
+    data: XOR<ReservationUpdateWithoutTenantInput, ReservationUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type ReservationUpdateManyWithWhereWithoutTenantInput = {
+    where: ReservationScalarWhereInput
+    data: XOR<ReservationUpdateManyMutationInput, ReservationUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type ReservationScalarWhereInput = {
+    AND?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+    OR?: ReservationScalarWhereInput[]
+    NOT?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+    id?: StringFilter<"Reservation"> | string
+    tenantId?: StringFilter<"Reservation"> | string
+    liveSessionId?: StringFilter<"Reservation"> | string
+    liveItemId?: StringFilter<"Reservation"> | string
+    clientPhone?: StringFilter<"Reservation"> | string
+    status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
+    address?: StringNullableFilter<"Reservation"> | string | null
+    expiresAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
+    reminderSentAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
+    correlationId?: StringFilter<"Reservation"> | string
+    createdAt?: DateTimeFilter<"Reservation"> | Date | string
+    updatedAt?: DateTimeFilter<"Reservation"> | Date | string
+  }
+
+  export type WaitlistUpsertWithWhereUniqueWithoutTenantInput = {
+    where: WaitlistWhereUniqueInput
+    update: XOR<WaitlistUpdateWithoutTenantInput, WaitlistUncheckedUpdateWithoutTenantInput>
+    create: XOR<WaitlistCreateWithoutTenantInput, WaitlistUncheckedCreateWithoutTenantInput>
+  }
+
+  export type WaitlistUpdateWithWhereUniqueWithoutTenantInput = {
+    where: WaitlistWhereUniqueInput
+    data: XOR<WaitlistUpdateWithoutTenantInput, WaitlistUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type WaitlistUpdateManyWithWhereWithoutTenantInput = {
+    where: WaitlistScalarWhereInput
+    data: XOR<WaitlistUpdateManyMutationInput, WaitlistUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type WaitlistScalarWhereInput = {
+    AND?: WaitlistScalarWhereInput | WaitlistScalarWhereInput[]
+    OR?: WaitlistScalarWhereInput[]
+    NOT?: WaitlistScalarWhereInput | WaitlistScalarWhereInput[]
+    id?: StringFilter<"Waitlist"> | string
+    tenantId?: StringFilter<"Waitlist"> | string
+    liveSessionId?: StringFilter<"Waitlist"> | string
+    liveItemId?: StringFilter<"Waitlist"> | string
+    clientPhone?: StringFilter<"Waitlist"> | string
+    position?: IntFilter<"Waitlist"> | number
+    correlationId?: StringFilter<"Waitlist"> | string
+    createdAt?: DateTimeFilter<"Waitlist"> | Date | string
+  }
+
+  export type OrderUpsertWithWhereUniqueWithoutTenantInput = {
+    where: OrderWhereUniqueInput
+    update: XOR<OrderUpdateWithoutTenantInput, OrderUncheckedUpdateWithoutTenantInput>
+    create: XOR<OrderCreateWithoutTenantInput, OrderUncheckedCreateWithoutTenantInput>
+  }
+
+  export type OrderUpdateWithWhereUniqueWithoutTenantInput = {
+    where: OrderWhereUniqueInput
+    data: XOR<OrderUpdateWithoutTenantInput, OrderUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type OrderUpdateManyWithWhereWithoutTenantInput = {
+    where: OrderScalarWhereInput
+    data: XOR<OrderUpdateManyMutationInput, OrderUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type OrderScalarWhereInput = {
+    AND?: OrderScalarWhereInput | OrderScalarWhereInput[]
+    OR?: OrderScalarWhereInput[]
+    NOT?: OrderScalarWhereInput | OrderScalarWhereInput[]
+    id?: StringFilter<"Order"> | string
+    tenantId?: StringFilter<"Order"> | string
+    reservationId?: StringFilter<"Order"> | string
+    orderNumber?: StringFilter<"Order"> | string
+    status?: EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFilter<"Order"> | $Enums.DepositStatus
+    depositExpiresAt?: DateTimeNullableFilter<"Order"> | Date | string | null
+    createdAt?: DateTimeFilter<"Order"> | Date | string
+    updatedAt?: DateTimeFilter<"Order"> | Date | string
+  }
+
+  export type PaymentProofUpsertWithWhereUniqueWithoutTenantInput = {
+    where: PaymentProofWhereUniqueInput
+    update: XOR<PaymentProofUpdateWithoutTenantInput, PaymentProofUncheckedUpdateWithoutTenantInput>
+    create: XOR<PaymentProofCreateWithoutTenantInput, PaymentProofUncheckedCreateWithoutTenantInput>
+  }
+
+  export type PaymentProofUpdateWithWhereUniqueWithoutTenantInput = {
+    where: PaymentProofWhereUniqueInput
+    data: XOR<PaymentProofUpdateWithoutTenantInput, PaymentProofUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type PaymentProofUpdateManyWithWhereWithoutTenantInput = {
+    where: PaymentProofScalarWhereInput
+    data: XOR<PaymentProofUpdateManyMutationInput, PaymentProofUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type PaymentProofScalarWhereInput = {
+    AND?: PaymentProofScalarWhereInput | PaymentProofScalarWhereInput[]
+    OR?: PaymentProofScalarWhereInput[]
+    NOT?: PaymentProofScalarWhereInput | PaymentProofScalarWhereInput[]
+    id?: StringFilter<"PaymentProof"> | string
+    orderId?: StringFilter<"PaymentProof"> | string
+    tenantId?: StringFilter<"PaymentProof"> | string
+    mediaStorageKey?: StringNullableFilter<"PaymentProof"> | string | null
+    textPayload?: StringNullableFilter<"PaymentProof"> | string | null
+    status?: EnumPaymentProofStatusFilter<"PaymentProof"> | $Enums.PaymentProofStatus
+    reviewedAt?: DateTimeNullableFilter<"PaymentProof"> | Date | string | null
+    correlationId?: StringFilter<"PaymentProof"> | string
+    createdAt?: DateTimeFilter<"PaymentProof"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentProof"> | Date | string
+  }
+
   export type TenantCreateWithoutInvitationsInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -27203,12 +36378,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutInvitationsInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -27222,6 +36403,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutInvitationsInput = {
@@ -27244,6 +36430,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -27257,12 +36444,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutInvitationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -27276,12 +36469,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutDeliveryZonesInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -27295,12 +36494,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutDeliveryZonesInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -27314,6 +36519,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutDeliveryZonesInput = {
@@ -27356,6 +36566,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -27369,12 +36580,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutDeliveryZonesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -27388,6 +36605,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type DeliveryZoneCommuneUpsertWithWhereUniqueWithoutZoneInput = {
@@ -27471,6 +36693,7 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -27484,12 +36707,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutDeliveryFeeCommuneInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -27503,6 +36732,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutDeliveryFeeCommuneInput = {
@@ -27525,6 +36759,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -27538,12 +36773,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutDeliveryFeeCommuneInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -27557,12 +36798,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutUsersInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -27576,12 +36823,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutUsersInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -27595,6 +36848,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutUsersInput = {
@@ -27677,6 +36935,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -27690,12 +36949,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutUsersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -27709,6 +36974,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
@@ -27919,6 +37189,7 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -27932,12 +37203,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutCategoryPricesInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -27951,6 +37228,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutCategoryPricesInput = {
@@ -27973,6 +37255,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -27986,12 +37269,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutCategoryPricesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -28005,12 +37294,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutMessagesInInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -28024,12 +37319,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutMessagesInInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -28043,6 +37344,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutMessagesInInput = {
@@ -28065,6 +37371,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -28078,12 +37385,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutMessagesInInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -28097,12 +37410,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutSellerPhonesInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -28116,12 +37435,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutSellerPhonesInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -28135,6 +37460,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutSellerPhonesInput = {
@@ -28157,6 +37487,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -28170,12 +37501,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutSellerPhonesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -28189,12 +37526,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutEventLogsInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -28208,12 +37551,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutEventLogsInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -28227,6 +37576,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutEventLogsInput = {
@@ -28249,6 +37603,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -28262,12 +37617,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutEventLogsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -28281,12 +37642,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutOptOutsInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -28300,12 +37667,18 @@ export namespace Prisma {
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutOptOutsInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -28319,6 +37692,11 @@ export namespace Prisma {
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutOptOutsInput = {
@@ -28341,6 +37719,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -28354,12 +37733,18 @@ export namespace Prisma {
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutOptOutsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -28373,12 +37758,18 @@ export namespace Prisma {
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutMessagesOutInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -28392,12 +37783,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutMessagesOutInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -28411,6 +37808,11 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutMessagesOutInput = {
@@ -28433,6 +37835,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -28446,12 +37849,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutMessagesOutInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -28465,12 +37874,18 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutLiveSessionsInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -28484,12 +37899,18 @@ export namespace Prisma {
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutLiveSessionsInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -28503,11 +37924,94 @@ export namespace Prisma {
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutLiveSessionsInput = {
     where: TenantWhereUniqueInput
     create: XOR<TenantCreateWithoutLiveSessionsInput, TenantUncheckedCreateWithoutLiveSessionsInput>
+  }
+
+  export type LiveItemCreateWithoutLiveSessionInput = {
+    id?: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutLiveItemsInput
+    reservations?: ReservationCreateNestedManyWithoutLiveItemInput
+  }
+
+  export type LiveItemUncheckedCreateWithoutLiveSessionInput = {
+    id?: string
+    tenantId: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutLiveItemInput
+  }
+
+  export type LiveItemCreateOrConnectWithoutLiveSessionInput = {
+    where: LiveItemWhereUniqueInput
+    create: XOR<LiveItemCreateWithoutLiveSessionInput, LiveItemUncheckedCreateWithoutLiveSessionInput>
+  }
+
+  export type LiveItemCreateManyLiveSessionInputEnvelope = {
+    data: LiveItemCreateManyLiveSessionInput | LiveItemCreateManyLiveSessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ReservationCreateWithoutLiveSessionInput = {
+    id?: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutReservationsInput
+    liveItem: LiveItemCreateNestedOneWithoutReservationsInput
+    order?: OrderCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationUncheckedCreateWithoutLiveSessionInput = {
+    id?: string
+    tenantId: string
+    liveItemId: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    order?: OrderUncheckedCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationCreateOrConnectWithoutLiveSessionInput = {
+    where: ReservationWhereUniqueInput
+    create: XOR<ReservationCreateWithoutLiveSessionInput, ReservationUncheckedCreateWithoutLiveSessionInput>
+  }
+
+  export type ReservationCreateManyLiveSessionInputEnvelope = {
+    data: ReservationCreateManyLiveSessionInput | ReservationCreateManyLiveSessionInput[]
+    skipDuplicates?: boolean
   }
 
   export type TenantUpsertWithoutLiveSessionsInput = {
@@ -28525,6 +38029,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -28538,12 +38043,18 @@ export namespace Prisma {
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutLiveSessionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -28557,12 +38068,1124 @@ export namespace Prisma {
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type LiveItemUpsertWithWhereUniqueWithoutLiveSessionInput = {
+    where: LiveItemWhereUniqueInput
+    update: XOR<LiveItemUpdateWithoutLiveSessionInput, LiveItemUncheckedUpdateWithoutLiveSessionInput>
+    create: XOR<LiveItemCreateWithoutLiveSessionInput, LiveItemUncheckedCreateWithoutLiveSessionInput>
+  }
+
+  export type LiveItemUpdateWithWhereUniqueWithoutLiveSessionInput = {
+    where: LiveItemWhereUniqueInput
+    data: XOR<LiveItemUpdateWithoutLiveSessionInput, LiveItemUncheckedUpdateWithoutLiveSessionInput>
+  }
+
+  export type LiveItemUpdateManyWithWhereWithoutLiveSessionInput = {
+    where: LiveItemScalarWhereInput
+    data: XOR<LiveItemUpdateManyMutationInput, LiveItemUncheckedUpdateManyWithoutLiveSessionInput>
+  }
+
+  export type ReservationUpsertWithWhereUniqueWithoutLiveSessionInput = {
+    where: ReservationWhereUniqueInput
+    update: XOR<ReservationUpdateWithoutLiveSessionInput, ReservationUncheckedUpdateWithoutLiveSessionInput>
+    create: XOR<ReservationCreateWithoutLiveSessionInput, ReservationUncheckedCreateWithoutLiveSessionInput>
+  }
+
+  export type ReservationUpdateWithWhereUniqueWithoutLiveSessionInput = {
+    where: ReservationWhereUniqueInput
+    data: XOR<ReservationUpdateWithoutLiveSessionInput, ReservationUncheckedUpdateWithoutLiveSessionInput>
+  }
+
+  export type ReservationUpdateManyWithWhereWithoutLiveSessionInput = {
+    where: ReservationScalarWhereInput
+    data: XOR<ReservationUpdateManyMutationInput, ReservationUncheckedUpdateManyWithoutLiveSessionInput>
+  }
+
+  export type TenantCreateWithoutLiveItemsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutLiveItemsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutLiveItemsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutLiveItemsInput, TenantUncheckedCreateWithoutLiveItemsInput>
+  }
+
+  export type LiveSessionCreateWithoutLiveItemsInput = {
+    id?: string
+    status?: $Enums.LiveSessionStatus
+    lastActivityAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutLiveSessionsInput
+    reservations?: ReservationCreateNestedManyWithoutLiveSessionInput
+  }
+
+  export type LiveSessionUncheckedCreateWithoutLiveItemsInput = {
+    id?: string
+    tenantId: string
+    status?: $Enums.LiveSessionStatus
+    lastActivityAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutLiveSessionInput
+  }
+
+  export type LiveSessionCreateOrConnectWithoutLiveItemsInput = {
+    where: LiveSessionWhereUniqueInput
+    create: XOR<LiveSessionCreateWithoutLiveItemsInput, LiveSessionUncheckedCreateWithoutLiveItemsInput>
+  }
+
+  export type ReservationCreateWithoutLiveItemInput = {
+    id?: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutReservationsInput
+    liveSession: LiveSessionCreateNestedOneWithoutReservationsInput
+    order?: OrderCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationUncheckedCreateWithoutLiveItemInput = {
+    id?: string
+    tenantId: string
+    liveSessionId: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    order?: OrderUncheckedCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationCreateOrConnectWithoutLiveItemInput = {
+    where: ReservationWhereUniqueInput
+    create: XOR<ReservationCreateWithoutLiveItemInput, ReservationUncheckedCreateWithoutLiveItemInput>
+  }
+
+  export type ReservationCreateManyLiveItemInputEnvelope = {
+    data: ReservationCreateManyLiveItemInput | ReservationCreateManyLiveItemInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TenantUpsertWithoutLiveItemsInput = {
+    update: XOR<TenantUpdateWithoutLiveItemsInput, TenantUncheckedUpdateWithoutLiveItemsInput>
+    create: XOR<TenantCreateWithoutLiveItemsInput, TenantUncheckedCreateWithoutLiveItemsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutLiveItemsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutLiveItemsInput, TenantUncheckedUpdateWithoutLiveItemsInput>
+  }
+
+  export type TenantUpdateWithoutLiveItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutLiveItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type LiveSessionUpsertWithoutLiveItemsInput = {
+    update: XOR<LiveSessionUpdateWithoutLiveItemsInput, LiveSessionUncheckedUpdateWithoutLiveItemsInput>
+    create: XOR<LiveSessionCreateWithoutLiveItemsInput, LiveSessionUncheckedCreateWithoutLiveItemsInput>
+    where?: LiveSessionWhereInput
+  }
+
+  export type LiveSessionUpdateToOneWithWhereWithoutLiveItemsInput = {
+    where?: LiveSessionWhereInput
+    data: XOR<LiveSessionUpdateWithoutLiveItemsInput, LiveSessionUncheckedUpdateWithoutLiveItemsInput>
+  }
+
+  export type LiveSessionUpdateWithoutLiveItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumLiveSessionStatusFieldUpdateOperationsInput | $Enums.LiveSessionStatus
+    lastActivityAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutLiveSessionsNestedInput
+    reservations?: ReservationUpdateManyWithoutLiveSessionNestedInput
+  }
+
+  export type LiveSessionUncheckedUpdateWithoutLiveItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    status?: EnumLiveSessionStatusFieldUpdateOperationsInput | $Enums.LiveSessionStatus
+    lastActivityAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutLiveSessionNestedInput
+  }
+
+  export type ReservationUpsertWithWhereUniqueWithoutLiveItemInput = {
+    where: ReservationWhereUniqueInput
+    update: XOR<ReservationUpdateWithoutLiveItemInput, ReservationUncheckedUpdateWithoutLiveItemInput>
+    create: XOR<ReservationCreateWithoutLiveItemInput, ReservationUncheckedCreateWithoutLiveItemInput>
+  }
+
+  export type ReservationUpdateWithWhereUniqueWithoutLiveItemInput = {
+    where: ReservationWhereUniqueInput
+    data: XOR<ReservationUpdateWithoutLiveItemInput, ReservationUncheckedUpdateWithoutLiveItemInput>
+  }
+
+  export type ReservationUpdateManyWithWhereWithoutLiveItemInput = {
+    where: ReservationScalarWhereInput
+    data: XOR<ReservationUpdateManyMutationInput, ReservationUncheckedUpdateManyWithoutLiveItemInput>
+  }
+
+  export type TenantCreateWithoutReservationsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutReservationsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutReservationsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutReservationsInput, TenantUncheckedCreateWithoutReservationsInput>
+  }
+
+  export type LiveSessionCreateWithoutReservationsInput = {
+    id?: string
+    status?: $Enums.LiveSessionStatus
+    lastActivityAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutLiveSessionsInput
+    liveItems?: LiveItemCreateNestedManyWithoutLiveSessionInput
+  }
+
+  export type LiveSessionUncheckedCreateWithoutReservationsInput = {
+    id?: string
+    tenantId: string
+    status?: $Enums.LiveSessionStatus
+    lastActivityAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutLiveSessionInput
+  }
+
+  export type LiveSessionCreateOrConnectWithoutReservationsInput = {
+    where: LiveSessionWhereUniqueInput
+    create: XOR<LiveSessionCreateWithoutReservationsInput, LiveSessionUncheckedCreateWithoutReservationsInput>
+  }
+
+  export type LiveItemCreateWithoutReservationsInput = {
+    id?: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutLiveItemsInput
+    liveSession: LiveSessionCreateNestedOneWithoutLiveItemsInput
+  }
+
+  export type LiveItemUncheckedCreateWithoutReservationsInput = {
+    id?: string
+    tenantId: string
+    liveSessionId: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LiveItemCreateOrConnectWithoutReservationsInput = {
+    where: LiveItemWhereUniqueInput
+    create: XOR<LiveItemCreateWithoutReservationsInput, LiveItemUncheckedCreateWithoutReservationsInput>
+  }
+
+  export type OrderCreateWithoutReservationInput = {
+    id?: string
+    orderNumber: string
+    status: $Enums.OrderStatus
+    depositStatus: $Enums.DepositStatus
+    depositExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutOrdersInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderUncheckedCreateWithoutReservationInput = {
+    id?: string
+    tenantId: string
+    orderNumber: string
+    status: $Enums.OrderStatus
+    depositStatus: $Enums.DepositStatus
+    depositExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderCreateOrConnectWithoutReservationInput = {
+    where: OrderWhereUniqueInput
+    create: XOR<OrderCreateWithoutReservationInput, OrderUncheckedCreateWithoutReservationInput>
+  }
+
+  export type TenantUpsertWithoutReservationsInput = {
+    update: XOR<TenantUpdateWithoutReservationsInput, TenantUncheckedUpdateWithoutReservationsInput>
+    create: XOR<TenantCreateWithoutReservationsInput, TenantUncheckedCreateWithoutReservationsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutReservationsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutReservationsInput, TenantUncheckedUpdateWithoutReservationsInput>
+  }
+
+  export type TenantUpdateWithoutReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type LiveSessionUpsertWithoutReservationsInput = {
+    update: XOR<LiveSessionUpdateWithoutReservationsInput, LiveSessionUncheckedUpdateWithoutReservationsInput>
+    create: XOR<LiveSessionCreateWithoutReservationsInput, LiveSessionUncheckedCreateWithoutReservationsInput>
+    where?: LiveSessionWhereInput
+  }
+
+  export type LiveSessionUpdateToOneWithWhereWithoutReservationsInput = {
+    where?: LiveSessionWhereInput
+    data: XOR<LiveSessionUpdateWithoutReservationsInput, LiveSessionUncheckedUpdateWithoutReservationsInput>
+  }
+
+  export type LiveSessionUpdateWithoutReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumLiveSessionStatusFieldUpdateOperationsInput | $Enums.LiveSessionStatus
+    lastActivityAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutLiveSessionsNestedInput
+    liveItems?: LiveItemUpdateManyWithoutLiveSessionNestedInput
+  }
+
+  export type LiveSessionUncheckedUpdateWithoutReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    status?: EnumLiveSessionStatusFieldUpdateOperationsInput | $Enums.LiveSessionStatus
+    lastActivityAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    liveItems?: LiveItemUncheckedUpdateManyWithoutLiveSessionNestedInput
+  }
+
+  export type LiveItemUpsertWithoutReservationsInput = {
+    update: XOR<LiveItemUpdateWithoutReservationsInput, LiveItemUncheckedUpdateWithoutReservationsInput>
+    create: XOR<LiveItemCreateWithoutReservationsInput, LiveItemUncheckedCreateWithoutReservationsInput>
+    where?: LiveItemWhereInput
+  }
+
+  export type LiveItemUpdateToOneWithWhereWithoutReservationsInput = {
+    where?: LiveItemWhereInput
+    data: XOR<LiveItemUpdateWithoutReservationsInput, LiveItemUncheckedUpdateWithoutReservationsInput>
+  }
+
+  export type LiveItemUpdateWithoutReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutLiveItemsNestedInput
+    liveSession?: LiveSessionUpdateOneRequiredWithoutLiveItemsNestedInput
+  }
+
+  export type LiveItemUncheckedUpdateWithoutReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderUpsertWithoutReservationInput = {
+    update: XOR<OrderUpdateWithoutReservationInput, OrderUncheckedUpdateWithoutReservationInput>
+    create: XOR<OrderCreateWithoutReservationInput, OrderUncheckedCreateWithoutReservationInput>
+    where?: OrderWhereInput
+  }
+
+  export type OrderUpdateToOneWithWhereWithoutReservationInput = {
+    where?: OrderWhereInput
+    data: XOR<OrderUpdateWithoutReservationInput, OrderUncheckedUpdateWithoutReservationInput>
+  }
+
+  export type OrderUpdateWithoutReservationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutOrdersNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateWithoutReservationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutOrderNestedInput
+  }
+
+  export type TenantCreateWithoutOrdersInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutOrdersInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutOrdersInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutOrdersInput, TenantUncheckedCreateWithoutOrdersInput>
+  }
+
+  export type ReservationCreateWithoutOrderInput = {
+    id?: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutReservationsInput
+    liveSession: LiveSessionCreateNestedOneWithoutReservationsInput
+    liveItem: LiveItemCreateNestedOneWithoutReservationsInput
+  }
+
+  export type ReservationUncheckedCreateWithoutOrderInput = {
+    id?: string
+    tenantId: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservationCreateOrConnectWithoutOrderInput = {
+    where: ReservationWhereUniqueInput
+    create: XOR<ReservationCreateWithoutOrderInput, ReservationUncheckedCreateWithoutOrderInput>
+  }
+
+  export type PaymentProofCreateWithoutOrderInput = {
+    id?: string
+    mediaStorageKey?: string | null
+    textPayload?: string | null
+    status?: $Enums.PaymentProofStatus
+    reviewedAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutPaymentProofsInput
+  }
+
+  export type PaymentProofUncheckedCreateWithoutOrderInput = {
+    id?: string
+    tenantId: string
+    mediaStorageKey?: string | null
+    textPayload?: string | null
+    status?: $Enums.PaymentProofStatus
+    reviewedAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentProofCreateOrConnectWithoutOrderInput = {
+    where: PaymentProofWhereUniqueInput
+    create: XOR<PaymentProofCreateWithoutOrderInput, PaymentProofUncheckedCreateWithoutOrderInput>
+  }
+
+  export type PaymentProofCreateManyOrderInputEnvelope = {
+    data: PaymentProofCreateManyOrderInput | PaymentProofCreateManyOrderInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TenantUpsertWithoutOrdersInput = {
+    update: XOR<TenantUpdateWithoutOrdersInput, TenantUncheckedUpdateWithoutOrdersInput>
+    create: XOR<TenantCreateWithoutOrdersInput, TenantUncheckedCreateWithoutOrdersInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutOrdersInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutOrdersInput, TenantUncheckedUpdateWithoutOrdersInput>
+  }
+
+  export type TenantUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutOrdersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type ReservationUpsertWithoutOrderInput = {
+    update: XOR<ReservationUpdateWithoutOrderInput, ReservationUncheckedUpdateWithoutOrderInput>
+    create: XOR<ReservationCreateWithoutOrderInput, ReservationUncheckedCreateWithoutOrderInput>
+    where?: ReservationWhereInput
+  }
+
+  export type ReservationUpdateToOneWithWhereWithoutOrderInput = {
+    where?: ReservationWhereInput
+    data: XOR<ReservationUpdateWithoutOrderInput, ReservationUncheckedUpdateWithoutOrderInput>
+  }
+
+  export type ReservationUpdateWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
+    liveSession?: LiveSessionUpdateOneRequiredWithoutReservationsNestedInput
+    liveItem?: LiveItemUpdateOneRequiredWithoutReservationsNestedInput
+  }
+
+  export type ReservationUncheckedUpdateWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentProofUpsertWithWhereUniqueWithoutOrderInput = {
+    where: PaymentProofWhereUniqueInput
+    update: XOR<PaymentProofUpdateWithoutOrderInput, PaymentProofUncheckedUpdateWithoutOrderInput>
+    create: XOR<PaymentProofCreateWithoutOrderInput, PaymentProofUncheckedCreateWithoutOrderInput>
+  }
+
+  export type PaymentProofUpdateWithWhereUniqueWithoutOrderInput = {
+    where: PaymentProofWhereUniqueInput
+    data: XOR<PaymentProofUpdateWithoutOrderInput, PaymentProofUncheckedUpdateWithoutOrderInput>
+  }
+
+  export type PaymentProofUpdateManyWithWhereWithoutOrderInput = {
+    where: PaymentProofScalarWhereInput
+    data: XOR<PaymentProofUpdateManyMutationInput, PaymentProofUncheckedUpdateManyWithoutOrderInput>
+  }
+
+  export type OrderCreateWithoutPaymentProofsInput = {
+    id?: string
+    orderNumber: string
+    status: $Enums.OrderStatus
+    depositStatus: $Enums.DepositStatus
+    depositExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutOrdersInput
+    reservation: ReservationCreateNestedOneWithoutOrderInput
+  }
+
+  export type OrderUncheckedCreateWithoutPaymentProofsInput = {
+    id?: string
+    tenantId: string
+    reservationId: string
+    orderNumber: string
+    status: $Enums.OrderStatus
+    depositStatus: $Enums.DepositStatus
+    depositExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrderCreateOrConnectWithoutPaymentProofsInput = {
+    where: OrderWhereUniqueInput
+    create: XOR<OrderCreateWithoutPaymentProofsInput, OrderUncheckedCreateWithoutPaymentProofsInput>
+  }
+
+  export type TenantCreateWithoutPaymentProofsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutPaymentProofsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutPaymentProofsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutPaymentProofsInput, TenantUncheckedCreateWithoutPaymentProofsInput>
+  }
+
+  export type OrderUpsertWithoutPaymentProofsInput = {
+    update: XOR<OrderUpdateWithoutPaymentProofsInput, OrderUncheckedUpdateWithoutPaymentProofsInput>
+    create: XOR<OrderCreateWithoutPaymentProofsInput, OrderUncheckedCreateWithoutPaymentProofsInput>
+    where?: OrderWhereInput
+  }
+
+  export type OrderUpdateToOneWithWhereWithoutPaymentProofsInput = {
+    where?: OrderWhereInput
+    data: XOR<OrderUpdateWithoutPaymentProofsInput, OrderUncheckedUpdateWithoutPaymentProofsInput>
+  }
+
+  export type OrderUpdateWithoutPaymentProofsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutOrdersNestedInput
+    reservation?: ReservationUpdateOneRequiredWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateWithoutPaymentProofsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    reservationId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenantUpsertWithoutPaymentProofsInput = {
+    update: XOR<TenantUpdateWithoutPaymentProofsInput, TenantUncheckedUpdateWithoutPaymentProofsInput>
+    create: XOR<TenantCreateWithoutPaymentProofsInput, TenantUncheckedCreateWithoutPaymentProofsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutPaymentProofsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutPaymentProofsInput, TenantUncheckedUpdateWithoutPaymentProofsInput>
+  }
+
+  export type TenantUpdateWithoutPaymentProofsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutPaymentProofsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantCreateWithoutWaitlistsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutWaitlistsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutWaitlistsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutWaitlistsInput, TenantUncheckedCreateWithoutWaitlistsInput>
+  }
+
+  export type TenantUpsertWithoutWaitlistsInput = {
+    update: XOR<TenantUpdateWithoutWaitlistsInput, TenantUncheckedUpdateWithoutWaitlistsInput>
+    create: XOR<TenantCreateWithoutWaitlistsInput, TenantUncheckedCreateWithoutWaitlistsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutWaitlistsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutWaitlistsInput, TenantUncheckedUpdateWithoutWaitlistsInput>
+  }
+
+  export type TenantUpdateWithoutWaitlistsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutWaitlistsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutDeadLetterJobsInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -28576,12 +39199,18 @@ export namespace Prisma {
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutDeadLetterJobsInput = {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -28595,6 +39224,11 @@ export namespace Prisma {
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutDeadLetterJobsInput = {
@@ -28617,6 +39251,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -28630,12 +39265,18 @@ export namespace Prisma {
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutDeadLetterJobsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -28649,6 +39290,11 @@ export namespace Prisma {
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserCreateManyTenantInput = {
@@ -28763,6 +39409,66 @@ export namespace Prisma {
     id?: string
     status?: $Enums.LiveSessionStatus
     lastActivityAt: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LiveItemCreateManyTenantInput = {
+    id?: string
+    liveSessionId: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservationCreateManyTenantInput = {
+    id?: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WaitlistCreateManyTenantInput = {
+    id?: string
+    liveSessionId: string
+    liveItemId: string
+    clientPhone: string
+    position: number
+    correlationId: string
+    createdAt?: Date | string
+  }
+
+  export type OrderCreateManyTenantInput = {
+    id?: string
+    reservationId: string
+    orderNumber: string
+    status: $Enums.OrderStatus
+    depositStatus: $Enums.DepositStatus
+    depositExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentProofCreateManyTenantInput = {
+    id?: string
+    orderId: string
+    mediaStorageKey?: string | null
+    textPayload?: string | null
+    status?: $Enums.PaymentProofStatus
+    reviewedAt?: Date | string | null
+    correlationId: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -29103,6 +39809,8 @@ export namespace Prisma {
     lastActivityAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    liveItems?: LiveItemUpdateManyWithoutLiveSessionNestedInput
+    reservations?: ReservationUpdateManyWithoutLiveSessionNestedInput
   }
 
   export type LiveSessionUncheckedUpdateWithoutTenantInput = {
@@ -29111,12 +39819,200 @@ export namespace Prisma {
     lastActivityAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    liveItems?: LiveItemUncheckedUpdateManyWithoutLiveSessionNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutLiveSessionNestedInput
   }
 
   export type LiveSessionUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumLiveSessionStatusFieldUpdateOperationsInput | $Enums.LiveSessionStatus
     lastActivityAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LiveItemUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    liveSession?: LiveSessionUpdateOneRequiredWithoutLiveItemsNestedInput
+    reservations?: ReservationUpdateManyWithoutLiveItemNestedInput
+  }
+
+  export type LiveItemUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutLiveItemNestedInput
+  }
+
+  export type LiveItemUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservationUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    liveSession?: LiveSessionUpdateOneRequiredWithoutReservationsNestedInput
+    liveItem?: LiveItemUpdateOneRequiredWithoutReservationsNestedInput
+    order?: OrderUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUncheckedUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WaitlistUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WaitlistUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WaitlistUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    position?: IntFieldUpdateOperationsInput | number
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservation?: ReservationUpdateOneRequiredWithoutOrderNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reservationId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    reservationId?: StringFieldUpdateOperationsInput | string
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
+    depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentProofUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    textPayload?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumPaymentProofStatusFieldUpdateOperationsInput | $Enums.PaymentProofStatus
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUpdateOneRequiredWithoutPaymentProofsNestedInput
+  }
+
+  export type PaymentProofUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    textPayload?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumPaymentProofStatusFieldUpdateOperationsInput | $Enums.PaymentProofStatus
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentProofUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orderId?: StringFieldUpdateOperationsInput | string
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    textPayload?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumPaymentProofStatusFieldUpdateOperationsInput | $Enums.PaymentProofStatus
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29219,6 +40115,224 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sessionToken?: StringFieldUpdateOperationsInput | string
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LiveItemCreateManyLiveSessionInput = {
+    id?: string
+    tenantId: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservationCreateManyLiveSessionInput = {
+    id?: string
+    tenantId: string
+    liveItemId: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LiveItemUpdateWithoutLiveSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutLiveItemsNestedInput
+    reservations?: ReservationUpdateManyWithoutLiveItemNestedInput
+  }
+
+  export type LiveItemUncheckedUpdateWithoutLiveSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutLiveItemNestedInput
+  }
+
+  export type LiveItemUncheckedUpdateManyWithoutLiveSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservationUpdateWithoutLiveSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
+    liveItem?: LiveItemUpdateOneRequiredWithoutReservationsNestedInput
+    order?: OrderUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationUncheckedUpdateWithoutLiveSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUncheckedUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationUncheckedUpdateManyWithoutLiveSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservationCreateManyLiveItemInput = {
+    id?: string
+    tenantId: string
+    liveSessionId: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservationUpdateWithoutLiveItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
+    liveSession?: LiveSessionUpdateOneRequiredWithoutReservationsNestedInput
+    order?: OrderUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationUncheckedUpdateWithoutLiveItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUncheckedUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationUncheckedUpdateManyWithoutLiveItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentProofCreateManyOrderInput = {
+    id?: string
+    tenantId: string
+    mediaStorageKey?: string | null
+    textPayload?: string | null
+    status?: $Enums.PaymentProofStatus
+    reviewedAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentProofUpdateWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    textPayload?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumPaymentProofStatusFieldUpdateOperationsInput | $Enums.PaymentProofStatus
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutPaymentProofsNestedInput
+  }
+
+  export type PaymentProofUncheckedUpdateWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    textPayload?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumPaymentProofStatusFieldUpdateOperationsInput | $Enums.PaymentProofStatus
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentProofUncheckedUpdateManyWithoutOrderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    textPayload?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumPaymentProofStatusFieldUpdateOperationsInput | $Enums.PaymentProofStatus
+    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

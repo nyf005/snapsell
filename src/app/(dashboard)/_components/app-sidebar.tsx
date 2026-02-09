@@ -17,8 +17,8 @@ import {
   Users,
   Zap,
   Radio,
-  Clock,
   Settings,
+  ScrollText,
 } from "lucide-react";
 
 import { SignOutButton } from "./sign-out-button";
@@ -62,16 +62,13 @@ const menuGroups: MenuGroup[] = [
     mainItem: { href: "/dashboard/orders", label: "Commandes", icon: ShoppingCart },
     items: [
       { href: "/dashboard/orders", label: "Liste des commandes", icon: ShoppingCart },
-      { href: "/dashboard/proofs", label: "Preuves d'acompte", icon: CheckCircle2 },
+      { href: "/dashboard/proofs", label: "Preuves", icon: CheckCircle2 },
+      { href: "/dashboard/audit", label: "Journal d'événements", icon: ScrollText },
     ],
   },
   {
     label: "Live Ops",
-    mainItem: { href: "/dashboard/live", label: "Live Ops", icon: Radio },
-    items: [
-      { href: "/dashboard/live", label: "Session live", icon: Radio },
-      { href: "/dashboard/reservations", label: "Réservations", icon: Clock },
-    ],
+    items: [{ href: "/dashboard/live", label: "Live Ops", icon: Radio }],
   },
   {
     label: "Paramètres",

@@ -13,7 +13,7 @@ import { Label } from "~/components/ui/label";
 import { api } from "~/trpc/react";
 
 const inputClassName =
-  "w-full rounded-lg border border-slate-300 dark:border-[#314d68] bg-white dark:bg-[#182634] text-slate-900 dark:text-white h-14 px-4 focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400 dark:placeholder:text-[#90adcb]";
+  "w-full rounded-lg border border-border bg-card text-foreground h-14 px-4 focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-placeholder";
 
 function InviteAcceptContent() {
   const router = useRouter();
@@ -123,10 +123,10 @@ function InviteAcceptContent() {
     return (
       <div className="max-w-[480px] w-full flex flex-col gap-8">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-4xl">
+          <h1 className="text-3xl font-black tracking-tight text-foreground md:text-4xl">
             Lien d'invitation invalide
           </h1>
-          <p className="text-slate-500 dark:text-slate-400">
+          <p className="text-muted-foreground">
             Ce lien est incorrect ou expiré. Demandez un nouveau lien à votre responsable.
           </p>
         </div>
@@ -141,10 +141,10 @@ function InviteAcceptContent() {
     return (
       <div className="max-w-[480px] w-full flex flex-col gap-8">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-4xl">
+          <h1 className="text-3xl font-black tracking-tight text-foreground md:text-4xl">
             Chargement…
           </h1>
-          <p className="text-slate-500 dark:text-slate-400">
+          <p className="text-muted-foreground">
             Vérification de votre invitation en cours.
           </p>
         </div>
@@ -156,10 +156,10 @@ function InviteAcceptContent() {
     return (
       <div className="max-w-[480px] w-full flex flex-col gap-8">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-4xl">
+          <h1 className="text-3xl font-black tracking-tight text-foreground md:text-4xl">
             Invitation introuvable ou expirée
           </h1>
-          <p className="text-slate-500 dark:text-slate-400">
+          <p className="text-muted-foreground">
             Ce lien a déjà été utilisé ou a expiré. Demandez un nouveau lien à votre responsable.
           </p>
         </div>
@@ -174,10 +174,10 @@ function InviteAcceptContent() {
   return (
     <div className="max-w-[480px] w-full flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white md:text-4xl">
+        <h1 className="text-3xl font-black tracking-tight text-foreground md:text-4xl">
           Rejoindre l'équipe {invitation.tenantName}
         </h1>
-        <p className="text-slate-500 dark:text-slate-400">
+        <p className="text-muted-foreground">
           Vous avez été invité en tant qu'agent. Complétez votre inscription ci-dessous pour
           accéder au tableau de bord.
         </p>
@@ -199,7 +199,7 @@ function InviteAcceptContent() {
         <div className="flex flex-col gap-2">
           <Label
             htmlFor="invite-email"
-            className="text-sm font-semibold text-slate-900 dark:text-white"
+            className="text-sm font-semibold text-foreground"
           >
             Adresse email
           </Label>
@@ -211,7 +211,7 @@ function InviteAcceptContent() {
             className={inputClassName + " bg-muted/50 cursor-not-allowed"}
             aria-describedby="invite-email-desc"
           />
-          <p id="invite-email-desc" className="text-xs text-slate-500 dark:text-slate-400">
+          <p id="invite-email-desc" className="text-xs text-muted-foreground">
             Email associé à votre invitation (non modifiable).
           </p>
         </div>
@@ -219,7 +219,7 @@ function InviteAcceptContent() {
         <div className="flex flex-col gap-2">
           <Label
             htmlFor="invite-name"
-            className="text-sm font-semibold text-slate-900 dark:text-white"
+            className="text-sm font-semibold text-foreground"
           >
             Votre nom
           </Label>
@@ -238,7 +238,7 @@ function InviteAcceptContent() {
         <div className="flex flex-col gap-2">
           <Label
             htmlFor="invite-password"
-            className="text-sm font-semibold text-slate-900 dark:text-white"
+            className="text-sm font-semibold text-foreground"
           >
             Mot de passe
           </Label>
@@ -260,7 +260,7 @@ function InviteAcceptContent() {
               variant="ghost"
               size="icon"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-1 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 size-9"
+              className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-9"
               aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
             >
               {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
@@ -276,7 +276,7 @@ function InviteAcceptContent() {
           {acceptInvitation.isPending ? "En cours…" : "Rejoindre l'équipe"}
         </Button>
 
-        <p className="px-4 text-center text-xs text-slate-500 dark:text-slate-400">
+        <p className="px-4 text-center text-xs text-muted-foreground">
           En rejoignant, vous acceptez nos{" "}
           <Link href="#" className="text-primary hover:underline">
             Conditions d&apos;utilisation
@@ -290,7 +290,7 @@ function InviteAcceptContent() {
       </form>
 
       <div className="flex items-center justify-center gap-2 pt-4 text-sm">
-        <span className="text-slate-600 dark:text-slate-400">Vous avez déjà un compte ?</span>
+        <span className="text-muted-foreground">Vous avez déjà un compte ?</span>
         <Link href="/login" className="font-bold text-primary hover:underline">
           Se connecter
         </Link>

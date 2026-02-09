@@ -122,12 +122,12 @@ export function WhatsAppConfigContent() {
           >
             {isConnected ? (
               <>
-                <span className="size-2 rounded-full bg-green-500" />
+                <span className="size-2 rounded-full bg-success" />
                 Connecté
               </>
             ) : (
               <>
-                <span className="size-2 rounded-full bg-red-500 animate-pulse" />
+                <span className="size-2 rounded-full bg-destructive animate-pulse" />
                 Déconnecté
               </>
             )}
@@ -342,7 +342,7 @@ export function WhatsAppConfigContent() {
           </Alert>
         )}
         {saveSuccess && (
-          <Alert className="border-green-500/50 bg-green-500/10 text-green-700 dark:bg-green-900/30 dark:text-green-400 [&>svg]:text-green-600 dark:[&>svg]:text-green-400">
+          <Alert className="border-success/50 bg-success/10 text-success [&>svg]:text-success">
             <AlertDescription>
               Configuration enregistrée.
             </AlertDescription>

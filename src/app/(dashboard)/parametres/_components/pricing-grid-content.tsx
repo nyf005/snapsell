@@ -29,12 +29,8 @@ import {
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from "~/components/ui/card";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { KpiCard } from "~/components/ui/kpi-card";
 import {
   Dialog,
   DialogContent,
@@ -47,19 +43,11 @@ import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "~/components/ui/pagination";
 import { Spinner } from "~/components/ui/spinner";
 import {
   Table,
@@ -74,7 +62,7 @@ import { cn } from "~/lib/utils";
 
 const CATEGORY_DOT_COLORS = [
   "bg-emerald-500",
-  "bg-blue-500",
+  "bg-primary",
   "bg-amber-500",
   "bg-purple-500",
   "bg-rose-500",
@@ -481,61 +469,37 @@ export function PricingGridContent() {
 
         {/* Stats */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <Card className="border-border transition-shadow hover:shadow-md">
-            <CardHeader className="flex flex-row items-center gap-4 pb-2">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Layers className="size-5" />
-              </div>
-              <div className="min-w-0 space-y-0.5">
-                <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Total des catégories
-                </CardDescription>
-                <p className="text-xl font-bold tabular-nums md:text-2xl">
-                  {totalCategories}
-                </p>
-              </div>
-            </CardHeader>
-          </Card>
-          <Card className="border-border transition-shadow hover:shadow-md">
-            <CardHeader className="flex flex-row items-center gap-4 pb-2">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                <DollarSign className="size-5" />
-              </div>
-              <div className="min-w-0 space-y-0.5">
-                <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Prix moyen
-                </CardDescription>
-                <p className="text-xl font-bold tabular-nums md:text-2xl">
-                  {(avgCents / 100).toFixed(2)} $
-                </p>
-              </div>
-            </CardHeader>
-          </Card>
-          <Card className="border-border transition-shadow hover:shadow-md">
-            <CardHeader className="flex flex-row items-center gap-4 pb-2">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                <Clock className="size-5" />
-              </div>
-              <div className="min-w-0 space-y-0.5">
-                <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Dernière MAJ
-                </CardDescription>
-                <p className="text-xl font-bold md:text-2xl">
-                  {lastUpdated ? formatDate(lastUpdated) : "—"}
-                </p>
-              </div>
-            </CardHeader>
-          </Card>
+          <KpiCard
+            label="Total des catégories"
+            value={totalCategories}
+            icon={Layers}
+            iconVariant="primary"
+          />
+          <KpiCard
+            label="Prix moyen"
+            value={`${(avgCents / 100).toFixed(2)} $`}
+            icon={DollarSign}
+            iconVariant="success"
+          />
+          <KpiCard
+            label="Dernière MAJ"
+            value={lastUpdated ? formatDate(lastUpdated) : "—"}
+            icon={Clock}
+            iconVariant="warning"
+            valueClassName="text-xl font-bold md:text-2xl"
+          />
         </div>
 
         {/* Table */}
-        <Card className="overflow-hidden border-border pb-0 pt-0 shadow-sm rounded-2xl">
+        <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
               <Spinner className="size-8" />
               <span className="text-sm">Chargement…</span>
             </div>
           ) : (
+            <>
+            <div className="min-h-0 flex-1 overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
@@ -573,12 +537,6 @@ export function PricingGridContent() {
                             Ajoutez des catégories (ex. A, Premium, AB) et définissez un prix pour chacune.
                           </EmptyDescription>
                         </EmptyHeader>
-                        <EmptyContent>
-                          <Button onClick={() => setOpenAddModal(true)} className="gap-2" size="sm">
-                            <Plus className="size-4" />
-                            Ajouter une catégorie
-                          </Button>
-                        </EmptyContent>
                       </Empty>
                     </TableCell>
                   </TableRow>
@@ -642,37 +600,35 @@ export function PricingGridContent() {
                 )}
               </TableBody>
             </Table>
-          )}
-          {!isLoading && displayRows.length > PAGE_SIZE && (
-            <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
-              <p className="text-xs text-muted-foreground">
-                {paginated.length} sur {displayRows.length} catégories
-              </p>
-              <Pagination className="mx-0 w-auto">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (page > 0) setPage((p) => p - 1);
-                      }}
-                      className={cn(page === 0 && "pointer-events-none opacity-50")}
-                    />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (page < totalPages - 1) setPage((p) => p + 1);
-                      }}
-                      className={cn(page >= totalPages - 1 && "pointer-events-none opacity-50")}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
             </div>
+            <div className="flex shrink-0 items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
+              <p className="text-xs text-muted-foreground">
+                {displayRows.length > PAGE_SIZE
+                  ? `${(page * PAGE_SIZE) + 1}-${Math.min((page + 1) * PAGE_SIZE, displayRows.length)} sur ${displayRows.length} catégories`
+                  : `${displayRows.length} sur ${displayRows.length} catégorie${displayRows.length > 1 ? "s" : ""}`}
+              </p>
+              <span className="flex gap-2" aria-label="Pagination">
+                <Button
+                  variant="outline"
+                  size="xs"
+                  disabled={page === 0}
+                  onClick={() => page > 0 && setPage((p) => p - 1)}
+                  title="Page précédente"
+                >
+                  Précédent
+                </Button>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  disabled={page >= totalPages - 1}
+                  onClick={() => page < totalPages - 1 && setPage((p) => p + 1)}
+                  title="Page suivante"
+                >
+                  Suivant
+                </Button>
+              </span>
+            </div>
+            </>
           )}
         </Card>
       </div>

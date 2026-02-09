@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { Bell, HelpCircle, Info, MoreVertical, Search, UserPlus } from "lucide-react";
+import { Bell, HelpCircle, Info, MoreVertical, Search, UserPlus, Users } from "lucide-react";
 
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { api } from "~/trpc/react";
@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { KpiCard } from "~/components/ui/kpi-card";
 import {
   Dialog,
   DialogContent,
@@ -23,7 +24,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 import { Input } from "~/components/ui/input";
+import { Spinner } from "~/components/ui/spinner";
 import { Label } from "~/components/ui/label";
 import { cn } from "~/lib/utils";
 import {
@@ -266,37 +275,26 @@ export function TeamContent() {
           </Button>
         </div>
 
-        <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <Card className="gap-0 py-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total membres
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-6 pt-0">
-              <p className="text-3xl font-bold">{stats.total}</p>
-            </CardContent>
-          </Card>
-          <Card className="gap-0 py-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Agents actifs
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-6 pt-0">
-              <p className="text-3xl font-bold">{stats.activeAgents}</p>
-            </CardContent>
-          </Card>
-          <Card className="gap-0 py-6">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Invitations en attente
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-6 pt-0">
-              <p className="text-3xl font-bold text-primary">{stats.pendingInvites}</p>
-            </CardContent>
-          </Card>
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <KpiCard
+            label="Total membres"
+            value={stats.total}
+            icon={Users}
+            iconVariant="primary"
+          />
+          <KpiCard
+            label="Agents actifs"
+            value={stats.activeAgents}
+            icon={Users}
+            iconVariant="success"
+          />
+          <KpiCard
+            label="Invitations en attente"
+            value={stats.pendingInvites}
+            icon={UserPlus}
+            iconVariant="warning"
+            valueClassName="text-xl font-bold tabular-nums md:text-2xl text-primary"
+          />
         </section>
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -321,49 +319,60 @@ export function TeamContent() {
           </div>
         </div>
 
-        <Card className="overflow-hidden border-border gap-0 pb-0 pt-0 shadow-sm rounded-2xl">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
-                <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Membre
-                </TableHead>
-                <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Rôle
-                </TableHead>
-                <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Statut
-                </TableHead>
-                <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Dernière activité
-                </TableHead>
-                <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loadingMembers || loadingInvitations ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="px-6 py-8 text-center text-sm text-muted-foreground">
-                    Chargement des membres...
-                  </TableCell>
+        <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
+          {loadingMembers || loadingInvitations ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+              <Spinner className="size-8" />
+              <span className="text-sm">Chargement…</span>
+            </div>
+          ) : (
+            <>
+            <Table>
+              <TableHeader>
+                <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
+                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Membre
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Rôle
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Statut
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Dernière activité
+                  </TableHead>
+                  <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Actions
+                  </TableHead>
                 </TableRow>
-              ) : filteredMembers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="px-6 py-8 text-center text-sm text-muted-foreground">
-                    Aucun membre trouvé
-                  </TableCell>
-                </TableRow>
-              ) : (
+              </TableHeader>
+              <TableBody>
+                {filteredMembers.length === 0 ? (
+                  <TableRow className="hover:bg-transparent">
+                    <TableCell colSpan={5} className="px-6 py-16 text-center">
+                      <Empty className="mx-auto max-w-sm border-0 p-0">
+                        <EmptyHeader>
+                          <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
+                            <Users />
+                          </EmptyMedia>
+                          <EmptyTitle>Aucun membre trouvé</EmptyTitle>
+                          <EmptyDescription>
+                            {search.trim() ? "Aucun membre ne correspond à votre recherche." : "Invitez des agents pour qu’ils apparaissent ici."}
+                          </EmptyDescription>
+                        </EmptyHeader>
+                      </Empty>
+                    </TableCell>
+                  </TableRow>
+                ) : (
                 filteredMembers.map((member, idx) => (
-                <TableRow
-                  key={member.id}
-                  className={cn(
-                    "border-border transition-colors hover:bg-muted/40",
-                    idx % 2 === 1 && "bg-muted/20"
-                  )}
-                >
+                  <TableRow
+                    key={member.id}
+                    className={cn(
+                      "border-border transition-colors hover:bg-muted/40",
+                      idx % 2 === 1 && "bg-muted/20"
+                    )}
+                  >
                   <TableCell className="whitespace-nowrap px-6 py-4">
                     <span className="flex items-center gap-3">
                       <MemberAvatar
@@ -447,22 +456,24 @@ export function TeamContent() {
                   </TableCell>
                 </TableRow>
                 ))
-              )}
-            </TableBody>
-          </Table>
-          <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
-            <p className="text-xs text-muted-foreground">
-              {filteredMembers.length} sur {stats.total} membres
-            </p>
-            <span className="flex gap-2" aria-label="Pagination (sera activée avec les données serveur)">
-              <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                Précédent
-              </Button>
-              <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                Suivant
-              </Button>
-            </span>
-          </div>
+                )}
+              </TableBody>
+            </Table>
+            <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
+              <p className="text-xs text-muted-foreground">
+                {filteredMembers.length} sur {stats.total} membres
+              </p>
+              <span className="flex gap-2" aria-label="Pagination (sera activée avec les données serveur)">
+                <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
+                  Précédent
+                </Button>
+                <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
+                  Suivant
+                </Button>
+              </span>
+            </div>
+            </>
+          )}
         </Card>
       </main>
 

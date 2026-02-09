@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 
 import {
   Bell,
+  MapPin,
+  Building2,
   Pencil,
   Plus,
   Save,
@@ -26,12 +28,7 @@ import {
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from "~/components/ui/card";
+import { Card, CardDescription } from "~/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -39,7 +36,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "~/components/ui/empty";
 import { Input } from "~/components/ui/input";
+import { Spinner } from "~/components/ui/spinner";
 import { Label } from "~/components/ui/label";
 import {
   Table,
@@ -203,141 +208,243 @@ export function DeliveryFeesContent() {
         </div>
 
         {/* Par zone */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div>
+          <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h3 className="text-lg font-semibold">Par zone</h3>
               <CardDescription>Un prix pour un groupe de communes (ex. Abidjan, Intérieur du pays).</CardDescription>
             </div>
-            <Button onClick={openAddZone} className="gap-2" size="default">
+            <Button onClick={openAddZone} className="gap-2 shrink-0" size="default">
               <Plus className="size-4" />
               Ajouter une zone
             </Button>
-          </CardHeader>
-          <CardContent>
-            {zoneError && (
-              <Alert variant="destructive" className="mb-4 flex flex-row flex-wrap items-center justify-between gap-2">
-                <AlertDescription className="flex flex-1 items-center justify-between gap-2">
-                  <span>{zoneError}</span>
-                  <Button variant="ghost" size="sm" className="h-auto p-1" onClick={() => setZoneError(null)}>
-                    Fermer
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            )}
+          </div>
+          {zoneError && (
+            <Alert variant="destructive" className="mb-4 flex flex-row flex-wrap items-center justify-between gap-2">
+              <AlertDescription className="flex flex-1 items-center justify-between gap-2">
+                <span>{zoneError}</span>
+                <Button variant="ghost" size="sm" className="h-auto p-1" onClick={() => setZoneError(null)}>
+                  Fermer
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+          <Card className="overflow-hidden rounded-2xl border-border pb-0 pt-0 shadow-sm">
             {zonesLoading ? (
-              <p className="text-sm text-muted-foreground">Chargement…</p>
-            ) : zones.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aucune zone. Ajoutez une zone (ex. Abidjan) et listez les noms des communes.</p>
+              <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+                <Spinner className="size-8" />
+                <span className="text-sm">Chargement…</span>
+              </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Zone</TableHead>
-                    <TableHead>Prix (€)</TableHead>
-                    <TableHead>Communes</TableHead>
-                    <TableHead className="w-[100px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {zones.map((z) => (
-                    <TableRow key={z.id}>
-                      <TableCell className="font-medium">{z.name}</TableCell>
-                      <TableCell>{(z.amountCents / 100).toFixed(2)} €</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {z.communeNames.length} commune{z.communeNames.length > 1 ? "s" : ""}
-                        {z.communeNames.length <= 5
-                          ? ` (${z.communeNames.join(", ")})`
-                          : ` (${z.communeNames.slice(0, 3).join(", ")}…)`}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => openEditZone(z)} aria-label="Modifier">
-                            <Pencil className="size-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setZoneToDelete(z.id)}
-                            aria-label="Supprimer"
-                            className="text-destructive hover:text-destructive"
+              <>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
+                        <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Zone
+                        </TableHead>
+                        <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Prix (€)
+                        </TableHead>
+                        <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Communes
+                        </TableHead>
+                        <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Actions
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {zones.length === 0 ? (
+                        <TableRow className="hover:bg-transparent">
+                          <TableCell colSpan={4} className="px-6 py-16 text-center">
+                            <Empty className="mx-auto max-w-sm border-0 p-0">
+                              <EmptyHeader>
+                                <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
+                                  <MapPin />
+                                </EmptyMedia>
+                                <EmptyTitle>Aucune zone</EmptyTitle>
+                                <EmptyDescription>
+                                  Ajoutez une zone (ex. Abidjan) et listez les noms des communes.
+                                </EmptyDescription>
+                              </EmptyHeader>
+                            </Empty>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        zones.map((z, idx) => (
+                          <TableRow
+                            key={z.id}
+                            className={cn(
+                              "border-border transition-colors hover:bg-muted/40",
+                              idx % 2 === 1 && "bg-muted/20"
+                            )}
                           >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                            <TableCell className="px-6 py-4 font-medium">{z.name}</TableCell>
+                            <TableCell className="px-6 py-4 tabular-nums">{(z.amountCents / 100).toFixed(2)} €</TableCell>
+                            <TableCell className="px-6 py-4 text-sm text-muted-foreground">
+                              {z.communeNames.length} commune{z.communeNames.length > 1 ? "s" : ""}
+                              {z.communeNames.length <= 5
+                                ? ` (${z.communeNames.join(", ")})`
+                                : ` (${z.communeNames.slice(0, 3).join(", ")}…)`}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 text-right">
+                              <div className="flex justify-end gap-1">
+                                <Button variant="ghost" size="icon" onClick={() => openEditZone(z)} aria-label="Modifier">
+                                  <Pencil className="size-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setZoneToDelete(z.id)}
+                                  aria-label="Supprimer"
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="size-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                {zones.length > 0 && (
+                  <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
+                    <p className="text-xs text-muted-foreground">
+                      {zones.length} sur {zones.length} zone{zones.length > 1 ? "s" : ""}
+                    </p>
+                    <span className="flex gap-2" aria-label="Pagination (sera activée avec les données serveur)">
+                      <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
+                        Précédent
+                      </Button>
+                      <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
+                        Suivant
+                      </Button>
+                    </span>
+                  </div>
+                )}
+              </>
             )}
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
 
         {/* Par commune */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div>
+          <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h3 className="text-lg font-semibold">Par commune</h3>
               <CardDescription>Prix pour une commune précise (nom, ex. Cocody, Bouaké).</CardDescription>
             </div>
-            <Button onClick={openAddCommune} className="gap-2" size="default">
+            <Button onClick={openAddCommune} className="gap-2 shrink-0" size="default">
               <Plus className="size-4" />
               Ajouter une commune
             </Button>
-          </CardHeader>
-          <CardContent>
-            {communeError && (
-              <Alert variant="destructive" className="mb-4 flex flex-row flex-wrap items-center justify-between gap-2">
-                <AlertDescription className="flex flex-1 items-center justify-between gap-2">
-                  <span>{communeError}</span>
-                  <Button variant="ghost" size="sm" className="h-auto p-1" onClick={() => setCommuneError(null)}>
-                    Fermer
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            )}
+          </div>
+          {communeError && (
+            <Alert variant="destructive" className="mb-4 flex flex-row flex-wrap items-center justify-between gap-2">
+              <AlertDescription className="flex flex-1 items-center justify-between gap-2">
+                <span>{communeError}</span>
+                <Button variant="ghost" size="sm" className="h-auto p-1" onClick={() => setCommuneError(null)}>
+                  Fermer
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+          <Card className="overflow-hidden rounded-2xl border-border pb-0 pt-0 shadow-sm">
             {communesLoading ? (
-              <p className="text-sm text-muted-foreground">Chargement…</p>
-            ) : communes.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aucun prix par commune.</p>
+              <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+                <Spinner className="size-8" />
+                <span className="text-sm">Chargement…</span>
+              </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Commune</TableHead>
-                    <TableHead>Prix (€)</TableHead>
-                    <TableHead className="w-[100px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {communes.map((c) => (
-                    <TableRow key={c.id}>
-                      <TableCell className="font-medium">{c.communeName}</TableCell>
-                      <TableCell>{(c.amountCents / 100).toFixed(2)} €</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => openEditCommune(c)} aria-label="Modifier">
-                            <Pencil className="size-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setCommuneToDelete(c.communeName)}
-                            aria-label="Supprimer"
-                            className="text-destructive hover:text-destructive"
+              <>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
+                        <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Commune
+                        </TableHead>
+                        <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Prix (€)
+                        </TableHead>
+                        <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Actions
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {communes.length === 0 ? (
+                        <TableRow className="hover:bg-transparent">
+                          <TableCell colSpan={3} className="px-6 py-16 text-center">
+                            <Empty className="mx-auto max-w-sm border-0 p-0">
+                              <EmptyHeader>
+                                <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
+                                  <Building2 />
+                                </EmptyMedia>
+                                <EmptyTitle>Aucun prix par commune</EmptyTitle>
+                                <EmptyDescription>
+                                  Ajoutez un tarif pour une commune précise (ex. Cocody, Bouaké).
+                                </EmptyDescription>
+                              </EmptyHeader>
+                            </Empty>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        communes.map((c, idx) => (
+                          <TableRow
+                            key={c.id}
+                            className={cn(
+                              "border-border transition-colors hover:bg-muted/40",
+                              idx % 2 === 1 && "bg-muted/20"
+                            )}
                           >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                            <TableCell className="px-6 py-4 font-medium">{c.communeName}</TableCell>
+                            <TableCell className="px-6 py-4 tabular-nums">{(c.amountCents / 100).toFixed(2)} €</TableCell>
+                            <TableCell className="px-6 py-4 text-right">
+                              <div className="flex justify-end gap-1">
+                                <Button variant="ghost" size="icon" onClick={() => openEditCommune(c)} aria-label="Modifier">
+                                  <Pencil className="size-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setCommuneToDelete(c.communeName)}
+                                  aria-label="Supprimer"
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="size-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                {communes.length > 0 && (
+                  <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
+                    <p className="text-xs text-muted-foreground">
+                      {communes.length} sur {communes.length} commune{communes.length > 1 ? "s" : ""}
+                    </p>
+                    <span className="flex gap-2" aria-label="Pagination (sera activée avec les données serveur)">
+                      <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
+                        Précédent
+                      </Button>
+                      <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
+                        Suivant
+                      </Button>
+                    </span>
+                  </div>
+                )}
+              </>
             )}
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
 
         {/* Modal Zone */}
         <Dialog

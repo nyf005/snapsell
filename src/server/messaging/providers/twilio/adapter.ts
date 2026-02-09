@@ -53,46 +53,35 @@ export class TwilioAdapter implements MessagingProvider {
         return false;
       }
 
-      // Construire fullUrl si non fourni
-      const url =
-        fullUrl ??
-        (() => {
-          const urlObj = new URL(req.url);
-          return `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}${urlObj.search}`;
-        })();
+      const urlFromRequest = (() => {
+        const urlObj = new URL(req.url);
+        return `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}${urlObj.search}`;
+      })();
+      const urlToTry = fullUrl ?? urlFromRequest;
 
-      // Pour validateRequest(), on doit parser le body form-urlencoded en objet
-      // Twilio signe avec les paramètres parsés, pas le body brut
+      // Parser le body form-urlencoded en objet (Twilio signe avec ces paramètres)
       const body = bodyText ?? (await req.clone().text());
       const params: Record<string, string> = {};
-      
-      // Parser le body form-urlencoded en objet
       const urlSearchParams = new URLSearchParams(body);
       for (const [key, value] of urlSearchParams.entries()) {
         params[key] = value;
       }
 
-      webhookLogger.debug("Verifying signature", {
-        url,
-        paramCount: Object.keys(params).length,
-        signaturePrefix: signature.substring(0, 20) + "...",
-      });
-
-      // Valider avec twilio.validateRequest() pour form-urlencoded standard
-      // Note: validateRequestWithBody() est uniquement pour URLs avec bodySHA256
-      // Pour form-urlencoded standard, utiliser validateRequest() avec params parsés
-      const isValid = twilio.validateRequest(this.authToken, signature, url, params);
-      
-      if (!isValid) {
-        webhookLogger.warn("Invalid signature", {
-          url,
-          hint: "Check: 1) URL in Twilio Console matches exactly, 2) TWILIO_AUTH_TOKEN is correct, 3) Body matches Twilio's",
-        });
-      } else {
-        webhookLogger.debug("Signature valid");
+      // Essayer d'abord l'URL fournie (ex. WEBHOOK_PUBLIC_URL), puis l'URL réelle de la requête
+      const urlsToTry = urlToTry === urlFromRequest ? [urlToTry] : [urlToTry, urlFromRequest];
+      for (const url of urlsToTry) {
+        const isValid = twilio.validateRequest(this.authToken, signature, url, params);
+        if (isValid) {
+          webhookLogger.debug("Signature valid", { url });
+          return true;
+        }
       }
-      
-      return isValid;
+
+      webhookLogger.warn("Invalid signature — set WEBHOOK_PUBLIC_URL on Vercel to the exact Twilio webhook URL", {
+        urlTried: urlsToTry,
+        paramKeys: Object.keys(params),
+      });
+      return false;
     } catch (error) {
       webhookLogger.error("Error verifying signature", error);
       return false;

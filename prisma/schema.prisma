@@ -23,6 +23,7 @@ model Tenant {
   id                    String                @id @default(cuid())
   name                  String
   whatsappPhoneNumber   String?               @unique @map("whatsapp_phone_number")
+  requireDeposit        Boolean               @default(false) @map("require_deposit") // Story 4.5: acompte activé → TTL locked, demande preuve
   createdAt             DateTime              @default(now()) @map("created_at")
   updatedAt             DateTime              @updatedAt @map("updated_at")
   users                 User[]
@@ -37,6 +38,11 @@ model Tenant {
   deadLetterJobs        DeadLetterJob[]
   optOuts               OptOut[]
   liveSessions          LiveSession[]
+  liveItems             LiveItem[]
+  reservations          Reservation[]
+  waitlists             Waitlist[]
+  orders                Order[]
+  paymentProofs         PaymentProof[]
 
   @@map("tenants")
 }
@@ -284,9 +290,153 @@ model LiveSession {
   lastActivityAt  DateTime         @map("last_activity_at")
   createdAt       DateTime         @default(now()) @map("created_at")
   updatedAt       DateTime         @updatedAt @map("updated_at")
+  liveItems       LiveItem[]
+  reservations    Reservation[]
 
   @@index([tenantId, status])
   @@map("live_sessions")
+}
+
+// Item live par session — unicité (tenant_id, live_session_id, code) (Story 3.2)
+// Story 3.4: availableQty / reservedQty pour stock préparé ; mediaStorageKey pour photo optionnelle
+model LiveItem {
+  id               String     @id @default(cuid())
+  tenantId         String     @map("tenant_id")
+  tenant           Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  liveSessionId    String     @map("live_session_id")
+  liveSession      LiveSession @relation(fields: [liveSessionId], references: [id], onDelete: Cascade)
+  code             String     // normalisé trim + uppercase
+  amountCents      Int?       @map("amount_cents") // optionnel, dérivé grille (Story 3.1)
+  quantity         Int        @default(1) // total (availableQty + reservedQty) pour affichage
+  availableQty     Int        @default(0) @map("available_qty") // stock préparé (Story 3.4)
+  reservedQty      Int        @default(0) @map("reserved_qty") // réservé, décrément à confirmation (Story 3.6)
+  mediaStorageKey  String?    @map("media_storage_key") // clé R2 pour photo optionnelle (Story 3.4)
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+
+  reservations    Reservation[]
+
+  @@unique([tenantId, liveSessionId, code])
+  @@index([tenantId])
+  @@index([liveSessionId])
+  @@map("live_items")
+}
+
+// Réservation client par article (Story 4.1)
+// Idempotence : (tenant_id, live_session_id, client_phone, live_item_id) unique
+enum ReservationStatus {
+  reserved
+  address_collected
+  confirmed
+  expired
+}
+
+model Reservation {
+  id            String            @id @default(cuid())
+  tenantId      String            @map("tenant_id")
+  tenant        Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  liveSessionId String            @map("live_session_id")
+  liveSession   LiveSession       @relation(fields: [liveSessionId], references: [id], onDelete: Cascade)
+  liveItemId    String            @map("live_item_id")
+  liveItem      LiveItem          @relation(fields: [liveItemId], references: [id], onDelete: Cascade)
+  clientPhone   String            @map("client_phone") // E.164 normalisé
+  status        ReservationStatus @default(reserved)
+  address       String?           @db.Text
+  expiresAt       DateTime?         @map("expires_at")
+  reminderSentAt  DateTime?         @map("reminder_sent_at") // Story 4.4: rappel T-2 min envoyé une seule fois
+  correlationId   String            @map("correlation_id")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  order           Order?
+
+  @@unique([tenantId, liveSessionId, clientPhone, liveItemId])
+  @@index([tenantId, liveSessionId, clientPhone])
+  @@index([tenantId])
+  @@index([liveItemId, liveSessionId])
+  @@map("reservations")
+}
+
+// Commande créée à la confirmation (OUI) — Story 4.5
+enum OrderStatus {
+  confirmed
+  confirmed_pending_deposit
+  preparing   // prépa (Story 6.3)
+  in_delivery // livraison (Story 6.3)
+  delivered
+  cancelled
+}
+
+enum DepositStatus {
+  no_deposit
+  deposit_pending
+  deposit_approved
+  deposit_rejected
+}
+
+model Order {
+  id                String         @id @default(cuid())
+  tenantId          String         @map("tenant_id")
+  tenant            Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  reservationId     String         @unique @map("reservation_id")
+  reservation       Reservation    @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  orderNumber       String         @map("order_number") // SS-XXXX (SnapSell)
+  status            OrderStatus
+  depositStatus     DepositStatus  @map("deposit_status")
+  depositExpiresAt  DateTime?      @map("deposit_expires_at")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+  paymentProofs     PaymentProof[]
+
+  @@unique([tenantId, orderNumber])
+  @@index([tenantId])
+  @@index([reservationId])
+  @@map("orders")
+}
+
+// Story 5.3: Preuve d'acompte (image ou texte) liée à une commande
+enum PaymentProofStatus {
+  pending
+  approved
+  rejected
+}
+
+model PaymentProof {
+  id               String             @id @default(cuid())
+  orderId          String              @map("order_id")
+  order            Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  tenantId         String              @map("tenant_id")
+  tenant           Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  mediaStorageKey  String?             @map("media_storage_key") // clé R2 (signed URL dérivée)
+  textPayload      String?             @db.Text @map("text_payload") // preuve texte
+  status           PaymentProofStatus  @default(pending)
+  reviewedAt       DateTime?          @map("reviewed_at")
+  correlationId    String              @map("correlation_id")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([orderId])
+  @@index([tenantId, status])
+  @@map("payment_proofs")
+}
+
+// File d'attente par article/session (Story 4.3)
+// position = ordre d'arrivée (max+1 sous lock) ; unicité (tenant, session, client, item)
+model Waitlist {
+  id            String   @id @default(cuid())
+  tenantId      String   @map("tenant_id")
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  liveSessionId String   @map("live_session_id")
+  liveItemId    String   @map("live_item_id")
+  clientPhone   String   @map("client_phone")
+  position      Int      // ordre d'arrivée
+  correlationId String   @map("correlation_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@unique([tenantId, liveSessionId, clientPhone, liveItemId])
+  @@index([tenantId, liveSessionId, liveItemId])
+  @@index([liveItemId, liveSessionId])
+  @@map("waitlist")
 }
 
 // Dead Letter Queue pour messages échoués après N retries (Story 2.4)

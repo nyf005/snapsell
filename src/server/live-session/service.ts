@@ -5,6 +5,31 @@ import { getInactivityWindowMinutes } from "./config";
 const MAX_RETRY_ON_CONFLICT = 1;
 
 /**
+ * Story 6.4: Retourne la session live active du tenant (lecture seule, sans création).
+ * Même critère que getOrCreateCurrentSession : status active et last_activity_at > now - INACTIVITY_WINDOW.
+ */
+export async function getCurrentSessionReadOnly(tenantId: string): Promise<{
+  id: string;
+  status: LiveSessionStatus;
+  lastActivityAt: Date;
+} | null> {
+  const windowMinutes = getInactivityWindowMinutes();
+  const cutoff = new Date(Date.now() - windowMinutes * 60 * 1000);
+
+  const session = await db.liveSession.findFirst({
+    where: {
+      tenantId,
+      status: LiveSessionStatus.active,
+      lastActivityAt: { gt: cutoff },
+    },
+    orderBy: { lastActivityAt: "desc" },
+    select: { id: true, status: true, lastActivityAt: true },
+  });
+
+  return session;
+}
+
+/**
  * Retourne la session active du tenant si last_activity_at > now - INACTIVITY_WINDOW ;
  * sinon crée une nouvelle LiveSession (status active) et la retourne.
  * Met à jour last_activity_at à now lors de l'utilisation.

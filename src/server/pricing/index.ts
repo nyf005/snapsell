@@ -1,1 +1,4 @@
-export { extractCategoryLetter, getPriceFromCode } from "./getPriceFromCode";
+export {
+  getPriceFromCode,
+  resolveCategoryFromCode,
+} from "./getPriceFromCode";

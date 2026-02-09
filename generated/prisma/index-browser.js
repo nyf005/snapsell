@@ -125,6 +125,7 @@ exports.Prisma.TenantScalarFieldEnum = {
   id: 'id',
   name: 'name',
   whatsappPhoneNumber: 'whatsappPhoneNumber',
+  requireDeposit: 'requireDeposit',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -279,6 +280,71 @@ exports.Prisma.LiveSessionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.LiveItemScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  liveSessionId: 'liveSessionId',
+  code: 'code',
+  amountCents: 'amountCents',
+  quantity: 'quantity',
+  availableQty: 'availableQty',
+  reservedQty: 'reservedQty',
+  mediaStorageKey: 'mediaStorageKey',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReservationScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  liveSessionId: 'liveSessionId',
+  liveItemId: 'liveItemId',
+  clientPhone: 'clientPhone',
+  status: 'status',
+  address: 'address',
+  expiresAt: 'expiresAt',
+  reminderSentAt: 'reminderSentAt',
+  correlationId: 'correlationId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  reservationId: 'reservationId',
+  orderNumber: 'orderNumber',
+  status: 'status',
+  depositStatus: 'depositStatus',
+  depositExpiresAt: 'depositExpiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PaymentProofScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  tenantId: 'tenantId',
+  mediaStorageKey: 'mediaStorageKey',
+  textPayload: 'textPayload',
+  status: 'status',
+  reviewedAt: 'reviewedAt',
+  correlationId: 'correlationId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.WaitlistScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  liveSessionId: 'liveSessionId',
+  liveItemId: 'liveItemId',
+  clientPhone: 'clientPhone',
+  position: 'position',
+  correlationId: 'correlationId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.DeadLetterJobScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -327,6 +393,35 @@ exports.LiveSessionStatus = exports.$Enums.LiveSessionStatus = {
   closed: 'closed'
 };
 
+exports.ReservationStatus = exports.$Enums.ReservationStatus = {
+  reserved: 'reserved',
+  address_collected: 'address_collected',
+  confirmed: 'confirmed',
+  expired: 'expired'
+};
+
+exports.OrderStatus = exports.$Enums.OrderStatus = {
+  confirmed: 'confirmed',
+  confirmed_pending_deposit: 'confirmed_pending_deposit',
+  preparing: 'preparing',
+  in_delivery: 'in_delivery',
+  delivered: 'delivered',
+  cancelled: 'cancelled'
+};
+
+exports.DepositStatus = exports.$Enums.DepositStatus = {
+  no_deposit: 'no_deposit',
+  deposit_pending: 'deposit_pending',
+  deposit_approved: 'deposit_approved',
+  deposit_rejected: 'deposit_rejected'
+};
+
+exports.PaymentProofStatus = exports.$Enums.PaymentProofStatus = {
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected'
+};
+
 exports.Prisma.ModelName = {
   Tenant: 'Tenant',
   Invitation: 'Invitation',
@@ -344,6 +439,11 @@ exports.Prisma.ModelName = {
   OptOut: 'OptOut',
   MessageOut: 'MessageOut',
   LiveSession: 'LiveSession',
+  LiveItem: 'LiveItem',
+  Reservation: 'Reservation',
+  Order: 'Order',
+  PaymentProof: 'PaymentProof',
+  Waitlist: 'Waitlist',
   DeadLetterJob: 'DeadLetterJob'
 };
 

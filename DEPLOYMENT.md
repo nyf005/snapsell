@@ -32,6 +32,21 @@
 
 ---
 
+## 🔗 URLs à mettre à jour après déploiement réussi
+
+Une fois l’app déployée sur Vercel, mets à jour les URLs suivantes.
+
+| Où | Variable / Champ | Valeur à mettre |
+|----|------------------|-----------------|
+| **Vercel** (Dashboard → Project → Settings → Environment Variables) | `AUTH_URL` *(optionnel)* | URL publique de l’app, ex. `https://snapsell.vercel.app` ou ton domaine custom. Si tu n’ajoutes rien, Vercel fournit déjà `VERCEL_URL` et NextAuth peut s’en servir pour les callbacks. À définir si tu utilises un **domaine personnalisé** (ex. `https://app.snapsell.com`). |
+| **Twilio Console** → [Messaging](https://console.twilio.com) → Try it out → Send a WhatsApp message → **Webhook URL** (ou config du numéro WhatsApp) | Webhook "When a message comes in" | `https://<TON_DOMAINE_VERCEL>/api/webhooks/twilio` — ex. `https://snapsell.vercel.app/api/webhooks/twilio` |
+
+**Récap :**
+- **Twilio** : obligatoire — sans cette URL, les messages entrants ne seront pas reçus par l’app.
+- **AUTH_URL** : optionnel — utile si login/redirect après connexion pointe vers le mauvais domaine (surtout avec domaine personnalisé).
+
+---
+
 ## 🚀 Déploiement Story 2.2 (Worker Railway)
 
 ### 1. Migration Base de Données (OBLIGATOIRE)
@@ -219,6 +234,26 @@ Railway détectera automatiquement les changements et redéploiera. Sinon, cliqu
 - Vérifier table `messages_out` pour messages avec `status = 'pending'`
 - Vérifier logs Railway pour erreurs Twilio
 - Vérifier format numéro WhatsApp (E.164, ex. +33612345678)
+
+**« J'envoie des messages mais je ne reçois rien » (messages entrants / pas de réponse) :**
+
+1. **Webhook Twilio**  
+   Dans [Twilio Console](https://console.twilio.com) → Messaging / ton numéro WhatsApp, le champ **« When a message comes in »** doit être exactement l’URL de ton app, par ex.  
+   `https://snapsell.vercel.app/api/webhooks/twilio`  
+   (sans slash final, en `https`). Si l’URL est vide ou incorrecte, Twilio n’appelle pas ton app → aucun message reçu.
+
+2. **Numéro WhatsApp du tenant**  
+   Dans l’app : **Paramètres → Connexion WhatsApp**, le **numéro WhatsApp** enregistré doit être **exactement le numéro Twilio** qui reçoit les messages (celui de `TWILIO_WHATSAPP_NUMBER`), au format E.164, ex. `+14155238886`.  
+   C’est ce champ qui permet au webhook de retrouver ton tenant à partir du champ « To » envoyé par Twilio. Si ce numéro n’est pas renseigné ou ne correspond pas, les messages sont ignorés (pas de job traité).
+
+3. **Signature du webhook (production)**  
+   En production, si la signature Twilio est invalide, la requête est rejetée (401). Vérifier que l’URL configurée dans Twilio est **exactement** celle utilisée par les requêtes (même domaine, pas de slash en trop). Sur Vercel, l’app utilise l’URL de la requête ; si tu as un domaine custom, l’URL dans Twilio doit être ce domaine.
+
+4. **Redis partagé (Vercel + Railway)**  
+   Le webhook (Vercel) enqueue les jobs dans Redis ; le worker (Railway) les consomme. Les deux doivent utiliser la **même** `REDIS_URL` (ex. Upstash). Si la variable diffère ou est absente sur l’un des deux, les jobs restent en file et rien n’est traité.
+
+5. **Pas de réponse automatique**  
+   Aujourd’hui, l’app **reçoit** les messages (webhook + worker) et les enregistre, mais il n’y a **pas** de réponse automatique envoyée au client. Pour envoyer une réponse, il faut qu’un autre flux écrive dans l’outbox (`messages_out`). Une UI « envoyer un message » depuis le dashboard n’est pas encore en place.
 
 ---
 

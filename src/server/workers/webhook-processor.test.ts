@@ -7,6 +7,7 @@ import {
   isLiveSignal,
   parseCreateItemIntent,
   parseClientCodeIntent,
+  isConfirmOui,
 } from "./webhook-processor";
 import type { InboundMessage } from "../messaging/types";
 import { db } from "~/server/db";
@@ -17,6 +18,9 @@ vi.mock("~/server/db", () => ({
   db: {
     sellerPhone: {
       findMany: vi.fn(),
+    },
+    tenant: {
+      findUnique: vi.fn(),
     },
     optOut: {
       findUnique: vi.fn(),
@@ -89,12 +93,20 @@ vi.mock("~/server/reservation/service", () => ({
   collectAddress: vi.fn(),
 }));
 
+vi.mock("~/server/waitlist/addToWaitlist", () => ({
+  addToWaitlist: vi.fn().mockResolvedValue({ ok: true, position: 1 }),
+}));
+
 vi.mock("~/server/messaging/outbox", () => ({
   writeToOutbox: vi.fn(),
 }));
 
 vi.mock("~/server/media/uploadMediaToLiveItem", () => ({
   uploadMediaAndLinkToLiveItem: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("~/server/order/createOrderFromReservation", () => ({
+  createOrderFromReservation: vi.fn(),
 }));
 
 describe("webhook-processor", () => {
@@ -215,6 +227,21 @@ describe("webhook-processor", () => {
       expect(parseCreateItemIntent("MODIF A12")).toBeNull();
       expect(parseCreateItemIntent("")).toBeNull();
       expect(parseCreateItemIntent("   ")).toBeNull();
+    });
+  });
+
+  describe("isConfirmOui (Story 4.5)", () => {
+    it("returns true for 'oui' (case-insensitive, trim)", () => {
+      expect(isConfirmOui("oui")).toBe(true);
+      expect(isConfirmOui("OUI")).toBe(true);
+      expect(isConfirmOui("  Oui  ")).toBe(true);
+    });
+
+    it("returns false for non-OUI text", () => {
+      expect(isConfirmOui("yes")).toBe(false);
+      expect(isConfirmOui("ok")).toBe(false);
+      expect(isConfirmOui("A12")).toBe(false);
+      expect(isConfirmOui("")).toBe(false);
     });
   });
 
@@ -773,7 +800,7 @@ describe("webhook-processor", () => {
       );
     });
 
-    it("Story 4.1: when client sends code and item is exhausted (free <= 0), sends Épuisé", async () => {
+    it("Story 4.3: when client sends code and item is exhausted (free <= 0), adds to waitlist and sends File #N", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
@@ -793,6 +820,8 @@ describe("webhook-processor", () => {
         availableQty: 1,
         reservedQty: 1,
       });
+      const { addToWaitlist } = await import("~/server/waitlist/addToWaitlist");
+      vi.mocked(addToWaitlist).mockResolvedValue({ ok: true, position: 2 });
 
       const job = {
         id: "job-exhausted",
@@ -811,8 +840,19 @@ describe("webhook-processor", () => {
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const { createReservation } = await import("~/server/reservation/service");
       expect(createReservation).not.toHaveBeenCalled();
+      expect(addToWaitlist).toHaveBeenCalledWith(
+        tenantId,
+        "live-session-client",
+        "item-exhausted",
+        from,
+        "corr-ex",
+      );
       expect(writeToOutbox).toHaveBeenCalledWith(
-        expect.objectContaining({ body: "Épuisé.", to: from, correlationId: "corr-ex" }),
+        expect.objectContaining({
+          body: "Tu es en file #2. On te prévient quand une place se libère.",
+          to: from,
+          correlationId: "corr-ex",
+        }),
       );
     });
 
@@ -1107,6 +1147,287 @@ describe("webhook-processor", () => {
           body: "Récap : A12 — 50.00 € — Total : 50.00 €. Réponds OUI pour confirmer.",
         }),
       );
+    });
+
+    describe("Story 5.1 AC#1: OUI → order SS-XXXX from confirmed reservation", () => {
+    it("Story 4.5: when client sends OUI and has address_collected reservation without acompte, creates Order confirmed and sends ack", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      vi.mocked(db.tenant.findUnique).mockResolvedValue({
+        requireDeposit: false,
+      } as never);
+      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
+      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+        id: "live-session-1",
+        status: "active",
+        lastActivityAt: new Date(),
+        created: false,
+      });
+      const { getActiveReservationForClient } = await import("~/server/reservation/service");
+      vi.mocked(getActiveReservationForClient).mockResolvedValue({
+        id: "res-1",
+        status: "address_collected",
+        tenantId,
+        liveSessionId: "live-session-1",
+        liveItemId: "item-1",
+        clientPhone: from,
+        address: "12 rue de la Paix",
+        expiresAt: null,
+        correlationId: "corr-prev",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        liveItem: {
+          id: "item-1",
+          code: "A12",
+          amountCents: 5000,
+          quantity: 1,
+          availableQty: 0,
+          reservedQty: 1,
+          liveSessionId: "live-session-1",
+          tenantId,
+          mediaStorageKey: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      } as never);
+      const { createOrderFromReservation } = await import("~/server/order/createOrderFromReservation");
+      vi.mocked(createOrderFromReservation).mockResolvedValue({
+        success: true,
+        order: {
+          id: "order-1",
+          orderNumber: "SS-0001",
+          status: "confirmed",
+          depositStatus: "no_deposit",
+        },
+      });
+
+      const job = {
+        id: "job-oui",
+        data: {
+          tenantId,
+          providerMessageId: "SMoui",
+          from,
+          body: "OUI",
+          correlationId: "corr-oui",
+        } as InboundMessage,
+      } as Job<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      expect(db.tenant.findUnique).toHaveBeenCalledWith({
+        where: { id: tenantId },
+        select: { requireDeposit: true },
+      });
+      expect(createOrderFromReservation).toHaveBeenCalledWith(
+        tenantId,
+        "res-1",
+        false,
+        from,
+        "corr-oui",
+      );
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+      expect(writeToOutbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenantId,
+          to: from,
+          correlationId: "corr-oui",
+          body: "Commande confirmée. Merci !",
+        }),
+      );
+    });
+
+    it("Story 4.5: when client sends OUI with acompte enabled, creates Order confirmed_pending_deposit and sends deposit message + ack", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      vi.mocked(db.tenant.findUnique).mockResolvedValue({
+        requireDeposit: true,
+      } as never);
+      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
+      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+        id: "live-session-1",
+        status: "active",
+        lastActivityAt: new Date(),
+        created: false,
+      });
+      const { getActiveReservationForClient } = await import("~/server/reservation/service");
+      vi.mocked(getActiveReservationForClient).mockResolvedValue({
+        id: "res-1",
+        status: "address_collected",
+        tenantId,
+        liveSessionId: "live-session-1",
+        liveItemId: "item-1",
+        clientPhone: from,
+        address: "12 rue de la Paix",
+        expiresAt: null,
+        correlationId: "corr-prev",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        liveItem: {
+          id: "item-1",
+          code: "A12",
+          amountCents: 5000,
+          quantity: 1,
+          availableQty: 0,
+          reservedQty: 1,
+          liveSessionId: "live-session-1",
+          tenantId,
+          mediaStorageKey: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      } as never);
+      const { createOrderFromReservation } = await import("~/server/order/createOrderFromReservation");
+      vi.mocked(createOrderFromReservation).mockResolvedValue({
+        success: true,
+        order: {
+          id: "order-1",
+          orderNumber: "SS-0001",
+          status: "confirmed_pending_deposit",
+          depositStatus: "deposit_pending",
+        },
+      });
+
+      const job = {
+        id: "job-oui",
+        data: {
+          tenantId,
+          providerMessageId: "SMoui",
+          from,
+          body: "  oui  ",
+          correlationId: "corr-oui",
+        } as InboundMessage,
+      } as Job<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      expect(createOrderFromReservation).toHaveBeenCalledWith(
+        tenantId,
+        "res-1",
+        true,
+        from,
+        "corr-oui",
+      );
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+      expect(writeToOutbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenantId,
+          to: from,
+          correlationId: "corr-oui",
+          body: "Commande enregistrée.",
+        }),
+      );
+    });
+
+    it("Story 4.5: idempotence — double OUI for same reservation; createOrderFromReservation called twice, returns existing order on second call", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+      const reservationAddressCollected = {
+        id: "res-1",
+        status: "address_collected" as const,
+        tenantId,
+        liveSessionId: "live-session-1",
+        liveItemId: "item-1",
+        clientPhone: from,
+        address: "12 rue de la Paix",
+        expiresAt: null,
+        correlationId: "corr-prev",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        liveItem: {
+          id: "item-1",
+          code: "A12",
+          amountCents: 5000,
+          quantity: 1,
+          availableQty: 0,
+          reservedQty: 1,
+          liveSessionId: "live-session-1",
+          tenantId,
+          mediaStorageKey: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      };
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      vi.mocked(db.tenant.findUnique).mockResolvedValue({
+        requireDeposit: false,
+      } as never);
+      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
+      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+        id: "live-session-1",
+        status: "active",
+        lastActivityAt: new Date(),
+        created: false,
+      });
+      const { getActiveReservationForClient } = await import("~/server/reservation/service");
+      vi.mocked(getActiveReservationForClient).mockResolvedValue(reservationAddressCollected as never);
+      const { createOrderFromReservation } = await import("~/server/order/createOrderFromReservation");
+      vi.mocked(createOrderFromReservation)
+        .mockResolvedValueOnce({
+          success: true,
+          order: {
+            id: "order-1",
+            orderNumber: "SS-0001",
+            status: "confirmed",
+            depositStatus: "no_deposit",
+          },
+        })
+        .mockResolvedValueOnce({
+          success: true,
+          order: {
+            id: "order-1",
+            orderNumber: "SS-0001",
+            status: "confirmed",
+            depositStatus: "no_deposit",
+          },
+        });
+
+      const job1 = {
+        id: "job-oui-1",
+        data: {
+          tenantId,
+          providerMessageId: "SMoui1",
+          from,
+          body: "OUI",
+          correlationId: "corr-oui",
+        } as InboundMessage,
+      } as Job<InboundMessage>;
+      const job2 = {
+        id: "job-oui-2",
+        data: {
+          tenantId,
+          providerMessageId: "SMoui2",
+          from,
+          body: "oui",
+          correlationId: "corr-oui",
+        } as InboundMessage,
+      } as Job<InboundMessage>;
+
+      await processWebhookJob(job1);
+      await processWebhookJob(job2);
+
+      expect(createOrderFromReservation).toHaveBeenCalledTimes(2);
+      expect(createOrderFromReservation).toHaveBeenNthCalledWith(
+        1,
+        tenantId,
+        "res-1",
+        false,
+        from,
+        "corr-oui",
+      );
+      expect(createOrderFromReservation).toHaveBeenNthCalledWith(
+        2,
+        tenantId,
+        "res-1",
+        false,
+        from,
+        "corr-oui",
+      );
+    });
     });
 
     it("should create live item and write confirmation to outbox when seller sends code (Story 3.2)", async () => {

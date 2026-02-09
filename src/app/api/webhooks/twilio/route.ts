@@ -55,23 +55,30 @@ export async function POST(request: Request) {
     });
 
     // Récupérer l'URL complète pour la vérification de signature
-    // IMPORTANT: Twilio utilise l'URL EXACTE configurée dans la console
-    // Si vous utilisez ngrok, utiliser les headers x-forwarded-* pour reconstruire l'URL réelle
-    const forwardedHost = request.headers.get("x-forwarded-host");
-    const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
-    
+    // IMPORTANT: Twilio signe avec l'URL EXACTE configurée dans la console.
+    // Priorité: WEBHOOK_PUBLIC_URL (définie sur Vercel) > VERCEL_URL > request
+    const url = new URL(request.url);
+    const pathnameAndSearch = `${url.pathname}${url.search}`;
+
     let fullUrl: string;
-    if (forwardedHost) {
-      // Utiliser l'URL ngrok réelle (celle que Twilio voit)
-      // Ne pas inclure le port pour HTTPS (443) ou HTTP (80) - ngrok expose directement
-      const url = new URL(request.url);
-      fullUrl = `${forwardedProto}://${forwardedHost}${url.pathname}${url.search}`;
+    if (env.WEBHOOK_PUBLIC_URL) {
+      // URL exacte configurée dans Twilio (sans slash final)
+      fullUrl = env.WEBHOOK_PUBLIC_URL.replace(/\/$/, "");
     } else {
-      // Fallback sur l'URL locale si pas de proxy
-      const url = new URL(request.url);
-      fullUrl = `${url.protocol}//${url.host}${url.pathname}${url.search}`;
+      const vercelUrl = process.env.VERCEL_URL;
+      if (vercelUrl) {
+        fullUrl = `https://${vercelUrl}${pathnameAndSearch}`;
+      } else {
+        const forwardedHost = request.headers.get("x-forwarded-host");
+        const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
+        if (forwardedHost) {
+          fullUrl = `${forwardedProto}://${forwardedHost}${pathnameAndSearch}`;
+        } else {
+          fullUrl = `${url.protocol}//${url.host}${pathnameAndSearch}`;
+        }
+      }
     }
-    
+
     webhookLogger.debug("URL for signature verification", {
       correlationId,
       fullUrl,
@@ -106,12 +113,13 @@ export async function POST(request: Request) {
       webhookLogger.warn("Invalid signature", {
         correlationId,
         isDevelopment,
+        fullUrlUsedForValidation: fullUrl,
       });
-      
+
       if (!isDevelopment) {
-        // En production, rejeter les requêtes avec signature invalide
-        webhookLogger.error("Invalid signature in production - request rejected", undefined, {
+        webhookLogger.error("Invalid signature in production - request rejected. Set WEBHOOK_PUBLIC_URL on Vercel to exactly: " + fullUrl, undefined, {
           correlationId,
+          fullUrlUsedForValidation: fullUrl,
         });
         return new NextResponse("Invalid signature", { status: 401 });
       }
@@ -169,7 +177,7 @@ export async function POST(request: Request) {
     normalizedMessage.tenantId = tenant?.id ?? null;
 
     if (!tenant) {
-      webhookLogger.warn("Tenant not found for WhatsApp number", {
+      webhookLogger.warn("Tenant not found for WhatsApp number — message not processed. Configure Paramètres → Connexion WhatsApp with this number.", {
         correlationId,
         normalizedToNumber,
         toNumber,

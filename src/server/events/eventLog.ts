@@ -14,7 +14,22 @@ export type EventType =
   | "opt_out_recorded"
   | "message_blocked_optout"
   | "live_session_created"
-  | "live_session_closed";
+  | "live_session_closed"
+  | "live_item_created"
+  | "live_item_duplicate_rejected"
+  | "live_item_photo_linked"
+  | "reservation_hold"
+  | "reservation_released"
+  | "reservation_confirmed"
+  | "reservation_started"
+  | "reservation_expired"
+  | "waitlist_promoted"
+  | "reservation_reminder_sent"
+  | "order_created"
+  | "deposit_requested"
+  | "order.status_changed"
+  | "deposit_approved"
+  | "deposit_rejected";
 
 /**
  * Types d'entités pour Event Log
@@ -25,7 +40,9 @@ export type EntityType =
   | "reservation"
   | "order"
   | "session"
-  | "opt_out";
+  | "opt_out"
+  | "live_item"
+  | "payment_proof";
 
 /**
  * Types d'acteurs pour Event Log
@@ -83,6 +100,21 @@ const logEventInputSchema = z.object({
     "message_blocked_optout",
     "live_session_created",
     "live_session_closed",
+    "live_item_created",
+    "live_item_duplicate_rejected",
+    "live_item_photo_linked",
+    "reservation_hold",
+    "reservation_released",
+    "reservation_confirmed",
+    "reservation_started",
+    "reservation_expired",
+    "waitlist_promoted",
+    "reservation_reminder_sent",
+    "order_created",
+    "deposit_requested",
+    "order.status_changed",
+    "deposit_approved",
+    "deposit_rejected",
   ]),
   entityType: z.enum([
     "message_in",
@@ -91,6 +123,8 @@ const logEventInputSchema = z.object({
     "order",
     "session",
     "opt_out",
+    "live_item",
+    "payment_proof",
   ]),
   entityId: z.string().optional(),
   correlationId: z.string().min(1), // UUID ou message_sid
@@ -347,5 +381,297 @@ export async function logLiveSessionClosed(
     payload: {
       live_session_id: liveSessionId,
     },
+  });
+}
+
+/**
+ * Helper pour logger événement live_item_created (Story 3.2, 3.3, 3.4)
+ * Architecture §3: EventLog — création item (vendeur ou client-triggered)
+ * Story 3.4: payload peut inclure quantity, available_qty, has_media pour stock préparé
+ */
+export async function logLiveItemCreated(
+  tenantId: string,
+  liveItemId: string,
+  correlationId: string,
+  payload: {
+    code: string;
+    live_session_id: string;
+    quantity?: number;
+    available_qty?: number;
+    has_media?: boolean;
+  },
+  options?: { actorType?: "seller" | "client" },
+): Promise<void> {
+  const eventPayload: Record<string, unknown> = {
+    live_item_id: liveItemId,
+    code: payload.code,
+    live_session_id: payload.live_session_id,
+  };
+  if (payload.quantity !== undefined) eventPayload.quantity = payload.quantity;
+  if (payload.available_qty !== undefined) eventPayload.available_qty = payload.available_qty;
+  if (payload.has_media !== undefined) eventPayload.has_media = payload.has_media;
+
+  await logEvent({
+    tenantId,
+    eventType: "live_item_created",
+    entityType: "live_item",
+    entityId: liveItemId,
+    correlationId,
+    actorType: options?.actorType ?? "seller",
+    payload: eventPayload,
+  });
+}
+
+/**
+ * Helper pour logger événement live_item_duplicate_rejected (Story 3.2)
+ * Quand le vendeur renvoie un code déjà utilisé en session
+ */
+export async function logLiveItemDuplicateRejected(
+  tenantId: string,
+  code: string,
+  correlationId: string,
+): Promise<void> {
+  await logEvent({
+    tenantId,
+    eventType: "live_item_duplicate_rejected",
+    entityType: "live_item",
+    entityId: undefined,
+    correlationId,
+    actorType: "seller",
+    payload: {
+      code,
+      reason: "duplicate_in_session",
+    },
+  });
+}
+
+/**
+ * Story 4.1: Réservation créée (Epic 4 audit trail)
+ */
+export async function logReservationStarted(
+  tenantId: string,
+  reservationId: string,
+  correlationId: string,
+  payload?: { live_item_id?: string; live_session_id?: string },
+): Promise<void> {
+  const eventPayload: Record<string, unknown> = {
+    reservation_id: reservationId,
+  };
+  if (payload?.live_item_id) eventPayload.live_item_id = payload.live_item_id;
+  if (payload?.live_session_id) eventPayload.live_session_id = payload.live_session_id;
+
+  await logEvent({
+    tenantId,
+    eventType: "reservation_started",
+    entityType: "reservation",
+    entityId: reservationId,
+    correlationId,
+    actorType: "client",
+    payload: eventPayload,
+  });
+}
+
+/**
+ * Story 3.5: Photo seule liée au dernier code dans la fenêtre 2 min
+ */
+export async function logLiveItemPhotoLinked(
+  tenantId: string,
+  liveItemId: string,
+  code: string,
+  correlationId: string,
+): Promise<void> {
+  await logEvent({
+    tenantId,
+    eventType: "live_item_photo_linked",
+    entityType: "live_item",
+    entityId: liveItemId,
+    correlationId,
+    actorType: "seller",
+    payload: {
+      live_item_id: liveItemId,
+      code,
+      source: "photo_alone",
+    },
+  });
+}
+
+/**
+ * Story 4.3: Réservation expirée (TTL T=0) — job expiration
+ * Payload sans PII (ids uniquement).
+ */
+export async function logReservationExpired(
+  tenantId: string,
+  reservationId: string,
+  correlationId: string,
+  payload?: { live_item_id?: string; live_session_id?: string },
+): Promise<void> {
+  const eventPayload: Record<string, unknown> = { reservation_id: reservationId };
+  if (payload?.live_item_id) eventPayload.live_item_id = payload.live_item_id;
+  if (payload?.live_session_id) eventPayload.live_session_id = payload.live_session_id;
+
+  await logEvent({
+    tenantId,
+    eventType: "reservation_expired",
+    entityType: "reservation",
+    entityId: reservationId,
+    correlationId,
+    actorType: "system",
+    payload: eventPayload,
+  });
+}
+
+/**
+ * Story 4.3: Premier en file promu — job promotion
+ * Payload sans PII (ids uniquement).
+ */
+export async function logWaitlistPromoted(
+  tenantId: string,
+  reservationId: string,
+  liveItemId: string,
+  correlationId: string,
+  payload?: { live_session_id?: string },
+): Promise<void> {
+  const eventPayload: Record<string, unknown> = {
+    reservation_id: reservationId,
+    live_item_id: liveItemId,
+  };
+  if (payload?.live_session_id) eventPayload.live_session_id = payload.live_session_id;
+
+  await logEvent({
+    tenantId,
+    eventType: "waitlist_promoted",
+    entityType: "reservation",
+    entityId: reservationId,
+    correlationId,
+    actorType: "system",
+    payload: eventPayload,
+  });
+}
+
+/**
+ * Story 4.4: Rappel T-2 min envoyé au client
+ * Payload sans PII (ids uniquement).
+ */
+export async function logReservationReminderSent(
+  tenantId: string,
+  reservationId: string,
+  correlationId: string,
+  payload?: { live_item_id?: string; live_session_id?: string },
+): Promise<void> {
+  const eventPayload: Record<string, unknown> = { reservation_id: reservationId };
+  if (payload?.live_item_id) eventPayload.live_item_id = payload.live_item_id;
+  if (payload?.live_session_id) eventPayload.live_session_id = payload.live_session_id;
+
+  await logEvent({
+    tenantId,
+    eventType: "reservation_reminder_sent",
+    entityType: "reservation",
+    entityId: reservationId,
+    correlationId,
+    actorType: "system",
+    payload: eventPayload,
+  });
+}
+
+/**
+ * Story 4.5: Commande créée à la confirmation (OUI)
+ */
+export async function logOrderCreated(
+  tenantId: string,
+  orderId: string,
+  reservationId: string,
+  correlationId: string,
+): Promise<void> {
+  await logEvent({
+    tenantId,
+    eventType: "order_created",
+    entityType: "order",
+    entityId: orderId,
+    correlationId,
+    actorType: "system",
+    payload: { order_id: orderId, reservation_id: reservationId },
+  });
+}
+
+/**
+ * Story 4.5: Demande de preuve d'acompte envoyée au client (optionnel)
+ */
+export async function logDepositRequested(
+  tenantId: string,
+  orderId: string,
+  correlationId: string,
+  payload?: { deposit_expires_minutes?: number },
+): Promise<void> {
+  const eventPayload: Record<string, unknown> = { order_id: orderId };
+  if (payload?.deposit_expires_minutes != null)
+    eventPayload.deposit_expires_minutes = payload.deposit_expires_minutes;
+  await logEvent({
+    tenantId,
+    eventType: "deposit_requested",
+    entityType: "order",
+    entityId: orderId,
+    correlationId,
+    actorType: "system",
+    payload: eventPayload,
+  });
+}
+
+/**
+ * Story 5.2: Changement de statut de commande (audit trail FR45)
+ */
+export async function logOrderStatusChanged(
+  tenantId: string,
+  orderId: string,
+  correlationId: string,
+  payload: { from: string; to: string },
+): Promise<void> {
+  await logEvent({
+    tenantId,
+    eventType: "order.status_changed",
+    entityType: "order",
+    entityId: orderId,
+    correlationId,
+    actorType: "seller",
+    payload: { order_id: orderId, from: payload.from, to: payload.to },
+  });
+}
+
+/**
+ * Story 5.3: Preuve d'acompte validée (dashboard)
+ */
+export async function logDepositApproved(
+  tenantId: string,
+  orderId: string,
+  proofId: string,
+  correlationId: string,
+): Promise<void> {
+  await logEvent({
+    tenantId,
+    eventType: "deposit_approved",
+    entityType: "order",
+    entityId: orderId,
+    correlationId,
+    actorType: "seller",
+    payload: { order_id: orderId, proof_id: proofId, decision: "approved" },
+  });
+}
+
+/**
+ * Story 5.3: Preuve d'acompte refusée (dashboard)
+ */
+export async function logDepositRejected(
+  tenantId: string,
+  orderId: string,
+  proofId: string,
+  correlationId: string,
+): Promise<void> {
+  await logEvent({
+    tenantId,
+    eventType: "deposit_rejected",
+    entityType: "order",
+    entityId: orderId,
+    correlationId,
+    actorType: "seller",
+    payload: { order_id: orderId, proof_id: proofId, decision: "rejected" },
   });
 }

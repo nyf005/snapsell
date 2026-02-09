@@ -15,7 +15,7 @@ import { getSignupValidationErrors } from "~/lib/validations/signup";
 import { api } from "~/trpc/react";
 
 const inputClassName =
-  "w-full rounded-lg border border-slate-300 dark:border-[#314d68] bg-white dark:bg-[#182634] text-slate-900 dark:text-white h-14 px-4 focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400 dark:placeholder:text-[#90adcb]";
+  "w-full rounded-lg border border-border bg-card text-foreground h-14 px-4 focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-placeholder";
 
 type Tab = "login" | "signup";
 
@@ -77,7 +77,7 @@ function LoginTabContent() {
       <div className="flex flex-col gap-2">
         <Label
           htmlFor="login-email"
-          className="text-sm font-semibold text-slate-900 dark:text-white"
+          className="text-sm font-semibold text-foreground"
         >
           Adresse email
         </Label>
@@ -98,7 +98,7 @@ function LoginTabContent() {
       <div className="flex flex-col gap-2">
         <Label
           htmlFor="login-password"
-          className="text-sm font-semibold text-slate-900 dark:text-white"
+          className="text-sm font-semibold text-foreground"
         >
           Mot de passe
         </Label>
@@ -118,7 +118,7 @@ function LoginTabContent() {
             variant="ghost"
             size="icon"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-1 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 size-9"
+            className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-9"
             aria-label={
               showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"
             }
@@ -205,7 +205,7 @@ function SignupTabContent() {
       <div className="flex flex-col gap-2">
         <Label
           htmlFor="signup-tenantName"
-          className="text-sm font-semibold text-slate-900 dark:text-white"
+          className="text-sm font-semibold text-foreground"
         >
           Nom de la boutique
         </Label>
@@ -226,7 +226,7 @@ function SignupTabContent() {
       <div className="flex flex-col gap-2">
         <Label
           htmlFor="signup-email"
-          className="text-sm font-semibold text-slate-900 dark:text-white"
+          className="text-sm font-semibold text-foreground"
         >
           Adresse email
         </Label>
@@ -247,7 +247,7 @@ function SignupTabContent() {
       <div className="flex flex-col gap-2">
         <Label
           htmlFor="signup-password"
-          className="text-sm font-semibold text-slate-900 dark:text-white"
+          className="text-sm font-semibold text-foreground"
         >
           Mot de passe
         </Label>
@@ -268,7 +268,7 @@ function SignupTabContent() {
             variant="ghost"
             size="icon"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-1 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 size-9"
+            className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-9"
             aria-label={
               showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"
             }
@@ -287,7 +287,7 @@ function SignupTabContent() {
       <div className="flex flex-col gap-2">
         <Label
           htmlFor="signup-name"
-          className="text-sm font-semibold text-slate-900 dark:text-white"
+          className="text-sm font-semibold text-foreground"
         >
           Votre nom (optionnel)
         </Label>
@@ -311,7 +311,7 @@ function SignupTabContent() {
       >
         {signup.isPending ? "Création en cours…" : "Créer mon compte vendeur"}
       </Button>
-      <p className="px-4 text-center text-xs text-slate-500 dark:text-slate-400">
+      <p className="px-4 text-center text-xs text-muted-foreground">
         En vous inscrivant, vous acceptez nos{" "}
         <Link href="#" className="text-primary hover:underline">
           Conditions d&apos;utilisation
@@ -350,12 +350,12 @@ function LoginPageContent() {
   return (
     <div className="max-w-[480px] w-full flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white md:text-3xl">
+        <h2 className="text-2xl font-black tracking-tight text-foreground md:text-3xl">
           {activeTab === "login"
             ? "Connexion à votre compte"
             : "Créer un compte vendeur"}
         </h2>
-        <p className="text-slate-500 dark:text-slate-400">
+        <p className="text-muted-foreground">
           {activeTab === "login"
             ? "Bienvenue. Saisissez vos identifiants pour accéder à votre dashboard."
             : "Rejoignez plus de 10 000 entreprises qui automatisent leurs ventes WhatsApp."}
@@ -386,7 +386,7 @@ function LoginPageContent() {
       {activeTab === "login" ? <LoginTabContent /> : <SignupTabContent />}
 
       <div className="flex items-center justify-center gap-2 pt-4 text-sm">
-        <span className="text-slate-600 dark:text-slate-400">
+        <span className="text-muted-foreground">
           {activeTab === "login" ? "Pas encore de compte ?" : "Vous avez déjà un compte ?"}
         </span>
         <button

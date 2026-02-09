@@ -1,8 +1,16 @@
 import { redirect } from "next/navigation";
-
 import { auth } from "~/server/auth";
-
+import { db } from "~/server/db";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
+import { DashboardContent } from "./_components/dashboard-content";
+
+function formatDashboardDate(date: Date): string {
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -11,20 +19,42 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const tenantId = session.user.tenantId;
+  // Exactement la même logique que le layout qui fonctionne pour la sidebar
+  const tenant = await db.tenant.findUnique({
+    where: { id: session.user.tenantId },
+    select: { name: true },
+  });
+
+  const userName = session.user.name ?? session.user.email ?? "Utilisateur";
+  const tenantName = tenant?.name;
 
   return (
     <>
       <DashboardHeader />
-      <main className="auth-page-bg flex flex-1 flex-col text-white">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold">Tableau de bord</h1>
-          <p className="mt-2 text-white/80">
-            Bienvenue, {session.user.name ?? session.user.email}.
-          </p>
-          <p className="mt-1 text-sm text-white/60">
-            ID tenant (isolation) : {tenantId ?? "—"}
-          </p>
+      <main className="flex-1 overflow-y-auto bg-background">
+        <div className="p-4 md:p-8 max-w-6xl mx-auto">
+          <header className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                Bienvenue,{" "}
+                <span className="text-primary">{userName}</span>
+              </h1>
+              {tenantName && (
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="size-2 rounded-full bg-primary shrink-0" />
+                  <p className="text-sm font-medium text-foreground">
+                    {tenantName}
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-card-foreground shadow-sm shrink-0">
+              <span className="text-sm font-semibold text-muted-foreground">
+                {formatDashboardDate(new Date())}
+              </span>
+            </div>
+          </header>
+          <DashboardContent />
         </div>
       </main>
     </>

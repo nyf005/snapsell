@@ -29,6 +29,10 @@ import {
   startCloseInactiveLiveSessionsWorker,
   stopCloseInactiveLiveSessionsWorker,
 } from "~/server/workers/close-inactive-live-sessions";
+import {
+  startReservationTtlWorker,
+  stopReservationTtlWorker,
+} from "~/server/workers/reservation-ttl";
 import { workerLogger } from "~/lib/logger";
 import type { Worker } from "bullmq";
 
@@ -37,6 +41,7 @@ let webhookWorker: Worker | null = null;
 let webhookMetricsInterval: NodeJS.Timeout | null = null;
 let outboxSenderInterval: NodeJS.Timeout | null = null;
 let closeLiveSessionsInterval: NodeJS.Timeout | null = null;
+let reservationTtlInterval: NodeJS.Timeout | null = null;
 
 /**
  * Gestion graceful shutdown
@@ -64,6 +69,13 @@ async function gracefulShutdown(signal: string): Promise<void> {
     stopCloseInactiveLiveSessionsWorker(closeLiveSessionsInterval);
     closeLiveSessionsInterval = null;
     workerLogger.info("Close inactive live sessions worker stopped");
+  }
+
+  // Arrêter le worker reservation TTL (Story 4.3)
+  if (reservationTtlInterval) {
+    stopReservationTtlWorker(reservationTtlInterval);
+    reservationTtlInterval = null;
+    workerLogger.info("Reservation TTL worker stopped");
   }
 
   // Fermer le worker webhook-processor
@@ -123,6 +135,11 @@ try {
   workerLogger.info("Starting close-inactive-live-sessions worker...");
   closeLiveSessionsInterval = startCloseInactiveLiveSessionsWorker(10 * 60 * 1000);
   workerLogger.info("Close inactive live sessions worker started successfully");
+
+  // Démarrer reservation TTL (Story 4.3) - toutes les 1 min
+  workerLogger.info("Starting reservation TTL worker...");
+  reservationTtlInterval = startReservationTtlWorker(60 * 1000);
+  workerLogger.info("Reservation TTL worker started successfully");
 } catch (error) {
   workerLogger.error("Failed to start workers", error);
   process.exit(1);

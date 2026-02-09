@@ -16,6 +16,7 @@ import {
   getActiveReservationForClient,
   collectAddress,
 } from "~/server/reservation/service";
+import { addToWaitlist } from "~/server/waitlist/addToWaitlist";
 import { getOrCreateCurrentSession } from "~/server/live-session/service";
 import {
   createLiveItem,
@@ -28,6 +29,7 @@ import { findLiveItemByCode } from "~/server/live-item/findLiveItemByCode";
 import { getLastEditedLiveItemInWindow } from "~/server/live-item/getLastEditedLiveItemInWindow";
 import { uploadMediaAndLinkToLiveItem } from "~/server/media/uploadMediaToLiveItem";
 import { writeToOutbox } from "~/server/messaging/outbox";
+import { createOrderFromReservation } from "~/server/order/createOrderFromReservation";
 
 /** Story 3.5: fenêtre (2 min) pour lier une photo seule au dernier code créé/édité (export pour tests/doc) */
 export const PHOTO_TO_LAST_CODE_WINDOW_MS = 2 * 60 * 1000;
@@ -45,6 +47,12 @@ export function normalizePhoneNumber(phoneNumber: string): string {
 
 /** Mots-clés STOP (case-insensitive, trim) pour détection opt-out Story 2.5 */
 const STOP_KEYWORDS = ["stop", "arrêt", "arret", "unsubscribe", "optout", "opt-out"];
+
+/** Story 4.5: Détection intent « OUI » pour confirmer réservation (trim, lowercase). */
+export function isConfirmOui(body: string): boolean {
+  const trimmed = body.trim().toLowerCase();
+  return trimmed === "oui";
+}
 
 /**
  * Détecte si le corps du message est une demande STOP (opt-out)
@@ -282,13 +290,24 @@ export async function processWebhookJob(
             correlationId,
           });
         } else {
-          // Code strict et trouvé → flux 4.1 (Réservé / File / Épuisé) ; « Épuisé » uniquement si code existe et stock = 0
+          // Code strict et trouvé → flux 4.1/4.3 (Réservé / File #N / Épuisé)
           const free = liveItem.availableQty - liveItem.reservedQty;
           if (free <= 0) {
+            const waitResult = await addToWaitlist(
+              tenantId,
+              liveSessionId,
+              liveItem.id,
+              clientPhoneE164,
+              correlationId,
+            );
+            const body =
+              waitResult.ok === true
+                ? `Tu es en file #${waitResult.position}. On te prévient quand une place se libère.`
+                : "Épuisé.";
             await writeToOutbox({
               tenantId,
               to: clientPhoneE164,
-              body: "Épuisé.",
+              body,
               correlationId,
             });
           } else {
@@ -370,6 +389,56 @@ export async function processWebhookJob(
         }
       } catch (error) {
         workerLogger.error("Error collectAddress / récap (Story 4.1)", error, {
+          correlationId,
+          tenantId,
+        });
+      }
+    }
+
+    // Story 4.5 : intent client « OUI » (réservation en address_collected → confirmation + Order + message preuve si acompte)
+    if (
+      tenantId &&
+      messageType === "client" &&
+      liveSessionId &&
+      !clientCodeIntent &&
+      isConfirmOui(body)
+    ) {
+      try {
+        const to = normalizePhoneNumber(from);
+        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const active = await getActiveReservationForClient(
+          tenantId,
+          liveSessionId,
+          clientPhoneE164,
+        );
+        if (active?.status === "address_collected") {
+          const tenant = await db.tenant.findUnique({
+            where: { id: tenantId },
+            select: { requireDeposit: true },
+          });
+          const requireDeposit = tenant?.requireDeposit ?? false;
+          const orderResult = await createOrderFromReservation(
+            tenantId,
+            active.id,
+            requireDeposit,
+            clientPhoneE164,
+            correlationId,
+          );
+          if (orderResult.success) {
+            const msg =
+              requireDeposit
+                ? "Commande enregistrée."
+                : "Commande confirmée. Merci !";
+            await writeToOutbox({
+              tenantId,
+              to: clientPhoneE164,
+              body: msg,
+              correlationId,
+            });
+          }
+        }
+      } catch (error) {
+        workerLogger.error("Error confirm OUI / createOrder (Story 4.5)", error, {
           correlationId,
           tenantId,
         });
