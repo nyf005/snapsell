@@ -21,12 +21,12 @@ import { logOrderStatusChanged } from "~/server/events/eventLog";
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { workerLogger } from "~/lib/logger";
 import { canTransitionFrom } from "~/lib/order-status-transitions";
-import type { OrderStatus } from "../../../../generated/prisma";
+import type { OrderStatus, Prisma } from "../../../../generated/prisma";
 
 /** Plafond export CSV (CR 6-5) : évite timeout / OOM. */
 const EXPORT_CSV_MAX_ROWS = 10_000;
 
-type OrderWhereInput = Parameters<typeof db.order.findMany>[0]["where"];
+type OrderWhereInput = Prisma.OrderWhereInput;
 
 /** Construit le where pour list et exportCsv (évite duplication, CR 6-5). */
 function buildOrdersWhere(
