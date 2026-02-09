@@ -21,7 +21,7 @@ import { logOrderStatusChanged } from "~/server/events/eventLog";
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { workerLogger } from "~/lib/logger";
 import { canTransitionFrom } from "~/lib/order-status-transitions";
-import type { OrderStatus } from "../../../generated/prisma";
+import type { OrderStatus } from "../../../../generated/prisma";
 
 /** Plafond export CSV (CR 6-5) : évite timeout / OOM. */
 const EXPORT_CSV_MAX_ROWS = 10_000;
