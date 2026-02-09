@@ -35,7 +35,7 @@ function buildOrdersWhere(
 ): OrderWhereInput {
   const where: OrderWhereInput = { tenantId };
   if (opts?.status) {
-    where.status = opts.status;
+    where.status = opts.status as OrderStatus;
   }
   if (opts?.dateFrom ?? opts?.dateTo) {
     where.createdAt = {};

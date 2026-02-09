@@ -80,9 +80,9 @@ export function parseClientCodeIntent(body: string): ClientCodeIntent | null {
   if (!trimmed.length) return null;
   const match = trimmed.match(CLIENT_CODE_PREFIX);
   if (!match) return null;
-  const code = normalizeCode(match[1]);
+  const code = normalizeCode(match[1]!);
   if (!code.length) return null;
-  const isStrict = trimmed === match[1] || trimmed === code;
+  const isStrict = trimmed === match[1]! || trimmed === code;
   return { code, isTypo: !isStrict };
 }
 
@@ -98,7 +98,7 @@ export function parseCreateItemIntent(body: string): { code: string; quantity: n
   if (!trimmed.length) return null;
   const match = trimmed.match(SELLER_CREATE_ITEM_PATTERN);
   if (!match) return null;
-  const code = match[1];
+  const code = match[1]!;
   const quantity = match[2] ? Math.max(1, parseInt(match[2], 10)) : 1;
   return { code, quantity };
 }
@@ -318,7 +318,7 @@ export async function processWebhookJob(
               clientPhoneE164,
               correlationId,
             );
-            if (resResult.reason === "exhausted") {
+            if (!resResult.success && resResult.reason === "exhausted") {
               await writeToOutbox({
                 tenantId,
                 to: clientPhoneE164,
@@ -489,7 +489,7 @@ export async function processWebhookJob(
                 });
               });
             }
-          } else if (result.duplicate) {
+          } else if ("duplicate" in result && result.duplicate) {
             await writeToOutbox({
               tenantId,
               to,

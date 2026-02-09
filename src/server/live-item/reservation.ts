@@ -49,7 +49,7 @@ export async function reserveOneUnit(
       `,
     );
     if (rows.length === 0) return { success: false as const, reason: "not_found" as const };
-    const row = rows[0];
+    const row = rows[0]!;
     const free = row.available_qty - row.reserved_qty;
     if (free < 1) return { success: false as const, reason: "exhausted" as const };
 
@@ -106,7 +106,7 @@ export async function releaseReservation(
       `,
     );
     if (rows.length === 0) return { success: false as const, reason: "not_found" as const };
-    if (rows[0].reserved_qty < 1) return { success: false as const, reason: "no_reservation" as const };
+    if (rows[0]!.reserved_qty < 1) return { success: false as const, reason: "no_reservation" as const };
 
     await tx.$executeRaw(
       Prisma.sql`
@@ -161,7 +161,7 @@ export async function confirmReservation(
       `,
     );
     if (rows.length === 0) return { success: false as const, reason: "not_found" as const };
-    if (rows[0].reserved_qty < 1) return { success: false as const, reason: "no_reservation" as const };
+    if (rows[0]!.reserved_qty < 1) return { success: false as const, reason: "no_reservation" as const };
 
     await tx.$executeRaw(
       Prisma.sql`

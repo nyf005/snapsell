@@ -65,7 +65,7 @@ export async function createReservation(
 
   const reserveResult = await reserveOneUnit(tenantId, liveItemId, { correlationId });
   if (!reserveResult.success) {
-    return { success: false, reason: reserveResult.reason };
+    return { success: false, reason: reserveResult.reason as "exhausted" };
   }
 
   try {
