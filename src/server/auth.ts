@@ -57,6 +57,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.sub = (user as { id?: string }).id ?? token.sub;
         token.tenantId = (user as { tenantId?: string }).tenantId;
         token.role = (user as { role?: Role }).role;
       }
@@ -76,6 +77,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session?.user) {
         Object.assign(session.user, {
+          id: (token.sub as string) ?? "",
           tenantId: token.tenantId ?? "",
           role: ((token.role as Role | undefined) ?? "OWNER") as Role,
         });

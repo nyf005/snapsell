@@ -17,13 +17,19 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const userId = session.user.id;
+  const tenantId = session.user.tenantId;
+  if (!userId || !tenantId) {
+    redirect("/api/auth/signout?callbackUrl=/login");
+  }
+
   const [user, tenant] = await Promise.all([
     db.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
       select: { id: true },
     }),
     db.tenant.findUnique({
-      where: { id: session.user.tenantId },
+      where: { id: tenantId },
       select: { name: true },
     }),
   ]);
