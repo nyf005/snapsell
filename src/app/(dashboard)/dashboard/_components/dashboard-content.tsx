@@ -77,6 +77,7 @@ function formatRevenueCents(cents: number): string {
 function formatRelativeTime(date: Date): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
+  if (diffMs < 0) return "À l'instant";
   const diffMin = Math.floor(diffMs / 60_000);
   const diffH = Math.floor(diffMin / 60);
   if (diffMin < 1) return "À l'instant";
@@ -149,7 +150,7 @@ export function DashboardContent() {
                 href="/dashboard/proofs"
                 className="text-xs font-extrabold text-primary flex items-center gap-1 mt-4 group-hover:gap-2 transition-all"
               >
-                VOIR LES PREUVES
+                Voir les preuves
                 <ArrowRight className="size-3" />
               </Link>
             </CardContent>
@@ -176,7 +177,7 @@ export function DashboardContent() {
                 href="/dashboard/orders"
                 className="text-xs font-extrabold text-primary flex items-center gap-1 mt-4 group-hover:gap-2 transition-all"
               >
-                VOIR LES COMMANDES
+                Voir les commandes
                 <ArrowRight className="size-3" />
               </Link>
             </CardContent>
@@ -392,7 +393,7 @@ export function DashboardContent() {
             <div className="px-6 pb-6">
               <Link
                 href="/dashboard/orders"
-                className="text-xs font-extrabold text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest text-center block"
+                className="text-xs font-extrabold text-muted-foreground hover:text-primary transition-colors tracking-wide text-center block"
               >
                 Voir les commandes
               </Link>

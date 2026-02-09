@@ -9,8 +9,9 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { dashboardSummaryOutputSchema } from "./dashboard.schema";
 import { getCurrentSessionReadOnly } from "~/server/live-session/service";
 
-function getTodayUtcRange(): { from: Date; to: Date } {
-  const from = new Date();
+/** Début et fin UTC du jour courant. Accepte `now` pour la testabilité. */
+export function getTodayUtcRange(now: Date = new Date()): { from: Date; to: Date } {
+  const from = new Date(now);
   from.setUTCHours(0, 0, 0, 0);
   const to = new Date(from);
   to.setUTCDate(to.getUTCDate() + 1);
@@ -18,8 +19,9 @@ function getTodayUtcRange(): { from: Date; to: Date } {
   return { from, to };
 }
 
-function getYesterdayUtcRange(): { from: Date; to: Date } {
-  const today = getTodayUtcRange();
+/** Début et fin UTC de la veille. Accepte `now` pour la testabilité. */
+export function getYesterdayUtcRange(now: Date = new Date()): { from: Date; to: Date } {
+  const today = getTodayUtcRange(now);
   const from = new Date(today.from);
   from.setUTCDate(from.getUTCDate() - 1);
   const to = new Date(today.from);
@@ -27,11 +29,11 @@ function getYesterdayUtcRange(): { from: Date; to: Date } {
   return { from, to };
 }
 
-/** Retourne les 7 derniers jours (du plus ancien au plus récent, aujourd'hui inclus). */
-function getLast7DaysRanges(): { date: string; from: Date; to: Date }[] {
+/** Retourne les 7 derniers jours (du plus ancien au plus récent, aujourd'hui inclus). Accepte `now` pour la testabilité. */
+export function getLast7DaysRanges(now: Date = new Date()): { date: string; from: Date; to: Date }[] {
   const ranges: { date: string; from: Date; to: Date }[] = [];
   for (let i = 6; i >= 0; i--) {
-    const from = new Date();
+    const from = new Date(now);
     from.setUTCDate(from.getUTCDate() - i);
     from.setUTCHours(0, 0, 0, 0);
     const to = new Date(from);
@@ -40,19 +42,6 @@ function getLast7DaysRanges(): { date: string; from: Date; to: Date }[] {
     ranges.push({ date, from, to });
   }
   return ranges;
-}
-
-function getThisWeekUtcRange(): { from: Date; to: Date } {
-  const now = new Date();
-  const day = now.getUTCDay();
-  const mondayOffset = day === 0 ? -6 : 1 - day;
-  const from = new Date(now);
-  from.setUTCDate(now.getUTCDate() + mondayOffset);
-  from.setUTCHours(0, 0, 0, 0);
-  const to = new Date(from);
-  to.setUTCDate(from.getUTCDate() + 6);
-  to.setUTCHours(23, 59, 59, 999);
-  return { from, to };
 }
 
 export const dashboardRouter = createTRPCRouter({
@@ -64,10 +53,10 @@ export const dashboardRouter = createTRPCRouter({
         throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
       }
 
-      const today = getTodayUtcRange();
-      const yesterday = getYesterdayUtcRange();
-      const week = getThisWeekUtcRange();
-      const last7Days = getLast7DaysRanges();
+      const now = new Date();
+      const today = getTodayUtcRange(now);
+      const yesterday = getYesterdayUtcRange(now);
+      const last7Days = getLast7DaysRanges(now);
 
       const orderSelectForRevenue = {
         reservation: {
@@ -81,10 +70,8 @@ export const dashboardRouter = createTRPCRouter({
         pendingProofsCount,
         lastProof,
         ordersPreparingCount,
-        ordersInDeliveryCount,
         ordersToday,
         ordersYesterday,
-        ordersThisWeekCount,
         liveSession,
         ordersLast7Days,
       ] = await Promise.all([
@@ -107,9 +94,6 @@ export const dashboardRouter = createTRPCRouter({
         db.order.count({
           where: { tenantId, status: "preparing" },
         }),
-        db.order.count({
-          where: { tenantId, status: "in_delivery" },
-        }),
         db.order.findMany({
           where: {
             tenantId,
@@ -123,12 +107,6 @@ export const dashboardRouter = createTRPCRouter({
             createdAt: { gte: yesterday.from, lte: yesterday.to },
           },
           select: orderSelectForRevenue,
-        }),
-        db.order.count({
-          where: {
-            tenantId,
-            createdAt: { gte: week.from, lte: week.to },
-          },
         }),
         getCurrentSessionReadOnly(tenantId),
         // Une seule requête pour les 7 derniers jours
@@ -172,15 +150,12 @@ export const dashboardRouter = createTRPCRouter({
         pendingProofsCount,
         lastProofSubmittedAt: lastProof?.createdAt ?? null,
         ordersPreparingCount,
-        ordersInDeliveryCount,
         ordersTodayCount: ordersToday.length,
         ordersYesterdayCount: ordersYesterday.length,
-        ordersThisWeekCount,
         revenueTodayCents,
         revenueYesterdayCents,
         revenueByDay,
         hasLiveSession: liveSession != null,
-        liveSessionLastActivityAt: liveSession?.lastActivityAt ?? null,
       };
     }),
 });

@@ -131,7 +131,11 @@ export function AppSidebar({
   // Ouvrir automatiquement les groupes qui ont un item actif
   React.useEffect(() => {
     menuGroups.forEach((group) => {
-      if (isGroupActive(group)) {
+      const active = group.items.some((item) => {
+        if (item.href === "/dashboard") return pathname === "/dashboard";
+        return pathname === item.href || pathname.startsWith(item.href + "/");
+      });
+      if (active) {
         setOpenGroups((prev) => new Set(prev).add(group.label));
       }
     });
