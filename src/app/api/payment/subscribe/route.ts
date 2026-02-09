@@ -3,9 +3,11 @@
  *
  * Auth + rôle OWNER/MANAGER, init transaction Paystack avec plan_code,
  * crée SubscriptionPayment pending, retourne authorization_url.
+ * One pending per tenant+plan (DB unique index) to avoid duplicate rows on double-click.
  */
 
 import { NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { auth } from "~/server/auth";
 import { canManageGrid } from "~/lib/rbac";
 import { db } from "~/server/db";
@@ -52,8 +54,47 @@ async function initiateSubscription(
     return { ok: false, error: "Plan code Paystack non configuré", status: 500 };
   }
 
-  // 5. Init Paystack transaction (amount in subunits: XOF = FCFA × 100)
+  // 4b. One pending per tenant+plan: create row first with temp ref so concurrent requests hit unique constraint
+  const tempRef = `pending_${randomUUID()}`;
   const amountSubunits = Math.round(planConfig.price * 100);
+
+  try {
+    await db.subscriptionPayment.create({
+      data: {
+        tenantId,
+        paystackReference: tempRef,
+        type: "subscription",
+        plan: planId,
+        amount: planConfig.price,
+        status: "pending",
+        metadata: { initiated_by: session.user.id },
+      },
+    });
+  } catch (createError: unknown) {
+    const isUniqueViolation =
+      typeof createError === "object" &&
+      createError !== null &&
+      "code" in createError &&
+      (createError as { code?: string }).code === "P2002";
+    if (isUniqueViolation) {
+      const existingPending = await db.subscriptionPayment.findFirst({
+        where: { tenantId, plan: planId, status: "pending", type: "subscription" },
+        orderBy: { createdAt: "desc" },
+      });
+      const stored = existingPending?.metadata as { authorization_url?: string } | null;
+      if (existingPending && typeof stored?.authorization_url === "string") {
+        return {
+          ok: true,
+          authorizationUrl: stored.authorization_url,
+          reference: existingPending.paystackReference,
+        };
+      }
+      return { ok: false, error: "Un paiement est déjà en cours pour ce plan.", status: 409 };
+    }
+    throw createError;
+  }
+
+  // 5. Init Paystack then update row with real reference and URL
   try {
     const paystackResponse = await initializeTransaction(
       session.user.email,
@@ -64,17 +105,13 @@ async function initiateSubscription(
       planConfig.currency,
     );
 
-    // 6. Create pending SubscriptionPayment
-    await db.subscriptionPayment.create({
+    await db.subscriptionPayment.update({
+      where: { paystackReference: tempRef },
       data: {
-        tenantId,
         paystackReference: paystackResponse.data.reference,
-        type: "subscription",
-        plan: planId,
-        amount: planConfig.price,
-        status: "pending",
         metadata: {
           access_code: paystackResponse.data.access_code,
+          authorization_url: paystackResponse.data.authorization_url,
           initiated_by: session.user.id,
         },
       },
@@ -86,6 +123,7 @@ async function initiateSubscription(
       reference: paystackResponse.data.reference,
     };
   } catch (error) {
+    await db.subscriptionPayment.deleteMany({ where: { paystackReference: tempRef } }).catch(() => {});
     const message = error instanceof Error ? error.message : String(error);
     const stack = error instanceof Error ? error.stack : undefined;
     workerLogger.warn("Paystack initializeTransaction error", {

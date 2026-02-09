@@ -72,7 +72,8 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_APP_URL: z.string().url().optional(),
+    // Optional at build time (Vercel); valid URL when set (used for Paystack callback, links)
+    NEXT_PUBLIC_APP_URL: z.union([z.string().url(), z.literal("")]).optional(),
   },
 
   /**

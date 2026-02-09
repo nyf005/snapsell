@@ -6,7 +6,12 @@ vi.mock("~/server/auth", () => ({
 }));
 vi.mock("~/server/db", () => ({
   db: {
-    subscriptionPayment: { create: vi.fn() },
+    subscriptionPayment: {
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      deleteMany: vi.fn(),
+    },
   },
 }));
 vi.mock("~/server/payment/paystack", () => ({
@@ -53,7 +58,10 @@ describe("Story 7A.2: POST /api/payment/subscribe", () => {
         reference: "ref-123",
       },
     });
+    vi.mocked(db.subscriptionPayment.findFirst).mockResolvedValue(null);
     vi.mocked(db.subscriptionPayment.create).mockResolvedValue({} as never);
+    vi.mocked(db.subscriptionPayment.update).mockResolvedValue({} as never);
+    vi.mocked(db.subscriptionPayment.deleteMany).mockResolvedValue({ count: 0 } as never);
     vi.mocked(getPaystackPlanCode).mockImplementation((plan) => {
       if (plan.id === "starter") return "PLN_starter";
       if (plan.id === "pro") return "PLN_pro";
@@ -123,15 +131,26 @@ describe("Story 7A.2: POST /api/payment/subscribe", () => {
       "XOF",
     );
 
-    // Verify SubscriptionPayment created with pending status
+    // Create with temp ref, then update with real ref after Paystack
     expect(db.subscriptionPayment.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         tenantId: "tenant-1",
-        paystackReference: "ref-123",
         type: "subscription",
         plan: "starter",
         amount: 25_000,
         status: "pending",
+      }),
+    });
+    const createArg = vi.mocked(db.subscriptionPayment.create).mock.calls[0]?.[0] as { data: { paystackReference: string } };
+    expect(createArg?.data.paystackReference).toMatch(/^pending_/);
+    expect(db.subscriptionPayment.update).toHaveBeenCalledWith({
+      where: { paystackReference: expect.stringMatching(/^pending_/) },
+      data: expect.objectContaining({
+        paystackReference: "ref-123",
+        metadata: expect.objectContaining({
+          authorization_url: "https://checkout.paystack.com/xxx",
+          access_code: "acc_xxx",
+        }),
       }),
     });
   });

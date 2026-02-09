@@ -42,8 +42,21 @@ Une fois l’app déployée sur Vercel, mets à jour les URLs suivantes.
 | **Twilio Console** → [Messaging](https://console.twilio.com) → Try it out → Send a WhatsApp message → **Webhook URL** (ou config du numéro WhatsApp) | Webhook "When a message comes in" | `https://<TON_DOMAINE_VERCEL>/api/webhooks/twilio` — ex. `https://snapsell.vercel.app/api/webhooks/twilio` |
 
 **Récap :**
-- **Twilio** : obligatoire — sans cette URL, les messages entrants ne seront pas reçus par l’app.
-- **AUTH_URL** : optionnel — utile si login/redirect après connexion pointe vers le mauvais domaine (surtout avec domaine personnalisé).
+- **NEXT_PUBLIC_APP_URL** (Vercel) : à définir en prod, ex. `https://snapsell-nine.vercel.app` — utilisé pour callbacks Paystack et liens.
+- **Paystack** (Dashboard) : Webhook URL = `https://snapsell-nine.vercel.app/api/webhooks/paystack` ; Callback URL (si demandé) = `https://snapsell-nine.vercel.app/parametres/abonnement?payment=callback`
+- **Twilio** : obligatoire — Webhook URL = `https://snapsell-nine.vercel.app/api/webhooks/twilio`
+- **AUTH_URL** : optionnel — utile si domaine personnalisé.
+
+### ⚠️ Paystack Webhook (Story 7A.2) — obligatoire pour mettre à jour l’abonnement
+
+Sans cette URL, après un paiement réussi le **plan du tenant ne sera pas mis à jour** et l’historique restera en « pending ».
+
+1. Va sur [Paystack Dashboard](https://dashboard.paystack.com) → **Settings** → **API Keys & Webhooks** (ou **Webhooks**).
+2. Définis l’**URL de webhook** : `https://snapsell-nine.vercel.app/api/webhooks/paystack`
+3. **Callback URL** (redirection après paiement, si le dashboard le propose) : `https://snapsell-nine.vercel.app/parametres/abonnement?payment=callback`
+4. Paystack enverra un `POST` sur cette URL à chaque événement (ex. `charge.success`, `subscription.create`). Vercel doit pouvoir recevoir ces requêtes (pas de restriction par IP côté app).
+
+Après configuration, refais un paiement test : le plan doit passer à Starter/Pro et l’historique doit afficher une ligne « success ».
 
 ---
 
