@@ -235,7 +235,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
     <>
       <DashboardHeader />
       <TooltipProvider>
-        <main className="flex flex-1 flex-col bg-background text-foreground">
+        <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
           <div className="container mx-auto space-y-8 px-6 py-8 md:px-8">
             {/* Page Header */}
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

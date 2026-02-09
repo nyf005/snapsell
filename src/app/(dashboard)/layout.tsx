@@ -16,22 +16,33 @@ export default async function DashboardLayout({
   if (!session?.user) {
     redirect("/login");
   }
-  const tenant = await db.tenant.findUnique({
-    where: { id: session.user.tenantId },
-    select: { name: true },
-  });
+
+  const [user, tenant] = await Promise.all([
+    db.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true },
+    }),
+    db.tenant.findUnique({
+      where: { id: session.user.tenantId },
+      select: { name: true },
+    }),
+  ]);
+
+  if (!user || !tenant) {
+    redirect("/api/auth/signout?callbackUrl=/login");
+  }
 
   const canManageGridRole = canManageGrid(session.user.role as string);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-screen overflow-hidden">
       <AppSidebar
         userName={session.user.name ?? session.user.email ?? ""}
-        tenantName={tenant?.name ?? "—"}
+        tenantName={tenant.name}
         canManageGrid={canManageGridRole}
       />
-      <SidebarInset>
-        <div className="flex flex-1 flex-col overflow-hidden">
+      <SidebarInset className="flex flex-1 flex-col min-h-0 overflow-hidden">
+        <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
           {children}
         </div>
       </SidebarInset>

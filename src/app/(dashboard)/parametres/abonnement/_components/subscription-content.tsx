@@ -26,7 +26,7 @@ export function SubscriptionContent() {
             </Button>
           }
         />
-        <div className="flex-1 space-y-8 overflow-y-auto p-6 md:p-8">
+        <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
           <Skeleton className="h-48 w-full" />
           <Skeleton className="h-64 w-full" />
           <Skeleton className="h-48 w-full" />
@@ -45,7 +45,7 @@ export function SubscriptionContent() {
             </Button>
           }
         />
-        <div className="flex-1 overflow-y-auto p-6 md:p-8">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-6 md:p-8">
           <p className="text-destructive">
             Erreur lors du chargement des données d&apos;abonnement.
           </p>
@@ -68,7 +68,7 @@ export function SubscriptionContent() {
           </Button>
         }
       />
-      <div className="flex-1 space-y-8 overflow-y-auto p-6 md:p-8">
+      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             Abonnement

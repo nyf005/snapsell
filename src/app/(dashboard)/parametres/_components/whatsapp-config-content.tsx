@@ -105,7 +105,7 @@ export function WhatsAppConfigContent() {
           </Button>
         }
       />
-      <div className="flex-1 space-y-8 overflow-y-auto p-6 md:p-8">
+      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
         {/* Titre + statut */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>

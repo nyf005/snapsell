@@ -31,7 +31,7 @@ export default async function DashboardPage() {
   return (
     <>
       <DashboardHeader />
-      <main className="flex-1 overflow-y-auto bg-background">
+      <main className="flex-1 min-h-0 overflow-y-auto bg-background">
         <div className="p-4 md:p-8 max-w-6xl mx-auto">
           <header className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>

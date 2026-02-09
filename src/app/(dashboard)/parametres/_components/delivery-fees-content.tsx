@@ -197,7 +197,7 @@ export function DeliveryFeesContent() {
           </Button>
         }
       />
-      <div className="flex-1 space-y-8 overflow-y-auto p-6 md:p-8">
+      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             Frais de livraison
