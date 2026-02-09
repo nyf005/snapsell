@@ -123,6 +123,11 @@ export type Waitlist = $Result.DefaultSelection<Prisma.$WaitlistPayload>
  * 
  */
 export type DeadLetterJob = $Result.DefaultSelection<Prisma.$DeadLetterJobPayload>
+/**
+ * Model SubscriptionPayment
+ * 
+ */
+export type SubscriptionPayment = $Result.DefaultSelection<Prisma.$SubscriptionPaymentPayload>
 
 /**
  * Enums
@@ -549,6 +554,16 @@ export class PrismaClient<
     * ```
     */
   get deadLetterJob(): Prisma.DeadLetterJobDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.subscriptionPayment`: Exposes CRUD operations for the **SubscriptionPayment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SubscriptionPayments
+    * const subscriptionPayments = await prisma.subscriptionPayment.findMany()
+    * ```
+    */
+  get subscriptionPayment(): Prisma.SubscriptionPaymentDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1011,7 +1026,8 @@ export namespace Prisma {
     Order: 'Order',
     PaymentProof: 'PaymentProof',
     Waitlist: 'Waitlist',
-    DeadLetterJob: 'DeadLetterJob'
+    DeadLetterJob: 'DeadLetterJob',
+    SubscriptionPayment: 'SubscriptionPayment'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1030,7 +1046,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "messageOut" | "liveSession" | "liveItem" | "reservation" | "order" | "paymentProof" | "waitlist" | "deadLetterJob"
+      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "messageOut" | "liveSession" | "liveItem" | "reservation" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "subscriptionPayment"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2662,6 +2678,80 @@ export namespace Prisma {
           }
         }
       }
+      SubscriptionPayment: {
+        payload: Prisma.$SubscriptionPaymentPayload<ExtArgs>
+        fields: Prisma.SubscriptionPaymentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SubscriptionPaymentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPaymentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SubscriptionPaymentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPaymentPayload>
+          }
+          findFirst: {
+            args: Prisma.SubscriptionPaymentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPaymentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SubscriptionPaymentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPaymentPayload>
+          }
+          findMany: {
+            args: Prisma.SubscriptionPaymentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPaymentPayload>[]
+          }
+          create: {
+            args: Prisma.SubscriptionPaymentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPaymentPayload>
+          }
+          createMany: {
+            args: Prisma.SubscriptionPaymentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SubscriptionPaymentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPaymentPayload>[]
+          }
+          delete: {
+            args: Prisma.SubscriptionPaymentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPaymentPayload>
+          }
+          update: {
+            args: Prisma.SubscriptionPaymentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPaymentPayload>
+          }
+          deleteMany: {
+            args: Prisma.SubscriptionPaymentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SubscriptionPaymentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SubscriptionPaymentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPaymentPayload>[]
+          }
+          upsert: {
+            args: Prisma.SubscriptionPaymentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPaymentPayload>
+          }
+          aggregate: {
+            args: Prisma.SubscriptionPaymentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSubscriptionPayment>
+          }
+          groupBy: {
+            args: Prisma.SubscriptionPaymentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SubscriptionPaymentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SubscriptionPaymentCountArgs<ExtArgs>
+            result: $Utils.Optional<SubscriptionPaymentCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2780,6 +2870,7 @@ export namespace Prisma {
     paymentProof?: PaymentProofOmit
     waitlist?: WaitlistOmit
     deadLetterJob?: DeadLetterJobOmit
+    subscriptionPayment?: SubscriptionPaymentOmit
   }
 
   /* Types for Logging */
@@ -2877,6 +2968,7 @@ export namespace Prisma {
     waitlists: number
     orders: number
     paymentProofs: number
+    subscriptionPayments: number
   }
 
   export type TenantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2897,6 +2989,7 @@ export namespace Prisma {
     waitlists?: boolean | TenantCountOutputTypeCountWaitlistsArgs
     orders?: boolean | TenantCountOutputTypeCountOrdersArgs
     paymentProofs?: boolean | TenantCountOutputTypeCountPaymentProofsArgs
+    subscriptionPayments?: boolean | TenantCountOutputTypeCountSubscriptionPaymentsArgs
   }
 
   // Custom InputTypes
@@ -3027,6 +3120,13 @@ export namespace Prisma {
    */
   export type TenantCountOutputTypeCountPaymentProofsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaymentProofWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountSubscriptionPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SubscriptionPaymentWhereInput
   }
 
 
@@ -3213,8 +3313,24 @@ export namespace Prisma {
 
   export type AggregateTenant = {
     _count: TenantCountAggregateOutputType | null
+    _avg: TenantAvgAggregateOutputType | null
+    _sum: TenantSumAggregateOutputType | null
     _min: TenantMinAggregateOutputType | null
     _max: TenantMaxAggregateOutputType | null
+  }
+
+  export type TenantAvgAggregateOutputType = {
+    maxConfirmedOrdersPerMonth: number | null
+    maxProofsPerMonth: number | null
+    maxAgents: number | null
+    overagePerOrderCents: number | null
+  }
+
+  export type TenantSumAggregateOutputType = {
+    maxConfirmedOrdersPerMonth: number | null
+    maxProofsPerMonth: number | null
+    maxAgents: number | null
+    overagePerOrderCents: number | null
   }
 
   export type TenantMinAggregateOutputType = {
@@ -3224,6 +3340,26 @@ export namespace Prisma {
     requireDeposit: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
+    subscriptionPlan: string | null
+    subscriptionStatus: string | null
+    subscriptionExpiresAt: Date | null
+    cycleStartedAt: Date | null
+    paystackCustomerCode: string | null
+    paystackSubscriptionCode: string | null
+    paystackEmailToken: string | null
+    paystackAuthorizationCode: string | null
+    maxConfirmedOrdersPerMonth: number | null
+    maxProofsPerMonth: number | null
+    maxAgents: number | null
+    overagePerOrderCents: number | null
+    hasExportCsv: boolean | null
+    hasAdvancedExports: boolean | null
+    hasNotificationsOutside24h: boolean | null
+    hasDepositRecommended: boolean | null
+    hasAdvancedFilters: boolean | null
+    hasPrioritySupport: boolean | null
+    showBranding: boolean | null
+    showUpgradeBanner: boolean | null
   }
 
   export type TenantMaxAggregateOutputType = {
@@ -3233,6 +3369,26 @@ export namespace Prisma {
     requireDeposit: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
+    subscriptionPlan: string | null
+    subscriptionStatus: string | null
+    subscriptionExpiresAt: Date | null
+    cycleStartedAt: Date | null
+    paystackCustomerCode: string | null
+    paystackSubscriptionCode: string | null
+    paystackEmailToken: string | null
+    paystackAuthorizationCode: string | null
+    maxConfirmedOrdersPerMonth: number | null
+    maxProofsPerMonth: number | null
+    maxAgents: number | null
+    overagePerOrderCents: number | null
+    hasExportCsv: boolean | null
+    hasAdvancedExports: boolean | null
+    hasNotificationsOutside24h: boolean | null
+    hasDepositRecommended: boolean | null
+    hasAdvancedFilters: boolean | null
+    hasPrioritySupport: boolean | null
+    showBranding: boolean | null
+    showUpgradeBanner: boolean | null
   }
 
   export type TenantCountAggregateOutputType = {
@@ -3242,9 +3398,43 @@ export namespace Prisma {
     requireDeposit: number
     createdAt: number
     updatedAt: number
+    subscriptionPlan: number
+    subscriptionStatus: number
+    subscriptionExpiresAt: number
+    cycleStartedAt: number
+    paystackCustomerCode: number
+    paystackSubscriptionCode: number
+    paystackEmailToken: number
+    paystackAuthorizationCode: number
+    maxConfirmedOrdersPerMonth: number
+    maxProofsPerMonth: number
+    maxAgents: number
+    overagePerOrderCents: number
+    hasExportCsv: number
+    hasAdvancedExports: number
+    hasNotificationsOutside24h: number
+    hasDepositRecommended: number
+    hasAdvancedFilters: number
+    hasPrioritySupport: number
+    showBranding: number
+    showUpgradeBanner: number
     _all: number
   }
 
+
+  export type TenantAvgAggregateInputType = {
+    maxConfirmedOrdersPerMonth?: true
+    maxProofsPerMonth?: true
+    maxAgents?: true
+    overagePerOrderCents?: true
+  }
+
+  export type TenantSumAggregateInputType = {
+    maxConfirmedOrdersPerMonth?: true
+    maxProofsPerMonth?: true
+    maxAgents?: true
+    overagePerOrderCents?: true
+  }
 
   export type TenantMinAggregateInputType = {
     id?: true
@@ -3253,6 +3443,26 @@ export namespace Prisma {
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
+    subscriptionPlan?: true
+    subscriptionStatus?: true
+    subscriptionExpiresAt?: true
+    cycleStartedAt?: true
+    paystackCustomerCode?: true
+    paystackSubscriptionCode?: true
+    paystackEmailToken?: true
+    paystackAuthorizationCode?: true
+    maxConfirmedOrdersPerMonth?: true
+    maxProofsPerMonth?: true
+    maxAgents?: true
+    overagePerOrderCents?: true
+    hasExportCsv?: true
+    hasAdvancedExports?: true
+    hasNotificationsOutside24h?: true
+    hasDepositRecommended?: true
+    hasAdvancedFilters?: true
+    hasPrioritySupport?: true
+    showBranding?: true
+    showUpgradeBanner?: true
   }
 
   export type TenantMaxAggregateInputType = {
@@ -3262,6 +3472,26 @@ export namespace Prisma {
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
+    subscriptionPlan?: true
+    subscriptionStatus?: true
+    subscriptionExpiresAt?: true
+    cycleStartedAt?: true
+    paystackCustomerCode?: true
+    paystackSubscriptionCode?: true
+    paystackEmailToken?: true
+    paystackAuthorizationCode?: true
+    maxConfirmedOrdersPerMonth?: true
+    maxProofsPerMonth?: true
+    maxAgents?: true
+    overagePerOrderCents?: true
+    hasExportCsv?: true
+    hasAdvancedExports?: true
+    hasNotificationsOutside24h?: true
+    hasDepositRecommended?: true
+    hasAdvancedFilters?: true
+    hasPrioritySupport?: true
+    showBranding?: true
+    showUpgradeBanner?: true
   }
 
   export type TenantCountAggregateInputType = {
@@ -3271,6 +3501,26 @@ export namespace Prisma {
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
+    subscriptionPlan?: true
+    subscriptionStatus?: true
+    subscriptionExpiresAt?: true
+    cycleStartedAt?: true
+    paystackCustomerCode?: true
+    paystackSubscriptionCode?: true
+    paystackEmailToken?: true
+    paystackAuthorizationCode?: true
+    maxConfirmedOrdersPerMonth?: true
+    maxProofsPerMonth?: true
+    maxAgents?: true
+    overagePerOrderCents?: true
+    hasExportCsv?: true
+    hasAdvancedExports?: true
+    hasNotificationsOutside24h?: true
+    hasDepositRecommended?: true
+    hasAdvancedFilters?: true
+    hasPrioritySupport?: true
+    showBranding?: true
+    showUpgradeBanner?: true
     _all?: true
   }
 
@@ -3312,6 +3562,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: TenantAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TenantSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: TenantMinAggregateInputType
@@ -3342,6 +3604,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: TenantCountAggregateInputType | true
+    _avg?: TenantAvgAggregateInputType
+    _sum?: TenantSumAggregateInputType
     _min?: TenantMinAggregateInputType
     _max?: TenantMaxAggregateInputType
   }
@@ -3353,7 +3617,29 @@ export namespace Prisma {
     requireDeposit: boolean
     createdAt: Date
     updatedAt: Date
+    subscriptionPlan: string
+    subscriptionStatus: string
+    subscriptionExpiresAt: Date | null
+    cycleStartedAt: Date | null
+    paystackCustomerCode: string | null
+    paystackSubscriptionCode: string | null
+    paystackEmailToken: string | null
+    paystackAuthorizationCode: string | null
+    maxConfirmedOrdersPerMonth: number
+    maxProofsPerMonth: number
+    maxAgents: number
+    overagePerOrderCents: number
+    hasExportCsv: boolean
+    hasAdvancedExports: boolean
+    hasNotificationsOutside24h: boolean
+    hasDepositRecommended: boolean
+    hasAdvancedFilters: boolean
+    hasPrioritySupport: boolean
+    showBranding: boolean
+    showUpgradeBanner: boolean
     _count: TenantCountAggregateOutputType | null
+    _avg: TenantAvgAggregateOutputType | null
+    _sum: TenantSumAggregateOutputType | null
     _min: TenantMinAggregateOutputType | null
     _max: TenantMaxAggregateOutputType | null
   }
@@ -3379,6 +3665,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    subscriptionPlan?: boolean
+    subscriptionStatus?: boolean
+    subscriptionExpiresAt?: boolean
+    cycleStartedAt?: boolean
+    paystackCustomerCode?: boolean
+    paystackSubscriptionCode?: boolean
+    paystackEmailToken?: boolean
+    paystackAuthorizationCode?: boolean
+    maxConfirmedOrdersPerMonth?: boolean
+    maxProofsPerMonth?: boolean
+    maxAgents?: boolean
+    overagePerOrderCents?: boolean
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: boolean | Tenant$usersArgs<ExtArgs>
     categoryPrices?: boolean | Tenant$categoryPricesArgs<ExtArgs>
     deliveryZones?: boolean | Tenant$deliveryZonesArgs<ExtArgs>
@@ -3396,6 +3702,7 @@ export namespace Prisma {
     waitlists?: boolean | Tenant$waitlistsArgs<ExtArgs>
     orders?: boolean | Tenant$ordersArgs<ExtArgs>
     paymentProofs?: boolean | Tenant$paymentProofsArgs<ExtArgs>
+    subscriptionPayments?: boolean | Tenant$subscriptionPaymentsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
@@ -3406,6 +3713,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    subscriptionPlan?: boolean
+    subscriptionStatus?: boolean
+    subscriptionExpiresAt?: boolean
+    cycleStartedAt?: boolean
+    paystackCustomerCode?: boolean
+    paystackSubscriptionCode?: boolean
+    paystackEmailToken?: boolean
+    paystackAuthorizationCode?: boolean
+    maxConfirmedOrdersPerMonth?: boolean
+    maxProofsPerMonth?: boolean
+    maxAgents?: boolean
+    overagePerOrderCents?: boolean
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3415,6 +3742,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    subscriptionPlan?: boolean
+    subscriptionStatus?: boolean
+    subscriptionExpiresAt?: boolean
+    cycleStartedAt?: boolean
+    paystackCustomerCode?: boolean
+    paystackSubscriptionCode?: boolean
+    paystackEmailToken?: boolean
+    paystackAuthorizationCode?: boolean
+    maxConfirmedOrdersPerMonth?: boolean
+    maxProofsPerMonth?: boolean
+    maxAgents?: boolean
+    overagePerOrderCents?: boolean
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectScalar = {
@@ -3424,9 +3771,29 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    subscriptionPlan?: boolean
+    subscriptionStatus?: boolean
+    subscriptionExpiresAt?: boolean
+    cycleStartedAt?: boolean
+    paystackCustomerCode?: boolean
+    paystackSubscriptionCode?: boolean
+    paystackEmailToken?: boolean
+    paystackAuthorizationCode?: boolean
+    maxConfirmedOrdersPerMonth?: boolean
+    maxProofsPerMonth?: boolean
+    maxAgents?: boolean
+    overagePerOrderCents?: boolean
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "whatsappPhoneNumber" | "requireDeposit" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "whatsappPhoneNumber" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     categoryPrices?: boolean | Tenant$categoryPricesArgs<ExtArgs>
@@ -3445,6 +3812,7 @@ export namespace Prisma {
     waitlists?: boolean | Tenant$waitlistsArgs<ExtArgs>
     orders?: boolean | Tenant$ordersArgs<ExtArgs>
     paymentProofs?: boolean | Tenant$paymentProofsArgs<ExtArgs>
+    subscriptionPayments?: boolean | Tenant$subscriptionPaymentsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TenantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3470,6 +3838,7 @@ export namespace Prisma {
       waitlists: Prisma.$WaitlistPayload<ExtArgs>[]
       orders: Prisma.$OrderPayload<ExtArgs>[]
       paymentProofs: Prisma.$PaymentProofPayload<ExtArgs>[]
+      subscriptionPayments: Prisma.$SubscriptionPaymentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3478,6 +3847,26 @@ export namespace Prisma {
       requireDeposit: boolean
       createdAt: Date
       updatedAt: Date
+      subscriptionPlan: string
+      subscriptionStatus: string
+      subscriptionExpiresAt: Date | null
+      cycleStartedAt: Date | null
+      paystackCustomerCode: string | null
+      paystackSubscriptionCode: string | null
+      paystackEmailToken: string | null
+      paystackAuthorizationCode: string | null
+      maxConfirmedOrdersPerMonth: number
+      maxProofsPerMonth: number
+      maxAgents: number
+      overagePerOrderCents: number
+      hasExportCsv: boolean
+      hasAdvancedExports: boolean
+      hasNotificationsOutside24h: boolean
+      hasDepositRecommended: boolean
+      hasAdvancedFilters: boolean
+      hasPrioritySupport: boolean
+      showBranding: boolean
+      showUpgradeBanner: boolean
     }, ExtArgs["result"]["tenant"]>
     composites: {}
   }
@@ -3889,6 +4278,7 @@ export namespace Prisma {
     waitlists<T extends Tenant$waitlistsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$waitlistsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orders<T extends Tenant$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     paymentProofs<T extends Tenant$paymentProofsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$paymentProofsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    subscriptionPayments<T extends Tenant$subscriptionPaymentsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$subscriptionPaymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3924,6 +4314,26 @@ export namespace Prisma {
     readonly requireDeposit: FieldRef<"Tenant", 'Boolean'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
+    readonly subscriptionPlan: FieldRef<"Tenant", 'String'>
+    readonly subscriptionStatus: FieldRef<"Tenant", 'String'>
+    readonly subscriptionExpiresAt: FieldRef<"Tenant", 'DateTime'>
+    readonly cycleStartedAt: FieldRef<"Tenant", 'DateTime'>
+    readonly paystackCustomerCode: FieldRef<"Tenant", 'String'>
+    readonly paystackSubscriptionCode: FieldRef<"Tenant", 'String'>
+    readonly paystackEmailToken: FieldRef<"Tenant", 'String'>
+    readonly paystackAuthorizationCode: FieldRef<"Tenant", 'String'>
+    readonly maxConfirmedOrdersPerMonth: FieldRef<"Tenant", 'Int'>
+    readonly maxProofsPerMonth: FieldRef<"Tenant", 'Int'>
+    readonly maxAgents: FieldRef<"Tenant", 'Int'>
+    readonly overagePerOrderCents: FieldRef<"Tenant", 'Int'>
+    readonly hasExportCsv: FieldRef<"Tenant", 'Boolean'>
+    readonly hasAdvancedExports: FieldRef<"Tenant", 'Boolean'>
+    readonly hasNotificationsOutside24h: FieldRef<"Tenant", 'Boolean'>
+    readonly hasDepositRecommended: FieldRef<"Tenant", 'Boolean'>
+    readonly hasAdvancedFilters: FieldRef<"Tenant", 'Boolean'>
+    readonly hasPrioritySupport: FieldRef<"Tenant", 'Boolean'>
+    readonly showBranding: FieldRef<"Tenant", 'Boolean'>
+    readonly showUpgradeBanner: FieldRef<"Tenant", 'Boolean'>
   }
     
 
@@ -4717,6 +5127,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PaymentProofScalarFieldEnum | PaymentProofScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.subscriptionPayments
+   */
+  export type Tenant$subscriptionPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentInclude<ExtArgs> | null
+    where?: SubscriptionPaymentWhereInput
+    orderBy?: SubscriptionPaymentOrderByWithRelationInput | SubscriptionPaymentOrderByWithRelationInput[]
+    cursor?: SubscriptionPaymentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SubscriptionPaymentScalarFieldEnum | SubscriptionPaymentScalarFieldEnum[]
   }
 
   /**
@@ -28225,6 +28659,1207 @@ export namespace Prisma {
 
 
   /**
+   * Model SubscriptionPayment
+   */
+
+  export type AggregateSubscriptionPayment = {
+    _count: SubscriptionPaymentCountAggregateOutputType | null
+    _avg: SubscriptionPaymentAvgAggregateOutputType | null
+    _sum: SubscriptionPaymentSumAggregateOutputType | null
+    _min: SubscriptionPaymentMinAggregateOutputType | null
+    _max: SubscriptionPaymentMaxAggregateOutputType | null
+  }
+
+  export type SubscriptionPaymentAvgAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type SubscriptionPaymentSumAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type SubscriptionPaymentMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    paystackReference: string | null
+    type: string | null
+    plan: string | null
+    amount: number | null
+    currency: string | null
+    status: string | null
+    channel: string | null
+    cardLast4: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SubscriptionPaymentMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    paystackReference: string | null
+    type: string | null
+    plan: string | null
+    amount: number | null
+    currency: string | null
+    status: string | null
+    channel: string | null
+    cardLast4: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SubscriptionPaymentCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    paystackReference: number
+    type: number
+    plan: number
+    amount: number
+    currency: number
+    status: number
+    channel: number
+    cardLast4: number
+    overageDetails: number
+    metadata: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SubscriptionPaymentAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type SubscriptionPaymentSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type SubscriptionPaymentMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    paystackReference?: true
+    type?: true
+    plan?: true
+    amount?: true
+    currency?: true
+    status?: true
+    channel?: true
+    cardLast4?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SubscriptionPaymentMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    paystackReference?: true
+    type?: true
+    plan?: true
+    amount?: true
+    currency?: true
+    status?: true
+    channel?: true
+    cardLast4?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SubscriptionPaymentCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    paystackReference?: true
+    type?: true
+    plan?: true
+    amount?: true
+    currency?: true
+    status?: true
+    channel?: true
+    cardLast4?: true
+    overageDetails?: true
+    metadata?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SubscriptionPaymentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SubscriptionPayment to aggregate.
+     */
+    where?: SubscriptionPaymentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubscriptionPayments to fetch.
+     */
+    orderBy?: SubscriptionPaymentOrderByWithRelationInput | SubscriptionPaymentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SubscriptionPaymentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubscriptionPayments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubscriptionPayments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SubscriptionPayments
+    **/
+    _count?: true | SubscriptionPaymentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SubscriptionPaymentAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SubscriptionPaymentSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SubscriptionPaymentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SubscriptionPaymentMaxAggregateInputType
+  }
+
+  export type GetSubscriptionPaymentAggregateType<T extends SubscriptionPaymentAggregateArgs> = {
+        [P in keyof T & keyof AggregateSubscriptionPayment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSubscriptionPayment[P]>
+      : GetScalarType<T[P], AggregateSubscriptionPayment[P]>
+  }
+
+
+
+
+  export type SubscriptionPaymentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SubscriptionPaymentWhereInput
+    orderBy?: SubscriptionPaymentOrderByWithAggregationInput | SubscriptionPaymentOrderByWithAggregationInput[]
+    by: SubscriptionPaymentScalarFieldEnum[] | SubscriptionPaymentScalarFieldEnum
+    having?: SubscriptionPaymentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SubscriptionPaymentCountAggregateInputType | true
+    _avg?: SubscriptionPaymentAvgAggregateInputType
+    _sum?: SubscriptionPaymentSumAggregateInputType
+    _min?: SubscriptionPaymentMinAggregateInputType
+    _max?: SubscriptionPaymentMaxAggregateInputType
+  }
+
+  export type SubscriptionPaymentGroupByOutputType = {
+    id: string
+    tenantId: string
+    paystackReference: string
+    type: string
+    plan: string | null
+    amount: number
+    currency: string
+    status: string
+    channel: string | null
+    cardLast4: string | null
+    overageDetails: JsonValue | null
+    metadata: JsonValue | null
+    createdAt: Date
+    updatedAt: Date
+    _count: SubscriptionPaymentCountAggregateOutputType | null
+    _avg: SubscriptionPaymentAvgAggregateOutputType | null
+    _sum: SubscriptionPaymentSumAggregateOutputType | null
+    _min: SubscriptionPaymentMinAggregateOutputType | null
+    _max: SubscriptionPaymentMaxAggregateOutputType | null
+  }
+
+  type GetSubscriptionPaymentGroupByPayload<T extends SubscriptionPaymentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SubscriptionPaymentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SubscriptionPaymentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SubscriptionPaymentGroupByOutputType[P]>
+            : GetScalarType<T[P], SubscriptionPaymentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SubscriptionPaymentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    paystackReference?: boolean
+    type?: boolean
+    plan?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    channel?: boolean
+    cardLast4?: boolean
+    overageDetails?: boolean
+    metadata?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subscriptionPayment"]>
+
+  export type SubscriptionPaymentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    paystackReference?: boolean
+    type?: boolean
+    plan?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    channel?: boolean
+    cardLast4?: boolean
+    overageDetails?: boolean
+    metadata?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subscriptionPayment"]>
+
+  export type SubscriptionPaymentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    paystackReference?: boolean
+    type?: boolean
+    plan?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    channel?: boolean
+    cardLast4?: boolean
+    overageDetails?: boolean
+    metadata?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subscriptionPayment"]>
+
+  export type SubscriptionPaymentSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    paystackReference?: boolean
+    type?: boolean
+    plan?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    channel?: boolean
+    cardLast4?: boolean
+    overageDetails?: boolean
+    metadata?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SubscriptionPaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "paystackReference" | "type" | "plan" | "amount" | "currency" | "status" | "channel" | "cardLast4" | "overageDetails" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["subscriptionPayment"]>
+  export type SubscriptionPaymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type SubscriptionPaymentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type SubscriptionPaymentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+
+  export type $SubscriptionPaymentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SubscriptionPayment"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      paystackReference: string
+      type: string
+      plan: string | null
+      amount: number
+      currency: string
+      status: string
+      channel: string | null
+      cardLast4: string | null
+      overageDetails: Prisma.JsonValue | null
+      metadata: Prisma.JsonValue | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["subscriptionPayment"]>
+    composites: {}
+  }
+
+  type SubscriptionPaymentGetPayload<S extends boolean | null | undefined | SubscriptionPaymentDefaultArgs> = $Result.GetResult<Prisma.$SubscriptionPaymentPayload, S>
+
+  type SubscriptionPaymentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SubscriptionPaymentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SubscriptionPaymentCountAggregateInputType | true
+    }
+
+  export interface SubscriptionPaymentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SubscriptionPayment'], meta: { name: 'SubscriptionPayment' } }
+    /**
+     * Find zero or one SubscriptionPayment that matches the filter.
+     * @param {SubscriptionPaymentFindUniqueArgs} args - Arguments to find a SubscriptionPayment
+     * @example
+     * // Get one SubscriptionPayment
+     * const subscriptionPayment = await prisma.subscriptionPayment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SubscriptionPaymentFindUniqueArgs>(args: SelectSubset<T, SubscriptionPaymentFindUniqueArgs<ExtArgs>>): Prisma__SubscriptionPaymentClient<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SubscriptionPayment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SubscriptionPaymentFindUniqueOrThrowArgs} args - Arguments to find a SubscriptionPayment
+     * @example
+     * // Get one SubscriptionPayment
+     * const subscriptionPayment = await prisma.subscriptionPayment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SubscriptionPaymentFindUniqueOrThrowArgs>(args: SelectSubset<T, SubscriptionPaymentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SubscriptionPaymentClient<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SubscriptionPayment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPaymentFindFirstArgs} args - Arguments to find a SubscriptionPayment
+     * @example
+     * // Get one SubscriptionPayment
+     * const subscriptionPayment = await prisma.subscriptionPayment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SubscriptionPaymentFindFirstArgs>(args?: SelectSubset<T, SubscriptionPaymentFindFirstArgs<ExtArgs>>): Prisma__SubscriptionPaymentClient<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SubscriptionPayment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPaymentFindFirstOrThrowArgs} args - Arguments to find a SubscriptionPayment
+     * @example
+     * // Get one SubscriptionPayment
+     * const subscriptionPayment = await prisma.subscriptionPayment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SubscriptionPaymentFindFirstOrThrowArgs>(args?: SelectSubset<T, SubscriptionPaymentFindFirstOrThrowArgs<ExtArgs>>): Prisma__SubscriptionPaymentClient<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SubscriptionPayments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPaymentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SubscriptionPayments
+     * const subscriptionPayments = await prisma.subscriptionPayment.findMany()
+     * 
+     * // Get first 10 SubscriptionPayments
+     * const subscriptionPayments = await prisma.subscriptionPayment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const subscriptionPaymentWithIdOnly = await prisma.subscriptionPayment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SubscriptionPaymentFindManyArgs>(args?: SelectSubset<T, SubscriptionPaymentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SubscriptionPayment.
+     * @param {SubscriptionPaymentCreateArgs} args - Arguments to create a SubscriptionPayment.
+     * @example
+     * // Create one SubscriptionPayment
+     * const SubscriptionPayment = await prisma.subscriptionPayment.create({
+     *   data: {
+     *     // ... data to create a SubscriptionPayment
+     *   }
+     * })
+     * 
+     */
+    create<T extends SubscriptionPaymentCreateArgs>(args: SelectSubset<T, SubscriptionPaymentCreateArgs<ExtArgs>>): Prisma__SubscriptionPaymentClient<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SubscriptionPayments.
+     * @param {SubscriptionPaymentCreateManyArgs} args - Arguments to create many SubscriptionPayments.
+     * @example
+     * // Create many SubscriptionPayments
+     * const subscriptionPayment = await prisma.subscriptionPayment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SubscriptionPaymentCreateManyArgs>(args?: SelectSubset<T, SubscriptionPaymentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SubscriptionPayments and returns the data saved in the database.
+     * @param {SubscriptionPaymentCreateManyAndReturnArgs} args - Arguments to create many SubscriptionPayments.
+     * @example
+     * // Create many SubscriptionPayments
+     * const subscriptionPayment = await prisma.subscriptionPayment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SubscriptionPayments and only return the `id`
+     * const subscriptionPaymentWithIdOnly = await prisma.subscriptionPayment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SubscriptionPaymentCreateManyAndReturnArgs>(args?: SelectSubset<T, SubscriptionPaymentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SubscriptionPayment.
+     * @param {SubscriptionPaymentDeleteArgs} args - Arguments to delete one SubscriptionPayment.
+     * @example
+     * // Delete one SubscriptionPayment
+     * const SubscriptionPayment = await prisma.subscriptionPayment.delete({
+     *   where: {
+     *     // ... filter to delete one SubscriptionPayment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SubscriptionPaymentDeleteArgs>(args: SelectSubset<T, SubscriptionPaymentDeleteArgs<ExtArgs>>): Prisma__SubscriptionPaymentClient<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SubscriptionPayment.
+     * @param {SubscriptionPaymentUpdateArgs} args - Arguments to update one SubscriptionPayment.
+     * @example
+     * // Update one SubscriptionPayment
+     * const subscriptionPayment = await prisma.subscriptionPayment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SubscriptionPaymentUpdateArgs>(args: SelectSubset<T, SubscriptionPaymentUpdateArgs<ExtArgs>>): Prisma__SubscriptionPaymentClient<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SubscriptionPayments.
+     * @param {SubscriptionPaymentDeleteManyArgs} args - Arguments to filter SubscriptionPayments to delete.
+     * @example
+     * // Delete a few SubscriptionPayments
+     * const { count } = await prisma.subscriptionPayment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SubscriptionPaymentDeleteManyArgs>(args?: SelectSubset<T, SubscriptionPaymentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SubscriptionPayments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPaymentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SubscriptionPayments
+     * const subscriptionPayment = await prisma.subscriptionPayment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SubscriptionPaymentUpdateManyArgs>(args: SelectSubset<T, SubscriptionPaymentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SubscriptionPayments and returns the data updated in the database.
+     * @param {SubscriptionPaymentUpdateManyAndReturnArgs} args - Arguments to update many SubscriptionPayments.
+     * @example
+     * // Update many SubscriptionPayments
+     * const subscriptionPayment = await prisma.subscriptionPayment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SubscriptionPayments and only return the `id`
+     * const subscriptionPaymentWithIdOnly = await prisma.subscriptionPayment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SubscriptionPaymentUpdateManyAndReturnArgs>(args: SelectSubset<T, SubscriptionPaymentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SubscriptionPayment.
+     * @param {SubscriptionPaymentUpsertArgs} args - Arguments to update or create a SubscriptionPayment.
+     * @example
+     * // Update or create a SubscriptionPayment
+     * const subscriptionPayment = await prisma.subscriptionPayment.upsert({
+     *   create: {
+     *     // ... data to create a SubscriptionPayment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SubscriptionPayment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SubscriptionPaymentUpsertArgs>(args: SelectSubset<T, SubscriptionPaymentUpsertArgs<ExtArgs>>): Prisma__SubscriptionPaymentClient<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SubscriptionPayments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPaymentCountArgs} args - Arguments to filter SubscriptionPayments to count.
+     * @example
+     * // Count the number of SubscriptionPayments
+     * const count = await prisma.subscriptionPayment.count({
+     *   where: {
+     *     // ... the filter for the SubscriptionPayments we want to count
+     *   }
+     * })
+    **/
+    count<T extends SubscriptionPaymentCountArgs>(
+      args?: Subset<T, SubscriptionPaymentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SubscriptionPaymentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SubscriptionPayment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPaymentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SubscriptionPaymentAggregateArgs>(args: Subset<T, SubscriptionPaymentAggregateArgs>): Prisma.PrismaPromise<GetSubscriptionPaymentAggregateType<T>>
+
+    /**
+     * Group by SubscriptionPayment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionPaymentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SubscriptionPaymentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SubscriptionPaymentGroupByArgs['orderBy'] }
+        : { orderBy?: SubscriptionPaymentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SubscriptionPaymentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSubscriptionPaymentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SubscriptionPayment model
+   */
+  readonly fields: SubscriptionPaymentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SubscriptionPayment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SubscriptionPaymentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SubscriptionPayment model
+   */
+  interface SubscriptionPaymentFieldRefs {
+    readonly id: FieldRef<"SubscriptionPayment", 'String'>
+    readonly tenantId: FieldRef<"SubscriptionPayment", 'String'>
+    readonly paystackReference: FieldRef<"SubscriptionPayment", 'String'>
+    readonly type: FieldRef<"SubscriptionPayment", 'String'>
+    readonly plan: FieldRef<"SubscriptionPayment", 'String'>
+    readonly amount: FieldRef<"SubscriptionPayment", 'Int'>
+    readonly currency: FieldRef<"SubscriptionPayment", 'String'>
+    readonly status: FieldRef<"SubscriptionPayment", 'String'>
+    readonly channel: FieldRef<"SubscriptionPayment", 'String'>
+    readonly cardLast4: FieldRef<"SubscriptionPayment", 'String'>
+    readonly overageDetails: FieldRef<"SubscriptionPayment", 'Json'>
+    readonly metadata: FieldRef<"SubscriptionPayment", 'Json'>
+    readonly createdAt: FieldRef<"SubscriptionPayment", 'DateTime'>
+    readonly updatedAt: FieldRef<"SubscriptionPayment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SubscriptionPayment findUnique
+   */
+  export type SubscriptionPaymentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentInclude<ExtArgs> | null
+    /**
+     * Filter, which SubscriptionPayment to fetch.
+     */
+    where: SubscriptionPaymentWhereUniqueInput
+  }
+
+  /**
+   * SubscriptionPayment findUniqueOrThrow
+   */
+  export type SubscriptionPaymentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentInclude<ExtArgs> | null
+    /**
+     * Filter, which SubscriptionPayment to fetch.
+     */
+    where: SubscriptionPaymentWhereUniqueInput
+  }
+
+  /**
+   * SubscriptionPayment findFirst
+   */
+  export type SubscriptionPaymentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentInclude<ExtArgs> | null
+    /**
+     * Filter, which SubscriptionPayment to fetch.
+     */
+    where?: SubscriptionPaymentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubscriptionPayments to fetch.
+     */
+    orderBy?: SubscriptionPaymentOrderByWithRelationInput | SubscriptionPaymentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SubscriptionPayments.
+     */
+    cursor?: SubscriptionPaymentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubscriptionPayments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubscriptionPayments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SubscriptionPayments.
+     */
+    distinct?: SubscriptionPaymentScalarFieldEnum | SubscriptionPaymentScalarFieldEnum[]
+  }
+
+  /**
+   * SubscriptionPayment findFirstOrThrow
+   */
+  export type SubscriptionPaymentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentInclude<ExtArgs> | null
+    /**
+     * Filter, which SubscriptionPayment to fetch.
+     */
+    where?: SubscriptionPaymentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubscriptionPayments to fetch.
+     */
+    orderBy?: SubscriptionPaymentOrderByWithRelationInput | SubscriptionPaymentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SubscriptionPayments.
+     */
+    cursor?: SubscriptionPaymentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubscriptionPayments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubscriptionPayments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SubscriptionPayments.
+     */
+    distinct?: SubscriptionPaymentScalarFieldEnum | SubscriptionPaymentScalarFieldEnum[]
+  }
+
+  /**
+   * SubscriptionPayment findMany
+   */
+  export type SubscriptionPaymentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentInclude<ExtArgs> | null
+    /**
+     * Filter, which SubscriptionPayments to fetch.
+     */
+    where?: SubscriptionPaymentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubscriptionPayments to fetch.
+     */
+    orderBy?: SubscriptionPaymentOrderByWithRelationInput | SubscriptionPaymentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SubscriptionPayments.
+     */
+    cursor?: SubscriptionPaymentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubscriptionPayments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubscriptionPayments.
+     */
+    skip?: number
+    distinct?: SubscriptionPaymentScalarFieldEnum | SubscriptionPaymentScalarFieldEnum[]
+  }
+
+  /**
+   * SubscriptionPayment create
+   */
+  export type SubscriptionPaymentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SubscriptionPayment.
+     */
+    data: XOR<SubscriptionPaymentCreateInput, SubscriptionPaymentUncheckedCreateInput>
+  }
+
+  /**
+   * SubscriptionPayment createMany
+   */
+  export type SubscriptionPaymentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SubscriptionPayments.
+     */
+    data: SubscriptionPaymentCreateManyInput | SubscriptionPaymentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SubscriptionPayment createManyAndReturn
+   */
+  export type SubscriptionPaymentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * The data used to create many SubscriptionPayments.
+     */
+    data: SubscriptionPaymentCreateManyInput | SubscriptionPaymentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SubscriptionPayment update
+   */
+  export type SubscriptionPaymentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SubscriptionPayment.
+     */
+    data: XOR<SubscriptionPaymentUpdateInput, SubscriptionPaymentUncheckedUpdateInput>
+    /**
+     * Choose, which SubscriptionPayment to update.
+     */
+    where: SubscriptionPaymentWhereUniqueInput
+  }
+
+  /**
+   * SubscriptionPayment updateMany
+   */
+  export type SubscriptionPaymentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SubscriptionPayments.
+     */
+    data: XOR<SubscriptionPaymentUpdateManyMutationInput, SubscriptionPaymentUncheckedUpdateManyInput>
+    /**
+     * Filter which SubscriptionPayments to update
+     */
+    where?: SubscriptionPaymentWhereInput
+    /**
+     * Limit how many SubscriptionPayments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SubscriptionPayment updateManyAndReturn
+   */
+  export type SubscriptionPaymentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * The data used to update SubscriptionPayments.
+     */
+    data: XOR<SubscriptionPaymentUpdateManyMutationInput, SubscriptionPaymentUncheckedUpdateManyInput>
+    /**
+     * Filter which SubscriptionPayments to update
+     */
+    where?: SubscriptionPaymentWhereInput
+    /**
+     * Limit how many SubscriptionPayments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SubscriptionPayment upsert
+   */
+  export type SubscriptionPaymentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SubscriptionPayment to update in case it exists.
+     */
+    where: SubscriptionPaymentWhereUniqueInput
+    /**
+     * In case the SubscriptionPayment found by the `where` argument doesn't exist, create a new SubscriptionPayment with this data.
+     */
+    create: XOR<SubscriptionPaymentCreateInput, SubscriptionPaymentUncheckedCreateInput>
+    /**
+     * In case the SubscriptionPayment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SubscriptionPaymentUpdateInput, SubscriptionPaymentUncheckedUpdateInput>
+  }
+
+  /**
+   * SubscriptionPayment delete
+   */
+  export type SubscriptionPaymentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentInclude<ExtArgs> | null
+    /**
+     * Filter which SubscriptionPayment to delete.
+     */
+    where: SubscriptionPaymentWhereUniqueInput
+  }
+
+  /**
+   * SubscriptionPayment deleteMany
+   */
+  export type SubscriptionPaymentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SubscriptionPayments to delete
+     */
+    where?: SubscriptionPaymentWhereInput
+    /**
+     * Limit how many SubscriptionPayments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SubscriptionPayment without action
+   */
+  export type SubscriptionPaymentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubscriptionPayment
+     */
+    select?: SubscriptionPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubscriptionPayment
+     */
+    omit?: SubscriptionPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionPaymentInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -28244,7 +29879,27 @@ export namespace Prisma {
     whatsappPhoneNumber: 'whatsappPhoneNumber',
     requireDeposit: 'requireDeposit',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    subscriptionPlan: 'subscriptionPlan',
+    subscriptionStatus: 'subscriptionStatus',
+    subscriptionExpiresAt: 'subscriptionExpiresAt',
+    cycleStartedAt: 'cycleStartedAt',
+    paystackCustomerCode: 'paystackCustomerCode',
+    paystackSubscriptionCode: 'paystackSubscriptionCode',
+    paystackEmailToken: 'paystackEmailToken',
+    paystackAuthorizationCode: 'paystackAuthorizationCode',
+    maxConfirmedOrdersPerMonth: 'maxConfirmedOrdersPerMonth',
+    maxProofsPerMonth: 'maxProofsPerMonth',
+    maxAgents: 'maxAgents',
+    overagePerOrderCents: 'overagePerOrderCents',
+    hasExportCsv: 'hasExportCsv',
+    hasAdvancedExports: 'hasAdvancedExports',
+    hasNotificationsOutside24h: 'hasNotificationsOutside24h',
+    hasDepositRecommended: 'hasDepositRecommended',
+    hasAdvancedFilters: 'hasAdvancedFilters',
+    hasPrioritySupport: 'hasPrioritySupport',
+    showBranding: 'showBranding',
+    showUpgradeBanner: 'showUpgradeBanner'
   };
 
   export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
@@ -28540,6 +30195,26 @@ export namespace Prisma {
   export type DeadLetterJobScalarFieldEnum = (typeof DeadLetterJobScalarFieldEnum)[keyof typeof DeadLetterJobScalarFieldEnum]
 
 
+  export const SubscriptionPaymentScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    paystackReference: 'paystackReference',
+    type: 'type',
+    plan: 'plan',
+    amount: 'amount',
+    currency: 'currency',
+    status: 'status',
+    channel: 'channel',
+    cardLast4: 'cardLast4',
+    overageDetails: 'overageDetails',
+    metadata: 'metadata',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SubscriptionPaymentScalarFieldEnum = (typeof SubscriptionPaymentScalarFieldEnum)[keyof typeof SubscriptionPaymentScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -28553,6 +30228,14 @@ export namespace Prisma {
   };
 
   export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const QueryMode: {
@@ -28621,20 +30304,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Role'
-   */
-  export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
-    
-
-
-  /**
-   * Reference to a field of type 'Role[]'
-   */
-  export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>
-    
-
-
-  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -28645,6 +30314,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Role'
+   */
+  export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
+    
+
+
+  /**
+   * Reference to a field of type 'Role[]'
+   */
+  export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>
     
 
 
@@ -28759,6 +30442,26 @@ export namespace Prisma {
     requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
+    subscriptionPlan?: StringFilter<"Tenant"> | string
+    subscriptionStatus?: StringFilter<"Tenant"> | string
+    subscriptionExpiresAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    cycleStartedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    paystackCustomerCode?: StringNullableFilter<"Tenant"> | string | null
+    paystackSubscriptionCode?: StringNullableFilter<"Tenant"> | string | null
+    paystackEmailToken?: StringNullableFilter<"Tenant"> | string | null
+    paystackAuthorizationCode?: StringNullableFilter<"Tenant"> | string | null
+    maxConfirmedOrdersPerMonth?: IntFilter<"Tenant"> | number
+    maxProofsPerMonth?: IntFilter<"Tenant"> | number
+    maxAgents?: IntFilter<"Tenant"> | number
+    overagePerOrderCents?: IntFilter<"Tenant"> | number
+    hasExportCsv?: BoolFilter<"Tenant"> | boolean
+    hasAdvancedExports?: BoolFilter<"Tenant"> | boolean
+    hasNotificationsOutside24h?: BoolFilter<"Tenant"> | boolean
+    hasDepositRecommended?: BoolFilter<"Tenant"> | boolean
+    hasAdvancedFilters?: BoolFilter<"Tenant"> | boolean
+    hasPrioritySupport?: BoolFilter<"Tenant"> | boolean
+    showBranding?: BoolFilter<"Tenant"> | boolean
+    showUpgradeBanner?: BoolFilter<"Tenant"> | boolean
     users?: UserListRelationFilter
     categoryPrices?: CategoryPriceListRelationFilter
     deliveryZones?: DeliveryZoneListRelationFilter
@@ -28776,6 +30479,7 @@ export namespace Prisma {
     waitlists?: WaitlistListRelationFilter
     orders?: OrderListRelationFilter
     paymentProofs?: PaymentProofListRelationFilter
+    subscriptionPayments?: SubscriptionPaymentListRelationFilter
   }
 
   export type TenantOrderByWithRelationInput = {
@@ -28785,6 +30489,26 @@ export namespace Prisma {
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    subscriptionPlan?: SortOrder
+    subscriptionStatus?: SortOrder
+    subscriptionExpiresAt?: SortOrderInput | SortOrder
+    cycleStartedAt?: SortOrderInput | SortOrder
+    paystackCustomerCode?: SortOrderInput | SortOrder
+    paystackSubscriptionCode?: SortOrderInput | SortOrder
+    paystackEmailToken?: SortOrderInput | SortOrder
+    paystackAuthorizationCode?: SortOrderInput | SortOrder
+    maxConfirmedOrdersPerMonth?: SortOrder
+    maxProofsPerMonth?: SortOrder
+    maxAgents?: SortOrder
+    overagePerOrderCents?: SortOrder
+    hasExportCsv?: SortOrder
+    hasAdvancedExports?: SortOrder
+    hasNotificationsOutside24h?: SortOrder
+    hasDepositRecommended?: SortOrder
+    hasAdvancedFilters?: SortOrder
+    hasPrioritySupport?: SortOrder
+    showBranding?: SortOrder
+    showUpgradeBanner?: SortOrder
     users?: UserOrderByRelationAggregateInput
     categoryPrices?: CategoryPriceOrderByRelationAggregateInput
     deliveryZones?: DeliveryZoneOrderByRelationAggregateInput
@@ -28802,11 +30526,14 @@ export namespace Prisma {
     waitlists?: WaitlistOrderByRelationAggregateInput
     orders?: OrderOrderByRelationAggregateInput
     paymentProofs?: PaymentProofOrderByRelationAggregateInput
+    subscriptionPayments?: SubscriptionPaymentOrderByRelationAggregateInput
   }
 
   export type TenantWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     whatsappPhoneNumber?: string
+    paystackCustomerCode?: string
+    paystackSubscriptionCode?: string
     AND?: TenantWhereInput | TenantWhereInput[]
     OR?: TenantWhereInput[]
     NOT?: TenantWhereInput | TenantWhereInput[]
@@ -28814,6 +30541,24 @@ export namespace Prisma {
     requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
+    subscriptionPlan?: StringFilter<"Tenant"> | string
+    subscriptionStatus?: StringFilter<"Tenant"> | string
+    subscriptionExpiresAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    cycleStartedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    paystackEmailToken?: StringNullableFilter<"Tenant"> | string | null
+    paystackAuthorizationCode?: StringNullableFilter<"Tenant"> | string | null
+    maxConfirmedOrdersPerMonth?: IntFilter<"Tenant"> | number
+    maxProofsPerMonth?: IntFilter<"Tenant"> | number
+    maxAgents?: IntFilter<"Tenant"> | number
+    overagePerOrderCents?: IntFilter<"Tenant"> | number
+    hasExportCsv?: BoolFilter<"Tenant"> | boolean
+    hasAdvancedExports?: BoolFilter<"Tenant"> | boolean
+    hasNotificationsOutside24h?: BoolFilter<"Tenant"> | boolean
+    hasDepositRecommended?: BoolFilter<"Tenant"> | boolean
+    hasAdvancedFilters?: BoolFilter<"Tenant"> | boolean
+    hasPrioritySupport?: BoolFilter<"Tenant"> | boolean
+    showBranding?: BoolFilter<"Tenant"> | boolean
+    showUpgradeBanner?: BoolFilter<"Tenant"> | boolean
     users?: UserListRelationFilter
     categoryPrices?: CategoryPriceListRelationFilter
     deliveryZones?: DeliveryZoneListRelationFilter
@@ -28831,7 +30576,8 @@ export namespace Prisma {
     waitlists?: WaitlistListRelationFilter
     orders?: OrderListRelationFilter
     paymentProofs?: PaymentProofListRelationFilter
-  }, "id" | "whatsappPhoneNumber">
+    subscriptionPayments?: SubscriptionPaymentListRelationFilter
+  }, "id" | "whatsappPhoneNumber" | "paystackCustomerCode" | "paystackSubscriptionCode">
 
   export type TenantOrderByWithAggregationInput = {
     id?: SortOrder
@@ -28840,9 +30586,31 @@ export namespace Prisma {
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    subscriptionPlan?: SortOrder
+    subscriptionStatus?: SortOrder
+    subscriptionExpiresAt?: SortOrderInput | SortOrder
+    cycleStartedAt?: SortOrderInput | SortOrder
+    paystackCustomerCode?: SortOrderInput | SortOrder
+    paystackSubscriptionCode?: SortOrderInput | SortOrder
+    paystackEmailToken?: SortOrderInput | SortOrder
+    paystackAuthorizationCode?: SortOrderInput | SortOrder
+    maxConfirmedOrdersPerMonth?: SortOrder
+    maxProofsPerMonth?: SortOrder
+    maxAgents?: SortOrder
+    overagePerOrderCents?: SortOrder
+    hasExportCsv?: SortOrder
+    hasAdvancedExports?: SortOrder
+    hasNotificationsOutside24h?: SortOrder
+    hasDepositRecommended?: SortOrder
+    hasAdvancedFilters?: SortOrder
+    hasPrioritySupport?: SortOrder
+    showBranding?: SortOrder
+    showUpgradeBanner?: SortOrder
     _count?: TenantCountOrderByAggregateInput
+    _avg?: TenantAvgOrderByAggregateInput
     _max?: TenantMaxOrderByAggregateInput
     _min?: TenantMinOrderByAggregateInput
+    _sum?: TenantSumOrderByAggregateInput
   }
 
   export type TenantScalarWhereWithAggregatesInput = {
@@ -28855,6 +30623,26 @@ export namespace Prisma {
     requireDeposit?: BoolWithAggregatesFilter<"Tenant"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
+    subscriptionPlan?: StringWithAggregatesFilter<"Tenant"> | string
+    subscriptionStatus?: StringWithAggregatesFilter<"Tenant"> | string
+    subscriptionExpiresAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+    cycleStartedAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+    paystackCustomerCode?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    paystackSubscriptionCode?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    paystackEmailToken?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    paystackAuthorizationCode?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    maxConfirmedOrdersPerMonth?: IntWithAggregatesFilter<"Tenant"> | number
+    maxProofsPerMonth?: IntWithAggregatesFilter<"Tenant"> | number
+    maxAgents?: IntWithAggregatesFilter<"Tenant"> | number
+    overagePerOrderCents?: IntWithAggregatesFilter<"Tenant"> | number
+    hasExportCsv?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    hasAdvancedExports?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    hasNotificationsOutside24h?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    hasDepositRecommended?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    hasAdvancedFilters?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    hasPrioritySupport?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    showBranding?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    showUpgradeBanner?: BoolWithAggregatesFilter<"Tenant"> | boolean
   }
 
   export type InvitationWhereInput = {
@@ -30372,6 +32160,108 @@ export namespace Prisma {
     resolvedAt?: DateTimeNullableWithAggregatesFilter<"DeadLetterJob"> | Date | string | null
   }
 
+  export type SubscriptionPaymentWhereInput = {
+    AND?: SubscriptionPaymentWhereInput | SubscriptionPaymentWhereInput[]
+    OR?: SubscriptionPaymentWhereInput[]
+    NOT?: SubscriptionPaymentWhereInput | SubscriptionPaymentWhereInput[]
+    id?: StringFilter<"SubscriptionPayment"> | string
+    tenantId?: StringFilter<"SubscriptionPayment"> | string
+    paystackReference?: StringFilter<"SubscriptionPayment"> | string
+    type?: StringFilter<"SubscriptionPayment"> | string
+    plan?: StringNullableFilter<"SubscriptionPayment"> | string | null
+    amount?: IntFilter<"SubscriptionPayment"> | number
+    currency?: StringFilter<"SubscriptionPayment"> | string
+    status?: StringFilter<"SubscriptionPayment"> | string
+    channel?: StringNullableFilter<"SubscriptionPayment"> | string | null
+    cardLast4?: StringNullableFilter<"SubscriptionPayment"> | string | null
+    overageDetails?: JsonNullableFilter<"SubscriptionPayment">
+    metadata?: JsonNullableFilter<"SubscriptionPayment">
+    createdAt?: DateTimeFilter<"SubscriptionPayment"> | Date | string
+    updatedAt?: DateTimeFilter<"SubscriptionPayment"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }
+
+  export type SubscriptionPaymentOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    paystackReference?: SortOrder
+    type?: SortOrder
+    plan?: SortOrderInput | SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    channel?: SortOrderInput | SortOrder
+    cardLast4?: SortOrderInput | SortOrder
+    overageDetails?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+  }
+
+  export type SubscriptionPaymentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    paystackReference?: string
+    AND?: SubscriptionPaymentWhereInput | SubscriptionPaymentWhereInput[]
+    OR?: SubscriptionPaymentWhereInput[]
+    NOT?: SubscriptionPaymentWhereInput | SubscriptionPaymentWhereInput[]
+    tenantId?: StringFilter<"SubscriptionPayment"> | string
+    type?: StringFilter<"SubscriptionPayment"> | string
+    plan?: StringNullableFilter<"SubscriptionPayment"> | string | null
+    amount?: IntFilter<"SubscriptionPayment"> | number
+    currency?: StringFilter<"SubscriptionPayment"> | string
+    status?: StringFilter<"SubscriptionPayment"> | string
+    channel?: StringNullableFilter<"SubscriptionPayment"> | string | null
+    cardLast4?: StringNullableFilter<"SubscriptionPayment"> | string | null
+    overageDetails?: JsonNullableFilter<"SubscriptionPayment">
+    metadata?: JsonNullableFilter<"SubscriptionPayment">
+    createdAt?: DateTimeFilter<"SubscriptionPayment"> | Date | string
+    updatedAt?: DateTimeFilter<"SubscriptionPayment"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }, "id" | "paystackReference">
+
+  export type SubscriptionPaymentOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    paystackReference?: SortOrder
+    type?: SortOrder
+    plan?: SortOrderInput | SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    channel?: SortOrderInput | SortOrder
+    cardLast4?: SortOrderInput | SortOrder
+    overageDetails?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SubscriptionPaymentCountOrderByAggregateInput
+    _avg?: SubscriptionPaymentAvgOrderByAggregateInput
+    _max?: SubscriptionPaymentMaxOrderByAggregateInput
+    _min?: SubscriptionPaymentMinOrderByAggregateInput
+    _sum?: SubscriptionPaymentSumOrderByAggregateInput
+  }
+
+  export type SubscriptionPaymentScalarWhereWithAggregatesInput = {
+    AND?: SubscriptionPaymentScalarWhereWithAggregatesInput | SubscriptionPaymentScalarWhereWithAggregatesInput[]
+    OR?: SubscriptionPaymentScalarWhereWithAggregatesInput[]
+    NOT?: SubscriptionPaymentScalarWhereWithAggregatesInput | SubscriptionPaymentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SubscriptionPayment"> | string
+    tenantId?: StringWithAggregatesFilter<"SubscriptionPayment"> | string
+    paystackReference?: StringWithAggregatesFilter<"SubscriptionPayment"> | string
+    type?: StringWithAggregatesFilter<"SubscriptionPayment"> | string
+    plan?: StringNullableWithAggregatesFilter<"SubscriptionPayment"> | string | null
+    amount?: IntWithAggregatesFilter<"SubscriptionPayment"> | number
+    currency?: StringWithAggregatesFilter<"SubscriptionPayment"> | string
+    status?: StringWithAggregatesFilter<"SubscriptionPayment"> | string
+    channel?: StringNullableWithAggregatesFilter<"SubscriptionPayment"> | string | null
+    cardLast4?: StringNullableWithAggregatesFilter<"SubscriptionPayment"> | string | null
+    overageDetails?: JsonNullableWithAggregatesFilter<"SubscriptionPayment">
+    metadata?: JsonNullableWithAggregatesFilter<"SubscriptionPayment">
+    createdAt?: DateTimeWithAggregatesFilter<"SubscriptionPayment"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SubscriptionPayment"> | Date | string
+  }
+
   export type TenantCreateInput = {
     id?: string
     name: string
@@ -30379,6 +32269,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -30396,6 +32306,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateInput = {
@@ -30405,6 +32316,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -30422,6 +32353,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUpdateInput = {
@@ -30431,6 +32363,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -30448,6 +32400,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateInput = {
@@ -30457,6 +32410,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -30474,6 +32447,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateManyInput = {
@@ -30483,6 +32457,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
   }
 
   export type TenantUpdateManyMutationInput = {
@@ -30492,6 +32486,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TenantUncheckedUpdateManyInput = {
@@ -30501,6 +32515,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type InvitationCreateInput = {
@@ -32099,6 +34133,124 @@ export namespace Prisma {
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type SubscriptionPaymentCreateInput = {
+    id?: string
+    paystackReference: string
+    type: string
+    plan?: string | null
+    amount: number
+    currency?: string
+    status: string
+    channel?: string | null
+    cardLast4?: string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutSubscriptionPaymentsInput
+  }
+
+  export type SubscriptionPaymentUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    paystackReference: string
+    type: string
+    plan?: string | null
+    amount: number
+    currency?: string
+    status: string
+    channel?: string | null
+    cardLast4?: string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionPaymentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    paystackReference?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    cardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutSubscriptionPaymentsNestedInput
+  }
+
+  export type SubscriptionPaymentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    paystackReference?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    cardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionPaymentCreateManyInput = {
+    id?: string
+    tenantId: string
+    paystackReference: string
+    type: string
+    plan?: string | null
+    amount: number
+    currency?: string
+    status: string
+    channel?: string | null
+    cardLast4?: string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionPaymentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    paystackReference?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    cardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionPaymentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    paystackReference?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    cardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -32143,6 +34295,28 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
   }
 
   export type UserListRelationFilter = {
@@ -32247,6 +34421,12 @@ export namespace Prisma {
     none?: PaymentProofWhereInput
   }
 
+  export type SubscriptionPaymentListRelationFilter = {
+    every?: SubscriptionPaymentWhereInput
+    some?: SubscriptionPaymentWhereInput
+    none?: SubscriptionPaymentWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -32320,6 +34500,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type SubscriptionPaymentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type TenantCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -32327,6 +34511,33 @@ export namespace Prisma {
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    subscriptionPlan?: SortOrder
+    subscriptionStatus?: SortOrder
+    subscriptionExpiresAt?: SortOrder
+    cycleStartedAt?: SortOrder
+    paystackCustomerCode?: SortOrder
+    paystackSubscriptionCode?: SortOrder
+    paystackEmailToken?: SortOrder
+    paystackAuthorizationCode?: SortOrder
+    maxConfirmedOrdersPerMonth?: SortOrder
+    maxProofsPerMonth?: SortOrder
+    maxAgents?: SortOrder
+    overagePerOrderCents?: SortOrder
+    hasExportCsv?: SortOrder
+    hasAdvancedExports?: SortOrder
+    hasNotificationsOutside24h?: SortOrder
+    hasDepositRecommended?: SortOrder
+    hasAdvancedFilters?: SortOrder
+    hasPrioritySupport?: SortOrder
+    showBranding?: SortOrder
+    showUpgradeBanner?: SortOrder
+  }
+
+  export type TenantAvgOrderByAggregateInput = {
+    maxConfirmedOrdersPerMonth?: SortOrder
+    maxProofsPerMonth?: SortOrder
+    maxAgents?: SortOrder
+    overagePerOrderCents?: SortOrder
   }
 
   export type TenantMaxOrderByAggregateInput = {
@@ -32336,6 +34547,26 @@ export namespace Prisma {
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    subscriptionPlan?: SortOrder
+    subscriptionStatus?: SortOrder
+    subscriptionExpiresAt?: SortOrder
+    cycleStartedAt?: SortOrder
+    paystackCustomerCode?: SortOrder
+    paystackSubscriptionCode?: SortOrder
+    paystackEmailToken?: SortOrder
+    paystackAuthorizationCode?: SortOrder
+    maxConfirmedOrdersPerMonth?: SortOrder
+    maxProofsPerMonth?: SortOrder
+    maxAgents?: SortOrder
+    overagePerOrderCents?: SortOrder
+    hasExportCsv?: SortOrder
+    hasAdvancedExports?: SortOrder
+    hasNotificationsOutside24h?: SortOrder
+    hasDepositRecommended?: SortOrder
+    hasAdvancedFilters?: SortOrder
+    hasPrioritySupport?: SortOrder
+    showBranding?: SortOrder
+    showUpgradeBanner?: SortOrder
   }
 
   export type TenantMinOrderByAggregateInput = {
@@ -32345,6 +34576,33 @@ export namespace Prisma {
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    subscriptionPlan?: SortOrder
+    subscriptionStatus?: SortOrder
+    subscriptionExpiresAt?: SortOrder
+    cycleStartedAt?: SortOrder
+    paystackCustomerCode?: SortOrder
+    paystackSubscriptionCode?: SortOrder
+    paystackEmailToken?: SortOrder
+    paystackAuthorizationCode?: SortOrder
+    maxConfirmedOrdersPerMonth?: SortOrder
+    maxProofsPerMonth?: SortOrder
+    maxAgents?: SortOrder
+    overagePerOrderCents?: SortOrder
+    hasExportCsv?: SortOrder
+    hasAdvancedExports?: SortOrder
+    hasNotificationsOutside24h?: SortOrder
+    hasDepositRecommended?: SortOrder
+    hasAdvancedFilters?: SortOrder
+    hasPrioritySupport?: SortOrder
+    showBranding?: SortOrder
+    showUpgradeBanner?: SortOrder
+  }
+
+  export type TenantSumOrderByAggregateInput = {
+    maxConfirmedOrdersPerMonth?: SortOrder
+    maxProofsPerMonth?: SortOrder
+    maxAgents?: SortOrder
+    overagePerOrderCents?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -32405,14 +34663,7 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type EnumRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -32420,7 +34671,33 @@ export namespace Prisma {
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type EnumRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
   }
 
   export type TenantScalarRelationFilter = {
@@ -32474,31 +34751,6 @@ export namespace Prisma {
     _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type DeliveryZoneCommuneListRelationFilter = {
     every?: DeliveryZoneCommuneWhereInput
     some?: DeliveryZoneCommuneWhereInput
@@ -32542,22 +34794,6 @@ export namespace Prisma {
 
   export type DeliveryZoneSumOrderByAggregateInput = {
     amountCents?: SortOrder
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type DeliveryZoneScalarRelationFilter = {
@@ -33527,6 +35763,110 @@ export namespace Prisma {
   export type DeadLetterJobSumOrderByAggregateInput = {
     attempts?: SortOrder
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type SubscriptionPaymentCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    paystackReference?: SortOrder
+    type?: SortOrder
+    plan?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    channel?: SortOrder
+    cardLast4?: SortOrder
+    overageDetails?: SortOrder
+    metadata?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SubscriptionPaymentAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type SubscriptionPaymentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    paystackReference?: SortOrder
+    type?: SortOrder
+    plan?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    channel?: SortOrder
+    cardLast4?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SubscriptionPaymentMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    paystackReference?: SortOrder
+    type?: SortOrder
+    plan?: SortOrder
+    amount?: SortOrder
+    currency?: SortOrder
+    status?: SortOrder
+    channel?: SortOrder
+    cardLast4?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SubscriptionPaymentSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
 
   export type UserCreateNestedManyWithoutTenantInput = {
     create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
@@ -33645,6 +35985,13 @@ export namespace Prisma {
     connectOrCreate?: PaymentProofCreateOrConnectWithoutTenantInput | PaymentProofCreateOrConnectWithoutTenantInput[]
     createMany?: PaymentProofCreateManyTenantInputEnvelope
     connect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
+  }
+
+  export type SubscriptionPaymentCreateNestedManyWithoutTenantInput = {
+    create?: XOR<SubscriptionPaymentCreateWithoutTenantInput, SubscriptionPaymentUncheckedCreateWithoutTenantInput> | SubscriptionPaymentCreateWithoutTenantInput[] | SubscriptionPaymentUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: SubscriptionPaymentCreateOrConnectWithoutTenantInput | SubscriptionPaymentCreateOrConnectWithoutTenantInput[]
+    createMany?: SubscriptionPaymentCreateManyTenantInputEnvelope
+    connect?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
   }
 
   export type UserUncheckedCreateNestedManyWithoutTenantInput = {
@@ -33766,6 +36113,13 @@ export namespace Prisma {
     connect?: PaymentProofWhereUniqueInput | PaymentProofWhereUniqueInput[]
   }
 
+  export type SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<SubscriptionPaymentCreateWithoutTenantInput, SubscriptionPaymentUncheckedCreateWithoutTenantInput> | SubscriptionPaymentCreateWithoutTenantInput[] | SubscriptionPaymentUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: SubscriptionPaymentCreateOrConnectWithoutTenantInput | SubscriptionPaymentCreateOrConnectWithoutTenantInput[]
+    createMany?: SubscriptionPaymentCreateManyTenantInputEnvelope
+    connect?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -33780,6 +36134,18 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type UserUpdateManyWithoutTenantNestedInput = {
@@ -34020,6 +36386,20 @@ export namespace Prisma {
     deleteMany?: PaymentProofScalarWhereInput | PaymentProofScalarWhereInput[]
   }
 
+  export type SubscriptionPaymentUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<SubscriptionPaymentCreateWithoutTenantInput, SubscriptionPaymentUncheckedCreateWithoutTenantInput> | SubscriptionPaymentCreateWithoutTenantInput[] | SubscriptionPaymentUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: SubscriptionPaymentCreateOrConnectWithoutTenantInput | SubscriptionPaymentCreateOrConnectWithoutTenantInput[]
+    upsert?: SubscriptionPaymentUpsertWithWhereUniqueWithoutTenantInput | SubscriptionPaymentUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: SubscriptionPaymentCreateManyTenantInputEnvelope
+    set?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
+    disconnect?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
+    delete?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
+    connect?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
+    update?: SubscriptionPaymentUpdateWithWhereUniqueWithoutTenantInput | SubscriptionPaymentUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: SubscriptionPaymentUpdateManyWithWhereWithoutTenantInput | SubscriptionPaymentUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: SubscriptionPaymentScalarWhereInput | SubscriptionPaymentScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutTenantNestedInput = {
     create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
@@ -34258,6 +36638,20 @@ export namespace Prisma {
     deleteMany?: PaymentProofScalarWhereInput | PaymentProofScalarWhereInput[]
   }
 
+  export type SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<SubscriptionPaymentCreateWithoutTenantInput, SubscriptionPaymentUncheckedCreateWithoutTenantInput> | SubscriptionPaymentCreateWithoutTenantInput[] | SubscriptionPaymentUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: SubscriptionPaymentCreateOrConnectWithoutTenantInput | SubscriptionPaymentCreateOrConnectWithoutTenantInput[]
+    upsert?: SubscriptionPaymentUpsertWithWhereUniqueWithoutTenantInput | SubscriptionPaymentUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: SubscriptionPaymentCreateManyTenantInputEnvelope
+    set?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
+    disconnect?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
+    delete?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
+    connect?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
+    update?: SubscriptionPaymentUpdateWithWhereUniqueWithoutTenantInput | SubscriptionPaymentUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: SubscriptionPaymentUpdateManyWithWhereWithoutTenantInput | SubscriptionPaymentUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: SubscriptionPaymentScalarWhereInput | SubscriptionPaymentScalarWhereInput[]
+  }
+
   export type TenantCreateNestedOneWithoutInvitationsInput = {
     create?: XOR<TenantCreateWithoutInvitationsInput, TenantUncheckedCreateWithoutInvitationsInput>
     connectOrCreate?: TenantCreateOrConnectWithoutInvitationsInput
@@ -34266,10 +36660,6 @@ export namespace Prisma {
 
   export type EnumRoleFieldUpdateOperationsInput = {
     set?: $Enums.Role
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type TenantUpdateOneRequiredWithoutInvitationsNestedInput = {
@@ -34298,14 +36688,6 @@ export namespace Prisma {
     connectOrCreate?: DeliveryZoneCommuneCreateOrConnectWithoutZoneInput | DeliveryZoneCommuneCreateOrConnectWithoutZoneInput[]
     createMany?: DeliveryZoneCommuneCreateManyZoneInputEnvelope
     connect?: DeliveryZoneCommuneWhereUniqueInput | DeliveryZoneCommuneWhereUniqueInput[]
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type TenantUpdateOneRequiredWithoutDeliveryZonesNestedInput = {
@@ -34980,6 +37362,20 @@ export namespace Prisma {
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutDeadLetterJobsInput, TenantUpdateWithoutDeadLetterJobsInput>, TenantUncheckedUpdateWithoutDeadLetterJobsInput>
   }
 
+  export type TenantCreateNestedOneWithoutSubscriptionPaymentsInput = {
+    create?: XOR<TenantCreateWithoutSubscriptionPaymentsInput, TenantUncheckedCreateWithoutSubscriptionPaymentsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutSubscriptionPaymentsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type TenantUpdateOneRequiredWithoutSubscriptionPaymentsNestedInput = {
+    create?: XOR<TenantCreateWithoutSubscriptionPaymentsInput, TenantUncheckedCreateWithoutSubscriptionPaymentsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutSubscriptionPaymentsInput
+    upsert?: TenantUpsertWithoutSubscriptionPaymentsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutSubscriptionPaymentsInput, TenantUpdateWithoutSubscriptionPaymentsInput>, TenantUncheckedUpdateWithoutSubscriptionPaymentsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -35024,6 +37420,28 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -35039,17 +37457,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
-  }
-
-  export type NestedIntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
   }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -35102,34 +37509,6 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedEnumRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type NestedEnumRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumRoleWithAggregatesFilter<$PrismaModel> | $Enums.Role
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumRoleFilter<$PrismaModel>
-    _max?: NestedEnumRoleFilter<$PrismaModel>
-  }
-
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -35169,6 +37548,23 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedEnumRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
+  }
+
+  export type NestedEnumRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleWithAggregatesFilter<$PrismaModel> | $Enums.Role
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRoleFilter<$PrismaModel>
+    _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -35304,6 +37700,29 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPaymentProofStatusFilter<$PrismaModel>
     _max?: NestedEnumPaymentProofStatusFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type UserCreateWithoutTenantInput = {
@@ -35844,6 +38263,48 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type SubscriptionPaymentCreateWithoutTenantInput = {
+    id?: string
+    paystackReference: string
+    type: string
+    plan?: string | null
+    amount: number
+    currency?: string
+    status: string
+    channel?: string | null
+    cardLast4?: string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionPaymentUncheckedCreateWithoutTenantInput = {
+    id?: string
+    paystackReference: string
+    type: string
+    plan?: string | null
+    amount: number
+    currency?: string
+    status: string
+    channel?: string | null
+    cardLast4?: string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionPaymentCreateOrConnectWithoutTenantInput = {
+    where: SubscriptionPaymentWhereUniqueInput
+    create: XOR<SubscriptionPaymentCreateWithoutTenantInput, SubscriptionPaymentUncheckedCreateWithoutTenantInput>
+  }
+
+  export type SubscriptionPaymentCreateManyTenantInputEnvelope = {
+    data: SubscriptionPaymentCreateManyTenantInput | SubscriptionPaymentCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithWhereUniqueWithoutTenantInput = {
     where: UserWhereUniqueInput
     update: XOR<UserUpdateWithoutTenantInput, UserUncheckedUpdateWithoutTenantInput>
@@ -36360,6 +38821,42 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"PaymentProof"> | Date | string
   }
 
+  export type SubscriptionPaymentUpsertWithWhereUniqueWithoutTenantInput = {
+    where: SubscriptionPaymentWhereUniqueInput
+    update: XOR<SubscriptionPaymentUpdateWithoutTenantInput, SubscriptionPaymentUncheckedUpdateWithoutTenantInput>
+    create: XOR<SubscriptionPaymentCreateWithoutTenantInput, SubscriptionPaymentUncheckedCreateWithoutTenantInput>
+  }
+
+  export type SubscriptionPaymentUpdateWithWhereUniqueWithoutTenantInput = {
+    where: SubscriptionPaymentWhereUniqueInput
+    data: XOR<SubscriptionPaymentUpdateWithoutTenantInput, SubscriptionPaymentUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type SubscriptionPaymentUpdateManyWithWhereWithoutTenantInput = {
+    where: SubscriptionPaymentScalarWhereInput
+    data: XOR<SubscriptionPaymentUpdateManyMutationInput, SubscriptionPaymentUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type SubscriptionPaymentScalarWhereInput = {
+    AND?: SubscriptionPaymentScalarWhereInput | SubscriptionPaymentScalarWhereInput[]
+    OR?: SubscriptionPaymentScalarWhereInput[]
+    NOT?: SubscriptionPaymentScalarWhereInput | SubscriptionPaymentScalarWhereInput[]
+    id?: StringFilter<"SubscriptionPayment"> | string
+    tenantId?: StringFilter<"SubscriptionPayment"> | string
+    paystackReference?: StringFilter<"SubscriptionPayment"> | string
+    type?: StringFilter<"SubscriptionPayment"> | string
+    plan?: StringNullableFilter<"SubscriptionPayment"> | string | null
+    amount?: IntFilter<"SubscriptionPayment"> | number
+    currency?: StringFilter<"SubscriptionPayment"> | string
+    status?: StringFilter<"SubscriptionPayment"> | string
+    channel?: StringNullableFilter<"SubscriptionPayment"> | string | null
+    cardLast4?: StringNullableFilter<"SubscriptionPayment"> | string | null
+    overageDetails?: JsonNullableFilter<"SubscriptionPayment">
+    metadata?: JsonNullableFilter<"SubscriptionPayment">
+    createdAt?: DateTimeFilter<"SubscriptionPayment"> | Date | string
+    updatedAt?: DateTimeFilter<"SubscriptionPayment"> | Date | string
+  }
+
   export type TenantCreateWithoutInvitationsInput = {
     id?: string
     name: string
@@ -36367,6 +38864,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -36383,6 +38900,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutInvitationsInput = {
@@ -36392,6 +38910,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -36408,6 +38946,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutInvitationsInput = {
@@ -36433,6 +38972,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -36449,6 +39008,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutInvitationsInput = {
@@ -36458,6 +39018,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -36474,6 +39054,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutDeliveryZonesInput = {
@@ -36483,6 +39064,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -36499,6 +39100,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutDeliveryZonesInput = {
@@ -36508,6 +39110,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -36524,6 +39146,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutDeliveryZonesInput = {
@@ -36569,6 +39192,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -36585,6 +39228,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutDeliveryZonesInput = {
@@ -36594,6 +39238,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -36610,6 +39274,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type DeliveryZoneCommuneUpsertWithWhereUniqueWithoutZoneInput = {
@@ -36696,6 +39361,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -36712,6 +39397,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutDeliveryFeeCommuneInput = {
@@ -36721,6 +39407,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -36737,6 +39443,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutDeliveryFeeCommuneInput = {
@@ -36762,6 +39469,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -36778,6 +39505,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutDeliveryFeeCommuneInput = {
@@ -36787,6 +39515,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -36803,6 +39551,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutUsersInput = {
@@ -36812,6 +39561,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -36828,6 +39597,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutUsersInput = {
@@ -36837,6 +39607,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -36853,6 +39643,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutUsersInput = {
@@ -36938,6 +39729,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -36954,6 +39765,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutUsersInput = {
@@ -36963,6 +39775,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -36979,6 +39811,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
@@ -37192,6 +40025,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -37208,6 +40061,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutCategoryPricesInput = {
@@ -37217,6 +40071,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -37233,6 +40107,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutCategoryPricesInput = {
@@ -37258,6 +40133,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -37274,6 +40169,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutCategoryPricesInput = {
@@ -37283,6 +40179,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -37299,6 +40215,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutMessagesInInput = {
@@ -37308,6 +40225,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -37324,6 +40261,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutMessagesInInput = {
@@ -37333,6 +40271,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -37349,6 +40307,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutMessagesInInput = {
@@ -37374,6 +40333,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -37390,6 +40369,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutMessagesInInput = {
@@ -37399,6 +40379,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -37415,6 +40415,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutSellerPhonesInput = {
@@ -37424,6 +40425,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -37440,6 +40461,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutSellerPhonesInput = {
@@ -37449,6 +40471,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -37465,6 +40507,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutSellerPhonesInput = {
@@ -37490,6 +40533,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -37506,6 +40569,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutSellerPhonesInput = {
@@ -37515,6 +40579,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -37531,6 +40615,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutEventLogsInput = {
@@ -37540,6 +40625,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -37556,6 +40661,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutEventLogsInput = {
@@ -37565,6 +40671,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -37581,6 +40707,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutEventLogsInput = {
@@ -37606,6 +40733,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -37622,6 +40769,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutEventLogsInput = {
@@ -37631,6 +40779,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -37647,6 +40815,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutOptOutsInput = {
@@ -37656,6 +40825,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -37672,6 +40861,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutOptOutsInput = {
@@ -37681,6 +40871,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -37697,6 +40907,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutOptOutsInput = {
@@ -37722,6 +40933,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -37738,6 +40969,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutOptOutsInput = {
@@ -37747,6 +40979,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -37763,6 +41015,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutMessagesOutInput = {
@@ -37772,6 +41025,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -37788,6 +41061,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutMessagesOutInput = {
@@ -37797,6 +41071,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -37813,6 +41107,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutMessagesOutInput = {
@@ -37838,6 +41133,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -37854,6 +41169,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutMessagesOutInput = {
@@ -37863,6 +41179,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -37879,6 +41215,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutLiveSessionsInput = {
@@ -37888,6 +41225,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -37904,6 +41261,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutLiveSessionsInput = {
@@ -37913,6 +41271,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -37929,6 +41307,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutLiveSessionsInput = {
@@ -38032,6 +41411,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -38048,6 +41447,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutLiveSessionsInput = {
@@ -38057,6 +41457,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -38073,6 +41493,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type LiveItemUpsertWithWhereUniqueWithoutLiveSessionInput = {
@@ -38114,6 +41535,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -38130,6 +41571,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutLiveItemsInput = {
@@ -38139,6 +41581,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -38155,6 +41617,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutLiveItemsInput = {
@@ -38245,6 +41708,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -38261,6 +41744,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutLiveItemsInput = {
@@ -38270,6 +41754,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -38286,6 +41790,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type LiveSessionUpsertWithoutLiveItemsInput = {
@@ -38342,6 +41847,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -38358,6 +41883,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutReservationsInput = {
@@ -38367,6 +41893,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -38383,6 +41929,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutReservationsInput = {
@@ -38495,6 +42042,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -38511,6 +42078,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutReservationsInput = {
@@ -38520,6 +42088,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -38536,6 +42124,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type LiveSessionUpsertWithoutReservationsInput = {
@@ -38650,6 +42239,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -38666,6 +42275,7 @@ export namespace Prisma {
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutOrdersInput = {
@@ -38675,6 +42285,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -38691,6 +42321,7 @@ export namespace Prisma {
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutOrdersInput = {
@@ -38785,6 +42416,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -38801,6 +42452,7 @@ export namespace Prisma {
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutOrdersInput = {
@@ -38810,6 +42462,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -38826,6 +42498,7 @@ export namespace Prisma {
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type ReservationUpsertWithoutOrderInput = {
@@ -38921,6 +42594,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -38937,6 +42630,7 @@ export namespace Prisma {
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutPaymentProofsInput = {
@@ -38946,6 +42640,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -38962,6 +42676,7 @@ export namespace Prisma {
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutPaymentProofsInput = {
@@ -39022,6 +42737,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -39038,6 +42773,7 @@ export namespace Prisma {
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutPaymentProofsInput = {
@@ -39047,6 +42783,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -39063,6 +42819,7 @@ export namespace Prisma {
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutWaitlistsInput = {
@@ -39072,6 +42829,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -39088,6 +42865,7 @@ export namespace Prisma {
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutWaitlistsInput = {
@@ -39097,6 +42875,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -39113,6 +42911,7 @@ export namespace Prisma {
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutWaitlistsInput = {
@@ -39138,6 +42937,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -39154,6 +42973,7 @@ export namespace Prisma {
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutWaitlistsInput = {
@@ -39163,6 +42983,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -39179,6 +43019,7 @@ export namespace Prisma {
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutDeadLetterJobsInput = {
@@ -39188,6 +43029,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -39204,6 +43065,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutDeadLetterJobsInput = {
@@ -39213,6 +43075,26 @@ export namespace Prisma {
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -39229,6 +43111,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutDeadLetterJobsInput = {
@@ -39254,6 +43137,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -39270,6 +43173,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutDeadLetterJobsInput = {
@@ -39279,6 +43183,26 @@ export namespace Prisma {
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -39288,6 +43212,207 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantCreateWithoutSubscriptionPaymentsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    users?: UserCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutSubscriptionPaymentsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutSubscriptionPaymentsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutSubscriptionPaymentsInput, TenantUncheckedCreateWithoutSubscriptionPaymentsInput>
+  }
+
+  export type TenantUpsertWithoutSubscriptionPaymentsInput = {
+    update: XOR<TenantUpdateWithoutSubscriptionPaymentsInput, TenantUncheckedUpdateWithoutSubscriptionPaymentsInput>
+    create: XOR<TenantCreateWithoutSubscriptionPaymentsInput, TenantUncheckedCreateWithoutSubscriptionPaymentsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutSubscriptionPaymentsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutSubscriptionPaymentsInput, TenantUncheckedUpdateWithoutSubscriptionPaymentsInput>
+  }
+
+  export type TenantUpdateWithoutSubscriptionPaymentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    users?: UserUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutSubscriptionPaymentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
@@ -39469,6 +43594,22 @@ export namespace Prisma {
     status?: $Enums.PaymentProofStatus
     reviewedAt?: Date | string | null
     correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionPaymentCreateManyTenantInput = {
+    id?: string
+    paystackReference: string
+    type: string
+    plan?: string | null
+    amount: number
+    currency?: string
+    status: string
+    channel?: string | null
+    cardLast4?: string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -40013,6 +44154,54 @@ export namespace Prisma {
     status?: EnumPaymentProofStatusFieldUpdateOperationsInput | $Enums.PaymentProofStatus
     reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionPaymentUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    paystackReference?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    cardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionPaymentUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    paystackReference?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    cardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionPaymentUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    paystackReference?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    amount?: IntFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    channel?: NullableStringFieldUpdateOperationsInput | string | null
+    cardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    overageDetails?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

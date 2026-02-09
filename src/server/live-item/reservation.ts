@@ -8,6 +8,9 @@ import { db } from "~/server/db";
 import { logEvent } from "~/server/events/eventLog";
 import { workerLogger } from "~/lib/logger";
 
+/** Client transactionnel Prisma — utilisé pour passer un tx externe à confirmReservation. */
+export type PrismaTransactionClient = Prisma.TransactionClient;
+
 export type ReserveOneUnitResult =
   | { success: true }
   | { success: false; reason: "exhausted" | "not_found" };
@@ -139,53 +142,81 @@ export async function releaseReservation(
 }
 
 /**
+ * Logique interne de confirmation : SELECT FOR UPDATE + décrément stock.
+ * Extraite pour être réutilisée avec un tx externe ou interne.
+ */
+async function executeConfirmation(
+  tx: PrismaTransactionClient,
+  tenantId: string,
+  liveItemId: string,
+): Promise<ConfirmReservationResult> {
+  const rows = await tx.$queryRaw<
+    { id: string; available_qty: number; reserved_qty: number }[]
+  >(
+    Prisma.sql`
+      SELECT id, available_qty, reserved_qty
+      FROM live_items
+      WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
+      FOR UPDATE
+    `,
+  );
+  if (rows.length === 0) return { success: false as const, reason: "not_found" as const };
+  if (rows[0]!.reserved_qty < 1) return { success: false as const, reason: "no_reservation" as const };
+
+  await tx.$executeRaw(
+    Prisma.sql`
+      UPDATE live_items
+      SET reserved_qty = reserved_qty - 1, available_qty = available_qty - 1, updated_at = NOW()
+      WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
+    `,
+  );
+
+  const after = await tx.$queryRaw<{ available_qty: number }[]>(
+    Prisma.sql`
+      SELECT available_qty FROM live_items WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
+    `,
+  );
+  if (after.length === 0 || after[0]!.available_qty < 0) {
+    throw new Error("CONCURRENCY_ROLLBACK");
+  }
+  return { success: true as const };
+}
+
+/**
  * Confirme une réservation (reservedQty -= 1, availableQty -= 1).
  * Une seule confirmation gagne en cas de concurrence sur le dernier stock (transaction + verrou).
+ *
+ * Si `options.tx` est fourni, utilise le client transactionnel externe (pas de $transaction imbriquée).
+ * Sinon, crée sa propre $transaction (rétrocompatible pour tout autre appelant).
  */
 export async function confirmReservation(
   tenantId: string,
   liveItemId: string,
-  options?: ReservationOptions,
+  options?: ReservationOptions & { tx?: PrismaTransactionClient },
 ): Promise<ConfirmReservationResult> {
   const correlationId = getCorrelationId(options?.correlationId);
 
-  const result = await db.$transaction(async (tx) => {
-    const rows = await tx.$queryRaw<
-      { id: string; available_qty: number; reserved_qty: number }[]
-    >(
-      Prisma.sql`
-        SELECT id, available_qty, reserved_qty
-        FROM live_items
-        WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
-        FOR UPDATE
-      `,
-    );
-    if (rows.length === 0) return { success: false as const, reason: "not_found" as const };
-    if (rows[0]!.reserved_qty < 1) return { success: false as const, reason: "no_reservation" as const };
+  let result: ConfirmReservationResult;
 
-    await tx.$executeRaw(
-      Prisma.sql`
-        UPDATE live_items
-        SET reserved_qty = reserved_qty - 1, available_qty = available_qty - 1, updated_at = NOW()
-        WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
-      `,
-    );
+  if (options?.tx) {
+    // tx externe fourni → exécuter directement dans la transaction appelante
+    result = await executeConfirmation(options.tx, tenantId, liveItemId);
+  } else {
+    // Pas de tx → comportement actuel (propre $transaction)
+    result = await db.$transaction(async (tx) => {
+      return executeConfirmation(tx, tenantId, liveItemId);
+    }).catch((err: unknown) => {
+      if (err instanceof Error && err.message === "CONCURRENCY_ROLLBACK") {
+        return { success: false as const, reason: "concurrency" as const };
+      }
+      throw err;
+    });
+  }
 
-    const after = await tx.$queryRaw<{ available_qty: number }[]>(
-      Prisma.sql`
-        SELECT available_qty FROM live_items WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
-      `,
-    );
-    if (after.length === 0 || after[0]!.available_qty < 0) {
-      throw new Error("CONCURRENCY_ROLLBACK");
-    }
-    return { success: true as const };
-  }).catch((err) => {
-    if (err?.message === "CONCURRENCY_ROLLBACK") return { success: false as const, reason: "concurrency" as const };
-    throw err;
-  });
-
-  if (result.success) {
+  // Quand tx est fourni, NE PAS logger ici — la transaction n'est pas encore commitée.
+  // Le caller (ex. createOrderFromReservation) logge APRÈS le commit de la transaction.
+  // Sans tx (appel autonome), logger normalement (transaction interne déjà commitée).
+  if (result.success && !options?.tx) {
     await logEvent({
       tenantId,
       eventType: "reservation_confirmed",

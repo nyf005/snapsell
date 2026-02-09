@@ -2,35 +2,52 @@
  * Story 4.5: Création de commande à la confirmation (OUI + adresse).
  * Idempotent sur (tenant_id, reservation_id). Envoie message preuve d'acompte si requireDeposit.
  * Order number: unique (tenant_id, order_number) avec retry sur conflit concurrent (P2002).
+ *
+ * TECH story: Transaction globale Prisma — confirmReservation + reservation.update + order.create
+ * dans une seule $transaction atomique. Rollback total si l'une des opérations échoue.
  */
 
 import { Prisma } from "../../../generated/prisma";
 import { db } from "~/server/db";
 import { confirmReservation } from "~/server/live-item/reservation";
+import type { PrismaTransactionClient } from "~/server/live-item/reservation";
 import { writeToOutbox } from "~/server/messaging/outbox";
-import { logOrderCreated, logDepositRequested } from "~/server/events/eventLog";
+import { logEvent, logOrderCreated, logDepositRequested } from "~/server/events/eventLog";
 import { workerLogger } from "~/lib/logger";
 import { env } from "~/env";
+import { checkQuota, QuotaExceededError } from "~/server/subscription/usage";
 
 const DEPOSIT_TTL_MINUTES = env.DEPOSIT_TTL_MINUTES ?? 15;
 
 export type CreateOrderFromReservationResult =
   | { success: true; order: { id: string; orderNumber: string; status: string; depositStatus: string } }
-  | { success: false; reason: "order_exists" | "reservation_not_found" | "confirm_failed" };
+  | { success: false; reason: "order_exists" | "reservation_not_found" | "confirm_failed" | "quota_exceeded" };
 
 /**
  * Génère le prochain numéro de commande pour le tenant (SS-0001, SS-0002, ...). Préfixe SS = SnapSell.
+ * Accepte un client transactionnel pour être utilisé à l'intérieur d'une $transaction.
  */
-async function getNextOrderNumber(tenantId: string): Promise<string> {
-  const count = await db.order.count({ where: { tenantId } });
+async function getNextOrderNumber(tenantId: string, client: PrismaTransactionClient | typeof db = db): Promise<string> {
+  const count = await client.order.count({ where: { tenantId } });
   const num = count + 1;
   const padded = String(num).padStart(4, "0");
   return `SS-${padded}`;
 }
 
+/** Erreur interne pour signaler un échec de confirmReservation dans la transaction. */
+class ConfirmFailedError extends Error {
+  constructor(public readonly reason: string) {
+    super(`CONFIRM_FAILED:${reason}`);
+    this.name = "ConfirmFailedError";
+  }
+}
+
 /**
  * Crée une commande à partir d'une réservation en address_collected.
  * Idempotent : si une commande existe déjà pour cette réservation, la retourne sans refaire confirmReservation.
+ *
+ * Les opérations critiques (confirmReservation + reservation.update + order.create) sont dans
+ * une transaction globale Prisma. Si l'une échoue, tout est rollback (stock non décrémenté, pas d'Order).
  */
 export async function createOrderFromReservation(
   tenantId: string,
@@ -39,6 +56,7 @@ export async function createOrderFromReservation(
   clientPhone: string,
   correlationId: string,
 ): Promise<CreateOrderFromReservationResult> {
+  // 1. Idempotence check (HORS transaction — fast-path, ne modifie rien)
   const existingOrder = await db.order.findUnique({
     where: { reservationId },
   });
@@ -54,6 +72,7 @@ export async function createOrderFromReservation(
     };
   }
 
+  // 2. Load reservation (HORS transaction)
   const reservation = await db.reservation.findUnique({
     where: { id: reservationId, tenantId },
     include: { liveItem: true },
@@ -62,40 +81,108 @@ export async function createOrderFromReservation(
     return { success: false, reason: "reservation_not_found" };
   }
 
-  const confirmResult = await confirmReservation(tenantId, reservation.liveItemId, {
-    correlationId,
-  });
-  if (!confirmResult.success) {
-    return { success: false, reason: "confirm_failed" };
+  // 2b. Story 7A.2: Check quota BEFORE transaction
+  //     Free: blocked at quota. Starter/Pro: allowed with overage.
+  try {
+    const quota = await checkQuota(tenantId);
+    if (!quota.allowed) {
+      workerLogger.warn("Quota exceeded — order blocked (Free plan)", {
+        tenantId,
+        reservationId,
+        currentUsage: quota.currentUsage,
+        quota: quota.quota,
+        plan: quota.plan,
+        correlationId,
+      });
+      return { success: false, reason: "quota_exceeded" };
+    }
+    if (quota.isOverage) {
+      workerLogger.warn("Order in overage territory", {
+        tenantId,
+        reservationId,
+        currentUsage: quota.currentUsage,
+        quota: quota.quota,
+        overageCount: quota.overageCount,
+        plan: quota.plan,
+        correlationId,
+      });
+    }
+  } catch (err) {
+    // If quota check fails (e.g. DB error), log and continue — don't block the order
+    workerLogger.warn("Quota check failed, proceeding with order", {
+      tenantId,
+      reservationId,
+      correlationId,
+      err,
+    });
   }
-
-  await db.reservation.update({
-    where: { id: reservationId },
-    data: { status: "confirmed" },
-  });
 
   const depositExpiresAt = requireDeposit
     ? new Date(Date.now() + DEPOSIT_TTL_MINUTES * 60 * 1000)
     : null;
 
-  const maxOrderCreateAttempts = 3;
-  let order: { id: string; orderNumber: string; status: string; depositStatus: string };
-  for (let attempt = 0; attempt < maxOrderCreateAttempts; attempt++) {
-    const orderNumber = await getNextOrderNumber(tenantId);
+  // 3. TRANSACTION GLOBALE avec retry sur P2002 (order_number)
+  //    Le retry ré-exécute toute la transaction (rollback = stock intact, on recommence).
+  //    Note : le rollback réel (Prisma + Postgres) n'est validable que par test d'intégration.
+  const maxAttempts = 3;
+  let orderRecord: { id: string; orderNumber: string; status: string; depositStatus: string } | undefined;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
-      const created = await db.order.create({
-        data: {
+      orderRecord = await db.$transaction(async (tx) => {
+        // 3a. confirmReservation avec tx (SELECT FOR UPDATE + décrément stock)
+        const confirmResult = await confirmReservation(tenantId, reservation.liveItemId, {
+          correlationId,
+          tx,
+        });
+        if (!confirmResult.success) {
+          throw new ConfirmFailedError(confirmResult.reason);
+        }
+
+        // 3b. Update reservation status → confirmed
+        await tx.reservation.update({
+          where: { id: reservationId },
+          data: { status: "confirmed" },
+        });
+
+        // 3c. Create Order (SS-XXXX)
+        const orderNumber = await getNextOrderNumber(tenantId, tx);
+        const created = await tx.order.create({
+          data: {
+            tenantId,
+            reservationId,
+            orderNumber,
+            status: requireDeposit ? "confirmed_pending_deposit" : "confirmed",
+            depositStatus: requireDeposit ? "deposit_pending" : "no_deposit",
+            depositExpiresAt,
+          },
+        });
+        return created;
+      }, { timeout: 10_000 });
+      break; // Transaction réussie
+    } catch (err) {
+      // confirmReservation a échoué → retourner confirm_failed (pas de retry)
+      if (err instanceof ConfirmFailedError) {
+        workerLogger.warn("confirmReservation failed inside transaction", {
           tenantId,
           reservationId,
-          orderNumber,
-          status: requireDeposit ? "confirmed_pending_deposit" : "confirmed",
-          depositStatus: requireDeposit ? "deposit_pending" : "no_deposit",
-          depositExpiresAt,
-        },
-      });
-      order = created;
-      break;
-    } catch (err) {
+          reason: err.reason,
+          correlationId,
+        });
+        return { success: false, reason: "confirm_failed" };
+      }
+
+      // CONCURRENCY_ROLLBACK de executeConfirmation (stock conflit via tx externe)
+      // → transaction rollback automatique, retourner confirm_failed
+      if (err instanceof Error && err.message === "CONCURRENCY_ROLLBACK") {
+        workerLogger.warn("confirmReservation concurrency rollback inside transaction", {
+          tenantId,
+          reservationId,
+          correlationId,
+        });
+        return { success: false, reason: "confirm_failed" };
+      }
+
       const isUniqueViolation =
         err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
       if (!isUniqueViolation) throw err;
@@ -103,6 +190,8 @@ export async function createOrderFromReservation(
       const target = (err as { meta?: { target?: string[] } }).meta?.target ?? [];
       const isReservationIdConflict =
         target.includes("reservation_id") || target.includes("reservationId");
+
+      // P2002 sur reservation_id → commande créée par un concurrent (idempotence)
       if (isReservationIdConflict) {
         const existing = await db.order.findUnique({ where: { reservationId } });
         if (existing) {
@@ -117,8 +206,10 @@ export async function createOrderFromReservation(
           };
         }
       }
-      if (attempt < maxOrderCreateAttempts - 1) {
-        workerLogger.warn("Order create P2002 (duplicate order_number), retrying", {
+
+      // P2002 sur order_number → retry toute la transaction
+      if (attempt < maxAttempts - 1) {
+        workerLogger.warn("Order create P2002 (duplicate order_number), retrying full transaction", {
           tenantId,
           reservationId,
           attempt: attempt + 1,
@@ -129,7 +220,27 @@ export async function createOrderFromReservation(
       throw err;
     }
   }
-  const orderRecord = order!;
+
+  // Guard clause — TypeScript ne peut pas prouver que orderRecord est assigné après la boucle,
+  // mais tous les chemins sans assignation font un return ou un throw.
+  if (!orderRecord) {
+    throw new Error("Unreachable: transaction loop exited without assigning orderRecord");
+  }
+
+  // 4. Post-transaction (non critique) : event log, outbox
+  //    logEvent reservation_confirmed ici car confirmReservation ne logge pas quand tx est fourni
+  //    (le commit n'a lieu qu'à la fin du $transaction, pas au moment de l'appel).
+  await logEvent({
+    tenantId,
+    eventType: "reservation_confirmed",
+    entityType: "live_item",
+    entityId: reservation.liveItemId,
+    correlationId,
+    actorType: "system",
+    payload: { liveItemId: reservation.liveItemId },
+  }).catch((err) => {
+    workerLogger.warn("Event log reservation_confirmed failed", { correlationId, err });
+  });
 
   await logOrderCreated(tenantId, orderRecord.id, reservationId, correlationId).catch((err) => {
     workerLogger.warn("Event log order_created failed", {

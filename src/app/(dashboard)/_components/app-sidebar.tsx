@@ -9,18 +9,19 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronRight,
+  CreditCard,
   Grid3X3,
   LayoutDashboard,
   MessageCircle,
   Package,
   ShoppingCart,
   Users,
-  Zap,
   Radio,
   Settings,
   ScrollText,
 } from "lucide-react";
 
+import { SnapSellLogo } from "~/components/auth/snapsel-logo";
 import { SignOutButton } from "./sign-out-button";
 import {
   Sidebar,
@@ -79,6 +80,7 @@ const menuGroups: MenuGroup[] = [
       { href: "/parametres/livraison", label: "Frais de livraison", icon: Package, requiresGridRole: true },
       { href: "/parametres/whatsapp", label: "Connexion WhatsApp", icon: MessageCircle, requiresGridRole: true },
       { href: "/parametres/team", label: "Équipe", icon: Users, requiresGridRole: true },
+      { href: "/parametres/abonnement", label: "Abonnement", icon: CreditCard, requiresGridRole: true },
     ],
   },
 ];
@@ -148,11 +150,11 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard" className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-lg">
-                  <Zap className="size-5" />
-                </div>
+                <SnapSellLogo className="!size-8 shrink-0 shadow-lg" />
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-bold">SnapSell</span>
+                  <span className="font-bold">
+                    Snap<span className="text-primary">Sell</span>
+                  </span>
                   <span className="text-xs text-muted-foreground">
                     Tableau de bord vendeur
                   </span>

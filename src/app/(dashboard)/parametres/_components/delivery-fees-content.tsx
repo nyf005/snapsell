@@ -245,7 +245,7 @@ export function DeliveryFeesContent() {
                           Zone
                         </TableHead>
                         <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          Prix (€)
+                          Prix (FCFA)
                         </TableHead>
                         <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                           Communes
@@ -282,7 +282,7 @@ export function DeliveryFeesContent() {
                             )}
                           >
                             <TableCell className="px-6 py-4 font-medium">{z.name}</TableCell>
-                            <TableCell className="px-6 py-4 tabular-nums">{(z.amountCents / 100).toFixed(2)} €</TableCell>
+                            <TableCell className="px-6 py-4 tabular-nums">{Math.round(z.amountCents / 100).toLocaleString("fr-FR")} FCFA</TableCell>
                             <TableCell className="px-6 py-4 text-sm text-muted-foreground">
                               {z.communeNames.length} commune{z.communeNames.length > 1 ? "s" : ""}
                               {z.communeNames.length <= 5
@@ -369,7 +369,7 @@ export function DeliveryFeesContent() {
                           Commune
                         </TableHead>
                         <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          Prix (€)
+                          Prix (FCFA)
                         </TableHead>
                         <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                           Actions
@@ -403,7 +403,7 @@ export function DeliveryFeesContent() {
                             )}
                           >
                             <TableCell className="px-6 py-4 font-medium">{c.communeName}</TableCell>
-                            <TableCell className="px-6 py-4 tabular-nums">{(c.amountCents / 100).toFixed(2)} €</TableCell>
+                            <TableCell className="px-6 py-4 tabular-nums">{Math.round(c.amountCents / 100).toLocaleString("fr-FR")} FCFA</TableCell>
                             <TableCell className="px-6 py-4 text-right">
                               <div className="flex justify-end gap-1">
                                 <Button variant="ghost" size="icon" onClick={() => openEditCommune(c)} aria-label="Modifier">
@@ -475,9 +475,9 @@ export function DeliveryFeesContent() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="zone-amount">Prix (€)</Label>
+                <Label htmlFor="zone-amount">Prix (FCFA)</Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">€</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">F</span>
                   <Input
                     id="zone-amount"
                     type="text"
@@ -556,9 +556,9 @@ export function DeliveryFeesContent() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="commune-amount">Prix (€)</Label>
+                <Label htmlFor="commune-amount">Prix (FCFA)</Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">€</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">F</span>
                   <Input
                     id="commune-amount"
                     type="text"

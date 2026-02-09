@@ -10,7 +10,10 @@ import { TRPCReactProvider } from "~/trpc/react";
 export const metadata: Metadata = {
   title: "SnapSell",
   description: "SnapSell - Vente live",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [
+    { rel: "icon", url: "/logo.png", type: "image/png" },
+    { rel: "apple-touch-icon", url: "/logo.png" },
+  ],
 };
 
 const geist = Geist({

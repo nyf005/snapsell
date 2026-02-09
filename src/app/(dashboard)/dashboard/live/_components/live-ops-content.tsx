@@ -55,7 +55,9 @@ function formatPrice(amountCents: number | null): string {
   if (amountCents == null) return "—";
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
-    currency: "EUR",
+    currency: "XOF",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amountCents / 100);
 }
 

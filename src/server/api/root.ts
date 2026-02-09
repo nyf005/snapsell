@@ -9,6 +9,7 @@ import { ordersRouter } from "~/server/api/routers/orders";
 import { proofsRouter } from "~/server/api/routers/proofs";
 import { sellerPhonesRouter } from "~/server/api/routers/sellerPhones";
 import { settingsRouter } from "~/server/api/routers/settings";
+import { subscriptionRouter } from "~/server/api/routers/subscription";
 import { teamRouter } from "~/server/api/routers/team";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
@@ -29,6 +30,7 @@ export const appRouter = createTRPCRouter({
   live: liveRouter,
   orders: ordersRouter,
   proofs: proofsRouter,
+  subscription: subscriptionRouter,
   team: teamRouter,
 });
 

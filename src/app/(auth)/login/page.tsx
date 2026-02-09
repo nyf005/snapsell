@@ -15,7 +15,7 @@ import { getSignupValidationErrors } from "~/lib/validations/signup";
 import { api } from "~/trpc/react";
 
 const inputClassName =
-  "w-full rounded-lg border border-border bg-card text-foreground h-14 px-4 focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-placeholder";
+  "w-full rounded-lg border border-border bg-card text-foreground h-14 px-4 focus:border-primary focus:ring-1 focus:ring-primary focus:shadow-md focus:shadow-primary/10 transition-all duration-200 placeholder:text-placeholder";
 
 type Tab = "login" | "signup";
 
@@ -136,7 +136,7 @@ function LoginTabContent() {
       </div>
       <Button
         type="submit"
-        className="h-14 w-full rounded-lg text-lg font-bold shadow-lg shadow-primary/20 hover:bg-primary/90"
+        className="h-14 w-full rounded-lg text-lg font-bold shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
         disabled={isPending}
       >
         {isPending ? "Connexion…" : "Se connecter"}
@@ -306,7 +306,7 @@ function SignupTabContent() {
       </div>
       <Button
         type="submit"
-        className="h-14 w-full rounded-lg text-lg font-bold shadow-lg shadow-primary/20 hover:bg-primary/90"
+        className="h-14 w-full rounded-lg text-lg font-bold shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
         disabled={signup.isPending}
       >
         {signup.isPending ? "Création en cours…" : "Créer mon compte vendeur"}
@@ -336,12 +336,14 @@ function LoginPageContent() {
     [tabFromUrl]
   );
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
+  const [slideDir, setSlideDir] = useState<"left" | "right">("right");
 
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
 
   const setTab = (t: Tab) => {
+    setSlideDir(t === "signup" ? "right" : "left");
     setActiveTab(t);
     const url = t === "signup" ? "/login?tab=signup" : "/login";
     router.replace(url, { scroll: false });
@@ -349,7 +351,7 @@ function LoginPageContent() {
 
   return (
     <div className="max-w-[480px] w-full flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
+      <div className="animate-entrance animate-fade-up flex flex-col gap-2" style={{ animationDelay: "100ms" }}>
         <h2 className="text-2xl font-black tracking-tight text-foreground md:text-3xl">
           {activeTab === "login"
             ? "Connexion à votre compte"
@@ -362,30 +364,52 @@ function LoginPageContent() {
         </p>
       </div>
 
-      <div className="flex gap-2 rounded-lg border border-border bg-muted/30 p-1">
-        <Button
+      {/* Tab switcher with sliding indicator */}
+      <div
+        className="animate-entrance animate-fade-up relative flex rounded-xl border border-border bg-muted/40 p-1"
+        style={{ animationDelay: "250ms" }}
+      >
+        {/* Sliding pill indicator */}
+        <div
+          className="absolute inset-y-1 rounded-lg bg-primary shadow-lg shadow-primary/25 transition-[left] duration-300 ease-out"
+          style={{
+            width: "calc(50% - 4px)",
+            left: activeTab === "login" ? "4px" : "50%",
+          }}
+        />
+        <button
           type="button"
-          variant={activeTab === "login" ? "default" : "ghost"}
-          size="sm"
-          className="flex-1"
           onClick={() => setTab("login")}
+          className={`relative z-10 flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors duration-200 ${
+            activeTab === "login"
+              ? "text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
         >
           Connexion
-        </Button>
-        <Button
+        </button>
+        <button
           type="button"
-          variant={activeTab === "signup" ? "default" : "ghost"}
-          size="sm"
-          className="flex-1"
           onClick={() => setTab("signup")}
+          className={`relative z-10 flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors duration-200 ${
+            activeTab === "signup"
+              ? "text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
         >
           Créer un compte
-        </Button>
+        </button>
       </div>
 
-      {activeTab === "login" ? <LoginTabContent /> : <SignupTabContent />}
+      {/* Form content with directional slide */}
+      <div
+        key={activeTab}
+        className={`auth-tab-slide ${slideDir === "right" ? "auth-tab-slide-right" : "auth-tab-slide-left"}`}
+      >
+        {activeTab === "login" ? <LoginTabContent /> : <SignupTabContent />}
+      </div>
 
-      <div className="flex items-center justify-center gap-2 pt-4 text-sm">
+      <div className="animate-entrance animate-fade-up flex items-center justify-center gap-2 pt-4 text-sm" style={{ animationDelay: "500ms" }}>
         <span className="text-muted-foreground">
           {activeTab === "login" ? "Pas encore de compte ?" : "Vous avez déjà un compte ?"}
         </span>

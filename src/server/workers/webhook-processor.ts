@@ -372,11 +372,11 @@ export async function processWebhookJob(
             const { code, amountCents } = collectResult.reservation.liveItem;
             const prix =
               amountCents !== null
-                ? `${(amountCents / 100).toFixed(2)} €`
+                ? `${Math.round(amountCents / 100).toLocaleString("fr-FR")} FCFA`
                 : "—";
             const total =
               amountCents !== null
-                ? `${(amountCents / 100).toFixed(2)} €`
+                ? `${Math.round(amountCents / 100).toLocaleString("fr-FR")} FCFA`
                 : "—";
             const recap = `Récap : ${code} — ${prix} — Total : ${total}. Réponds OUI pour confirmer.`;
             await writeToOutbox({

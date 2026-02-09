@@ -302,10 +302,10 @@ export function PricingGridContent() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="add-price">Prix ($)</Label>
+                <Label htmlFor="add-price">Prix (FCFA)</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                    $
+                    F
                   </span>
                   <Input
                     id="add-price"
@@ -386,10 +386,10 @@ export function PricingGridContent() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="edit-price">Prix ($)</Label>
+                <Label htmlFor="edit-price">Prix (FCFA)</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                    $
+                    F
                   </span>
                   <Input
                     id="edit-price"
@@ -477,7 +477,7 @@ export function PricingGridContent() {
           />
           <KpiCard
             label="Prix moyen"
-            value={`${(avgCents / 100).toFixed(2)} $`}
+            value={`${Math.round(avgCents / 100).toLocaleString("fr-FR")} FCFA`}
             icon={DollarSign}
             iconVariant="success"
           />
@@ -565,7 +565,7 @@ export function PricingGridContent() {
                       <TableCell className="px-6 py-4 text-sm tabular-nums">
                         {row.amountCents === 0
                           ? "—"
-                          : `${(row.amountCents / 100).toFixed(2)} $`}
+                          : `${Math.round(row.amountCents / 100).toLocaleString("fr-FR")} FCFA`}
                       </TableCell>
                       <TableCell className="px-6 py-4 text-sm text-muted-foreground">
                         {row.description ?? "—"}

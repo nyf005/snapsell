@@ -1144,7 +1144,7 @@ describe("webhook-processor", () => {
           tenantId,
           to: from,
           correlationId: "corr-addr",
-          body: "Récap : A12 — 50.00 € — Total : 50.00 €. Réponds OUI pour confirmer.",
+          body: "Récap : A12 — 50 FCFA — Total : 50 FCFA. Réponds OUI pour confirmer.",
         }),
       );
     });

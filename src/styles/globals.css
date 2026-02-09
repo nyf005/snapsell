@@ -156,3 +156,165 @@
 .auth-page-bg {
   background: linear-gradient(to bottom, var(--auth-page-from), var(--auth-page-to));
 }
+
+/* ===== Landing micro-animations ===== */
+
+/* Base state: elements hidden before animation triggers */
+.animate-on-scroll {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+/* Hero entrance: starts hidden, animates immediately via CSS */
+.animate-entrance {
+  opacity: 0;
+  animation-fill-mode: forwards;
+  animation-duration: 0.9s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Triggered state */
+.animate-on-scroll.animate-visible {
+  animation-fill-mode: forwards;
+  animation-duration: 0.7s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Variant: fade-up */
+.animate-fade-up {
+  transform: translateY(24px);
+}
+.animate-on-scroll.animate-visible.animate-fade-up,
+.animate-entrance.animate-fade-up {
+  animation-name: anim-fade-up;
+}
+
+/* Variant: fade-in */
+.animate-fade-in {
+  transform: none;
+}
+.animate-on-scroll.animate-visible.animate-fade-in,
+.animate-entrance.animate-fade-in {
+  animation-name: anim-fade-in;
+}
+
+/* Variant: slide-left (enters from right) */
+.animate-slide-left {
+  transform: translateX(40px);
+}
+.animate-on-scroll.animate-visible.animate-slide-left {
+  animation-name: anim-slide-left;
+}
+
+/* Variant: slide-right (enters from left) */
+.animate-slide-right {
+  transform: translateX(-40px);
+}
+.animate-on-scroll.animate-visible.animate-slide-right {
+  animation-name: anim-slide-right;
+}
+
+/* Variant: scale-in */
+.animate-scale-in {
+  transform: scale(0.92);
+}
+.animate-on-scroll.animate-visible.animate-scale-in,
+.animate-entrance.animate-scale-in {
+  animation-name: anim-scale-in;
+}
+
+@keyframes anim-fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes anim-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes anim-slide-left {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes anim-slide-right {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes anim-scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Accessibility: disable all landing animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-on-scroll,
+  .animate-entrance {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* Auth tab switcher: directional slide */
+@keyframes auth-slide-from-right {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes auth-slide-from-left {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.auth-tab-slide {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: forwards;
+}
+.auth-tab-slide-right {
+  animation-name: auth-slide-from-right;
+}
+.auth-tab-slide-left {
+  animation-name: auth-slide-from-left;
+}
+
+/* Page transition: fade-in on every navigation */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-page-in {
+  animation: page-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Smooth scroll for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-page-in,
+  .auth-tab-slide {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Landing hero radial glow */
+.hero-glow {
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 30%,
+    var(--primary) 0%,
+    transparent 70%
+  );
+  opacity: 0.12;
+}

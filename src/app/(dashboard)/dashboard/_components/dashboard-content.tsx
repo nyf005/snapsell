@@ -68,9 +68,9 @@ function trendVsHier(
 function formatRevenueCents(cents: number): string {
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    currency: "XOF",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(cents / 100);
 }
 
@@ -282,7 +282,7 @@ export function DashboardContent() {
                   <BarChart
                     data={summary.revenueByDay.map((d) => ({
                       ...d,
-                      revenueEuros: d.revenueCents / 100,
+                      revenueFcfa: d.revenueCents / 100,
                     }))}
                     accessibilityLayer
                   >
@@ -299,21 +299,21 @@ export function DashboardContent() {
                       axisLine={false}
                       tickMargin={4}
                       fontSize={11}
-                      tickFormatter={(v: number) => `${v} €`}
+                      tickFormatter={(v: number) => `${v.toLocaleString("fr-FR")} F`}
                       width={60}
                     />
                     <ChartTooltip
                       content={
                         <ChartTooltipContent
                           formatter={(value) => [
-                            `${Number(value).toFixed(2)} €`,
+                            `${Math.round(Number(value)).toLocaleString("fr-FR")} FCFA`,
                             "Revenu",
                           ]}
                         />
                       }
                     />
                     <Bar
-                      dataKey="revenueEuros"
+                      dataKey="revenueFcfa"
                       fill="var(--color-primary)"
                       radius={[4, 4, 0, 0]}
                     />

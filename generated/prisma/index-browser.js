@@ -127,7 +127,27 @@ exports.Prisma.TenantScalarFieldEnum = {
   whatsappPhoneNumber: 'whatsappPhoneNumber',
   requireDeposit: 'requireDeposit',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  subscriptionPlan: 'subscriptionPlan',
+  subscriptionStatus: 'subscriptionStatus',
+  subscriptionExpiresAt: 'subscriptionExpiresAt',
+  cycleStartedAt: 'cycleStartedAt',
+  paystackCustomerCode: 'paystackCustomerCode',
+  paystackSubscriptionCode: 'paystackSubscriptionCode',
+  paystackEmailToken: 'paystackEmailToken',
+  paystackAuthorizationCode: 'paystackAuthorizationCode',
+  maxConfirmedOrdersPerMonth: 'maxConfirmedOrdersPerMonth',
+  maxProofsPerMonth: 'maxProofsPerMonth',
+  maxAgents: 'maxAgents',
+  overagePerOrderCents: 'overagePerOrderCents',
+  hasExportCsv: 'hasExportCsv',
+  hasAdvancedExports: 'hasAdvancedExports',
+  hasNotificationsOutside24h: 'hasNotificationsOutside24h',
+  hasDepositRecommended: 'hasDepositRecommended',
+  hasAdvancedFilters: 'hasAdvancedFilters',
+  hasPrioritySupport: 'hasPrioritySupport',
+  showBranding: 'showBranding',
+  showUpgradeBanner: 'showUpgradeBanner'
 };
 
 exports.Prisma.InvitationScalarFieldEnum = {
@@ -357,12 +377,34 @@ exports.Prisma.DeadLetterJobScalarFieldEnum = {
   resolvedAt: 'resolvedAt'
 };
 
+exports.Prisma.SubscriptionPaymentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  paystackReference: 'paystackReference',
+  type: 'type',
+  plan: 'plan',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  channel: 'channel',
+  cardLast4: 'cardLast4',
+  overageDetails: 'overageDetails',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
 };
 
 exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -444,7 +486,8 @@ exports.Prisma.ModelName = {
   Order: 'Order',
   PaymentProof: 'PaymentProof',
   Waitlist: 'Waitlist',
-  DeadLetterJob: 'DeadLetterJob'
+  DeadLetterJob: 'DeadLetterJob',
+  SubscriptionPayment: 'SubscriptionPayment'
 };
 
 /**

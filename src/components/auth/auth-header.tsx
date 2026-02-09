@@ -3,40 +3,39 @@ import Link from "next/link";
 import { Button } from "~/components/ui/button";
 import { SnapSellLogo } from "~/components/auth/snapsel-logo";
 
+const navLinks = [
+  { label: "Produit", href: "/#fonctionnalites" },
+  { label: "Tarifs", href: "/tarifs" },
+  { label: "Ressources", href: "#" },
+] as const;
+
 export function AuthHeader() {
   return (
-    <header className="flex items-center justify-between whitespace-nowrap border-b border-border px-6 py-4 md:px-10 bg-background">
-      <div className="flex items-center gap-4">
-        <SnapSellLogo />
-        <h2 className="text-xl font-bold leading-tight tracking-[-0.015em] text-foreground">
-          SnapSell
-        </h2>
-      </div>
-      <div className="flex flex-1 justify-end gap-6 md:gap-8 items-center">
-        <nav className="hidden md:flex items-center gap-9">
-          <Link
-            href="#"
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            Produit
-          </Link>
-          <Link
-            href="#"
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            Tarifs
-          </Link>
-          <Link
-            href="#"
-            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-          >
-            Ressources
-          </Link>
+    <header className="w-full border-b border-border bg-background">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+        <Link href="/" className="flex items-center gap-2">
+          <SnapSellLogo />
+          <span className="text-xl font-extrabold tracking-tight">
+            Snap<span className="text-primary">Sell</span>
+          </span>
+        </Link>
+
+        <nav className="hidden items-center gap-8 md:flex">
+          {navLinks.map((link) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
+
         <Button
           asChild
           size="default"
-          className="min-w-[84px] h-10 rounded-lg font-bold"
+          className="h-10 min-w-[84px] rounded-lg font-bold shadow-lg shadow-primary/20"
         >
           <Link href="/login">Connexion</Link>
         </Button>

@@ -26,6 +26,38 @@ model Tenant {
   requireDeposit        Boolean               @default(false) @map("require_deposit") // Story 4.5: acompte activé → TTL locked, demande preuve
   createdAt             DateTime              @default(now()) @map("created_at")
   updatedAt             DateTime              @updatedAt @map("updated_at")
+  // Subscription (Story 7A.2)
+  subscriptionPlan           String    @default("free") @map("subscription_plan")
+    // "free" | "starter" | "pro"
+  subscriptionStatus         String    @default("active") @map("subscription_status")
+    // "active" | "attention" | "non_renewing" | "expired" | "cancelled"
+  subscriptionExpiresAt      DateTime? @map("subscription_expires_at")
+    // null = Free (pas d'expiration) ; set à +30j après paiement pour Starter/Pro
+  cycleStartedAt             DateTime? @map("cycle_started_at")
+    // Début du cycle courant (pour compter l'usage). null = Free
+
+  // Paystack references
+  paystackCustomerCode       String?   @unique @map("paystack_customer_code")
+  paystackSubscriptionCode   String?   @unique @map("paystack_subscription_code")
+  paystackEmailToken         String?   @map("paystack_email_token")
+  paystackAuthorizationCode  String?   @map("paystack_authorization_code")
+
+  // Entitlements — quotas numériques
+  maxConfirmedOrdersPerMonth Int       @default(50) @map("max_confirmed_orders_per_month")
+  maxProofsPerMonth          Int       @default(20) @map("max_proofs_per_month")    // -1 = illimité
+  maxAgents                  Int       @default(0) @map("max_agents")               // 0 = pas d'agents
+  overagePerOrderCents       Int       @default(0) @map("overage_per_order_cents")  // 0 = blocage (Free)
+
+  // Entitlements — feature flags
+  hasExportCsv               Boolean   @default(false) @map("has_export_csv")
+  hasAdvancedExports         Boolean   @default(false) @map("has_advanced_exports")
+  hasNotificationsOutside24h Boolean   @default(false) @map("has_notifications_outside_24h")
+  hasDepositRecommended      Boolean   @default(false) @map("has_deposit_recommended")
+  hasAdvancedFilters         Boolean   @default(false) @map("has_advanced_filters")
+  hasPrioritySupport         Boolean   @default(false) @map("has_priority_support")
+  showBranding               Boolean   @default(true) @map("show_branding")          // Free = true
+  showUpgradeBanner          Boolean   @default(true) @map("show_upgrade_banner")     // Free = true
+
   users                 User[]
   categoryPrices        CategoryPrice[]
   deliveryZones         DeliveryZone[]
@@ -43,6 +75,7 @@ model Tenant {
   waitlists             Waitlist[]
   orders                Order[]
   paymentProofs         PaymentProof[]
+  subscriptionPayments  SubscriptionPayment[]
 
   @@map("tenants")
 }
@@ -456,4 +489,28 @@ model DeadLetterJob {
   @@index([tenantId, jobType, resolvedAt]) // Filtrage ops
   @@index([tenantId])
   @@map("dead_letter_jobs")
+}
+
+// Story 7A.2: Historique paiements abonnement + overages
+model SubscriptionPayment {
+  id                String   @id @default(cuid())
+  tenantId          String   @map("tenant_id")
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  paystackReference String   @unique @map("paystack_reference") // Idempotence
+  type              String   // "subscription" | "overage"
+  plan              String?  // "starter" | "pro" (null si overage seul)
+  amount            Int      // Montant en FCFA
+  currency          String   @default("XOF")
+  status            String   // "pending" | "success" | "failed"
+  channel           String?  // "card" | "mobile_money"
+  cardLast4         String?  @map("card_last4")
+  overageDetails    Json?    @map("overage_details")
+    // { ordersOverQuota: 12, ratePerOrder: 75, totalAmount: 900 }
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([tenantId, type, status])
+  @@map("subscription_payments")
 }

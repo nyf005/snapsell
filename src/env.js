@@ -50,6 +50,11 @@ export const env = createEnv({
     R2_ACCESS_KEY_ID: z.string().min(1).optional(),
     R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
     R2_BUCKET_NAME: z.string().min(1).optional(),
+    // Paystack (Story 7A.2)
+    PAYSTACK_SECRET_KEY: z.string().min(1).optional(),
+    PAYSTACK_PUBLIC_KEY: z.string().min(1).optional(),
+    PAYSTACK_PLAN_STARTER: z.string().min(1).optional(),
+    PAYSTACK_PLAN_PRO: z.string().min(1).optional(),
     // Redis/Upstash configuration
     REDIS_URL: z
       .string()
@@ -67,7 +72,7 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    NEXT_PUBLIC_APP_URL: z.string().url().optional(),
   },
 
   /**
@@ -97,9 +102,13 @@ export const env = createEnv({
     R2_ACCESS_KEY_ID: process.env.R2_ACCESS_KEY_ID,
     R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY,
     R2_BUCKET_NAME: process.env.R2_BUCKET_NAME,
+    PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY,
+    PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY,
+    PAYSTACK_PLAN_STARTER: process.env.PAYSTACK_PLAN_STARTER,
+    PAYSTACK_PLAN_PRO: process.env.PAYSTACK_PLAN_PRO,
     REDIS_URL: process.env.REDIS_URL,
     REDIS_TOKEN: process.env.REDIS_TOKEN,
-    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
