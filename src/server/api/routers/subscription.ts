@@ -119,7 +119,7 @@ export const subscriptionRouter = createTRPCRouter({
     const tenantId = ctx.session.user.tenantId;
 
     const payments = await db.subscriptionPayment.findMany({
-      where: { tenantId },
+      where: { tenantId, status: { not: "pending" } },
       orderBy: { createdAt: "desc" },
       take: 50,
       select: {

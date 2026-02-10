@@ -5,14 +5,7 @@ vi.mock("~/server/auth", () => ({
   auth: vi.fn(),
 }));
 vi.mock("~/server/db", () => ({
-  db: {
-    subscriptionPayment: {
-      findFirst: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
-  },
+  db: {},
 }));
 vi.mock("~/server/payment/paystack", () => ({
   initializeTransaction: vi.fn(),
@@ -30,7 +23,6 @@ vi.mock("~/lib/subscription-plans", async () => {
 
 import { POST } from "./route";
 import { auth } from "~/server/auth";
-import { db } from "~/server/db";
 import { initializeTransaction } from "~/server/payment/paystack";
 import { canManageGrid } from "~/lib/rbac";
 import { getPaystackPlanCode } from "~/lib/subscription-plans";
@@ -58,10 +50,6 @@ describe("Story 7A.2: POST /api/payment/subscribe", () => {
         reference: "ref-123",
       },
     });
-    vi.mocked(db.subscriptionPayment.findFirst).mockResolvedValue(null);
-    vi.mocked(db.subscriptionPayment.create).mockResolvedValue({} as never);
-    vi.mocked(db.subscriptionPayment.update).mockResolvedValue({} as never);
-    vi.mocked(db.subscriptionPayment.deleteMany).mockResolvedValue({ count: 0 } as never);
     vi.mocked(getPaystackPlanCode).mockImplementation((plan) => {
       if (plan.id === "starter") return "PLN_starter";
       if (plan.id === "pro") return "PLN_pro";
@@ -109,7 +97,7 @@ describe("Story 7A.2: POST /api/payment/subscribe", () => {
     expect(res.status).toBe(400);
   });
 
-  it("initializes Paystack transaction and creates pending payment for starter", async () => {
+  it("initializes Paystack transaction for starter and returns authorization URL", async () => {
     const req = new Request("http://localhost/api/payment/subscribe", {
       method: "POST",
       body: JSON.stringify({ plan: "starter" }),
@@ -121,7 +109,6 @@ describe("Story 7A.2: POST /api/payment/subscribe", () => {
     expect(data.authorization_url).toBe("https://checkout.paystack.com/xxx");
     expect(data.reference).toBe("ref-123");
 
-    // Verify Paystack init called with plan code and amount in subunits (25_000 FCFA = 2_500_000)
     expect(initializeTransaction).toHaveBeenCalledWith(
       "owner@test.com",
       "PLN_starter",
@@ -130,29 +117,6 @@ describe("Story 7A.2: POST /api/payment/subscribe", () => {
       2_500_000,
       "XOF",
     );
-
-    // Create with temp ref, then update with real ref after Paystack
-    expect(db.subscriptionPayment.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        tenantId: "tenant-1",
-        type: "subscription",
-        plan: "starter",
-        amount: 25_000,
-        status: "pending",
-      }),
-    });
-    const createArg = vi.mocked(db.subscriptionPayment.create).mock.calls[0]?.[0] as { data: { paystackReference: string } };
-    expect(createArg?.data.paystackReference).toMatch(/^pending_/);
-    expect(db.subscriptionPayment.update).toHaveBeenCalledWith({
-      where: { paystackReference: expect.stringMatching(/^pending_/) },
-      data: expect.objectContaining({
-        paystackReference: "ref-123",
-        metadata: expect.objectContaining({
-          authorization_url: "https://checkout.paystack.com/xxx",
-          access_code: "acc_xxx",
-        }),
-      }),
-    });
   });
 
   it("initializes Paystack transaction for pro plan", async () => {
@@ -171,12 +135,6 @@ describe("Story 7A.2: POST /api/payment/subscribe", () => {
       5_000_000,
       "XOF",
     );
-    expect(db.subscriptionPayment.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        plan: "pro",
-        amount: 50_000,
-      }),
-    });
   });
 
   it("returns 500 when Paystack fails", async () => {

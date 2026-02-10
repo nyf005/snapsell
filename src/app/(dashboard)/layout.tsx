@@ -20,7 +20,7 @@ export default async function DashboardLayout({
   const userId = session.user.id;
   const tenantId = session.user.tenantId;
   if (!userId || !tenantId) {
-    redirect("/api/auth/signout?callbackUrl=/login");
+    redirect("/logout");
   }
 
   const [user, tenant] = await Promise.all([
@@ -35,7 +35,7 @@ export default async function DashboardLayout({
   ]);
 
   if (!user || !tenant) {
-    redirect("/api/auth/signout?callbackUrl=/login");
+    redirect("/logout");
   }
 
   const canManageGridRole = canManageGrid(session.user.role as string);
