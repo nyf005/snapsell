@@ -13,7 +13,7 @@ declare module "next-auth" {
       email: string;
       name?: string | null;
       image?: string | null;
-      tenantId: string;
+      tenantId: string | null; // null pour les users OPS (pas de tenant)
       role: Role;
     };
   }
@@ -64,7 +64,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           name: user.name ?? undefined,
           image: user.image ?? undefined,
-          tenantId: user.tenantId,
+          tenantId: user.tenantId ?? null,
           role: user.role,
         };
       },
@@ -74,11 +74,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.sub = (user as { id?: string }).id ?? token.sub;
-        token.tenantId = (user as { tenantId?: string }).tenantId;
+        token.tenantId = (user as { tenantId?: string | null }).tenantId ?? null;
         token.role = (user as { role?: Role }).role;
       }
-      // Si le tenantId est manquant ou vide dans le token, le relire depuis la base
-      if (!token.tenantId && token.email) {
+      // Relire depuis la base uniquement si le role est absent (premier login / token existant)
+      // Pour les OPS, tenantId est légitimement null
+      if (!token.role && token.email) {
         const dbUser = await db.user.findUnique({
           where: { email: token.email as string },
           select: { tenantId: true, role: true },
@@ -94,7 +95,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session?.user) {
         Object.assign(session.user, {
           id: (token.sub as string) ?? "",
-          tenantId: token.tenantId ?? "",
+          tenantId: (token.tenantId as string | null) ?? null,
           role: ((token.role as Role | undefined) ?? "OWNER") as Role,
         });
       }

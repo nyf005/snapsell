@@ -6,50 +6,15 @@
 import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import type { Prisma } from "../../../../generated/prisma";
 import {
   listEventLogsInputSchema,
   exportCsvEventLogsInputSchema,
   type ListEventLogsInput,
 } from "./eventLog.schema";
+import { buildEventLogWhere } from "~/server/events/buildEventLogWhere";
 
 /** Plafond export CSV (CR 6-5) : évite timeout / OOM. */
 const EXPORT_CSV_MAX_ROWS = 10_000;
-
-type EventLogWhereInput = Prisma.EventLogWhereInput;
-
-/** Construit le where pour list et exportCsv (évite duplication). */
-function buildEventLogWhere(
-  tenantId: string,
-  opts: {
-    eventType?: string;
-    dateFrom?: string;
-    dateTo?: string;
-    correlationId?: string;
-  },
-): EventLogWhereInput {
-  const where: EventLogWhereInput = { tenantId };
-  if (opts.eventType) {
-    where.eventType = opts.eventType;
-  }
-  if (opts.correlationId) {
-    where.correlationId = opts.correlationId;
-  }
-  if (opts.dateFrom ?? opts.dateTo) {
-    where.createdAt = {};
-    if (opts.dateFrom) {
-      const from = new Date(opts.dateFrom);
-      from.setUTCHours(0, 0, 0, 0);
-      (where.createdAt as Record<string, Date>).gte = from;
-    }
-    if (opts.dateTo) {
-      const to = new Date(opts.dateTo);
-      to.setUTCHours(23, 59, 59, 999);
-      (where.createdAt as Record<string, Date>).lte = to;
-    }
-  }
-  return where;
-}
 
 export const eventLogRouter = createTRPCRouter({
   /** Liste paginée des événements avec filtres. */

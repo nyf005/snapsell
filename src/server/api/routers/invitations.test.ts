@@ -13,6 +13,7 @@ const mockUserCreate = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
 const mockHash = vi.hoisted(() => vi.fn());
 const mockCheckRateLimit = vi.hoisted(() => vi.fn());
+const mockCheckAgentsQuota = vi.hoisted(() => vi.fn());
 
 vi.mock("~/server/db", () => ({
   db: {
@@ -38,11 +39,20 @@ vi.mock("~/lib/rate-limit", () => ({
   checkRateLimit: mockCheckRateLimit,
 }));
 
+vi.mock("~/server/subscription/usage", () => ({
+  checkAgentsQuota: mockCheckAgentsQuota,
+}));
+
 describe("invitations router", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockHash.mockResolvedValue("hashed-password");
     mockCheckRateLimit.mockReturnValue(true);
+    mockCheckAgentsQuota.mockResolvedValue({
+      allowed: true,
+      currentCount: 0,
+      maxAgents: 5,
+    });
   });
 
   describe("createInvitation", () => {
@@ -170,6 +180,34 @@ describe("invitations router", () => {
         message: expect.stringContaining("Seuls Owner et Manager"),
       });
 
+      expect(mockTransaction).not.toHaveBeenCalled();
+    });
+
+    it("throws FORBIDDEN when agents quota exceeded", async () => {
+      mockCheckAgentsQuota.mockResolvedValueOnce({
+        allowed: false,
+        currentCount: 1,
+        maxAgents: 1,
+      });
+
+      const ownerSession = {
+        ...mockSession,
+        user: { ...mockSession.user, role: "OWNER" },
+      };
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: ownerSession as any,
+      });
+      const caller = createCaller(ctx);
+
+      await expect(
+        caller.invitations.createInvitation({
+          email: "agent@example.com",
+        }),
+      ).rejects.toMatchObject({
+        code: "FORBIDDEN",
+        message: expect.stringContaining("Limite d'agents atteinte"),
+      });
       expect(mockTransaction).not.toHaveBeenCalled();
     });
 
@@ -449,6 +487,42 @@ describe("invitations router", () => {
   });
 
   describe("acceptInvitation", () => {
+    it("throws FORBIDDEN when agents quota exceeded on accept", async () => {
+      const mockInvitation = {
+        id: "inv-1",
+        tenantId: "tenant-1",
+        email: "agent@example.com",
+        role: "AGENT",
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        consumedAt: null,
+      };
+
+      mockInvitationFindFirst.mockResolvedValue(mockInvitation);
+      mockCheckAgentsQuota.mockResolvedValueOnce({
+        allowed: false,
+        currentCount: 1,
+        maxAgents: 1,
+      });
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: null,
+      });
+      const caller = createCaller(ctx);
+
+      await expect(
+        caller.invitations.acceptInvitation({
+          token: "valid-token",
+          name: "Jean Dupont",
+          password: "password123",
+        }),
+      ).rejects.toMatchObject({
+        code: "FORBIDDEN",
+        message: expect.stringContaining("Limite d'agents atteinte"),
+      });
+      expect(mockTransaction).not.toHaveBeenCalled();
+    });
+
     it("creates new user and consumes invitation", async () => {
       const mockInvitation = {
         id: "inv-1",

@@ -215,7 +215,7 @@ export function AppSidebar({
             const MainIcon = mainItem.icon;
             // Si mainItem est défini, tous les items sont dans le sous-menu, sinon on exclut le premier
             const subMenuItems = group.mainItem ? visibleItems : visibleItems.slice(1);
-            
+
             // Le bouton principal est actif si un sous-item est actif OU si on est exactement sur sa route
             const hasActiveSub = hasActiveSubItem(group, subMenuItems);
             const mainItemActive = hasActiveSub || isItemActive(mainItem.href, true);

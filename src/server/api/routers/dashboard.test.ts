@@ -330,7 +330,7 @@ describe("dashboard router", () => {
       }
     });
 
-    it("throws BAD_REQUEST when tenantId missing", async () => {
+    it("throws FORBIDDEN when tenantId missing (enforceTenant middleware)", async () => {
       const noTenantSession = {
         user: {
           id: "user-x",
@@ -344,7 +344,7 @@ describe("dashboard router", () => {
 
       await expect(caller.dashboard.getSummary()).rejects.toThrow(TRPCError);
       await expect(caller.dashboard.getSummary()).rejects.toMatchObject({
-        code: "BAD_REQUEST",
+        code: "FORBIDDEN",
       });
     });
   });

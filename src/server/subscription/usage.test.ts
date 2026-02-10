@@ -25,6 +25,8 @@ import { chargeAuthorization } from "~/server/payment/paystack";
 import {
   getUsageThisCycle,
   checkQuota,
+  checkProofsQuota,
+  checkAgentsQuota,
   calculateOverage,
   chargeOverage,
   QuotaExceededError,
@@ -81,6 +83,92 @@ describe("Story 7A.2: Usage service", () => {
       expect(usage.confirmedOrders).toBe(320);
       expect(usage.overageCount).toBe(20);
       expect(usage.overageAmountFCFA).toBe(1500); // 20 * 75 FCFA
+    });
+  });
+
+  describe("checkProofsQuota", () => {
+    it("allows when under quota", async () => {
+      vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
+        maxProofsPerMonth: 20,
+        cycleStartedAt: null,
+        subscriptionPlan: "free",
+      } as never);
+      vi.mocked(db.paymentProof.count).mockResolvedValue(10);
+
+      const result = await checkProofsQuota("tenant-1");
+
+      expect(result.allowed).toBe(true);
+      expect(result.currentUsage).toBe(10);
+      expect(result.quota).toBe(20);
+    });
+
+    it("allows when quota is unlimited (-1)", async () => {
+      vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
+        maxProofsPerMonth: -1,
+        cycleStartedAt: new Date("2026-02-01"),
+        subscriptionPlan: "starter",
+      } as never);
+      vi.mocked(db.paymentProof.count).mockResolvedValue(100);
+
+      const result = await checkProofsQuota("tenant-1");
+
+      expect(result.allowed).toBe(true);
+      expect(result.quota).toBe(-1);
+    });
+
+    it("blocks when at or over quota", async () => {
+      vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
+        maxProofsPerMonth: 20,
+        cycleStartedAt: null,
+        subscriptionPlan: "free",
+      } as never);
+      vi.mocked(db.paymentProof.count).mockResolvedValue(20);
+
+      const result = await checkProofsQuota("tenant-1");
+
+      expect(result.allowed).toBe(false);
+      expect(result.currentUsage).toBe(20);
+      expect(result.quota).toBe(20);
+    });
+  });
+
+  describe("checkAgentsQuota", () => {
+    it("allows when under maxAgents", async () => {
+      vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
+        maxAgents: 1,
+      } as never);
+      vi.mocked(db.user.count).mockResolvedValue(0);
+
+      const result = await checkAgentsQuota("tenant-1");
+
+      expect(result.allowed).toBe(true);
+      expect(result.currentCount).toBe(0);
+      expect(result.maxAgents).toBe(1);
+    });
+
+    it("blocks when at maxAgents", async () => {
+      vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
+        maxAgents: 1,
+      } as never);
+      vi.mocked(db.user.count).mockResolvedValue(1);
+
+      const result = await checkAgentsQuota("tenant-1");
+
+      expect(result.allowed).toBe(false);
+      expect(result.currentCount).toBe(1);
+      expect(result.maxAgents).toBe(1);
+    });
+
+    it("allows when maxAgents is 5 and current is 3", async () => {
+      vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
+        maxAgents: 5,
+      } as never);
+      vi.mocked(db.user.count).mockResolvedValue(3);
+
+      const result = await checkAgentsQuota("tenant-1");
+
+      expect(result.allowed).toBe(true);
+      expect(result.currentCount).toBe(3);
     });
   });
 

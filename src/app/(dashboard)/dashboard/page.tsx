@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { isOpsUser } from "~/lib/rbac";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
@@ -19,7 +20,11 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  // Exactement la même logique que le layout qui fonctionne pour la sidebar
+  // Un user OPS n'a pas de tenant → rediriger vers la console ops
+  if (isOpsUser(session.user.role) || !session.user.tenantId) {
+    redirect("/ops/logs");
+  }
+
   const tenant = await db.tenant.findUnique({
     where: { id: session.user.tenantId },
     select: { name: true },

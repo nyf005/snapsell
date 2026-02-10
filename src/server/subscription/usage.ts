@@ -150,6 +150,58 @@ export async function getUsageThisCycle(tenantId: string): Promise<UsageThisCycl
   };
 }
 
+export type ProofsQuotaCheckResult = {
+  allowed: boolean;
+  currentUsage: number;
+  quota: number; // -1 means unlimited
+};
+
+export type AgentsQuotaCheckResult = {
+  allowed: boolean;
+  currentCount: number;
+  maxAgents: number;
+};
+
+/**
+ * Check if a tenant can create another payment proof this cycle.
+ * - quota === -1 (unlimited): always allowed
+ * - currentUsage >= quota: not allowed
+ */
+export async function checkProofsQuota(tenantId: string): Promise<ProofsQuotaCheckResult> {
+  const tenant = await db.tenant.findUniqueOrThrow({
+    where: { id: tenantId },
+    select: { maxProofsPerMonth: true, cycleStartedAt: true, subscriptionPlan: true },
+  });
+  const cycleStart = getCycleStart(tenant);
+  const currentUsage = await countProofsThisCycle(tenantId, cycleStart);
+  const quota = tenant.maxProofsPerMonth;
+  if (quota === -1) {
+    return { allowed: true, currentUsage, quota: -1 };
+  }
+  return {
+    allowed: currentUsage < quota,
+    currentUsage,
+    quota,
+  };
+}
+
+/**
+ * Check if a tenant can add another agent (invitation or accept).
+ * - currentCount >= maxAgents: not allowed
+ */
+export async function checkAgentsQuota(tenantId: string): Promise<AgentsQuotaCheckResult> {
+  const tenant = await db.tenant.findUniqueOrThrow({
+    where: { id: tenantId },
+    select: { maxAgents: true },
+  });
+  const currentCount = await countActiveAgents(tenantId);
+  return {
+    allowed: currentCount < tenant.maxAgents,
+    currentCount,
+    maxAgents: tenant.maxAgents,
+  };
+}
+
 /**
  * Check if a tenant can confirm another order.
  * - Free: blocked at quota (allowed=false)

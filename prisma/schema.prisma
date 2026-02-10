@@ -11,12 +11,13 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-// Roles for RBAC (Owner = vendeur créateur du tenant)
+// Roles for RBAC (Owner = vendeur créateur du tenant, OPS = accès console ops sans tenant)
 enum Role {
   OWNER
   MANAGER
   VENDEUR
   AGENT
+  OPS
 }
 
 model Tenant {
@@ -145,8 +146,8 @@ model DeliveryFeeCommune {
 
 model User {
   id           String    @id @default(cuid())
-  tenantId     String    @map("tenant_id")
-  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId     String?   @map("tenant_id") // Nullable : null pour les users OPS (pas de tenant)
+  tenant       Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   email        String    @unique
   emailVerified DateTime? @map("email_verified")
   name         String?

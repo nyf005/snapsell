@@ -2,19 +2,25 @@
  * Story 5.3: Tests pour createPaymentProof.
  * - Retourne null si commande absente ou pas en deposit_pending, ou payload vide.
  * - Crée une preuve et retourne { id } avec textPayload et/ou mediaStorageKey.
+ * - Story 7A.2: Lance ProofsQuotaExceededError si quota preuves atteint.
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createPaymentProof } from "./createPaymentProof";
+import { createPaymentProof, ProofsQuotaExceededError } from "./createPaymentProof";
 
 const mockOrderFindFirst = vi.hoisted(() => vi.fn());
 const mockPaymentProofCreate = vi.hoisted(() => vi.fn());
+const mockCheckProofsQuota = vi.hoisted(() => vi.fn());
 
 vi.mock("~/server/db", () => ({
   db: {
     order: { findFirst: mockOrderFindFirst },
     paymentProof: { create: mockPaymentProofCreate },
   },
+}));
+
+vi.mock("~/server/subscription/usage", () => ({
+  checkProofsQuota: (...args: unknown[]) => mockCheckProofsQuota(...args),
 }));
 
 describe("createPaymentProof", () => {
@@ -24,6 +30,31 @@ describe("createPaymentProof", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockCheckProofsQuota.mockResolvedValue({
+      allowed: true,
+      currentUsage: 0,
+      quota: 20,
+    });
+  });
+
+  it("throws ProofsQuotaExceededError when proofs quota exceeded", async () => {
+    mockCheckProofsQuota.mockResolvedValueOnce({
+      allowed: false,
+      currentUsage: 20,
+      quota: 20,
+    });
+
+    await expect(
+      createPaymentProof(
+        tenantId,
+        orderId,
+        { textPayload: "Preuve" },
+        correlationId,
+      ),
+    ).rejects.toThrow(ProofsQuotaExceededError);
+
+    expect(mockOrderFindFirst).not.toHaveBeenCalled();
+    expect(mockPaymentProofCreate).not.toHaveBeenCalled();
   });
 
   it("returns null when order not found", async () => {

@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 
 import type { Session } from "next-auth";
 import { db } from "~/server/db";
+import { isOpsUser } from "~/lib/rbac";
 
 /**
  * 1. CONTEXT
@@ -114,10 +115,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 export const publicProcedure = t.procedure.use(timingMiddleware);
 
 /**
- * Protected (authenticated) procedure — requires a valid session.
- * Use for all dashboard/tenant data.
- * Isolation tenant: never trust client for tenantId; always use ctx.session.user.tenantId in where/data.
- * No dashboard data without valid session; no protected tRPC procedure without tenant_id filter.
+ * Authenticated session middleware — requires a valid session (any role).
  */
 const enforceSession = t.middleware(({ ctx, next }) => {
   if (!ctx.session?.user) {
@@ -131,6 +129,66 @@ const enforceSession = t.middleware(({ ctx, next }) => {
   });
 });
 
+/**
+ * Tenant isolation middleware — requires a non-null tenantId.
+ * Blocks OPS users (tenantId null) from tenant procedures.
+ * Narrows tenantId type to string for downstream consumers.
+ */
+const enforceTenant = t.middleware(({ ctx, next }) => {
+  if (!ctx.session?.user?.tenantId) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Accès tenant requis",
+    });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      session: {
+        ...ctx.session,
+        user: {
+          ...ctx.session.user,
+          tenantId: ctx.session.user.tenantId, // narrowed to string by guard
+        },
+      },
+    },
+  });
+});
+
+/**
+ * Protected (authenticated) procedure — requires a valid session + tenantId.
+ * Use for all dashboard/tenant data.
+ * Isolation tenant: never trust client for tenantId; always use ctx.session.user.tenantId in where/data.
+ * No dashboard data without valid session; no protected tRPC procedure without tenant_id filter.
+ */
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
-  .use(enforceSession);
+  .use(enforceSession)
+  .use(enforceTenant);
+
+/**
+ * Ops procedure — requires role OPS (tenantId null).
+ * Use for multi-tenant ops console endpoints (Story 7B.1).
+ */
+const enforceOps = t.middleware(({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Session requise" });
+  }
+  if (!isOpsUser(ctx.session.user.role)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Accès réservé aux utilisateurs ops SnapSell",
+    });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
+export const opsProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(enforceSession)
+  .use(enforceOps);

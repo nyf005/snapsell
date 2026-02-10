@@ -7,3 +7,11 @@ export const GRID_MANAGER_ROLES = ["OWNER", "MANAGER"] as const;
 export function canManageGrid(role: string): boolean {
   return GRID_MANAGER_ROLES.includes(role as (typeof GRID_MANAGER_ROLES)[number]);
 }
+
+/**
+ * Vérifie si un utilisateur a le rôle OPS (accès console ops multi-tenant, Story 7B.1).
+ * Un user OPS a role="OPS" et tenantId=null. Mutuellement exclusif avec les rôles tenant.
+ */
+export function isOpsUser(role: string | null | undefined): boolean {
+  return role === "OPS";
+}

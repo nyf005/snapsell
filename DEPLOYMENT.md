@@ -343,6 +343,41 @@ Railway détectera automatiquement les changements et redéploiera. Sinon, cliqu
 
 ---
 
+## 👤 Créer un utilisateur OPS en production (Story 7B.1)
+
+Les utilisateurs OPS ont accès à la console ops multi-tenant (`/ops/logs`).
+Ils ont `role = OPS` et `tenant_id = NULL` (mutuellement exclusif avec les rôles tenant).
+
+### 1. Générer le hash du mot de passe (en local)
+
+```bash
+node -e "require('bcrypt').hash('MOT_DE_PASSE_FORT', 10).then(h => console.log(h))"
+```
+
+### 2. Insérer le user OPS via la console SQL Neon
+
+Dashboard Neon → SQL Editor → exécuter :
+
+```sql
+INSERT INTO users (id, email, password_hash, name, role, tenant_id, created_at, updated_at)
+VALUES (
+  gen_random_uuid(),
+  'ops@snapsell.com',
+  '$2b$10$HASH_GENERE_CI_DESSUS',
+  'Ops SnapSell',
+  'OPS',
+  NULL,
+  NOW(),
+  NOW()
+);
+```
+
+### 3. Vérifier
+
+Se connecter sur `/login` avec l'email/mot de passe → redirection automatique vers `/ops/logs`.
+
+---
+
 ## 📝 Notes
 
 - **Seller_phones:** Ajout manuel en DB pour l'instant (API tRPC à venir Story 1.6)

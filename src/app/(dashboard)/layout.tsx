@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { canManageGrid } from "~/lib/rbac";
+import { canManageGrid, isOpsUser } from "~/lib/rbac";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 
@@ -15,6 +15,11 @@ export default async function DashboardLayout({
   const session = await auth();
   if (!session?.user) {
     redirect("/login");
+  }
+
+  // Un user OPS n'a pas de tenant → le rediriger vers la console ops
+  if (isOpsUser(session.user.role)) {
+    redirect("/ops/logs");
   }
 
   const userId = session.user.id;

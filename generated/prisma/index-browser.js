@@ -427,7 +427,8 @@ exports.Role = exports.$Enums.Role = {
   OWNER: 'OWNER',
   MANAGER: 'MANAGER',
   VENDEUR: 'VENDEUR',
-  AGENT: 'AGENT'
+  AGENT: 'AGENT',
+  OPS: 'OPS'
 };
 
 exports.LiveSessionStatus = exports.$Enums.LiveSessionStatus = {

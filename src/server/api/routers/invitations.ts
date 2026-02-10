@@ -5,6 +5,7 @@ import { hash } from "bcrypt";
 import { canManageGrid } from "~/lib/rbac";
 import { checkRateLimit } from "~/lib/rate-limit";
 import { db } from "~/server/db";
+import { checkAgentsQuota } from "~/server/subscription/usage";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import {
   acceptInvitationInputSchema,
@@ -95,6 +96,15 @@ export const invitationsRouter = createTRPCRouter({
         throw new TRPCError({
           code: "TOO_MANY_REQUESTS",
           message: "Trop de demandes. Veuillez réessayer dans une heure.",
+        });
+      }
+
+      // Limite d'agents selon l'abonnement (Story 7A.2)
+      const agentsQuota = await checkAgentsQuota(tenantId);
+      if (!agentsQuota.allowed) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Limite d'agents atteinte (${agentsQuota.currentCount}/${agentsQuota.maxAgents}). Passez à un plan supérieur pour ajouter des agents.`,
         });
       }
 
@@ -215,6 +225,15 @@ export const invitationsRouter = createTRPCRouter({
         },
       });
       validateInvitation(inv);
+
+      // Limite d'agents selon l'abonnement (Story 7A.2)
+      const agentsQuota = await checkAgentsQuota(inv!.tenantId);
+      if (!agentsQuota.allowed) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Limite d'agents atteinte pour ce compte. L'équipe ne peut plus accepter de nouveaux agents pour le moment.",
+        });
+      }
 
       const existingUser = await db.user.findUnique({
         where: { email: inv!.email },
