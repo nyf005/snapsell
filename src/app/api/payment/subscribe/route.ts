@@ -86,7 +86,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Body JSON invalide" }, { status: 400 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  // Utiliser l'origine de la requête pour que le retour Paystack ramène sur le même host (cookie conservé).
+  const origin = request.url ? new URL(request.url).origin : undefined;
+  const appUrl = origin ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const callbackUrl = `${appUrl}/parametres/abonnement?payment=callback`;
 
   const result = await initiateSubscription(body.plan ?? "", callbackUrl);
@@ -121,8 +123,8 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/dashboard", url.origin));
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? url.origin;
-  const callbackUrl = `${appUrl}/parametres/abonnement?payment=callback`;
+  // Utiliser l'origine de la requête pour que le retour Paystack ramène sur le même host (cookie conservé).
+  const callbackUrl = `${url.origin}/parametres/abonnement?payment=callback`;
 
   const result = await initiateSubscription(planId, callbackUrl);
 
