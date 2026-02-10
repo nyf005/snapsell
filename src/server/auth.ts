@@ -19,9 +19,25 @@ declare module "next-auth" {
   }
 }
 
+// En production (HTTPS), le cookie doit être sameSite: "none" pour être envoyé
+// quand l'utilisateur revient d'une redirection externe (ex. Paystack).
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+const useSecureCrossSiteCookie =
+  process.env.NODE_ENV === "production" && appUrl.startsWith("https://");
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
   pages: { signIn: "/login" },
+  cookies: useSecureCrossSiteCookie
+    ? {
+        sessionToken: {
+          options: {
+            sameSite: "none",
+            secure: true,
+          },
+        },
+      }
+    : undefined,
   providers: [
     Credentials({
       id: "credentials",
