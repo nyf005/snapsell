@@ -11,7 +11,7 @@ type DashboardHeaderProps = {
 
 export function DashboardHeader({ left, right }: DashboardHeaderProps) {
   return (
-    <header className="flex h-[65px] shrink-0 items-center justify-between gap-4 border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:px-6">
+    <header className="flex h-[65px] shrink-0 items-center justify-between gap-4 border-b border-border bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:px-8">
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <DashboardSidebarTrigger />
         {left != null ? (

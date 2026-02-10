@@ -158,7 +158,7 @@ export function LiveOpsContent() {
         }
       />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
-        <div className="container mx-auto space-y-8 px-6 py-8 md:px-8">
+        <div className="space-y-8 p-6 md:p-8">
           <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
             <div className="flex flex-col gap-1">
               <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
