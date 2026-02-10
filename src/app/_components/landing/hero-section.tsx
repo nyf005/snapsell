@@ -4,7 +4,13 @@ import { ArrowRight, BadgeCheck, MessageCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { AnimateEntrance } from "~/app/_components/landing/animate-on-scroll";
 
-export function HeroSection() {
+type HeroSectionProps = {
+  user?: { name?: string | null } | null;
+};
+
+export function HeroSection({ user }: HeroSectionProps) {
+  const isLoggedIn = !!user;
+
   return (
     <section className="relative overflow-hidden pt-20 pb-16 lg:pt-32 lg:pb-24">
       {/* Glow background */}
@@ -16,71 +22,122 @@ export function HeroSection() {
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
         {/* Left — Copy */}
         <div className="flex flex-col gap-8">
-          <AnimateEntrance delay={200}>
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-              <BadgeCheck className="size-4" />
-              Nouveau : Automatisation WhatsApp
-            </div>
-          </AnimateEntrance>
-
-          <AnimateEntrance delay={450}>
-            <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-7xl">
-              Transformez vos lives en{" "}
-              <span className="text-primary">commandes structurées</span> via
-              WhatsApp
-            </h1>
-          </AnimateEntrance>
-
-          <AnimateEntrance delay={750}>
-            <p className="max-w-xl text-lg text-muted-foreground lg:text-xl">
-              Plus de chaos en DM. Codes, réservations, file d&apos;attente et
-              acompte — tout est automatisé pour que vous puissiez vous
-              concentrer sur la vente.
-            </p>
-          </AnimateEntrance>
-
-          <AnimateEntrance delay={1050}>
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <Button
-                asChild
-                size="lg"
-                className="h-12 rounded-xl px-8 text-base font-bold shadow-xl shadow-primary/25 transition-transform hover:scale-[1.03] active:scale-[0.98]"
-              >
-                <Link href="/login?tab=signup">
-                  Créer mon compte vendeur
-                  <ArrowRight className="size-5" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="h-12 rounded-xl px-8 text-base font-bold transition-transform hover:scale-[1.03] active:scale-[0.98]"
-              >
-                <Link href="#fonctionnalites">
-                  Découvrir les fonctionnalités
-                </Link>
-              </Button>
-            </div>
-          </AnimateEntrance>
-
-          <AnimateEntrance delay={1300}>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              {/* Avatars */}
-              <div className="flex -space-x-2" aria-hidden="true">
-                <div className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-primary/30 text-xs font-bold text-primary">
-                  S
+          {isLoggedIn ? (
+            <>
+              <AnimateEntrance delay={200}>
+                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
+                  <BadgeCheck className="size-4" />
+                  Vous êtes connecté
                 </div>
-                <div className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-primary/20 text-xs font-bold text-primary">
-                  A
+              </AnimateEntrance>
+
+              <AnimateEntrance delay={450}>
+                <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
+                  Bon retour
+                  {user.name ? (
+                    <span className="text-primary">, {user.name}</span>
+                  ) : null}
+                </h1>
+              </AnimateEntrance>
+
+              <AnimateEntrance delay={750}>
+                <p className="max-w-xl text-lg text-muted-foreground lg:text-xl">
+                  Accédez à votre tableau de bord pour gérer vos commandes, vos
+                  lives et vos paramètres.
+                </p>
+              </AnimateEntrance>
+
+              <AnimateEntrance delay={1050}>
+                <div className="flex flex-col gap-4 sm:flex-row">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="h-12 rounded-xl px-8 text-base font-bold shadow-xl shadow-primary/25 transition-transform hover:scale-[1.03] active:scale-[0.98]"
+                  >
+                    <Link href="/dashboard">
+                      Aller au tableau de bord
+                      <ArrowRight className="size-5" />
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="h-12 rounded-xl px-8 text-base font-bold transition-transform hover:scale-[1.03] active:scale-[0.98]"
+                  >
+                    <Link href="/tarifs">Voir les tarifs</Link>
+                  </Button>
                 </div>
-                <div className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-primary/40 text-xs font-bold text-primary">
-                  M
+              </AnimateEntrance>
+            </>
+          ) : (
+            <>
+              <AnimateEntrance delay={200}>
+                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
+                  <BadgeCheck className="size-4" />
+                  Nouveau : Automatisation WhatsApp
                 </div>
-              </div>
-              <span>Inscription en 2 min — gratuit pour démarrer</span>
-            </div>
-          </AnimateEntrance>
+              </AnimateEntrance>
+
+              <AnimateEntrance delay={450}>
+                <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-7xl">
+                  Transformez vos lives en{" "}
+                  <span className="text-primary">commandes structurées</span> via
+                  WhatsApp
+                </h1>
+              </AnimateEntrance>
+
+              <AnimateEntrance delay={750}>
+                <p className="max-w-xl text-lg text-muted-foreground lg:text-xl">
+                  Plus de chaos en DM. Codes, réservations, file d&apos;attente et
+                  acompte — tout est automatisé pour que vous puissiez vous
+                  concentrer sur la vente.
+                </p>
+              </AnimateEntrance>
+
+              <AnimateEntrance delay={1050}>
+                <div className="flex flex-col gap-4 sm:flex-row">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="h-12 rounded-xl px-8 text-base font-bold shadow-xl shadow-primary/25 transition-transform hover:scale-[1.03] active:scale-[0.98]"
+                  >
+                    <Link href="/login?tab=signup">
+                      Créer mon compte vendeur
+                      <ArrowRight className="size-5" />
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="h-12 rounded-xl px-8 text-base font-bold transition-transform hover:scale-[1.03] active:scale-[0.98]"
+                  >
+                    <Link href="#fonctionnalites">
+                      Découvrir les fonctionnalités
+                    </Link>
+                  </Button>
+                </div>
+              </AnimateEntrance>
+
+              <AnimateEntrance delay={1300}>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex -space-x-2" aria-hidden="true">
+                    <div className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-primary/30 text-xs font-bold text-primary">
+                      S
+                    </div>
+                    <div className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-primary/20 text-xs font-bold text-primary">
+                      A
+                    </div>
+                    <div className="flex size-8 items-center justify-center rounded-full border-2 border-background bg-primary/40 text-xs font-bold text-primary">
+                      M
+                    </div>
+                  </div>
+                  <span>Inscription en 2 min — gratuit pour démarrer</span>
+                </div>
+              </AnimateEntrance>
+            </>
+          )}
         </div>
 
         {/* Right — Dashboard Mock */}

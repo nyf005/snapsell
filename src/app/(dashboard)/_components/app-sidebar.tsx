@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import { SnapSellLogo } from "~/components/auth/snapsel-logo";
+import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { SignOutButton } from "./sign-out-button";
 import {
   Sidebar,
@@ -35,7 +36,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "~/components/ui/sidebar";
-import { cn } from "~/lib/utils";
+import { cn, getInitials } from "~/lib/utils";
 
 type MenuItem = {
   href: string;
@@ -288,6 +289,11 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex w-full items-center gap-2 rounded-md p-2">
+              <Avatar className="h-8 w-8 shrink-0">
+                <AvatarFallback className="text-xs">
+                  {getInitials(userName)}
+                </AvatarFallback>
+              </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{userName}</p>
                 <p className="truncate text-xs text-muted-foreground">

@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, LayoutDashboard, Menu, User } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu } from "lucide-react";
 
+import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
   Sheet,
@@ -11,12 +13,15 @@ import {
   SheetTrigger,
 } from "~/components/ui/sheet";
 import { SnapSellLogo } from "~/components/auth/snapsel-logo";
+import { cn, getInitials } from "~/lib/utils";
 
-const navLinks = [
-  { label: "Produit", href: "/#fonctionnalites" },
-  { label: "Tarifs", href: "/tarifs" },
-  { label: "Ressources", href: "#" },
-] as const;
+const accueilLink = { label: "Accueil", href: "/" } as const;
+const tarificationLink = { label: "Tarification", href: "/tarifs" } as const;
+
+function isNavActive(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(href + "/");
+}
 
 export interface SiteHeaderUser {
   name?: string | null;
@@ -36,6 +41,7 @@ interface SiteHeaderProps {
 }
 
 export function SiteHeader({ user, variant = "default" }: SiteHeaderProps) {
+  const pathname = usePathname();
   const isLoggedIn = !!user;
   const isAuth = variant === "auth";
 
@@ -65,53 +71,43 @@ export function SiteHeader({ user, variant = "default" }: SiteHeaderProps) {
             </span>
           </Link>
 
-          {/* Desktop nav links */}
-          <nav className="hidden items-center gap-8 md:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Right-side actions — context-dependent */}
-          <div className="flex items-center gap-3">
+          {/* Right: Accueil, Tarification, then avatar or CTAs */}
+          <div className="flex items-center gap-2">
+            <Link
+              href={accueilLink.href}
+              aria-current={isNavActive(pathname, accueilLink.href) ? "page" : undefined}
+              className={cn(
+                "hidden rounded-md px-3 py-2 text-sm font-medium transition-colors md:inline-block",
+                isNavActive(pathname, accueilLink.href)
+                  ? "bg-accent text-foreground"
+                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+              )}
+            >
+              {accueilLink.label}
+            </Link>
+            <Link
+              href={tarificationLink.href}
+              aria-current={isNavActive(pathname, tarificationLink.href) ? "page" : undefined}
+              className={cn(
+                "hidden rounded-md px-3 py-2 text-sm font-medium transition-colors md:inline-block",
+                isNavActive(pathname, tarificationLink.href)
+                  ? "bg-accent text-foreground"
+                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+              )}
+            >
+              {tarificationLink.label}
+            </Link>
             {isLoggedIn ? (
-              <>
-                {/* Logged-in on any page: user info + dashboard */}
-                <span className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
-                  <User className="size-4" />
-                  {user.name ?? user.email.split("@")[0]}
-                </span>
-                <Button
-                  asChild
-                  className="rounded-lg font-bold shadow-lg shadow-primary/20"
-                >
-                  <Link href="/dashboard">
-                    <LayoutDashboard className="mr-2 size-4" />
-                    Tableau de bord
-                  </Link>
-                </Button>
-              </>
-            ) : isAuth ? (
-              <>
-                {/* On auth page (not logged in): back to home */}
-                <Button
-                  variant="ghost"
-                  asChild
-                  className="hidden gap-2 text-muted-foreground sm:inline-flex"
-                >
-                  <Link href="/">
-                    <ArrowLeft className="size-4" />
-                    Retour à l&apos;accueil
-                  </Link>
-                </Button>
-              </>
-            ) : (
+              <Link
+                href="/dashboard"
+                className="flex shrink-0 rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                aria-label="Aller au tableau de bord"
+              >
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback>{getInitials(user.name, user.email)}</AvatarFallback>
+                </Avatar>
+              </Link>
+            ) : isAuth ? null : (
               <>
                 {/* Public page (not logged in): login + signup */}
                 <Button
@@ -145,42 +141,47 @@ export function SiteHeader({ user, variant = "default" }: SiteHeaderProps) {
               <SheetContent side="right" className="w-72">
                 <SheetTitle className="sr-only">Menu de navigation</SheetTitle>
 
-                <nav className="mt-8 flex flex-col gap-6 px-4">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.label}
-                      href={link.href}
-                      className="text-lg font-medium text-foreground transition-colors hover:text-primary"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
+                <nav className="mt-8 flex flex-col gap-1 px-2">
+                  <Link
+                    href={accueilLink.href}
+                    aria-current={isNavActive(pathname, accueilLink.href) ? "page" : undefined}
+                    className={cn(
+                      "rounded-lg px-4 py-3 text-base font-medium transition-colors",
+                      isNavActive(pathname, accueilLink.href)
+                        ? "bg-accent text-foreground"
+                        : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                    )}
+                  >
+                    {accueilLink.label}
+                  </Link>
+                  <Link
+                    href={tarificationLink.href}
+                    aria-current={isNavActive(pathname, tarificationLink.href) ? "page" : undefined}
+                    className={cn(
+                      "rounded-lg px-4 py-3 text-base font-medium transition-colors",
+                      isNavActive(pathname, tarificationLink.href)
+                        ? "bg-accent text-foreground"
+                        : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                    )}
+                  >
+                    {tarificationLink.label}
+                  </Link>
 
                   <hr className="border-border" />
 
                   {isLoggedIn ? (
-                    <>
-                      <p className="text-sm text-muted-foreground">
-                        Connecté en tant que{" "}
-                        <strong className="text-foreground">
-                          {user.name ?? user.email.split("@")[0]}
-                        </strong>
-                      </p>
-                      <Button asChild className="rounded-lg font-bold">
-                        <Link href="/dashboard">
-                          <LayoutDashboard className="mr-2 size-4" />
-                          Tableau de bord
-                        </Link>
-                      </Button>
-                    </>
-                  ) : isAuth ? (
-                    <Button asChild variant="outline" className="rounded-lg">
-                      <Link href="/">
-                        <ArrowLeft className="mr-2 size-4" />
-                        Retour à l&apos;accueil
-                      </Link>
-                    </Button>
-                  ) : (
+                    <Link
+                      href="/dashboard"
+                      className="flex shrink-0 rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      aria-label="Aller au tableau de bord"
+                    >
+                      <Avatar className="h-10 w-10">
+                        <AvatarFallback>
+                          {getInitials(user.name, user.email)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
+                  ) : isAuth ? null : (
                     <>
                       <Button
                         asChild

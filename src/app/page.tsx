@@ -38,7 +38,7 @@ export default async function Home() {
     <>
       <LandingHeader user={session?.user ? { name: session.user.name, email: session.user.email! } : null} />
       <main id="main-content">
-        <HeroSection />
+        <HeroSection user={session?.user ? { name: session.user.name ?? undefined } : null} />
         <FeaturesSection />
         <HowItWorksSection />
         <CtaSection />
