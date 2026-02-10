@@ -58,6 +58,49 @@ Sans cette URL, après un paiement réussi le **plan du tenant ne sera pas mis �
 
 Après configuration, refais un paiement test : le plan doit passer à Starter/Pro et l’historique doit afficher une ligne « success ».
 
+### Créer une Payment Page personnalisée (Paystack) — une seule page
+
+Dans Paystack, **une Subscription Payment Page = un seul plan**. Pour avoir « une seule page » côté Paystack qui couvre tes abonnements, tu crées **une** page liée à **un** plan (ex. Starter). Pour Pro, soit une deuxième Payment Page, soit tu gardes le lien app `/api/payment/subscribe?plan=pro`.
+
+#### Étape 1 — Créer les plans (si pas déjà faits)
+
+1. Va sur [Paystack Dashboard](https://dashboard.paystack.com) → **Plans** ([dashboard.paystack.com/#/plans](https://dashboard.paystack.com/#/plans)).
+2. Clique sur **New Plan**.
+3. Pour **Starter** :
+   - **Plan Name** : `SnapSell Starter` (ou équivalent).
+   - **Plan Amount** : montant en **centimes** (ex. 9 900 = 99 FCFA si tu factures en FCFA avec 2 décimales ; pour XOF Paystack utilise souvent les unités — vérifie la doc Paystack pour XOF).
+   - **Interval** : `Monthly`.
+   - Optionnel : coche **Create a Subscription Page for this Plan** si tu veux que Paystack crée une page en même temps.
+4. Clique sur **Create**.
+5. Répète pour **Pro** si besoin. Note les **plan codes** (ex. `PLN_xxxx`) : ils doivent être dans ton `.env` (`PAYSTACK_PLAN_STARTER`, `PAYSTACK_PLAN_PRO`).
+
+#### Étape 2 — Créer une seule Payment Page (type Subscription)
+
+1. Va sur **Payment Pages** ([dashboard.paystack.com/#/pages](https://dashboard.paystack.com/#/pages)).
+2. Clique sur **New Page**.
+3. Dans la popup, choisis **Subscription Payment**.
+4. Choisis **One of my existing plans** puis sélectionne **un** plan (ex. Starter).  
+   *(Une page = un plan ; pour Pro tu feras une 2e page ou tu utiliseras l’app.)*
+5. Remplis :
+   - **Page Name** : ex. `SnapSell Abonnement Starter`.
+   - **Description** : court texte pour le client (optionnel).
+6. Clique sur **Show advanced options** et configure :
+   - **Redirect after payment** : `https://<TON_DOMAINE>/parametres/abonnement?payment=callback` (remplace `<TON_DOMAINE>` par ton domaine réel).
+   - **Success message** : personnalise si tu veux.
+7. Clique sur **Create**.
+8. Copie l’**URL de la page** (ex. `https://checkout.paystack.com/xxxx` ou ton custom link).
+
+#### Étape 3 — Webhook (déjà configuré)
+
+Le webhook global (`/api/webhooks/paystack`) reçoit déjà les événements Paystack ; pas besoin de configurer un webhook spécifique par Payment Page.
+
+#### Étape 4 — Utiliser cette page
+
+- Pour **Starter** : tu peux remplacer le lien actuel `/api/payment/subscribe?plan=starter` par l’URL de cette Payment Page (l’utilisateur atterrit directement sur ta page personnalisée Paystack).
+- Pour **Pro** : soit tu crées une 2e Payment Page (même procédure, plan Pro), soit tu gardes le lien app `/api/payment/subscribe?plan=pro`.
+
+**Résumé :** Une seule page Paystack = un plan. Pour « une seule page » côté expérience, tu peux n’avoir qu’une Payment Page (Starter) et garder Pro via l’app ; ou deux Payment Pages (Starter + Pro) et une seule page « hub » dans ton app (Tarifs / Abonnement) qui affiche les deux options et envoie vers la bonne URL Paystack.
+
 ---
 
 ## 🚀 Déploiement Story 2.2 (Worker Railway)
