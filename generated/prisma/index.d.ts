@@ -99,6 +99,11 @@ export type LiveSession = $Result.DefaultSelection<Prisma.$LiveSessionPayload>
  */
 export type LiveItem = $Result.DefaultSelection<Prisma.$LiveItemPayload>
 /**
+ * Model CatalogueItem
+ * 
+ */
+export type CatalogueItem = $Result.DefaultSelection<Prisma.$CatalogueItemPayload>
+/**
  * Model Reservation
  * 
  */
@@ -505,6 +510,16 @@ export class PrismaClient<
     * ```
     */
   get liveItem(): Prisma.LiveItemDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.catalogueItem`: Exposes CRUD operations for the **CatalogueItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CatalogueItems
+    * const catalogueItems = await prisma.catalogueItem.findMany()
+    * ```
+    */
+  get catalogueItem(): Prisma.CatalogueItemDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.reservation`: Exposes CRUD operations for the **Reservation** model.
@@ -1023,6 +1038,7 @@ export namespace Prisma {
     MessageOut: 'MessageOut',
     LiveSession: 'LiveSession',
     LiveItem: 'LiveItem',
+    CatalogueItem: 'CatalogueItem',
     Reservation: 'Reservation',
     Order: 'Order',
     PaymentProof: 'PaymentProof',
@@ -1047,7 +1063,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "messageOut" | "liveSession" | "liveItem" | "reservation" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "subscriptionPayment"
+      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "messageOut" | "liveSession" | "liveItem" | "catalogueItem" | "reservation" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "subscriptionPayment"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2309,6 +2325,80 @@ export namespace Prisma {
           }
         }
       }
+      CatalogueItem: {
+        payload: Prisma.$CatalogueItemPayload<ExtArgs>
+        fields: Prisma.CatalogueItemFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CatalogueItemFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CatalogueItemPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CatalogueItemFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CatalogueItemPayload>
+          }
+          findFirst: {
+            args: Prisma.CatalogueItemFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CatalogueItemPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CatalogueItemFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CatalogueItemPayload>
+          }
+          findMany: {
+            args: Prisma.CatalogueItemFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CatalogueItemPayload>[]
+          }
+          create: {
+            args: Prisma.CatalogueItemCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CatalogueItemPayload>
+          }
+          createMany: {
+            args: Prisma.CatalogueItemCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CatalogueItemCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CatalogueItemPayload>[]
+          }
+          delete: {
+            args: Prisma.CatalogueItemDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CatalogueItemPayload>
+          }
+          update: {
+            args: Prisma.CatalogueItemUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CatalogueItemPayload>
+          }
+          deleteMany: {
+            args: Prisma.CatalogueItemDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CatalogueItemUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CatalogueItemUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CatalogueItemPayload>[]
+          }
+          upsert: {
+            args: Prisma.CatalogueItemUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CatalogueItemPayload>
+          }
+          aggregate: {
+            args: Prisma.CatalogueItemAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCatalogueItem>
+          }
+          groupBy: {
+            args: Prisma.CatalogueItemGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CatalogueItemGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CatalogueItemCountArgs<ExtArgs>
+            result: $Utils.Optional<CatalogueItemCountAggregateOutputType> | number
+          }
+        }
+      }
       Reservation: {
         payload: Prisma.$ReservationPayload<ExtArgs>
         fields: Prisma.ReservationFieldRefs
@@ -2866,6 +2956,7 @@ export namespace Prisma {
     messageOut?: MessageOutOmit
     liveSession?: LiveSessionOmit
     liveItem?: LiveItemOmit
+    catalogueItem?: CatalogueItemOmit
     reservation?: ReservationOmit
     order?: OrderOmit
     paymentProof?: PaymentProofOmit
@@ -2965,6 +3056,7 @@ export namespace Prisma {
     optOuts: number
     liveSessions: number
     liveItems: number
+    catalogueItems: number
     reservations: number
     waitlists: number
     orders: number
@@ -2986,6 +3078,7 @@ export namespace Prisma {
     optOuts?: boolean | TenantCountOutputTypeCountOptOutsArgs
     liveSessions?: boolean | TenantCountOutputTypeCountLiveSessionsArgs
     liveItems?: boolean | TenantCountOutputTypeCountLiveItemsArgs
+    catalogueItems?: boolean | TenantCountOutputTypeCountCatalogueItemsArgs
     reservations?: boolean | TenantCountOutputTypeCountReservationsArgs
     waitlists?: boolean | TenantCountOutputTypeCountWaitlistsArgs
     orders?: boolean | TenantCountOutputTypeCountOrdersArgs
@@ -3093,6 +3186,13 @@ export namespace Prisma {
    */
   export type TenantCountOutputTypeCountLiveItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: LiveItemWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountCatalogueItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CatalogueItemWhereInput
   }
 
   /**
@@ -3269,6 +3369,37 @@ export namespace Prisma {
    * LiveItemCountOutputType without action
    */
   export type LiveItemCountOutputTypeCountReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReservationWhereInput
+  }
+
+
+  /**
+   * Count Type CatalogueItemCountOutputType
+   */
+
+  export type CatalogueItemCountOutputType = {
+    reservations: number
+  }
+
+  export type CatalogueItemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    reservations?: boolean | CatalogueItemCountOutputTypeCountReservationsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * CatalogueItemCountOutputType without action
+   */
+  export type CatalogueItemCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItemCountOutputType
+     */
+    select?: CatalogueItemCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * CatalogueItemCountOutputType without action
+   */
+  export type CatalogueItemCountOutputTypeCountReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ReservationWhereInput
   }
 
@@ -3699,6 +3830,7 @@ export namespace Prisma {
     optOuts?: boolean | Tenant$optOutsArgs<ExtArgs>
     liveSessions?: boolean | Tenant$liveSessionsArgs<ExtArgs>
     liveItems?: boolean | Tenant$liveItemsArgs<ExtArgs>
+    catalogueItems?: boolean | Tenant$catalogueItemsArgs<ExtArgs>
     reservations?: boolean | Tenant$reservationsArgs<ExtArgs>
     waitlists?: boolean | Tenant$waitlistsArgs<ExtArgs>
     orders?: boolean | Tenant$ordersArgs<ExtArgs>
@@ -3809,6 +3941,7 @@ export namespace Prisma {
     optOuts?: boolean | Tenant$optOutsArgs<ExtArgs>
     liveSessions?: boolean | Tenant$liveSessionsArgs<ExtArgs>
     liveItems?: boolean | Tenant$liveItemsArgs<ExtArgs>
+    catalogueItems?: boolean | Tenant$catalogueItemsArgs<ExtArgs>
     reservations?: boolean | Tenant$reservationsArgs<ExtArgs>
     waitlists?: boolean | Tenant$waitlistsArgs<ExtArgs>
     orders?: boolean | Tenant$ordersArgs<ExtArgs>
@@ -3835,6 +3968,7 @@ export namespace Prisma {
       optOuts: Prisma.$OptOutPayload<ExtArgs>[]
       liveSessions: Prisma.$LiveSessionPayload<ExtArgs>[]
       liveItems: Prisma.$LiveItemPayload<ExtArgs>[]
+      catalogueItems: Prisma.$CatalogueItemPayload<ExtArgs>[]
       reservations: Prisma.$ReservationPayload<ExtArgs>[]
       waitlists: Prisma.$WaitlistPayload<ExtArgs>[]
       orders: Prisma.$OrderPayload<ExtArgs>[]
@@ -4275,6 +4409,7 @@ export namespace Prisma {
     optOuts<T extends Tenant$optOutsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$optOutsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptOutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     liveSessions<T extends Tenant$liveSessionsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$liveSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiveSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     liveItems<T extends Tenant$liveItemsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$liveItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    catalogueItems<T extends Tenant$catalogueItemsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$catalogueItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reservations<T extends Tenant$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     waitlists<T extends Tenant$waitlistsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$waitlistsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orders<T extends Tenant$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5032,6 +5167,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: LiveItemScalarFieldEnum | LiveItemScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.catalogueItems
+   */
+  export type Tenant$catalogueItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    where?: CatalogueItemWhereInput
+    orderBy?: CatalogueItemOrderByWithRelationInput | CatalogueItemOrderByWithRelationInput[]
+    cursor?: CatalogueItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CatalogueItemScalarFieldEnum | CatalogueItemScalarFieldEnum[]
   }
 
   /**
@@ -22941,6 +23100,1218 @@ export namespace Prisma {
 
 
   /**
+   * Model CatalogueItem
+   */
+
+  export type AggregateCatalogueItem = {
+    _count: CatalogueItemCountAggregateOutputType | null
+    _avg: CatalogueItemAvgAggregateOutputType | null
+    _sum: CatalogueItemSumAggregateOutputType | null
+    _min: CatalogueItemMinAggregateOutputType | null
+    _max: CatalogueItemMaxAggregateOutputType | null
+  }
+
+  export type CatalogueItemAvgAggregateOutputType = {
+    amountCents: number | null
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+  }
+
+  export type CatalogueItemSumAggregateOutputType = {
+    amountCents: number | null
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+  }
+
+  export type CatalogueItemMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    code: string | null
+    amountCents: number | null
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+    mediaStorageKey: string | null
+    createdInLive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CatalogueItemMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    code: string | null
+    amountCents: number | null
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+    mediaStorageKey: string | null
+    createdInLive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CatalogueItemCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    code: number
+    amountCents: number
+    quantity: number
+    availableQty: number
+    reservedQty: number
+    mediaStorageKey: number
+    createdInLive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CatalogueItemAvgAggregateInputType = {
+    amountCents?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+  }
+
+  export type CatalogueItemSumAggregateInputType = {
+    amountCents?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+  }
+
+  export type CatalogueItemMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    code?: true
+    amountCents?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+    mediaStorageKey?: true
+    createdInLive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CatalogueItemMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    code?: true
+    amountCents?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+    mediaStorageKey?: true
+    createdInLive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CatalogueItemCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    code?: true
+    amountCents?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+    mediaStorageKey?: true
+    createdInLive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CatalogueItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CatalogueItem to aggregate.
+     */
+    where?: CatalogueItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CatalogueItems to fetch.
+     */
+    orderBy?: CatalogueItemOrderByWithRelationInput | CatalogueItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CatalogueItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CatalogueItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CatalogueItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CatalogueItems
+    **/
+    _count?: true | CatalogueItemCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CatalogueItemAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CatalogueItemSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CatalogueItemMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CatalogueItemMaxAggregateInputType
+  }
+
+  export type GetCatalogueItemAggregateType<T extends CatalogueItemAggregateArgs> = {
+        [P in keyof T & keyof AggregateCatalogueItem]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCatalogueItem[P]>
+      : GetScalarType<T[P], AggregateCatalogueItem[P]>
+  }
+
+
+
+
+  export type CatalogueItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CatalogueItemWhereInput
+    orderBy?: CatalogueItemOrderByWithAggregationInput | CatalogueItemOrderByWithAggregationInput[]
+    by: CatalogueItemScalarFieldEnum[] | CatalogueItemScalarFieldEnum
+    having?: CatalogueItemScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CatalogueItemCountAggregateInputType | true
+    _avg?: CatalogueItemAvgAggregateInputType
+    _sum?: CatalogueItemSumAggregateInputType
+    _min?: CatalogueItemMinAggregateInputType
+    _max?: CatalogueItemMaxAggregateInputType
+  }
+
+  export type CatalogueItemGroupByOutputType = {
+    id: string
+    tenantId: string
+    code: string
+    amountCents: number | null
+    quantity: number
+    availableQty: number
+    reservedQty: number
+    mediaStorageKey: string | null
+    createdInLive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: CatalogueItemCountAggregateOutputType | null
+    _avg: CatalogueItemAvgAggregateOutputType | null
+    _sum: CatalogueItemSumAggregateOutputType | null
+    _min: CatalogueItemMinAggregateOutputType | null
+    _max: CatalogueItemMaxAggregateOutputType | null
+  }
+
+  type GetCatalogueItemGroupByPayload<T extends CatalogueItemGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CatalogueItemGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CatalogueItemGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CatalogueItemGroupByOutputType[P]>
+            : GetScalarType<T[P], CatalogueItemGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CatalogueItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    code?: boolean
+    amountCents?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    mediaStorageKey?: boolean
+    createdInLive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    reservations?: boolean | CatalogueItem$reservationsArgs<ExtArgs>
+    _count?: boolean | CatalogueItemCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["catalogueItem"]>
+
+  export type CatalogueItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    code?: boolean
+    amountCents?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    mediaStorageKey?: boolean
+    createdInLive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["catalogueItem"]>
+
+  export type CatalogueItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    code?: boolean
+    amountCents?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    mediaStorageKey?: boolean
+    createdInLive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["catalogueItem"]>
+
+  export type CatalogueItemSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    code?: boolean
+    amountCents?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    mediaStorageKey?: boolean
+    createdInLive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CatalogueItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "code" | "amountCents" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "createdInLive" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogueItem"]>
+  export type CatalogueItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    reservations?: boolean | CatalogueItem$reservationsArgs<ExtArgs>
+    _count?: boolean | CatalogueItemCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type CatalogueItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type CatalogueItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+
+  export type $CatalogueItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CatalogueItem"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+      reservations: Prisma.$ReservationPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      code: string
+      amountCents: number | null
+      quantity: number
+      availableQty: number
+      reservedQty: number
+      mediaStorageKey: string | null
+      createdInLive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["catalogueItem"]>
+    composites: {}
+  }
+
+  type CatalogueItemGetPayload<S extends boolean | null | undefined | CatalogueItemDefaultArgs> = $Result.GetResult<Prisma.$CatalogueItemPayload, S>
+
+  type CatalogueItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CatalogueItemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CatalogueItemCountAggregateInputType | true
+    }
+
+  export interface CatalogueItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CatalogueItem'], meta: { name: 'CatalogueItem' } }
+    /**
+     * Find zero or one CatalogueItem that matches the filter.
+     * @param {CatalogueItemFindUniqueArgs} args - Arguments to find a CatalogueItem
+     * @example
+     * // Get one CatalogueItem
+     * const catalogueItem = await prisma.catalogueItem.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CatalogueItemFindUniqueArgs>(args: SelectSubset<T, CatalogueItemFindUniqueArgs<ExtArgs>>): Prisma__CatalogueItemClient<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CatalogueItem that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CatalogueItemFindUniqueOrThrowArgs} args - Arguments to find a CatalogueItem
+     * @example
+     * // Get one CatalogueItem
+     * const catalogueItem = await prisma.catalogueItem.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CatalogueItemFindUniqueOrThrowArgs>(args: SelectSubset<T, CatalogueItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CatalogueItemClient<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CatalogueItem that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CatalogueItemFindFirstArgs} args - Arguments to find a CatalogueItem
+     * @example
+     * // Get one CatalogueItem
+     * const catalogueItem = await prisma.catalogueItem.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CatalogueItemFindFirstArgs>(args?: SelectSubset<T, CatalogueItemFindFirstArgs<ExtArgs>>): Prisma__CatalogueItemClient<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CatalogueItem that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CatalogueItemFindFirstOrThrowArgs} args - Arguments to find a CatalogueItem
+     * @example
+     * // Get one CatalogueItem
+     * const catalogueItem = await prisma.catalogueItem.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CatalogueItemFindFirstOrThrowArgs>(args?: SelectSubset<T, CatalogueItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__CatalogueItemClient<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CatalogueItems that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CatalogueItemFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CatalogueItems
+     * const catalogueItems = await prisma.catalogueItem.findMany()
+     * 
+     * // Get first 10 CatalogueItems
+     * const catalogueItems = await prisma.catalogueItem.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const catalogueItemWithIdOnly = await prisma.catalogueItem.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CatalogueItemFindManyArgs>(args?: SelectSubset<T, CatalogueItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CatalogueItem.
+     * @param {CatalogueItemCreateArgs} args - Arguments to create a CatalogueItem.
+     * @example
+     * // Create one CatalogueItem
+     * const CatalogueItem = await prisma.catalogueItem.create({
+     *   data: {
+     *     // ... data to create a CatalogueItem
+     *   }
+     * })
+     * 
+     */
+    create<T extends CatalogueItemCreateArgs>(args: SelectSubset<T, CatalogueItemCreateArgs<ExtArgs>>): Prisma__CatalogueItemClient<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CatalogueItems.
+     * @param {CatalogueItemCreateManyArgs} args - Arguments to create many CatalogueItems.
+     * @example
+     * // Create many CatalogueItems
+     * const catalogueItem = await prisma.catalogueItem.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CatalogueItemCreateManyArgs>(args?: SelectSubset<T, CatalogueItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CatalogueItems and returns the data saved in the database.
+     * @param {CatalogueItemCreateManyAndReturnArgs} args - Arguments to create many CatalogueItems.
+     * @example
+     * // Create many CatalogueItems
+     * const catalogueItem = await prisma.catalogueItem.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CatalogueItems and only return the `id`
+     * const catalogueItemWithIdOnly = await prisma.catalogueItem.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CatalogueItemCreateManyAndReturnArgs>(args?: SelectSubset<T, CatalogueItemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CatalogueItem.
+     * @param {CatalogueItemDeleteArgs} args - Arguments to delete one CatalogueItem.
+     * @example
+     * // Delete one CatalogueItem
+     * const CatalogueItem = await prisma.catalogueItem.delete({
+     *   where: {
+     *     // ... filter to delete one CatalogueItem
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CatalogueItemDeleteArgs>(args: SelectSubset<T, CatalogueItemDeleteArgs<ExtArgs>>): Prisma__CatalogueItemClient<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CatalogueItem.
+     * @param {CatalogueItemUpdateArgs} args - Arguments to update one CatalogueItem.
+     * @example
+     * // Update one CatalogueItem
+     * const catalogueItem = await prisma.catalogueItem.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CatalogueItemUpdateArgs>(args: SelectSubset<T, CatalogueItemUpdateArgs<ExtArgs>>): Prisma__CatalogueItemClient<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CatalogueItems.
+     * @param {CatalogueItemDeleteManyArgs} args - Arguments to filter CatalogueItems to delete.
+     * @example
+     * // Delete a few CatalogueItems
+     * const { count } = await prisma.catalogueItem.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CatalogueItemDeleteManyArgs>(args?: SelectSubset<T, CatalogueItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CatalogueItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CatalogueItemUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CatalogueItems
+     * const catalogueItem = await prisma.catalogueItem.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CatalogueItemUpdateManyArgs>(args: SelectSubset<T, CatalogueItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CatalogueItems and returns the data updated in the database.
+     * @param {CatalogueItemUpdateManyAndReturnArgs} args - Arguments to update many CatalogueItems.
+     * @example
+     * // Update many CatalogueItems
+     * const catalogueItem = await prisma.catalogueItem.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CatalogueItems and only return the `id`
+     * const catalogueItemWithIdOnly = await prisma.catalogueItem.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CatalogueItemUpdateManyAndReturnArgs>(args: SelectSubset<T, CatalogueItemUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CatalogueItem.
+     * @param {CatalogueItemUpsertArgs} args - Arguments to update or create a CatalogueItem.
+     * @example
+     * // Update or create a CatalogueItem
+     * const catalogueItem = await prisma.catalogueItem.upsert({
+     *   create: {
+     *     // ... data to create a CatalogueItem
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CatalogueItem we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CatalogueItemUpsertArgs>(args: SelectSubset<T, CatalogueItemUpsertArgs<ExtArgs>>): Prisma__CatalogueItemClient<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CatalogueItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CatalogueItemCountArgs} args - Arguments to filter CatalogueItems to count.
+     * @example
+     * // Count the number of CatalogueItems
+     * const count = await prisma.catalogueItem.count({
+     *   where: {
+     *     // ... the filter for the CatalogueItems we want to count
+     *   }
+     * })
+    **/
+    count<T extends CatalogueItemCountArgs>(
+      args?: Subset<T, CatalogueItemCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CatalogueItemCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CatalogueItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CatalogueItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CatalogueItemAggregateArgs>(args: Subset<T, CatalogueItemAggregateArgs>): Prisma.PrismaPromise<GetCatalogueItemAggregateType<T>>
+
+    /**
+     * Group by CatalogueItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CatalogueItemGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CatalogueItemGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CatalogueItemGroupByArgs['orderBy'] }
+        : { orderBy?: CatalogueItemGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CatalogueItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCatalogueItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CatalogueItem model
+   */
+  readonly fields: CatalogueItemFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CatalogueItem.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CatalogueItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    reservations<T extends CatalogueItem$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, CatalogueItem$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CatalogueItem model
+   */
+  interface CatalogueItemFieldRefs {
+    readonly id: FieldRef<"CatalogueItem", 'String'>
+    readonly tenantId: FieldRef<"CatalogueItem", 'String'>
+    readonly code: FieldRef<"CatalogueItem", 'String'>
+    readonly amountCents: FieldRef<"CatalogueItem", 'Int'>
+    readonly quantity: FieldRef<"CatalogueItem", 'Int'>
+    readonly availableQty: FieldRef<"CatalogueItem", 'Int'>
+    readonly reservedQty: FieldRef<"CatalogueItem", 'Int'>
+    readonly mediaStorageKey: FieldRef<"CatalogueItem", 'String'>
+    readonly createdInLive: FieldRef<"CatalogueItem", 'Boolean'>
+    readonly createdAt: FieldRef<"CatalogueItem", 'DateTime'>
+    readonly updatedAt: FieldRef<"CatalogueItem", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CatalogueItem findUnique
+   */
+  export type CatalogueItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    /**
+     * Filter, which CatalogueItem to fetch.
+     */
+    where: CatalogueItemWhereUniqueInput
+  }
+
+  /**
+   * CatalogueItem findUniqueOrThrow
+   */
+  export type CatalogueItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    /**
+     * Filter, which CatalogueItem to fetch.
+     */
+    where: CatalogueItemWhereUniqueInput
+  }
+
+  /**
+   * CatalogueItem findFirst
+   */
+  export type CatalogueItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    /**
+     * Filter, which CatalogueItem to fetch.
+     */
+    where?: CatalogueItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CatalogueItems to fetch.
+     */
+    orderBy?: CatalogueItemOrderByWithRelationInput | CatalogueItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CatalogueItems.
+     */
+    cursor?: CatalogueItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CatalogueItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CatalogueItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CatalogueItems.
+     */
+    distinct?: CatalogueItemScalarFieldEnum | CatalogueItemScalarFieldEnum[]
+  }
+
+  /**
+   * CatalogueItem findFirstOrThrow
+   */
+  export type CatalogueItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    /**
+     * Filter, which CatalogueItem to fetch.
+     */
+    where?: CatalogueItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CatalogueItems to fetch.
+     */
+    orderBy?: CatalogueItemOrderByWithRelationInput | CatalogueItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CatalogueItems.
+     */
+    cursor?: CatalogueItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CatalogueItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CatalogueItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CatalogueItems.
+     */
+    distinct?: CatalogueItemScalarFieldEnum | CatalogueItemScalarFieldEnum[]
+  }
+
+  /**
+   * CatalogueItem findMany
+   */
+  export type CatalogueItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    /**
+     * Filter, which CatalogueItems to fetch.
+     */
+    where?: CatalogueItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CatalogueItems to fetch.
+     */
+    orderBy?: CatalogueItemOrderByWithRelationInput | CatalogueItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CatalogueItems.
+     */
+    cursor?: CatalogueItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CatalogueItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CatalogueItems.
+     */
+    skip?: number
+    distinct?: CatalogueItemScalarFieldEnum | CatalogueItemScalarFieldEnum[]
+  }
+
+  /**
+   * CatalogueItem create
+   */
+  export type CatalogueItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CatalogueItem.
+     */
+    data: XOR<CatalogueItemCreateInput, CatalogueItemUncheckedCreateInput>
+  }
+
+  /**
+   * CatalogueItem createMany
+   */
+  export type CatalogueItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CatalogueItems.
+     */
+    data: CatalogueItemCreateManyInput | CatalogueItemCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CatalogueItem createManyAndReturn
+   */
+  export type CatalogueItemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * The data used to create many CatalogueItems.
+     */
+    data: CatalogueItemCreateManyInput | CatalogueItemCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CatalogueItem update
+   */
+  export type CatalogueItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CatalogueItem.
+     */
+    data: XOR<CatalogueItemUpdateInput, CatalogueItemUncheckedUpdateInput>
+    /**
+     * Choose, which CatalogueItem to update.
+     */
+    where: CatalogueItemWhereUniqueInput
+  }
+
+  /**
+   * CatalogueItem updateMany
+   */
+  export type CatalogueItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CatalogueItems.
+     */
+    data: XOR<CatalogueItemUpdateManyMutationInput, CatalogueItemUncheckedUpdateManyInput>
+    /**
+     * Filter which CatalogueItems to update
+     */
+    where?: CatalogueItemWhereInput
+    /**
+     * Limit how many CatalogueItems to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CatalogueItem updateManyAndReturn
+   */
+  export type CatalogueItemUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * The data used to update CatalogueItems.
+     */
+    data: XOR<CatalogueItemUpdateManyMutationInput, CatalogueItemUncheckedUpdateManyInput>
+    /**
+     * Filter which CatalogueItems to update
+     */
+    where?: CatalogueItemWhereInput
+    /**
+     * Limit how many CatalogueItems to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CatalogueItem upsert
+   */
+  export type CatalogueItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CatalogueItem to update in case it exists.
+     */
+    where: CatalogueItemWhereUniqueInput
+    /**
+     * In case the CatalogueItem found by the `where` argument doesn't exist, create a new CatalogueItem with this data.
+     */
+    create: XOR<CatalogueItemCreateInput, CatalogueItemUncheckedCreateInput>
+    /**
+     * In case the CatalogueItem was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CatalogueItemUpdateInput, CatalogueItemUncheckedUpdateInput>
+  }
+
+  /**
+   * CatalogueItem delete
+   */
+  export type CatalogueItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    /**
+     * Filter which CatalogueItem to delete.
+     */
+    where: CatalogueItemWhereUniqueInput
+  }
+
+  /**
+   * CatalogueItem deleteMany
+   */
+  export type CatalogueItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CatalogueItems to delete
+     */
+    where?: CatalogueItemWhereInput
+    /**
+     * Limit how many CatalogueItems to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CatalogueItem.reservations
+   */
+  export type CatalogueItem$reservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    where?: ReservationWhereInput
+    orderBy?: ReservationOrderByWithRelationInput | ReservationOrderByWithRelationInput[]
+    cursor?: ReservationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReservationScalarFieldEnum | ReservationScalarFieldEnum[]
+  }
+
+  /**
+   * CatalogueItem without action
+   */
+  export type CatalogueItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model Reservation
    */
 
@@ -22955,6 +24326,7 @@ export namespace Prisma {
     tenantId: string | null
     liveSessionId: string | null
     liveItemId: string | null
+    catalogueItemId: string | null
     clientPhone: string | null
     status: $Enums.ReservationStatus | null
     address: string | null
@@ -22970,6 +24342,7 @@ export namespace Prisma {
     tenantId: string | null
     liveSessionId: string | null
     liveItemId: string | null
+    catalogueItemId: string | null
     clientPhone: string | null
     status: $Enums.ReservationStatus | null
     address: string | null
@@ -22985,6 +24358,7 @@ export namespace Prisma {
     tenantId: number
     liveSessionId: number
     liveItemId: number
+    catalogueItemId: number
     clientPhone: number
     status: number
     address: number
@@ -23002,6 +24376,7 @@ export namespace Prisma {
     tenantId?: true
     liveSessionId?: true
     liveItemId?: true
+    catalogueItemId?: true
     clientPhone?: true
     status?: true
     address?: true
@@ -23017,6 +24392,7 @@ export namespace Prisma {
     tenantId?: true
     liveSessionId?: true
     liveItemId?: true
+    catalogueItemId?: true
     clientPhone?: true
     status?: true
     address?: true
@@ -23032,6 +24408,7 @@ export namespace Prisma {
     tenantId?: true
     liveSessionId?: true
     liveItemId?: true
+    catalogueItemId?: true
     clientPhone?: true
     status?: true
     address?: true
@@ -23118,8 +24495,9 @@ export namespace Prisma {
   export type ReservationGroupByOutputType = {
     id: string
     tenantId: string
-    liveSessionId: string
-    liveItemId: string
+    liveSessionId: string | null
+    liveItemId: string | null
+    catalogueItemId: string | null
     clientPhone: string
     status: $Enums.ReservationStatus
     address: string | null
@@ -23152,6 +24530,7 @@ export namespace Prisma {
     tenantId?: boolean
     liveSessionId?: boolean
     liveItemId?: boolean
+    catalogueItemId?: boolean
     clientPhone?: boolean
     status?: boolean
     address?: boolean
@@ -23161,8 +24540,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
-    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
-    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+    liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
+    liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
+    catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
     order?: boolean | Reservation$orderArgs<ExtArgs>
   }, ExtArgs["result"]["reservation"]>
 
@@ -23171,6 +24551,7 @@ export namespace Prisma {
     tenantId?: boolean
     liveSessionId?: boolean
     liveItemId?: boolean
+    catalogueItemId?: boolean
     clientPhone?: boolean
     status?: boolean
     address?: boolean
@@ -23180,8 +24561,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
-    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
-    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+    liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
+    liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
+    catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
   }, ExtArgs["result"]["reservation"]>
 
   export type ReservationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -23189,6 +24571,7 @@ export namespace Prisma {
     tenantId?: boolean
     liveSessionId?: boolean
     liveItemId?: boolean
+    catalogueItemId?: boolean
     clientPhone?: boolean
     status?: boolean
     address?: boolean
@@ -23198,8 +24581,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
-    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
-    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+    liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
+    liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
+    catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
   }, ExtArgs["result"]["reservation"]>
 
   export type ReservationSelectScalar = {
@@ -23207,6 +24591,7 @@ export namespace Prisma {
     tenantId?: boolean
     liveSessionId?: boolean
     liveItemId?: boolean
+    catalogueItemId?: boolean
     clientPhone?: boolean
     status?: boolean
     address?: boolean
@@ -23217,37 +24602,42 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ReservationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "liveItemId" | "clientPhone" | "status" | "address" | "expiresAt" | "reminderSentAt" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["reservation"]>
+  export type ReservationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "liveItemId" | "catalogueItemId" | "clientPhone" | "status" | "address" | "expiresAt" | "reminderSentAt" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["reservation"]>
   export type ReservationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
-    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
-    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+    liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
+    liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
+    catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
     order?: boolean | Reservation$orderArgs<ExtArgs>
   }
   export type ReservationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
-    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
-    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+    liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
+    liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
+    catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
   }
   export type ReservationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
-    liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
-    liveItem?: boolean | LiveItemDefaultArgs<ExtArgs>
+    liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
+    liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
+    catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
   }
 
   export type $ReservationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Reservation"
     objects: {
       tenant: Prisma.$TenantPayload<ExtArgs>
-      liveSession: Prisma.$LiveSessionPayload<ExtArgs>
-      liveItem: Prisma.$LiveItemPayload<ExtArgs>
+      liveSession: Prisma.$LiveSessionPayload<ExtArgs> | null
+      liveItem: Prisma.$LiveItemPayload<ExtArgs> | null
+      catalogueItem: Prisma.$CatalogueItemPayload<ExtArgs> | null
       order: Prisma.$OrderPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       tenantId: string
-      liveSessionId: string
-      liveItemId: string
+      liveSessionId: string | null
+      liveItemId: string | null
+      catalogueItemId: string | null
       clientPhone: string
       status: $Enums.ReservationStatus
       address: string | null
@@ -23651,8 +25041,9 @@ export namespace Prisma {
   export interface Prisma__ReservationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    liveSession<T extends LiveSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LiveSessionDefaultArgs<ExtArgs>>): Prisma__LiveSessionClient<$Result.GetResult<Prisma.$LiveSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    liveItem<T extends LiveItemDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LiveItemDefaultArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    liveSession<T extends Reservation$liveSessionArgs<ExtArgs> = {}>(args?: Subset<T, Reservation$liveSessionArgs<ExtArgs>>): Prisma__LiveSessionClient<$Result.GetResult<Prisma.$LiveSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    liveItem<T extends Reservation$liveItemArgs<ExtArgs> = {}>(args?: Subset<T, Reservation$liveItemArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    catalogueItem<T extends Reservation$catalogueItemArgs<ExtArgs> = {}>(args?: Subset<T, Reservation$catalogueItemArgs<ExtArgs>>): Prisma__CatalogueItemClient<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     order<T extends Reservation$orderArgs<ExtArgs> = {}>(args?: Subset<T, Reservation$orderArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -23687,6 +25078,7 @@ export namespace Prisma {
     readonly tenantId: FieldRef<"Reservation", 'String'>
     readonly liveSessionId: FieldRef<"Reservation", 'String'>
     readonly liveItemId: FieldRef<"Reservation", 'String'>
+    readonly catalogueItemId: FieldRef<"Reservation", 'String'>
     readonly clientPhone: FieldRef<"Reservation", 'String'>
     readonly status: FieldRef<"Reservation", 'ReservationStatus'>
     readonly address: FieldRef<"Reservation", 'String'>
@@ -24088,6 +25480,63 @@ export namespace Prisma {
      * Limit how many Reservations to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Reservation.liveSession
+   */
+  export type Reservation$liveSessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveSession
+     */
+    select?: LiveSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveSession
+     */
+    omit?: LiveSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveSessionInclude<ExtArgs> | null
+    where?: LiveSessionWhereInput
+  }
+
+  /**
+   * Reservation.liveItem
+   */
+  export type Reservation$liveItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    where?: LiveItemWhereInput
+  }
+
+  /**
+   * Reservation.catalogueItem
+   */
+  export type Reservation$catalogueItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    where?: CatalogueItemWhereInput
   }
 
   /**
@@ -30137,11 +31586,29 @@ export namespace Prisma {
   export type LiveItemScalarFieldEnum = (typeof LiveItemScalarFieldEnum)[keyof typeof LiveItemScalarFieldEnum]
 
 
+  export const CatalogueItemScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    code: 'code',
+    amountCents: 'amountCents',
+    quantity: 'quantity',
+    availableQty: 'availableQty',
+    reservedQty: 'reservedQty',
+    mediaStorageKey: 'mediaStorageKey',
+    createdInLive: 'createdInLive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CatalogueItemScalarFieldEnum = (typeof CatalogueItemScalarFieldEnum)[keyof typeof CatalogueItemScalarFieldEnum]
+
+
   export const ReservationScalarFieldEnum: {
     id: 'id',
     tenantId: 'tenantId',
     liveSessionId: 'liveSessionId',
     liveItemId: 'liveItemId',
+    catalogueItemId: 'catalogueItemId',
     clientPhone: 'clientPhone',
     status: 'status',
     address: 'address',
@@ -30495,6 +31962,7 @@ export namespace Prisma {
     optOuts?: OptOutListRelationFilter
     liveSessions?: LiveSessionListRelationFilter
     liveItems?: LiveItemListRelationFilter
+    catalogueItems?: CatalogueItemListRelationFilter
     reservations?: ReservationListRelationFilter
     waitlists?: WaitlistListRelationFilter
     orders?: OrderListRelationFilter
@@ -30542,6 +32010,7 @@ export namespace Prisma {
     optOuts?: OptOutOrderByRelationAggregateInput
     liveSessions?: LiveSessionOrderByRelationAggregateInput
     liveItems?: LiveItemOrderByRelationAggregateInput
+    catalogueItems?: CatalogueItemOrderByRelationAggregateInput
     reservations?: ReservationOrderByRelationAggregateInput
     waitlists?: WaitlistOrderByRelationAggregateInput
     orders?: OrderOrderByRelationAggregateInput
@@ -30592,6 +32061,7 @@ export namespace Prisma {
     optOuts?: OptOutListRelationFilter
     liveSessions?: LiveSessionListRelationFilter
     liveItems?: LiveItemListRelationFilter
+    catalogueItems?: CatalogueItemListRelationFilter
     reservations?: ReservationListRelationFilter
     waitlists?: WaitlistListRelationFilter
     orders?: OrderListRelationFilter
@@ -31765,14 +33235,106 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"LiveItem"> | Date | string
   }
 
+  export type CatalogueItemWhereInput = {
+    AND?: CatalogueItemWhereInput | CatalogueItemWhereInput[]
+    OR?: CatalogueItemWhereInput[]
+    NOT?: CatalogueItemWhereInput | CatalogueItemWhereInput[]
+    id?: StringFilter<"CatalogueItem"> | string
+    tenantId?: StringFilter<"CatalogueItem"> | string
+    code?: StringFilter<"CatalogueItem"> | string
+    amountCents?: IntNullableFilter<"CatalogueItem"> | number | null
+    quantity?: IntFilter<"CatalogueItem"> | number
+    availableQty?: IntFilter<"CatalogueItem"> | number
+    reservedQty?: IntFilter<"CatalogueItem"> | number
+    mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    createdInLive?: BoolFilter<"CatalogueItem"> | boolean
+    createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
+    updatedAt?: DateTimeFilter<"CatalogueItem"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    reservations?: ReservationListRelationFilter
+  }
+
+  export type CatalogueItemOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    code?: SortOrder
+    amountCents?: SortOrderInput | SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    mediaStorageKey?: SortOrderInput | SortOrder
+    createdInLive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    reservations?: ReservationOrderByRelationAggregateInput
+  }
+
+  export type CatalogueItemWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenantId_code?: CatalogueItemTenantIdCodeCompoundUniqueInput
+    AND?: CatalogueItemWhereInput | CatalogueItemWhereInput[]
+    OR?: CatalogueItemWhereInput[]
+    NOT?: CatalogueItemWhereInput | CatalogueItemWhereInput[]
+    tenantId?: StringFilter<"CatalogueItem"> | string
+    code?: StringFilter<"CatalogueItem"> | string
+    amountCents?: IntNullableFilter<"CatalogueItem"> | number | null
+    quantity?: IntFilter<"CatalogueItem"> | number
+    availableQty?: IntFilter<"CatalogueItem"> | number
+    reservedQty?: IntFilter<"CatalogueItem"> | number
+    mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    createdInLive?: BoolFilter<"CatalogueItem"> | boolean
+    createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
+    updatedAt?: DateTimeFilter<"CatalogueItem"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    reservations?: ReservationListRelationFilter
+  }, "id" | "tenantId_code">
+
+  export type CatalogueItemOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    code?: SortOrder
+    amountCents?: SortOrderInput | SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    mediaStorageKey?: SortOrderInput | SortOrder
+    createdInLive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CatalogueItemCountOrderByAggregateInput
+    _avg?: CatalogueItemAvgOrderByAggregateInput
+    _max?: CatalogueItemMaxOrderByAggregateInput
+    _min?: CatalogueItemMinOrderByAggregateInput
+    _sum?: CatalogueItemSumOrderByAggregateInput
+  }
+
+  export type CatalogueItemScalarWhereWithAggregatesInput = {
+    AND?: CatalogueItemScalarWhereWithAggregatesInput | CatalogueItemScalarWhereWithAggregatesInput[]
+    OR?: CatalogueItemScalarWhereWithAggregatesInput[]
+    NOT?: CatalogueItemScalarWhereWithAggregatesInput | CatalogueItemScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CatalogueItem"> | string
+    tenantId?: StringWithAggregatesFilter<"CatalogueItem"> | string
+    code?: StringWithAggregatesFilter<"CatalogueItem"> | string
+    amountCents?: IntNullableWithAggregatesFilter<"CatalogueItem"> | number | null
+    quantity?: IntWithAggregatesFilter<"CatalogueItem"> | number
+    availableQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
+    reservedQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
+    mediaStorageKey?: StringNullableWithAggregatesFilter<"CatalogueItem"> | string | null
+    createdInLive?: BoolWithAggregatesFilter<"CatalogueItem"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"CatalogueItem"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"CatalogueItem"> | Date | string
+  }
+
   export type ReservationWhereInput = {
     AND?: ReservationWhereInput | ReservationWhereInput[]
     OR?: ReservationWhereInput[]
     NOT?: ReservationWhereInput | ReservationWhereInput[]
     id?: StringFilter<"Reservation"> | string
     tenantId?: StringFilter<"Reservation"> | string
-    liveSessionId?: StringFilter<"Reservation"> | string
-    liveItemId?: StringFilter<"Reservation"> | string
+    liveSessionId?: StringNullableFilter<"Reservation"> | string | null
+    liveItemId?: StringNullableFilter<"Reservation"> | string | null
+    catalogueItemId?: StringNullableFilter<"Reservation"> | string | null
     clientPhone?: StringFilter<"Reservation"> | string
     status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableFilter<"Reservation"> | string | null
@@ -31782,16 +33344,18 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Reservation"> | Date | string
     updatedAt?: DateTimeFilter<"Reservation"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
-    liveSession?: XOR<LiveSessionScalarRelationFilter, LiveSessionWhereInput>
-    liveItem?: XOR<LiveItemScalarRelationFilter, LiveItemWhereInput>
+    liveSession?: XOR<LiveSessionNullableScalarRelationFilter, LiveSessionWhereInput> | null
+    liveItem?: XOR<LiveItemNullableScalarRelationFilter, LiveItemWhereInput> | null
+    catalogueItem?: XOR<CatalogueItemNullableScalarRelationFilter, CatalogueItemWhereInput> | null
     order?: XOR<OrderNullableScalarRelationFilter, OrderWhereInput> | null
   }
 
   export type ReservationOrderByWithRelationInput = {
     id?: SortOrder
     tenantId?: SortOrder
-    liveSessionId?: SortOrder
-    liveItemId?: SortOrder
+    liveSessionId?: SortOrderInput | SortOrder
+    liveItemId?: SortOrderInput | SortOrder
+    catalogueItemId?: SortOrderInput | SortOrder
     clientPhone?: SortOrder
     status?: SortOrder
     address?: SortOrderInput | SortOrder
@@ -31803,18 +33367,19 @@ export namespace Prisma {
     tenant?: TenantOrderByWithRelationInput
     liveSession?: LiveSessionOrderByWithRelationInput
     liveItem?: LiveItemOrderByWithRelationInput
+    catalogueItem?: CatalogueItemOrderByWithRelationInput
     order?: OrderOrderByWithRelationInput
   }
 
   export type ReservationWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    tenantId_liveSessionId_clientPhone_liveItemId?: ReservationTenantIdLiveSessionIdClientPhoneLiveItemIdCompoundUniqueInput
     AND?: ReservationWhereInput | ReservationWhereInput[]
     OR?: ReservationWhereInput[]
     NOT?: ReservationWhereInput | ReservationWhereInput[]
     tenantId?: StringFilter<"Reservation"> | string
-    liveSessionId?: StringFilter<"Reservation"> | string
-    liveItemId?: StringFilter<"Reservation"> | string
+    liveSessionId?: StringNullableFilter<"Reservation"> | string | null
+    liveItemId?: StringNullableFilter<"Reservation"> | string | null
+    catalogueItemId?: StringNullableFilter<"Reservation"> | string | null
     clientPhone?: StringFilter<"Reservation"> | string
     status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableFilter<"Reservation"> | string | null
@@ -31824,16 +33389,18 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Reservation"> | Date | string
     updatedAt?: DateTimeFilter<"Reservation"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
-    liveSession?: XOR<LiveSessionScalarRelationFilter, LiveSessionWhereInput>
-    liveItem?: XOR<LiveItemScalarRelationFilter, LiveItemWhereInput>
+    liveSession?: XOR<LiveSessionNullableScalarRelationFilter, LiveSessionWhereInput> | null
+    liveItem?: XOR<LiveItemNullableScalarRelationFilter, LiveItemWhereInput> | null
+    catalogueItem?: XOR<CatalogueItemNullableScalarRelationFilter, CatalogueItemWhereInput> | null
     order?: XOR<OrderNullableScalarRelationFilter, OrderWhereInput> | null
-  }, "id" | "tenantId_liveSessionId_clientPhone_liveItemId">
+  }, "id">
 
   export type ReservationOrderByWithAggregationInput = {
     id?: SortOrder
     tenantId?: SortOrder
-    liveSessionId?: SortOrder
-    liveItemId?: SortOrder
+    liveSessionId?: SortOrderInput | SortOrder
+    liveItemId?: SortOrderInput | SortOrder
+    catalogueItemId?: SortOrderInput | SortOrder
     clientPhone?: SortOrder
     status?: SortOrder
     address?: SortOrderInput | SortOrder
@@ -31853,8 +33420,9 @@ export namespace Prisma {
     NOT?: ReservationScalarWhereWithAggregatesInput | ReservationScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Reservation"> | string
     tenantId?: StringWithAggregatesFilter<"Reservation"> | string
-    liveSessionId?: StringWithAggregatesFilter<"Reservation"> | string
-    liveItemId?: StringWithAggregatesFilter<"Reservation"> | string
+    liveSessionId?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
+    liveItemId?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
+    catalogueItemId?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
     clientPhone?: StringWithAggregatesFilter<"Reservation"> | string
     status?: EnumReservationStatusWithAggregatesFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
@@ -32322,6 +33890,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -32369,6 +33938,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -32416,6 +33986,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -32463,6 +34034,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -33713,6 +35285,107 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CatalogueItemCreateInput = {
+    id?: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdInLive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutCatalogueItemsInput
+    reservations?: ReservationCreateNestedManyWithoutCatalogueItemInput
+  }
+
+  export type CatalogueItemUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdInLive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput
+  }
+
+  export type CatalogueItemUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput
+    reservations?: ReservationUpdateManyWithoutCatalogueItemNestedInput
+  }
+
+  export type CatalogueItemUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput
+  }
+
+  export type CatalogueItemCreateManyInput = {
+    id?: string
+    tenantId: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdInLive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CatalogueItemUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CatalogueItemUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ReservationCreateInput = {
     id?: string
     clientPhone: string
@@ -33724,16 +35397,18 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutReservationsInput
-    liveSession: LiveSessionCreateNestedOneWithoutReservationsInput
-    liveItem: LiveItemCreateNestedOneWithoutReservationsInput
+    liveSession?: LiveSessionCreateNestedOneWithoutReservationsInput
+    liveItem?: LiveItemCreateNestedOneWithoutReservationsInput
+    catalogueItem?: CatalogueItemCreateNestedOneWithoutReservationsInput
     order?: OrderCreateNestedOneWithoutReservationInput
   }
 
   export type ReservationUncheckedCreateInput = {
     id?: string
     tenantId: string
-    liveSessionId: string
-    liveItemId: string
+    liveSessionId?: string | null
+    liveItemId?: string | null
+    catalogueItemId?: string | null
     clientPhone: string
     status?: $Enums.ReservationStatus
     address?: string | null
@@ -33756,16 +35431,18 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
-    liveSession?: LiveSessionUpdateOneRequiredWithoutReservationsNestedInput
-    liveItem?: LiveItemUpdateOneRequiredWithoutReservationsNestedInput
+    liveSession?: LiveSessionUpdateOneWithoutReservationsNestedInput
+    liveItem?: LiveItemUpdateOneWithoutReservationsNestedInput
+    catalogueItem?: CatalogueItemUpdateOneWithoutReservationsNestedInput
     order?: OrderUpdateOneWithoutReservationNestedInput
   }
 
   export type ReservationUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
-    liveSessionId?: StringFieldUpdateOperationsInput | string
-    liveItemId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33780,8 +35457,9 @@ export namespace Prisma {
   export type ReservationCreateManyInput = {
     id?: string
     tenantId: string
-    liveSessionId: string
-    liveItemId: string
+    liveSessionId?: string | null
+    liveItemId?: string | null
+    catalogueItemId?: string | null
     clientPhone: string
     status?: $Enums.ReservationStatus
     address?: string | null
@@ -33807,8 +35485,9 @@ export namespace Prisma {
   export type ReservationUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
-    liveSessionId?: StringFieldUpdateOperationsInput | string
-    liveItemId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34417,6 +36096,12 @@ export namespace Prisma {
     none?: LiveItemWhereInput
   }
 
+  export type CatalogueItemListRelationFilter = {
+    every?: CatalogueItemWhereInput
+    some?: CatalogueItemWhereInput
+    none?: CatalogueItemWhereInput
+  }
+
   export type ReservationListRelationFilter = {
     every?: ReservationWhereInput
     some?: ReservationWhereInput
@@ -34501,6 +36186,10 @@ export namespace Prisma {
   }
 
   export type LiveItemOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CatalogueItemOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -35474,6 +37163,67 @@ export namespace Prisma {
     reservedQty?: SortOrder
   }
 
+  export type CatalogueItemTenantIdCodeCompoundUniqueInput = {
+    tenantId: string
+    code: string
+  }
+
+  export type CatalogueItemCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    code?: SortOrder
+    amountCents?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    mediaStorageKey?: SortOrder
+    createdInLive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CatalogueItemAvgOrderByAggregateInput = {
+    amountCents?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+  }
+
+  export type CatalogueItemMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    code?: SortOrder
+    amountCents?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    mediaStorageKey?: SortOrder
+    createdInLive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CatalogueItemMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    code?: SortOrder
+    amountCents?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    mediaStorageKey?: SortOrder
+    createdInLive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CatalogueItemSumOrderByAggregateInput = {
+    amountCents?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+  }
+
   export type EnumReservationStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.ReservationStatus | EnumReservationStatusFieldRefInput<$PrismaModel>
     in?: $Enums.ReservationStatus[] | ListEnumReservationStatusFieldRefInput<$PrismaModel>
@@ -35481,9 +37231,19 @@ export namespace Prisma {
     not?: NestedEnumReservationStatusFilter<$PrismaModel> | $Enums.ReservationStatus
   }
 
-  export type LiveItemScalarRelationFilter = {
-    is?: LiveItemWhereInput
-    isNot?: LiveItemWhereInput
+  export type LiveSessionNullableScalarRelationFilter = {
+    is?: LiveSessionWhereInput | null
+    isNot?: LiveSessionWhereInput | null
+  }
+
+  export type LiveItemNullableScalarRelationFilter = {
+    is?: LiveItemWhereInput | null
+    isNot?: LiveItemWhereInput | null
+  }
+
+  export type CatalogueItemNullableScalarRelationFilter = {
+    is?: CatalogueItemWhereInput | null
+    isNot?: CatalogueItemWhereInput | null
   }
 
   export type OrderNullableScalarRelationFilter = {
@@ -35491,18 +37251,12 @@ export namespace Prisma {
     isNot?: OrderWhereInput | null
   }
 
-  export type ReservationTenantIdLiveSessionIdClientPhoneLiveItemIdCompoundUniqueInput = {
-    tenantId: string
-    liveSessionId: string
-    clientPhone: string
-    liveItemId: string
-  }
-
   export type ReservationCountOrderByAggregateInput = {
     id?: SortOrder
     tenantId?: SortOrder
     liveSessionId?: SortOrder
     liveItemId?: SortOrder
+    catalogueItemId?: SortOrder
     clientPhone?: SortOrder
     status?: SortOrder
     address?: SortOrder
@@ -35518,6 +37272,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     liveSessionId?: SortOrder
     liveItemId?: SortOrder
+    catalogueItemId?: SortOrder
     clientPhone?: SortOrder
     status?: SortOrder
     address?: SortOrder
@@ -35533,6 +37288,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     liveSessionId?: SortOrder
     liveItemId?: SortOrder
+    catalogueItemId?: SortOrder
     clientPhone?: SortOrder
     status?: SortOrder
     address?: SortOrder
@@ -35979,6 +37735,13 @@ export namespace Prisma {
     connect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
   }
 
+  export type CatalogueItemCreateNestedManyWithoutTenantInput = {
+    create?: XOR<CatalogueItemCreateWithoutTenantInput, CatalogueItemUncheckedCreateWithoutTenantInput> | CatalogueItemCreateWithoutTenantInput[] | CatalogueItemUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: CatalogueItemCreateOrConnectWithoutTenantInput | CatalogueItemCreateOrConnectWithoutTenantInput[]
+    createMany?: CatalogueItemCreateManyTenantInputEnvelope
+    connect?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
+  }
+
   export type ReservationCreateNestedManyWithoutTenantInput = {
     create?: XOR<ReservationCreateWithoutTenantInput, ReservationUncheckedCreateWithoutTenantInput> | ReservationCreateWithoutTenantInput[] | ReservationUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: ReservationCreateOrConnectWithoutTenantInput | ReservationCreateOrConnectWithoutTenantInput[]
@@ -36103,6 +37866,13 @@ export namespace Prisma {
     connectOrCreate?: LiveItemCreateOrConnectWithoutTenantInput | LiveItemCreateOrConnectWithoutTenantInput[]
     createMany?: LiveItemCreateManyTenantInputEnvelope
     connect?: LiveItemWhereUniqueInput | LiveItemWhereUniqueInput[]
+  }
+
+  export type CatalogueItemUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<CatalogueItemCreateWithoutTenantInput, CatalogueItemUncheckedCreateWithoutTenantInput> | CatalogueItemCreateWithoutTenantInput[] | CatalogueItemUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: CatalogueItemCreateOrConnectWithoutTenantInput | CatalogueItemCreateOrConnectWithoutTenantInput[]
+    createMany?: CatalogueItemCreateManyTenantInputEnvelope
+    connect?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
   }
 
   export type ReservationUncheckedCreateNestedManyWithoutTenantInput = {
@@ -36348,6 +38118,20 @@ export namespace Prisma {
     update?: LiveItemUpdateWithWhereUniqueWithoutTenantInput | LiveItemUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: LiveItemUpdateManyWithWhereWithoutTenantInput | LiveItemUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: LiveItemScalarWhereInput | LiveItemScalarWhereInput[]
+  }
+
+  export type CatalogueItemUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<CatalogueItemCreateWithoutTenantInput, CatalogueItemUncheckedCreateWithoutTenantInput> | CatalogueItemCreateWithoutTenantInput[] | CatalogueItemUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: CatalogueItemCreateOrConnectWithoutTenantInput | CatalogueItemCreateOrConnectWithoutTenantInput[]
+    upsert?: CatalogueItemUpsertWithWhereUniqueWithoutTenantInput | CatalogueItemUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: CatalogueItemCreateManyTenantInputEnvelope
+    set?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
+    disconnect?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
+    delete?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
+    connect?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
+    update?: CatalogueItemUpdateWithWhereUniqueWithoutTenantInput | CatalogueItemUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: CatalogueItemUpdateManyWithWhereWithoutTenantInput | CatalogueItemUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: CatalogueItemScalarWhereInput | CatalogueItemScalarWhereInput[]
   }
 
   export type ReservationUpdateManyWithoutTenantNestedInput = {
@@ -36600,6 +38384,20 @@ export namespace Prisma {
     update?: LiveItemUpdateWithWhereUniqueWithoutTenantInput | LiveItemUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: LiveItemUpdateManyWithWhereWithoutTenantInput | LiveItemUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: LiveItemScalarWhereInput | LiveItemScalarWhereInput[]
+  }
+
+  export type CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<CatalogueItemCreateWithoutTenantInput, CatalogueItemUncheckedCreateWithoutTenantInput> | CatalogueItemCreateWithoutTenantInput[] | CatalogueItemUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: CatalogueItemCreateOrConnectWithoutTenantInput | CatalogueItemCreateOrConnectWithoutTenantInput[]
+    upsert?: CatalogueItemUpsertWithWhereUniqueWithoutTenantInput | CatalogueItemUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: CatalogueItemCreateManyTenantInputEnvelope
+    set?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
+    disconnect?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
+    delete?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
+    connect?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
+    update?: CatalogueItemUpdateWithWhereUniqueWithoutTenantInput | CatalogueItemUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: CatalogueItemUpdateManyWithWhereWithoutTenantInput | CatalogueItemUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: CatalogueItemScalarWhereInput | CatalogueItemScalarWhereInput[]
   }
 
   export type ReservationUncheckedUpdateManyWithoutTenantNestedInput = {
@@ -37168,6 +38966,62 @@ export namespace Prisma {
     deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
   }
 
+  export type TenantCreateNestedOneWithoutCatalogueItemsInput = {
+    create?: XOR<TenantCreateWithoutCatalogueItemsInput, TenantUncheckedCreateWithoutCatalogueItemsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutCatalogueItemsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type ReservationCreateNestedManyWithoutCatalogueItemInput = {
+    create?: XOR<ReservationCreateWithoutCatalogueItemInput, ReservationUncheckedCreateWithoutCatalogueItemInput> | ReservationCreateWithoutCatalogueItemInput[] | ReservationUncheckedCreateWithoutCatalogueItemInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutCatalogueItemInput | ReservationCreateOrConnectWithoutCatalogueItemInput[]
+    createMany?: ReservationCreateManyCatalogueItemInputEnvelope
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+  }
+
+  export type ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput = {
+    create?: XOR<ReservationCreateWithoutCatalogueItemInput, ReservationUncheckedCreateWithoutCatalogueItemInput> | ReservationCreateWithoutCatalogueItemInput[] | ReservationUncheckedCreateWithoutCatalogueItemInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutCatalogueItemInput | ReservationCreateOrConnectWithoutCatalogueItemInput[]
+    createMany?: ReservationCreateManyCatalogueItemInputEnvelope
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+  }
+
+  export type TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput = {
+    create?: XOR<TenantCreateWithoutCatalogueItemsInput, TenantUncheckedCreateWithoutCatalogueItemsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutCatalogueItemsInput
+    upsert?: TenantUpsertWithoutCatalogueItemsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutCatalogueItemsInput, TenantUpdateWithoutCatalogueItemsInput>, TenantUncheckedUpdateWithoutCatalogueItemsInput>
+  }
+
+  export type ReservationUpdateManyWithoutCatalogueItemNestedInput = {
+    create?: XOR<ReservationCreateWithoutCatalogueItemInput, ReservationUncheckedCreateWithoutCatalogueItemInput> | ReservationCreateWithoutCatalogueItemInput[] | ReservationUncheckedCreateWithoutCatalogueItemInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutCatalogueItemInput | ReservationCreateOrConnectWithoutCatalogueItemInput[]
+    upsert?: ReservationUpsertWithWhereUniqueWithoutCatalogueItemInput | ReservationUpsertWithWhereUniqueWithoutCatalogueItemInput[]
+    createMany?: ReservationCreateManyCatalogueItemInputEnvelope
+    set?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    disconnect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    delete?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    update?: ReservationUpdateWithWhereUniqueWithoutCatalogueItemInput | ReservationUpdateWithWhereUniqueWithoutCatalogueItemInput[]
+    updateMany?: ReservationUpdateManyWithWhereWithoutCatalogueItemInput | ReservationUpdateManyWithWhereWithoutCatalogueItemInput[]
+    deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+  }
+
+  export type ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput = {
+    create?: XOR<ReservationCreateWithoutCatalogueItemInput, ReservationUncheckedCreateWithoutCatalogueItemInput> | ReservationCreateWithoutCatalogueItemInput[] | ReservationUncheckedCreateWithoutCatalogueItemInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutCatalogueItemInput | ReservationCreateOrConnectWithoutCatalogueItemInput[]
+    upsert?: ReservationUpsertWithWhereUniqueWithoutCatalogueItemInput | ReservationUpsertWithWhereUniqueWithoutCatalogueItemInput[]
+    createMany?: ReservationCreateManyCatalogueItemInputEnvelope
+    set?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    disconnect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    delete?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    update?: ReservationUpdateWithWhereUniqueWithoutCatalogueItemInput | ReservationUpdateWithWhereUniqueWithoutCatalogueItemInput[]
+    updateMany?: ReservationUpdateManyWithWhereWithoutCatalogueItemInput | ReservationUpdateManyWithWhereWithoutCatalogueItemInput[]
+    deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+  }
+
   export type TenantCreateNestedOneWithoutReservationsInput = {
     create?: XOR<TenantCreateWithoutReservationsInput, TenantUncheckedCreateWithoutReservationsInput>
     connectOrCreate?: TenantCreateOrConnectWithoutReservationsInput
@@ -37184,6 +39038,12 @@ export namespace Prisma {
     create?: XOR<LiveItemCreateWithoutReservationsInput, LiveItemUncheckedCreateWithoutReservationsInput>
     connectOrCreate?: LiveItemCreateOrConnectWithoutReservationsInput
     connect?: LiveItemWhereUniqueInput
+  }
+
+  export type CatalogueItemCreateNestedOneWithoutReservationsInput = {
+    create?: XOR<CatalogueItemCreateWithoutReservationsInput, CatalogueItemUncheckedCreateWithoutReservationsInput>
+    connectOrCreate?: CatalogueItemCreateOrConnectWithoutReservationsInput
+    connect?: CatalogueItemWhereUniqueInput
   }
 
   export type OrderCreateNestedOneWithoutReservationInput = {
@@ -37210,20 +39070,34 @@ export namespace Prisma {
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutReservationsInput, TenantUpdateWithoutReservationsInput>, TenantUncheckedUpdateWithoutReservationsInput>
   }
 
-  export type LiveSessionUpdateOneRequiredWithoutReservationsNestedInput = {
+  export type LiveSessionUpdateOneWithoutReservationsNestedInput = {
     create?: XOR<LiveSessionCreateWithoutReservationsInput, LiveSessionUncheckedCreateWithoutReservationsInput>
     connectOrCreate?: LiveSessionCreateOrConnectWithoutReservationsInput
     upsert?: LiveSessionUpsertWithoutReservationsInput
+    disconnect?: LiveSessionWhereInput | boolean
+    delete?: LiveSessionWhereInput | boolean
     connect?: LiveSessionWhereUniqueInput
     update?: XOR<XOR<LiveSessionUpdateToOneWithWhereWithoutReservationsInput, LiveSessionUpdateWithoutReservationsInput>, LiveSessionUncheckedUpdateWithoutReservationsInput>
   }
 
-  export type LiveItemUpdateOneRequiredWithoutReservationsNestedInput = {
+  export type LiveItemUpdateOneWithoutReservationsNestedInput = {
     create?: XOR<LiveItemCreateWithoutReservationsInput, LiveItemUncheckedCreateWithoutReservationsInput>
     connectOrCreate?: LiveItemCreateOrConnectWithoutReservationsInput
     upsert?: LiveItemUpsertWithoutReservationsInput
+    disconnect?: LiveItemWhereInput | boolean
+    delete?: LiveItemWhereInput | boolean
     connect?: LiveItemWhereUniqueInput
     update?: XOR<XOR<LiveItemUpdateToOneWithWhereWithoutReservationsInput, LiveItemUpdateWithoutReservationsInput>, LiveItemUncheckedUpdateWithoutReservationsInput>
+  }
+
+  export type CatalogueItemUpdateOneWithoutReservationsNestedInput = {
+    create?: XOR<CatalogueItemCreateWithoutReservationsInput, CatalogueItemUncheckedCreateWithoutReservationsInput>
+    connectOrCreate?: CatalogueItemCreateOrConnectWithoutReservationsInput
+    upsert?: CatalogueItemUpsertWithoutReservationsInput
+    disconnect?: CatalogueItemWhereInput | boolean
+    delete?: CatalogueItemWhereInput | boolean
+    connect?: CatalogueItemWhereUniqueInput
+    update?: XOR<XOR<CatalogueItemUpdateToOneWithWhereWithoutReservationsInput, CatalogueItemUpdateWithoutReservationsInput>, CatalogueItemUncheckedUpdateWithoutReservationsInput>
   }
 
   export type OrderUpdateOneWithoutReservationNestedInput = {
@@ -38147,6 +40021,44 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CatalogueItemCreateWithoutTenantInput = {
+    id?: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdInLive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationCreateNestedManyWithoutCatalogueItemInput
+  }
+
+  export type CatalogueItemUncheckedCreateWithoutTenantInput = {
+    id?: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdInLive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput
+  }
+
+  export type CatalogueItemCreateOrConnectWithoutTenantInput = {
+    where: CatalogueItemWhereUniqueInput
+    create: XOR<CatalogueItemCreateWithoutTenantInput, CatalogueItemUncheckedCreateWithoutTenantInput>
+  }
+
+  export type CatalogueItemCreateManyTenantInputEnvelope = {
+    data: CatalogueItemCreateManyTenantInput | CatalogueItemCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ReservationCreateWithoutTenantInput = {
     id?: string
     clientPhone: string
@@ -38157,15 +40069,17 @@ export namespace Prisma {
     correlationId: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    liveSession: LiveSessionCreateNestedOneWithoutReservationsInput
-    liveItem: LiveItemCreateNestedOneWithoutReservationsInput
+    liveSession?: LiveSessionCreateNestedOneWithoutReservationsInput
+    liveItem?: LiveItemCreateNestedOneWithoutReservationsInput
+    catalogueItem?: CatalogueItemCreateNestedOneWithoutReservationsInput
     order?: OrderCreateNestedOneWithoutReservationInput
   }
 
   export type ReservationUncheckedCreateWithoutTenantInput = {
     id?: string
-    liveSessionId: string
-    liveItemId: string
+    liveSessionId?: string | null
+    liveItemId?: string | null
+    catalogueItemId?: string | null
     clientPhone: string
     status?: $Enums.ReservationStatus
     address?: string | null
@@ -38716,6 +40630,39 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"LiveItem"> | Date | string
   }
 
+  export type CatalogueItemUpsertWithWhereUniqueWithoutTenantInput = {
+    where: CatalogueItemWhereUniqueInput
+    update: XOR<CatalogueItemUpdateWithoutTenantInput, CatalogueItemUncheckedUpdateWithoutTenantInput>
+    create: XOR<CatalogueItemCreateWithoutTenantInput, CatalogueItemUncheckedCreateWithoutTenantInput>
+  }
+
+  export type CatalogueItemUpdateWithWhereUniqueWithoutTenantInput = {
+    where: CatalogueItemWhereUniqueInput
+    data: XOR<CatalogueItemUpdateWithoutTenantInput, CatalogueItemUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type CatalogueItemUpdateManyWithWhereWithoutTenantInput = {
+    where: CatalogueItemScalarWhereInput
+    data: XOR<CatalogueItemUpdateManyMutationInput, CatalogueItemUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type CatalogueItemScalarWhereInput = {
+    AND?: CatalogueItemScalarWhereInput | CatalogueItemScalarWhereInput[]
+    OR?: CatalogueItemScalarWhereInput[]
+    NOT?: CatalogueItemScalarWhereInput | CatalogueItemScalarWhereInput[]
+    id?: StringFilter<"CatalogueItem"> | string
+    tenantId?: StringFilter<"CatalogueItem"> | string
+    code?: StringFilter<"CatalogueItem"> | string
+    amountCents?: IntNullableFilter<"CatalogueItem"> | number | null
+    quantity?: IntFilter<"CatalogueItem"> | number
+    availableQty?: IntFilter<"CatalogueItem"> | number
+    reservedQty?: IntFilter<"CatalogueItem"> | number
+    mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    createdInLive?: BoolFilter<"CatalogueItem"> | boolean
+    createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
+    updatedAt?: DateTimeFilter<"CatalogueItem"> | Date | string
+  }
+
   export type ReservationUpsertWithWhereUniqueWithoutTenantInput = {
     where: ReservationWhereUniqueInput
     update: XOR<ReservationUpdateWithoutTenantInput, ReservationUncheckedUpdateWithoutTenantInput>
@@ -38738,8 +40685,9 @@ export namespace Prisma {
     NOT?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
     id?: StringFilter<"Reservation"> | string
     tenantId?: StringFilter<"Reservation"> | string
-    liveSessionId?: StringFilter<"Reservation"> | string
-    liveItemId?: StringFilter<"Reservation"> | string
+    liveSessionId?: StringNullableFilter<"Reservation"> | string | null
+    liveItemId?: StringNullableFilter<"Reservation"> | string | null
+    catalogueItemId?: StringNullableFilter<"Reservation"> | string | null
     clientPhone?: StringFilter<"Reservation"> | string
     status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableFilter<"Reservation"> | string | null
@@ -38918,6 +40866,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -38964,6 +40913,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -39026,6 +40976,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -39072,6 +41023,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -39118,6 +41070,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -39164,6 +41117,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -39246,6 +41200,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -39292,6 +41247,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -39415,6 +41371,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -39461,6 +41418,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -39523,6 +41481,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -39569,6 +41528,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -39615,6 +41575,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -39661,6 +41622,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -39783,6 +41745,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -39829,6 +41792,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -40079,6 +42043,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -40125,6 +42090,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -40187,6 +42153,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -40233,6 +42200,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -40279,6 +42247,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -40325,6 +42294,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -40387,6 +42357,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -40433,6 +42404,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -40479,6 +42451,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -40525,6 +42498,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -40587,6 +42561,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -40633,6 +42608,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -40679,6 +42655,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -40725,6 +42702,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -40787,6 +42765,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -40833,6 +42812,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -40879,6 +42859,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -40925,6 +42906,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -40987,6 +42969,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -41033,6 +43016,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -41079,6 +43063,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -41125,6 +43110,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -41187,6 +43173,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -41233,6 +43220,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -41279,6 +43267,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -41325,6 +43314,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -41386,14 +43376,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutReservationsInput
-    liveItem: LiveItemCreateNestedOneWithoutReservationsInput
+    liveItem?: LiveItemCreateNestedOneWithoutReservationsInput
+    catalogueItem?: CatalogueItemCreateNestedOneWithoutReservationsInput
     order?: OrderCreateNestedOneWithoutReservationInput
   }
 
   export type ReservationUncheckedCreateWithoutLiveSessionInput = {
     id?: string
     tenantId: string
-    liveItemId: string
+    liveItemId?: string | null
+    catalogueItemId?: string | null
     clientPhone: string
     status?: $Enums.ReservationStatus
     address?: string | null
@@ -41465,6 +43457,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -41511,6 +43504,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -41589,6 +43583,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -41635,6 +43630,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -41683,14 +43679,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutReservationsInput
-    liveSession: LiveSessionCreateNestedOneWithoutReservationsInput
+    liveSession?: LiveSessionCreateNestedOneWithoutReservationsInput
+    catalogueItem?: CatalogueItemCreateNestedOneWithoutReservationsInput
     order?: OrderCreateNestedOneWithoutReservationInput
   }
 
   export type ReservationUncheckedCreateWithoutLiveItemInput = {
     id?: string
     tenantId: string
-    liveSessionId: string
+    liveSessionId?: string | null
+    catalogueItemId?: string | null
     clientPhone: string
     status?: $Enums.ReservationStatus
     address?: string | null
@@ -41762,6 +43760,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -41808,6 +43807,7 @@ export namespace Prisma {
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -41862,6 +43862,268 @@ export namespace Prisma {
     data: XOR<ReservationUpdateManyMutationInput, ReservationUncheckedUpdateManyWithoutLiveItemInput>
   }
 
+  export type TenantCreateWithoutCatalogueItemsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    users?: UserCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutCatalogueItemsInput = {
+    id?: string
+    name: string
+    whatsappPhoneNumber?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutCatalogueItemsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutCatalogueItemsInput, TenantUncheckedCreateWithoutCatalogueItemsInput>
+  }
+
+  export type ReservationCreateWithoutCatalogueItemInput = {
+    id?: string
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutReservationsInput
+    liveSession?: LiveSessionCreateNestedOneWithoutReservationsInput
+    liveItem?: LiveItemCreateNestedOneWithoutReservationsInput
+    order?: OrderCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationUncheckedCreateWithoutCatalogueItemInput = {
+    id?: string
+    tenantId: string
+    liveSessionId?: string | null
+    liveItemId?: string | null
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    order?: OrderUncheckedCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationCreateOrConnectWithoutCatalogueItemInput = {
+    where: ReservationWhereUniqueInput
+    create: XOR<ReservationCreateWithoutCatalogueItemInput, ReservationUncheckedCreateWithoutCatalogueItemInput>
+  }
+
+  export type ReservationCreateManyCatalogueItemInputEnvelope = {
+    data: ReservationCreateManyCatalogueItemInput | ReservationCreateManyCatalogueItemInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TenantUpsertWithoutCatalogueItemsInput = {
+    update: XOR<TenantUpdateWithoutCatalogueItemsInput, TenantUncheckedUpdateWithoutCatalogueItemsInput>
+    create: XOR<TenantCreateWithoutCatalogueItemsInput, TenantUncheckedCreateWithoutCatalogueItemsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutCatalogueItemsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutCatalogueItemsInput, TenantUncheckedUpdateWithoutCatalogueItemsInput>
+  }
+
+  export type TenantUpdateWithoutCatalogueItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    users?: UserUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutCatalogueItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type ReservationUpsertWithWhereUniqueWithoutCatalogueItemInput = {
+    where: ReservationWhereUniqueInput
+    update: XOR<ReservationUpdateWithoutCatalogueItemInput, ReservationUncheckedUpdateWithoutCatalogueItemInput>
+    create: XOR<ReservationCreateWithoutCatalogueItemInput, ReservationUncheckedCreateWithoutCatalogueItemInput>
+  }
+
+  export type ReservationUpdateWithWhereUniqueWithoutCatalogueItemInput = {
+    where: ReservationWhereUniqueInput
+    data: XOR<ReservationUpdateWithoutCatalogueItemInput, ReservationUncheckedUpdateWithoutCatalogueItemInput>
+  }
+
+  export type ReservationUpdateManyWithWhereWithoutCatalogueItemInput = {
+    where: ReservationScalarWhereInput
+    data: XOR<ReservationUpdateManyMutationInput, ReservationUncheckedUpdateManyWithoutCatalogueItemInput>
+  }
+
   export type TenantCreateWithoutReservationsInput = {
     id?: string
     name: string
@@ -41902,6 +44164,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
@@ -41948,6 +44211,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
@@ -42015,6 +44279,39 @@ export namespace Prisma {
   export type LiveItemCreateOrConnectWithoutReservationsInput = {
     where: LiveItemWhereUniqueInput
     create: XOR<LiveItemCreateWithoutReservationsInput, LiveItemUncheckedCreateWithoutReservationsInput>
+  }
+
+  export type CatalogueItemCreateWithoutReservationsInput = {
+    id?: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdInLive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutCatalogueItemsInput
+  }
+
+  export type CatalogueItemUncheckedCreateWithoutReservationsInput = {
+    id?: string
+    tenantId: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdInLive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CatalogueItemCreateOrConnectWithoutReservationsInput = {
+    where: CatalogueItemWhereUniqueInput
+    create: XOR<CatalogueItemCreateWithoutReservationsInput, CatalogueItemUncheckedCreateWithoutReservationsInput>
   }
 
   export type OrderCreateWithoutReservationInput = {
@@ -42097,6 +44394,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
@@ -42143,6 +44441,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
@@ -42215,6 +44514,45 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CatalogueItemUpsertWithoutReservationsInput = {
+    update: XOR<CatalogueItemUpdateWithoutReservationsInput, CatalogueItemUncheckedUpdateWithoutReservationsInput>
+    create: XOR<CatalogueItemCreateWithoutReservationsInput, CatalogueItemUncheckedCreateWithoutReservationsInput>
+    where?: CatalogueItemWhereInput
+  }
+
+  export type CatalogueItemUpdateToOneWithWhereWithoutReservationsInput = {
+    where?: CatalogueItemWhereInput
+    data: XOR<CatalogueItemUpdateWithoutReservationsInput, CatalogueItemUncheckedUpdateWithoutReservationsInput>
+  }
+
+  export type CatalogueItemUpdateWithoutReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput
+  }
+
+  export type CatalogueItemUncheckedUpdateWithoutReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -42294,6 +44632,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
@@ -42340,6 +44679,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
@@ -42362,15 +44702,17 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutReservationsInput
-    liveSession: LiveSessionCreateNestedOneWithoutReservationsInput
-    liveItem: LiveItemCreateNestedOneWithoutReservationsInput
+    liveSession?: LiveSessionCreateNestedOneWithoutReservationsInput
+    liveItem?: LiveItemCreateNestedOneWithoutReservationsInput
+    catalogueItem?: CatalogueItemCreateNestedOneWithoutReservationsInput
   }
 
   export type ReservationUncheckedCreateWithoutOrderInput = {
     id?: string
     tenantId: string
-    liveSessionId: string
-    liveItemId: string
+    liveSessionId?: string | null
+    liveItemId?: string | null
+    catalogueItemId?: string | null
     clientPhone: string
     status?: $Enums.ReservationStatus
     address?: string | null
@@ -42471,6 +44813,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
@@ -42517,6 +44860,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
@@ -42545,15 +44889,17 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
-    liveSession?: LiveSessionUpdateOneRequiredWithoutReservationsNestedInput
-    liveItem?: LiveItemUpdateOneRequiredWithoutReservationsNestedInput
+    liveSession?: LiveSessionUpdateOneWithoutReservationsNestedInput
+    liveItem?: LiveItemUpdateOneWithoutReservationsNestedInput
+    catalogueItem?: CatalogueItemUpdateOneWithoutReservationsNestedInput
   }
 
   export type ReservationUncheckedUpdateWithoutOrderInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
-    liveSessionId?: StringFieldUpdateOperationsInput | string
-    liveItemId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42649,6 +44995,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -42695,6 +45042,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -42792,6 +45140,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -42838,6 +45187,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -42884,6 +45234,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
@@ -42930,6 +45281,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
@@ -42992,6 +45344,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
@@ -43038,6 +45391,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
@@ -43083,6 +45437,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -43129,6 +45484,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -43191,6 +45547,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -43237,6 +45594,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -43284,6 +45642,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -43330,6 +45689,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -43392,6 +45752,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -43438,6 +45799,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -43573,10 +45935,24 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type CatalogueItemCreateManyTenantInput = {
+    id?: string
+    code: string
+    amountCents?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    createdInLive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type ReservationCreateManyTenantInput = {
     id?: string
-    liveSessionId: string
-    liveItemId: string
+    liveSessionId?: string | null
+    liveItemId?: string | null
+    catalogueItemId?: string | null
     clientPhone: string
     status?: $Enums.ReservationStatus
     address?: string | null
@@ -44035,6 +46411,47 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CatalogueItemUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUpdateManyWithoutCatalogueItemNestedInput
+  }
+
+  export type CatalogueItemUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput
+  }
+
+  export type CatalogueItemUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ReservationUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientPhone?: StringFieldUpdateOperationsInput | string
@@ -44045,15 +46462,17 @@ export namespace Prisma {
     correlationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    liveSession?: LiveSessionUpdateOneRequiredWithoutReservationsNestedInput
-    liveItem?: LiveItemUpdateOneRequiredWithoutReservationsNestedInput
+    liveSession?: LiveSessionUpdateOneWithoutReservationsNestedInput
+    liveItem?: LiveItemUpdateOneWithoutReservationsNestedInput
+    catalogueItem?: CatalogueItemUpdateOneWithoutReservationsNestedInput
     order?: OrderUpdateOneWithoutReservationNestedInput
   }
 
   export type ReservationUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
-    liveSessionId?: StringFieldUpdateOperationsInput | string
-    liveItemId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44067,8 +46486,9 @@ export namespace Prisma {
 
   export type ReservationUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
-    liveSessionId?: StringFieldUpdateOperationsInput | string
-    liveItemId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44344,7 +46764,8 @@ export namespace Prisma {
   export type ReservationCreateManyLiveSessionInput = {
     id?: string
     tenantId: string
-    liveItemId: string
+    liveItemId?: string | null
+    catalogueItemId?: string | null
     clientPhone: string
     status?: $Enums.ReservationStatus
     address?: string | null
@@ -44407,14 +46828,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
-    liveItem?: LiveItemUpdateOneRequiredWithoutReservationsNestedInput
+    liveItem?: LiveItemUpdateOneWithoutReservationsNestedInput
+    catalogueItem?: CatalogueItemUpdateOneWithoutReservationsNestedInput
     order?: OrderUpdateOneWithoutReservationNestedInput
   }
 
   export type ReservationUncheckedUpdateWithoutLiveSessionInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
-    liveItemId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44429,7 +46852,8 @@ export namespace Prisma {
   export type ReservationUncheckedUpdateManyWithoutLiveSessionInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
-    liveItemId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44443,7 +46867,8 @@ export namespace Prisma {
   export type ReservationCreateManyLiveItemInput = {
     id?: string
     tenantId: string
-    liveSessionId: string
+    liveSessionId?: string | null
+    catalogueItemId?: string | null
     clientPhone: string
     status?: $Enums.ReservationStatus
     address?: string | null
@@ -44465,14 +46890,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
-    liveSession?: LiveSessionUpdateOneRequiredWithoutReservationsNestedInput
+    liveSession?: LiveSessionUpdateOneWithoutReservationsNestedInput
+    catalogueItem?: CatalogueItemUpdateOneWithoutReservationsNestedInput
     order?: OrderUpdateOneWithoutReservationNestedInput
   }
 
   export type ReservationUncheckedUpdateWithoutLiveItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
-    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44487,7 +46914,70 @@ export namespace Prisma {
   export type ReservationUncheckedUpdateManyWithoutLiveItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
-    liveSessionId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservationCreateManyCatalogueItemInput = {
+    id?: string
+    tenantId: string
+    liveSessionId?: string | null
+    liveItemId?: string | null
+    clientPhone: string
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservationUpdateWithoutCatalogueItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
+    liveSession?: LiveSessionUpdateOneWithoutReservationsNestedInput
+    liveItem?: LiveItemUpdateOneWithoutReservationsNestedInput
+    order?: OrderUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationUncheckedUpdateWithoutCatalogueItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUncheckedUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationUncheckedUpdateManyWithoutCatalogueItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null

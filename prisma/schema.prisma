@@ -72,6 +72,7 @@ model Tenant {
   optOuts               OptOut[]
   liveSessions          LiveSession[]
   liveItems             LiveItem[]
+  catalogueItems        CatalogueItem[]
   reservations          Reservation[]
   waitlists             Waitlist[]
   orders                Order[]
@@ -356,8 +357,31 @@ model LiveItem {
   @@map("live_items")
 }
 
+// Story 8.1: Article catalogue persistant — seule source d'articles commandables
+// Unicité (tenantId, code) — le code = étiquette persistante de l'article
+model CatalogueItem {
+  id              String   @id @default(cuid())
+  tenantId        String   @map("tenant_id")
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  code            String // normalisé trim + uppercase
+  amountCents     Int?     @map("amount_cents")
+  quantity        Int      @default(1)
+  availableQty    Int      @default(1) @map("available_qty")
+  reservedQty     Int      @default(0) @map("reserved_qty")
+  mediaStorageKey String?  @map("media_storage_key")
+  createdInLive   Boolean  @default(false) @map("created_in_live")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  reservations Reservation[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@map("catalogue_items")
+}
+
 // Réservation client par article (Story 4.1)
-// Idempotence : (tenant_id, live_session_id, client_phone, live_item_id) unique
+// Story 8.1: idempotence via partial unique indexes (migration SQL)
 enum ReservationStatus {
   reserved
   address_collected
@@ -366,27 +390,30 @@ enum ReservationStatus {
 }
 
 model Reservation {
-  id            String            @id @default(cuid())
-  tenantId      String            @map("tenant_id")
-  tenant        Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  liveSessionId String            @map("live_session_id")
-  liveSession   LiveSession       @relation(fields: [liveSessionId], references: [id], onDelete: Cascade)
-  liveItemId    String            @map("live_item_id")
-  liveItem      LiveItem          @relation(fields: [liveItemId], references: [id], onDelete: Cascade)
-  clientPhone   String            @map("client_phone") // E.164 normalisé
-  status        ReservationStatus @default(reserved)
-  address       String?           @db.Text
+  id              String            @id @default(cuid())
+  tenantId        String            @map("tenant_id")
+  tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  liveSessionId   String?           @map("live_session_id")
+  liveSession     LiveSession?      @relation(fields: [liveSessionId], references: [id], onDelete: Cascade)
+  liveItemId      String?           @map("live_item_id")
+  liveItem        LiveItem?         @relation(fields: [liveItemId], references: [id], onDelete: Cascade)
+  catalogueItemId String?           @map("catalogue_item_id")
+  catalogueItem   CatalogueItem?    @relation(fields: [catalogueItemId], references: [id], onDelete: Cascade)
+  clientPhone     String            @map("client_phone") // E.164 normalisé
+  status          ReservationStatus @default(reserved)
+  address         String?           @db.Text
   expiresAt       DateTime?         @map("expires_at")
   reminderSentAt  DateTime?         @map("reminder_sent_at") // Story 4.4: rappel T-2 min envoyé une seule fois
   correlationId   String            @map("correlation_id")
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt @map("updated_at")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
   order           Order?
 
-  @@unique([tenantId, liveSessionId, clientPhone, liveItemId])
+  // Note: partial unique indexes are defined in the migration SQL (Prisma doesn't support partial indexes)
   @@index([tenantId, liveSessionId, clientPhone])
   @@index([tenantId])
   @@index([liveItemId, liveSessionId])
+  @@index([catalogueItemId])
   @@map("reservations")
 }
 

@@ -126,6 +126,77 @@ describe("addToWaitlist (Story 4.3)", () => {
     expect(result).toEqual({ ok: false, reason: "not_found" });
   });
 
+  // ── Story 8.1: Catalogue item tests ───────────────────
+
+  it("Story 8.1: locks on catalogue_items when options.table = 'catalogue_items'", async () => {
+    const catItemId = "cat-item-1";
+    const mockTx = {
+      $queryRaw: vi.fn(),
+      $executeRaw: vi.fn(),
+      waitlist: {
+        findFirst: vi.fn(),
+        create: vi.fn(),
+        delete: vi.fn(),
+      },
+    };
+    mockTx.$queryRaw
+      .mockResolvedValueOnce([{ id: catItemId }]) // lock on catalogue_items
+      .mockResolvedValueOnce([{ max: 0 }]); // position
+    mockTx.waitlist.create.mockResolvedValue({
+      id: "w-cat",
+      position: 1,
+    });
+
+    vi.mocked(db.$transaction).mockImplementation(async (fn) => {
+      return fn(mockTx as never) as Promise<unknown>;
+    });
+
+    const result = await addToWaitlist(
+      tenantId,
+      "catalogue", // sentinel liveSessionId
+      catItemId,
+      clientPhone,
+      correlationId,
+      { table: "catalogue_items" },
+    );
+
+    expect(result).toEqual({ ok: true, position: 1 });
+    // Verify lock SQL was called (first $queryRaw call)
+    expect(mockTx.$queryRaw).toHaveBeenCalledTimes(2);
+    expect(mockTx.waitlist.create).toHaveBeenCalledWith({
+      data: {
+        tenantId,
+        liveSessionId: "catalogue",
+        liveItemId: catItemId,
+        clientPhone,
+        position: 1,
+        correlationId,
+      },
+    });
+  });
+
+  it("Story 8.1: returns not_found when catalogue item does not exist", async () => {
+    const mockTx = {
+      $queryRaw: vi.fn().mockResolvedValue([]), // no row found
+      $executeRaw: vi.fn(),
+      waitlist: { findFirst: vi.fn(), create: vi.fn(), delete: vi.fn() },
+    };
+    vi.mocked(db.$transaction).mockImplementation(async (fn) => {
+      return fn(mockTx as never) as Promise<unknown>;
+    });
+
+    const result = await addToWaitlist(
+      tenantId,
+      "catalogue",
+      "nonexistent-cat-item",
+      clientPhone,
+      correlationId,
+      { table: "catalogue_items" },
+    );
+
+    expect(result).toEqual({ ok: false, reason: "not_found" });
+  });
+
   it("on P2002 (race), returns existing position (idempotence)", async () => {
     const mockTx = {
       $queryRaw: vi.fn().mockResolvedValue([{ id: liveItemId }]),

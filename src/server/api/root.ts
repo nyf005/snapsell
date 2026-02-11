@@ -1,4 +1,5 @@
 import { authRouter } from "~/server/api/routers/auth";
+import { catalogueRouter } from "~/server/api/routers/catalogue";
 import { dashboardRouter } from "~/server/api/routers/dashboard";
 import { deliveryRouter } from "~/server/api/routers/delivery";
 import { eventLogRouter } from "~/server/api/routers/eventLog";
@@ -22,6 +23,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 export const appRouter = createTRPCRouter({
   example: exampleRouter,
   auth: authRouter,
+  catalogue: catalogueRouter,
   dashboard: dashboardRouter,
   settings: settingsRouter,
   sellerPhones: sellerPhonesRouter,

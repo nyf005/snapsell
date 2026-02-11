@@ -6,7 +6,6 @@ import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types"
 import { normalizeAndValidatePhoneNumber } from "~/lib/validations/phone";
 import {
   logOptOutRecorded,
-  logLiveSessionCreated,
   logLiveItemCreated,
   logLiveItemDuplicateRejected,
   logLiveItemPhotoLinked,
@@ -16,8 +15,8 @@ import {
   getActiveReservationForClient,
   collectAddress,
 } from "~/server/reservation/service";
-import { addToWaitlist } from "~/server/waitlist/addToWaitlist";
-import { getOrCreateCurrentSession } from "~/server/live-session/service";
+import { addToWaitlist, CATALOGUE_SESSION_SENTINEL } from "~/server/waitlist/addToWaitlist";
+import { getCurrentSessionReadOnly } from "~/server/live-session/service";
 import {
   createLiveItem,
   messageCodeAlreadyUsed,
@@ -26,10 +25,13 @@ import {
   normalizeCode,
 } from "~/server/live-item/createLiveItem";
 import { findLiveItemByCode } from "~/server/live-item/findLiveItemByCode";
+import { findOrderableItemByCode } from "~/server/catalogue/findOrderableItemByCode";
+import { findOrCreateOrderableItemByCode } from "~/server/catalogue/findOrCreateOrderableItemByCode";
 import { getLastEditedLiveItemInWindow } from "~/server/live-item/getLastEditedLiveItemInWindow";
 import { uploadMediaAndLinkToLiveItem } from "~/server/media/uploadMediaToLiveItem";
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { createOrderFromReservation } from "~/server/order/createOrderFromReservation";
+import { upsertCatalogueItemFromWebhook } from "~/server/catalogue/upsertCatalogueItemFromWebhook";
 
 /** Story 3.5: fenêtre (2 min) pour lier une photo seule au dernier code créé/édité (export pour tests/doc) */
 export const PHOTO_TO_LAST_CODE_WINDOW_MS = 2 * 60 * 1000;
@@ -45,7 +47,7 @@ export function normalizePhoneNumber(phoneNumber: string): string {
   return phoneNumber.replace(/^whatsapp:/i, "");
 }
 
-/** Mots-clés STOP (case-insensitive, trim) pour détection opt-out Story 2.5 */
+/** Mots-clés STOP (case-insensitive, trim) pour détection opt-out (Story 2.5, 7B.3 FR46). Scope = tenant. Voir docs/stop-policy.md. */
 const STOP_KEYWORDS = ["stop", "arrêt", "arret", "unsubscribe", "optout", "opt-out"];
 
 /** Story 4.5: Détection intent « OUI » pour confirmer réservation (trim, lowercase). */
@@ -104,10 +106,11 @@ export function parseCreateItemIntent(body: string): { code: string; quantity: n
 }
 
 /**
- * Détecte si le message est un signal « live » : vendeur ou client avec body type code.
- * Ne pas créer de session sur STOP, messages vides ou hors contexte.
+ * Story 8.3: Détermine si le message nécessite la lecture de la session live (read-only).
+ * Vendeur : oui pour tout body non vide et non STOP.
+ * Client : oui si le body ressemble à un code (lettres + chiffres).
  */
-export function isLiveSignal(messageType: "seller" | "client", body: string): boolean {
+export function shouldReadSession(messageType: "seller" | "client", body: string): boolean {
   const trimmed = body.trim();
   if (!trimmed.length || isStopMessage(body)) return false;
   if (messageType === "seller") return true;
@@ -237,42 +240,50 @@ export async function processWebhookJob(
       }
     }
 
-    // Story 2.6 + 4.1 : création/réactivation session live au signal « live » ou message client non vide (pour récap/adresse)
+    // Story 8.3: Session live lecture seule pour vendeur et client (getCurrentSessionReadOnly).
+    // La session n'est plus créée implicitement par le webhook ; elle est créée explicitement
+    // par le clic sur "Lancer le live" dans le dashboard (via live.startLive).
     let liveSessionId: string | null = null;
-    const clientNonEmpty =
-      messageType === "client" && !isStopMessage(body) && body.trim().length > 0;
-    if (tenantId && (isLiveSignal(messageType, body) || clientNonEmpty)) {
+    if (tenantId && messageType === "seller" && shouldReadSession(messageType, body)) {
       try {
-        const session = await getOrCreateCurrentSession(tenantId);
-        liveSessionId = session.id;
-        if (session.created) {
-          await logLiveSessionCreated(tenantId, session.id, correlationId).catch((err) => {
-            workerLogger.error("Error logging live_session_created", err, {
-              correlationId,
-              tenantId,
-              liveSessionId: session.id,
-            });
-          });
-        }
+        const session = await getCurrentSessionReadOnly(tenantId);
+        liveSessionId = session?.id ?? null;
       } catch (error) {
-        workerLogger.error("Error getOrCreateCurrentSession (live session)", error, {
+        workerLogger.error("Error getCurrentSessionReadOnly (seller live session)", error, {
           correlationId,
           tenantId,
         });
-        // Ne pas faire échouer le job
+      }
+    }
+    // Pour le client, on lit la session en read-only (pas de création)
+    if (tenantId && messageType === "client" && !isStopMessage(body) && body.trim().length > 0) {
+      try {
+        const session = await getCurrentSessionReadOnly(tenantId);
+        liveSessionId = session?.id ?? null;
+      } catch (error) {
+        workerLogger.error("Error getCurrentSessionReadOnly (client live session)", error, {
+          correlationId,
+          tenantId,
+        });
       }
     }
 
-    // Story 3.3 + 4.1 + 4.2 : intent client « code » → lookup seul ; si trouvé → réservation ; si non → Code inconnu (pas de création)
+    // Story 8.1 + 4.1 + 4.2 : intent client « code » → lookup catalogue
+    // Si session active → findOrCreateOrderableItemByCode (création à la volée si code absent).
+    // Si pas de session → findOrderableItemByCode seul ; absent → Code inconnu (pas de création).
     const clientCodeIntent = parseClientCodeIntent(body);
-    if (tenantId && messageType === "client" && liveSessionId && clientCodeIntent) {
+    if (tenantId && messageType === "client" && clientCodeIntent) {
       try {
         const to = normalizePhoneNumber(from);
         const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
-        const liveItem = await findLiveItemByCode(tenantId, liveSessionId, clientCodeIntent.code);
 
-        if (!liveItem) {
-          // Story 4.2 : code inexistant ou typo non résolu → message clair, ne jamais créer de LiveItem
+        // Story 8.1: résolution catalogue selon présence session live
+        const catalogueItem = liveSessionId
+          ? await findOrCreateOrderableItemByCode(tenantId, clientCodeIntent.code)
+          : await findOrderableItemByCode(tenantId, clientCodeIntent.code);
+
+        if (!catalogueItem) {
+          // Code inconnu (absent du catalogue, ou invalide — lettre non configurée)
           const msg = messageCodeUnknown(clientCodeIntent.code);
           await writeToOutbox({
             tenantId,
@@ -281,8 +292,8 @@ export async function processWebhookJob(
             correlationId,
           });
         } else if (clientCodeIntent.isTypo) {
-          // Story 4.2 : typo (ex. A12A) mais code extrait (A12) existe en session → suggestion, pas de réservation
-          const msg = messageCodeUnknownSuggestion(liveItem.code);
+          // Story 4.2 : typo (ex. A12A) mais code extrait (A12) existe → suggestion, pas de réservation
+          const msg = messageCodeUnknownSuggestion(catalogueItem.code);
           await writeToOutbox({
             tenantId,
             to: clientPhoneE164,
@@ -290,33 +301,37 @@ export async function processWebhookJob(
             correlationId,
           });
         } else {
-          // Code strict et trouvé → flux 4.1/4.3 (Réservé / File #N / Épuisé)
-          const free = liveItem.availableQty - liveItem.reservedQty;
+          // Code strict et trouvé dans le catalogue → flux réservation (Réservé / File #N / Épuisé)
+          const free = catalogueItem.availableQty - catalogueItem.reservedQty;
           if (free <= 0) {
+            // Story 8.1 + 4.3: file d'attente sur catalogue_items
             const waitResult = await addToWaitlist(
               tenantId,
-              liveSessionId,
-              liveItem.id,
+              liveSessionId ?? CATALOGUE_SESSION_SENTINEL,
+              catalogueItem.id,
               clientPhoneE164,
               correlationId,
+              { table: "catalogue_items" },
             );
-            const body =
+            const bodyMsg =
               waitResult.ok === true
                 ? `Tu es en file #${waitResult.position}. On te prévient quand une place se libère.`
                 : "Épuisé.";
             await writeToOutbox({
               tenantId,
               to: clientPhoneE164,
-              body,
+              body: bodyMsg,
               correlationId,
             });
           } else {
+            // Story 8.1: createReservation avec catalogueItemId
             const resResult = await createReservation(
               tenantId,
               liveSessionId,
-              liveItem.id,
+              null,
               clientPhoneE164,
               correlationId,
+              { catalogueItemId: catalogueItem.id, liveSessionId },
             );
             if (!resResult.success && resResult.reason === "exhausted") {
               await writeToOutbox({
@@ -336,7 +351,7 @@ export async function processWebhookJob(
           }
         }
       } catch (error) {
-        workerLogger.error("Error findLiveItemByCode / createReservation (Story 4.1 / 4.2)", error, {
+        workerLogger.error("Error catalogue lookup / createReservation (Story 8.1)", error, {
           correlationId,
           tenantId,
           body: body.trim(),
@@ -344,12 +359,11 @@ export async function processWebhookJob(
       }
     }
 
-    // Story 4.1 : intent client « adresse » (réservation en reserved → address_collected + récap + OUI)
-    // Exclure tout intent code (strict ou typo) pour ne pas traiter A12 / A12A comme adresse
+    // Story 4.1, 8.1 : intent client « adresse » (réservation en reserved → address_collected + récap + OUI)
+    // Story 8.1: ne plus exiger liveSessionId — la réservation catalogue peut avoir liveSessionId null
     if (
       tenantId &&
       messageType === "client" &&
-      liveSessionId &&
       !clientCodeIntent &&
       body.trim().length > 0
     ) {
@@ -358,18 +372,16 @@ export async function processWebhookJob(
         const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
         const active = await getActiveReservationForClient(
           tenantId,
-          liveSessionId,
           clientPhoneE164,
         );
         if (active?.status === "reserved") {
           const collectResult = await collectAddress(
             tenantId,
-            liveSessionId,
             clientPhoneE164,
             body,
           );
           if (collectResult.success) {
-            const { code, amountCents } = collectResult.reservation.liveItem;
+            const { code, amountCents } = collectResult.reservation.item;
             const prix =
               amountCents !== null
                 ? `${Math.round(amountCents / 100).toLocaleString("fr-FR")} FCFA`
@@ -388,18 +400,18 @@ export async function processWebhookJob(
           }
         }
       } catch (error) {
-        workerLogger.error("Error collectAddress / récap (Story 4.1)", error, {
+        workerLogger.error("Error collectAddress / récap (Story 4.1, 8.1)", error, {
           correlationId,
           tenantId,
         });
       }
     }
 
-    // Story 4.5 : intent client « OUI » (réservation en address_collected → confirmation + Order + message preuve si acompte)
+    // Story 4.5, 8.1 : intent client « OUI » (réservation en address_collected → confirmation + Order)
+    // Story 8.1: ne plus exiger liveSessionId
     if (
       tenantId &&
       messageType === "client" &&
-      liveSessionId &&
       !clientCodeIntent &&
       isConfirmOui(body)
     ) {
@@ -408,7 +420,6 @@ export async function processWebhookJob(
         const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
         const active = await getActiveReservationForClient(
           tenantId,
-          liveSessionId,
           clientPhoneE164,
         );
         if (active?.status === "address_collected") {
@@ -438,77 +449,124 @@ export async function processWebhookJob(
           }
         }
       } catch (error) {
-        workerLogger.error("Error confirm OUI / createOrder (Story 4.5)", error, {
+        workerLogger.error("Error confirm OUI / createOrder (Story 4.5, 8.1)", error, {
           correlationId,
           tenantId,
         });
       }
     }
 
-    // Story 3.2 : intent vendeur « créer item » (code ou code x qte) → createLiveItem puis réponse outbox
+    // Story 3.2 + 8.2 : intent vendeur « créer item » (code ou code x qte) → upsert catalogue (+ LiveItem si session active)
     if (tenantId && messageType === "seller") {
       const createItem = parseCreateItemIntent(body);
       if (createItem) {
         try {
-          const result = await createLiveItem(tenantId, createItem.code, {
-            quantity: createItem.quantity,
-          });
+          // Story 8.2 Task 4: Réutiliser la session déjà lue (pas de 2e appel DB)
+          const activeSession = liveSessionId ? { id: liveSessionId } : null;
           const to = normalizePhoneNumber(from);
-          if (result.success) {
-            await writeToOutbox({
+
+          // Story 8.2: Upsert catalogue (toujours, session active ou non)
+          const catalogueResult = await upsertCatalogueItemFromWebhook(
+            tenantId,
+            createItem.code,
+            createItem.quantity,
+          );
+
+          if (!catalogueResult.success) {
+            // Code invalide ou pas de prix configuré → pas de réponse outbox
+            workerLogger.warn("Cannot upsert catalogue item from webhook", {
               tenantId,
-              to,
-              body: `Créé : ${result.liveItem.code} (x${result.liveItem.quantity}).`,
-              correlationId,
+              code: createItem.code,
+              reason: catalogueResult.reason,
             });
-            await logLiveItemCreated(tenantId, result.liveItem.id, correlationId, {
-              code: result.liveItem.code,
-              live_session_id: result.liveItem.liveSessionId,
-              quantity: result.liveItem.quantity,
-              available_qty: result.liveItem.availableQty,
-              has_media: Boolean(mediaUrl),
-            }).catch((err) => {
-              workerLogger.error("Error logging live_item_created", err, {
-                correlationId,
-                tenantId,
-                liveItemId: result.success ? result.liveItem.id : undefined,
-              });
-            });
-            // Story 3.4: photo optionnelle — upload async (ne pas bloquer le worker)
-            if (mediaUrl) {
-              void uploadMediaAndLinkToLiveItem(
-                tenantId,
-                result.liveItem.id,
-                mediaUrl,
-                correlationId,
-              ).catch((err) => {
-                workerLogger.error("Error uploading media to R2 (Story 3.4)", err, {
-                  correlationId,
-                  tenantId,
-                  liveItemId: result.liveItem.id,
-                });
-              });
-            }
-          } else if ("duplicate" in result && result.duplicate) {
-            await writeToOutbox({
+            // Continue sans créer de session ni de LiveItem - retourner message enrichi
+            return {
               tenantId,
-              to,
-              body: messageCodeAlreadyUsed(createItem.code),
+              providerMessageId,
+              from,
+              body,
+              mediaUrl,
               correlationId,
-            });
-            await logLiveItemDuplicateRejected(tenantId, createItem.code, correlationId).catch(
-              (err) => {
-                workerLogger.error("Error logging live_item_duplicate_rejected", err, {
-                  correlationId,
-                  tenantId,
-                  code: createItem.code,
-                });
-              },
-            );
+              messageType,
+              liveSessionId: liveSessionId ?? undefined,
+            };
           }
-          // invalid_code : pas de réponse outbox (code vide après normalisation)
+
+          // Si session active : créer LiveItem en plus du catalogue
+          if (activeSession) {
+            const result = await createLiveItem(tenantId, createItem.code, {
+              quantity: createItem.quantity,
+            });
+
+            if (result.success) {
+              await writeToOutbox({
+                tenantId,
+                to,
+                body: `Créé : ${result.liveItem.code} (x${result.liveItem.quantity}).`,
+                correlationId,
+              });
+              await logLiveItemCreated(tenantId, result.liveItem.id, correlationId, {
+                code: result.liveItem.code,
+                live_session_id: result.liveItem.liveSessionId,
+                quantity: result.liveItem.quantity,
+                available_qty: result.liveItem.availableQty,
+                has_media: Boolean(mediaUrl),
+              }).catch((err) => {
+                workerLogger.error("Error logging live_item_created", err, {
+                  correlationId,
+                  tenantId,
+                  liveItemId: result.success ? result.liveItem.id : undefined,
+                });
+              });
+              // Story 3.4: photo optionnelle — upload async (ne pas bloquer le worker)
+              if (mediaUrl) {
+                void uploadMediaAndLinkToLiveItem(
+                  tenantId,
+                  result.liveItem.id,
+                  mediaUrl,
+                  correlationId,
+                ).catch((err) => {
+                  workerLogger.error("Error uploading media to R2 (Story 3.4)", err, {
+                    correlationId,
+                    tenantId,
+                    liveItemId: result.liveItem.id,
+                  });
+                });
+              }
+            } else if ("duplicate" in result && result.duplicate) {
+              await writeToOutbox({
+                tenantId,
+                to,
+                body: messageCodeAlreadyUsed(createItem.code),
+                correlationId,
+              });
+              await logLiveItemDuplicateRejected(tenantId, createItem.code, correlationId).catch(
+                (err) => {
+                  workerLogger.error("Error logging live_item_duplicate_rejected", err, {
+                    correlationId,
+                    tenantId,
+                    code: createItem.code,
+                  });
+                },
+              );
+            }
+          } else {
+            // Pas de session active : catalogue upsert uniquement, réponse outbox
+            workerLogger.info("Catalogue item upserted without active session", {
+              tenantId,
+              catalogueItemId: catalogueResult.catalogueItemId,
+              code: createItem.code,
+              quantity: createItem.quantity,
+            });
+            await writeToOutbox({
+              tenantId,
+              to,
+              body: `Ajouté au catalogue : ${normalizeCode(createItem.code)} (x${createItem.quantity}).`,
+              correlationId,
+            });
+          }
         } catch (error) {
-          workerLogger.error("Error createLiveItem (Story 3.2)", error, {
+          workerLogger.error("Error processing seller create item intent (Story 3.2 + 8.2)", error, {
             correlationId,
             tenantId,
             code: createItem.code,

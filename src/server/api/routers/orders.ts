@@ -93,6 +93,8 @@ export const ordersRouter = createTRPCRouter({
               clientPhone: true,
               liveItemId: true,
               liveItem: { select: { code: true } },
+              catalogueItemId: true,
+              catalogueItem: { select: { code: true } },
             },
           },
         },
@@ -106,7 +108,7 @@ export const ordersRouter = createTRPCRouter({
         updatedAt: o.updatedAt,
         reservationId: o.reservationId,
         clientPhone: o.reservation.clientPhone,
-        liveItemCode: o.reservation.liveItem?.code ?? null,
+        liveItemCode: o.reservation.catalogueItem?.code ?? o.reservation.liveItem?.code ?? null,
       }));
     }),
 
@@ -139,6 +141,7 @@ export const ordersRouter = createTRPCRouter({
             select: {
               clientPhone: true,
               liveItem: { select: { code: true } },
+              catalogueItem: { select: { code: true } },
             },
           },
         },
@@ -156,7 +159,7 @@ export const ordersRouter = createTRPCRouter({
         o.depositStatus ?? "",
         o.createdAt.toISOString(),
         maskPhone(o.reservation.clientPhone),
-        o.reservation.liveItem?.code ?? "",
+        o.reservation.catalogueItem?.code ?? o.reservation.liveItem?.code ?? "",
       ]);
       const csvLines = [
         headers.map(escapeCsvCell).join(","),
@@ -181,6 +184,7 @@ export const ordersRouter = createTRPCRouter({
             select: {
               clientPhone: true,
               liveItem: { select: { code: true } },
+              catalogueItem: { select: { code: true } },
             },
           },
         },
@@ -197,7 +201,7 @@ export const ordersRouter = createTRPCRouter({
         updatedAt: order.updatedAt,
         reservationId: order.reservationId,
         clientPhone: order.reservation.clientPhone,
-        liveItemCode: order.reservation.liveItem?.code ?? null,
+        liveItemCode: order.reservation.catalogueItem?.code ?? order.reservation.liveItem?.code ?? null,
       };
     }),
 

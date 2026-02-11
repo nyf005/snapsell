@@ -314,11 +314,26 @@ exports.Prisma.LiveItemScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CatalogueItemScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  code: 'code',
+  amountCents: 'amountCents',
+  quantity: 'quantity',
+  availableQty: 'availableQty',
+  reservedQty: 'reservedQty',
+  mediaStorageKey: 'mediaStorageKey',
+  createdInLive: 'createdInLive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.ReservationScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
   liveSessionId: 'liveSessionId',
   liveItemId: 'liveItemId',
+  catalogueItemId: 'catalogueItemId',
   clientPhone: 'clientPhone',
   status: 'status',
   address: 'address',
@@ -483,6 +498,7 @@ exports.Prisma.ModelName = {
   MessageOut: 'MessageOut',
   LiveSession: 'LiveSession',
   LiveItem: 'LiveItem',
+  CatalogueItem: 'CatalogueItem',
   Reservation: 'Reservation',
   Order: 'Order',
   PaymentProof: 'PaymentProof',

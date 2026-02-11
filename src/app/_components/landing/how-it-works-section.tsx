@@ -5,21 +5,21 @@ import { AnimateOnScroll } from "~/app/_components/landing/animate-on-scroll";
 const steps = [
   {
     number: 1,
-    title: "Connectez WhatsApp",
+    title: "Créez votre catalogue",
     description:
-      "Liez votre compte SnapSell à votre numéro professionnel en scannant simplement un QR Code.",
+      "Ajoutez vos articles avec codes et prix. Le stock est suivi automatiquement, que les articles soient ajoutés manuellement ou en live.",
   },
   {
     number: 2,
     title: "Lancez votre live",
     description:
-      "Diffusez vos produits, annoncez les codes. SnapSell répond instantanément à chaque réservation en DM.",
+      "Connectez WhatsApp, diffusez vos produits. SnapSell gère les réservations et la file d'attente en DM automatiquement.",
   },
   {
     number: 3,
-    title: "Expédiez les commandes",
+    title: "Gérez vos commandes",
     description:
-      "Le stock est mis à jour en temps réel. Validez les paiements reçus et envoyez vos colis sereinement.",
+      "Validez les preuves de paiement, suivez les livraisons et exportez vos données — tout depuis votre tableau de bord.",
   },
 ] as const;
 
@@ -32,7 +32,7 @@ export function HowItWorksSection() {
           <div className="lg:w-1/2">
             <AnimateOnScroll animation="fade-up">
               <h2 className="mb-8 text-3xl font-extrabold lg:text-5xl">
-                Lancez votre première vente automatisée en 5 minutes
+                Opérationnel en 5 minutes
               </h2>
             </AnimateOnScroll>
 

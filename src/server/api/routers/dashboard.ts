@@ -62,6 +62,7 @@ export const dashboardRouter = createTRPCRouter({
         reservation: {
           select: {
             liveItem: { select: { amountCents: true } },
+            catalogueItem: { select: { amountCents: true } },
           },
         },
       } as const;
@@ -118,18 +119,29 @@ export const dashboardRouter = createTRPCRouter({
           select: {
             createdAt: true,
             reservation: {
-              select: { liveItem: { select: { amountCents: true } } },
+              select: {
+                liveItem: { select: { amountCents: true } },
+                catalogueItem: { select: { amountCents: true } },
+              },
             },
           },
         }),
       ]);
 
       const revenueTodayCents = ordersToday.reduce(
-        (sum, o) => sum + (o.reservation.liveItem.amountCents ?? 0),
+        (sum, o) =>
+          sum +
+          (o.reservation.liveItem?.amountCents ??
+            o.reservation.catalogueItem?.amountCents ??
+            0),
         0
       );
       const revenueYesterdayCents = ordersYesterday.reduce(
-        (sum, o) => sum + (o.reservation.liveItem.amountCents ?? 0),
+        (sum, o) =>
+          sum +
+          (o.reservation.liveItem?.amountCents ??
+            o.reservation.catalogueItem?.amountCents ??
+            0),
         0
       );
 
@@ -140,7 +152,11 @@ export const dashboardRouter = createTRPCRouter({
           return t >= day.from.getTime() && t <= day.to.getTime();
         });
         const revenueCents = dayOrders.reduce(
-          (sum, o) => sum + (o.reservation.liveItem.amountCents ?? 0),
+          (sum, o) =>
+            sum +
+            (o.reservation.liveItem?.amountCents ??
+              o.reservation.catalogueItem?.amountCents ??
+              0),
           0
         );
         return { date: day.date, revenueCents, orders: dayOrders.length };

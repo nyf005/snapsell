@@ -59,7 +59,7 @@ describe("reservation (Story 3.6)", () => {
           entityType: "live_item",
           entityId: liveItemId,
           actorType: "system",
-          payload: { liveItemId },
+          payload: { live_item_id: liveItemId },
         }),
       );
       expect(vi.mocked(logEvent).mock.calls[0]![0]).toHaveProperty(
@@ -106,7 +106,7 @@ describe("reservation (Story 3.6)", () => {
           entityType: "live_item",
           entityId: liveItemId,
           actorType: "system",
-          payload: { liveItemId },
+          payload: { live_item_id: liveItemId },
         }),
       );
     });
@@ -150,7 +150,7 @@ describe("reservation (Story 3.6)", () => {
           entityType: "live_item",
           entityId: liveItemId,
           actorType: "system",
-          payload: { liveItemId },
+          payload: { live_item_id: liveItemId },
         }),
       );
     });

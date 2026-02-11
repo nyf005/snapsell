@@ -1,5 +1,6 @@
 /**
- * Story 6.4: Live Ops — session courante (lecture seule), items, réservations, libérer une réservation.
+ * Story 6.4 + 8.1: Live Ops — session courante (lecture seule), items, réservations, libérer une réservation.
+ * Story 8.1: support CatalogueItem — releaseReservation sur catalogue_items si reservation.catalogueItemId.
  * Isolation tenant: tenantId depuis ctx.session.user.tenantId.
  */
 
@@ -10,13 +11,15 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import { releaseReservationInputSchema } from "./live.schema";
-import { getCurrentSessionReadOnly } from "~/server/live-session/service";
+import { getCurrentSessionReadOnly, getOrCreateCurrentSession } from "~/server/live-session/service";
 import { releaseReservation } from "~/server/live-item/reservation";
+import { CATALOGUE_SESSION_SENTINEL } from "~/server/waitlist/addToWaitlist";
+import type { StockTable } from "~/server/live-item/reservation";
 import {
   createReservation,
   type CreateReservationResult,
 } from "~/server/reservation/service";
-import { logEvent, logWaitlistPromoted } from "~/server/events/eventLog";
+import { logEvent, logWaitlistPromoted, logLiveSessionCreated } from "~/server/events/eventLog";
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { workerLogger } from "~/lib/logger";
 
@@ -32,9 +35,6 @@ export const liveRouter = createTRPCRouter({
   /** Une seule requête : session + items + reservations (1 appel getCurrentSessionReadOnly). */
   getLiveOpsData: protectedProcedure.query(async ({ ctx }) => {
     const tenantId = ctx.session.user.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-    }
     const session = await getCurrentSessionReadOnly(tenantId);
     if (!session) {
       return { session: null, waitlistCount: 0, items: [], reservations: [] };
@@ -56,12 +56,18 @@ export const liveRouter = createTRPCRouter({
       }),
       db.reservation.findMany({
         where: {
-          liveSessionId: session.id,
           tenantId,
           status: { in: [...ACTIVE_RESERVATION_STATUSES] },
+          OR: [
+            { liveSessionId: session.id },
+            { catalogueItemId: { not: null }, liveSessionId: null },
+          ],
         },
         orderBy: { expiresAt: "asc" },
-        include: { liveItem: { select: { code: true } } },
+        include: {
+          liveItem: { select: { code: true } },
+          catalogueItem: { select: { code: true } },
+        },
       }),
       db.waitlist.count({
         where: { liveSessionId: session.id, tenantId },
@@ -83,7 +89,8 @@ export const liveRouter = createTRPCRouter({
       reservations: reservations.map((r) => ({
         id: r.id,
         liveItemId: r.liveItemId,
-        code: r.liveItem.code,
+        catalogueItemId: r.catalogueItemId,
+        code: r.catalogueItem?.code ?? r.liveItem?.code ?? "—",
         clientPhoneMasked: maskClientPhone(r.clientPhone),
         status: r.status,
         expiresAt: r.expiresAt,
@@ -93,9 +100,6 @@ export const liveRouter = createTRPCRouter({
 
   getCurrentSession: protectedProcedure.query(async ({ ctx }) => {
     const tenantId = ctx.session.user.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-    }
     const session = await getCurrentSessionReadOnly(tenantId);
     if (!session) return null;
     return {
@@ -104,11 +108,31 @@ export const liveRouter = createTRPCRouter({
     };
   }),
 
+  /** Story 8.3: Démarrer une session live explicitement (clic bouton dashboard). */
+  startLive: protectedProcedure.mutation(async ({ ctx }) => {
+    const tenantId = ctx.session.user.tenantId;
+    const session = await getOrCreateCurrentSession(tenantId);
+
+    // Log uniquement si une nouvelle session a été créée
+    if (session.created) {
+      await logLiveSessionCreated(tenantId, session.id, ctx.session.user.id).catch((err) => {
+        workerLogger.warn("Failed to log live_session_created from startLive", {
+          tenantId,
+          liveSessionId: session.id,
+          err,
+        });
+      });
+    }
+
+    return {
+      id: session.id,
+      lastActivityAt: session.lastActivityAt,
+      created: session.created,
+    };
+  }),
+
   getSessionItems: protectedProcedure.query(async ({ ctx }) => {
     const tenantId = ctx.session.user.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-    }
     const session = await getCurrentSessionReadOnly(tenantId);
     if (!session) return [];
 
@@ -139,28 +163,30 @@ export const liveRouter = createTRPCRouter({
 
   getSessionReservations: protectedProcedure.query(async ({ ctx }) => {
     const tenantId = ctx.session.user.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-    }
     const session = await getCurrentSessionReadOnly(tenantId);
     if (!session) return [];
 
     const reservations = await db.reservation.findMany({
       where: {
-        liveSessionId: session.id,
         tenantId,
         status: { in: [...ACTIVE_RESERVATION_STATUSES] },
+        OR: [
+          { liveSessionId: session.id },
+          { catalogueItemId: { not: null }, liveSessionId: null },
+        ],
       },
       orderBy: { expiresAt: "asc" },
       include: {
         liveItem: { select: { code: true } },
+        catalogueItem: { select: { code: true } },
       },
     });
 
     return reservations.map((r) => ({
       id: r.id,
       liveItemId: r.liveItemId,
-      code: r.liveItem.code,
+      catalogueItemId: r.catalogueItemId,
+      code: r.catalogueItem?.code ?? r.liveItem?.code ?? "—",
       clientPhoneMasked: maskClientPhone(r.clientPhone),
       status: r.status,
       expiresAt: r.expiresAt,
@@ -171,13 +197,13 @@ export const liveRouter = createTRPCRouter({
     .input(releaseReservationInputSchema)
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-      }
 
       const reservation = await db.reservation.findFirst({
         where: { id: input.reservationId, tenantId },
-        include: { liveItem: { select: { code: true } } },
+        include: {
+          liveItem: { select: { code: true } },
+          catalogueItem: { select: { code: true } },
+        },
       });
 
       if (!reservation) {
@@ -191,16 +217,25 @@ export const liveRouter = createTRPCRouter({
         });
       }
 
-      const liveItemId = reservation.liveItemId;
+      // Story 8.1: polymorphisme — item catalogue ou live
+      const itemIdForStock = reservation.catalogueItemId ?? reservation.liveItemId;
+      const stockTable: StockTable = reservation.catalogueItemId ? "catalogue_items" : "live_items";
       const liveSessionId = reservation.liveSessionId;
       const correlationId = reservation.correlationId;
+
+      if (!itemIdForStock) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Réservation invalide : aucun item associé (ni liveItemId ni catalogueItemId).",
+        });
+      }
 
       await db.reservation.update({
         where: { id: reservation.id },
         data: { status: "expired" },
       });
 
-      const releaseResult = await releaseReservation(tenantId, liveItemId, { correlationId });
+      const releaseResult = await releaseReservation(tenantId, itemIdForStock, { correlationId, table: stockTable });
       if (!releaseResult.success) {
         await db.reservation.update({
           where: { id: reservation.id },
@@ -217,6 +252,10 @@ export const liveRouter = createTRPCRouter({
         });
       }
 
+      const entityPayload: Record<string, string | null> = reservation.catalogueItemId
+        ? { catalogue_item_id: reservation.catalogueItemId }
+        : { live_item_id: reservation.liveItemId };
+
       await logEvent({
         tenantId,
         eventType: "reservation_expired",
@@ -226,7 +265,7 @@ export const liveRouter = createTRPCRouter({
         actorType: "seller",
         payload: {
           reservation_id: reservation.id,
-          live_item_id: liveItemId,
+          ...entityPayload,
           reason: "released_by_seller",
         },
       }).catch((err) => {
@@ -236,19 +275,36 @@ export const liveRouter = createTRPCRouter({
         });
       });
 
+      // Story 8.1: waitlist lookup uses liveItemId field (which stores catalogueItemId for catalogue entries)
+      const waitlistItemId = reservation.catalogueItemId ?? reservation.liveItemId;
+      if (!waitlistItemId) {
+        // No item ID → skip waitlist promotion
+        return { success: true };
+      }
       const firstInWaitlist = await db.waitlist.findFirst({
-        where: { liveItemId, liveSessionId },
+        where: { liveItemId: waitlistItemId, liveSessionId: liveSessionId ?? undefined },
         orderBy: { position: "asc" },
       });
 
       if (firstInWaitlist) {
-        const createResult: CreateReservationResult = await createReservation(
-          firstInWaitlist.tenantId,
-          firstInWaitlist.liveSessionId,
-          firstInWaitlist.liveItemId,
-          firstInWaitlist.clientPhone,
-          firstInWaitlist.correlationId,
-        );
+        // Story 8.1: determine if this is a catalogue or live item waitlist entry
+        const isCatalogueWaitlist = !!reservation.catalogueItemId;
+        const createResult: CreateReservationResult = isCatalogueWaitlist
+          ? await createReservation(
+              firstInWaitlist.tenantId,
+              firstInWaitlist.liveSessionId === CATALOGUE_SESSION_SENTINEL ? null : firstInWaitlist.liveSessionId,
+              null,
+              firstInWaitlist.clientPhone,
+              firstInWaitlist.correlationId,
+              { catalogueItemId: firstInWaitlist.liveItemId, liveSessionId: firstInWaitlist.liveSessionId === CATALOGUE_SESSION_SENTINEL ? null : firstInWaitlist.liveSessionId },
+            )
+          : await createReservation(
+              firstInWaitlist.tenantId,
+              firstInWaitlist.liveSessionId,
+              firstInWaitlist.liveItemId,
+              firstInWaitlist.clientPhone,
+              firstInWaitlist.correlationId,
+            );
 
         if (createResult.success) {
           await db.waitlist.delete({ where: { id: firstInWaitlist.id } }).catch((err) => {
@@ -270,7 +326,7 @@ export const liveRouter = createTRPCRouter({
             });
           });
 
-          const code = reservation.liveItem?.code ?? "article";
+          const code = reservation.catalogueItem?.code ?? reservation.liveItem?.code ?? "article";
           const body = `Une place s'est libérée pour ${code}. Tu es réservé. Envoie ton adresse.`;
           await writeToOutbox({
             tenantId: firstInWaitlist.tenantId,

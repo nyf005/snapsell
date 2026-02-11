@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { isOpsUser } from "~/lib/rbac";
 import { auth } from "~/server/auth";
+import { OpsNav } from "./_components/ops-nav";
 
 export default async function OpsLayout({
   children,
@@ -18,5 +19,10 @@ export default async function OpsLayout({
     redirect("/dashboard"); // Rediriger vers dashboard si pas ops
   }
 
-  return <>{children}</>;
+  return (
+    <div className="flex min-h-screen flex-col">
+      <OpsNav />
+      {children}
+    </div>
+  );
 }

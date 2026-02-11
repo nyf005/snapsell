@@ -4,7 +4,7 @@ import {
   determineMessageType,
   processWebhookJob,
   isStopMessage,
-  isLiveSignal,
+  shouldReadSession,
   parseCreateItemIntent,
   parseClientCodeIntent,
   isConfirmOui,
@@ -50,14 +50,29 @@ vi.mock("./queues", () => ({
 
 vi.mock("~/server/events/eventLog", () => ({
   logOptOutRecorded: vi.fn(),
-  logLiveSessionCreated: vi.fn(),
   logLiveItemCreated: vi.fn(),
   logLiveItemDuplicateRejected: vi.fn(),
   logLiveItemPhotoLinked: vi.fn(),
 }));
 
 vi.mock("~/server/live-session/service", () => ({
-  getOrCreateCurrentSession: vi.fn(),
+  getCurrentSessionReadOnly: vi.fn(),
+}));
+
+vi.mock("~/server/catalogue/findOrderableItemByCode", () => ({
+  findOrderableItemByCode: vi.fn(),
+}));
+
+vi.mock("~/server/catalogue/findOrCreateOrderableItemByCode", () => ({
+  findOrCreateOrderableItemByCode: vi.fn(),
+}));
+
+vi.mock("~/server/catalogue/upsertCatalogueItemFromWebhook", () => ({
+  upsertCatalogueItemFromWebhook: vi.fn().mockResolvedValue({
+    success: true,
+    created: true,
+    catalogueItemId: "cat-1",
+  }),
 }));
 
 vi.mock("~/server/live-item/createLiveItem", () => ({
@@ -149,33 +164,33 @@ describe("webhook-processor", () => {
     });
   });
 
-  describe("isLiveSignal", () => {
+  describe("shouldReadSession", () => {
     it("should return true for seller regardless of body", () => {
-      expect(isLiveSignal("seller", "hello")).toBe(true);
-      expect(isLiveSignal("seller", "A12")).toBe(true);
-      expect(isLiveSignal("seller", "  ")).toBe(false); // empty trimmed
+      expect(shouldReadSession("seller", "hello")).toBe(true);
+      expect(shouldReadSession("seller", "A12")).toBe(true);
+      expect(shouldReadSession("seller", "  ")).toBe(false); // empty trimmed
     });
 
     it("should return true for client when body matches code pattern (letter(s) + digit(s))", () => {
-      expect(isLiveSignal("client", "A12")).toBe(true);
-      expect(isLiveSignal("client", "B7")).toBe(true);
-      expect(isLiveSignal("client", "AB123")).toBe(true);
+      expect(shouldReadSession("client", "A12")).toBe(true);
+      expect(shouldReadSession("client", "B7")).toBe(true);
+      expect(shouldReadSession("client", "AB123")).toBe(true);
     });
 
     it("should return false for client when body does not match code pattern", () => {
-      expect(isLiveSignal("client", "hello")).toBe(false);
-      expect(isLiveSignal("client", "salut")).toBe(false);
-      expect(isLiveSignal("client", "12A")).toBe(false); // digits then letter
+      expect(shouldReadSession("client", "hello")).toBe(false);
+      expect(shouldReadSession("client", "salut")).toBe(false);
+      expect(shouldReadSession("client", "12A")).toBe(false); // digits then letter
     });
 
     it("should return false for STOP message", () => {
-      expect(isLiveSignal("client", "stop")).toBe(false);
-      expect(isLiveSignal("client", "STOP")).toBe(false);
+      expect(shouldReadSession("client", "stop")).toBe(false);
+      expect(shouldReadSession("client", "STOP")).toBe(false);
     });
 
     it("should return false for empty or whitespace body", () => {
-      expect(isLiveSignal("seller", "")).toBe(false);
-      expect(isLiveSignal("client", "   ")).toBe(false);
+      expect(shouldReadSession("seller", "")).toBe(false);
+      expect(shouldReadSession("client", "   ")).toBe(false);
     });
   });
 
@@ -565,19 +580,18 @@ describe("webhook-processor", () => {
       expect(db.optOut.create).not.toHaveBeenCalled();
     });
 
-    it("should call getOrCreateCurrentSession and set liveSessionId when seller sends message (Story 2.6)", async () => {
+    it("Story 8.3: should read session (not create) when seller sends message", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
       ] as never);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
 
       const job = {
@@ -595,25 +609,18 @@ describe("webhook-processor", () => {
 
       expect(result.messageType).toBe("seller");
       expect(result.liveSessionId).toBe("live-session-1");
-      expect(getOrCreateCurrentSession).toHaveBeenCalledWith(tenantId);
+      expect(getCurrentSessionReadOnly).toHaveBeenCalledWith(tenantId);
     });
 
-    it("should call logLiveSessionCreated when session is newly created (Story 2.6)", async () => {
+    it("Story 8.3: should NOT create session when seller sends message without active session", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
       ] as never);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      const { logLiveSessionCreated } = await import("~/server/events/eventLog");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
-        id: "live-session-new",
-        status: "active",
-        lastActivityAt: new Date(),
-        created: true,
-      });
-      vi.mocked(logLiveSessionCreated).mockResolvedValue();
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
 
       const job = {
         id: "job-live-new",
@@ -626,22 +633,23 @@ describe("webhook-processor", () => {
         } as InboundMessage,
       } as Job<InboundMessage>;
 
-      await processWebhookJob(job);
+      const result = await processWebhookJob(job);
 
-      expect(logLiveSessionCreated).toHaveBeenCalledWith(tenantId, "live-session-new", "corr-live-new");
+      expect(result.messageType).toBe("seller");
+      expect(result.liveSessionId).toBeUndefined();
+      expect(getCurrentSessionReadOnly).toHaveBeenCalledWith(tenantId);
     });
 
-    it("Story 4.1: when client sends non-code body, still gets session (for address/recap flow)", async () => {
+    it("Story 8.1: when client sends non-code body, uses getCurrentSessionReadOnly (for address/recap flow)", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]); // client
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-hello",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
 
       const job = {
@@ -658,21 +666,20 @@ describe("webhook-processor", () => {
       const result = await processWebhookJob(job);
 
       expect(result.messageType).toBe("client");
-      expect(getOrCreateCurrentSession).toHaveBeenCalledWith(tenantId);
+      expect(getCurrentSessionReadOnly).toHaveBeenCalledWith(tenantId);
       expect(result.liveSessionId).toBe("live-session-hello");
     });
 
-    it("should call getOrCreateCurrentSession when client sends code-like body (A12)", async () => {
+    it("Story 8.1: should call getCurrentSessionReadOnly when client sends code-like body (A12)", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]); // client
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
-        created: true,
       });
 
       const job = {
@@ -690,26 +697,24 @@ describe("webhook-processor", () => {
 
       expect(result.messageType).toBe("client");
       expect(result.liveSessionId).toBe("live-session-client");
-      expect(getOrCreateCurrentSession).toHaveBeenCalledWith(tenantId);
+      expect(getCurrentSessionReadOnly).toHaveBeenCalledWith(tenantId);
     });
 
-    it("Story 3.3/4.1: when client sends code A12 and item exists, findLiveItemByCode then createReservation, sends Réservé", async () => {
+    it("Story 8.1: when client sends code A12 and catalogue item exists (session active), findOrCreateOrderableItemByCode then createReservation, sends Réservé", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
-      const { findLiveItemByCode } = await import("~/server/live-item/findLiveItemByCode");
-      vi.mocked(findLiveItemByCode).mockResolvedValue({
-        id: "item-client-1",
+      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
+      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+        id: "cat-item-1",
         code: "A12",
-        liveSessionId: "live-session-client",
         amountCents: 5000,
         quantity: 1,
         availableQty: 1,
@@ -729,15 +734,16 @@ describe("webhook-processor", () => {
 
       await processWebhookJob(job);
 
-      expect(findLiveItemByCode).toHaveBeenCalledWith(tenantId, "live-session-client", "A12");
+      expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const { createReservation } = await import("~/server/reservation/service");
       expect(createReservation).toHaveBeenCalledWith(
         tenantId,
         "live-session-client",
-        "item-client-1",
+        null,
         from,
         "corr-a12",
+        { catalogueItemId: "cat-item-1", liveSessionId: "live-session-client" },
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -749,23 +755,21 @@ describe("webhook-processor", () => {
       );
     });
 
-    it("Story 4.1: when client sends code and item already exists, findLiveItemByCode then createReservation", async () => {
+    it("Story 8.1: when client sends code and catalogue item already exists, findOrCreateOrderableItemByCode then createReservation", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
-      const { findLiveItemByCode } = await import("~/server/live-item/findLiveItemByCode");
-      vi.mocked(findLiveItemByCode).mockResolvedValue({
-        id: "item-existing",
+      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
+      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+        id: "cat-item-existing",
         code: "A12",
-        liveSessionId: "live-session-client",
         amountCents: 5000,
         quantity: 1,
         availableQty: 1,
@@ -785,36 +789,37 @@ describe("webhook-processor", () => {
 
       await processWebhookJob(job);
 
-      expect(findLiveItemByCode).toHaveBeenCalledWith(tenantId, "live-session-client", "A12");
+      expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const { createReservation } = await import("~/server/reservation/service");
       expect(createReservation).toHaveBeenCalledWith(
         tenantId,
         "live-session-client",
-        "item-existing",
+        null,
         from,
         "corr-a12-2",
+        { catalogueItemId: "cat-item-existing", liveSessionId: "live-session-client" },
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({ body: "Réservé. Envoie ton adresse." }),
       );
     });
 
-    it("Story 4.3: when client sends code and item is exhausted (free <= 0), adds to waitlist and sends File #N", async () => {
+    it("Story 8.1: when client sends code and catalogue item is exhausted (free <= 0), adds to waitlist and sends File #N", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-client",
-        created: false,
+        status: "active",
+        lastActivityAt: new Date(),
       });
-      const { findLiveItemByCode } = await import("~/server/live-item/findLiveItemByCode");
-      vi.mocked(findLiveItemByCode).mockResolvedValue({
-        id: "item-exhausted",
+      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
+      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+        id: "cat-item-exhausted",
         code: "A12",
-        liveSessionId: "live-session-client",
         amountCents: 5000,
         quantity: 1,
         availableQty: 1,
@@ -843,9 +848,10 @@ describe("webhook-processor", () => {
       expect(addToWaitlist).toHaveBeenCalledWith(
         tenantId,
         "live-session-client",
-        "item-exhausted",
+        "cat-item-exhausted",
         from,
         "corr-ex",
+        { table: "catalogue_items" },
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -856,21 +862,21 @@ describe("webhook-processor", () => {
       );
     });
 
-    it("Story 4.1: when client sends code and createReservation returns exhausted, sends Épuisé", async () => {
+    it("Story 8.1: when client sends code and createReservation returns exhausted, sends Épuisé", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-client",
-        created: false,
+        status: "active",
+        lastActivityAt: new Date(),
       });
-      const { findLiveItemByCode } = await import("~/server/live-item/findLiveItemByCode");
-      vi.mocked(findLiveItemByCode).mockResolvedValue({
-        id: "item-1",
+      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
+      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+        id: "cat-item-b7",
         code: "B7",
-        liveSessionId: "live-session-client",
         amountCents: 3000,
         quantity: 2,
         availableQty: 2,
@@ -899,20 +905,19 @@ describe("webhook-processor", () => {
       );
     });
 
-    it("Story 4.2: client sends valid code A12 but no LiveItem in session → Code inconnu, no create", async () => {
+    it("Story 8.1: client sends valid code A12 but catalogue item not found → Code inconnu, no create", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
-      const { findLiveItemByCode } = await import("~/server/live-item/findLiveItemByCode");
-      vi.mocked(findLiveItemByCode).mockResolvedValue(null);
+      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
+      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue(null);
 
       const job = {
         id: "job-unknown-code",
@@ -927,7 +932,7 @@ describe("webhook-processor", () => {
 
       await processWebhookJob(job);
 
-      expect(findLiveItemByCode).toHaveBeenCalledWith(tenantId, "live-session-client", "A12");
+      expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const { createReservation } = await import("~/server/reservation/service");
       expect(createReservation).not.toHaveBeenCalled();
@@ -940,20 +945,19 @@ describe("webhook-processor", () => {
       );
     });
 
-    it("Story 4.2: client sends typo A12A, no LiveItem A12 in session → Code inconnu (ex: A12)", async () => {
+    it("Story 8.1: client sends typo A12A, catalogue item A12 not found → Code inconnu (ex: A12)", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
-      const { findLiveItemByCode } = await import("~/server/live-item/findLiveItemByCode");
-      vi.mocked(findLiveItemByCode).mockResolvedValue(null);
+      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
+      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue(null);
 
       const job = {
         id: "job-typo-no-suggestion",
@@ -968,7 +972,7 @@ describe("webhook-processor", () => {
 
       await processWebhookJob(job);
 
-      expect(findLiveItemByCode).toHaveBeenCalledWith(tenantId, "live-session-client", "A12");
+      expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -978,23 +982,21 @@ describe("webhook-processor", () => {
       );
     });
 
-    it("Story 4.2: client sends typo A12A, LiveItem A12 exists → suggestion Tu voulais dire A12 ?", async () => {
+    it("Story 8.1: client sends typo A12A, catalogue item A12 exists → suggestion Tu voulais dire A12 ?", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
-      const { findLiveItemByCode } = await import("~/server/live-item/findLiveItemByCode");
-      vi.mocked(findLiveItemByCode).mockResolvedValue({
-        id: "item-a12",
+      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
+      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+        id: "cat-item-a12",
         code: "A12",
-        liveSessionId: "live-session-client",
         amountCents: 5000,
         quantity: 1,
         availableQty: 1,
@@ -1015,7 +1017,7 @@ describe("webhook-processor", () => {
 
       await processWebhookJob(job);
 
-      expect(findLiveItemByCode).toHaveBeenCalledWith(tenantId, "live-session-client", "A12");
+      expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
       expect(createReservation).not.toHaveBeenCalled();
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       expect(writeToOutbox).toHaveBeenCalledWith(
@@ -1026,20 +1028,19 @@ describe("webhook-processor", () => {
       );
     });
 
-    it("Story 4.2: never reply Épuisé when code does not exist in session", async () => {
+    it("Story 8.1: never reply Épuisé when code does not exist in catalogue", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
-      const { findLiveItemByCode } = await import("~/server/live-item/findLiveItemByCode");
-      vi.mocked(findLiveItemByCode).mockResolvedValue(null);
+      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
+      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue(null);
 
       const job = {
         id: "job-no-epuise",
@@ -1061,18 +1062,17 @@ describe("webhook-processor", () => {
       expect(bodies.some((b) => b.includes("Code inconnu"))).toBe(true);
     });
 
-    it("Story 4.1: when client sends address and has reserved reservation, collects address and sends récap + OUI", async () => {
+    it("Story 8.1: when client sends address and has reserved reservation, collects address and sends récap + OUI", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
       const addressText = "12 rue de la Paix, Cocody";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
       const {
         getActiveReservationForClient,
@@ -1083,32 +1083,20 @@ describe("webhook-processor", () => {
         status: "reserved",
         tenantId,
         liveSessionId: "live-session-1",
-        liveItemId: "item-1",
+        liveItemId: null,
+        catalogueItemId: "cat-item-1",
         clientPhone: from,
         address: null,
         expiresAt: null,
         correlationId: "corr-prev",
         createdAt: new Date(),
         updatedAt: new Date(),
-        liveItem: {
-          id: "item-1",
-          code: "A12",
-          amountCents: 5000,
-          quantity: 1,
-          availableQty: 0,
-          reservedQty: 1,
-          liveSessionId: "live-session-1",
-          tenantId,
-          mediaStorageKey: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
       } as never);
       vi.mocked(collectAddress).mockResolvedValue({
         success: true,
         reservation: {
           id: "res-1",
-          liveItem: { code: "A12", amountCents: 5000 },
+          item: { code: "A12", amountCents: 5000 },
         },
       });
 
@@ -1129,12 +1117,10 @@ describe("webhook-processor", () => {
       expect(result.liveSessionId).toBe("live-session-1");
       expect(getActiveReservationForClient).toHaveBeenCalledWith(
         tenantId,
-        "live-session-1",
         from,
       );
       expect(collectAddress).toHaveBeenCalledWith(
         tenantId,
-        "live-session-1",
         from,
         addressText,
       );
@@ -1158,8 +1144,8 @@ describe("webhook-processor", () => {
       vi.mocked(db.tenant.findUnique).mockResolvedValue({
         requireDeposit: false,
       } as never);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
@@ -1246,8 +1232,8 @@ describe("webhook-processor", () => {
       vi.mocked(db.tenant.findUnique).mockResolvedValue({
         requireDeposit: true,
       } as never);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
@@ -1356,8 +1342,8 @@ describe("webhook-processor", () => {
       vi.mocked(db.tenant.findUnique).mockResolvedValue({
         requireDeposit: false,
       } as never);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
@@ -1437,8 +1423,8 @@ describe("webhook-processor", () => {
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
       ] as never);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
@@ -1508,8 +1494,8 @@ describe("webhook-processor", () => {
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
       ] as never);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
@@ -1569,8 +1555,8 @@ describe("webhook-processor", () => {
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
       ] as never);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
@@ -1623,8 +1609,8 @@ describe("webhook-processor", () => {
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
       ] as never);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
@@ -1813,8 +1799,8 @@ describe("webhook-processor", () => {
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
       ] as never);
-      const { getOrCreateCurrentSession } = await import("~/server/live-session/service");
-      vi.mocked(getOrCreateCurrentSession).mockResolvedValue({
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
@@ -1853,6 +1839,53 @@ describe("webhook-processor", () => {
 
       expect(createLiveItem).toHaveBeenCalledWith(tenantId, "A12", { quantity: 5 });
       expect(getLastEditedLiveItemInWindow).not.toHaveBeenCalled();
+    });
+
+    it("Story 8.2 AC#5: seller sends code without active session → catalogue upsert only, no LiveItem, sends 'Ajouté au catalogue'", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+        { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+      ] as never);
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null); // Pas de session active
+
+      const { upsertCatalogueItemFromWebhook } = await import("~/server/catalogue/upsertCatalogueItemFromWebhook");
+      vi.mocked(upsertCatalogueItemFromWebhook).mockResolvedValue({
+        success: true,
+        created: true,
+        catalogueItemId: "cat-new-1",
+      });
+
+      const { createLiveItem } = await import("~/server/live-item/createLiveItem");
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+
+      const job = {
+        id: "job-seller-no-session",
+        data: {
+          tenantId,
+          providerMessageId: "SMnoSession",
+          from,
+          body: "B7 x3",
+          correlationId: "corr-nosession",
+        } as InboundMessage,
+      } as Job<InboundMessage>;
+
+      const result = await processWebhookJob(job);
+
+      expect(result.messageType).toBe("seller");
+      expect(result.liveSessionId).toBeUndefined();
+      expect(upsertCatalogueItemFromWebhook).toHaveBeenCalledWith(tenantId, "B7", 3);
+      expect(createLiveItem).not.toHaveBeenCalled();
+      expect(writeToOutbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenantId,
+          to: from,
+          body: "Ajouté au catalogue : B7 (x3).",
+          correlationId: "corr-nosession",
+        }),
+      );
     });
   });
 });

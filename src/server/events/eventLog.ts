@@ -42,6 +42,7 @@ export type EntityType =
   | "session"
   | "opt_out"
   | "live_item"
+  | "catalogue_item"
   | "payment_proof";
 
 /**
@@ -124,6 +125,7 @@ const logEventInputSchema = z.object({
     "session",
     "opt_out",
     "live_item",
+    "catalogue_item",
     "payment_proof",
   ]),
   entityId: z.string().optional(),

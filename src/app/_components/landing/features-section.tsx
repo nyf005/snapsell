@@ -1,19 +1,19 @@
-import { Tag, Lock, TimerOff, LayoutDashboard } from "lucide-react";
+import { PackageOpen, Lock, TimerOff, LayoutDashboard } from "lucide-react";
 
 import { AnimateOnScroll } from "~/app/_components/landing/animate-on-scroll";
 
 const features = [
   {
-    icon: Tag,
-    title: "Codes & Grille de prix",
+    icon: PackageOpen,
+    title: "Catalogue produit",
     description:
-      "Générez des codes uniques pour chaque produit. Vos clients n'ont qu'à taper le code en DM pour initier l'achat.",
+      "Créez et gérez votre catalogue d'articles avec codes et prix. Ajoutez des produits manuellement ou depuis vos sessions live, avec suivi des stocks en temps réel.",
   },
   {
     icon: Lock,
-    title: "Réservation atomique",
+    title: "Réservation automatique",
     description:
-      "Premier arrivé, premier servi. Les stocks sont verrouillés instantanément dès qu'un client réserve son article.",
+      "Vos clients envoient un code par WhatsApp, le stock est verrouillé instantanément. Premier arrivé, premier servi.",
   },
   {
     icon: TimerOff,
@@ -23,9 +23,9 @@ const features = [
   },
   {
     icon: LayoutDashboard,
-    title: "Dashboard prêt à livrer",
+    title: "Dashboard tout-en-un",
     description:
-      "Gérez vos expéditions, suivez les paiements et imprimez vos étiquettes en un clic depuis votre interface dédiée.",
+      "Commandes, preuves de paiement, expéditions — tout est centralisé dans votre tableau de bord pour gérer votre activité sereinement.",
   },
 ] as const;
 
@@ -35,11 +35,12 @@ export function FeaturesSection() {
       <div className="mx-auto max-w-7xl px-6">
         <AnimateOnScroll className="mx-auto mb-16 max-w-3xl text-center">
           <h2 className="mb-6 text-3xl font-extrabold lg:text-5xl">
-            Tout ce dont vous avez besoin pour exploser vos ventes
+            Tout ce dont vous avez besoin pour gérer vos ventes
           </h2>
           <p className="text-lg text-muted-foreground">
-            SnapSell gère la complexité logistique de vos ventes en direct pour
-            que vous n&apos;ayez plus à gérer de fichiers Excel manuels.
+            Du catalogue à la livraison, SnapSell centralise toute votre
+            activité pour que vous n&apos;ayez plus à jongler entre fichiers
+            Excel et messages WhatsApp.
           </p>
         </AnimateOnScroll>
 
@@ -49,8 +50,9 @@ export function FeaturesSection() {
               key={feature.title}
               animation="fade-up"
               delay={i * 120}
+              className="h-full"
             >
-              <div className="group rounded-2xl border border-border bg-card p-8 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5">
+              <div className="group h-full rounded-2xl border border-border bg-card p-8 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5">
                 <div className="mb-6 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
                   <feature.icon className="size-6" />
                 </div>

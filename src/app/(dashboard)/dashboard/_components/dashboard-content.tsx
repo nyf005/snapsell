@@ -1,6 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
 import { api } from "~/trpc/react";
@@ -88,10 +89,21 @@ function formatRelativeTime(date: Date): string {
 }
 
 export function DashboardContent() {
+  const router = useRouter();
   const { data: summary, isLoading } = api.dashboard.getSummary.useQuery(
     undefined,
     { refetchInterval: POLL_INTERVAL_MS }
   );
+  const [startLiveError, setStartLiveError] = useState<string | null>(null);
+  const startLiveMutation = api.live.startLive.useMutation({
+    onSuccess: () => {
+      setStartLiveError(null);
+      router.push("/dashboard/live");
+    },
+    onError: (err) => {
+      setStartLiveError(err.message);
+    },
+  });
 
   if (isLoading) {
     return (
@@ -104,6 +116,10 @@ export function DashboardContent() {
   if (!summary) {
     return null;
   }
+
+  const handleStartLive = async () => {
+    await startLiveMutation.mutateAsync();
+  };
 
   const lastProofLabel = summary.lastProofSubmittedAt
     ? formatRelativeTime(summary.lastProofSubmittedAt)
@@ -219,11 +235,25 @@ export function DashboardContent() {
                   ? "Une session live est en cours."
                   : "Aucun live en cours. Préparez votre prochaine session."}
               </p>
-              <Button asChild size="sm" className="mt-2">
-                <Link href="/dashboard/live">
-                  {summary.hasLiveSession ? "Voir le live" : "Lancer le live"}
-                </Link>
-              </Button>
+              {summary.hasLiveSession ? (
+                <Button asChild size="sm" className="mt-2">
+                  <Link href="/dashboard/live">Voir le live</Link>
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    size="sm"
+                    className="mt-2"
+                    onClick={handleStartLive}
+                    disabled={startLiveMutation.isPending}
+                  >
+                    {startLiveMutation.isPending ? "Démarrage..." : "Lancer le live"}
+                  </Button>
+                  {startLiveError && (
+                    <p className="text-xs text-destructive mt-1">{startLiveError}</p>
+                  )}
+                </>
+              )}
             </CardContent>
           </Card>
         </div>

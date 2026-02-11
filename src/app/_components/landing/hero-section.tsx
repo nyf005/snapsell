@@ -75,23 +75,22 @@ export function HeroSection({ user }: HeroSectionProps) {
               <AnimateEntrance delay={200}>
                 <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
                   <BadgeCheck className="size-4" />
-                  Nouveau : Automatisation WhatsApp
+                  Nouveau : Catalogue produit intégré
                 </div>
               </AnimateEntrance>
 
               <AnimateEntrance delay={450}>
                 <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-7xl">
-                  Transformez vos lives en{" "}
-                  <span className="text-primary">commandes structurées</span> via
-                  WhatsApp
+                  Votre catalogue, vos lives, vos{" "}
+                  <span className="text-primary">commandes</span> — tout en un
                 </h1>
               </AnimateEntrance>
 
               <AnimateEntrance delay={750}>
                 <p className="max-w-xl text-lg text-muted-foreground lg:text-xl">
-                  Plus de chaos en DM. Codes, réservations, file d&apos;attente et
-                  acompte — tout est automatisé pour que vous puissiez vous
-                  concentrer sur la vente.
+                  Catalogue produit, ventes en live, réservations WhatsApp, file
+                  d&apos;attente et suivi de commandes — une seule plateforme
+                  pour tout gérer.
                 </p>
               </AnimateEntrance>
 

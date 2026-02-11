@@ -24,6 +24,7 @@ vi.mock("~/server/db", () => ({
   db: {
     order: { findUnique: vi.fn() },
     reservation: { findUnique: vi.fn() },
+    catalogueItem: { findUnique: vi.fn(), delete: vi.fn() },
     $transaction: vi.fn((fn: (tx: typeof mockTx) => Promise<unknown>) => fn(mockTx)),
   },
 }));
@@ -61,6 +62,8 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
         status: "address_collected",
         liveItemId: "item-1",
         liveItem: { id: "item-1" },
+        catalogueItemId: null,
+        catalogueItem: null,
       } as never);
 
       // Default: confirmReservation succeeds (module mock)
@@ -123,10 +126,11 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       expect(result.success && result.order.status).toBe("confirmed");
       expect(result.success && result.order.depositStatus).toBe("no_deposit");
 
-      // confirmReservation appelé avec tx (même transaction)
+      // confirmReservation appelé avec tx (même transaction) + table
       expect(confirmReservation).toHaveBeenCalledWith(tenantId, "item-1", {
         correlationId,
         tx: mockTx,
+        table: "live_items",
       });
 
       // Opérations critiques utilisent tx (pas db)
@@ -267,6 +271,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       expect(confirmReservation).toHaveBeenCalledWith(tenantId, "item-1", {
         correlationId,
         tx: mockTx,
+        table: "live_items",
       });
       // Aucun effet de bord post-transaction (pas de logEvent, pas de logOrderCreated)
       expect(logEvent).not.toHaveBeenCalled();
@@ -285,6 +290,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       expect(confirmReservation).toHaveBeenCalledWith(tenantId, "item-1", {
         correlationId,
         tx: mockTx,
+        table: "live_items",
       });
       // order.create jamais atteint
       expect(mockTxOrderCreate).not.toHaveBeenCalled();

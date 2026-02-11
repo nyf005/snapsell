@@ -10,13 +10,13 @@ import { auth } from "~/server/auth";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://snapsell.app"),
-  title: "SnapSell — Transformez vos lives en commandes structurées",
+  title: "SnapSell — Catalogue et ventes en live, automatisés via WhatsApp",
   description:
-    "SnapSell automatise vos ventes WhatsApp : codes, réservations, file d'attente et acompte — tout est géré pour que vous puissiez vous concentrer sur la vente.",
+    "SnapSell : gérez votre catalogue produit, automatisez vos ventes en live via WhatsApp — réservations, file d'attente, suivi de commandes.",
   openGraph: {
-    title: "SnapSell — Transformez vos lives en commandes structurées",
+    title: "SnapSell — Catalogue et ventes en live, automatisés via WhatsApp",
     description:
-      "Automatisez vos ventes WhatsApp : codes, réservations, file d'attente et acompte — concentrez-vous sur la vente.",
+      "Gérez votre catalogue, automatisez vos ventes en live via WhatsApp — réservations, file d'attente, suivi de commandes.",
     url: "https://snapsell.app",
     siteName: "SnapSell",
     type: "website",
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "SnapSell — Transformez vos lives en commandes structurées",
+    title: "SnapSell — Catalogue et ventes en live, automatisés via WhatsApp",
     description:
-      "Automatisez vos ventes WhatsApp : codes, réservations, file d'attente et acompte.",
+      "Gérez votre catalogue, automatisez vos ventes en live via WhatsApp — réservations, file d'attente, suivi de commandes.",
   },
 };
 

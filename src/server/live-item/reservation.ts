@@ -1,5 +1,6 @@
 /**
  * Story 3.6: Blocage à la réservation (reserved_qty += 1), décrément à la confirmation.
+ * Story 8.1: Support CatalogueItem en plus de LiveItem (même sémantique, table différente).
  * reserveOneUnit, releaseReservation, confirmReservation avec transaction + SELECT FOR UPDATE.
  */
 
@@ -25,20 +26,40 @@ export type ConfirmReservationResult =
 
 type ReservationOptions = { correlationId?: string };
 
+/** Story 8.1: table cible pour les opérations de stock (live_items ou catalogue_items). */
+export type StockTable = "live_items" | "catalogue_items";
+
 function getCorrelationId(opt?: string): string {
   return opt ?? `res-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+const VALID_STOCK_TABLES: ReadonlySet<string> = new Set(["live_items", "catalogue_items"]);
+
+/**
+ * Story 8.1: Résout la table et l'entityType pour le log en fonction du paramètre.
+ * Inclut une validation runtime pour sécuriser Prisma.raw().
+ */
+function resolveStockTarget(table: StockTable): { entityType: "live_item" | "catalogue_item"; tableName: string } {
+  if (!VALID_STOCK_TABLES.has(table)) {
+    throw new Error(`Invalid stock table: ${table}`);
+  }
+  return table === "catalogue_items"
+    ? { entityType: "catalogue_item" as const, tableName: "catalogue_items" }
+    : { entityType: "live_item" as const, tableName: "live_items" };
 }
 
 /**
  * Réserve une unité (reservedQty += 1). Ne décrémente pas availableQty.
  * Utilisable par le worker Epic 4 lors du traitement « client envoie code ».
+ * Story 8.1: supporte table = "catalogue_items" (défaut "live_items" pour rétrocompat).
  */
 export async function reserveOneUnit(
   tenantId: string,
-  liveItemId: string,
-  options?: ReservationOptions,
+  itemId: string,
+  options?: ReservationOptions & { table?: StockTable },
 ): Promise<ReserveOneUnitResult> {
   const correlationId = getCorrelationId(options?.correlationId);
+  const { entityType, tableName } = resolveStockTarget(options?.table ?? "live_items");
 
   const result = await db.$transaction(async (tx) => {
     const rows = await tx.$queryRaw<
@@ -46,8 +67,8 @@ export async function reserveOneUnit(
     >(
       Prisma.sql`
         SELECT id, available_qty, reserved_qty
-        FROM live_items
-        WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
+        FROM ${Prisma.raw(tableName)}
+        WHERE id = ${itemId} AND tenant_id = ${tenantId}
         FOR UPDATE
       `,
     );
@@ -58,9 +79,9 @@ export async function reserveOneUnit(
 
     await tx.$executeRaw(
       Prisma.sql`
-        UPDATE live_items
+        UPDATE ${Prisma.raw(tableName)}
         SET reserved_qty = reserved_qty + 1, updated_at = NOW()
-        WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
+        WHERE id = ${itemId} AND tenant_id = ${tenantId}
       `,
     );
     return { success: true as const };
@@ -70,14 +91,14 @@ export async function reserveOneUnit(
     await logEvent({
       tenantId,
       eventType: "reservation_hold",
-      entityType: "live_item",
-      entityId: liveItemId,
+      entityType,
+      entityId: itemId,
       correlationId,
       actorType: "system",
-      payload: { liveItemId },
+      payload: { [`${entityType}_id`]: itemId },
     }).catch((err) => {
       workerLogger.warn("Event log failed (reservation_hold)", {
-        liveItemId,
+        itemId,
         correlationId,
         err,
       });
@@ -89,13 +110,15 @@ export async function reserveOneUnit(
 /**
  * Libère une réservation à l'expiration (reservedQty -= 1). availableQty inchangé.
  * À appeler par le job TTL expiration (Epic 4).
+ * Story 8.1: supporte table = "catalogue_items" (défaut "live_items" pour rétrocompat).
  */
 export async function releaseReservation(
   tenantId: string,
-  liveItemId: string,
-  options?: ReservationOptions,
+  itemId: string,
+  options?: ReservationOptions & { table?: StockTable },
 ): Promise<ReleaseReservationResult> {
   const correlationId = getCorrelationId(options?.correlationId);
+  const { entityType, tableName } = resolveStockTarget(options?.table ?? "live_items");
 
   const result = await db.$transaction(async (tx) => {
     const rows = await tx.$queryRaw<
@@ -103,8 +126,8 @@ export async function releaseReservation(
     >(
       Prisma.sql`
         SELECT id, reserved_qty
-        FROM live_items
-        WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
+        FROM ${Prisma.raw(tableName)}
+        WHERE id = ${itemId} AND tenant_id = ${tenantId}
         FOR UPDATE
       `,
     );
@@ -113,9 +136,9 @@ export async function releaseReservation(
 
     await tx.$executeRaw(
       Prisma.sql`
-        UPDATE live_items
+        UPDATE ${Prisma.raw(tableName)}
         SET reserved_qty = reserved_qty - 1, updated_at = NOW()
-        WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
+        WHERE id = ${itemId} AND tenant_id = ${tenantId}
       `,
     );
     return { success: true as const };
@@ -125,14 +148,14 @@ export async function releaseReservation(
     await logEvent({
       tenantId,
       eventType: "reservation_released",
-      entityType: "live_item",
-      entityId: liveItemId,
+      entityType,
+      entityId: itemId,
       correlationId,
       actorType: "system",
-      payload: { liveItemId },
+      payload: { [`${entityType}_id`]: itemId },
     }).catch((err) => {
       workerLogger.warn("Event log failed (reservation_released)", {
-        liveItemId,
+        itemId,
         correlationId,
         err,
       });
@@ -144,19 +167,21 @@ export async function releaseReservation(
 /**
  * Logique interne de confirmation : SELECT FOR UPDATE + décrément stock.
  * Extraite pour être réutilisée avec un tx externe ou interne.
+ * Story 8.1: paramètre tableName pour supporter catalogue_items.
  */
 async function executeConfirmation(
   tx: PrismaTransactionClient,
   tenantId: string,
-  liveItemId: string,
+  itemId: string,
+  tableName: string = "live_items",
 ): Promise<ConfirmReservationResult> {
   const rows = await tx.$queryRaw<
     { id: string; available_qty: number; reserved_qty: number }[]
   >(
     Prisma.sql`
       SELECT id, available_qty, reserved_qty
-      FROM live_items
-      WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
+      FROM ${Prisma.raw(tableName)}
+      WHERE id = ${itemId} AND tenant_id = ${tenantId}
       FOR UPDATE
     `,
   );
@@ -165,15 +190,15 @@ async function executeConfirmation(
 
   await tx.$executeRaw(
     Prisma.sql`
-      UPDATE live_items
+      UPDATE ${Prisma.raw(tableName)}
       SET reserved_qty = reserved_qty - 1, available_qty = available_qty - 1, updated_at = NOW()
-      WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
+      WHERE id = ${itemId} AND tenant_id = ${tenantId}
     `,
   );
 
   const after = await tx.$queryRaw<{ available_qty: number }[]>(
     Prisma.sql`
-      SELECT available_qty FROM live_items WHERE id = ${liveItemId} AND tenant_id = ${tenantId}
+      SELECT available_qty FROM ${Prisma.raw(tableName)} WHERE id = ${itemId} AND tenant_id = ${tenantId}
     `,
   );
   if (after.length === 0 || after[0]!.available_qty < 0) {
@@ -188,23 +213,25 @@ async function executeConfirmation(
  *
  * Si `options.tx` est fourni, utilise le client transactionnel externe (pas de $transaction imbriquée).
  * Sinon, crée sa propre $transaction (rétrocompatible pour tout autre appelant).
+ * Story 8.1: supporte table = "catalogue_items" (défaut "live_items" pour rétrocompat).
  */
 export async function confirmReservation(
   tenantId: string,
-  liveItemId: string,
-  options?: ReservationOptions & { tx?: PrismaTransactionClient },
+  itemId: string,
+  options?: ReservationOptions & { tx?: PrismaTransactionClient; table?: StockTable },
 ): Promise<ConfirmReservationResult> {
   const correlationId = getCorrelationId(options?.correlationId);
+  const { entityType, tableName } = resolveStockTarget(options?.table ?? "live_items");
 
   let result: ConfirmReservationResult;
 
   if (options?.tx) {
     // tx externe fourni → exécuter directement dans la transaction appelante
-    result = await executeConfirmation(options.tx, tenantId, liveItemId);
+    result = await executeConfirmation(options.tx, tenantId, itemId, tableName);
   } else {
     // Pas de tx → comportement actuel (propre $transaction)
     result = await db.$transaction(async (tx) => {
-      return executeConfirmation(tx, tenantId, liveItemId);
+      return executeConfirmation(tx, tenantId, itemId, tableName);
     }).catch((err: unknown) => {
       if (err instanceof Error && err.message === "CONCURRENCY_ROLLBACK") {
         return { success: false as const, reason: "concurrency" as const };
@@ -220,14 +247,14 @@ export async function confirmReservation(
     await logEvent({
       tenantId,
       eventType: "reservation_confirmed",
-      entityType: "live_item",
-      entityId: liveItemId,
+      entityType,
+      entityId: itemId,
       correlationId,
       actorType: "system",
-      payload: { liveItemId },
+      payload: { [`${entityType}_id`]: itemId },
     }).catch((err) => {
       workerLogger.warn("Event log failed (reservation_confirmed)", {
-        liveItemId,
+        itemId,
         correlationId,
         err,
       });

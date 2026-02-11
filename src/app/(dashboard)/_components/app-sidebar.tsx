@@ -19,6 +19,7 @@ import {
   Radio,
   Settings,
   ScrollText,
+  PackageOpen,
 } from "lucide-react";
 
 import { SnapSellLogo } from "~/components/auth/snapsel-logo";
@@ -69,8 +70,16 @@ const menuGroups: MenuGroup[] = [
     ],
   },
   {
-    label: "Live Ops",
-    items: [{ href: "/dashboard/live", label: "Live Ops", icon: Radio }],
+    label: "Catalogue",
+    items: [
+      { href: "/dashboard/catalogue", label: "Catalogue", icon: PackageOpen },
+    ],
+  },
+  {
+    label: "Sessions Live",
+    items: [
+      { href: "/dashboard/live", label: "Sessions Live", icon: Radio },
+    ],
   },
   {
     label: "Paramètres",

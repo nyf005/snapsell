@@ -73,9 +73,10 @@ export async function createOrderFromReservation(
   }
 
   // 2. Load reservation (HORS transaction)
+  // Story 8.1: inclure catalogueItem en plus de liveItem
   const reservation = await db.reservation.findUnique({
     where: { id: reservationId, tenantId },
-    include: { liveItem: true },
+    include: { liveItem: true, catalogueItem: true },
   });
   if (!reservation || reservation.status !== "address_collected") {
     return { success: false, reason: "reservation_not_found" };
@@ -121,6 +122,13 @@ export async function createOrderFromReservation(
     ? new Date(Date.now() + DEPOSIT_TTL_MINUTES * 60 * 1000)
     : null;
 
+  // Story 8.1: résoudre l'item et la table de stock
+  const isCatalogue = !!reservation.catalogueItemId;
+  const itemIdForStock = isCatalogue
+    ? reservation.catalogueItemId!
+    : reservation.liveItemId!;
+  const stockTable = isCatalogue ? "catalogue_items" as const : "live_items" as const;
+
   // 3. TRANSACTION GLOBALE avec retry sur P2002 (order_number)
   //    Le retry ré-exécute toute la transaction (rollback = stock intact, on recommence).
   //    Note : le rollback réel (Prisma + Postgres) n'est validable que par test d'intégration.
@@ -131,9 +139,10 @@ export async function createOrderFromReservation(
     try {
       orderRecord = await db.$transaction(async (tx) => {
         // 3a. confirmReservation avec tx (SELECT FOR UPDATE + décrément stock)
-        const confirmResult = await confirmReservation(tenantId, reservation.liveItemId, {
+        const confirmResult = await confirmReservation(tenantId, itemIdForStock, {
           correlationId,
           tx,
+          table: stockTable,
         });
         if (!confirmResult.success) {
           throw new ConfirmFailedError(confirmResult.reason);
@@ -230,17 +239,45 @@ export async function createOrderFromReservation(
   // 4. Post-transaction (non critique) : event log, outbox
   //    logEvent reservation_confirmed ici car confirmReservation ne logge pas quand tx est fourni
   //    (le commit n'a lieu qu'à la fin du $transaction, pas au moment de l'appel).
+  const entityType = isCatalogue ? "catalogue_item" as const : "live_item" as const;
   await logEvent({
     tenantId,
     eventType: "reservation_confirmed",
-    entityType: "live_item",
-    entityId: reservation.liveItemId,
+    entityType,
+    entityId: itemIdForStock,
     correlationId,
     actorType: "system",
-    payload: { liveItemId: reservation.liveItemId },
+    payload: { [`${entityType}_id`]: itemIdForStock },
   }).catch((err) => {
     workerLogger.warn("Event log reservation_confirmed failed", { correlationId, err });
   });
+
+  // Story 8.1 AC#5: Libération du code après vente pour articles créés en live
+  if (isCatalogue && reservation.catalogueItem?.createdInLive) {
+    try {
+      const catItem = await db.catalogueItem.findUnique({
+        where: { id: reservation.catalogueItemId! },
+        select: { availableQty: true },
+      });
+      if (catItem && catItem.availableQty <= 0) {
+        await db.catalogueItem.delete({
+          where: { id: reservation.catalogueItemId! },
+        });
+        workerLogger.info("Catalogue code released after sale (createdInLive, qty=0)", {
+          tenantId,
+          catalogueItemId: reservation.catalogueItemId,
+          correlationId,
+        });
+      }
+    } catch (err) {
+      workerLogger.warn("Failed to release catalogue code after sale", {
+        tenantId,
+        catalogueItemId: reservation.catalogueItemId,
+        correlationId,
+        err,
+      });
+    }
+  }
 
   await logOrderCreated(tenantId, orderRecord.id, reservationId, correlationId).catch((err) => {
     workerLogger.warn("Event log order_created failed", {

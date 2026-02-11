@@ -1,7 +1,9 @@
 /**
  * Story 4.1: Service réservation (entité) — création, lecture, collecte adresse.
  * Story 4.3: expiresAt (TTL) à la création pour réservations actives.
- * Idempotence : (tenant_id, live_session_id, client_phone, live_item_id) unique.
+ * Story 8.1: Support réservation sur CatalogueItem (catalogueItemId, liveSessionId optionnel).
+ * Idempotence catalogue : (tenant_id, client_phone, catalogue_item_id) unique (actif).
+ * Idempotence legacy : (tenant_id, live_session_id, client_phone, live_item_id) unique.
  */
 
 import { Prisma } from "../../../generated/prisma";
@@ -32,8 +34,22 @@ export type CreateReservationResult =
   | { success: false; reason: "exhausted" | "already_reserved"; reservation?: { id: string } };
 
 /**
- * Crée une réservation (entité) et réserve une unité sur le LiveItem (reserved_qty += 1).
- * Idempotent : si une réservation active existe déjà pour (tenant, session, client, item), retourne already_reserved.
+ * Story 8.1: Options pour la création de réservation catalogue.
+ * Si catalogueItemId est fourni, la réservation se fait sur le catalogue (liveSessionId optionnel).
+ * Si catalogueItemId est absent, comportement legacy sur LiveItem.
+ */
+export type CreateReservationCatalogueOptions = {
+  catalogueItemId: string;
+  liveSessionId?: string | null; // optionnel pour traçabilité
+};
+
+/**
+ * Crée une réservation (entité) et réserve une unité.
+ * Story 8.1: Supporte deux modes :
+ * - Legacy (liveSessionId + liveItemId) : comportement existant.
+ * - Catalogue (catalogueItemId, liveSessionId optionnel) : réservation sur CatalogueItem.
+ *
+ * Overload 1 : Legacy (rétrocompat)
  */
 export async function createReservation(
   tenantId: string,
@@ -41,15 +57,46 @@ export async function createReservation(
   liveItemId: string,
   clientPhone: string,
   correlationId: string,
+): Promise<CreateReservationResult>;
+/**
+ * Overload 2 : Catalogue (Story 8.1)
+ */
+export async function createReservation(
+  tenantId: string,
+  liveSessionId: string | null,
+  liveItemId: null,
+  clientPhone: string,
+  correlationId: string,
+  catalogueOptions: CreateReservationCatalogueOptions,
+): Promise<CreateReservationResult>;
+export async function createReservation(
+  tenantId: string,
+  liveSessionId: string | null,
+  liveItemId: string | null,
+  clientPhone: string,
+  correlationId: string,
+  catalogueOptions?: CreateReservationCatalogueOptions,
 ): Promise<CreateReservationResult> {
+  const isCatalogue = !!catalogueOptions?.catalogueItemId;
+  const catalogueItemId = catalogueOptions?.catalogueItemId ?? null;
+  const effectiveSessionId = liveSessionId ?? catalogueOptions?.liveSessionId ?? null;
+
+  // Idempotence check
   const existing = await db.reservation.findFirst({
-    where: {
-      tenantId,
-      liveSessionId,
-      clientPhone,
-      liveItemId,
-      status: { in: [...ACTIVE_STATUSES] },
-    },
+    where: isCatalogue
+      ? {
+          tenantId,
+          clientPhone,
+          catalogueItemId,
+          status: { in: [...ACTIVE_STATUSES] },
+        }
+      : {
+          tenantId,
+          liveSessionId: liveSessionId!,
+          clientPhone,
+          liveItemId: liveItemId!,
+          status: { in: [...ACTIVE_STATUSES] },
+        },
   });
   if (existing) {
     return { success: false, reason: "already_reserved", reservation: { id: existing.id } };
@@ -63,7 +110,13 @@ export async function createReservation(
   const ttlMinutes = getReservationTtlMinutes(requireDeposit);
   const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
 
-  const reserveResult = await reserveOneUnit(tenantId, liveItemId, { correlationId });
+  // Reserve stock on the right table
+  const itemIdForStock = isCatalogue ? catalogueItemId! : liveItemId!;
+  const stockTable = isCatalogue ? "catalogue_items" as const : "live_items" as const;
+  const reserveResult = await reserveOneUnit(tenantId, itemIdForStock, {
+    correlationId,
+    table: stockTable,
+  });
   if (!reserveResult.success) {
     return { success: false, reason: reserveResult.reason as "exhausted" };
   }
@@ -72,38 +125,46 @@ export async function createReservation(
     const reservation = await db.reservation.create({
       data: {
         tenantId,
-        liveSessionId,
-        liveItemId,
+        liveSessionId: effectiveSessionId,
+        liveItemId: liveItemId,
+        catalogueItemId,
         clientPhone,
         status: "reserved",
         correlationId,
         expiresAt,
       },
     });
-    await logReservationStarted(tenantId, reservation.id, correlationId, {
-      live_item_id: liveItemId,
-      live_session_id: liveSessionId,
-    }).catch((err) => {
-      workerLogger.warn("Event log reservation_started failed", {
-        reservationId: reservation.id,
-        correlationId,
-        err,
-      });
-    });
+
+    const logPayload: Record<string, string> = {};
+    if (catalogueItemId) logPayload.catalogue_item_id = catalogueItemId;
+    if (liveItemId) logPayload.live_item_id = liveItemId;
+    if (effectiveSessionId) logPayload.live_session_id = effectiveSessionId;
+
+    await logReservationStarted(tenantId, reservation.id, correlationId, logPayload).catch(
+      (err) => {
+        workerLogger.warn("Event log reservation_started failed", {
+          reservationId: reservation.id,
+          correlationId,
+          err,
+        });
+      },
+    );
     return { success: true, reservation: { id: reservation.id, status: reservation.status } };
   } catch (error) {
     const isUniqueViolation =
       error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
     if (isUniqueViolation) {
-      await releaseReservation(tenantId, liveItemId, { correlationId });
+      await releaseReservation(tenantId, itemIdForStock, { correlationId, table: stockTable });
       const existingAfter = await db.reservation.findFirst({
-        where: {
-          tenantId,
-          liveSessionId,
-          clientPhone,
-          liveItemId,
-          status: { in: [...ACTIVE_STATUSES] },
-        },
+        where: isCatalogue
+          ? { tenantId, clientPhone, catalogueItemId, status: { in: [...ACTIVE_STATUSES] } }
+          : {
+              tenantId,
+              liveSessionId: liveSessionId!,
+              clientPhone,
+              liveItemId: liveItemId!,
+              status: { in: [...ACTIVE_STATUSES] },
+            },
       });
       return {
         success: false,
@@ -112,10 +173,13 @@ export async function createReservation(
       };
     }
     // Tout autre échec create : libérer l'unité réservée pour éviter une fuite de reserved_qty
-    await releaseReservation(tenantId, liveItemId, { correlationId }).catch((releaseErr) => {
+    await releaseReservation(tenantId, itemIdForStock, {
+      correlationId,
+      table: stockTable,
+    }).catch((releaseErr) => {
       workerLogger.error("releaseReservation after create failure", releaseErr, {
         tenantId,
-        liveItemId,
+        itemId: itemIdForStock,
         correlationId,
       });
     });
@@ -124,50 +188,58 @@ export async function createReservation(
 }
 
 /**
- * Retourne la réservation active (reserved ou address_collected) pour ce client en session.
- * Si liveItemId est fourni, filtre sur cet item ; sinon retourne la première réservation active (pour collecte adresse).
+ * Retourne la réservation active (reserved ou address_collected) pour ce client.
+ * Story 8.1: ne filtre plus obligatoirement sur liveSessionId — les réservations catalogue
+ * ont liveSessionId null. Si liveSessionId est fourni, filtre dessus (rétrocompat).
  */
 export async function getActiveReservationForClient(
   tenantId: string,
-  liveSessionId: string,
   clientPhone: string,
-  liveItemId?: string,
+  options?: { liveSessionId?: string | null; liveItemId?: string; catalogueItemId?: string },
 ) {
+  const where: Record<string, unknown> = {
+    tenantId,
+    clientPhone,
+    status: { in: [...ACTIVE_STATUSES] },
+  };
+
+  // Story 8.1: ne filtrer sur liveSessionId que s'il est explicitement fourni (non-null)
+  if (options?.liveSessionId) where.liveSessionId = options.liveSessionId;
+  if (options?.liveItemId) where.liveItemId = options.liveItemId;
+  if (options?.catalogueItemId) where.catalogueItemId = options.catalogueItemId;
+
   return db.reservation.findFirst({
-    where: {
-      tenantId,
-      liveSessionId,
-      clientPhone,
-      ...(liveItemId ? { liveItemId } : {}),
-      status: { in: [...ACTIVE_STATUSES] },
-    },
+    where,
     orderBy: { createdAt: "desc" },
-    include: { liveItem: true },
+    include: { liveItem: true, catalogueItem: true },
   });
 }
 
+/** Type d'item retourné par collectAddress (code + prix, polymorphe LiveItem ou CatalogueItem). */
+export type CollectAddressItemInfo = { code: string; amountCents: number | null };
+
 export type CollectAddressResult =
-  | { success: true; reservation: { id: string; liveItem: { code: string; amountCents: number | null } } }
+  | { success: true; reservation: { id: string; item: CollectAddressItemInfo } }
   | { success: false; reason: "no_reservation" | "already_collected" | "address_too_long" };
 
 /**
- * Enregistre l'adresse sur la réservation (status reserved → address_collected). Story 4.1.
+ * Enregistre l'adresse sur la réservation (status reserved → address_collected). Story 4.1, 8.1.
+ * Story 8.1: cherche par (tenantId, clientPhone) sans contraindre liveSessionId,
+ * pour trouver aussi les réservations catalogue (liveSessionId null).
  */
 export async function collectAddress(
   tenantId: string,
-  liveSessionId: string,
   clientPhone: string,
   addressText: string,
 ): Promise<CollectAddressResult> {
   const reservation = await db.reservation.findFirst({
     where: {
       tenantId,
-      liveSessionId,
       clientPhone,
       status: "reserved",
     },
     orderBy: { createdAt: "desc" },
-    include: { liveItem: true },
+    include: { liveItem: true, catalogueItem: true },
   });
   if (!reservation) return { success: false, reason: "no_reservation" };
   if (reservation.status !== "reserved") return { success: false, reason: "already_collected" };
@@ -181,14 +253,18 @@ export async function collectAddress(
     data: { address: trimmed, status: "address_collected" },
   });
 
+  // Story 8.1: item info depuis catalogueItem ou liveItem
+  const item: CollectAddressItemInfo = reservation.catalogueItem
+    ? { code: reservation.catalogueItem.code, amountCents: reservation.catalogueItem.amountCents }
+    : reservation.liveItem
+      ? { code: reservation.liveItem.code, amountCents: reservation.liveItem.amountCents }
+      : { code: "?", amountCents: null };
+
   return {
     success: true,
     reservation: {
       id: reservation.id,
-      liveItem: {
-        code: reservation.liveItem.code,
-        amountCents: reservation.liveItem.amountCents,
-      },
+      item,
     },
   };
 }

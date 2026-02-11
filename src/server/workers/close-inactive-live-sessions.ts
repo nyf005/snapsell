@@ -11,6 +11,7 @@ import { workerLogger } from "~/lib/logger";
 import { LiveSessionStatus } from "../../../generated/prisma";
 import { getInactivityWindowMinutes } from "~/server/live-session/config";
 import { logLiveSessionClosed } from "~/server/events/eventLog";
+import { promoteSessionToCatalogue } from "~/server/catalogue/promoteSessionToCatalogue";
 
 /** Nombre max de sessions fermées par run (évite surcharge en forte charge). */
 const CLOSE_BATCH_LIMIT = 100;
@@ -60,6 +61,25 @@ export async function runCloseInactiveLiveSessions(): Promise<{
         liveSessionId: session.id,
         tenantId: session.tenantId,
       });
+
+      // Story 8.2 Task 1: Promouvoir les items restants vers le catalogue
+      try {
+        const promotionResult = await promoteSessionToCatalogue(
+          session.tenantId,
+          session.id,
+        );
+        workerLogger.info("Session items promoted to catalogue", {
+          liveSessionId: session.id,
+          tenantId: session.tenantId,
+          ...promotionResult,
+        });
+      } catch (promotionError) {
+        workerLogger.error("Error promoting session to catalogue", promotionError, {
+          tenantId: session.tenantId,
+          liveSessionId: session.id,
+        });
+        // Ne pas échouer la fermeture si la promotion échoue
+      }
     } catch (error) {
       workerLogger.error("Error closing live session", error, {
         liveSessionId: session.id,

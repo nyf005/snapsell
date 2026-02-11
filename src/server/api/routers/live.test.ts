@@ -9,6 +9,7 @@ import { createCaller } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
 
 const mockGetCurrentSessionReadOnly = vi.hoisted(() => vi.fn());
+const mockGetOrCreateCurrentSession = vi.hoisted(() => vi.fn());
 const mockLiveItemFindMany = vi.hoisted(() => vi.fn());
 const mockReservationFindFirst = vi.hoisted(() => vi.fn());
 const mockReservationFindMany = vi.hoisted(() => vi.fn());
@@ -20,10 +21,12 @@ const mockReleaseReservation = vi.hoisted(() => vi.fn());
 const mockCreateReservation = vi.hoisted(() => vi.fn());
 const mockLogEvent = vi.hoisted(() => vi.fn());
 const mockLogWaitlistPromoted = vi.hoisted(() => vi.fn());
+const mockLogLiveSessionCreated = vi.hoisted(() => vi.fn());
 const mockWriteToOutbox = vi.hoisted(() => vi.fn());
 
 vi.mock("~/server/live-session/service", () => ({
   getCurrentSessionReadOnly: (...args: unknown[]) => mockGetCurrentSessionReadOnly(...args),
+  getOrCreateCurrentSession: (...args: unknown[]) => mockGetOrCreateCurrentSession(...args),
 }));
 
 vi.mock("~/server/db", () => ({
@@ -54,6 +57,7 @@ vi.mock("~/server/reservation/service", () => ({
 vi.mock("~/server/events/eventLog", () => ({
   logEvent: (...args: unknown[]) => mockLogEvent(...args),
   logWaitlistPromoted: (...args: unknown[]) => mockLogWaitlistPromoted(...args),
+  logLiveSessionCreated: (...args: unknown[]) => mockLogLiveSessionCreated(...args),
 }));
 
 vi.mock("~/server/messaging/outbox", () => ({
@@ -86,6 +90,7 @@ describe("live router", () => {
     vi.clearAllMocks();
     mockLogEvent.mockResolvedValue(undefined);
     mockLogWaitlistPromoted.mockResolvedValue(undefined);
+    mockLogLiveSessionCreated.mockResolvedValue(undefined);
     mockWriteToOutbox.mockResolvedValue({});
   });
 
@@ -169,9 +174,12 @@ describe("live router", () => {
       expect(mockReservationFindMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
-            liveSessionId: "session-1",
             tenantId: "tenant-1",
             status: { in: ["reserved", "address_collected"] },
+            OR: [
+              { liveSessionId: "session-1" },
+              { catalogueItemId: { not: null }, liveSessionId: null },
+            ],
           },
         }),
       );
@@ -264,6 +272,117 @@ describe("live router", () => {
         id: "session-1",
         lastActivityAt: session.lastActivityAt,
       });
+    });
+  });
+
+  describe("startLive (Story 8.3)", () => {
+    it("creates new session and logs event when no active session exists", async () => {
+      const now = new Date();
+      mockGetOrCreateCurrentSession.mockResolvedValue({
+        id: "new-session-1",
+        status: "active",
+        lastActivityAt: now,
+        created: true,
+      });
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+
+      const result = await caller.live.startLive();
+
+      expect(result).toEqual({
+        id: "new-session-1",
+        lastActivityAt: now,
+        created: true,
+      });
+      expect(mockGetOrCreateCurrentSession).toHaveBeenCalledWith("tenant-1");
+      expect(mockLogLiveSessionCreated).toHaveBeenCalledWith(
+        "tenant-1",
+        "new-session-1",
+        "user-1",
+      );
+    });
+
+    it("returns existing session without logging when session already active", async () => {
+      const now = new Date();
+      mockGetOrCreateCurrentSession.mockResolvedValue({
+        id: "existing-session-1",
+        status: "active",
+        lastActivityAt: now,
+        created: false,
+      });
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+
+      const result = await caller.live.startLive();
+
+      expect(result).toEqual({
+        id: "existing-session-1",
+        lastActivityAt: now,
+        created: false,
+      });
+      expect(mockGetOrCreateCurrentSession).toHaveBeenCalledWith("tenant-1");
+      expect(mockLogLiveSessionCreated).not.toHaveBeenCalled();
+    });
+
+    it("tenant isolation: tenant2 creates its own session", async () => {
+      const now = new Date();
+      mockGetOrCreateCurrentSession.mockResolvedValue({
+        id: "session-tenant2",
+        status: "active",
+        lastActivityAt: now,
+        created: true,
+      });
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant2Session as never,
+      });
+      const caller = createCaller(ctx);
+
+      const result = await caller.live.startLive();
+
+      expect(result.id).toBe("session-tenant2");
+      expect(mockGetOrCreateCurrentSession).toHaveBeenCalledWith("tenant-2");
+      expect(mockLogLiveSessionCreated).toHaveBeenCalledWith(
+        "tenant-2",
+        "session-tenant2",
+        "user-2",
+      );
+    });
+
+    it("throws FORBIDDEN when tenantId is missing", async () => {
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: { user: { id: "user-x", email: "x@example.com", tenantId: null, role: "OWNER" } } as never,
+      });
+      const caller = createCaller(ctx);
+
+      await expect(caller.live.startLive()).rejects.toMatchObject({
+        code: "FORBIDDEN",
+      });
+      expect(mockGetOrCreateCurrentSession).not.toHaveBeenCalled();
+    });
+
+    it("propagates error when getOrCreateCurrentSession fails", async () => {
+      mockGetOrCreateCurrentSession.mockRejectedValue(new Error("DB connection failed"));
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+
+      await expect(caller.live.startLive()).rejects.toThrow("DB connection failed");
+      expect(mockGetOrCreateCurrentSession).toHaveBeenCalledWith("tenant-1");
+      expect(mockLogLiveSessionCreated).not.toHaveBeenCalled();
     });
   });
 
@@ -378,9 +497,12 @@ describe("live router", () => {
       expect(mockReservationFindMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
-            liveSessionId: "session-1",
             tenantId: "tenant-1",
             status: { in: ["reserved", "address_collected"] },
+            OR: [
+              { liveSessionId: "session-1" },
+              { catalogueItemId: { not: null }, liveSessionId: null },
+            ],
           },
         }),
       );
@@ -528,10 +650,12 @@ describe("live router", () => {
         id: VALID_RESERVATION_ID,
         tenantId: "tenant-1",
         liveItemId: "item-1",
+        catalogueItemId: null,
         liveSessionId: "session-1",
         correlationId: "c1",
         status: "reserved",
         liveItem: { code: "A" },
+        catalogueItem: null,
       });
       mockReservationUpdate.mockResolvedValue({});
       mockReleaseReservation.mockResolvedValue({ success: true });
@@ -550,7 +674,7 @@ describe("live router", () => {
         where: { id: VALID_RESERVATION_ID },
         data: { status: "expired" },
       });
-      expect(mockReleaseReservation).toHaveBeenCalledWith("tenant-1", "item-1", { correlationId: "c1" });
+      expect(mockReleaseReservation).toHaveBeenCalledWith("tenant-1", "item-1", { correlationId: "c1", table: "live_items" });
       expect(mockLogEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           eventType: "reservation_expired",
@@ -571,10 +695,12 @@ describe("live router", () => {
         id: VALID_RESERVATION_ID,
         tenantId: "tenant-1",
         liveItemId: "item-1",
+        catalogueItemId: null,
         liveSessionId: "session-1",
         correlationId: "c1",
         status: "address_collected",
         liveItem: { code: "A" },
+        catalogueItem: null,
       });
       mockReservationUpdate.mockResolvedValue({});
       mockReleaseReservation.mockResolvedValue({ success: true });
@@ -617,6 +743,135 @@ describe("live router", () => {
           body: expect.stringContaining("A"),
         }),
       );
+    });
+
+    // ── Story 8.1: Catalogue item tests ───────────────────
+
+    it("Story 8.1: releases catalogue reservation (catalogueItemId set, liveItemId null)", async () => {
+      mockReservationFindFirst.mockResolvedValue({
+        id: VALID_RESERVATION_ID,
+        tenantId: "tenant-1",
+        liveItemId: null,
+        catalogueItemId: "cat-item-1",
+        liveSessionId: null,
+        correlationId: "c-cat",
+        status: "reserved",
+        liveItem: null,
+        catalogueItem: { code: "D9" },
+      });
+      mockReservationUpdate.mockResolvedValue({});
+      mockReleaseReservation.mockResolvedValue({ success: true });
+      mockWaitlistFindFirst.mockResolvedValue(null);
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+
+      const result = await caller.live.releaseReservation({ reservationId: VALID_RESERVATION_ID });
+
+      expect(result).toEqual({ success: true });
+      expect(mockReleaseReservation).toHaveBeenCalledWith(
+        "tenant-1",
+        "cat-item-1",
+        { correlationId: "c-cat", table: "catalogue_items" },
+      );
+      expect(mockLogEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          eventType: "reservation_expired",
+          actorType: "seller",
+          payload: expect.objectContaining({
+            reservation_id: VALID_RESERVATION_ID,
+            catalogue_item_id: "cat-item-1",
+            reason: "released_by_seller",
+          }),
+        }),
+      );
+    });
+
+    it("Story 8.1: releases catalogue reservation and promotes catalogue waitlist entry", async () => {
+      mockReservationFindFirst.mockResolvedValue({
+        id: VALID_RESERVATION_ID,
+        tenantId: "tenant-1",
+        liveItemId: null,
+        catalogueItemId: "cat-item-2",
+        liveSessionId: null,
+        correlationId: "c-cat-2",
+        status: "reserved",
+        liveItem: null,
+        catalogueItem: { code: "E1" },
+      });
+      mockReservationUpdate.mockResolvedValue({});
+      mockReleaseReservation.mockResolvedValue({ success: true });
+      mockWaitlistFindFirst.mockResolvedValue({
+        id: "wl-cat",
+        tenantId: "tenant-1",
+        liveSessionId: "catalogue",
+        liveItemId: "cat-item-2",
+        clientPhone: "+33688888888",
+        correlationId: "c-wl-cat",
+        position: 1,
+      });
+      mockCreateReservation.mockResolvedValue({
+        success: true,
+        reservation: { id: "res-promoted-cat", status: "reserved" },
+      });
+      mockWaitlistDelete.mockResolvedValue({});
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+
+      await caller.live.releaseReservation({ reservationId: VALID_RESERVATION_ID });
+
+      // Catalogue promotion uses 6-arg overload with catalogueItemId
+      expect(mockCreateReservation).toHaveBeenCalledWith(
+        "tenant-1",
+        null, // liveSessionId "catalogue" → null
+        null, // liveItemId = null for catalogue
+        "+33688888888",
+        "c-wl-cat",
+        expect.objectContaining({ catalogueItemId: "cat-item-2" }),
+      );
+      expect(mockWaitlistDelete).toHaveBeenCalledWith({ where: { id: "wl-cat" } });
+      expect(mockWriteToOutbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenantId: "tenant-1",
+          to: "+33688888888",
+          body: expect.stringContaining("E1"),
+        }),
+      );
+    });
+
+    it("Story 8.1: throws BAD_REQUEST when neither catalogueItemId nor liveItemId is set", async () => {
+      mockReservationFindFirst.mockResolvedValue({
+        id: VALID_RESERVATION_ID,
+        tenantId: "tenant-1",
+        liveItemId: null,
+        catalogueItemId: null,
+        liveSessionId: null,
+        correlationId: "c-broken",
+        status: "reserved",
+        liveItem: null,
+        catalogueItem: null,
+      });
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+
+      await expect(
+        caller.live.releaseReservation({ reservationId: VALID_RESERVATION_ID }),
+      ).rejects.toMatchObject({
+        code: "BAD_REQUEST",
+        message: expect.stringContaining("aucun item"),
+      });
+      expect(mockReleaseReservation).not.toHaveBeenCalled();
     });
   });
 });

@@ -71,8 +71,9 @@ export async function processOutboundMessage(messageOut: {
   });
 
   try {
-    // Story 2.5 : Vérification STOP avant envoi — ne pas envoyer si OptOut existe (scope tenant).
-    // Messages transactionnels stricts après STOP : non géré en MVP (tous bloqués) ; à définir en FR46/7B.3.
+    // Story 2.5 + 7B.3 (FR46) : Politique STOP explicite — scope = tenant (tenant_id, phone_number).
+    // Politique MVP : aucun message après STOP. Si OptOut existe → blocage systématique.
+    // Voir docs/stop-policy.md. Option future : allow_transactional_after_stop (transactionnels stricts).
     const optedOut = await checkOptOut(tenantId, to);
     if (optedOut) {
       await db.messageOut.update({

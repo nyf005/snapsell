@@ -325,7 +325,7 @@ export function OpsEventLogsContent() {
             </Card>
 
             {!canQuery ? (
-              <Card className="overflow-hidden rounded-2xl border-border gap-0 pt-0 shadow-sm">
+              <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
                 <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
                   <Shield className="size-12" />
                   <p className="text-sm font-medium">
@@ -334,7 +334,7 @@ export function OpsEventLogsContent() {
                 </div>
               </Card>
             ) : error ? (
-              <Card className="overflow-hidden rounded-2xl border-border gap-0 pt-0 shadow-sm">
+              <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
                 <div className="flex flex-col items-center justify-center gap-3 py-16 text-destructive">
                   <p className="text-sm font-medium">
                     Erreur lors du chargement des logs
@@ -345,7 +345,7 @@ export function OpsEventLogsContent() {
                 </div>
               </Card>
             ) : (
-              <Card className="overflow-hidden rounded-2xl border-border gap-0 pt-0 shadow-sm">
+              <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
                 {isLoading && !data ? (
                   <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
                     <Spinner className="size-8" />
@@ -464,8 +464,11 @@ export function OpsEventLogsContent() {
                         </TableBody>
                       </Table>
                     </div>
-                    {nextCursor && (
-                      <div className="flex justify-center border-t border-border bg-muted/30 px-6 py-3">
+                    <div className="flex shrink-0 items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
+                      <p className="text-xs text-muted-foreground">
+                        {items.length} événement{items.length > 1 ? "s" : ""}
+                      </p>
+                      {nextCursor ? (
                         <Button
                           variant="outline"
                           size="sm"
@@ -474,8 +477,10 @@ export function OpsEventLogsContent() {
                         >
                           Charger la suite
                         </Button>
-                      </div>
-                    )}
+                      ) : (
+                        <span />
+                      )}
+                    </div>
                   </>
                 )}
               </Card>

@@ -151,6 +151,142 @@ describe("reservation-ttl (Story 4.3)", () => {
     );
   });
 
+  // ── Story 8.1: Catalogue item tests ───────────────────
+
+  it("Story 8.1: expires catalogue reservation, decrements catalogue_items, logs catalogue_item_id", async () => {
+    const res = {
+      id: "res-cat-1",
+      tenantId: "t1",
+      liveSessionId: null,
+      liveItemId: null,
+      catalogueItemId: "cat-item-1",
+      correlationId: "corr-cat-1",
+      catalogueItem: { id: "cat-item-1", code: "B5" },
+      liveItem: null,
+    };
+    vi.mocked(db.reservation.findMany).mockResolvedValue([
+      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+    ]);
+
+    vi.mocked(db.$transaction).mockImplementation(async (fn) => {
+      const tx = {
+        $queryRaw: vi.fn(),
+        $executeRaw: vi.fn(),
+        waitlist: { findFirst: vi.fn().mockResolvedValue(null), delete: vi.fn() },
+      };
+      tx.$queryRaw.mockResolvedValueOnce([{
+        id: res.id,
+        tenant_id: res.tenantId,
+        live_item_id: null,
+        catalogue_item_id: res.catalogueItemId,
+        live_session_id: null,
+        correlation_id: res.correlationId,
+      }]);
+      return fn(tx as never) as Promise<unknown>;
+    });
+
+    const result = await runReservationTtlJob();
+
+    expect(result).toEqual({ expiredCount: 1, promotedCount: 0 });
+    expect(logReservationExpired).toHaveBeenCalledWith(
+      "t1",
+      "res-cat-1",
+      "corr-cat-1",
+      expect.objectContaining({ catalogue_item_id: "cat-item-1" }),
+    );
+    expect(createReservation).not.toHaveBeenCalled();
+  });
+
+  it("Story 8.1: expires catalogue reservation, promotes waitlist with catalogue createReservation overload", async () => {
+    const res = {
+      id: "res-cat-2",
+      tenantId: "t1",
+      liveSessionId: null,
+      liveItemId: null,
+      catalogueItemId: "cat-item-2",
+      correlationId: "corr-cat-2",
+      catalogueItem: { id: "cat-item-2", code: "C3" },
+      liveItem: null,
+    };
+    vi.mocked(db.reservation.findMany).mockResolvedValue([
+      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+    ]);
+
+    const promoted = {
+      id: "w-cat",
+      tenantId: "t1",
+      liveSessionId: "catalogue",
+      liveItemId: "cat-item-2",
+      clientPhone: "+33611111111",
+      correlationId: "corr-w-cat",
+    };
+    vi.mocked(db.$transaction).mockImplementation(async (fn) => {
+      const tx = {
+        $queryRaw: vi.fn(),
+        $executeRaw: vi.fn(),
+        waitlist: {
+          findFirst: vi.fn().mockResolvedValue(promoted),
+        },
+      };
+      tx.$queryRaw.mockResolvedValueOnce([{
+        id: res.id,
+        tenant_id: res.tenantId,
+        live_item_id: null,
+        catalogue_item_id: res.catalogueItemId,
+        live_session_id: null,
+        correlation_id: res.correlationId,
+      }]);
+      return fn(tx as never) as Promise<unknown>;
+    });
+
+    vi.mocked(createReservation).mockResolvedValue({
+      success: true,
+      reservation: { id: "res-promoted-cat", status: "reserved" },
+    });
+
+    const result = await runReservationTtlJob();
+
+    expect(result).toEqual({ expiredCount: 1, promotedCount: 1 });
+    // Story 8.1: catalogue promotion uses 6-arg overload with catalogueItemId
+    expect(createReservation).toHaveBeenCalledWith(
+      "t1",
+      null, // liveSessionId = "catalogue" → null
+      null, // liveItemId = null for catalogue
+      "+33611111111",
+      "corr-w-cat",
+      expect.objectContaining({ catalogueItemId: "cat-item-2" }),
+    );
+    expect(db.waitlist.delete).toHaveBeenCalledWith({ where: { id: "w-cat" } });
+    expect(writeToOutbox).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tenantId: "t1",
+        to: "+33611111111",
+        body: expect.stringContaining("C3"),
+      }),
+    );
+  });
+
+  it("Story 8.1: skips reservation with no associated item (neither liveItemId nor catalogueItemId)", async () => {
+    const res = {
+      id: "res-broken",
+      tenantId: "t1",
+      liveSessionId: null,
+      liveItemId: null,
+      catalogueItemId: null,
+      correlationId: "corr-broken",
+      catalogueItem: null,
+      liveItem: null,
+    };
+    vi.mocked(db.reservation.findMany).mockResolvedValue([
+      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+    ]);
+
+    const result = await runReservationTtlJob();
+
+    expect(result).toEqual({ expiredCount: 0, promotedCount: 0 });
+    expect(db.$transaction).not.toHaveBeenCalled();
+  });
+
   it("when createReservation fails (exhausted), does not delete waitlist entry so client keeps place", async () => {
     const res = {
       id: "res-2",
@@ -273,6 +409,43 @@ describe("runReservationReminderJob (Story 4.4)", () => {
     expect(result).toEqual({ reminderSentCount: 0 });
     expect(writeToOutbox).not.toHaveBeenCalled();
     expect(logReservationReminderSent).not.toHaveBeenCalled();
+  });
+
+  it("Story 8.1: sends reminder for catalogue reservation with catalogue_item_id in payload", async () => {
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 2.5 * 60 * 1000);
+    const res = {
+      id: "res-rem-cat",
+      tenantId: "t1",
+      liveSessionId: null,
+      liveItemId: null,
+      catalogueItemId: "cat-rem-1",
+      clientPhone: "+33699887766",
+      correlationId: "corr-rem-cat",
+      status: "reserved",
+      expiresAt,
+      reminderSentAt: null,
+    };
+    vi.mocked(db.reservation.findMany).mockResolvedValue([
+      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+    ]);
+    vi.mocked(db.reservation.updateMany).mockResolvedValue({ count: 1 });
+
+    const result = await runReservationReminderJob();
+
+    expect(result).toEqual({ reminderSentCount: 1 });
+    expect(writeToOutbox).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tenantId: "t1",
+        to: "+33699887766",
+      }),
+    );
+    expect(logReservationReminderSent).toHaveBeenCalledWith(
+      "t1",
+      "res-rem-cat",
+      "corr-rem-cat",
+      expect.objectContaining({ catalogue_item_id: "cat-rem-1" }),
+    );
   });
 
   it("does not send reminder when no reservations in T-2 window (e.g. expiresAt now+5min)", async () => {

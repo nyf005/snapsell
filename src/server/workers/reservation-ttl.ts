@@ -17,6 +17,7 @@ import {
   logWaitlistPromoted,
 } from "~/server/events/eventLog";
 import { writeToOutbox } from "~/server/messaging/outbox";
+import { CATALOGUE_SESSION_SENTINEL } from "~/server/waitlist/addToWaitlist";
 
 const ACTIVE_STATUSES = ["reserved", "address_collected"] as const;
 const BATCH_LIMIT = 50;
@@ -77,14 +78,16 @@ export async function runReservationReminderJob(): Promise<ReservationReminderRu
         correlationId: res.correlationId,
       });
 
+      // Story 8.1: payload adapté catalogue ou live
+      const reminderPayload: Record<string, string | null> = res.catalogueItemId
+        ? { catalogue_item_id: res.catalogueItemId }
+        : { live_item_id: res.liveItemId };
+      if (res.liveSessionId) reminderPayload.live_session_id = res.liveSessionId;
       await logReservationReminderSent(
         res.tenantId,
         res.id,
         res.correlationId,
-        {
-          live_item_id: res.liveItemId,
-          live_session_id: res.liveSessionId,
-        },
+        reminderPayload,
       ).catch((err) => {
         workerLogger.warn("Event log reservation_reminder_sent failed", {
           reservationId: res.id,
@@ -124,7 +127,8 @@ export async function runReservationReminderJob(): Promise<ReservationReminderRu
 }
 
 /**
- * Exécute une passe : expirer les réservations T=0, puis promouvoir le premier en file par (live_item_id, live_session_id).
+ * Exécute une passe : expirer les réservations T=0, puis promouvoir le premier en file.
+ * Story 8.1: support CatalogueItem — décrémente catalogue_items si catalogueItemId présent.
  */
 export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
   const now = new Date();
@@ -135,16 +139,31 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
     },
     take: BATCH_LIMIT,
     orderBy: { expiresAt: "asc" },
-    include: { liveItem: true },
+    include: {
+      liveItem: true,
+      catalogueItem: true,
+    },
   });
 
   let expiredCount = 0;
   let promotedCount = 0;
 
   for (const res of expired) {
+    // Story 8.1: polymorphisme item catalogue ou live
+    const isCatalogue = !!res.catalogueItemId;
+    const itemIdForStock = res.catalogueItemId ?? res.liveItemId;
+    const stockTableName = isCatalogue ? "catalogue_items" : "live_items";
+
+    if (!itemIdForStock) {
+      workerLogger.warn("Reservation has no associated item (neither liveItemId nor catalogueItemId), skipping", {
+        reservationId: res.id,
+      });
+      continue;
+    }
+
     const updated = await db.$transaction(async (tx) => {
       const [updatedRow] = await tx.$queryRaw<
-        { id: string; tenant_id: string; live_item_id: string; live_session_id: string; correlation_id: string }[]
+        { id: string; tenant_id: string; live_item_id: string | null; catalogue_item_id: string | null; live_session_id: string | null; correlation_id: string }[]
       >(
         Prisma.sql`
           UPDATE reservations
@@ -152,26 +171,31 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
           WHERE id = ${res.id}
             AND status IN (${Prisma.join(ACTIVE_STATUSES.map((s) => Prisma.sql`${s}`))})
             AND expires_at <= ${now}
-          RETURNING id, tenant_id, live_item_id, live_session_id, correlation_id
+          RETURNING id, tenant_id, live_item_id, catalogue_item_id, live_session_id, correlation_id
         `,
       );
       if (!updatedRow) return null;
 
+      // Story 8.1: décrémente reserved_qty sur la bonne table (itemIdForStock garanti non-null par le guard ci-dessus)
       await tx.$executeRaw(
         Prisma.sql`
-          UPDATE live_items
+          UPDATE ${Prisma.raw(stockTableName)}
           SET reserved_qty = reserved_qty - 1, updated_at = NOW()
-          WHERE id = ${res.liveItemId} AND tenant_id = ${res.tenantId}
+          WHERE id = ${itemIdForStock} AND tenant_id = ${res.tenantId}
         `,
       );
 
-      const firstInWaitlist = await tx.waitlist.findFirst({
-        where: {
-          liveItemId: res.liveItemId,
-          liveSessionId: res.liveSessionId,
-        },
-        orderBy: { position: "asc" },
-      });
+      // Waitlist lookup (liveItemId stores catalogueItemId for catalogue entries)
+      const waitlistItemId = res.catalogueItemId ?? res.liveItemId;
+      const firstInWaitlist = waitlistItemId
+        ? await tx.waitlist.findFirst({
+            where: {
+              liveItemId: waitlistItemId,
+              ...(res.liveSessionId ? { liveSessionId: res.liveSessionId } : {}),
+            },
+            orderBy: { position: "asc" },
+          })
+        : null;
 
       if (!firstInWaitlist) {
         return { expired: updatedRow, promoted: null };
@@ -193,14 +217,19 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
     if (!updated) continue;
     expiredCount += 1;
 
+    // Event log payload — catalogue_item_id ou live_item_id selon contexte
+    const logPayload: Record<string, string | null> = isCatalogue
+      ? { catalogue_item_id: updated.expired.catalogue_item_id }
+      : { live_item_id: updated.expired.live_item_id };
+    if (updated.expired.live_session_id) {
+      logPayload.live_session_id = updated.expired.live_session_id;
+    }
+
     await logReservationExpired(
       updated.expired.tenant_id,
       updated.expired.id,
       updated.expired.correlation_id,
-      {
-        live_item_id: updated.expired.live_item_id,
-        live_session_id: updated.expired.live_session_id,
-      },
+      logPayload,
     ).catch((err) => {
       workerLogger.warn("Event log reservation_expired failed", {
         reservationId: updated.expired.id,
@@ -209,13 +238,27 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
     });
 
     if (updated.promoted) {
-      const createResult: CreateReservationResult = await createReservation(
-        updated.promoted.tenantId,
-        updated.promoted.liveSessionId,
-        updated.promoted.liveItemId,
-        updated.promoted.clientPhone,
-        updated.promoted.correlationId,
-      );
+      // Story 8.1: detecte si la promotion concerne un catalogue item
+      const isCataloguePromotion = isCatalogue;
+      const createResult: CreateReservationResult = isCataloguePromotion
+        ? await createReservation(
+            updated.promoted.tenantId,
+            updated.promoted.liveSessionId === CATALOGUE_SESSION_SENTINEL ? null : updated.promoted.liveSessionId,
+            null,
+            updated.promoted.clientPhone,
+            updated.promoted.correlationId,
+            {
+              catalogueItemId: updated.promoted.liveItemId,
+              liveSessionId: updated.promoted.liveSessionId === CATALOGUE_SESSION_SENTINEL ? null : updated.promoted.liveSessionId,
+            },
+          )
+        : await createReservation(
+            updated.promoted.tenantId,
+            updated.promoted.liveSessionId,
+            updated.promoted.liveItemId,
+            updated.promoted.clientPhone,
+            updated.promoted.correlationId,
+          );
 
       if (createResult.success) {
         promotedCount += 1;
@@ -238,11 +281,10 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
           });
         });
 
-        const liveItem = await db.liveItem.findUnique({
-          where: { id: updated.promoted.liveItemId },
-          select: { code: true },
-        });
-        const code = liveItem?.code ?? "article";
+        // Story 8.1: code depuis catalogueItem ou liveItem (déjà chargés via include)
+        const code = isCataloguePromotion
+          ? (res.catalogueItem?.code ?? "article")
+          : (res.liveItem?.code ?? "article");
         const body = `Une place s'est libérée pour ${code}. Tu es réservé. Envoie ton adresse.`;
 
         await writeToOutbox({
@@ -254,7 +296,7 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
       } else {
         workerLogger.warn("Promotion createReservation failed (exhausted or race)", {
           tenantId: updated.promoted.tenantId,
-          liveItemId: updated.promoted.liveItemId,
+          itemId: updated.promoted.liveItemId,
           reason: createResult.reason,
         });
       }

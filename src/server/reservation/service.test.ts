@@ -121,12 +121,14 @@ describe("reservation/service (Story 4.1)", () => {
       });
       expect(reserveOneUnit).toHaveBeenCalledWith(tenantId, liveItemId, {
         correlationId,
+        table: "live_items",
       });
       expect(db.reservation.create).toHaveBeenCalledWith({
         data: {
           tenantId,
           liveSessionId,
           liveItemId,
+          catalogueItemId: null,
           clientPhone,
           status: "reserved",
           correlationId,
@@ -215,26 +217,28 @@ describe("reservation/service (Story 4.1)", () => {
       });
       expect(reserveOneUnit).toHaveBeenCalledWith(tenantId, liveItemId, {
         correlationId,
+        table: "live_items",
       });
       expect(releaseReservation).toHaveBeenCalledWith(tenantId, liveItemId, {
         correlationId,
+        table: "live_items",
       });
       expect(logReservationStarted).not.toHaveBeenCalled();
     });
   });
 
   describe("getActiveReservationForClient", () => {
-    it("returns first active reservation (reserved or address_collected) for client in session", async () => {
+    it("returns first active reservation (reserved or address_collected) for client", async () => {
       const reservation = {
         id: "res-1",
         status: "reserved",
         liveItem: { code: "A12", amountCents: 5000 },
+        catalogueItem: null,
       };
       vi.mocked(db.reservation.findFirst).mockResolvedValue(reservation as never);
 
       const result = await getActiveReservationForClient(
         tenantId,
-        liveSessionId,
         clientPhone,
       );
 
@@ -242,21 +246,19 @@ describe("reservation/service (Story 4.1)", () => {
       expect(db.reservation.findFirst).toHaveBeenCalledWith({
         where: {
           tenantId,
-          liveSessionId,
           clientPhone,
           status: { in: ["reserved", "address_collected"] },
         },
         orderBy: { createdAt: "desc" },
-        include: { liveItem: true },
+        include: { liveItem: true, catalogueItem: true },
       });
     });
 
     it("filters by liveItemId when provided", async () => {
       await getActiveReservationForClient(
         tenantId,
-        liveSessionId,
         clientPhone,
-        liveItemId,
+        { liveItemId },
       );
 
       expect(db.reservation.findFirst).toHaveBeenCalledWith(
@@ -273,6 +275,7 @@ describe("reservation/service (Story 4.1)", () => {
         id: "res-1",
         status: "reserved",
         liveItem: { code: "A12", amountCents: 5000 },
+        catalogueItem: null,
       } as never);
       vi.mocked(db.reservation.update).mockResolvedValue({} as never);
     });
@@ -282,7 +285,6 @@ describe("reservation/service (Story 4.1)", () => {
 
       const result = await collectAddress(
         tenantId,
-        liveSessionId,
         clientPhone,
         "12 rue de la Paix",
       );
@@ -294,7 +296,6 @@ describe("reservation/service (Story 4.1)", () => {
     it("returns no_reservation when address text is empty after trim", async () => {
       const result = await collectAddress(
         tenantId,
-        liveSessionId,
         clientPhone,
         "   ",
       );
@@ -303,10 +304,9 @@ describe("reservation/service (Story 4.1)", () => {
       expect(db.reservation.update).not.toHaveBeenCalled();
     });
 
-    it("updates reservation with address and status address_collected, returns liveItem for récap", async () => {
+    it("updates reservation with address and status address_collected, returns item for récap", async () => {
       const result = await collectAddress(
         tenantId,
-        liveSessionId,
         clientPhone,
         "12 rue de la Paix, Cocody",
       );
@@ -315,7 +315,7 @@ describe("reservation/service (Story 4.1)", () => {
         success: true,
         reservation: {
           id: "res-1",
-          liveItem: { code: "A12", amountCents: 5000 },
+          item: { code: "A12", amountCents: 5000 },
         },
       });
       expect(db.reservation.update).toHaveBeenCalledWith({
@@ -332,7 +332,6 @@ describe("reservation/service (Story 4.1)", () => {
 
       const result = await collectAddress(
         tenantId,
-        liveSessionId,
         clientPhone,
         longAddress,
       );
@@ -346,11 +345,11 @@ describe("reservation/service (Story 4.1)", () => {
         id: "res-1",
         status: "address_collected",
         liveItem: {},
+        catalogueItem: null,
       } as never);
 
       const result = await collectAddress(
         tenantId,
-        liveSessionId,
         clientPhone,
         "12 rue de la Paix",
       );

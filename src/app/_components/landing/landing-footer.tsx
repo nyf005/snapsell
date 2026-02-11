@@ -39,8 +39,8 @@ export function LandingFooter() {
                 </span>
               </div>
               <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
-                La plateforme de vente automatisée n°1 pour les créateurs qui
-                vendent via WhatsApp et les réseaux sociaux.
+                La plateforme tout-en-un pour gérer votre catalogue, vos ventes
+                en live et vos commandes via WhatsApp.
               </p>
               <div className="flex gap-4">
                 <Link
