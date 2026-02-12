@@ -481,16 +481,16 @@ export function DeliveryFeesContent() {
                   <Input
                     id="zone-amount"
                     type="text"
-                    inputMode="decimal"
+                    inputMode="numeric"
                     className="pl-8"
-                    placeholder="0.00"
-                    value={zoneForm.amountCents === 0 ? "" : (zoneForm.amountCents / 100).toFixed(2)}
+                    placeholder="0"
+                    value={zoneForm.amountCents === 0 ? "" : (zoneForm.amountCents / 100).toString()}
                     onChange={(e) => {
-                      const v = e.target.value.replace(/[^0-9.]/g, "");
-                      const num = parseFloat(v);
+                      const v = e.target.value.replace(/[^0-9]/g, "");
+                      const num = parseInt(v, 10);
                       setZoneForm((f) => ({
                         ...f,
-                        amountCents: Number.isNaN(num) ? 0 : Math.round(num * 100),
+                        amountCents: Number.isNaN(num) ? 0 : num * 100,
                       }));
                     }}
                   />
@@ -562,16 +562,16 @@ export function DeliveryFeesContent() {
                   <Input
                     id="commune-amount"
                     type="text"
-                    inputMode="decimal"
+                    inputMode="numeric"
                     className="pl-8"
-                    placeholder="0.00"
-                    value={communeForm.amountCents === 0 ? "" : (communeForm.amountCents / 100).toFixed(2)}
+                    placeholder="0"
+                    value={communeForm.amountCents === 0 ? "" : (communeForm.amountCents / 100).toString()}
                     onChange={(e) => {
-                      const v = e.target.value.replace(/[^0-9.]/g, "");
-                      const num = parseFloat(v);
+                      const v = e.target.value.replace(/[^0-9]/g, "");
+                      const num = parseInt(v, 10);
                       setCommuneForm((f) => ({
                         ...f,
-                        amountCents: Number.isNaN(num) ? 0 : Math.round(num * 100),
+                        amountCents: Number.isNaN(num) ? 0 : num * 100,
                       }));
                     }}
                   />

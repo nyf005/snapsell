@@ -84,12 +84,12 @@ export function CatalogueItemFormDialog({
 
     let amountCentsValue: number | undefined = undefined;
     if (amountCents.trim()) {
-      const parsed = parseFloat(amountCents);
+      const parsed = parseInt(amountCents, 10);
       if (isNaN(parsed) || parsed < 0) {
         setError("Le prix doit être un nombre positif");
         return;
       }
-      amountCentsValue = Math.round(parsed * 100);
+      amountCentsValue = parsed * 100;
     }
 
     if (item) {
@@ -157,16 +157,19 @@ export function CatalogueItemFormDialog({
 
             <div className="space-y-2">
               <Label htmlFor="amountCents">Prix (FCFA, optionnel)</Label>
-              <Input
-                id="amountCents"
-                type="number"
-                min="0"
-                step="1"
-                value={amountCents}
-                onChange={(e) => setAmountCents(e.target.value)}
-                placeholder="Laissez vide pour utiliser la grille de prix"
-                disabled={isSubmitting}
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">F</span>
+                <Input
+                  id="amountCents"
+                  type="text"
+                  inputMode="numeric"
+                  className="pl-8"
+                  placeholder="0"
+                  value={amountCents}
+                  onChange={(e) => setAmountCents(e.target.value.replace(/[^0-9]/g, ""))}
+                  disabled={isSubmitting}
+                />
+              </div>
               <p className="text-xs text-muted-foreground">
                 Si non spécifié, le prix sera dérivé de la première lettre du code
               </p>

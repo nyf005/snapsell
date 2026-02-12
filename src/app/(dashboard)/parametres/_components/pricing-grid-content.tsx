@@ -310,18 +310,18 @@ export function PricingGridContent() {
                   <Input
                     id="add-price"
                     type="text"
-                    inputMode="decimal"
+                    inputMode="numeric"
                     className="pl-8"
-                    placeholder="0.00"
+                    placeholder="0"
                     value={
-                      addForm.amountCents === 0 ? "" : (addForm.amountCents / 100).toFixed(2)
+                      addForm.amountCents === 0 ? "" : (addForm.amountCents / 100).toString()
                     }
                     onChange={(e) => {
-                      const v = e.target.value.replace(/[^0-9.]/g, "");
-                      const num = parseFloat(v);
+                      const v = e.target.value.replace(/[^0-9]/g, "");
+                      const num = parseInt(v, 10);
                       setAddForm((f) => ({
                         ...f,
-                        amountCents: Number.isNaN(num) ? 0 : Math.round(num * 100),
+                        amountCents: Number.isNaN(num) ? 0 : num * 100,
                       }));
                     }}
                   />
@@ -394,18 +394,18 @@ export function PricingGridContent() {
                   <Input
                     id="edit-price"
                     type="text"
-                    inputMode="decimal"
+                    inputMode="numeric"
                     className="pl-8"
-                    placeholder="0.00"
+                    placeholder="0"
                     value={
-                      editForm.amountCents === 0 ? "" : (editForm.amountCents / 100).toFixed(2)
+                      editForm.amountCents === 0 ? "" : (editForm.amountCents / 100).toString()
                     }
                     onChange={(e) => {
-                      const v = e.target.value.replace(/[^0-9.]/g, "");
-                      const num = parseFloat(v);
+                      const v = e.target.value.replace(/[^0-9]/g, "");
+                      const num = parseInt(v, 10);
                       setEditForm((f) => ({
                         ...f,
-                        amountCents: Number.isNaN(num) ? 0 : Math.round(num * 100),
+                        amountCents: Number.isNaN(num) ? 0 : num * 100,
                       }));
                     }}
                   />
