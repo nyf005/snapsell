@@ -276,9 +276,9 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
         await logWaitlistPromoted(
           updated.promoted.tenantId,
           createResult.reservation.id,
-          updated.promoted.catalogueItemId ?? updated.promoted.liveItemId,
+          updated.promoted.catalogueItemId ?? updated.promoted.liveItemId ?? "unknown",
           updated.promoted.correlationId,
-          { live_session_id: updated.promoted.liveSessionId },
+          { live_session_id: updated.promoted.liveSessionId ?? undefined },
         ).catch((err) => {
           workerLogger.warn("Event log waitlist_promoted failed", {
             reservationId: createResult.reservation.id,
