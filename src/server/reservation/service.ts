@@ -53,8 +53,8 @@ export type CreateReservationCatalogueOptions = {
  */
 export async function createReservation(
   tenantId: string,
-  liveSessionId: string,
-  liveItemId: string,
+  liveSessionId: string | null,
+  liveItemId: string | null,
   clientPhone: string,
   correlationId: string,
 ): Promise<CreateReservationResult>;

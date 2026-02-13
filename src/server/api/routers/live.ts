@@ -357,7 +357,7 @@ export const liveRouter = createTRPCRouter({
         await logWaitlistPromoted(
           firstInWaitlist.tenantId,
           createResult.reservation.id,
-          firstInWaitlist.catalogueItemId ?? firstInWaitlist.liveItemId,
+          firstInWaitlist.catalogueItemId ?? firstInWaitlist.liveItemId ?? "unknown",
           firstInWaitlist.correlationId,
           { live_session_id: firstInWaitlist.liveSessionId },
         ).catch((err) => {
