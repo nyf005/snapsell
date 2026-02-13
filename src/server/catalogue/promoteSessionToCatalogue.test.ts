@@ -41,7 +41,7 @@ describe("promoteSessionToCatalogue", () => {
       {
         id: "live-1",
         code: "A1",
-        amountCents: 1000,
+        amount: 1000,
         quantity: 5,
         availableQty: 5,
         reservedQty: 2, // remaining = 3
@@ -65,7 +65,7 @@ describe("promoteSessionToCatalogue", () => {
       data: {
         tenantId,
         code: "A1",
-        amountCents: 1000,
+        amount: 1000,
         quantity: 3, // remaining qty
         availableQty: 3,
         reservedQty: 0,
@@ -80,7 +80,7 @@ describe("promoteSessionToCatalogue", () => {
       {
         id: "live-2",
         code: "B2",
-        amountCents: 2000,
+        amount: 2000,
         quantity: 5,
         availableQty: 5,
         reservedQty: 0, // remaining = 5
@@ -113,7 +113,7 @@ describe("promoteSessionToCatalogue", () => {
       {
         id: "live-3",
         code: "C3",
-        amountCents: 1500,
+        amount: 1500,
         quantity: 3,
         availableQty: 3,
         reservedQty: 3, // remaining = 0
@@ -139,7 +139,7 @@ describe("promoteSessionToCatalogue", () => {
       {
         id: "live-4",
         code: "D1",
-        amountCents: 1000,
+        amount: 1000,
         quantity: 2,
         availableQty: 2,
         reservedQty: 0, // remaining = 2
@@ -148,7 +148,7 @@ describe("promoteSessionToCatalogue", () => {
       {
         id: "live-5",
         code: "D2",
-        amountCents: 1500,
+        amount: 1500,
         quantity: 3,
         availableQty: 3,
         reservedQty: 1, // remaining = 2
@@ -157,7 +157,7 @@ describe("promoteSessionToCatalogue", () => {
       {
         id: "live-6",
         code: "D3",
-        amountCents: 2000,
+        amount: 2000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 1, // remaining = 0
@@ -192,7 +192,7 @@ describe("promoteSessionToCatalogue", () => {
       {
         id: "live-7",
         code: "F1",
-        amountCents: 3000,
+        amount: 3000,
         quantity: 2,
         availableQty: 2,
         reservedQty: 0,
@@ -211,7 +211,7 @@ describe("promoteSessionToCatalogue", () => {
       data: {
         tenantId,
         code: "F1",
-        amountCents: 3000,
+        amount: 3000,
         quantity: 2,
         availableQty: 2,
         reservedQty: 0,
@@ -226,7 +226,7 @@ describe("promoteSessionToCatalogue", () => {
       {
         id: "live-race",
         code: "R1",
-        amountCents: 2000,
+        amount: 2000,
         quantity: 3,
         availableQty: 3,
         reservedQty: 1, // remaining = 2

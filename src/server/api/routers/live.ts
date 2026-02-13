@@ -48,7 +48,7 @@ export const liveRouter = createTRPCRouter({
         select: {
           id: true,
           code: true,
-          amountCents: true,
+          amount: true,
           quantity: true,
           availableQty: true,
           reservedQty: true,
@@ -81,7 +81,7 @@ export const liveRouter = createTRPCRouter({
       items: items.map((i) => ({
         id: i.id,
         code: i.code,
-        amountCents: i.amountCents,
+        amount: i.amount,
         quantity: i.quantity,
         availableQty: i.availableQty,
         reservedQty: i.reservedQty,
@@ -177,7 +177,7 @@ export const liveRouter = createTRPCRouter({
       select: {
         id: true,
         code: true,
-        amountCents: true,
+        amount: true,
         quantity: true,
         availableQty: true,
         reservedQty: true,
@@ -188,7 +188,7 @@ export const liveRouter = createTRPCRouter({
     return items.map((i) => ({
       id: i.id,
       code: i.code,
-      amountCents: i.amountCents,
+      amount: i.amount,
       quantity: i.quantity,
       availableQty: i.availableQty,
       reservedQty: i.reservedQty,

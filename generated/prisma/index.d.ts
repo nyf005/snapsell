@@ -6464,18 +6464,18 @@ export namespace Prisma {
   }
 
   export type DeliveryZoneAvgAggregateOutputType = {
-    amountCents: number | null
+    amount: number | null
   }
 
   export type DeliveryZoneSumAggregateOutputType = {
-    amountCents: number | null
+    amount: number | null
   }
 
   export type DeliveryZoneMinAggregateOutputType = {
     id: string | null
     tenantId: string | null
     name: string | null
-    amountCents: number | null
+    amount: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6484,7 +6484,7 @@ export namespace Prisma {
     id: string | null
     tenantId: string | null
     name: string | null
-    amountCents: number | null
+    amount: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6493,7 +6493,7 @@ export namespace Prisma {
     id: number
     tenantId: number
     name: number
-    amountCents: number
+    amount: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -6501,18 +6501,18 @@ export namespace Prisma {
 
 
   export type DeliveryZoneAvgAggregateInputType = {
-    amountCents?: true
+    amount?: true
   }
 
   export type DeliveryZoneSumAggregateInputType = {
-    amountCents?: true
+    amount?: true
   }
 
   export type DeliveryZoneMinAggregateInputType = {
     id?: true
     tenantId?: true
     name?: true
-    amountCents?: true
+    amount?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6521,7 +6521,7 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     name?: true
-    amountCents?: true
+    amount?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6530,7 +6530,7 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     name?: true
-    amountCents?: true
+    amount?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -6626,7 +6626,7 @@ export namespace Prisma {
     id: string
     tenantId: string
     name: string
-    amountCents: number
+    amount: number
     createdAt: Date
     updatedAt: Date
     _count: DeliveryZoneCountAggregateOutputType | null
@@ -6654,7 +6654,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     name?: boolean
-    amountCents?: boolean
+    amount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -6666,7 +6666,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     name?: boolean
-    amountCents?: boolean
+    amount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -6676,7 +6676,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     name?: boolean
-    amountCents?: boolean
+    amount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -6686,12 +6686,12 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     name?: boolean
-    amountCents?: boolean
+    amount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type DeliveryZoneOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "name" | "amountCents" | "createdAt" | "updatedAt", ExtArgs["result"]["deliveryZone"]>
+  export type DeliveryZoneOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "name" | "amount" | "createdAt" | "updatedAt", ExtArgs["result"]["deliveryZone"]>
   export type DeliveryZoneInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     communes?: boolean | DeliveryZone$communesArgs<ExtArgs>
@@ -6714,7 +6714,7 @@ export namespace Prisma {
       id: string
       tenantId: string
       name: string
-      amountCents: number
+      amount: number
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["deliveryZone"]>
@@ -7145,7 +7145,7 @@ export namespace Prisma {
     readonly id: FieldRef<"DeliveryZone", 'String'>
     readonly tenantId: FieldRef<"DeliveryZone", 'String'>
     readonly name: FieldRef<"DeliveryZone", 'String'>
-    readonly amountCents: FieldRef<"DeliveryZone", 'Int'>
+    readonly amount: FieldRef<"DeliveryZone", 'Int'>
     readonly createdAt: FieldRef<"DeliveryZone", 'DateTime'>
     readonly updatedAt: FieldRef<"DeliveryZone", 'DateTime'>
   }
@@ -8631,18 +8631,18 @@ export namespace Prisma {
   }
 
   export type DeliveryFeeCommuneAvgAggregateOutputType = {
-    amountCents: number | null
+    amount: number | null
   }
 
   export type DeliveryFeeCommuneSumAggregateOutputType = {
-    amountCents: number | null
+    amount: number | null
   }
 
   export type DeliveryFeeCommuneMinAggregateOutputType = {
     id: string | null
     tenantId: string | null
     communeName: string | null
-    amountCents: number | null
+    amount: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -8651,7 +8651,7 @@ export namespace Prisma {
     id: string | null
     tenantId: string | null
     communeName: string | null
-    amountCents: number | null
+    amount: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -8660,7 +8660,7 @@ export namespace Prisma {
     id: number
     tenantId: number
     communeName: number
-    amountCents: number
+    amount: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -8668,18 +8668,18 @@ export namespace Prisma {
 
 
   export type DeliveryFeeCommuneAvgAggregateInputType = {
-    amountCents?: true
+    amount?: true
   }
 
   export type DeliveryFeeCommuneSumAggregateInputType = {
-    amountCents?: true
+    amount?: true
   }
 
   export type DeliveryFeeCommuneMinAggregateInputType = {
     id?: true
     tenantId?: true
     communeName?: true
-    amountCents?: true
+    amount?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -8688,7 +8688,7 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     communeName?: true
-    amountCents?: true
+    amount?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -8697,7 +8697,7 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     communeName?: true
-    amountCents?: true
+    amount?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -8793,7 +8793,7 @@ export namespace Prisma {
     id: string
     tenantId: string
     communeName: string
-    amountCents: number
+    amount: number
     createdAt: Date
     updatedAt: Date
     _count: DeliveryFeeCommuneCountAggregateOutputType | null
@@ -8821,7 +8821,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     communeName?: boolean
-    amountCents?: boolean
+    amount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -8831,7 +8831,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     communeName?: boolean
-    amountCents?: boolean
+    amount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -8841,7 +8841,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     communeName?: boolean
-    amountCents?: boolean
+    amount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -8851,12 +8851,12 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     communeName?: boolean
-    amountCents?: boolean
+    amount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type DeliveryFeeCommuneOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "communeName" | "amountCents" | "createdAt" | "updatedAt", ExtArgs["result"]["deliveryFeeCommune"]>
+  export type DeliveryFeeCommuneOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "communeName" | "amount" | "createdAt" | "updatedAt", ExtArgs["result"]["deliveryFeeCommune"]>
   export type DeliveryFeeCommuneInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
   }
@@ -8876,7 +8876,7 @@ export namespace Prisma {
       id: string
       tenantId: string
       communeName: string
-      amountCents: number
+      amount: number
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["deliveryFeeCommune"]>
@@ -9306,7 +9306,7 @@ export namespace Prisma {
     readonly id: FieldRef<"DeliveryFeeCommune", 'String'>
     readonly tenantId: FieldRef<"DeliveryFeeCommune", 'String'>
     readonly communeName: FieldRef<"DeliveryFeeCommune", 'String'>
-    readonly amountCents: FieldRef<"DeliveryFeeCommune", 'Int'>
+    readonly amount: FieldRef<"DeliveryFeeCommune", 'Int'>
     readonly createdAt: FieldRef<"DeliveryFeeCommune", 'DateTime'>
     readonly updatedAt: FieldRef<"DeliveryFeeCommune", 'DateTime'>
   }
@@ -14133,18 +14133,18 @@ export namespace Prisma {
   }
 
   export type CategoryPriceAvgAggregateOutputType = {
-    amountCents: number | null
+    amount: number | null
   }
 
   export type CategoryPriceSumAggregateOutputType = {
-    amountCents: number | null
+    amount: number | null
   }
 
   export type CategoryPriceMinAggregateOutputType = {
     id: string | null
     tenantId: string | null
     categoryLetter: string | null
-    amountCents: number | null
+    amount: number | null
     description: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -14154,7 +14154,7 @@ export namespace Prisma {
     id: string | null
     tenantId: string | null
     categoryLetter: string | null
-    amountCents: number | null
+    amount: number | null
     description: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -14164,7 +14164,7 @@ export namespace Prisma {
     id: number
     tenantId: number
     categoryLetter: number
-    amountCents: number
+    amount: number
     description: number
     createdAt: number
     updatedAt: number
@@ -14173,18 +14173,18 @@ export namespace Prisma {
 
 
   export type CategoryPriceAvgAggregateInputType = {
-    amountCents?: true
+    amount?: true
   }
 
   export type CategoryPriceSumAggregateInputType = {
-    amountCents?: true
+    amount?: true
   }
 
   export type CategoryPriceMinAggregateInputType = {
     id?: true
     tenantId?: true
     categoryLetter?: true
-    amountCents?: true
+    amount?: true
     description?: true
     createdAt?: true
     updatedAt?: true
@@ -14194,7 +14194,7 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     categoryLetter?: true
-    amountCents?: true
+    amount?: true
     description?: true
     createdAt?: true
     updatedAt?: true
@@ -14204,7 +14204,7 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     categoryLetter?: true
-    amountCents?: true
+    amount?: true
     description?: true
     createdAt?: true
     updatedAt?: true
@@ -14301,7 +14301,7 @@ export namespace Prisma {
     id: string
     tenantId: string
     categoryLetter: string
-    amountCents: number
+    amount: number
     description: string | null
     createdAt: Date
     updatedAt: Date
@@ -14330,7 +14330,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     categoryLetter?: boolean
-    amountCents?: boolean
+    amount?: boolean
     description?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -14341,7 +14341,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     categoryLetter?: boolean
-    amountCents?: boolean
+    amount?: boolean
     description?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -14352,7 +14352,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     categoryLetter?: boolean
-    amountCents?: boolean
+    amount?: boolean
     description?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -14363,13 +14363,13 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     categoryLetter?: boolean
-    amountCents?: boolean
+    amount?: boolean
     description?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CategoryPriceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "categoryLetter" | "amountCents" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["categoryPrice"]>
+  export type CategoryPriceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "categoryLetter" | "amount" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["categoryPrice"]>
   export type CategoryPriceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
   }
@@ -14389,7 +14389,7 @@ export namespace Prisma {
       id: string
       tenantId: string
       categoryLetter: string
-      amountCents: number
+      amount: number
       description: string | null
       createdAt: Date
       updatedAt: Date
@@ -14820,7 +14820,7 @@ export namespace Prisma {
     readonly id: FieldRef<"CategoryPrice", 'String'>
     readonly tenantId: FieldRef<"CategoryPrice", 'String'>
     readonly categoryLetter: FieldRef<"CategoryPrice", 'String'>
-    readonly amountCents: FieldRef<"CategoryPrice", 'Int'>
+    readonly amount: FieldRef<"CategoryPrice", 'Int'>
     readonly description: FieldRef<"CategoryPrice", 'String'>
     readonly createdAt: FieldRef<"CategoryPrice", 'DateTime'>
     readonly updatedAt: FieldRef<"CategoryPrice", 'DateTime'>
@@ -21914,14 +21914,14 @@ export namespace Prisma {
   }
 
   export type LiveItemAvgAggregateOutputType = {
-    amountCents: number | null
+    amount: number | null
     quantity: number | null
     availableQty: number | null
     reservedQty: number | null
   }
 
   export type LiveItemSumAggregateOutputType = {
-    amountCents: number | null
+    amount: number | null
     quantity: number | null
     availableQty: number | null
     reservedQty: number | null
@@ -21932,7 +21932,7 @@ export namespace Prisma {
     tenantId: string | null
     liveSessionId: string | null
     code: string | null
-    amountCents: number | null
+    amount: number | null
     quantity: number | null
     availableQty: number | null
     reservedQty: number | null
@@ -21946,7 +21946,7 @@ export namespace Prisma {
     tenantId: string | null
     liveSessionId: string | null
     code: string | null
-    amountCents: number | null
+    amount: number | null
     quantity: number | null
     availableQty: number | null
     reservedQty: number | null
@@ -21960,7 +21960,7 @@ export namespace Prisma {
     tenantId: number
     liveSessionId: number
     code: number
-    amountCents: number
+    amount: number
     quantity: number
     availableQty: number
     reservedQty: number
@@ -21972,14 +21972,14 @@ export namespace Prisma {
 
 
   export type LiveItemAvgAggregateInputType = {
-    amountCents?: true
+    amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
   }
 
   export type LiveItemSumAggregateInputType = {
-    amountCents?: true
+    amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
@@ -21990,7 +21990,7 @@ export namespace Prisma {
     tenantId?: true
     liveSessionId?: true
     code?: true
-    amountCents?: true
+    amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
@@ -22004,7 +22004,7 @@ export namespace Prisma {
     tenantId?: true
     liveSessionId?: true
     code?: true
-    amountCents?: true
+    amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
@@ -22018,7 +22018,7 @@ export namespace Prisma {
     tenantId?: true
     liveSessionId?: true
     code?: true
-    amountCents?: true
+    amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
@@ -22119,7 +22119,7 @@ export namespace Prisma {
     tenantId: string
     liveSessionId: string
     code: string
-    amountCents: number | null
+    amount: number | null
     quantity: number
     availableQty: number
     reservedQty: number
@@ -22152,7 +22152,7 @@ export namespace Prisma {
     tenantId?: boolean
     liveSessionId?: boolean
     code?: boolean
-    amountCents?: boolean
+    amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
@@ -22170,7 +22170,7 @@ export namespace Prisma {
     tenantId?: boolean
     liveSessionId?: boolean
     code?: boolean
-    amountCents?: boolean
+    amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
@@ -22186,7 +22186,7 @@ export namespace Prisma {
     tenantId?: boolean
     liveSessionId?: boolean
     code?: boolean
-    amountCents?: boolean
+    amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
@@ -22202,7 +22202,7 @@ export namespace Prisma {
     tenantId?: boolean
     liveSessionId?: boolean
     code?: boolean
-    amountCents?: boolean
+    amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
@@ -22211,7 +22211,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type LiveItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "code" | "amountCents" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "createdAt" | "updatedAt", ExtArgs["result"]["liveItem"]>
+  export type LiveItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "code" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "createdAt" | "updatedAt", ExtArgs["result"]["liveItem"]>
   export type LiveItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
@@ -22239,7 +22239,7 @@ export namespace Prisma {
       tenantId: string
       liveSessionId: string
       code: string
-      amountCents: number | null
+      amount: number | null
       quantity: number
       availableQty: number
       reservedQty: number
@@ -22676,7 +22676,7 @@ export namespace Prisma {
     readonly tenantId: FieldRef<"LiveItem", 'String'>
     readonly liveSessionId: FieldRef<"LiveItem", 'String'>
     readonly code: FieldRef<"LiveItem", 'String'>
-    readonly amountCents: FieldRef<"LiveItem", 'Int'>
+    readonly amount: FieldRef<"LiveItem", 'Int'>
     readonly quantity: FieldRef<"LiveItem", 'Int'>
     readonly availableQty: FieldRef<"LiveItem", 'Int'>
     readonly reservedQty: FieldRef<"LiveItem", 'Int'>
@@ -23134,14 +23134,14 @@ export namespace Prisma {
   }
 
   export type CatalogueItemAvgAggregateOutputType = {
-    amountCents: number | null
+    amount: number | null
     quantity: number | null
     availableQty: number | null
     reservedQty: number | null
   }
 
   export type CatalogueItemSumAggregateOutputType = {
-    amountCents: number | null
+    amount: number | null
     quantity: number | null
     availableQty: number | null
     reservedQty: number | null
@@ -23151,7 +23151,7 @@ export namespace Prisma {
     id: string | null
     tenantId: string | null
     code: string | null
-    amountCents: number | null
+    amount: number | null
     quantity: number | null
     availableQty: number | null
     reservedQty: number | null
@@ -23165,7 +23165,7 @@ export namespace Prisma {
     id: string | null
     tenantId: string | null
     code: string | null
-    amountCents: number | null
+    amount: number | null
     quantity: number | null
     availableQty: number | null
     reservedQty: number | null
@@ -23179,7 +23179,7 @@ export namespace Prisma {
     id: number
     tenantId: number
     code: number
-    amountCents: number
+    amount: number
     quantity: number
     availableQty: number
     reservedQty: number
@@ -23192,14 +23192,14 @@ export namespace Prisma {
 
 
   export type CatalogueItemAvgAggregateInputType = {
-    amountCents?: true
+    amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
   }
 
   export type CatalogueItemSumAggregateInputType = {
-    amountCents?: true
+    amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
@@ -23209,7 +23209,7 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     code?: true
-    amountCents?: true
+    amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
@@ -23223,7 +23223,7 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     code?: true
-    amountCents?: true
+    amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
@@ -23237,7 +23237,7 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     code?: true
-    amountCents?: true
+    amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
@@ -23338,7 +23338,7 @@ export namespace Prisma {
     id: string
     tenantId: string
     code: string
-    amountCents: number | null
+    amount: number | null
     quantity: number
     availableQty: number
     reservedQty: number
@@ -23371,7 +23371,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     code?: boolean
-    amountCents?: boolean
+    amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
@@ -23389,7 +23389,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     code?: boolean
-    amountCents?: boolean
+    amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
@@ -23404,7 +23404,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     code?: boolean
-    amountCents?: boolean
+    amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
@@ -23419,7 +23419,7 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     code?: boolean
-    amountCents?: boolean
+    amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
@@ -23429,7 +23429,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type CatalogueItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "code" | "amountCents" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "createdInLive" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogueItem"]>
+  export type CatalogueItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "code" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "createdInLive" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogueItem"]>
   export type CatalogueItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     reservations?: boolean | CatalogueItem$reservationsArgs<ExtArgs>
@@ -23454,7 +23454,7 @@ export namespace Prisma {
       id: string
       tenantId: string
       code: string
-      amountCents: number | null
+      amount: number | null
       quantity: number
       availableQty: number
       reservedQty: number
@@ -23891,7 +23891,7 @@ export namespace Prisma {
     readonly id: FieldRef<"CatalogueItem", 'String'>
     readonly tenantId: FieldRef<"CatalogueItem", 'String'>
     readonly code: FieldRef<"CatalogueItem", 'String'>
-    readonly amountCents: FieldRef<"CatalogueItem", 'Int'>
+    readonly amount: FieldRef<"CatalogueItem", 'Int'>
     readonly quantity: FieldRef<"CatalogueItem", 'Int'>
     readonly availableQty: FieldRef<"CatalogueItem", 'Int'>
     readonly reservedQty: FieldRef<"CatalogueItem", 'Int'>
@@ -31483,7 +31483,7 @@ export namespace Prisma {
     id: 'id',
     tenantId: 'tenantId',
     name: 'name',
-    amountCents: 'amountCents',
+    amount: 'amount',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -31504,7 +31504,7 @@ export namespace Prisma {
     id: 'id',
     tenantId: 'tenantId',
     communeName: 'communeName',
-    amountCents: 'amountCents',
+    amount: 'amount',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -31569,7 +31569,7 @@ export namespace Prisma {
     id: 'id',
     tenantId: 'tenantId',
     categoryLetter: 'categoryLetter',
-    amountCents: 'amountCents',
+    amount: 'amount',
     description: 'description',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -31665,7 +31665,7 @@ export namespace Prisma {
     tenantId: 'tenantId',
     liveSessionId: 'liveSessionId',
     code: 'code',
-    amountCents: 'amountCents',
+    amount: 'amount',
     quantity: 'quantity',
     availableQty: 'availableQty',
     reservedQty: 'reservedQty',
@@ -31681,7 +31681,7 @@ export namespace Prisma {
     id: 'id',
     tenantId: 'tenantId',
     code: 'code',
-    amountCents: 'amountCents',
+    amount: 'amount',
     quantity: 'quantity',
     availableQty: 'availableQty',
     reservedQty: 'reservedQty',
@@ -32309,7 +32309,7 @@ export namespace Prisma {
     id?: StringFilter<"DeliveryZone"> | string
     tenantId?: StringFilter<"DeliveryZone"> | string
     name?: StringFilter<"DeliveryZone"> | string
-    amountCents?: IntFilter<"DeliveryZone"> | number
+    amount?: IntFilter<"DeliveryZone"> | number
     createdAt?: DateTimeFilter<"DeliveryZone"> | Date | string
     updatedAt?: DateTimeFilter<"DeliveryZone"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
@@ -32320,7 +32320,7 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     name?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenant?: TenantOrderByWithRelationInput
@@ -32334,7 +32334,7 @@ export namespace Prisma {
     NOT?: DeliveryZoneWhereInput | DeliveryZoneWhereInput[]
     tenantId?: StringFilter<"DeliveryZone"> | string
     name?: StringFilter<"DeliveryZone"> | string
-    amountCents?: IntFilter<"DeliveryZone"> | number
+    amount?: IntFilter<"DeliveryZone"> | number
     createdAt?: DateTimeFilter<"DeliveryZone"> | Date | string
     updatedAt?: DateTimeFilter<"DeliveryZone"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
@@ -32345,7 +32345,7 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     name?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: DeliveryZoneCountOrderByAggregateInput
@@ -32362,7 +32362,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"DeliveryZone"> | string
     tenantId?: StringWithAggregatesFilter<"DeliveryZone"> | string
     name?: StringWithAggregatesFilter<"DeliveryZone"> | string
-    amountCents?: IntWithAggregatesFilter<"DeliveryZone"> | number
+    amount?: IntWithAggregatesFilter<"DeliveryZone"> | number
     createdAt?: DateTimeWithAggregatesFilter<"DeliveryZone"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"DeliveryZone"> | Date | string
   }
@@ -32420,7 +32420,7 @@ export namespace Prisma {
     id?: StringFilter<"DeliveryFeeCommune"> | string
     tenantId?: StringFilter<"DeliveryFeeCommune"> | string
     communeName?: StringFilter<"DeliveryFeeCommune"> | string
-    amountCents?: IntFilter<"DeliveryFeeCommune"> | number
+    amount?: IntFilter<"DeliveryFeeCommune"> | number
     createdAt?: DateTimeFilter<"DeliveryFeeCommune"> | Date | string
     updatedAt?: DateTimeFilter<"DeliveryFeeCommune"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
@@ -32430,7 +32430,7 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     communeName?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenant?: TenantOrderByWithRelationInput
@@ -32444,7 +32444,7 @@ export namespace Prisma {
     NOT?: DeliveryFeeCommuneWhereInput | DeliveryFeeCommuneWhereInput[]
     tenantId?: StringFilter<"DeliveryFeeCommune"> | string
     communeName?: StringFilter<"DeliveryFeeCommune"> | string
-    amountCents?: IntFilter<"DeliveryFeeCommune"> | number
+    amount?: IntFilter<"DeliveryFeeCommune"> | number
     createdAt?: DateTimeFilter<"DeliveryFeeCommune"> | Date | string
     updatedAt?: DateTimeFilter<"DeliveryFeeCommune"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
@@ -32454,7 +32454,7 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     communeName?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: DeliveryFeeCommuneCountOrderByAggregateInput
@@ -32471,7 +32471,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"DeliveryFeeCommune"> | string
     tenantId?: StringWithAggregatesFilter<"DeliveryFeeCommune"> | string
     communeName?: StringWithAggregatesFilter<"DeliveryFeeCommune"> | string
-    amountCents?: IntWithAggregatesFilter<"DeliveryFeeCommune"> | number
+    amount?: IntWithAggregatesFilter<"DeliveryFeeCommune"> | number
     createdAt?: DateTimeWithAggregatesFilter<"DeliveryFeeCommune"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"DeliveryFeeCommune"> | Date | string
   }
@@ -32755,7 +32755,7 @@ export namespace Prisma {
     id?: StringFilter<"CategoryPrice"> | string
     tenantId?: StringFilter<"CategoryPrice"> | string
     categoryLetter?: StringFilter<"CategoryPrice"> | string
-    amountCents?: IntFilter<"CategoryPrice"> | number
+    amount?: IntFilter<"CategoryPrice"> | number
     description?: StringNullableFilter<"CategoryPrice"> | string | null
     createdAt?: DateTimeFilter<"CategoryPrice"> | Date | string
     updatedAt?: DateTimeFilter<"CategoryPrice"> | Date | string
@@ -32766,7 +32766,7 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     categoryLetter?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     description?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -32781,7 +32781,7 @@ export namespace Prisma {
     NOT?: CategoryPriceWhereInput | CategoryPriceWhereInput[]
     tenantId?: StringFilter<"CategoryPrice"> | string
     categoryLetter?: StringFilter<"CategoryPrice"> | string
-    amountCents?: IntFilter<"CategoryPrice"> | number
+    amount?: IntFilter<"CategoryPrice"> | number
     description?: StringNullableFilter<"CategoryPrice"> | string | null
     createdAt?: DateTimeFilter<"CategoryPrice"> | Date | string
     updatedAt?: DateTimeFilter<"CategoryPrice"> | Date | string
@@ -32792,7 +32792,7 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     categoryLetter?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     description?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -32810,7 +32810,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"CategoryPrice"> | string
     tenantId?: StringWithAggregatesFilter<"CategoryPrice"> | string
     categoryLetter?: StringWithAggregatesFilter<"CategoryPrice"> | string
-    amountCents?: IntWithAggregatesFilter<"CategoryPrice"> | number
+    amount?: IntWithAggregatesFilter<"CategoryPrice"> | number
     description?: StringNullableWithAggregatesFilter<"CategoryPrice"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"CategoryPrice"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CategoryPrice"> | Date | string
@@ -33246,7 +33246,7 @@ export namespace Prisma {
     tenantId?: StringFilter<"LiveItem"> | string
     liveSessionId?: StringFilter<"LiveItem"> | string
     code?: StringFilter<"LiveItem"> | string
-    amountCents?: IntNullableFilter<"LiveItem"> | number | null
+    amount?: IntNullableFilter<"LiveItem"> | number | null
     quantity?: IntFilter<"LiveItem"> | number
     availableQty?: IntFilter<"LiveItem"> | number
     reservedQty?: IntFilter<"LiveItem"> | number
@@ -33263,7 +33263,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     liveSessionId?: SortOrder
     code?: SortOrder
-    amountCents?: SortOrderInput | SortOrder
+    amount?: SortOrderInput | SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -33284,7 +33284,7 @@ export namespace Prisma {
     tenantId?: StringFilter<"LiveItem"> | string
     liveSessionId?: StringFilter<"LiveItem"> | string
     code?: StringFilter<"LiveItem"> | string
-    amountCents?: IntNullableFilter<"LiveItem"> | number | null
+    amount?: IntNullableFilter<"LiveItem"> | number | null
     quantity?: IntFilter<"LiveItem"> | number
     availableQty?: IntFilter<"LiveItem"> | number
     reservedQty?: IntFilter<"LiveItem"> | number
@@ -33301,7 +33301,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     liveSessionId?: SortOrder
     code?: SortOrder
-    amountCents?: SortOrderInput | SortOrder
+    amount?: SortOrderInput | SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -33323,7 +33323,7 @@ export namespace Prisma {
     tenantId?: StringWithAggregatesFilter<"LiveItem"> | string
     liveSessionId?: StringWithAggregatesFilter<"LiveItem"> | string
     code?: StringWithAggregatesFilter<"LiveItem"> | string
-    amountCents?: IntNullableWithAggregatesFilter<"LiveItem"> | number | null
+    amount?: IntNullableWithAggregatesFilter<"LiveItem"> | number | null
     quantity?: IntWithAggregatesFilter<"LiveItem"> | number
     availableQty?: IntWithAggregatesFilter<"LiveItem"> | number
     reservedQty?: IntWithAggregatesFilter<"LiveItem"> | number
@@ -33339,7 +33339,7 @@ export namespace Prisma {
     id?: StringFilter<"CatalogueItem"> | string
     tenantId?: StringFilter<"CatalogueItem"> | string
     code?: StringFilter<"CatalogueItem"> | string
-    amountCents?: IntNullableFilter<"CatalogueItem"> | number | null
+    amount?: IntNullableFilter<"CatalogueItem"> | number | null
     quantity?: IntFilter<"CatalogueItem"> | number
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
@@ -33356,7 +33356,7 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     code?: SortOrder
-    amountCents?: SortOrderInput | SortOrder
+    amount?: SortOrderInput | SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -33377,7 +33377,7 @@ export namespace Prisma {
     NOT?: CatalogueItemWhereInput | CatalogueItemWhereInput[]
     tenantId?: StringFilter<"CatalogueItem"> | string
     code?: StringFilter<"CatalogueItem"> | string
-    amountCents?: IntNullableFilter<"CatalogueItem"> | number | null
+    amount?: IntNullableFilter<"CatalogueItem"> | number | null
     quantity?: IntFilter<"CatalogueItem"> | number
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
@@ -33394,7 +33394,7 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     code?: SortOrder
-    amountCents?: SortOrderInput | SortOrder
+    amount?: SortOrderInput | SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -33416,7 +33416,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"CatalogueItem"> | string
     tenantId?: StringWithAggregatesFilter<"CatalogueItem"> | string
     code?: StringWithAggregatesFilter<"CatalogueItem"> | string
-    amountCents?: IntNullableWithAggregatesFilter<"CatalogueItem"> | number | null
+    amount?: IntNullableWithAggregatesFilter<"CatalogueItem"> | number | null
     quantity?: IntWithAggregatesFilter<"CatalogueItem"> | number
     availableQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
     reservedQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
@@ -34322,7 +34322,7 @@ export namespace Prisma {
   export type DeliveryZoneCreateInput = {
     id?: string
     name: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutDeliveryZonesInput
@@ -34333,7 +34333,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     name: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
     communes?: DeliveryZoneCommuneUncheckedCreateNestedManyWithoutZoneInput
@@ -34342,7 +34342,7 @@ export namespace Prisma {
   export type DeliveryZoneUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutDeliveryZonesNestedInput
@@ -34353,7 +34353,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     communes?: DeliveryZoneCommuneUncheckedUpdateManyWithoutZoneNestedInput
@@ -34363,7 +34363,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     name: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -34371,7 +34371,7 @@ export namespace Prisma {
   export type DeliveryZoneUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -34380,7 +34380,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -34429,7 +34429,7 @@ export namespace Prisma {
   export type DeliveryFeeCommuneCreateInput = {
     id?: string
     communeName: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutDeliveryFeeCommuneInput
@@ -34439,7 +34439,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     communeName: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -34447,7 +34447,7 @@ export namespace Prisma {
   export type DeliveryFeeCommuneUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     communeName?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutDeliveryFeeCommuneNestedInput
@@ -34457,7 +34457,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     communeName?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -34466,7 +34466,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     communeName: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -34474,7 +34474,7 @@ export namespace Prisma {
   export type DeliveryFeeCommuneUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     communeName?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -34483,7 +34483,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     communeName?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -34783,7 +34783,7 @@ export namespace Prisma {
   export type CategoryPriceCreateInput = {
     id?: string
     categoryLetter: string
-    amountCents: number
+    amount: number
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34794,7 +34794,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     categoryLetter: string
-    amountCents: number
+    amount: number
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34803,7 +34803,7 @@ export namespace Prisma {
   export type CategoryPriceUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     categoryLetter?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34814,7 +34814,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     categoryLetter?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34824,7 +34824,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     categoryLetter: string
-    amountCents: number
+    amount: number
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34833,7 +34833,7 @@ export namespace Prisma {
   export type CategoryPriceUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     categoryLetter?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34843,7 +34843,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     categoryLetter?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35302,7 +35302,7 @@ export namespace Prisma {
   export type LiveItemCreateInput = {
     id?: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -35319,7 +35319,7 @@ export namespace Prisma {
     tenantId: string
     liveSessionId: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -35332,7 +35332,7 @@ export namespace Prisma {
   export type LiveItemUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -35349,7 +35349,7 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     liveSessionId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -35364,7 +35364,7 @@ export namespace Prisma {
     tenantId: string
     liveSessionId: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -35376,7 +35376,7 @@ export namespace Prisma {
   export type LiveItemUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -35390,7 +35390,7 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     liveSessionId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -35402,7 +35402,7 @@ export namespace Prisma {
   export type CatalogueItemCreateInput = {
     id?: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -35419,7 +35419,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -35434,7 +35434,7 @@ export namespace Prisma {
   export type CatalogueItemUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -35451,7 +35451,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -35467,7 +35467,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -35480,7 +35480,7 @@ export namespace Prisma {
   export type CatalogueItemUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -35494,7 +35494,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -36598,20 +36598,20 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     name?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type DeliveryZoneAvgOrderByAggregateInput = {
-    amountCents?: SortOrder
+    amount?: SortOrder
   }
 
   export type DeliveryZoneMaxOrderByAggregateInput = {
     id?: SortOrder
     tenantId?: SortOrder
     name?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -36620,13 +36620,13 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     name?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type DeliveryZoneSumOrderByAggregateInput = {
-    amountCents?: SortOrder
+    amount?: SortOrder
   }
 
   export type DeliveryZoneScalarRelationFilter = {
@@ -36666,20 +36666,20 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     communeName?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type DeliveryFeeCommuneAvgOrderByAggregateInput = {
-    amountCents?: SortOrder
+    amount?: SortOrder
   }
 
   export type DeliveryFeeCommuneMaxOrderByAggregateInput = {
     id?: SortOrder
     tenantId?: SortOrder
     communeName?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -36688,13 +36688,13 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     communeName?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type DeliveryFeeCommuneSumOrderByAggregateInput = {
-    amountCents?: SortOrder
+    amount?: SortOrder
   }
 
   export type TenantNullableScalarRelationFilter = {
@@ -36904,21 +36904,21 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     categoryLetter?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     description?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type CategoryPriceAvgOrderByAggregateInput = {
-    amountCents?: SortOrder
+    amount?: SortOrder
   }
 
   export type CategoryPriceMaxOrderByAggregateInput = {
     id?: SortOrder
     tenantId?: SortOrder
     categoryLetter?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     description?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -36928,14 +36928,14 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     categoryLetter?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     description?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type CategoryPriceSumOrderByAggregateInput = {
-    amountCents?: SortOrder
+    amount?: SortOrder
   }
 
   export type MessageInTenantIdProviderMessageIdCompoundUniqueInput = {
@@ -37239,7 +37239,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     liveSessionId?: SortOrder
     code?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -37249,7 +37249,7 @@ export namespace Prisma {
   }
 
   export type LiveItemAvgOrderByAggregateInput = {
-    amountCents?: SortOrder
+    amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -37260,7 +37260,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     liveSessionId?: SortOrder
     code?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -37274,7 +37274,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     liveSessionId?: SortOrder
     code?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -37284,7 +37284,7 @@ export namespace Prisma {
   }
 
   export type LiveItemSumOrderByAggregateInput = {
-    amountCents?: SortOrder
+    amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -37299,7 +37299,7 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     code?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -37310,7 +37310,7 @@ export namespace Prisma {
   }
 
   export type CatalogueItemAvgOrderByAggregateInput = {
-    amountCents?: SortOrder
+    amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -37320,7 +37320,7 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     code?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -37334,7 +37334,7 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     code?: SortOrder
-    amountCents?: SortOrder
+    amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -37345,7 +37345,7 @@ export namespace Prisma {
   }
 
   export type CatalogueItemSumOrderByAggregateInput = {
-    amountCents?: SortOrder
+    amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
@@ -39843,7 +39843,7 @@ export namespace Prisma {
   export type CategoryPriceCreateWithoutTenantInput = {
     id?: string
     categoryLetter: string
-    amountCents: number
+    amount: number
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -39852,7 +39852,7 @@ export namespace Prisma {
   export type CategoryPriceUncheckedCreateWithoutTenantInput = {
     id?: string
     categoryLetter: string
-    amountCents: number
+    amount: number
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -39871,7 +39871,7 @@ export namespace Prisma {
   export type DeliveryZoneCreateWithoutTenantInput = {
     id?: string
     name: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
     communes?: DeliveryZoneCommuneCreateNestedManyWithoutZoneInput
@@ -39880,7 +39880,7 @@ export namespace Prisma {
   export type DeliveryZoneUncheckedCreateWithoutTenantInput = {
     id?: string
     name: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
     communes?: DeliveryZoneCommuneUncheckedCreateNestedManyWithoutZoneInput
@@ -39899,7 +39899,7 @@ export namespace Prisma {
   export type DeliveryFeeCommuneCreateWithoutTenantInput = {
     id?: string
     communeName: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -39907,7 +39907,7 @@ export namespace Prisma {
   export type DeliveryFeeCommuneUncheckedCreateWithoutTenantInput = {
     id?: string
     communeName: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -40169,7 +40169,7 @@ export namespace Prisma {
   export type LiveItemCreateWithoutTenantInput = {
     id?: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -40184,7 +40184,7 @@ export namespace Prisma {
     id?: string
     liveSessionId: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -40207,7 +40207,7 @@ export namespace Prisma {
   export type CatalogueItemCreateWithoutTenantInput = {
     id?: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -40222,7 +40222,7 @@ export namespace Prisma {
   export type CatalogueItemUncheckedCreateWithoutTenantInput = {
     id?: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -40483,7 +40483,7 @@ export namespace Prisma {
     id?: StringFilter<"CategoryPrice"> | string
     tenantId?: StringFilter<"CategoryPrice"> | string
     categoryLetter?: StringFilter<"CategoryPrice"> | string
-    amountCents?: IntFilter<"CategoryPrice"> | number
+    amount?: IntFilter<"CategoryPrice"> | number
     description?: StringNullableFilter<"CategoryPrice"> | string | null
     createdAt?: DateTimeFilter<"CategoryPrice"> | Date | string
     updatedAt?: DateTimeFilter<"CategoryPrice"> | Date | string
@@ -40512,7 +40512,7 @@ export namespace Prisma {
     id?: StringFilter<"DeliveryZone"> | string
     tenantId?: StringFilter<"DeliveryZone"> | string
     name?: StringFilter<"DeliveryZone"> | string
-    amountCents?: IntFilter<"DeliveryZone"> | number
+    amount?: IntFilter<"DeliveryZone"> | number
     createdAt?: DateTimeFilter<"DeliveryZone"> | Date | string
     updatedAt?: DateTimeFilter<"DeliveryZone"> | Date | string
   }
@@ -40540,7 +40540,7 @@ export namespace Prisma {
     id?: StringFilter<"DeliveryFeeCommune"> | string
     tenantId?: StringFilter<"DeliveryFeeCommune"> | string
     communeName?: StringFilter<"DeliveryFeeCommune"> | string
-    amountCents?: IntFilter<"DeliveryFeeCommune"> | number
+    amount?: IntFilter<"DeliveryFeeCommune"> | number
     createdAt?: DateTimeFilter<"DeliveryFeeCommune"> | Date | string
     updatedAt?: DateTimeFilter<"DeliveryFeeCommune"> | Date | string
   }
@@ -40809,7 +40809,7 @@ export namespace Prisma {
     tenantId?: StringFilter<"LiveItem"> | string
     liveSessionId?: StringFilter<"LiveItem"> | string
     code?: StringFilter<"LiveItem"> | string
-    amountCents?: IntNullableFilter<"LiveItem"> | number | null
+    amount?: IntNullableFilter<"LiveItem"> | number | null
     quantity?: IntFilter<"LiveItem"> | number
     availableQty?: IntFilter<"LiveItem"> | number
     reservedQty?: IntFilter<"LiveItem"> | number
@@ -40841,7 +40841,7 @@ export namespace Prisma {
     id?: StringFilter<"CatalogueItem"> | string
     tenantId?: StringFilter<"CatalogueItem"> | string
     code?: StringFilter<"CatalogueItem"> | string
-    amountCents?: IntNullableFilter<"CatalogueItem"> | number | null
+    amount?: IntNullableFilter<"CatalogueItem"> | number | null
     quantity?: IntFilter<"CatalogueItem"> | number
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
@@ -41472,7 +41472,7 @@ export namespace Prisma {
   export type DeliveryZoneCreateWithoutCommunesInput = {
     id?: string
     name: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutDeliveryZonesInput
@@ -41482,7 +41482,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     name: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -41506,7 +41506,7 @@ export namespace Prisma {
   export type DeliveryZoneUpdateWithoutCommunesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutDeliveryZonesNestedInput
@@ -41516,7 +41516,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -43519,7 +43519,7 @@ export namespace Prisma {
   export type LiveItemCreateWithoutLiveSessionInput = {
     id?: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -43534,7 +43534,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -44488,7 +44488,7 @@ export namespace Prisma {
   export type LiveItemCreateWithoutReservationsInput = {
     id?: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -44504,7 +44504,7 @@ export namespace Prisma {
     tenantId: string
     liveSessionId: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -44521,7 +44521,7 @@ export namespace Prisma {
   export type CatalogueItemCreateWithoutReservationsInput = {
     id?: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -44537,7 +44537,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -44732,7 +44732,7 @@ export namespace Prisma {
   export type LiveItemUpdateWithoutReservationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -44748,7 +44748,7 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     liveSessionId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -44771,7 +44771,7 @@ export namespace Prisma {
   export type CatalogueItemUpdateWithoutReservationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -44787,7 +44787,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -45537,7 +45537,7 @@ export namespace Prisma {
   export type CatalogueItemCreateWithoutWaitlistInput = {
     id?: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -45553,7 +45553,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -45688,7 +45688,7 @@ export namespace Prisma {
   export type CatalogueItemUpdateWithoutWaitlistInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -45704,7 +45704,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -46138,7 +46138,7 @@ export namespace Prisma {
   export type CategoryPriceCreateManyTenantInput = {
     id?: string
     categoryLetter: string
-    amountCents: number
+    amount: number
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -46147,7 +46147,7 @@ export namespace Prisma {
   export type DeliveryZoneCreateManyTenantInput = {
     id?: string
     name: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -46155,7 +46155,7 @@ export namespace Prisma {
   export type DeliveryFeeCommuneCreateManyTenantInput = {
     id?: string
     communeName: string
-    amountCents: number
+    amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -46244,7 +46244,7 @@ export namespace Prisma {
     id?: string
     liveSessionId: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -46256,7 +46256,7 @@ export namespace Prisma {
   export type CatalogueItemCreateManyTenantInput = {
     id?: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -46374,7 +46374,7 @@ export namespace Prisma {
   export type CategoryPriceUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     categoryLetter?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -46383,7 +46383,7 @@ export namespace Prisma {
   export type CategoryPriceUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     categoryLetter?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -46392,7 +46392,7 @@ export namespace Prisma {
   export type CategoryPriceUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     categoryLetter?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -46401,7 +46401,7 @@ export namespace Prisma {
   export type DeliveryZoneUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     communes?: DeliveryZoneCommuneUpdateManyWithoutZoneNestedInput
@@ -46410,7 +46410,7 @@ export namespace Prisma {
   export type DeliveryZoneUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     communes?: DeliveryZoneCommuneUncheckedUpdateManyWithoutZoneNestedInput
@@ -46419,7 +46419,7 @@ export namespace Prisma {
   export type DeliveryZoneUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -46427,7 +46427,7 @@ export namespace Prisma {
   export type DeliveryFeeCommuneUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     communeName?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -46435,7 +46435,7 @@ export namespace Prisma {
   export type DeliveryFeeCommuneUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     communeName?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -46443,7 +46443,7 @@ export namespace Prisma {
   export type DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     communeName?: StringFieldUpdateOperationsInput | string
-    amountCents?: IntFieldUpdateOperationsInput | number
+    amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -46695,7 +46695,7 @@ export namespace Prisma {
   export type LiveItemUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -46710,7 +46710,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     liveSessionId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -46724,7 +46724,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     liveSessionId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -46736,7 +46736,7 @@ export namespace Prisma {
   export type CatalogueItemUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -46751,7 +46751,7 @@ export namespace Prisma {
   export type CatalogueItemUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -46766,7 +46766,7 @@ export namespace Prisma {
   export type CatalogueItemUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -47079,7 +47079,7 @@ export namespace Prisma {
     id?: string
     tenantId: string
     code: string
-    amountCents?: number | null
+    amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
@@ -47106,7 +47106,7 @@ export namespace Prisma {
   export type LiveItemUpdateWithoutLiveSessionInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -47121,7 +47121,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
@@ -47135,7 +47135,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
-    amountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number

@@ -232,7 +232,7 @@ describe("reservation/service (Story 4.1)", () => {
       const reservation = {
         id: "res-1",
         status: "reserved",
-        liveItem: { code: "A12", amountCents: 5000 },
+        liveItem: { code: "A12", amount: 5000 },
         catalogueItem: null,
       };
       vi.mocked(db.reservation.findFirst).mockResolvedValue(reservation as never);
@@ -274,7 +274,7 @@ describe("reservation/service (Story 4.1)", () => {
       vi.mocked(db.reservation.findFirst).mockResolvedValue({
         id: "res-1",
         status: "reserved",
-        liveItem: { code: "A12", amountCents: 5000 },
+        liveItem: { code: "A12", amount: 5000 },
         catalogueItem: null,
       } as never);
       vi.mocked(db.reservation.update).mockResolvedValue({} as never);
@@ -315,7 +315,7 @@ describe("reservation/service (Story 4.1)", () => {
         success: true,
         reservation: {
           id: "res-1",
-          item: { code: "A12", amountCents: 5000 },
+          item: { code: "A12", amount: 5000 },
         },
       });
       expect(db.reservation.update).toHaveBeenCalledWith({

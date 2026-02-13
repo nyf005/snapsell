@@ -53,14 +53,14 @@ import {
 const POLL_INTERVAL_MS = 45_000;
 const EXPIRING_SOON_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
 
-function formatPrice(amountCents: number | null): string {
-  if (amountCents == null) return "—";
+function formatPrice(amount: number | null): string {
+  if (amount == null) return "—";
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "XOF",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amountCents / 100);
+  }).format(amount / 100);
 }
 
 /** Returns remaining "MM:SS" or "0:00" when expired. Updates every second when in range. */
@@ -334,7 +334,7 @@ export function LiveOpsContent() {
                                     <div className="font-bold text-foreground">{item.code}</div>
                                   </TableCell>
                                   <TableCell className="px-6 py-4 text-right font-semibold">
-                                    {formatPrice(item.amountCents)}
+                                    {formatPrice(item.amount)}
                                   </TableCell>
                                   <TableCell className="px-6 py-4">
                                     <div className="flex items-center gap-3">

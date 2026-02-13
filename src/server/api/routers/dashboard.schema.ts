@@ -7,7 +7,7 @@ export const dashboardSummaryOutputSchema = z.object({
   ordersPreparingCount: z.number(),
   ordersTodayCount: z.number(),
   ordersYesterdayCount: z.number(),
-  /** Revenu aujourd'hui (somme amountCents des commandes du jour). */
+  /** Revenu aujourd'hui (somme amount des commandes du jour). */
   revenueTodayCents: z.number(),
   /** Revenu hier (pour tendance %). */
   revenueYesterdayCents: z.number(),

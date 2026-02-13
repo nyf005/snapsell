@@ -61,7 +61,7 @@ export function CatalogueItemFormDialog({
 }: CatalogueItemFormDialogProps) {
   const [code, setCode] = useState("");
   const [quantity, setQuantity] = useState("1");
-  const [amountCents, setAmountCents] = useState("");
+  const [amount, setAmountCents] = useState("");
   const [error, setError] = useState("");
 
   // Photo state
@@ -89,7 +89,7 @@ export function CatalogueItemFormDialog({
       setCode(item.code);
       setQuantity(item.quantity.toString());
       setAmountCents(
-        item.amountCents !== null ? (item.amountCents / 100).toString() : ""
+        item.amount !== null ? (item.amount / 100).toString() : ""
       );
     } else {
       resetForm();
@@ -183,14 +183,14 @@ export function CatalogueItemFormDialog({
       return;
     }
 
-    let amountCentsValue: number | undefined = undefined;
-    if (amountCents.trim()) {
-      const parsed = parseInt(amountCents, 10);
+    let amountValue: number | undefined = undefined;
+    if (amount.trim()) {
+      const parsed = parseInt(amount, 10);
       if (isNaN(parsed) || parsed < 0) {
         setError("Le prix doit être un nombre positif");
         return;
       }
-      amountCentsValue = parsed * 100;
+      amountValue = parsed * 100;
     }
 
     try {
@@ -213,7 +213,7 @@ export function CatalogueItemFormDialog({
         const updates: Record<string, unknown> = { id: item.id };
         if (code.trim() !== item.code) updates.code = code.trim();
         if (qty !== item.quantity) updates.quantity = qty;
-        if (amountCentsValue !== undefined) updates.amountCents = amountCentsValue;
+        if (amountValue !== undefined) updates.amount = amountValue;
 
         if (Object.keys(updates).length > 1) {
           await updateMutation.mutateAsync(updates as Parameters<typeof updateMutation.mutateAsync>[0]);
@@ -227,7 +227,7 @@ export function CatalogueItemFormDialog({
         const created = await createMutation.mutateAsync({
           code: code.trim(),
           quantity: qty,
-          amountCents: amountCentsValue,
+          amount: amountValue,
         });
 
         // 2. Upload photo if selected
@@ -303,16 +303,16 @@ export function CatalogueItemFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="amountCents">Prix (FCFA, optionnel)</Label>
+              <Label htmlFor="amount">Prix (FCFA, optionnel)</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">F</span>
                 <Input
-                  id="amountCents"
+                  id="amount"
                   type="text"
                   inputMode="numeric"
                   className="pl-8"
                   placeholder="0"
-                  value={amountCents}
+                  value={amount}
                   onChange={(e) => setAmountCents(e.target.value.replace(/[^0-9]/g, ""))}
                   disabled={isSubmitting}
                 />

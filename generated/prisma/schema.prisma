@@ -105,14 +105,14 @@ model Invitation {
 
 // Zone regroupant plusieurs communes (ex. Abidjan, Intérieur du pays)
 model DeliveryZone {
-  id          String                @id @default(cuid())
-  tenantId    String                @map("tenant_id")
-  tenant      Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  name        String // ex. "Abidjan", "Intérieur du pays"
-  amountCents Int                   @map("amount_cents")
-  communes    DeliveryZoneCommune[]
-  createdAt   DateTime              @default(now()) @map("created_at")
-  updatedAt   DateTime              @updatedAt @map("updated_at")
+  id        String                @id @default(cuid())
+  tenantId  String                @map("tenant_id")
+  tenant    Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String // ex. "Abidjan", "Intérieur du pays"
+  amount    Int                   @map("amount_cents")
+  communes  DeliveryZoneCommune[]
+  createdAt DateTime              @default(now()) @map("created_at")
+  updatedAt DateTime              @updatedAt @map("updated_at")
 
   @@index([tenantId])
   @@map("delivery_zones")
@@ -136,7 +136,7 @@ model DeliveryFeeCommune {
   tenantId    String   @map("tenant_id")
   tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   communeName String   @map("commune_name") // ex. "Cocody", "Bouaké"
-  amountCents Int      @map("amount_cents")
+  amount      Int      @map("amount_cents")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -208,7 +208,7 @@ model CategoryPrice {
   tenantId       String   @map("tenant_id")
   tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   categoryLetter String   @map("category_letter") // code libre (ex. A, AB, Premium)
-  amountCents    Int      @map("amount_cents")
+  amount         Int      @map("amount_cents")
   description    String?  @db.Text
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
@@ -342,7 +342,7 @@ model LiveItem {
   liveSessionId   String      @map("live_session_id")
   liveSession     LiveSession @relation(fields: [liveSessionId], references: [id], onDelete: Cascade)
   code            String // normalisé trim + uppercase
-  amountCents     Int?        @map("amount_cents") // optionnel, dérivé grille (Story 3.1)
+  amount          Int?        @map("amount_cents") // optionnel, dérivé grille (Story 3.1)
   quantity        Int         @default(1) // total (availableQty + reservedQty) pour affichage
   availableQty    Int         @default(0) @map("available_qty") // stock préparé (Story 3.4)
   reservedQty     Int         @default(0) @map("reserved_qty") // réservé, décrément à confirmation (Story 3.6)
@@ -365,7 +365,7 @@ model CatalogueItem {
   tenantId        String   @map("tenant_id")
   tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   code            String // normalisé trim + uppercase
-  amountCents     Int?     @map("amount_cents")
+  amount          Int?     @map("amount_cents")
   quantity        Int      @default(1)
   availableQty    Int      @default(1) @map("available_qty")
   reservedQty     Int      @default(0) @map("reserved_qty")

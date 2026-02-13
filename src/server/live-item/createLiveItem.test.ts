@@ -62,7 +62,7 @@ describe("live-item createLiveItem", () => {
         tenantId: "t1",
         liveSessionId: "session-1",
         code: "A12",
-        amountCents: 5000,
+        amount: 5000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,
@@ -78,7 +78,7 @@ describe("live-item createLiveItem", () => {
         expect(result.liveItem.id).toBe("item-1");
         expect(result.liveItem.code).toBe("A12");
         expect(result.liveItem.liveSessionId).toBe("session-1");
-        expect(result.liveItem.amountCents).toBe(5000);
+        expect(result.liveItem.amount).toBe(5000);
         expect(result.liveItem.quantity).toBe(1);
         expect(result.liveItem.availableQty).toBe(1);
         expect(result.liveItem.reservedQty).toBe(0);
@@ -89,7 +89,7 @@ describe("live-item createLiveItem", () => {
           tenantId: "t1",
           liveSessionId: "session-1",
           code: "A12",
-          amountCents: 5000,
+          amount: 5000,
           quantity: 1,
           availableQty: 1,
           reservedQty: 0,
@@ -103,7 +103,7 @@ describe("live-item createLiveItem", () => {
         tenantId: "t1",
         liveSessionId: "session-1",
         code: "B7",
-        amountCents: null,
+        amount: null,
         quantity: 2,
         availableQty: 2,
         reservedQty: 0,
@@ -127,7 +127,7 @@ describe("live-item createLiveItem", () => {
           tenantId: "t1",
           liveSessionId: "session-1",
           code: "B7",
-          amountCents: undefined,
+          amount: undefined,
           quantity: 2,
           availableQty: 2,
           reservedQty: 0,
@@ -141,7 +141,7 @@ describe("live-item createLiveItem", () => {
         tenantId: "t1",
         liveSessionId: "session-1",
         code: "A12",
-        amountCents: 5000,
+        amount: 5000,
         quantity: 5,
         availableQty: 5,
         reservedQty: 0,
@@ -164,7 +164,7 @@ describe("live-item createLiveItem", () => {
           tenantId: "t1",
           liveSessionId: "session-1",
           code: "A12",
-          amountCents: 5000,
+          amount: 5000,
           quantity: 5,
           availableQty: 5,
           reservedQty: 0,
@@ -219,7 +219,7 @@ describe("live-item createLiveItem", () => {
           tenantId: "t1",
           liveSessionId: "session-1",
           code: "A12",
-          amountCents: 5000,
+          amount: 5000,
           quantity: 1,
           availableQty: 1,
           reservedQty: 0,
@@ -231,7 +231,7 @@ describe("live-item createLiveItem", () => {
           tenantId: "t1",
           liveSessionId: "session-2",
           code: "A12",
-          amountCents: 5000,
+          amount: 5000,
           quantity: 1,
           availableQty: 1,
           reservedQty: 0,

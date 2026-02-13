@@ -9,7 +9,7 @@ const categoryCodeSchema = z
 
 export const categoryPriceItemSchema = z.object({
   categoryLetter: categoryCodeSchema,
-  amountCents: z.number().int().min(0, "Le montant ne peut pas être négatif"),
+  amount: z.number().int().min(0, "Le montant ne peut pas être négatif"),
   description: z.string().max(500).optional(),
 });
 

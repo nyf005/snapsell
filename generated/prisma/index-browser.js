@@ -166,7 +166,7 @@ exports.Prisma.DeliveryZoneScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
   name: 'name',
-  amountCents: 'amountCents',
+  amount: 'amount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -181,7 +181,7 @@ exports.Prisma.DeliveryFeeCommuneScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
   communeName: 'communeName',
-  amountCents: 'amountCents',
+  amount: 'amount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -231,7 +231,7 @@ exports.Prisma.CategoryPriceScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
   categoryLetter: 'categoryLetter',
-  amountCents: 'amountCents',
+  amount: 'amount',
   description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -306,7 +306,7 @@ exports.Prisma.LiveItemScalarFieldEnum = {
   tenantId: 'tenantId',
   liveSessionId: 'liveSessionId',
   code: 'code',
-  amountCents: 'amountCents',
+  amount: 'amount',
   quantity: 'quantity',
   availableQty: 'availableQty',
   reservedQty: 'reservedQty',
@@ -319,7 +319,7 @@ exports.Prisma.CatalogueItemScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
   code: 'code',
-  amountCents: 'amountCents',
+  amount: 'amount',
   quantity: 'quantity',
   availableQty: 'availableQty',
   reservedQty: 'reservedQty',

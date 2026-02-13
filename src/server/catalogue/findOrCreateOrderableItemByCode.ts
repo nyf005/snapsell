@@ -15,7 +15,7 @@ function toCatalogueItemLookup(item: {
   id: string;
   tenantId: string;
   code: string;
-  amountCents: number | null;
+  amount: number | null;
   quantity: number;
   availableQty: number;
   reservedQty: number;
@@ -26,7 +26,7 @@ function toCatalogueItemLookup(item: {
     id: item.id,
     tenantId: item.tenantId,
     code: item.code,
-    amountCents: item.amountCents,
+    amount: item.amount,
     quantity: item.quantity,
     availableQty: item.availableQty,
     reservedQty: item.reservedQty,
@@ -53,8 +53,8 @@ export async function findOrCreateOrderableItemByCode(
   if (!normalized.length) return null;
 
   // Valider que le code a un prix (lettre configurée dans la grille)
-  const amountCents = await getPriceFromCode(tenantId, normalized);
-  if (amountCents === null) return null;
+  const amount = await getPriceFromCode(tenantId, normalized);
+  if (amount === null) return null;
 
   // Lookup existant
   const existing = await db.catalogueItem.findUnique({
@@ -68,7 +68,7 @@ export async function findOrCreateOrderableItemByCode(
       data: {
         tenantId,
         code: normalized,
-        amountCents,
+        amount,
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,

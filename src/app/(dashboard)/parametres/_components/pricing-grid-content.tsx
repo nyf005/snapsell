@@ -72,7 +72,7 @@ const CATEGORY_DOT_COLORS = [
 type LocalRow = {
   id: string;
   categoryLetter: string;
-  amountCents: number;
+  amount: number;
   description?: string;
   updatedAt: Date;
   isNew?: boolean;
@@ -90,18 +90,18 @@ const PAGE_SIZE = 10;
 
 const emptyAddForm = {
   categoryLetter: "",
-  amountCents: 0,
+  amount: 0,
   description: "",
 };
 
 function rowToItem(r: {
   categoryLetter: string;
-  amountCents: number;
+  amount: number;
   description?: string;
 }) {
   return {
     categoryLetter: r.categoryLetter.trim(),
-    amountCents: r.amountCents,
+    amount: r.amount,
     description: r.description,
   };
 }
@@ -132,7 +132,7 @@ export function PricingGridContent() {
       serverRows.map((r) => ({
         id: r.id,
         categoryLetter: r.categoryLetter,
-        amountCents: r.amountCents,
+        amount: r.amount,
         description: r.description,
         updatedAt: r.updatedAt,
       })),
@@ -147,7 +147,7 @@ export function PricingGridContent() {
       .map(rowToItem);
     const newItem = {
       categoryLetter: code,
-      amountCents: addForm.amountCents,
+      amount: addForm.amount,
       description: addForm.description.trim() || undefined,
     };
     setCategoryPrices.mutate(
@@ -179,7 +179,7 @@ export function PricingGridContent() {
       setEditingRowId(row.id);
       setEditForm({
         categoryLetter: row.categoryLetter,
-        amountCents: row.amountCents,
+        amount: row.amount,
         description: row.description ?? "",
       });
     },
@@ -196,7 +196,7 @@ export function PricingGridContent() {
         r.id === editingRowId
           ? {
               categoryLetter: code,
-              amountCents: editForm.amountCents,
+              amount: editForm.amount,
               description: editForm.description.trim() || undefined,
             }
           : rowToItem(r)
@@ -215,7 +215,7 @@ export function PricingGridContent() {
   const totalCategories = displayRows.length;
   const avgCents =
     totalCategories > 0
-      ? displayRows.reduce((s, r) => s + r.amountCents, 0) / totalCategories
+      ? displayRows.reduce((s, r) => s + r.amount, 0) / totalCategories
       : 0;
   const lastUpdated =
     displayRows.length > 0
@@ -314,14 +314,14 @@ export function PricingGridContent() {
                     className="pl-8"
                     placeholder="0"
                     value={
-                      addForm.amountCents === 0 ? "" : (addForm.amountCents / 100).toString()
+                      addForm.amount === 0 ? "" : (addForm.amount / 100).toString()
                     }
                     onChange={(e) => {
                       const v = e.target.value.replace(/[^0-9]/g, "");
                       const num = parseInt(v, 10);
                       setAddForm((f) => ({
                         ...f,
-                        amountCents: Number.isNaN(num) ? 0 : num * 100,
+                        amount: Number.isNaN(num) ? 0 : num * 100,
                       }));
                     }}
                   />
@@ -398,14 +398,14 @@ export function PricingGridContent() {
                     className="pl-8"
                     placeholder="0"
                     value={
-                      editForm.amountCents === 0 ? "" : (editForm.amountCents / 100).toString()
+                      editForm.amount === 0 ? "" : (editForm.amount / 100).toString()
                     }
                     onChange={(e) => {
                       const v = e.target.value.replace(/[^0-9]/g, "");
                       const num = parseInt(v, 10);
                       setEditForm((f) => ({
                         ...f,
-                        amountCents: Number.isNaN(num) ? 0 : num * 100,
+                        amount: Number.isNaN(num) ? 0 : num * 100,
                       }));
                     }}
                   />
@@ -563,9 +563,9 @@ export function PricingGridContent() {
                         </div>
                       </TableCell>
                       <TableCell className="px-6 py-4 text-sm tabular-nums">
-                        {row.amountCents === 0
+                        {row.amount === 0
                           ? "—"
-                          : `${Math.round(row.amountCents / 100).toLocaleString("fr-FR")} FCFA`}
+                          : `${Math.round(row.amount / 100).toLocaleString("fr-FR")} FCFA`}
                       </TableCell>
                       <TableCell className="px-6 py-4 text-sm text-muted-foreground">
                         {row.description ?? "—"}

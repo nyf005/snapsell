@@ -61,7 +61,7 @@ describe("catalogueRouter", () => {
           id: "cat-1",
           tenantId: "tenant-1",
           code: "A1",
-          amountCents: 1000,
+          amount: 1000,
           quantity: 5,
           availableQty: 5,
           reservedQty: 0,
@@ -96,7 +96,7 @@ describe("catalogueRouter", () => {
       const input = {
         code: "a1",
         quantity: 5,
-        amountCents: 1000,
+        amount: 1000,
         mediaStorageKey: null,
       };
 
@@ -104,7 +104,7 @@ describe("catalogueRouter", () => {
         id: "cat-1",
         tenantId: "tenant-1",
         code: "A1",
-        amountCents: 1000,
+        amount: 1000,
         quantity: 5,
         availableQty: 5,
         reservedQty: 0,
@@ -124,7 +124,7 @@ describe("catalogueRouter", () => {
         data: {
           tenantId: "tenant-1",
           code: "A1",
-          amountCents: 1000,
+          amount: 1000,
           quantity: 5,
           availableQty: 5,
           reservedQty: 0,
@@ -144,21 +144,21 @@ describe("catalogueRouter", () => {
       vi.mocked(db.catalogueItem.create).mockResolvedValue({
         id: "cat-2",
         code: "B2",
-        amountCents: 2000,
+        amount: 2000,
       } as never);
 
       const caller = createCaller(mockCtx("tenant-1"));
       const result = await caller.create(input);
 
       expect(getPriceFromCode).toHaveBeenCalledWith("tenant-1", "B2");
-      expect(result.amountCents).toBe(2000);
+      expect(result.amount).toBe(2000);
     });
 
     it("should throw CONFLICT if code already exists", async () => {
       const input = {
         code: "a1",
         quantity: 5,
-        amountCents: 1000,
+        amount: 1000,
       };
 
       const error = new Prisma.PrismaClientKnownRequestError("Unique constraint", {
@@ -198,7 +198,7 @@ describe("catalogueRouter", () => {
       id: "cat-1",
       tenantId: "tenant-1",
       code: "A1",
-      amountCents: 1000,
+      amount: 1000,
       quantity: 5,
       availableQty: 5,
       reservedQty: 0,

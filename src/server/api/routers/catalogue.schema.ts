@@ -8,7 +8,7 @@ import { z } from "zod";
 export const createCatalogueItemInputSchema = z.object({
   code: z.string().trim().min(1, "Code requis"),
   quantity: z.number().int().min(1, "Quantité doit être >= 1"),
-  amountCents: z.number().int().nullable().optional(),
+  amount: z.number().int().nullable().optional(),
   mediaStorageKey: z.string().nullable().optional(),
 });
 
@@ -17,7 +17,7 @@ export const updateCatalogueItemInputSchema = z.object({
   id: z.string().cuid("ID invalide"),
   code: z.string().trim().min(1, "Code requis").optional(),
   quantity: z.number().int().min(0, "Quantité doit être >= 0").optional(),
-  amountCents: z.number().int().nullable().optional(),
+  amount: z.number().int().nullable().optional(),
   mediaStorageKey: z.string().nullable().optional(),
 });
 
@@ -30,7 +30,7 @@ export const deleteCatalogueItemInputSchema = z.object({
 export const catalogueItemOutputSchema = z.object({
   id: z.string(),
   code: z.string(),
-  amountCents: z.number().nullable(),
+  amount: z.number().nullable(),
   quantity: z.number(),
   availableQty: z.number(),
   reservedQty: z.number(),

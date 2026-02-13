@@ -36,13 +36,13 @@ import { Plus, Pencil, Trash2, PackageOpen, ImageOff } from "lucide-react";
 import { CatalogueItemFormDialog } from "./catalogue-item-form-dialog";
 import type { CatalogueItemOutput } from "~/server/api/routers/catalogue.schema";
 
-function formatPrice(amountCents: number | null): string {
-  if (amountCents === null) return "—";
+function formatPrice(amount: number | null): string {
+  if (amount === null) return "—";
   return new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "XOF",
     minimumFractionDigits: 0,
-  }).format(Math.round(amountCents / 100));
+  }).format(Math.round(amount / 100));
 }
 
 export function CatalogueListContent() {
@@ -159,7 +159,7 @@ export function CatalogueListContent() {
                           )}
                         </TableCell>
                         <TableCell className="font-medium">{item.code}</TableCell>
-                        <TableCell>{formatPrice(item.amountCents)}</TableCell>
+                        <TableCell>{formatPrice(item.amount)}</TableCell>
                         <TableCell className="text-right">{item.quantity}</TableCell>
                         <TableCell className="text-right">
                           <Badge variant={item.availableQty > 0 ? "default" : "secondary"}>

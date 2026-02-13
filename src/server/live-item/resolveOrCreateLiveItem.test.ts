@@ -31,14 +31,14 @@ describe("resolveOrCreateLiveItem (Story 3.3)", () => {
     vi.restoreAllMocks();
   });
 
-  it("client envoie code A12, aucun item en session → crée un LiveItem A12, quantity 1, amountCents grille", async () => {
+  it("client envoie code A12, aucun item en session → crée un LiveItem A12, quantity 1, amount grille", async () => {
     vi.mocked(db.liveItem.findFirst).mockResolvedValue(null);
     vi.mocked(db.liveItem.create).mockResolvedValue({
       id: "item-1",
       tenantId,
       liveSessionId,
       code: "A12",
-      amountCents: 5000,
+      amount: 5000,
       quantity: 1,
       availableQty: 1,
       reservedQty: 0,
@@ -53,7 +53,7 @@ describe("resolveOrCreateLiveItem (Story 3.3)", () => {
     expect(result.liveItem.quantity).toBe(1);
     expect(result.liveItem.availableQty).toBe(1);
     expect(result.liveItem.reservedQty).toBe(0);
-    expect(result.liveItem.amountCents).toBe(5000);
+    expect(result.liveItem.amount).toBe(5000);
     expect(result.liveItem.liveSessionId).toBe(liveSessionId);
     expect(db.liveItem.findFirst).toHaveBeenCalledWith({
       where: { tenantId, liveSessionId, code: "A12" },
@@ -63,7 +63,7 @@ describe("resolveOrCreateLiveItem (Story 3.3)", () => {
         tenantId,
         liveSessionId,
         code: "A12",
-        amountCents: 5000,
+        amount: 5000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,
@@ -77,7 +77,7 @@ describe("resolveOrCreateLiveItem (Story 3.3)", () => {
       tenantId,
       liveSessionId,
       code: "A12",
-      amountCents: 5000,
+      amount: 5000,
       quantity: 1,
       availableQty: 1,
       reservedQty: 0,
@@ -110,7 +110,7 @@ describe("resolveOrCreateLiveItem (Story 3.3)", () => {
       tenantId,
       liveSessionId,
       code: "A12",
-      amountCents: 5000,
+      amount: 5000,
       quantity: 1,
       availableQty: 1,
       reservedQty: 0,
@@ -138,7 +138,7 @@ describe("resolveOrCreateLiveItem (Story 3.3)", () => {
       tenantId,
       liveSessionId,
       code: "A12",
-      amountCents: 5000,
+      amount: 5000,
       quantity: 1,
       availableQty: 1,
       reservedQty: 0,
@@ -153,7 +153,7 @@ describe("resolveOrCreateLiveItem (Story 3.3)", () => {
         tenantId,
         liveSessionId,
         code: "A12",
-        amountCents: 5000,
+        amount: 5000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,

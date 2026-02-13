@@ -16,7 +16,7 @@ function formatLog(level: LogLevel, component: string, message: string, context?
   return `[${timestamp}] [${level.toUpperCase()}] [${component}] ${message}${contextStr}`;
 }
 
-function createLogger(component: string) {
+export function createLogger(component: string) {
   return {
     debug: (message: string, context?: LogContext) => {
       if (process.env.NODE_ENV === "development") {

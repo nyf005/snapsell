@@ -37,7 +37,7 @@ export const deliveryRouter = createTRPCRouter({
     return zones.map((z) => ({
       id: z.id,
       name: z.name,
-      amountCents: z.amountCents,
+      amount: z.amount,
       communeNames: z.communes.map((c) => c.communeName),
       updatedAt: z.updatedAt,
     }));
@@ -65,7 +65,7 @@ export const deliveryRouter = createTRPCRouter({
           await tx.deliveryZoneCommune.deleteMany({ where: { zoneId } });
           await tx.deliveryZone.update({
             where: { id: zoneId },
-            data: { name: input.name, amountCents: input.amountCents },
+            data: { name: input.name, amount: input.amount },
           });
           for (const name of communeNames) {
             await tx.deliveryZoneCommune.create({
@@ -80,7 +80,7 @@ export const deliveryRouter = createTRPCRouter({
         data: {
           tenantId,
           name: input.name,
-          amountCents: input.amountCents,
+          amount: input.amount,
           communes: {
             create: communeNames.map((communeName) => ({ communeName })),
           },
@@ -107,7 +107,7 @@ export const deliveryRouter = createTRPCRouter({
     const zone = await db.deliveryZone.findFirst({
       where: { tenantId, name: INTERIOR_ZONE_NAME },
     });
-    return { amountCents: zone?.amountCents ?? null };
+    return { amount: zone?.amount ?? null };
   }),
 
   setInteriorDeliveryFee: protectedProcedure
@@ -121,14 +121,14 @@ export const deliveryRouter = createTRPCRouter({
       if (existing) {
         await db.deliveryZone.update({
           where: { id: existing.id },
-          data: { amountCents: input.amountCents },
+          data: { amount: input.amount },
         });
       } else {
         await db.deliveryZone.create({
           data: {
             tenantId,
             name: INTERIOR_ZONE_NAME,
-            amountCents: input.amountCents,
+            amount: input.amount,
           },
         });
       }
@@ -145,7 +145,7 @@ export const deliveryRouter = createTRPCRouter({
     return rows.map((r) => ({
       id: r.id,
       communeName: r.communeName,
-      amountCents: r.amountCents,
+      amount: r.amount,
       updatedAt: r.updatedAt,
     }));
   }),
@@ -162,10 +162,10 @@ export const deliveryRouter = createTRPCRouter({
         create: {
           tenantId,
           communeName: input.communeName,
-          amountCents: input.amountCents,
+          amount: input.amount,
         },
         update: {
-          amountCents: input.amountCents,
+          amount: input.amount,
         },
       });
       return { ok: true };

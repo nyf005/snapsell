@@ -28,7 +28,7 @@ export const settingsRouter = createTRPCRouter({
     return rows.map((r) => ({
       id: r.id,
       categoryLetter: r.categoryLetter,
-      amountCents: r.amountCents,
+      amount: r.amount,
       description: r.description ?? undefined,
       updatedAt: r.updatedAt,
     }));
@@ -72,11 +72,11 @@ export const settingsRouter = createTRPCRouter({
             create: {
               tenantId,
               categoryLetter: item.categoryLetter,
-              amountCents: item.amountCents,
+              amount: item.amount,
               description: item.description ?? null,
             },
             update: {
-              amountCents: item.amountCents,
+              amount: item.amount,
               description: item.description ?? null,
             },
           });

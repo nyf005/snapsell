@@ -39,7 +39,7 @@ export type CreateLiveItemResult =
         id: string;
         code: string;
         liveSessionId: string;
-        amountCents: number | null;
+        amount: number | null;
         quantity: number;
         availableQty: number;
         reservedQty: number;
@@ -54,7 +54,7 @@ export type ResolveOrCreateLiveItemResult = {
     id: string;
     code: string;
     liveSessionId: string;
-    amountCents: number | null;
+    amount: number | null;
     quantity: number;
     availableQty: number;
     reservedQty: number;
@@ -77,13 +77,13 @@ async function createLiveItemRecord(
   id: string;
   code: string;
   liveSessionId: string;
-  amountCents: number | null;
+  amount: number | null;
   quantity: number;
   availableQty: number;
   reservedQty: number;
 }> {
   const normalized = normalizeCode(code);
-  const amountCents = await getPriceFromCode(tenantId, normalized);
+  const amount = await getPriceFromCode(tenantId, normalized);
   const availableQty = options?.availableQty ?? quantity;
   const reservedQty = options?.reservedQty ?? 0;
   const totalQty = availableQty + reservedQty;
@@ -92,7 +92,7 @@ async function createLiveItemRecord(
       tenantId,
       liveSessionId,
       code: normalized,
-      amountCents: amountCents ?? undefined,
+      amount: amount ?? undefined,
       quantity: totalQty,
       availableQty,
       reservedQty,
@@ -103,7 +103,7 @@ async function createLiveItemRecord(
     id: liveItem.id,
     code: liveItem.code,
     liveSessionId: liveItem.liveSessionId,
-    amountCents: liveItem.amountCents,
+    amount: liveItem.amount,
     quantity: liveItem.quantity,
     availableQty: liveItem.availableQty,
     reservedQty: liveItem.reservedQty,
@@ -139,7 +139,7 @@ export async function resolveOrCreateLiveItem(
         id: existing.id,
         code: existing.code,
         liveSessionId: existing.liveSessionId,
-        amountCents: existing.amountCents,
+        amount: existing.amount,
         quantity: existing.quantity,
         availableQty: existing.availableQty,
         reservedQty: existing.reservedQty,
@@ -167,7 +167,7 @@ export async function resolveOrCreateLiveItem(
         id: afterConflict.id,
         code: afterConflict.code,
         liveSessionId: afterConflict.liveSessionId,
-        amountCents: afterConflict.amountCents,
+        amount: afterConflict.amount,
         quantity: afterConflict.quantity,
         availableQty: afterConflict.availableQty,
         reservedQty: afterConflict.reservedQty,

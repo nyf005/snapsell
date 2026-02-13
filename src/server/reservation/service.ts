@@ -218,7 +218,7 @@ export async function getActiveReservationForClient(
 /** Type d'item retourné par collectAddress (code + prix, polymorphe LiveItem ou CatalogueItem). */
 export type CollectAddressItemInfo = {
   code: string;
-  amountCents: number | null;
+  amount: number | null;
   catalogueItemId?: string | null; // Story 9.4: pour lookup photo
   mediaStorageKey?: string | null; // Story 9.4: clé R2 photo
 };
@@ -263,13 +263,13 @@ export async function collectAddress(
   const item: CollectAddressItemInfo = reservation.catalogueItem
     ? {
         code: reservation.catalogueItem.code,
-        amountCents: reservation.catalogueItem.amountCents,
+        amount: reservation.catalogueItem.amount,
         catalogueItemId: reservation.catalogueItem.id,
         mediaStorageKey: reservation.catalogueItem.mediaStorageKey,
       }
     : reservation.liveItem
-      ? { code: reservation.liveItem.code, amountCents: reservation.liveItem.amountCents }
-      : { code: "?", amountCents: null };
+      ? { code: reservation.liveItem.code, amount: reservation.liveItem.amount }
+      : { code: "?", amount: null };
 
   return {
     success: true,

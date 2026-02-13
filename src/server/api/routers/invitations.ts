@@ -4,6 +4,7 @@ import { hash } from "bcrypt";
 
 import { canManageGrid } from "~/lib/rbac";
 import { checkRateLimit } from "~/lib/rate-limit";
+import { createLogger } from "~/lib/logger";
 import { db } from "~/server/db";
 import { checkAgentsQuota } from "~/server/subscription/usage";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
@@ -26,6 +27,8 @@ export function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
 }
 
+const invitationLogger = createLogger("Invitation");
+
 /**
  * Logging helper pour les actions critiques d'invitation
  */
@@ -33,14 +36,7 @@ function logInvitationAction(
   action: "create" | "accept" | "list" | "get",
   data: { tenantId?: string; email?: string; invitationId?: string; error?: string },
 ) {
-  // En production, utiliser un système de logging structuré (ex: Winston, Pino)
-  if (process.env.NODE_ENV !== "production") {
-    console.log(`[Invitation ${action.toUpperCase()}]`, {
-      timestamp: new Date().toISOString(),
-      ...data,
-    });
-  }
-  // TODO: Intégrer avec système de logging en production
+  invitationLogger.info(`Invitation ${action}`, data);
 }
 
 /**

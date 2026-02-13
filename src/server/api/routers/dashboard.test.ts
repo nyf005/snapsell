@@ -64,10 +64,10 @@ async function callerForSession(session: { user: { id: string; email: string; te
   return createCaller(ctx);
 }
 
-function makeOrderWithAmount(amountCents: number | null, createdAt?: Date) {
+function makeOrderWithAmount(amount: number | null, createdAt?: Date) {
   return {
     createdAt: createdAt ?? new Date(),
-    reservation: { liveItem: { amountCents } },
+    reservation: { liveItem: { amount } },
   };
 }
 
@@ -221,7 +221,7 @@ describe("dashboard router", () => {
       expect(result.revenueYesterdayCents).toBe(1000);
     });
 
-    it("handles null amountCents gracefully (uses 0)", async () => {
+    it("handles null amount gracefully (uses 0)", async () => {
       setupDefaultMocks({
         ordersToday: [
           makeOrderWithAmount(null),

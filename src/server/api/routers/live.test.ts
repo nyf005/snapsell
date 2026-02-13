@@ -129,7 +129,7 @@ describe("live router", () => {
         {
           id: "item-1",
           code: "A",
-          amountCents: 1999,
+          amount: 1999,
           quantity: 2,
           availableQty: 1,
           reservedQty: 1,
@@ -159,7 +159,7 @@ describe("live router", () => {
       expect(result.session).toEqual({ id: "session-1", lastActivityAt: session.lastActivityAt });
       expect(result.waitlistCount).toBe(0);
       expect(result.items).toHaveLength(1);
-      expect(result.items[0]).toMatchObject({ code: "A", amountCents: 1999 });
+      expect(result.items[0]).toMatchObject({ code: "A", amount: 1999 });
       expect(result.reservations).toHaveLength(1);
       expect(result.reservations[0]!.clientPhoneMasked).toMatch(/\*\*\*\d{4}$/);
       expect(mockGetCurrentSessionReadOnly).toHaveBeenCalledTimes(1);
@@ -196,7 +196,7 @@ describe("live router", () => {
         {
           id: "item-tenant2",
           code: "B",
-          amountCents: 2999,
+          amount: 2999,
           quantity: 1,
           availableQty: 0,
           reservedQty: 1,
@@ -414,7 +414,7 @@ describe("live router", () => {
         {
           id: "item-1",
           code: "A",
-          amountCents: 1999,
+          amount: 1999,
           quantity: 2,
           availableQty: 1,
           reservedQty: 1,
@@ -434,7 +434,7 @@ describe("live router", () => {
       expect(result[0]).toMatchObject({
         id: "item-1",
         code: "A",
-        amountCents: 1999,
+        amount: 1999,
         quantity: 2,
         availableQty: 1,
         reservedQty: 1,

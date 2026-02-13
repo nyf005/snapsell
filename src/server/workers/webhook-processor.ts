@@ -1,6 +1,7 @@
 import { Worker, type Job } from "bullmq";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
+import { captureException } from "~/lib/sentry";
 import { webhookProcessingQueue } from "./queues";
 import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types";
 import { normalizeAndValidatePhoneNumber } from "~/lib/validations/phone";
@@ -384,14 +385,14 @@ export async function processWebhookJob(
             body,
           );
           if (collectResult.success) {
-            const { code, amountCents, mediaStorageKey } = collectResult.reservation.item;
+            const { code, amount, mediaStorageKey } = collectResult.reservation.item;
             const prix =
-              amountCents !== null
-                ? `${Math.round(amountCents / 100).toLocaleString("fr-FR")} FCFA`
+              amount !== null
+                ? `${Math.round(amount / 100).toLocaleString("fr-FR")} FCFA`
                 : "—";
             const total =
-              amountCents !== null
-                ? `${Math.round(amountCents / 100).toLocaleString("fr-FR")} FCFA`
+              amount !== null
+                ? `${Math.round(amount / 100).toLocaleString("fr-FR")} FCFA`
                 : "—";
             const recap = `Récap : ${code} — ${prix} — Total : ${total}. Réponds OUI pour confirmer.`;
 
@@ -834,21 +835,17 @@ export function startWebhookProcessorWorker(): {
       void logMetrics();
     }
 
-    // TODO: Intégration Sentry (optionnel MVP)
-    // if (env.SENTRY_DSN) {
-    //   Sentry.captureException(err, {
-    //     tags: { component: "webhook-processor", correlationId: job?.data?.correlationId },
-    //     extra: { jobId: job?.id, attemptsMade: job?.attemptsMade },
-    //   });
-    // }
+    void captureException(err, {
+      correlationId: job?.data?.correlationId as string | undefined,
+      tags: { component: "webhook-processor" },
+    });
   });
 
   worker.on("error", (err) => {
     workerLogger.error("Worker error", err);
-    // TODO: Intégration Sentry (optionnel MVP)
-    // if (env.SENTRY_DSN) {
-    //   Sentry.captureException(err, { tags: { component: "webhook-processor" } });
-    // }
+    void captureException(err, {
+      tags: { component: "webhook-processor" },
+    });
   });
 
   // Log métriques au démarrage et périodiquement

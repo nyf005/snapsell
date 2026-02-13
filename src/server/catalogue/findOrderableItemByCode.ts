@@ -10,7 +10,7 @@ export type CatalogueItemLookup = {
   id: string;
   tenantId: string;
   code: string;
-  amountCents: number | null;
+  amount: number | null;
   quantity: number;
   availableQty: number;
   reservedQty: number;
@@ -41,7 +41,7 @@ export async function findOrderableItemByCode(
     id: item.id,
     tenantId: item.tenantId,
     code: item.code,
-    amountCents: item.amountCents,
+    amount: item.amount,
     quantity: item.quantity,
     availableQty: item.availableQty,
     reservedQty: item.reservedQty,

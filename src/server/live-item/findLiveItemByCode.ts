@@ -14,7 +14,7 @@ export type LiveItemLookup = {
   id: string;
   code: string;
   liveSessionId: string;
-  amountCents: number | null;
+  amount: number | null;
   quantity: number;
   availableQty: number;
   reservedQty: number;
@@ -46,7 +46,7 @@ export async function findLiveItemByCode(
     id: item.id,
     code: item.code,
     liveSessionId: item.liveSessionId,
-    amountCents: item.amountCents,
+    amount: item.amount,
     quantity: item.quantity,
     availableQty: item.availableQty,
     reservedQty: item.reservedQty,

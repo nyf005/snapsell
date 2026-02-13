@@ -49,12 +49,12 @@ export async function resolveCategoryFromCode(
 }
 
 /**
- * Résout le prix (amountCents) à partir du code et de la grille catégories→prix du tenant.
+ * Résout le prix (amount) à partir du code et de la grille catégories→prix du tenant.
  * Utilise resolveCategoryFromCode puis lookup CategoryPrice (Story 1.4, 3.7).
  *
  * @param tenantId - ID du tenant (chaîne vide ou blanc → null, pas d'appel DB)
  * @param code - Code produit
- * @returns amountCents ou null si catégorie absente / code invalide / tenantId vide
+ * @returns amount ou null si catégorie absente / code invalide / tenantId vide
  */
 export async function getPriceFromCode(
   tenantId: string,
@@ -65,7 +65,7 @@ export async function getPriceFromCode(
 
   const row = await db.categoryPrice.findUnique({
     where: { tenantId_categoryLetter: { tenantId, categoryLetter } },
-    select: { amountCents: true },
+    select: { amount: true },
   });
-  return row?.amountCents ?? null;
+  return row?.amount ?? null;
 }

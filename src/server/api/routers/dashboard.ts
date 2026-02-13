@@ -61,8 +61,8 @@ export const dashboardRouter = createTRPCRouter({
       const orderSelectForRevenue = {
         reservation: {
           select: {
-            liveItem: { select: { amountCents: true } },
-            catalogueItem: { select: { amountCents: true } },
+            liveItem: { select: { amount: true } },
+            catalogueItem: { select: { amount: true } },
           },
         },
       } as const;
@@ -120,8 +120,8 @@ export const dashboardRouter = createTRPCRouter({
             createdAt: true,
             reservation: {
               select: {
-                liveItem: { select: { amountCents: true } },
-                catalogueItem: { select: { amountCents: true } },
+                liveItem: { select: { amount: true } },
+                catalogueItem: { select: { amount: true } },
               },
             },
           },
@@ -131,16 +131,16 @@ export const dashboardRouter = createTRPCRouter({
       const revenueTodayCents = ordersToday.reduce(
         (sum, o) =>
           sum +
-          (o.reservation.liveItem?.amountCents ??
-            o.reservation.catalogueItem?.amountCents ??
+          (o.reservation.liveItem?.amount ??
+            o.reservation.catalogueItem?.amount ??
             0),
         0
       );
       const revenueYesterdayCents = ordersYesterday.reduce(
         (sum, o) =>
           sum +
-          (o.reservation.liveItem?.amountCents ??
-            o.reservation.catalogueItem?.amountCents ??
+          (o.reservation.liveItem?.amount ??
+            o.reservation.catalogueItem?.amount ??
             0),
         0
       );
@@ -154,8 +154,8 @@ export const dashboardRouter = createTRPCRouter({
         const revenueCents = dayOrders.reduce(
           (sum, o) =>
             sum +
-            (o.reservation.liveItem?.amountCents ??
-              o.reservation.catalogueItem?.amountCents ??
+            (o.reservation.liveItem?.amount ??
+              o.reservation.catalogueItem?.amount ??
               0),
           0
         );

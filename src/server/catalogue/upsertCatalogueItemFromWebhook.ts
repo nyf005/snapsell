@@ -37,8 +37,8 @@ export async function upsertCatalogueItemFromWebhook(
   }
 
   // Dériver le prix de la grille (première lettre du code)
-  const amountCents = await getPriceFromCode(tenantId, normalized);
-  if (amountCents === null) {
+  const amount = await getPriceFromCode(tenantId, normalized);
+  if (amount === null) {
     // Pas de prix configuré pour cette catégorie → ne pas créer
     workerLogger.warn("Cannot upsert catalogue item: no price for category", {
       tenantId,
@@ -65,7 +65,7 @@ export async function upsertCatalogueItemFromWebhook(
           data: {
             tenantId,
             code: normalized,
-            amountCents,
+            amount,
             quantity,
             availableQty: quantity,
             reservedQty: 0,

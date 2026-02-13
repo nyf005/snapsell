@@ -39,7 +39,7 @@ describe("findLiveItemByCode (Story 4.2)", () => {
       tenantId,
       liveSessionId,
       code: "A12",
-      amountCents: 5000,
+      amount: 5000,
       quantity: 1,
       availableQty: 1,
       reservedQty: 0,

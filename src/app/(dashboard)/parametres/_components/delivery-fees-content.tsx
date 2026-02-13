@@ -60,7 +60,7 @@ import { cn } from "~/lib/utils";
 type ZoneRow = {
   id: string;
   name: string;
-  amountCents: number;
+  amount: number;
   communeNames: string[];
   updatedAt: Date;
 };
@@ -68,12 +68,12 @@ type ZoneRow = {
 type CommuneRow = {
   id: string;
   communeName: string;
-  amountCents: number;
+  amount: number;
   updatedAt: Date;
 };
 
-const emptyZoneForm = { name: "", amountCents: 0, communeNamesText: "" };
-const emptyCommuneForm = { communeName: "", amountCents: 0 };
+const emptyZoneForm = { name: "", amount: 0, communeNamesText: "" };
+const emptyCommuneForm = { communeName: "", amount: 0 };
 
 export function DeliveryFeesContent() {
   const [zoneError, setZoneError] = useState<string | null>(null);
@@ -137,7 +137,7 @@ export function DeliveryFeesContent() {
     setEditingZoneId(z.id);
     setZoneForm({
       name: z.name,
-      amountCents: z.amountCents,
+      amount: z.amount,
       communeNamesText: z.communeNames.join("\n"),
     });
     setOpenZoneModal(true);
@@ -151,7 +151,7 @@ export function DeliveryFeesContent() {
     upsertZone.mutate({
       ...(editingZoneId ? { id: editingZoneId } : {}),
       name: zoneForm.name.trim(),
-      amountCents: zoneForm.amountCents,
+      amount: zoneForm.amount,
       communeNames: names,
     });
   }, [editingZoneId, zoneForm, upsertZone]);
@@ -165,7 +165,7 @@ export function DeliveryFeesContent() {
     setEditingCommuneName(c.communeName);
     setCommuneForm({
       communeName: c.communeName,
-      amountCents: c.amountCents,
+      amount: c.amount,
     });
     setOpenCommuneModal(true);
   }, []);
@@ -173,7 +173,7 @@ export function DeliveryFeesContent() {
   const saveCommune = useCallback(() => {
     upsertCommune.mutate({
       communeName: communeForm.communeName.trim(),
-      amountCents: communeForm.amountCents,
+      amount: communeForm.amount,
     });
   }, [communeForm, upsertCommune]);
 
@@ -282,7 +282,7 @@ export function DeliveryFeesContent() {
                             )}
                           >
                             <TableCell className="px-6 py-4 font-medium">{z.name}</TableCell>
-                            <TableCell className="px-6 py-4 tabular-nums">{Math.round(z.amountCents / 100).toLocaleString("fr-FR")} FCFA</TableCell>
+                            <TableCell className="px-6 py-4 tabular-nums">{Math.round(z.amount / 100).toLocaleString("fr-FR")} FCFA</TableCell>
                             <TableCell className="px-6 py-4 text-sm text-muted-foreground">
                               {z.communeNames.length} commune{z.communeNames.length > 1 ? "s" : ""}
                               {z.communeNames.length <= 5
@@ -403,7 +403,7 @@ export function DeliveryFeesContent() {
                             )}
                           >
                             <TableCell className="px-6 py-4 font-medium">{c.communeName}</TableCell>
-                            <TableCell className="px-6 py-4 tabular-nums">{Math.round(c.amountCents / 100).toLocaleString("fr-FR")} FCFA</TableCell>
+                            <TableCell className="px-6 py-4 tabular-nums">{Math.round(c.amount / 100).toLocaleString("fr-FR")} FCFA</TableCell>
                             <TableCell className="px-6 py-4 text-right">
                               <div className="flex justify-end gap-1">
                                 <Button variant="ghost" size="icon" onClick={() => openEditCommune(c)} aria-label="Modifier">
@@ -484,13 +484,13 @@ export function DeliveryFeesContent() {
                     inputMode="numeric"
                     className="pl-8"
                     placeholder="0"
-                    value={zoneForm.amountCents === 0 ? "" : (zoneForm.amountCents / 100).toString()}
+                    value={zoneForm.amount === 0 ? "" : (zoneForm.amount / 100).toString()}
                     onChange={(e) => {
                       const v = e.target.value.replace(/[^0-9]/g, "");
                       const num = parseInt(v, 10);
                       setZoneForm((f) => ({
                         ...f,
-                        amountCents: Number.isNaN(num) ? 0 : num * 100,
+                        amount: Number.isNaN(num) ? 0 : num * 100,
                       }));
                     }}
                   />
@@ -565,13 +565,13 @@ export function DeliveryFeesContent() {
                     inputMode="numeric"
                     className="pl-8"
                     placeholder="0"
-                    value={communeForm.amountCents === 0 ? "" : (communeForm.amountCents / 100).toString()}
+                    value={communeForm.amount === 0 ? "" : (communeForm.amount / 100).toString()}
                     onChange={(e) => {
                       const v = e.target.value.replace(/[^0-9]/g, "");
                       const num = parseInt(v, 10);
                       setCommuneForm((f) => ({
                         ...f,
-                        amountCents: Number.isNaN(num) ? 0 : num * 100,
+                        amount: Number.isNaN(num) ? 0 : num * 100,
                       }));
                     }}
                   />

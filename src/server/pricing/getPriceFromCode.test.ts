@@ -16,7 +16,7 @@ describe("getPriceFromCode", () => {
     vi.clearAllMocks();
   });
 
-  it("returns amountCents for code A12 when tenant has A=5000", async () => {
+  it("returns amount for code A12 when tenant has A=5000", async () => {
     vi.mocked(db.categoryPrice.findMany).mockResolvedValue([
       { categoryLetter: "A" },
     ] as never);
@@ -24,7 +24,7 @@ describe("getPriceFromCode", () => {
       id: "cp1",
       tenantId: "t1",
       categoryLetter: "A",
-      amountCents: 5000,
+      amount: 5000,
       description: null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -34,11 +34,11 @@ describe("getPriceFromCode", () => {
     expect(result).toBe(5000);
     expect(db.categoryPrice.findUnique).toHaveBeenCalledWith({
       where: { tenantId_categoryLetter: { tenantId: "t1", categoryLetter: "A" } },
-      select: { amountCents: true },
+      select: { amount: true },
     });
   });
 
-  it("returns amountCents for code B7 when tenant has B=10000", async () => {
+  it("returns amount for code B7 when tenant has B=10000", async () => {
     vi.mocked(db.categoryPrice.findMany).mockResolvedValue([
       { categoryLetter: "B" },
     ] as never);
@@ -46,7 +46,7 @@ describe("getPriceFromCode", () => {
       id: "cp2",
       tenantId: "t1",
       categoryLetter: "B",
-      amountCents: 10000,
+      amount: 10000,
       description: null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -56,7 +56,7 @@ describe("getPriceFromCode", () => {
     expect(result).toBe(10000);
     expect(db.categoryPrice.findUnique).toHaveBeenCalledWith({
       where: { tenantId_categoryLetter: { tenantId: "t1", categoryLetter: "B" } },
-      select: { amountCents: true },
+      select: { amount: true },
     });
   });
 
@@ -99,7 +99,7 @@ describe("getPriceFromCode", () => {
       id: "cp-ab",
       tenantId: "t1",
       categoryLetter: "AB",
-      amountCents: 7500,
+      amount: 7500,
       description: null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -109,7 +109,7 @@ describe("getPriceFromCode", () => {
     expect(result).toBe(7500);
     expect(db.categoryPrice.findUnique).toHaveBeenCalledWith({
       where: { tenantId_categoryLetter: { tenantId: "t1", categoryLetter: "AB" } },
-      select: { amountCents: true },
+      select: { amount: true },
     });
   });
 
@@ -122,7 +122,7 @@ describe("getPriceFromCode", () => {
       id: "cp-prem",
       tenantId: "t1",
       categoryLetter: "Premium",
-      amountCents: 15000,
+      amount: 15000,
       description: null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -132,7 +132,7 @@ describe("getPriceFromCode", () => {
     expect(result).toBe(15000);
     expect(db.categoryPrice.findUnique).toHaveBeenCalledWith({
       where: { tenantId_categoryLetter: { tenantId: "t1", categoryLetter: "Premium" } },
-      select: { amountCents: true },
+      select: { amount: true },
     });
   });
 
@@ -145,7 +145,7 @@ describe("getPriceFromCode", () => {
       id: "cp-a",
       tenantId: "t1",
       categoryLetter: "A",
-      amountCents: 5000,
+      amount: 5000,
       description: null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -155,7 +155,7 @@ describe("getPriceFromCode", () => {
     expect(result).toBe(5000);
     expect(db.categoryPrice.findUnique).toHaveBeenCalledWith({
       where: { tenantId_categoryLetter: { tenantId: "t1", categoryLetter: "A" } },
-      select: { amountCents: true },
+      select: { amount: true },
     });
   });
 
@@ -179,7 +179,7 @@ describe("getPriceFromCode", () => {
         id: "cp-ab",
         tenantId: "t1",
         categoryLetter: "AB",
-        amountCents: 7500,
+        amount: 7500,
         description: null,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -188,7 +188,7 @@ describe("getPriceFromCode", () => {
         id: "cp-ab",
         tenantId: "t1",
         categoryLetter: "AB",
-        amountCents: 7500,
+        amount: 7500,
         description: null,
         createdAt: new Date(),
         updatedAt: new Date(),

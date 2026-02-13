@@ -53,8 +53,8 @@ export const catalogueRouter = createTRPCRouter({
       }
 
       // Si prix non fourni, dériver de la grille
-      let amountCents = input.amountCents ?? null;
-      if (amountCents === null) {
+      let amount = input.amount ?? null;
+      if (amount === null) {
         const derivedPrice = await getPriceFromCode(tenantId, code);
         if (derivedPrice === null) {
           throw new TRPCError({
@@ -62,7 +62,7 @@ export const catalogueRouter = createTRPCRouter({
             message: "Prix non configuré pour cette catégorie (première lettre du code).",
           });
         }
-        amountCents = derivedPrice;
+        amount = derivedPrice;
       }
 
       try {
@@ -70,7 +70,7 @@ export const catalogueRouter = createTRPCRouter({
           data: {
             tenantId,
             code,
-            amountCents,
+            amount,
             quantity: input.quantity,
             availableQty: input.quantity,
             reservedQty: 0,
@@ -141,8 +141,8 @@ export const catalogueRouter = createTRPCRouter({
         updateData.availableQty = Math.max(0, existing.availableQty + delta);
       }
 
-      if (input.amountCents !== undefined) {
-        updateData.amountCents = input.amountCents;
+      if (input.amount !== undefined) {
+        updateData.amount = input.amount;
       }
 
       if (input.mediaStorageKey !== undefined) {

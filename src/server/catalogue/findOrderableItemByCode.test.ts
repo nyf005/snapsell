@@ -18,7 +18,7 @@ const CATALOGUE_ITEM = {
   id: "cat-1",
   tenantId: TENANT,
   code: "A12",
-  amountCents: 5000,
+  amount: 5000,
   quantity: 3,
   availableQty: 2,
   reservedQty: 1,
@@ -41,7 +41,7 @@ describe("findOrderableItemByCode", () => {
     expect(result).not.toBeNull();
     expect(result!.id).toBe("cat-1");
     expect(result!.code).toBe("A12");
-    expect(result!.amountCents).toBe(5000);
+    expect(result!.amount).toBe(5000);
     expect(result!.availableQty).toBe(2);
     expect(result!.reservedQty).toBe(1);
     expect(result!.createdInLive).toBe(false);

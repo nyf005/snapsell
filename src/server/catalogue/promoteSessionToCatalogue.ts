@@ -40,7 +40,7 @@ export async function promoteSessionToCatalogue(
     select: {
       id: true,
       code: true,
-      amountCents: true,
+      amount: true,
       availableQty: true,
       reservedQty: true,
       mediaStorageKey: true,
@@ -83,7 +83,7 @@ export async function promoteSessionToCatalogue(
         tenantId,
         item.code,
         remainingQty,
-        item.amountCents,
+        item.amount,
         item.mediaStorageKey,
       );
 
@@ -128,14 +128,14 @@ export async function promoteSessionToCatalogue(
  * @param tenantId - ID tenant
  * @param code - Code normalisé de l'article
  * @param additionalQty - Quantité à ajouter (ou créer si absent)
- * @param amountCents - Prix en centimes (optionnel)
+ * @param amount - Prix en centimes (optionnel)
  * @param mediaStorageKey - Clé R2 pour photo (optionnel)
  */
 async function upsertCatalogueItemFromLive(
   tenantId: string,
   code: string,
   additionalQty: number,
-  amountCents: number | null,
+  amount: number | null,
   mediaStorageKey: string | null,
 ): Promise<void> {
   try {
@@ -157,7 +157,7 @@ async function upsertCatalogueItemFromLive(
           data: {
             tenantId,
             code,
-            amountCents,
+            amount,
             quantity: additionalQty,
             availableQty: additionalQty,
             reservedQty: 0,

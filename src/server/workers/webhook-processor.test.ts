@@ -89,7 +89,7 @@ vi.mock("~/server/live-item/findLiveItemByCode", () => ({
     id: "item-1",
     code: "A12",
     liveSessionId: "session-1",
-    amountCents: 5000,
+    amount: 5000,
     quantity: 1,
     availableQty: 1,
     reservedQty: 0,
@@ -724,7 +724,7 @@ describe("webhook-processor", () => {
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
         id: "cat-item-1",
         code: "A12",
-        amountCents: 5000,
+        amount: 5000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,
@@ -779,7 +779,7 @@ describe("webhook-processor", () => {
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
         id: "cat-item-existing",
         code: "A12",
-        amountCents: 5000,
+        amount: 5000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,
@@ -829,7 +829,7 @@ describe("webhook-processor", () => {
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
         id: "cat-item-exhausted",
         code: "A12",
-        amountCents: 5000,
+        amount: 5000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 1,
@@ -887,7 +887,7 @@ describe("webhook-processor", () => {
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
         id: "cat-item-b7",
         code: "B7",
-        amountCents: 3000,
+        amount: 3000,
         quantity: 2,
         availableQty: 2,
         reservedQty: 0,
@@ -1007,7 +1007,7 @@ describe("webhook-processor", () => {
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
         id: "cat-item-a12",
         code: "A12",
-        amountCents: 5000,
+        amount: 5000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,
@@ -1106,7 +1106,7 @@ describe("webhook-processor", () => {
         success: true,
         reservation: {
           id: "res-1",
-          item: { code: "A12", amountCents: 5000 },
+          item: { code: "A12", amount: 5000 },
         },
       });
 
@@ -1177,7 +1177,7 @@ describe("webhook-processor", () => {
         liveItem: {
           id: "item-1",
           code: "A12",
-          amountCents: 5000,
+          amount: 5000,
           quantity: 1,
           availableQty: 0,
           reservedQty: 1,
@@ -1265,7 +1265,7 @@ describe("webhook-processor", () => {
         liveItem: {
           id: "item-1",
           code: "A12",
-          amountCents: 5000,
+          amount: 5000,
           quantity: 1,
           availableQty: 0,
           reservedQty: 1,
@@ -1336,7 +1336,7 @@ describe("webhook-processor", () => {
         liveItem: {
           id: "item-1",
           code: "A12",
-          amountCents: 5000,
+          amount: 5000,
           quantity: 1,
           availableQty: 0,
           reservedQty: 1,
@@ -1447,7 +1447,7 @@ describe("webhook-processor", () => {
           id: "item-1",
           code: "A12",
           liveSessionId: "live-session-1",
-          amountCents: 5000,
+          amount: 5000,
           quantity: 1,
           availableQty: 1,
           reservedQty: 0,
@@ -1579,7 +1579,7 @@ describe("webhook-processor", () => {
           id: "item-1",
           code: "A12",
           liveSessionId: "live-session-1",
-          amountCents: 5000,
+          amount: 5000,
           quantity: 5,
           availableQty: 5,
           reservedQty: 0,
@@ -1823,7 +1823,7 @@ describe("webhook-processor", () => {
           id: "item-1",
           code: "A12",
           liveSessionId: "live-session-1",
-          amountCents: 5000,
+          amount: 5000,
           quantity: 5,
           availableQty: 5,
           reservedQty: 0,
@@ -2097,7 +2097,7 @@ describe("webhook-processor", () => {
             id: "item-1",
             code: "A12",
             liveSessionId: "live-session-1",
-            amountCents: 5000,
+            amount: 5000,
             quantity: 1,
             availableQty: 1,
             reservedQty: 0,
@@ -2386,7 +2386,7 @@ describe("webhook-processor", () => {
           id: "res-photo",
           item: {
             code: "A12",
-            amountCents: 5000,
+            amount: 5000,
             catalogueItemId: "cat-item-photo",
             mediaStorageKey: "tenants/t1/catalogue-items/ci1/photo",
           },
@@ -2449,7 +2449,7 @@ describe("webhook-processor", () => {
           id: "res-no-photo",
           item: {
             code: "B5",
-            amountCents: 10000,
+            amount: 10000,
             catalogueItemId: "cat-item-no-photo",
             mediaStorageKey: null,
           },
@@ -2514,7 +2514,7 @@ describe("webhook-processor", () => {
           id: "res-key",
           item: {
             code: "C3",
-            amountCents: 7500,
+            amount: 7500,
             catalogueItemId: "cat-key",
             mediaStorageKey: "tenants/t1/catalogue-items/key/photo",
           },
@@ -2574,7 +2574,7 @@ describe("webhook-processor", () => {
         success: true,
         reservation: {
           id: "res-live",
-          item: { code: "D1", amountCents: 3000 },
+          item: { code: "D1", amount: 3000 },
         },
       });
 

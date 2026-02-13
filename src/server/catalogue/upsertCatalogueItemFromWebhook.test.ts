@@ -48,7 +48,7 @@ describe("upsertCatalogueItemFromWebhook", () => {
     vi.mocked(db.catalogueItem.create).mockResolvedValue({
       id: "cat-1",
       code: "A1",
-      amountCents: 1000,
+      amount: 1000,
       quantity: 5,
       availableQty: 5,
       reservedQty: 0,
@@ -75,7 +75,7 @@ describe("upsertCatalogueItemFromWebhook", () => {
       data: {
         tenantId,
         code: "A1",
-        amountCents: 1000,
+        amount: 1000,
         quantity: 5,
         availableQty: 5,
         reservedQty: 0,
