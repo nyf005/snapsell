@@ -27,11 +27,16 @@ vi.mock("~/server/pricing/getPriceFromCode", () => ({
   getPriceFromCode: vi.fn(),
 }));
 
+vi.mock("~/server/media/r2-client", () => ({
+  isR2Configured: vi.fn(),
+}));
+
 vi.mock("~/server/live-item/createLiveItem", () => ({
   normalizeCode: vi.fn((code: string) => code.trim().toUpperCase()),
 }));
 
 import { getPriceFromCode } from "~/server/pricing/getPriceFromCode";
+import { isR2Configured } from "~/server/media/r2-client";
 
 const mockCtx = (tenantId: string | null = "tenant-1") => ({
   session: {
@@ -348,6 +353,26 @@ describe("catalogueRouter", () => {
       await expect(caller.delete({ id: validCuid })).rejects.toMatchObject({
         code: "NOT_FOUND",
       });
+    });
+  });
+
+  describe("r2Status", () => {
+    it("should return configured: true when R2 is configured", async () => {
+      vi.mocked(isR2Configured).mockReturnValue(true);
+
+      const caller = createCaller(mockCtx("tenant-1"));
+      const result = await caller.r2Status();
+
+      expect(result).toEqual({ configured: true });
+    });
+
+    it("should return configured: false when R2 is not configured", async () => {
+      vi.mocked(isR2Configured).mockReturnValue(false);
+
+      const caller = createCaller(mockCtx("tenant-1"));
+      const result = await caller.r2Status();
+
+      expect(result).toEqual({ configured: false });
     });
   });
 });

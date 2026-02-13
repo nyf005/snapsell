@@ -303,6 +303,7 @@ describe("live router", () => {
         "tenant-1",
         "new-session-1",
         "user-1",
+        { actorType: "seller" },
       );
     });
 
@@ -355,6 +356,7 @@ describe("live router", () => {
         "tenant-2",
         "session-tenant2",
         "user-2",
+        { actorType: "seller" },
       );
     });
 
@@ -790,7 +792,7 @@ describe("live router", () => {
       );
     });
 
-    it("Story 8.1: releases catalogue reservation and promotes catalogue waitlist entry", async () => {
+    it("Story 9.1: releases catalogue reservation and promotes catalogue waitlist entry (no sentinel)", async () => {
       mockReservationFindFirst.mockResolvedValue({
         id: VALID_RESERVATION_ID,
         tenantId: "tenant-1",
@@ -807,8 +809,9 @@ describe("live router", () => {
       mockWaitlistFindFirst.mockResolvedValue({
         id: "wl-cat",
         tenantId: "tenant-1",
-        liveSessionId: "catalogue",
-        liveItemId: "cat-item-2",
+        liveSessionId: null,
+        liveItemId: null,
+        catalogueItemId: "cat-item-2",
         clientPhone: "+33688888888",
         correlationId: "c-wl-cat",
         position: 1,
@@ -827,10 +830,10 @@ describe("live router", () => {
 
       await caller.live.releaseReservation({ reservationId: VALID_RESERVATION_ID });
 
-      // Catalogue promotion uses 6-arg overload with catalogueItemId
+      // Story 9.1: Catalogue promotion uses catalogueItemId directly (no sentinel)
       expect(mockCreateReservation).toHaveBeenCalledWith(
         "tenant-1",
-        null, // liveSessionId "catalogue" → null
+        null, // liveSessionId = null for catalogue
         null, // liveItemId = null for catalogue
         "+33688888888",
         "c-wl-cat",

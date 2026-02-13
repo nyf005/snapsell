@@ -9,13 +9,14 @@ import {
   logLiveItemCreated,
   logLiveItemDuplicateRejected,
   logLiveItemPhotoLinked,
+  logCatalogueItemPhotoLinked,
 } from "~/server/events/eventLog";
 import {
   createReservation,
   getActiveReservationForClient,
   collectAddress,
 } from "~/server/reservation/service";
-import { addToWaitlist, CATALOGUE_SESSION_SENTINEL } from "~/server/waitlist/addToWaitlist";
+import { addToWaitlist } from "~/server/waitlist/addToWaitlist";
 import { getCurrentSessionReadOnly } from "~/server/live-session/service";
 import {
   createLiveItem,
@@ -29,6 +30,8 @@ import { findOrderableItemByCode } from "~/server/catalogue/findOrderableItemByC
 import { findOrCreateOrderableItemByCode } from "~/server/catalogue/findOrCreateOrderableItemByCode";
 import { getLastEditedLiveItemInWindow } from "~/server/live-item/getLastEditedLiveItemInWindow";
 import { uploadMediaAndLinkToLiveItem } from "~/server/media/uploadMediaToLiveItem";
+import { uploadMediaToCatalogueItem } from "~/server/media/uploadMediaToCatalogueItem";
+import { isR2Configured } from "~/server/media/r2-client";
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { createOrderFromReservation } from "~/server/order/createOrderFromReservation";
 import { upsertCatalogueItemFromWebhook } from "~/server/catalogue/upsertCatalogueItemFromWebhook";
@@ -304,14 +307,14 @@ export async function processWebhookJob(
           // Code strict et trouvé dans le catalogue → flux réservation (Réservé / File #N / Épuisé)
           const free = catalogueItem.availableQty - catalogueItem.reservedQty;
           if (free <= 0) {
-            // Story 8.1 + 4.3: file d'attente sur catalogue_items
+            // Story 8.1 + 4.3 + 9.1: file d'attente sur catalogue_items
             const waitResult = await addToWaitlist(
               tenantId,
-              liveSessionId ?? CATALOGUE_SESSION_SENTINEL,
-              catalogueItem.id,
+              null,
+              null,
               clientPhoneE164,
               correlationId,
-              { table: "catalogue_items" },
+              { table: "catalogue_items", catalogueItemId: catalogueItem.id },
             );
             const bodyMsg =
               waitResult.ok === true
@@ -381,7 +384,7 @@ export async function processWebhookJob(
             body,
           );
           if (collectResult.success) {
-            const { code, amountCents } = collectResult.reservation.item;
+            const { code, amountCents, mediaStorageKey } = collectResult.reservation.item;
             const prix =
               amountCents !== null
                 ? `${Math.round(amountCents / 100).toLocaleString("fr-FR")} FCFA`
@@ -391,11 +394,14 @@ export async function processWebhookJob(
                 ? `${Math.round(amountCents / 100).toLocaleString("fr-FR")} FCFA`
                 : "—";
             const recap = `Récap : ${code} — ${prix} — Total : ${total}. Réponds OUI pour confirmer.`;
+
+            // Story 9.4: passer storageKey brut (signé à l'envoi par outbox-sender, AC #1, #2, #4, #5)
             await writeToOutbox({
               tenantId,
               to: clientPhoneE164,
               body: recap,
               correlationId,
+              ...(mediaStorageKey ? { mediaUrl: mediaStorageKey } : {}),
             });
           }
         }
@@ -473,12 +479,25 @@ export async function processWebhookJob(
           );
 
           if (!catalogueResult.success) {
-            // Code invalide ou pas de prix configuré → pas de réponse outbox
+            // Code invalide ou pas de prix configuré
             workerLogger.warn("Cannot upsert catalogue item from webhook", {
               tenantId,
               code: createItem.code,
               reason: catalogueResult.reason,
             });
+            // Story 9.3: si photo + code invalide/prix manquant → message d'erreur ciblé
+            if (mediaUrl) {
+              const errorMsg =
+                catalogueResult.reason === "no_price"
+                  ? `Pas de prix configuré pour la catégorie « ${normalizeCode(createItem.code).charAt(0).toUpperCase()} ». Configure les prix dans le dashboard.`
+                  : `Code ${normalizeCode(createItem.code)} introuvable dans ton catalogue. Crée l'article d'abord (dashboard ou envoie ${normalizeCode(createItem.code)} x1).`;
+              await writeToOutbox({
+                tenantId,
+                to,
+                body: errorMsg,
+                correlationId,
+              });
+            }
             // Continue sans créer de session ni de LiveItem - retourner message enrichi
             return {
               tenantId,
@@ -492,6 +511,35 @@ export async function processWebhookJob(
             };
           }
 
+          // Story 9.3: photo upload fire-and-forget (seulement si R2 configuré)
+          const r2Available = isR2Configured();
+          if (mediaUrl && r2Available) {
+            void uploadMediaToCatalogueItem(
+              tenantId,
+              catalogueResult.catalogueItemId,
+              mediaUrl,
+              correlationId,
+            ).catch((err) => {
+              workerLogger.error("Error uploading catalogue photo (Story 9.3)", err, {
+                correlationId,
+                tenantId,
+                catalogueItemId: catalogueResult.catalogueItemId,
+              });
+            });
+            void logCatalogueItemPhotoLinked(
+              tenantId,
+              catalogueResult.catalogueItemId,
+              createItem.code,
+              correlationId,
+            ).catch((err) => {
+              workerLogger.error("Error logging catalogue_item.photo_linked", err, {
+                correlationId,
+                tenantId,
+                catalogueItemId: catalogueResult.catalogueItemId,
+              });
+            });
+          }
+
           // Si session active : créer LiveItem en plus du catalogue
           if (activeSession) {
             const result = await createLiveItem(tenantId, createItem.code, {
@@ -499,10 +547,15 @@ export async function processWebhookJob(
             });
 
             if (result.success) {
+              // M1 fix: message consolidé (photo + création) au lieu de deux messages séparés
+              const createdMsg =
+                mediaUrl && r2Available
+                  ? `Créé : ${result.liveItem.code} (x${result.liveItem.quantity}). Photo ajoutée au catalogue.`
+                  : `Créé : ${result.liveItem.code} (x${result.liveItem.quantity}).`;
               await writeToOutbox({
                 tenantId,
                 to,
-                body: `Créé : ${result.liveItem.code} (x${result.liveItem.quantity}).`,
+                body: createdMsg,
                 correlationId,
               });
               await logLiveItemCreated(tenantId, result.liveItem.id, correlationId, {
@@ -558,10 +611,14 @@ export async function processWebhookJob(
               code: createItem.code,
               quantity: createItem.quantity,
             });
+            const noSessionMsg =
+              mediaUrl && r2Available
+                ? `Photo ajoutée à ${normalizeCode(createItem.code)}.`
+                : `Ajouté au catalogue : ${normalizeCode(createItem.code)} (x${createItem.quantity}).`;
             await writeToOutbox({
               tenantId,
               to,
-              body: `Ajouté au catalogue : ${normalizeCode(createItem.code)} (x${createItem.quantity}).`,
+              body: noSessionMsg,
               correlationId,
             });
           }

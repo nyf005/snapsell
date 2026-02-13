@@ -32,6 +32,7 @@ export interface OutboundMessage {
   to: string; // destinataire (format E.164 normalisé)
   body: string;
   correlationId: string; // UUID ou message_sid pour traçabilité
+  mediaUrl?: string; // Story 9.4: URL média ou clé R2 storage (signée à l'envoi par outbox-sender)
 }
 
 /**

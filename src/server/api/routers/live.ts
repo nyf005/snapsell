@@ -13,15 +13,16 @@ import {
 import { releaseReservationInputSchema } from "./live.schema";
 import { getCurrentSessionReadOnly, getOrCreateCurrentSession } from "~/server/live-session/service";
 import { releaseReservation } from "~/server/live-item/reservation";
-import { CATALOGUE_SESSION_SENTINEL } from "~/server/waitlist/addToWaitlist";
 import type { StockTable } from "~/server/live-item/reservation";
 import {
   createReservation,
   type CreateReservationResult,
 } from "~/server/reservation/service";
-import { logEvent, logWaitlistPromoted, logLiveSessionCreated } from "~/server/events/eventLog";
+import { logEvent, logWaitlistPromoted, logLiveSessionCreated, logLiveSessionClosed } from "~/server/events/eventLog";
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { workerLogger } from "~/lib/logger";
+import { LiveSessionStatus } from "../../../../generated/prisma";
+import { promoteSessionToCatalogue } from "~/server/catalogue/promoteSessionToCatalogue";
 
 const ACTIVE_RESERVATION_STATUSES = ["reserved", "address_collected"] as const;
 
@@ -115,7 +116,7 @@ export const liveRouter = createTRPCRouter({
 
     // Log uniquement si une nouvelle session a été créée
     if (session.created) {
-      await logLiveSessionCreated(tenantId, session.id, ctx.session.user.id).catch((err) => {
+      await logLiveSessionCreated(tenantId, session.id, ctx.session.user.id, { actorType: "seller" }).catch((err) => {
         workerLogger.warn("Failed to log live_session_created from startLive", {
           tenantId,
           liveSessionId: session.id,
@@ -129,6 +130,40 @@ export const liveRouter = createTRPCRouter({
       lastActivityAt: session.lastActivityAt,
       created: session.created,
     };
+  }),
+
+  /** Terminer manuellement la session live active (bouton "Terminer la session"). */
+  endLive: protectedProcedure.mutation(async ({ ctx }) => {
+    const tenantId = ctx.session.user.tenantId;
+    const session = await getCurrentSessionReadOnly(tenantId);
+
+    if (!session) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Aucune session live active." });
+    }
+
+    await db.liveSession.update({
+      where: { id: session.id },
+      data: { status: LiveSessionStatus.closed },
+    });
+
+    await logLiveSessionClosed(tenantId, session.id, `live-session-${session.id}`).catch((err) => {
+      workerLogger.warn("Failed to log live_session_closed from endLive", {
+        tenantId,
+        liveSessionId: session.id,
+        err,
+      });
+    });
+
+    // Promouvoir les items restants vers le catalogue (même logique que le worker)
+    await promoteSessionToCatalogue(tenantId, session.id).catch((err) => {
+      workerLogger.warn("Failed to promote session to catalogue from endLive", {
+        tenantId,
+        liveSessionId: session.id,
+        err,
+      });
+    });
+
+    return { success: true };
   }),
 
   getSessionItems: protectedProcedure.query(async ({ ctx }) => {
@@ -275,71 +310,76 @@ export const liveRouter = createTRPCRouter({
         });
       });
 
-      // Story 8.1: waitlist lookup uses liveItemId field (which stores catalogueItemId for catalogue entries)
-      const waitlistItemId = reservation.catalogueItemId ?? reservation.liveItemId;
-      if (!waitlistItemId) {
-        // No item ID → skip waitlist promotion
+      // Story 9.1: waitlist lookup — catalogue entries use catalogueItemId, live entries use liveItemId
+      const isCatalogueWaitlist = !!reservation.catalogueItemId;
+      const firstInWaitlist = isCatalogueWaitlist
+        ? await db.waitlist.findFirst({
+            where: { tenantId: reservation.tenantId, catalogueItemId: reservation.catalogueItemId },
+            orderBy: { position: "asc" },
+          })
+        : reservation.liveItemId
+          ? await db.waitlist.findFirst({
+              where: { tenantId: reservation.tenantId, liveItemId: reservation.liveItemId, liveSessionId: liveSessionId ?? undefined },
+              orderBy: { position: "asc" },
+            })
+          : null;
+
+      if (!firstInWaitlist) {
         return { success: true };
       }
-      const firstInWaitlist = await db.waitlist.findFirst({
-        where: { liveItemId: waitlistItemId, liveSessionId: liveSessionId ?? undefined },
-        orderBy: { position: "asc" },
-      });
 
-      if (firstInWaitlist) {
-        // Story 8.1: determine if this is a catalogue or live item waitlist entry
-        const isCatalogueWaitlist = !!reservation.catalogueItemId;
-        const createResult: CreateReservationResult = isCatalogueWaitlist
-          ? await createReservation(
-              firstInWaitlist.tenantId,
-              firstInWaitlist.liveSessionId === CATALOGUE_SESSION_SENTINEL ? null : firstInWaitlist.liveSessionId,
-              null,
-              firstInWaitlist.clientPhone,
-              firstInWaitlist.correlationId,
-              { catalogueItemId: firstInWaitlist.liveItemId, liveSessionId: firstInWaitlist.liveSessionId === CATALOGUE_SESSION_SENTINEL ? null : firstInWaitlist.liveSessionId },
-            )
-          : await createReservation(
-              firstInWaitlist.tenantId,
-              firstInWaitlist.liveSessionId,
-              firstInWaitlist.liveItemId,
-              firstInWaitlist.clientPhone,
-              firstInWaitlist.correlationId,
-            );
-
-        if (createResult.success) {
-          await db.waitlist.delete({ where: { id: firstInWaitlist.id } }).catch((err) => {
-            workerLogger.warn("Failed to delete waitlist entry after promotion", {
-              waitlistId: firstInWaitlist.id,
-              err,
-            });
-          });
-          await logWaitlistPromoted(
+      // Story 9.1: promotion catalogue utilise catalogueItemId directement (plus de sentinel)
+      const isCataloguePromotion = !!firstInWaitlist.catalogueItemId;
+      const createResult: CreateReservationResult = isCataloguePromotion
+        ? await createReservation(
             firstInWaitlist.tenantId,
-            createResult.reservation.id,
-            firstInWaitlist.liveItemId,
+            firstInWaitlist.liveSessionId,
+            null,
+            firstInWaitlist.clientPhone,
             firstInWaitlist.correlationId,
-            { live_session_id: firstInWaitlist.liveSessionId },
-          ).catch((err) => {
-            workerLogger.warn("Event log waitlist_promoted failed", {
-              reservationId: createResult.reservation.id,
-              err,
-            });
-          });
+            { catalogueItemId: firstInWaitlist.catalogueItemId!, liveSessionId: firstInWaitlist.liveSessionId },
+          )
+        : await createReservation(
+            firstInWaitlist.tenantId,
+            firstInWaitlist.liveSessionId,
+            firstInWaitlist.liveItemId,
+            firstInWaitlist.clientPhone,
+            firstInWaitlist.correlationId,
+          );
 
-          const code = reservation.catalogueItem?.code ?? reservation.liveItem?.code ?? "article";
-          const body = `Une place s'est libérée pour ${code}. Tu es réservé. Envoie ton adresse.`;
-          await writeToOutbox({
-            tenantId: firstInWaitlist.tenantId,
-            to: firstInWaitlist.clientPhone,
-            body,
-            correlationId: firstInWaitlist.correlationId,
-          }).catch((err) => {
-            workerLogger.warn("writeToOutbox after waitlist promotion failed", {
-              waitlistId: firstInWaitlist.id,
-              err,
-            });
+      if (createResult.success) {
+        await db.waitlist.delete({ where: { id: firstInWaitlist.id } }).catch((err) => {
+          workerLogger.warn("Failed to delete waitlist entry after promotion", {
+            waitlistId: firstInWaitlist.id,
+            err,
           });
-        }
+        });
+        await logWaitlistPromoted(
+          firstInWaitlist.tenantId,
+          createResult.reservation.id,
+          firstInWaitlist.catalogueItemId ?? firstInWaitlist.liveItemId,
+          firstInWaitlist.correlationId,
+          { live_session_id: firstInWaitlist.liveSessionId },
+        ).catch((err) => {
+          workerLogger.warn("Event log waitlist_promoted failed", {
+            reservationId: createResult.reservation.id,
+            err,
+          });
+        });
+
+        const code = reservation.catalogueItem?.code ?? reservation.liveItem?.code ?? "article";
+        const body = `Une place s'est libérée pour ${code}. Tu es réservé. Envoie ton adresse.`;
+        await writeToOutbox({
+          tenantId: firstInWaitlist.tenantId,
+          to: firstInWaitlist.clientPhone,
+          body,
+          correlationId: firstInWaitlist.correlationId,
+        }).catch((err) => {
+          workerLogger.warn("writeToOutbox after waitlist promotion failed", {
+            waitlistId: firstInWaitlist.id,
+            err,
+          });
+        });
       }
 
       return { success: true };

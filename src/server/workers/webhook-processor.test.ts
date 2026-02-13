@@ -49,10 +49,11 @@ vi.mock("./queues", () => ({
 }));
 
 vi.mock("~/server/events/eventLog", () => ({
-  logOptOutRecorded: vi.fn(),
-  logLiveItemCreated: vi.fn(),
-  logLiveItemDuplicateRejected: vi.fn(),
-  logLiveItemPhotoLinked: vi.fn(),
+  logOptOutRecorded: vi.fn().mockResolvedValue(undefined),
+  logLiveItemCreated: vi.fn().mockResolvedValue(undefined),
+  logLiveItemDuplicateRejected: vi.fn().mockResolvedValue(undefined),
+  logLiveItemPhotoLinked: vi.fn().mockResolvedValue(undefined),
+  logCatalogueItemPhotoLinked: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("~/server/live-session/service", () => ({
@@ -118,6 +119,14 @@ vi.mock("~/server/messaging/outbox", () => ({
 
 vi.mock("~/server/media/uploadMediaToLiveItem", () => ({
   uploadMediaAndLinkToLiveItem: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("~/server/media/uploadMediaToCatalogueItem", () => ({
+  uploadMediaToCatalogueItem: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("~/server/media/r2-client", () => ({
+  isR2Configured: vi.fn().mockReturnValue(true),
 }));
 
 vi.mock("~/server/order/createOrderFromReservation", () => ({
@@ -845,13 +854,14 @@ describe("webhook-processor", () => {
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const { createReservation } = await import("~/server/reservation/service");
       expect(createReservation).not.toHaveBeenCalled();
+      // Story 9.1: catalogueItemId passed via options, liveItemId = null, liveSessionId = null
       expect(addToWaitlist).toHaveBeenCalledWith(
         tenantId,
-        "live-session-client",
-        "cat-item-exhausted",
+        null,
+        null,
         from,
         "corr-ex",
-        { table: "catalogue_items" },
+        { table: "catalogue_items", catalogueItemId: "cat-item-exhausted" },
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -1886,6 +1896,766 @@ describe("webhook-processor", () => {
           correlationId: "corr-nosession",
         }),
       );
+    });
+
+    describe("Story 9.3: vendeur photo + code → upload catalogue", () => {
+      it("AC#1: vendeur photo + code existant → uploadMediaToCatalogueItem fire-and-forget + confirmation 'Photo ajoutée'", async () => {
+        const tenantId = "tenant-123";
+        const from = "+33612345678";
+        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+
+        vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+          { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+        ] as never);
+        const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+        vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null); // Pas de session active
+
+        const { upsertCatalogueItemFromWebhook } = await import(
+          "~/server/catalogue/upsertCatalogueItemFromWebhook"
+        );
+        vi.mocked(upsertCatalogueItemFromWebhook).mockResolvedValue({
+          success: true,
+          created: false,
+          catalogueItemId: "cat-item-a12",
+        });
+
+        const { uploadMediaToCatalogueItem } = await import(
+          "~/server/media/uploadMediaToCatalogueItem"
+        );
+        const { logCatalogueItemPhotoLinked } = await import("~/server/events/eventLog");
+        const { writeToOutbox } = await import("~/server/messaging/outbox");
+
+        const job = {
+          id: "job-photo-cat",
+          data: {
+            tenantId,
+            providerMessageId: "SMphotocat",
+            from,
+            body: "A12",
+            mediaUrl,
+            correlationId: "corr-photocat",
+          } as InboundMessage,
+        } as Job<InboundMessage>;
+
+        await processWebhookJob(job);
+
+        expect(uploadMediaToCatalogueItem).toHaveBeenCalledWith(
+          tenantId,
+          "cat-item-a12",
+          mediaUrl,
+          "corr-photocat",
+        );
+        expect(logCatalogueItemPhotoLinked).toHaveBeenCalledWith(
+          tenantId,
+          "cat-item-a12",
+          "A12",
+          "corr-photocat",
+        );
+        expect(writeToOutbox).toHaveBeenCalledWith(
+          expect.objectContaining({
+            tenantId,
+            to: from,
+            body: "Photo ajoutée à A12.",
+            correlationId: "corr-photocat",
+          }),
+        );
+      });
+
+      it("AC#2: vendeur photo + code introuvable (upsert échoue) → message 'Code introuvable'", async () => {
+        const tenantId = "tenant-123";
+        const from = "+33612345678";
+        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+
+        vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+          { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+        ] as never);
+        const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+        vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+
+        const { upsertCatalogueItemFromWebhook } = await import(
+          "~/server/catalogue/upsertCatalogueItemFromWebhook"
+        );
+        vi.mocked(upsertCatalogueItemFromWebhook).mockResolvedValue({
+          success: false,
+          reason: "no_price_for_letter",
+        } as never);
+
+        const { uploadMediaToCatalogueItem } = await import(
+          "~/server/media/uploadMediaToCatalogueItem"
+        );
+        const { writeToOutbox } = await import("~/server/messaging/outbox");
+
+        const job = {
+          id: "job-photo-unknown",
+          data: {
+            tenantId,
+            providerMessageId: "SMphotounknown",
+            from,
+            body: "Z99",
+            mediaUrl,
+            correlationId: "corr-photounknown",
+          } as InboundMessage,
+        } as Job<InboundMessage>;
+
+        await processWebhookJob(job);
+
+        expect(uploadMediaToCatalogueItem).not.toHaveBeenCalled();
+        expect(writeToOutbox).toHaveBeenCalledWith(
+          expect.objectContaining({
+            tenantId,
+            to: from,
+            body: expect.stringContaining("Z99 introuvable dans ton catalogue"),
+            correlationId: "corr-photounknown",
+          }),
+        );
+      });
+
+      it("AC#3: vendeur photo SANS code (body vide) + session active → flux Story 3.5 préservé (photo seule → dernier LiveItem)", async () => {
+        const tenantId = "tenant-123";
+        const from = "+33612345678";
+        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+
+        vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+          { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+        ] as never);
+
+        const { getLastEditedLiveItemInWindow } = await import(
+          "~/server/live-item/getLastEditedLiveItemInWindow"
+        );
+        vi.mocked(getLastEditedLiveItemInWindow).mockResolvedValue({
+          id: "item-last",
+          code: "B7",
+          liveSessionId: "live-session-1",
+        });
+
+        const { uploadMediaToCatalogueItem } = await import(
+          "~/server/media/uploadMediaToCatalogueItem"
+        );
+        const { uploadMediaAndLinkToLiveItem } = await import(
+          "~/server/media/uploadMediaToLiveItem"
+        );
+        const { writeToOutbox } = await import("~/server/messaging/outbox");
+
+        const job = {
+          id: "job-photo-seule-93",
+          data: {
+            tenantId,
+            providerMessageId: "SMphotoseule93",
+            from,
+            body: "",
+            mediaUrl,
+            correlationId: "corr-photoseule93",
+          } as InboundMessage,
+        } as Job<InboundMessage>;
+
+        await processWebhookJob(job);
+
+        // Story 9.3 n'intervient PAS (pas de code dans body)
+        expect(uploadMediaToCatalogueItem).not.toHaveBeenCalled();
+        // Story 3.5 fonctionne normalement
+        expect(uploadMediaAndLinkToLiveItem).toHaveBeenCalledWith(
+          tenantId,
+          "item-last",
+          mediaUrl,
+          "corr-photoseule93",
+        );
+        expect(writeToOutbox).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: "Photo ajoutée à B7.",
+          }),
+        );
+      });
+
+      it("AC#4: vendeur photo + code + session live active → photo vers CatalogueItem + message consolidé unique", async () => {
+        const tenantId = "tenant-123";
+        const from = "+33612345678";
+        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+
+        vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+          { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+        ] as never);
+        const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+        vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
+          id: "live-session-1",
+          status: "active",
+          lastActivityAt: new Date(),
+        });
+
+        const { upsertCatalogueItemFromWebhook } = await import(
+          "~/server/catalogue/upsertCatalogueItemFromWebhook"
+        );
+        vi.mocked(upsertCatalogueItemFromWebhook).mockResolvedValue({
+          success: true,
+          created: false,
+          catalogueItemId: "cat-item-a12",
+        });
+
+        const { createLiveItem } = await import("~/server/live-item/createLiveItem");
+        vi.mocked(createLiveItem).mockResolvedValue({
+          success: true,
+          liveItem: {
+            id: "item-1",
+            code: "A12",
+            liveSessionId: "live-session-1",
+            amountCents: 5000,
+            quantity: 1,
+            availableQty: 1,
+            reservedQty: 0,
+          },
+        });
+
+        const { uploadMediaToCatalogueItem } = await import(
+          "~/server/media/uploadMediaToCatalogueItem"
+        );
+        const { uploadMediaAndLinkToLiveItem } = await import(
+          "~/server/media/uploadMediaToLiveItem"
+        );
+        const { logCatalogueItemPhotoLinked } = await import("~/server/events/eventLog");
+        const { writeToOutbox } = await import("~/server/messaging/outbox");
+
+        const job = {
+          id: "job-photo-live",
+          data: {
+            tenantId,
+            providerMessageId: "SMphotolive",
+            from,
+            body: "A12",
+            mediaUrl,
+            correlationId: "corr-photolive",
+          } as InboundMessage,
+        } as Job<InboundMessage>;
+
+        await processWebhookJob(job);
+
+        // Photo → CatalogueItem (persistant, priorité catalogue)
+        expect(uploadMediaToCatalogueItem).toHaveBeenCalledWith(
+          tenantId,
+          "cat-item-a12",
+          mediaUrl,
+          "corr-photolive",
+        );
+        expect(logCatalogueItemPhotoLinked).toHaveBeenCalledWith(
+          tenantId,
+          "cat-item-a12",
+          "A12",
+          "corr-photolive",
+        );
+        // M1 fix: UN SEUL message consolidé (pas deux messages séparés)
+        expect(writeToOutbox).toHaveBeenCalledTimes(1);
+        expect(writeToOutbox).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: "Créé : A12 (x1). Photo ajoutée au catalogue.",
+            correlationId: "corr-photolive",
+          }),
+        );
+        // LiveItem aussi créé + photo LiveItem aussi uploadée (flux existant Story 3.4)
+        expect(createLiveItem).toHaveBeenCalledWith(tenantId, "A12", { quantity: 1 });
+        expect(uploadMediaAndLinkToLiveItem).toHaveBeenCalledWith(
+          tenantId,
+          "item-1",
+          mediaUrl,
+          "corr-photolive",
+        );
+      });
+
+      it("AC#5: vendeur renvoie photo + même code → nouvelle photo remplace l'ancienne (même clé R2 déterministe)", async () => {
+        const tenantId = "tenant-123";
+        const from = "+33612345678";
+        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx2";
+
+        vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+          { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+        ] as never);
+        const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+        vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+
+        const { upsertCatalogueItemFromWebhook } = await import(
+          "~/server/catalogue/upsertCatalogueItemFromWebhook"
+        );
+        vi.mocked(upsertCatalogueItemFromWebhook).mockResolvedValue({
+          success: true,
+          created: false,
+          catalogueItemId: "cat-item-a12",
+        });
+
+        const { uploadMediaToCatalogueItem } = await import(
+          "~/server/media/uploadMediaToCatalogueItem"
+        );
+
+        const job = {
+          id: "job-photo-replace",
+          data: {
+            tenantId,
+            providerMessageId: "SMphotoreplace",
+            from,
+            body: "A12",
+            mediaUrl,
+            correlationId: "corr-photoreplace",
+          } as InboundMessage,
+        } as Job<InboundMessage>;
+
+        await processWebhookJob(job);
+
+        // uploadMediaToCatalogueItem est appelé avec le même catalogueItemId
+        // La clé R2 est déterministe (tenants/{tenantId}/catalogue-items/{itemId}/photo)
+        // donc la nouvelle photo remplace l'ancienne
+        expect(uploadMediaToCatalogueItem).toHaveBeenCalledWith(
+          tenantId,
+          "cat-item-a12",
+          mediaUrl,
+          "corr-photoreplace",
+        );
+      });
+
+      it("AC#6+7: vendeur code sans photo → pas d'upload catalogue photo (flux normal préservé)", async () => {
+        const tenantId = "tenant-123";
+        const from = "+33612345678";
+
+        vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+          { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+        ] as never);
+        const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+        vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+
+        const { upsertCatalogueItemFromWebhook } = await import(
+          "~/server/catalogue/upsertCatalogueItemFromWebhook"
+        );
+        vi.mocked(upsertCatalogueItemFromWebhook).mockResolvedValue({
+          success: true,
+          created: true,
+          catalogueItemId: "cat-new",
+        });
+
+        const { uploadMediaToCatalogueItem } = await import(
+          "~/server/media/uploadMediaToCatalogueItem"
+        );
+        const { logCatalogueItemPhotoLinked } = await import("~/server/events/eventLog");
+
+        const job = {
+          id: "job-no-photo",
+          data: {
+            tenantId,
+            providerMessageId: "SMnophoto",
+            from,
+            body: "A12 x3",
+            // PAS de mediaUrl
+            correlationId: "corr-nophoto",
+          } as InboundMessage,
+        } as Job<InboundMessage>;
+
+        await processWebhookJob(job);
+
+        expect(uploadMediaToCatalogueItem).not.toHaveBeenCalled();
+        expect(logCatalogueItemPhotoLinked).not.toHaveBeenCalled();
+      });
+
+      it("H1 fix: vendeur photo + code mais R2 non configuré → pas d'upload ni de confirmation photo", async () => {
+        const tenantId = "tenant-123";
+        const from = "+33612345678";
+        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+
+        vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+          { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+        ] as never);
+        const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+        vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+
+        const { upsertCatalogueItemFromWebhook } = await import(
+          "~/server/catalogue/upsertCatalogueItemFromWebhook"
+        );
+        vi.mocked(upsertCatalogueItemFromWebhook).mockResolvedValue({
+          success: true,
+          created: false,
+          catalogueItemId: "cat-item-a12",
+        });
+
+        // R2 non configuré
+        const { isR2Configured } = await import("~/server/media/r2-client");
+        vi.mocked(isR2Configured).mockReturnValue(false);
+
+        const { uploadMediaToCatalogueItem } = await import(
+          "~/server/media/uploadMediaToCatalogueItem"
+        );
+        const { logCatalogueItemPhotoLinked } = await import("~/server/events/eventLog");
+        const { writeToOutbox } = await import("~/server/messaging/outbox");
+
+        const job = {
+          id: "job-photo-nor2",
+          data: {
+            tenantId,
+            providerMessageId: "SMphotonor2",
+            from,
+            body: "A12",
+            mediaUrl,
+            correlationId: "corr-photonor2",
+          } as InboundMessage,
+        } as Job<InboundMessage>;
+
+        await processWebhookJob(job);
+
+        // Pas d'upload ni d'event log (R2 non configuré)
+        expect(uploadMediaToCatalogueItem).not.toHaveBeenCalled();
+        expect(logCatalogueItemPhotoLinked).not.toHaveBeenCalled();
+        // Message catalogue standard (sans mention photo)
+        expect(writeToOutbox).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: "Ajouté au catalogue : A12 (x1).",
+          }),
+        );
+      });
+
+      it("M3 fix: vendeur photo + code avec prix non configuré → message 'pas de prix' au lieu de 'code introuvable'", async () => {
+        const tenantId = "tenant-123";
+        const from = "+33612345678";
+        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+
+        vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+          { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+        ] as never);
+        const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+        vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+
+        const { upsertCatalogueItemFromWebhook } = await import(
+          "~/server/catalogue/upsertCatalogueItemFromWebhook"
+        );
+        vi.mocked(upsertCatalogueItemFromWebhook).mockResolvedValue({
+          success: false,
+          reason: "no_price",
+        });
+
+        const { writeToOutbox } = await import("~/server/messaging/outbox");
+
+        const job = {
+          id: "job-photo-noprice",
+          data: {
+            tenantId,
+            providerMessageId: "SMphotonoprice",
+            from,
+            body: "Z99",
+            mediaUrl,
+            correlationId: "corr-photonoprice",
+          } as InboundMessage,
+        } as Job<InboundMessage>;
+
+        await processWebhookJob(job);
+
+        expect(writeToOutbox).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.stringContaining("Pas de prix configuré pour la catégorie"),
+          }),
+        );
+        // Vérifie que c'est bien "Z" (la première lettre du code normalisé)
+        expect(writeToOutbox).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.stringContaining("« Z »"),
+          }),
+        );
+      });
+    });
+  });
+
+  describe("Story 9.4: Photo dans messages WhatsApp récap", () => {
+    it("AC #1: récap avec photo catalogue (mediaStorageKey non null) → writeToOutbox avec mediaUrl", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+      const addressText = "Cocody, Abidjan";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+      const { getActiveReservationForClient, collectAddress } = await import(
+        "~/server/reservation/service"
+      );
+      vi.mocked(getActiveReservationForClient).mockResolvedValue({
+        id: "res-photo",
+        status: "reserved",
+        tenantId,
+        liveSessionId: null,
+        liveItemId: null,
+        catalogueItemId: "cat-item-photo",
+        clientPhone: from,
+        address: null,
+        expiresAt: null,
+        correlationId: "corr-prev",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as never);
+      vi.mocked(collectAddress).mockResolvedValue({
+        success: true,
+        reservation: {
+          id: "res-photo",
+          item: {
+            code: "A12",
+            amountCents: 5000,
+            catalogueItemId: "cat-item-photo",
+            mediaStorageKey: "tenants/t1/catalogue-items/ci1/photo",
+          },
+        },
+      });
+
+      const job = {
+        id: "job-photo-recap",
+        data: {
+          tenantId,
+          providerMessageId: "SM-photo",
+          from,
+          body: addressText,
+          correlationId: "corr-photo",
+        } as InboundMessage,
+      } as Job<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+      // H1 fix: storageKey brut passé à writeToOutbox (signé dans outbox-sender)
+      expect(writeToOutbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenantId,
+          to: from,
+          body: "Récap : A12 — 50 FCFA — Total : 50 FCFA. Réponds OUI pour confirmer.",
+          mediaUrl: "tenants/t1/catalogue-items/ci1/photo",
+          correlationId: "corr-photo",
+        }),
+      );
+    });
+
+    it("AC #2: récap sans photo (mediaStorageKey null) → writeToOutbox sans mediaUrl", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+      const { getActiveReservationForClient, collectAddress } = await import(
+        "~/server/reservation/service"
+      );
+      vi.mocked(getActiveReservationForClient).mockResolvedValue({
+        id: "res-no-photo",
+        status: "reserved",
+        tenantId,
+        liveSessionId: null,
+        liveItemId: null,
+        catalogueItemId: "cat-item-no-photo",
+        clientPhone: from,
+        address: null,
+        expiresAt: null,
+        correlationId: "corr-prev",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as never);
+      vi.mocked(collectAddress).mockResolvedValue({
+        success: true,
+        reservation: {
+          id: "res-no-photo",
+          item: {
+            code: "B5",
+            amountCents: 10000,
+            catalogueItemId: "cat-item-no-photo",
+            mediaStorageKey: null,
+          },
+        },
+      });
+
+      const job = {
+        id: "job-no-photo",
+        data: {
+          tenantId,
+          providerMessageId: "SM-no-photo",
+          from,
+          body: "Mon adresse ici",
+          correlationId: "corr-no-photo",
+        } as InboundMessage,
+      } as Job<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+      expect(writeToOutbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenantId,
+          to: from,
+          body: expect.stringContaining("Récap : B5"),
+        }),
+      );
+      // Pas de mediaUrl
+      const writeCall = vi.mocked(writeToOutbox).mock.calls.find(
+        (c) => (c[0] as { body: string }).body.includes("Récap"),
+      );
+      expect(writeCall?.[0]).not.toHaveProperty("mediaUrl");
+    });
+
+    it("AC #4: mediaStorageKey présent → storageKey passé à writeToOutbox (fallback signé dans outbox-sender)", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+      const { getActiveReservationForClient, collectAddress } = await import(
+        "~/server/reservation/service"
+      );
+      vi.mocked(getActiveReservationForClient).mockResolvedValue({
+        id: "res-key",
+        status: "reserved",
+        tenantId,
+        liveSessionId: null,
+        liveItemId: null,
+        catalogueItemId: "cat-key",
+        clientPhone: from,
+        address: null,
+        expiresAt: null,
+        correlationId: "corr-prev",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as never);
+      vi.mocked(collectAddress).mockResolvedValue({
+        success: true,
+        reservation: {
+          id: "res-key",
+          item: {
+            code: "C3",
+            amountCents: 7500,
+            catalogueItemId: "cat-key",
+            mediaStorageKey: "tenants/t1/catalogue-items/key/photo",
+          },
+        },
+      });
+
+      const job = {
+        id: "job-key",
+        data: {
+          tenantId,
+          providerMessageId: "SM-key",
+          from,
+          body: "Mon adresse",
+          correlationId: "corr-key",
+        } as InboundMessage,
+      } as Job<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+      const writeCall = vi.mocked(writeToOutbox).mock.calls.find(
+        (c) => (c[0] as { body: string }).body.includes("Récap"),
+      );
+      // H1 fix: storageKey brut passé (signé dans outbox-sender, fallback géré là-bas)
+      expect(writeCall?.[0]).toHaveProperty("mediaUrl", "tenants/t1/catalogue-items/key/photo");
+    });
+
+    it("AC #5: récap LiveItem (pas de catalogueItemId) → texte uniquement, pas de photo", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
+        id: "live-session-1",
+        status: "active",
+        lastActivityAt: new Date(),
+      });
+      const { getActiveReservationForClient, collectAddress } = await import(
+        "~/server/reservation/service"
+      );
+      vi.mocked(getActiveReservationForClient).mockResolvedValue({
+        id: "res-live",
+        status: "reserved",
+        tenantId,
+        liveSessionId: "live-session-1",
+        liveItemId: "live-item-1",
+        catalogueItemId: null,
+        clientPhone: from,
+        address: null,
+        expiresAt: null,
+        correlationId: "corr-prev",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as never);
+      vi.mocked(collectAddress).mockResolvedValue({
+        success: true,
+        reservation: {
+          id: "res-live",
+          item: { code: "D1", amountCents: 3000 },
+        },
+      });
+
+      const job = {
+        id: "job-live",
+        data: {
+          tenantId,
+          providerMessageId: "SM-live",
+          from,
+          body: "Adresse live",
+          correlationId: "corr-live",
+        } as InboundMessage,
+      } as Job<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+      const writeCall = vi.mocked(writeToOutbox).mock.calls.find(
+        (c) => (c[0] as { body: string }).body.includes("Récap"),
+      );
+      // LiveItem (pas de mediaStorageKey) → pas de mediaUrl
+      expect(writeCall?.[0]).not.toHaveProperty("mediaUrl");
+    });
+
+    it("AC #3: confirmation OUI pour article avec photo → texte uniquement, pas de mediaUrl", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+      const { getActiveReservationForClient, collectAddress } = await import(
+        "~/server/reservation/service"
+      );
+      // OUI → pas de code intent, reservation en address_collected
+      vi.mocked(getActiveReservationForClient).mockResolvedValue({
+        id: "res-oui-photo",
+        status: "address_collected",
+        tenantId,
+        liveSessionId: null,
+        liveItemId: null,
+        catalogueItemId: "cat-with-photo",
+        clientPhone: from,
+        address: "Cocody",
+        expiresAt: null,
+        correlationId: "corr-prev",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as never);
+      // collectAddress ne sera pas appelé (status !== "reserved")
+      vi.mocked(collectAddress).mockResolvedValue({ success: false, reason: "already_collected" });
+
+      vi.mocked(db.tenant.findUnique).mockResolvedValue({ requireDeposit: false } as never);
+      const { createOrderFromReservation } = await import(
+        "~/server/order/createOrderFromReservation"
+      );
+      vi.mocked(createOrderFromReservation).mockResolvedValue({
+        success: true,
+        order: { id: "order-1", humanId: "SS-0001" },
+      } as never);
+
+      const job = {
+        id: "job-oui-photo",
+        data: {
+          tenantId,
+          providerMessageId: "SM-oui",
+          from,
+          body: "oui",
+          correlationId: "corr-oui-photo",
+        } as InboundMessage,
+      } as Job<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+      // Le message de confirmation doit être texte uniquement (pas de photo en double)
+      const confirmCall = vi.mocked(writeToOutbox).mock.calls.find(
+        (c) => (c[0] as { body: string }).body.includes("Commande confirmée"),
+      );
+      expect(confirmCall).toBeDefined();
+      expect(confirmCall?.[0]).not.toHaveProperty("mediaUrl");
     });
   });
 });

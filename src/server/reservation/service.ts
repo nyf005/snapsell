@@ -216,7 +216,12 @@ export async function getActiveReservationForClient(
 }
 
 /** Type d'item retourné par collectAddress (code + prix, polymorphe LiveItem ou CatalogueItem). */
-export type CollectAddressItemInfo = { code: string; amountCents: number | null };
+export type CollectAddressItemInfo = {
+  code: string;
+  amountCents: number | null;
+  catalogueItemId?: string | null; // Story 9.4: pour lookup photo
+  mediaStorageKey?: string | null; // Story 9.4: clé R2 photo
+};
 
 export type CollectAddressResult =
   | { success: true; reservation: { id: string; item: CollectAddressItemInfo } }
@@ -254,8 +259,14 @@ export async function collectAddress(
   });
 
   // Story 8.1: item info depuis catalogueItem ou liveItem
+  // Story 9.4: inclure catalogueItemId et mediaStorageKey pour photo WhatsApp
   const item: CollectAddressItemInfo = reservation.catalogueItem
-    ? { code: reservation.catalogueItem.code, amountCents: reservation.catalogueItem.amountCents }
+    ? {
+        code: reservation.catalogueItem.code,
+        amountCents: reservation.catalogueItem.amountCents,
+        catalogueItemId: reservation.catalogueItem.id,
+        mediaStorageKey: reservation.catalogueItem.mediaStorageKey,
+      }
     : reservation.liveItem
       ? { code: reservation.liveItem.code, amountCents: reservation.liveItem.amountCents }
       : { code: "?", amountCents: null };

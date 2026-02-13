@@ -14,6 +14,7 @@ import { logMessageSent, logMessageBlockedOptOut } from "~/server/events/eventLo
 import { checkOptOut } from "~/server/messaging/optout";
 import { TwilioAdapter } from "~/server/messaging/providers/twilio/adapter";
 import type { OutboundMessage, ProviderSendResult } from "~/server/messaging/types";
+import { generateSignedR2Url } from "~/server/media/r2-signed-url";
 import { env } from "~/env";
 
 /**
@@ -56,6 +57,7 @@ export async function processOutboundMessage(messageOut: {
   tenantId: string;
   to: string;
   body: string;
+  mediaUrl?: string | null;
   status: string;
   attempts: number;
   correlationId: string;
@@ -106,12 +108,24 @@ export async function processOutboundMessage(messageOut: {
       env.TWILIO_WHATSAPP_NUMBER,
     );
 
-    // Préparer message normalisé
+    // Story 9.4: si mediaUrl est une clé R2 (pas une URL), signer juste avant l'envoi
+    // Évite l'expiration de l'URL signée si l'outbox a du backlog ou des retries
+    let resolvedMediaUrl: string | undefined;
+    if (messageOut.mediaUrl) {
+      if (messageOut.mediaUrl.startsWith("http")) {
+        resolvedMediaUrl = messageOut.mediaUrl;
+      } else {
+        const signedUrl = await generateSignedR2Url(messageOut.mediaUrl, correlationId);
+        resolvedMediaUrl = signedUrl ?? undefined;
+      }
+    }
+
     const outboundMessage: OutboundMessage = {
       tenantId,
       to,
       body,
       correlationId,
+      ...(resolvedMediaUrl ? { mediaUrl: resolvedMediaUrl } : {}),
     };
 
     // Envoyer via MessagingProvider

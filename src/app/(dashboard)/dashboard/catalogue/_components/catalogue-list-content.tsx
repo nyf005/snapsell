@@ -32,7 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, PackageOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, PackageOpen, ImageOff } from "lucide-react";
 import { CatalogueItemFormDialog } from "./catalogue-item-form-dialog";
 import type { CatalogueItemOutput } from "~/server/api/routers/catalogue.schema";
 
@@ -51,6 +51,7 @@ export function CatalogueListContent() {
   const [deletingItem, setDeletingItem] = useState<CatalogueItemOutput | null>(null);
 
   const { data: items, isLoading, refetch } = api.catalogue.list.useQuery();
+  const { data: r2Status } = api.catalogue.r2Status.useQuery();
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const deleteMutation = api.catalogue.delete.useMutation({
     onSuccess: () => {
@@ -124,6 +125,7 @@ export function CatalogueListContent() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-16">Photo</TableHead>
                       <TableHead>Code</TableHead>
                       <TableHead>Prix</TableHead>
                       <TableHead className="text-right">Quantité totale</TableHead>
@@ -135,7 +137,27 @@ export function CatalogueListContent() {
                   </TableHeader>
                   <TableBody>
                     {items.map((item) => (
-                      <TableRow key={item.id}>
+                      <TableRow key={item.id} className="group">
+                        <TableCell className="px-3 py-2">
+                          {item.mediaStorageKey ? (
+                            <a
+                              href={`/api/catalogue/${item.id}/photo`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="relative block size-10 overflow-hidden rounded-lg border border-border bg-muted"
+                            >
+                              <img
+                                src={`/api/catalogue/${item.id}/photo`}
+                                alt={`Photo ${item.code}`}
+                                className="size-full object-cover transition-transform duration-300 group-hover:scale-110"
+                              />
+                            </a>
+                          ) : (
+                            <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
+                              <ImageOff className="size-4" />
+                            </div>
+                          )}
+                        </TableCell>
                         <TableCell className="font-medium">{item.code}</TableCell>
                         <TableCell>{formatPrice(item.amountCents)}</TableCell>
                         <TableCell className="text-right">{item.quantity}</TableCell>
@@ -203,6 +225,7 @@ export function CatalogueListContent() {
         onOpenChange={setIsFormOpen}
         item={editingItem}
         onSuccess={handleFormSuccess}
+        r2Configured={r2Status?.configured ?? false}
       />
 
       <AlertDialog open={!!deletingItem} onOpenChange={() => setDeletingItem(null)}>

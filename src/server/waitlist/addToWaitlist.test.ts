@@ -14,7 +14,7 @@ vi.mock("~/server/db", () => ({
   },
 }));
 
-describe("addToWaitlist (Story 4.3)", () => {
+describe("addToWaitlist (Story 4.3 + 9.1)", () => {
   const tenantId = "tenant-1";
   const liveSessionId = "session-1";
   const liveItemId = "item-1";
@@ -23,7 +23,7 @@ describe("addToWaitlist (Story 4.3)", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(db.waitlist.findUnique).mockResolvedValue(null);
+    vi.mocked(db.waitlist.findFirst).mockResolvedValue(null);
     vi.mocked(db.$transaction).mockImplementation(async (fn) => {
       const tx = {
         $queryRaw: vi.fn(),
@@ -39,11 +39,12 @@ describe("addToWaitlist (Story 4.3)", () => {
   });
 
   it("returns existing position when same client+item+session already in waitlist (idempotence)", async () => {
-    vi.mocked(db.waitlist.findUnique).mockResolvedValue({
+    vi.mocked(db.waitlist.findFirst).mockResolvedValue({
       id: "w1",
       tenantId,
       liveSessionId,
       liveItemId,
+      catalogueItemId: null,
       clientPhone,
       position: 2,
       correlationId,
@@ -98,6 +99,7 @@ describe("addToWaitlist (Story 4.3)", () => {
         tenantId,
         liveSessionId,
         liveItemId,
+        catalogueItemId: null,
         clientPhone,
         position: 4,
         correlationId,
@@ -126,9 +128,9 @@ describe("addToWaitlist (Story 4.3)", () => {
     expect(result).toEqual({ ok: false, reason: "not_found" });
   });
 
-  // ── Story 8.1: Catalogue item tests ───────────────────
+  // ── Story 9.1: Catalogue item tests (no sentinel) ───────────────────
 
-  it("Story 8.1: locks on catalogue_items when options.table = 'catalogue_items'", async () => {
+  it("Story 9.1: inserts with catalogueItemId and null liveItemId/liveSessionId for catalogue items", async () => {
     const catItemId = "cat-item-1";
     const mockTx = {
       $queryRaw: vi.fn(),
@@ -153,21 +155,21 @@ describe("addToWaitlist (Story 4.3)", () => {
 
     const result = await addToWaitlist(
       tenantId,
-      "catalogue", // sentinel liveSessionId
-      catItemId,
+      null, // no liveSessionId for catalogue
+      null, // no liveItemId for catalogue
       clientPhone,
       correlationId,
-      { table: "catalogue_items" },
+      { table: "catalogue_items", catalogueItemId: catItemId },
     );
 
     expect(result).toEqual({ ok: true, position: 1 });
-    // Verify lock SQL was called (first $queryRaw call)
     expect(mockTx.$queryRaw).toHaveBeenCalledTimes(2);
     expect(mockTx.waitlist.create).toHaveBeenCalledWith({
       data: {
         tenantId,
-        liveSessionId: "catalogue",
-        liveItemId: catItemId,
+        liveSessionId: null,
+        liveItemId: null,
+        catalogueItemId: catItemId,
         clientPhone,
         position: 1,
         correlationId,
@@ -175,7 +177,7 @@ describe("addToWaitlist (Story 4.3)", () => {
     });
   });
 
-  it("Story 8.1: returns not_found when catalogue item does not exist", async () => {
+  it("Story 9.1: returns not_found when catalogue item does not exist", async () => {
     const mockTx = {
       $queryRaw: vi.fn().mockResolvedValue([]), // no row found
       $executeRaw: vi.fn(),
@@ -187,14 +189,41 @@ describe("addToWaitlist (Story 4.3)", () => {
 
     const result = await addToWaitlist(
       tenantId,
-      "catalogue",
-      "nonexistent-cat-item",
+      null,
+      null,
       clientPhone,
       correlationId,
-      { table: "catalogue_items" },
+      { table: "catalogue_items", catalogueItemId: "nonexistent-cat-item" },
     );
 
     expect(result).toEqual({ ok: false, reason: "not_found" });
+  });
+
+  it("Story 9.1: idempotence for catalogue — returns existing position when already in waitlist", async () => {
+    const catItemId = "cat-item-1";
+    vi.mocked(db.waitlist.findFirst).mockResolvedValue({
+      id: "w-cat-existing",
+      tenantId,
+      liveSessionId: null,
+      liveItemId: null,
+      catalogueItemId: catItemId,
+      clientPhone,
+      position: 3,
+      correlationId,
+      createdAt: new Date(),
+    });
+
+    const result = await addToWaitlist(
+      tenantId,
+      null,
+      null,
+      clientPhone,
+      correlationId,
+      { table: "catalogue_items", catalogueItemId: catItemId },
+    );
+
+    expect(result).toEqual({ ok: true, position: 3, alreadyInWaitlist: true });
+    expect(db.$transaction).not.toHaveBeenCalled();
   });
 
   it("on P2002 (race), returns existing position (idempotence)", async () => {
@@ -215,16 +244,20 @@ describe("addToWaitlist (Story 4.3)", () => {
       return fn(mockTx as never) as Promise<unknown>;
     });
     mockTx.$queryRaw.mockResolvedValueOnce([{ id: liveItemId }]).mockResolvedValueOnce([{ max: 1 }]);
-    vi.mocked(db.waitlist.findUnique).mockResolvedValue({
-      id: "w-race",
-      tenantId,
-      liveSessionId,
-      liveItemId,
-      clientPhone,
-      position: 1,
-      correlationId,
-      createdAt: new Date(),
-    });
+    // First findFirst returns null (initial check), second returns the race-created entry
+    vi.mocked(db.waitlist.findFirst)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({
+        id: "w-race",
+        tenantId,
+        liveSessionId,
+        liveItemId,
+        catalogueItemId: null,
+        clientPhone,
+        position: 1,
+        correlationId,
+        createdAt: new Date(),
+      });
 
     const result = await addToWaitlist(
       tenantId,

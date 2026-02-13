@@ -53,6 +53,7 @@ describe("writeToOutbox", () => {
         tenantId: message.tenantId,
         to: message.to,
         body: message.body,
+        mediaUrl: null,
         status: "pending",
         attempts: 0,
         correlationId: message.correlationId,
@@ -67,6 +68,43 @@ describe("writeToOutbox", () => {
       status: "pending",
       attempts: 0,
       correlationId: message.correlationId,
+    });
+  });
+
+  it("Story 9.4: should persist mediaUrl when provided", async () => {
+    const message = {
+      tenantId: "tenant-123",
+      to: "+33612345678",
+      body: "Récap",
+      correlationId: "corr-media",
+      mediaUrl: "tenants/t1/catalogue-items/ci1/photo",
+    };
+
+    const mockMessageOut = {
+      id: "msg-out-media",
+      tenantId: message.tenantId,
+      to: message.to,
+      body: message.body,
+      status: "pending",
+      attempts: 0,
+      correlationId: message.correlationId,
+      createdAt: new Date(),
+    };
+
+    vi.mocked(db.messageOut.create).mockResolvedValue(mockMessageOut as never);
+
+    await writeToOutbox(message);
+
+    expect(db.messageOut.create).toHaveBeenCalledWith({
+      data: {
+        tenantId: message.tenantId,
+        to: message.to,
+        body: message.body,
+        mediaUrl: "tenants/t1/catalogue-items/ci1/photo",
+        status: "pending",
+        attempts: 0,
+        correlationId: message.correlationId,
+      },
     });
   });
 

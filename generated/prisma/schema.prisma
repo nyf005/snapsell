@@ -294,6 +294,7 @@ model MessageOut {
   tenant            Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   to                String // destinataire (format E.164 normalisé)
   body              String    @db.Text
+  mediaUrl          String?   @map("media_url") @db.Text // Story 9.4: URL média (photo article) pour MMS WhatsApp
   status            String // pending | sending | sent | failed | blocked (STOP)
   attempts          Int       @default(0)
   nextAttemptAt     DateTime? @map("next_attempt_at")
@@ -374,6 +375,7 @@ model CatalogueItem {
   updatedAt       DateTime @updatedAt @map("updated_at")
 
   reservations Reservation[]
+  waitlist     Waitlist[]
 
   @@unique([tenantId, code])
   @@index([tenantId])
@@ -481,22 +483,26 @@ model PaymentProof {
   @@map("payment_proofs")
 }
 
-// File d'attente par article/session (Story 4.3)
-// position = ordre d'arrivée (max+1 sous lock) ; unicité (tenant, session, client, item)
+// File d'attente par article/session (Story 4.3, 9.1)
+// position = ordre d'arrivée (max+1 sous lock)
+// Story 9.1: catalogueItemId nullable, liveSessionId/liveItemId nullable
+// Unicité via partial unique indexes en SQL (Prisma ne supporte pas les index partiels)
 model Waitlist {
-  id            String   @id @default(cuid())
-  tenantId      String   @map("tenant_id")
-  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  liveSessionId String   @map("live_session_id")
-  liveItemId    String   @map("live_item_id")
-  clientPhone   String   @map("client_phone")
-  position      Int // ordre d'arrivée
-  correlationId String   @map("correlation_id")
-  createdAt     DateTime @default(now()) @map("created_at")
+  id              String         @id @default(cuid())
+  tenantId        String         @map("tenant_id")
+  tenant          Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  liveSessionId   String?        @map("live_session_id")
+  liveItemId      String?        @map("live_item_id")
+  catalogueItemId String?        @map("catalogue_item_id")
+  catalogueItem   CatalogueItem? @relation(fields: [catalogueItemId], references: [id], onDelete: Cascade)
+  clientPhone     String         @map("client_phone")
+  position        Int // ordre d'arrivée
+  correlationId   String         @map("correlation_id")
+  createdAt       DateTime       @default(now()) @map("created_at")
 
-  @@unique([tenantId, liveSessionId, clientPhone, liveItemId])
   @@index([tenantId, liveSessionId, liveItemId])
   @@index([liveItemId, liveSessionId])
+  @@index([catalogueItemId])
   @@map("waitlist")
 }
 

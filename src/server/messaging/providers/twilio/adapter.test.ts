@@ -235,4 +235,70 @@ describe("TwilioAdapter", () => {
       });
     });
   });
+
+  describe("send", () => {
+    it("should send text-only message when no mediaUrl", async () => {
+      const result = await adapter.send({
+        tenantId: "t1",
+        to: "+2250101020304",
+        body: "Hello",
+        correlationId: "corr-1",
+      });
+
+      expect(result).toEqual({ success: true, providerMessageId: "SM-MOCK" });
+      // Access internal client mock
+      const clientMessages = (adapter as unknown as { client: { messages: { create: ReturnType<typeof vi.fn> } } }).client.messages;
+      expect(clientMessages.create).toHaveBeenCalledWith({
+        from: "whatsapp:+14155238886",
+        to: "whatsapp:+2250101020304",
+        body: "Hello",
+      });
+    });
+
+    it("Story 9.4: should send message with mediaUrl when provided (AC #6)", async () => {
+      const result = await adapter.send({
+        tenantId: "t1",
+        to: "+2250101020304",
+        body: "Récap",
+        correlationId: "corr-2",
+        mediaUrl: "https://r2.example.com/signed-url",
+      });
+
+      expect(result).toEqual({ success: true, providerMessageId: "SM-MOCK" });
+      const clientMessages = (adapter as unknown as { client: { messages: { create: ReturnType<typeof vi.fn> } } }).client.messages;
+      expect(clientMessages.create).toHaveBeenCalledWith({
+        from: "whatsapp:+14155238886",
+        to: "whatsapp:+2250101020304",
+        body: "Récap",
+        mediaUrl: ["https://r2.example.com/signed-url"],
+      });
+    });
+
+    it("Story 9.4: should NOT include mediaUrl array when mediaUrl is undefined (AC #7)", async () => {
+      await adapter.send({
+        tenantId: "t1",
+        to: "+2250101020304",
+        body: "Text only",
+        correlationId: "corr-3",
+      });
+
+      const clientMessages = (adapter as unknown as { client: { messages: { create: ReturnType<typeof vi.fn> } } }).client.messages;
+      const callArgs = clientMessages.create.mock.calls[0]?.[0];
+      expect(callArgs).not.toHaveProperty("mediaUrl");
+    });
+
+    it("should return error on Twilio failure", async () => {
+      const clientMessages = (adapter as unknown as { client: { messages: { create: ReturnType<typeof vi.fn> } } }).client.messages;
+      clientMessages.create.mockRejectedValueOnce(new Error("Twilio down"));
+
+      const result = await adapter.send({
+        tenantId: "t1",
+        to: "+2250101020304",
+        body: "Fail",
+        correlationId: "corr-4",
+      });
+
+      expect(result).toEqual({ success: false, error: "Twilio down" });
+    });
+  });
 });

@@ -60,6 +60,11 @@ vi.mock("~/server/messaging/optout", () => ({
   checkOptOut: (...args: unknown[]) => mockCheckOptOut(...args),
 }));
 
+const mockGenerateSignedR2Url = vi.fn();
+vi.mock("~/server/media/r2-signed-url", () => ({
+  generateSignedR2Url: (...args: unknown[]) => mockGenerateSignedR2Url(...args),
+}));
+
 vi.mock("~/lib/logger", () => ({
   workerLogger: {
     debug: vi.fn(),
@@ -97,6 +102,7 @@ describe("outbox-sender worker", () => {
     mockMessageOutFindMany.mockReset();
     mockDeadLetterJobCreate.mockReset();
     mockCheckOptOut.mockResolvedValue(false); // par défaut pas d'opt-out
+    mockGenerateSignedR2Url.mockReset();
   });
 
   describe("processOutboundMessage", () => {
@@ -256,6 +262,113 @@ describe("outbox-sender worker", () => {
       expect(actualBackoff).toBeLessThanOrEqual(expectedBackoff + 100);
       expect(updateCall![0]?.data?.attempts).toBe(3);
     });
+
+    it("Story 9.4: should sign storageKey and pass mediaUrl to provider (AC #6)", async () => {
+      const messageOut = {
+        id: "msg-media-1",
+        tenantId: "tenant-123",
+        to: "+2250101020304",
+        body: "Récap : A12 — 50 FCFA",
+        mediaUrl: "tenants/t1/catalogue-items/ci1/photo",
+        status: "pending",
+        attempts: 0,
+        correlationId: "corr-media",
+      };
+
+      mockCheckOptOut.mockResolvedValue(false);
+      mockGenerateSignedR2Url.mockResolvedValue("https://r2.example.com/signed-url");
+      mockSend.mockResolvedValue({ success: true, providerMessageId: "SM-MEDIA" });
+      mockMessageOutUpdate.mockResolvedValue({} as never);
+      vi.mocked(logMessageSent).mockResolvedValue();
+
+      const result = await processOutboundMessage(messageOut as never);
+
+      expect(result.success).toBe(true);
+      expect(mockGenerateSignedR2Url).toHaveBeenCalledWith(
+        "tenants/t1/catalogue-items/ci1/photo",
+        "corr-media",
+      );
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mediaUrl: "https://r2.example.com/signed-url",
+        }),
+      );
+    });
+
+    it("Story 9.4: should pass through http mediaUrl without signing", async () => {
+      const messageOut = {
+        id: "msg-http-url",
+        tenantId: "tenant-123",
+        to: "+2250101020304",
+        body: "Message",
+        mediaUrl: "https://external.example.com/image.jpg",
+        status: "pending",
+        attempts: 0,
+        correlationId: "corr-http",
+      };
+
+      mockCheckOptOut.mockResolvedValue(false);
+      mockSend.mockResolvedValue({ success: true, providerMessageId: "SM-HTTP" });
+      mockMessageOutUpdate.mockResolvedValue({} as never);
+      vi.mocked(logMessageSent).mockResolvedValue();
+
+      await processOutboundMessage(messageOut as never);
+
+      expect(mockGenerateSignedR2Url).not.toHaveBeenCalled();
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mediaUrl: "https://external.example.com/image.jpg",
+        }),
+      );
+    });
+
+    it("Story 9.4: should skip mediaUrl when signing fails (AC #4 fallback)", async () => {
+      const messageOut = {
+        id: "msg-sign-fail",
+        tenantId: "tenant-123",
+        to: "+2250101020304",
+        body: "Récap : C3 — 75 FCFA",
+        mediaUrl: "tenants/t1/catalogue-items/fail/photo",
+        status: "pending",
+        attempts: 0,
+        correlationId: "corr-sign-fail",
+      };
+
+      mockCheckOptOut.mockResolvedValue(false);
+      mockGenerateSignedR2Url.mockResolvedValue(null);
+      mockSend.mockResolvedValue({ success: true, providerMessageId: "SM-NOPIC" });
+      mockMessageOutUpdate.mockResolvedValue({} as never);
+      vi.mocked(logMessageSent).mockResolvedValue();
+
+      await processOutboundMessage(messageOut as never);
+
+      const callArg = mockSend.mock.calls[0]?.[0] as Record<string, unknown>;
+      expect(callArg).not.toHaveProperty("mediaUrl");
+    });
+
+    it("Story 9.4: should NOT include mediaUrl when null (AC #7 regression)", async () => {
+      const messageOut = {
+        id: "msg-no-media",
+        tenantId: "tenant-123",
+        to: "+2250101020304",
+        body: "Text only",
+        mediaUrl: null,
+        status: "pending",
+        attempts: 0,
+        correlationId: "corr-no-media",
+      };
+
+      mockCheckOptOut.mockResolvedValue(false);
+      mockSend.mockResolvedValue({ success: true, providerMessageId: "SM-TEXT" });
+      mockMessageOutUpdate.mockResolvedValue({} as never);
+      vi.mocked(logMessageSent).mockResolvedValue();
+
+      await processOutboundMessage(messageOut as never);
+
+      expect(mockGenerateSignedR2Url).not.toHaveBeenCalled();
+      const callArg = mockSend.mock.calls[0]?.[0] as Record<string, unknown>;
+      expect(callArg).not.toHaveProperty("mediaUrl");
+    });
   });
 
   describe("createDeadLetterJob", () => {
@@ -308,5 +421,6 @@ describe("outbox-sender worker", () => {
         },
       });
     });
+
   });
 });

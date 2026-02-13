@@ -32,7 +32,7 @@ vi.mock("~/server/messaging/outbox", () => ({
   writeToOutbox: vi.fn().mockResolvedValue(undefined),
 }));
 
-describe("reservation-ttl (Story 4.3)", () => {
+describe("reservation-ttl (Story 4.3 + 9.1)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(db.reservation.findMany).mockResolvedValue([]);
@@ -99,6 +99,7 @@ describe("reservation-ttl (Story 4.3)", () => {
       tenantId: "t1",
       liveSessionId: "s1",
       liveItemId: "item-1",
+      catalogueItemId: null,
       clientPhone: "+33699999999",
       correlationId: "corr-w",
     };
@@ -151,9 +152,9 @@ describe("reservation-ttl (Story 4.3)", () => {
     );
   });
 
-  // ── Story 8.1: Catalogue item tests ───────────────────
+  // ── Story 9.1: Catalogue item tests (no sentinel) ───────────────────
 
-  it("Story 8.1: expires catalogue reservation, decrements catalogue_items, logs catalogue_item_id", async () => {
+  it("Story 9.1: expires catalogue reservation, decrements catalogue_items, logs catalogue_item_id", async () => {
     const res = {
       id: "res-cat-1",
       tenantId: "t1",
@@ -197,7 +198,7 @@ describe("reservation-ttl (Story 4.3)", () => {
     expect(createReservation).not.toHaveBeenCalled();
   });
 
-  it("Story 8.1: expires catalogue reservation, promotes waitlist with catalogue createReservation overload", async () => {
+  it("Story 9.1: expires catalogue reservation, promotes waitlist with catalogueItemId directly (no sentinel)", async () => {
     const res = {
       id: "res-cat-2",
       tenantId: "t1",
@@ -215,8 +216,9 @@ describe("reservation-ttl (Story 4.3)", () => {
     const promoted = {
       id: "w-cat",
       tenantId: "t1",
-      liveSessionId: "catalogue",
-      liveItemId: "cat-item-2",
+      liveSessionId: null,
+      liveItemId: null,
+      catalogueItemId: "cat-item-2",
       clientPhone: "+33611111111",
       correlationId: "corr-w-cat",
     };
@@ -247,10 +249,10 @@ describe("reservation-ttl (Story 4.3)", () => {
     const result = await runReservationTtlJob();
 
     expect(result).toEqual({ expiredCount: 1, promotedCount: 1 });
-    // Story 8.1: catalogue promotion uses 6-arg overload with catalogueItemId
+    // Story 9.1: catalogue promotion uses catalogueItemId directly (not liveItemId)
     expect(createReservation).toHaveBeenCalledWith(
       "t1",
-      null, // liveSessionId = "catalogue" → null
+      null, // liveSessionId = null for catalogue
       null, // liveItemId = null for catalogue
       "+33611111111",
       "corr-w-cat",
@@ -304,6 +306,7 @@ describe("reservation-ttl (Story 4.3)", () => {
       tenantId: "t2",
       liveSessionId: "s2",
       liveItemId: "item-2",
+      catalogueItemId: null,
       clientPhone: "+33700000000",
       correlationId: "corr-w2",
     };

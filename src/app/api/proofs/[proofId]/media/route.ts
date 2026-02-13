@@ -3,20 +3,11 @@
  * Pas de signed URL publique : le dashboard appelle cette route (session requise).
  */
 
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
-import { env } from "~/env";
-
-function isR2Configured(): boolean {
-  return !!(
-    env.R2_ACCOUNT_ID &&
-    env.R2_ACCESS_KEY_ID &&
-    env.R2_SECRET_ACCESS_KEY &&
-    env.R2_BUCKET_NAME
-  );
-}
+import { isR2Configured, createR2Client, getR2BucketName } from "~/server/media/r2-client";
 
 export async function GET(
   _request: Request,
@@ -49,20 +40,11 @@ export async function GET(
   }
 
   try {
-    const endpoint = `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
-    const client = new S3Client({
-      region: "auto",
-      endpoint,
-      credentials: {
-        accessKeyId: env.R2_ACCESS_KEY_ID!,
-        secretAccessKey: env.R2_SECRET_ACCESS_KEY!,
-      },
-      forcePathStyle: true,
-    });
+    const client = createR2Client();
 
     const result = await client.send(
       new GetObjectCommand({
-        Bucket: env.R2_BUCKET_NAME!,
+        Bucket: getR2BucketName(),
         Key: proof.mediaStorageKey,
       }),
     );

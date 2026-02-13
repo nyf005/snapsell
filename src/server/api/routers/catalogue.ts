@@ -14,8 +14,14 @@ import {
 } from "./catalogue.schema";
 import { normalizeCode } from "~/server/live-item/createLiveItem";
 import { getPriceFromCode } from "~/server/pricing/getPriceFromCode";
+import { isR2Configured } from "~/server/media/r2-client";
 
 export const catalogueRouter = createTRPCRouter({
+  /** Story 9.2: Indique si R2 est configuré (sans révéler les credentials) */
+  r2Status: protectedProcedure.query(() => {
+    return { configured: isR2Configured() };
+  }),
+
   /** Liste tous les articles catalogue du tenant (dashboard) */
   list: protectedProcedure.query(async ({ ctx }) => {
     const tenantId = ctx.session.user.tenantId;

@@ -181,11 +181,16 @@ export class TwilioAdapter implements MessagingProvider {
 
       // Envoyer via Twilio WhatsApp API
       // Format: whatsapp:+14155238886 (from) vers whatsapp:+33612345678 (to)
-      const twilioMessage = await this.client.messages.create({
+      // Story 9.4: mediaUrl optionnel pour MMS WhatsApp (photo article)
+      const createParams: Parameters<typeof this.client.messages.create>[0] = {
         from: `whatsapp:${this.whatsappNumber}`,
         to: `whatsapp:${message.to}`,
         body: message.body,
-      });
+      };
+      if (message.mediaUrl) {
+        createParams.mediaUrl = [message.mediaUrl];
+      }
+      const twilioMessage = await this.client.messages.create(createParams);
 
       workerLogger.info("Message sent successfully via Twilio", {
         tenantId: message.tenantId,

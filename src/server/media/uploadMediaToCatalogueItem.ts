@@ -1,8 +1,8 @@
 /**
- * Story 3.4: Télécharger le média Twilio, uploader vers R2, enregistrer la clé sur LiveItem.
+ * Story 9.3: Télécharger le média Twilio, uploader vers R2, enregistrer la clé sur CatalogueItem.
  * Exécuté en async (ne pas bloquer le worker).
  * Si R2 ou Twilio non configurés, no-op.
- * En cas d'échec (fetch, upload, update), l'item reste sans mediaStorageKey ; pas de retry/DLQ dédié (MVP).
+ * En cas d'échec (fetch, upload, update), l'appelant gère via .catch (fire-and-forget).
  */
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
@@ -13,35 +13,36 @@ import { isR2Configured, createR2Client, getR2BucketName } from "~/server/media/
 
 /**
  * Télécharge le média depuis mediaUrl (Twilio avec auth si besoin), upload vers R2,
- * met à jour LiveItem.mediaStorageKey. No-op si R2 non configuré.
+ * met à jour CatalogueItem.mediaStorageKey. No-op si R2 non configuré.
  */
-export async function uploadMediaAndLinkToLiveItem(
+export async function uploadMediaToCatalogueItem(
   tenantId: string,
-  liveItemId: string,
+  catalogueItemId: string,
   mediaUrl: string,
   correlationId: string,
 ): Promise<void> {
   if (!isR2Configured()) {
-    workerLogger.debug("R2 not configured, skipping media upload", {
+    workerLogger.debug("R2 not configured, skipping catalogue media upload", {
       correlationId,
-      liveItemId,
+      catalogueItemId,
     });
     return;
   }
 
-  // Valider que mediaUrl est une URL valide (évite fetch vers chaîne arbitraire)
+  // Valider que mediaUrl est une URL valide
   try {
     new URL(mediaUrl);
   } catch {
-    workerLogger.warn("Invalid mediaUrl, skipping upload", {
+    workerLogger.warn("Invalid mediaUrl, skipping catalogue upload", {
       correlationId,
-      liveItemId,
+      catalogueItemId,
       mediaUrl: mediaUrl.slice(0, 80),
     });
     return;
   }
 
   try {
+    // 1. Fetch media from Twilio (Basic Auth)
     const isTwilioUrl = mediaUrl.includes("api.twilio.com") || mediaUrl.includes("twilio.com");
     const accountSid = env.TWILIO_ACCOUNT_SID;
     const authToken = env.TWILIO_AUTH_TOKEN;
@@ -55,10 +56,42 @@ export async function uploadMediaAndLinkToLiveItem(
     if (!response.ok) {
       throw new Error(`Failed to fetch media: ${response.status} ${response.statusText}`);
     }
+
     const buffer = Buffer.from(await response.arrayBuffer());
     const contentType = response.headers.get("content-type") ?? "application/octet-stream";
 
-    const key = `tenants/${tenantId}/live-items/${liveItemId}/media`;
+    // L2: Valider content-type (accepter uniquement images)
+    const ALLOWED_CONTENT_TYPES = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "image/heic",
+      "image/heif",
+    ];
+    if (!ALLOWED_CONTENT_TYPES.some((t) => contentType.startsWith(t))) {
+      workerLogger.warn("Unsupported content-type for catalogue media, skipping upload", {
+        correlationId,
+        catalogueItemId,
+        contentType,
+      });
+      return;
+    }
+
+    // L3: Limiter la taille du buffer (10 Mo max)
+    const MAX_BUFFER_SIZE = 10 * 1024 * 1024;
+    if (buffer.length > MAX_BUFFER_SIZE) {
+      workerLogger.warn("Media too large for catalogue upload, skipping", {
+        correlationId,
+        catalogueItemId,
+        size: buffer.length,
+        maxSize: MAX_BUFFER_SIZE,
+      });
+      return;
+    }
+
+    // 2. Upload to R2
+    const key = `tenants/${tenantId}/catalogue-items/${catalogueItemId}/photo`;
     const client = createR2Client();
 
     await client.send(
@@ -70,22 +103,23 @@ export async function uploadMediaAndLinkToLiveItem(
       }),
     );
 
-    await db.liveItem.update({
-      where: { id: liveItemId, tenantId },
+    // 3. Update DB
+    await db.catalogueItem.update({
+      where: { id: catalogueItemId, tenantId },
       data: { mediaStorageKey: key },
     });
 
-    workerLogger.info("Media uploaded to R2 and linked to LiveItem", {
+    workerLogger.info("Media uploaded to R2 and linked to CatalogueItem", {
       correlationId,
       tenantId,
-      liveItemId,
+      catalogueItemId,
       key,
     });
   } catch (error) {
-    workerLogger.error("Error uploading media to R2 and linking to LiveItem", error, {
+    workerLogger.error("Error uploading media to R2 and linking to CatalogueItem", error, {
       correlationId,
       tenantId,
-      liveItemId,
+      catalogueItemId,
       mediaUrl: mediaUrl.slice(0, 80),
     });
     throw error;

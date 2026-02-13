@@ -66,7 +66,6 @@ const menuGroups: MenuGroup[] = [
     items: [
       { href: "/dashboard/orders", label: "Liste des commandes", icon: ShoppingCart },
       { href: "/dashboard/proofs", label: "Preuves", icon: CheckCircle2 },
-      { href: "/dashboard/audit", label: "Journal d'événements", icon: ScrollText },
     ],
   },
   {
@@ -79,6 +78,12 @@ const menuGroups: MenuGroup[] = [
     label: "Sessions Live",
     items: [
       { href: "/dashboard/live", label: "Sessions Live", icon: Radio },
+    ],
+  },
+  {
+    label: "Journal d'événements",
+    items: [
+      { href: "/dashboard/audit", label: "Journal d'événements", icon: ScrollText },
     ],
   },
   {

@@ -18,6 +18,7 @@ const outboundMessageSchema = z.object({
   to: z.string().min(1), // Format E.164 normalisé
   body: z.string().min(1),
   correlationId: z.string().min(1), // UUID ou message_sid pour traçabilité
+  mediaUrl: z.string().min(1).optional(), // Story 9.4: clé R2 storage ou URL média
 });
 
 /**
@@ -53,6 +54,7 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
         tenantId: validatedMessage.tenantId,
         to: validatedMessage.to,
         body: validatedMessage.body,
+        mediaUrl: validatedMessage.mediaUrl ?? null,
         status: "pending",
         attempts: 0,
         correlationId: validatedMessage.correlationId,

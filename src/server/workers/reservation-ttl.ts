@@ -17,7 +17,6 @@ import {
   logWaitlistPromoted,
 } from "~/server/events/eventLog";
 import { writeToOutbox } from "~/server/messaging/outbox";
-import { CATALOGUE_SESSION_SENTINEL } from "~/server/waitlist/addToWaitlist";
 
 const ACTIVE_STATUSES = ["reserved", "address_collected"] as const;
 const BATCH_LIMIT = 50;
@@ -185,17 +184,22 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
         `,
       );
 
-      // Waitlist lookup (liveItemId stores catalogueItemId for catalogue entries)
-      const waitlistItemId = res.catalogueItemId ?? res.liveItemId;
-      const firstInWaitlist = waitlistItemId
+      // Story 9.1: Waitlist lookup — catalogue entries use catalogueItemId, live entries use liveItemId
+      const firstInWaitlist = isCatalogue
         ? await tx.waitlist.findFirst({
-            where: {
-              liveItemId: waitlistItemId,
-              ...(res.liveSessionId ? { liveSessionId: res.liveSessionId } : {}),
-            },
+            where: { tenantId: res.tenantId, catalogueItemId: res.catalogueItemId },
             orderBy: { position: "asc" },
           })
-        : null;
+        : res.liveItemId
+          ? await tx.waitlist.findFirst({
+              where: {
+                tenantId: res.tenantId,
+                liveItemId: res.liveItemId,
+                ...(res.liveSessionId ? { liveSessionId: res.liveSessionId } : {}),
+              },
+              orderBy: { position: "asc" },
+            })
+          : null;
 
       if (!firstInWaitlist) {
         return { expired: updatedRow, promoted: null };
@@ -208,6 +212,7 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
           tenantId: firstInWaitlist.tenantId,
           liveSessionId: firstInWaitlist.liveSessionId,
           liveItemId: firstInWaitlist.liveItemId,
+          catalogueItemId: firstInWaitlist.catalogueItemId,
           clientPhone: firstInWaitlist.clientPhone,
           correlationId: firstInWaitlist.correlationId,
         },
@@ -238,18 +243,18 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
     });
 
     if (updated.promoted) {
-      // Story 8.1: detecte si la promotion concerne un catalogue item
-      const isCataloguePromotion = isCatalogue;
+      // Story 9.1: promotion catalogue utilise catalogueItemId directement (plus de sentinel)
+      const isCataloguePromotion = !!updated.promoted.catalogueItemId;
       const createResult: CreateReservationResult = isCataloguePromotion
         ? await createReservation(
             updated.promoted.tenantId,
-            updated.promoted.liveSessionId === CATALOGUE_SESSION_SENTINEL ? null : updated.promoted.liveSessionId,
+            updated.promoted.liveSessionId,
             null,
             updated.promoted.clientPhone,
             updated.promoted.correlationId,
             {
-              catalogueItemId: updated.promoted.liveItemId,
-              liveSessionId: updated.promoted.liveSessionId === CATALOGUE_SESSION_SENTINEL ? null : updated.promoted.liveSessionId,
+              catalogueItemId: updated.promoted.catalogueItemId!,
+              liveSessionId: updated.promoted.liveSessionId,
             },
           )
         : await createReservation(
@@ -271,7 +276,7 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
         await logWaitlistPromoted(
           updated.promoted.tenantId,
           createResult.reservation.id,
-          updated.promoted.liveItemId,
+          updated.promoted.catalogueItemId ?? updated.promoted.liveItemId,
           updated.promoted.correlationId,
           { live_session_id: updated.promoted.liveSessionId },
         ).catch((err) => {

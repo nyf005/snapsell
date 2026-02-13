@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { Badge } from "~/components/ui/badge";
@@ -46,6 +47,7 @@ import {
   X,
   ChevronDown,
   TrendingUp,
+  Play,
 } from "lucide-react";
 
 const POLL_INTERVAL_MS = 45_000;
@@ -99,14 +101,29 @@ function getStockLevel(availableQty: number, quantity: number): StockLevel {
 }
 
 export function LiveOpsContent() {
+  const router = useRouter();
   const utils = api.useUtils();
   const [releaseTargetId, setReleaseTargetId] = useState<string | null>(null);
   const [releaseTargetCode, setReleaseTargetCode] = useState<string>("");
   const [releaseTargetClient, setReleaseTargetClient] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showEndLiveDialog, setShowEndLiveDialog] = useState(false);
 
   const { data: liveOpsData, isLoading } = api.live.getLiveOpsData.useQuery(undefined, {
     refetchInterval: POLL_INTERVAL_MS,
+  });
+
+  const startLiveMutation = api.live.startLive.useMutation({
+    onSuccess: () => {
+      void utils.live.getLiveOpsData.invalidate();
+    },
+  });
+
+  const endLiveMutation = api.live.endLive.useMutation({
+    onSuccess: () => {
+      setShowEndLiveDialog(false);
+      void utils.live.getLiveOpsData.invalidate();
+    },
   });
 
   const session = liveOpsData?.session ?? null;
@@ -147,16 +164,7 @@ export function LiveOpsContent() {
 
   return (
     <>
-      <DashboardHeader
-        right={
-          hasSession ? (
-            <Button variant="destructive" size="sm" className="gap-1.5 font-bold">
-              <X className="size-4" />
-              Terminer la session
-            </Button>
-          ) : null
-        }
-      />
+      <DashboardHeader />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
         <div className="space-y-8 p-6 md:p-8">
           <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
@@ -168,16 +176,38 @@ export function LiveOpsContent() {
                 Gérez vos sessions live, suivez les stocks et les réservations en temps réel.
               </p>
             </div>
-            {hasSession && (
-              <div className="flex gap-2">
-                <Button variant="outline" size="icon" aria-label="Paramètres">
-                  <Settings className="size-4" />
+            <div className="flex gap-2">
+              {hasSession ? (
+                <>
+                  <Button variant="outline" size="icon" aria-label="Paramètres">
+                    <Settings className="size-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" aria-label="Exporter">
+                    <Download className="size-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="gap-1.5 font-bold"
+                    onClick={() => setShowEndLiveDialog(true)}
+                    disabled={endLiveMutation.isPending}
+                  >
+                    <X className="size-4" />
+                    {endLiveMutation.isPending ? "Fermeture…" : "Terminer la session"}
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  size="sm"
+                  className="gap-1.5 font-bold"
+                  onClick={() => startLiveMutation.mutate()}
+                  disabled={startLiveMutation.isPending}
+                >
+                  <Play className="size-4" />
+                  {startLiveMutation.isPending ? "Démarrage…" : "Lancer le live"}
                 </Button>
-                <Button variant="outline" size="icon" aria-label="Exporter">
-                  <Download className="size-4" />
-                </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <section aria-label="Indicateurs" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -471,6 +501,31 @@ export function LiveOpsContent() {
           )}
         </div>
       </main>
+
+      <AlertDialog
+        open={showEndLiveDialog}
+        onOpenChange={(open) => !open && setShowEndLiveDialog(false)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Terminer la session live ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action ferme la session en cours. Les articles restants seront promus vers
+              votre catalogue. Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => endLiveMutation.mutate()}
+              disabled={endLiveMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Terminer la session
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog
         open={releaseTargetId !== null}

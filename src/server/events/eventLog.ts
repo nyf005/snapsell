@@ -29,7 +29,8 @@ export type EventType =
   | "deposit_requested"
   | "order.status_changed"
   | "deposit_approved"
-  | "deposit_rejected";
+  | "deposit_rejected"
+  | "catalogue_item.photo_linked";
 
 /**
  * Types d'entités pour Event Log
@@ -116,6 +117,7 @@ const logEventInputSchema = z.object({
     "order.status_changed",
     "deposit_approved",
     "deposit_rejected",
+    "catalogue_item.photo_linked",
   ]),
   entityType: z.enum([
     "message_in",
@@ -350,6 +352,7 @@ export async function logLiveSessionCreated(
   tenantId: string,
   liveSessionId: string,
   correlationId: string,
+  options?: { actorType?: "seller" | "system" },
 ): Promise<void> {
   await logEvent({
     tenantId,
@@ -357,7 +360,7 @@ export async function logLiveSessionCreated(
     entityType: "session",
     entityId: liveSessionId,
     correlationId,
-    actorType: "system",
+    actorType: options?.actorType ?? "system",
     payload: {
       live_session_id: liveSessionId,
     },
@@ -675,5 +678,29 @@ export async function logDepositRejected(
     correlationId,
     actorType: "seller",
     payload: { order_id: orderId, proof_id: proofId, decision: "rejected" },
+  });
+}
+
+/**
+ * Story 9.3: Photo catalogue liée via WhatsApp
+ */
+export async function logCatalogueItemPhotoLinked(
+  tenantId: string,
+  catalogueItemId: string,
+  code: string,
+  correlationId: string,
+): Promise<void> {
+  await logEvent({
+    tenantId,
+    eventType: "catalogue_item.photo_linked",
+    entityType: "catalogue_item",
+    entityId: catalogueItemId,
+    correlationId,
+    actorType: "seller",
+    payload: {
+      catalogue_item_id: catalogueItemId,
+      code,
+      source: "whatsapp",
+    },
   });
 }

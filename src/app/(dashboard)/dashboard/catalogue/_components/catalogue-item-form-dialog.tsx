@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import {
@@ -13,41 +13,72 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Spinner } from "~/components/ui/spinner";
+import { ImagePlus, Trash2, Upload } from "lucide-react";
+import { cn } from "~/lib/utils";
 import type { CatalogueItemOutput } from "~/server/api/routers/catalogue.schema";
+
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 type CatalogueItemFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   item: CatalogueItemOutput | null;
   onSuccess: () => void;
+  r2Configured?: boolean;
 };
+
+async function uploadPhoto(itemId: string, file: File): Promise<void> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(`/api/catalogue/${itemId}/photo`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? "Erreur lors de l'upload de la photo");
+  }
+}
+
+async function deletePhoto(itemId: string): Promise<void> {
+  const res = await fetch(`/api/catalogue/${itemId}/photo`, {
+    method: "DELETE",
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? "Erreur lors de la suppression de la photo");
+  }
+}
 
 export function CatalogueItemFormDialog({
   open,
   onOpenChange,
   item,
   onSuccess,
+  r2Configured = true,
 }: CatalogueItemFormDialogProps) {
   const [code, setCode] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [amountCents, setAmountCents] = useState("");
   const [error, setError] = useState("");
 
+  // Photo state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [removeExistingPhoto, setRemoveExistingPhoto] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const createMutation = api.catalogue.create.useMutation({
-    onSuccess: () => {
-      onSuccess();
-      resetForm();
-    },
     onError: (err) => {
       setError(err.message);
     },
   });
 
   const updateMutation = api.catalogue.update.useMutation({
-    onSuccess: () => {
-      onSuccess();
-      resetForm();
-    },
     onError: (err) => {
       setError(err.message);
     },
@@ -63,16 +94,86 @@ export function CatalogueItemFormDialog({
     } else {
       resetForm();
     }
+    // Reset photo + error state on dialog open/item change
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setRemoveExistingPhoto(false);
+    setError("");
   }, [item, open]);
+
+  // Cleanup preview URL on unmount or change
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const resetForm = () => {
     setCode("");
     setQuantity("1");
     setAmountCents("");
     setError("");
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setRemoveExistingPhoto(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateAndSetFile = (file: File) => {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setError("Type de fichier non autorisé. Acceptés : JPEG, PNG, WebP");
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setError("Taille maximale dépassée (5 MB)");
+      return;
+    }
+
+    setError("");
+    setSelectedFile(file);
+    setRemoveExistingPhoto(false);
+
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    validateAndSetFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) validateAndSetFile(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setSelectedFile(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    if (item?.mediaStorageKey) {
+      setRemoveExistingPhoto(true);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -92,25 +193,71 @@ export function CatalogueItemFormDialog({
       amountCentsValue = parsed * 100;
     }
 
-    if (item) {
-      // Update
-      updateMutation.mutate({
-        id: item.id,
-        code: code.trim() !== item.code ? code.trim() : undefined,
-        quantity: qty !== item.quantity ? qty : undefined,
-        amountCents: amountCentsValue !== undefined ? amountCentsValue : undefined,
-      });
-    } else {
-      // Create
-      createMutation.mutate({
-        code: code.trim(),
-        quantity: qty,
-        amountCents: amountCentsValue,
-      });
+    try {
+      if (item) {
+        // ─── Update flow ──────────────────────────────
+        // 1. Handle photo changes (only if needed)
+        const hasPhotoWork = (removeExistingPhoto && !selectedFile) || !!selectedFile;
+        if (hasPhotoWork) setIsUploading(true);
+
+        if (removeExistingPhoto && !selectedFile) {
+          await deletePhoto(item.id);
+        }
+        if (selectedFile) {
+          await uploadPhoto(item.id, selectedFile);
+        }
+
+        if (hasPhotoWork) setIsUploading(false);
+
+        // 2. Update other fields if changed
+        const updates: Record<string, unknown> = { id: item.id };
+        if (code.trim() !== item.code) updates.code = code.trim();
+        if (qty !== item.quantity) updates.quantity = qty;
+        if (amountCentsValue !== undefined) updates.amountCents = amountCentsValue;
+
+        if (Object.keys(updates).length > 1) {
+          await updateMutation.mutateAsync(updates as Parameters<typeof updateMutation.mutateAsync>[0]);
+        }
+
+        onSuccess();
+        resetForm();
+      } else {
+        // ─── Create flow ──────────────────────────────
+        // 1. Create item (without photo)
+        const created = await createMutation.mutateAsync({
+          code: code.trim(),
+          quantity: qty,
+          amountCents: amountCentsValue,
+        });
+
+        // 2. Upload photo if selected
+        if (selectedFile && created.id) {
+          setIsUploading(true);
+          try {
+            await uploadPhoto(created.id, selectedFile);
+          } catch {
+            // Item créé mais photo échouée — fermer et rafraîchir.
+            // L'utilisateur peut éditer l'item pour réessayer l'upload.
+          }
+          setIsUploading(false);
+        }
+
+        onSuccess();
+        resetForm();
+      }
+    } catch (err) {
+      setIsUploading(false);
+      if (err instanceof Error && !error) {
+        setError(err.message);
+      }
     }
   };
 
-  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const isSubmitting = createMutation.isPending || updateMutation.isPending || isUploading;
+
+  // Determine what photo to show
+  const hasExistingPhoto = item?.mediaStorageKey && !removeExistingPhoto && !selectedFile;
+  const showPhotoSection = r2Configured;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -174,6 +321,125 @@ export function CatalogueItemFormDialog({
                 Si non spécifié, le prix sera dérivé de la première lettre du code
               </p>
             </div>
+
+            {/* Photo section */}
+            {!r2Configured && (
+              <div className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
+                Configuration R2 requise pour les photos. Contactez votre administrateur.
+              </div>
+            )}
+            {showPhotoSection && (
+              <div className="space-y-2">
+                <Label>Photo (optionnel)</Label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleFileSelect}
+                  disabled={isSubmitting}
+                  className="hidden"
+                  id="photo-input"
+                />
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={cn(
+                    "relative cursor-pointer overflow-hidden rounded-xl border-2 border-dashed transition-colors",
+                    isUploading && "pointer-events-none opacity-60",
+                    isDragOver
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-muted/30 hover:border-primary/50",
+                  )}
+                >
+                  {/* State A: empty */}
+                  {!previewUrl && !hasExistingPhoto && !isUploading && !isDragOver && (
+                    <div className="flex flex-col items-center gap-2 px-4 py-8">
+                      <div className="flex size-10 items-center justify-center rounded-full bg-muted">
+                        <Upload className="size-5 text-muted-foreground" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Déposez une image ici ou{" "}
+                        <span className="font-medium text-primary">
+                          parcourir vos fichiers
+                        </span>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        JPEG, PNG ou WebP — 5 MB max
+                      </p>
+                    </div>
+                  )}
+
+                  {/* State B: preview */}
+                  {(previewUrl ?? hasExistingPhoto) && !isUploading && !isDragOver && (
+                    <div className="group relative">
+                      <img
+                        src={previewUrl ?? `/api/catalogue/${item!.id}/photo`}
+                        alt="Aperçu de la photo"
+                        className="h-[160px] w-full object-contain"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 bg-gradient-to-t from-black/60 to-transparent px-3 py-3 opacity-0 transition-opacity group-hover:opacity-100">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          className="h-8 bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            fileInputRef.current?.click();
+                          }}
+                        >
+                          <ImagePlus className="mr-1.5 size-3.5" />
+                          Changer
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          className="h-8 bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemovePhoto();
+                          }}
+                        >
+                          <Trash2 className="mr-1.5 size-3.5" />
+                          Supprimer
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* State C: uploading */}
+                  {isUploading && (
+                    <div className="flex flex-col items-center gap-2 px-4 py-8">
+                      <Spinner className="size-6" />
+                      <p className="text-sm text-muted-foreground">
+                        Upload en cours…
+                      </p>
+                    </div>
+                  )}
+
+                  {/* State D: drag-over */}
+                  {isDragOver && (
+                    <div className="flex flex-col items-center gap-2 px-4 py-8">
+                      <Upload className="size-8 text-primary" />
+                      <p className="text-sm font-medium text-primary">
+                        Déposez pour ajouter
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {error && (
               <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
