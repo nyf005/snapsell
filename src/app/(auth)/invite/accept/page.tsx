@@ -278,11 +278,11 @@ function InviteAcceptContent() {
 
         <p className="px-4 text-center text-xs text-muted-foreground">
           En rejoignant, vous acceptez nos{" "}
-          <Link href="#" className="text-primary hover:underline">
+          <Link href="/conditions-utilisation" className="text-primary hover:underline">
             Conditions d&apos;utilisation
           </Link>{" "}
           et notre{" "}
-          <Link href="#" className="text-primary hover:underline">
+          <Link href="/politique-confidentialite" className="text-primary hover:underline">
             Politique de confidentialité
           </Link>
           .
