@@ -359,7 +359,7 @@ export const liveRouter = createTRPCRouter({
           createResult.reservation.id,
           firstInWaitlist.catalogueItemId ?? firstInWaitlist.liveItemId ?? "unknown",
           firstInWaitlist.correlationId,
-          { live_session_id: firstInWaitlist.liveSessionId },
+          { live_session_id: firstInWaitlist.liveSessionId ?? undefined },
         ).catch((err) => {
           workerLogger.warn("Event log waitlist_promoted failed", {
             reservationId: createResult.reservation.id,
