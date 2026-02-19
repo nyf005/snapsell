@@ -6,7 +6,7 @@
  * Flux WhatsApp → preuve (à brancher dans webhook-processor) :
  * 1. Message entrant : from (client), body, mediaUrl (optionnel), correlationId.
  * 2. Trouver une Order du tenant où reservation.clientPhone = from et depositStatus = deposit_pending.
- * 3. Si mediaUrl : fetch média Twilio → upload R2 (ex. key: tenants/{tenantId}/payment-proofs/{orderId}/{messageId}) → createPaymentProof(tenantId, orderId, { mediaStorageKey: key }, correlationId).
+ * 3. Si mediaUrl : fetch média → upload R2 (ex. key: tenants/{tenantId}/payment-proofs/{orderId}/{messageId}) → createPaymentProof(tenantId, orderId, { mediaStorageKey: key }, correlationId).
  * 4. Si texte seul : createPaymentProof(tenantId, orderId, { textPayload: body }, correlationId).
  * 5. Optionnel : répondre au client "Preuve reçue, le vendeur va vérifier."
  *

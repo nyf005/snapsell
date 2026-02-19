@@ -34,7 +34,7 @@ describe("addToWaitlist (Story 4.3 + 9.1)", () => {
           delete: vi.fn(),
         },
       };
-      return fn(tx as Parameters<Parameters<typeof db.$transaction>[0]>[0]) as Promise<unknown>;
+      return fn(tx as unknown as Parameters<Parameters<typeof db.$transaction>[0]>[0]) as Promise<unknown>;
     });
   });
 

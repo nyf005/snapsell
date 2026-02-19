@@ -205,15 +205,13 @@ describe("metaWebhookSchema", () => {
 
   it("rejette un payload avec field invalide", () => {
     const invalid = structuredClone(validPayload);
-    // @ts-expect-error — test volontaire avec valeur invalide
-    invalid.entry[0]!.changes[0]!.field = "account";
+    invalid.entry[0]!.changes[0]!.field = "account" as never;
     expect(() => metaWebhookSchema.parse(invalid)).toThrow();
   });
 
   it("rejette un payload sans messaging_product whatsapp", () => {
     const invalid = structuredClone(validPayload);
-    // @ts-expect-error — test volontaire avec valeur invalide
-    invalid.entry[0]!.changes[0]!.value.messaging_product = "facebook";
+    invalid.entry[0]!.changes[0]!.value.messaging_product = "facebook" as never;
     expect(() => metaWebhookSchema.parse(invalid)).toThrow();
   });
 
@@ -410,7 +408,7 @@ describe("POST /api/webhooks/meta — inbound", () => {
 
     vi.mocked(dbMock.db.tenant.findUnique).mockResolvedValue({ id: "tenant-1", metaPhoneNumberId: "PN_ID_123", metaAccessToken: "tok" } as never);
     vi.mocked(dbMock.db.messageIn.findUnique).mockResolvedValue(null);
-    vi.mocked(dbMock.db.messageIn.create).mockImplementation((args: never) => {
+    vi.mocked(dbMock.db.messageIn.create).mockImplementation((args) => {
       const data = (args as { data: { providerMessageId: string; correlationId: string } }).data;
       return Promise.resolve({ id: `msg-${data.providerMessageId}`, correlationId: data.correlationId }) as never;
     });

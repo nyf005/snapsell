@@ -53,11 +53,10 @@ function generatePayload(eventType: string): Record<string, unknown> {
   switch (eventType) {
     case "webhook_received":
       return {
-        provider: "twilio",
+        provider: "meta",
         from: "+22890123456",
-        to: "+33612345678",
+        provider_message_id: `wamid.${randomUUID().replace(/-/g, "")}`,
         body: "Bonjour, je veux réserver le sac Louis Vuitton",
-        messageSid: `SM${randomUUID().replace(/-/g, "").slice(0, 32)}`,
       };
     case "message_sent":
       return {

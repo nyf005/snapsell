@@ -25,27 +25,6 @@ export const setCategoryPricesInputSchema = z
     { message: "Chaque catégorie ne doit apparaître qu’une seule fois (pas de doublons).", path: ["items"] }
   );
 
-/** Regex E.164 (ex. +33612345678). */
-const E164_REGEX = /^\+[1-9]\d{6,14}$/;
-
-/** Numéro WhatsApp au format international E.164 (ex. +33612345678). */
-export const e164PhoneSchema = z
-  .string()
-  .min(1, "Le numéro est requis")
-  .transform((s) => s.trim())
-  .refine((v) => E164_REGEX.test(v), {
-    message: "Format international requis (ex. +33612345678)",
-  });
-
-export const setWhatsAppConfigInputSchema = z.object({
-  whatsappPhoneNumber: z
-    .union([z.string(), z.null()])
-    .transform((s) => (s === "" || s == null ? null : String(s).trim()))
-    .refine((v) => v === null || E164_REGEX.test(v), {
-      message: "Format international requis (ex. +33612345678)",
-    }),
-});
-
 /** Schema Meta WhatsApp Cloud API config (Story 10.1). */
 const nullableStringTrimmed = z
   .union([z.string(), z.null()])
@@ -59,5 +38,4 @@ export const setMetaConfigInputSchema = z.object({
 
 export type CategoryPriceItemInput = z.infer<typeof categoryPriceItemSchema>;
 export type SetCategoryPricesInput = z.infer<typeof setCategoryPricesInputSchema>;
-export type SetWhatsAppConfigInput = z.infer<typeof setWhatsAppConfigInputSchema>;
 export type SetMetaConfigInput = z.infer<typeof setMetaConfigInputSchema>;

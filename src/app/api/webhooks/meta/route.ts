@@ -58,7 +58,7 @@ export async function GET(request: Request) {
 /**
  * POST /api/webhooks/meta — Reception messages entrants Meta WhatsApp
  * Story 10.3 AC#2, AC#4
- * Suit le meme pattern que la route Twilio (13 etapes)
+ * Route webhook Meta WhatsApp Cloud API (13 etapes)
  */
 export async function POST(request: Request) {
   const startTime = Date.now();
@@ -196,9 +196,6 @@ export async function POST(request: Request) {
           continue;
         }
 
-        // Generate proper UUID correlationId for tracing (wamid is providerMessageId)
-        const messageCorrelationId = crypto.randomUUID();
-
         // Persist MessageIn
         const messageIn = await db.messageIn.create({
           data: {
@@ -207,7 +204,7 @@ export async function POST(request: Request) {
             from: message.from,
             body: message.body,
             mediaUrl: message.mediaUrl,
-            correlationId: messageCorrelationId,
+            correlationId: message.correlationId,
           },
         }).catch((error: unknown) => {
           if (
@@ -242,7 +239,7 @@ export async function POST(request: Request) {
         const normalizedMessage = {
           ...message,
           tenantId: tenant.id,
-          correlationId: messageCorrelationId,
+          correlationId: message.correlationId,
         };
         const validatedPayload = inboundMessageForQueueSchema.parse(normalizedMessage);
 

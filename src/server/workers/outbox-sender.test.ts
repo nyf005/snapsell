@@ -84,7 +84,7 @@ vi.mock("~/lib/logger", () => ({
   },
 }));
 
-// Task 2.5: env vars Twilio supprimées — seules les vars outbox conservées
+// Seules les vars outbox sont nécessaires (pas de vars provider dans le worker)
 vi.mock("~/env", () => ({
   env: {
     OUTBOX_MAX_RETRIES: 5,

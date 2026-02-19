@@ -17,14 +17,6 @@ vi.mock("~/server/db", () => ({
   },
 }));
 
-// Mock env
-vi.mock("~/env", () => ({
-  env: {
-    TWILIO_ACCOUNT_SID: "ACtest123",
-    TWILIO_AUTH_TOKEN: "authtoken123",
-  },
-}));
-
 // Mock logger
 vi.mock("~/lib/logger", () => ({
   workerLogger: {
@@ -62,18 +54,11 @@ describe("uploadMediaToCatalogueItem", () => {
     await uploadMediaToCatalogueItem(
       "tenant-1",
       "cat-item-1",
-      "https://api.twilio.com/media/123",
+      "https://example.com/media/123",
       "corr-1",
     );
 
-    expect(globalThis.fetch).toHaveBeenCalledWith(
-      "https://api.twilio.com/media/123",
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          Authorization: expect.stringMatching(/^Basic /),
-        }),
-      }),
-    );
+    expect(globalThis.fetch).toHaveBeenCalledWith("https://example.com/media/123");
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         input: expect.objectContaining({
@@ -98,7 +83,7 @@ describe("uploadMediaToCatalogueItem", () => {
     await uploadMediaToCatalogueItem(
       "tenant-1",
       "cat-item-1",
-      "https://api.twilio.com/media/123",
+      "https://example.com/media/123",
       "corr-1",
     );
 
@@ -106,7 +91,7 @@ describe("uploadMediaToCatalogueItem", () => {
     expect(db.catalogueItem.update).not.toHaveBeenCalled();
   });
 
-  it("should throw when Twilio fetch fails (non-ok response)", async () => {
+  it("should throw when fetch fails (non-ok response)", async () => {
     const { isR2Configured } = await import("~/server/media/r2-client");
     vi.mocked(isR2Configured).mockReturnValue(true);
 
@@ -120,7 +105,7 @@ describe("uploadMediaToCatalogueItem", () => {
       uploadMediaToCatalogueItem(
         "tenant-1",
         "cat-item-1",
-        "https://api.twilio.com/media/123",
+        "https://example.com/media/123",
         "corr-1",
       ),
     ).rejects.toThrow("Failed to fetch media: 404 Not Found");
@@ -142,7 +127,7 @@ describe("uploadMediaToCatalogueItem", () => {
       uploadMediaToCatalogueItem(
         "tenant-1",
         "cat-item-1",
-        "https://api.twilio.com/media/123",
+        "https://example.com/media/123",
         "corr-1",
       ),
     ).rejects.toThrow("R2 upload failed");
@@ -165,40 +150,6 @@ describe("uploadMediaToCatalogueItem", () => {
     expect(db.catalogueItem.update).not.toHaveBeenCalled();
   });
 
-  it("should use Basic Auth for Twilio URLs", async () => {
-    const { isR2Configured, createR2Client } = await import("~/server/media/r2-client");
-    vi.mocked(isR2Configured).mockReturnValue(true);
-    vi.mocked(createR2Client).mockReturnValue({
-      send: vi.fn().mockResolvedValue({}),
-    } as never);
-
-    const { db } = await import("~/server/db");
-    vi.mocked(db.catalogueItem.update).mockResolvedValue({} as never);
-
-    vi.mocked(globalThis.fetch).mockResolvedValue({
-      ok: true,
-      arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8)),
-      headers: new Headers({ "content-type": "image/jpeg" }),
-    } as never);
-
-    await uploadMediaToCatalogueItem(
-      "tenant-1",
-      "cat-item-1",
-      "https://api.twilio.com/2010-04-01/Accounts/AC123/Messages/MM123/Media/ME123",
-      "corr-1",
-    );
-
-    const expectedAuth = "Basic " + Buffer.from("ACtest123:authtoken123").toString("base64");
-    expect(globalThis.fetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          Authorization: expectedAuth,
-        }),
-      }),
-    );
-  });
-
   it("should skip upload for unsupported content-type (L2 fix)", async () => {
     const { isR2Configured, createR2Client } = await import("~/server/media/r2-client");
     vi.mocked(isR2Configured).mockReturnValue(true);
@@ -216,7 +167,7 @@ describe("uploadMediaToCatalogueItem", () => {
     await uploadMediaToCatalogueItem(
       "tenant-1",
       "cat-item-1",
-      "https://api.twilio.com/media/123",
+      "https://example.com/media/123",
       "corr-1",
     );
 
@@ -243,7 +194,7 @@ describe("uploadMediaToCatalogueItem", () => {
     await uploadMediaToCatalogueItem(
       "tenant-1",
       "cat-item-1",
-      "https://api.twilio.com/media/123",
+      "https://example.com/media/123",
       "corr-1",
     );
 
@@ -268,11 +219,11 @@ describe("uploadMediaToCatalogueItem", () => {
     await uploadMediaToCatalogueItem(
       "tenant-1",
       "cat-item-1",
-      "https://api.twilio.com/media/123",
+      "https://example.com/media/123",
       "corr-1",
     );
 
-    // application/octet-stream (default when no content-type) is now rejected
+    // application/octet-stream (default when no content-type) is rejected
     expect(mockSend).not.toHaveBeenCalled();
     expect(db.catalogueItem.update).not.toHaveBeenCalled();
   });
@@ -292,7 +243,7 @@ describe("uploadMediaToCatalogueItem", () => {
       uploadMediaToCatalogueItem(
         "tenant-1",
         "cat-item-1",
-        "https://api.twilio.com/media/123",
+        "https://example.com/media/123",
         "corr-1",
       ),
     ).rejects.toThrow("Failed to fetch media: 500 Internal Server Error");

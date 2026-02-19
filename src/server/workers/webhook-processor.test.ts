@@ -723,11 +723,14 @@ describe("webhook-processor", () => {
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
         id: "cat-item-1",
+        tenantId,
         code: "A12",
         amount: 5000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,
+        mediaStorageKey: null,
+        createdInLive: false,
       });
 
       const job = {
@@ -778,11 +781,14 @@ describe("webhook-processor", () => {
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
         id: "cat-item-existing",
+        tenantId,
         code: "A12",
         amount: 5000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,
+        mediaStorageKey: null,
+        createdInLive: false,
       });
 
       const job = {
@@ -828,11 +834,14 @@ describe("webhook-processor", () => {
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
         id: "cat-item-exhausted",
+        tenantId,
         code: "A12",
         amount: 5000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 1,
+        mediaStorageKey: null,
+        createdInLive: false,
       });
       const { addToWaitlist } = await import("~/server/waitlist/addToWaitlist");
       vi.mocked(addToWaitlist).mockResolvedValue({ ok: true, position: 2 });
@@ -886,11 +895,14 @@ describe("webhook-processor", () => {
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
         id: "cat-item-b7",
+        tenantId,
         code: "B7",
         amount: 3000,
         quantity: 2,
         availableQty: 2,
         reservedQty: 0,
+        mediaStorageKey: null,
+        createdInLive: false,
       });
       const { createReservation } = await import("~/server/reservation/service");
       vi.mocked(createReservation).mockResolvedValue({ success: false, reason: "exhausted" });
@@ -1006,11 +1018,14 @@ describe("webhook-processor", () => {
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
         id: "cat-item-a12",
+        tenantId,
         code: "A12",
         amount: 5000,
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,
+        mediaStorageKey: null,
+        createdInLive: false,
       });
       const { createReservation } = await import("~/server/reservation/service");
 
@@ -1159,7 +1174,6 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
       const { getActiveReservationForClient } = await import("~/server/reservation/service");
       vi.mocked(getActiveReservationForClient).mockResolvedValue({
@@ -1247,7 +1261,6 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
       const { getActiveReservationForClient } = await import("~/server/reservation/service");
       vi.mocked(getActiveReservationForClient).mockResolvedValue({
@@ -1357,7 +1370,6 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
       const { getActiveReservationForClient } = await import("~/server/reservation/service");
       vi.mocked(getActiveReservationForClient).mockResolvedValue(reservationAddressCollected as never);
@@ -1438,7 +1450,6 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
       const { createLiveItem } = await import("~/server/live-item/createLiveItem");
       vi.mocked(createLiveItem).mockResolvedValue({
@@ -1509,7 +1520,6 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
       const { createLiveItem, messageCodeAlreadyUsed } = await import(
         "~/server/live-item/createLiveItem"
@@ -1560,7 +1570,7 @@ describe("webhook-processor", () => {
     it("Story 3.4: when seller sends A12 x5 with mediaUrl, creates item and calls uploadMediaAndLinkToLiveItem", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
-      const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+      const mediaUrl = "https://example.com/media/test-image.jpg";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
@@ -1570,7 +1580,6 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
       const { createLiveItem } = await import("~/server/live-item/createLiveItem");
       vi.mocked(createLiveItem).mockResolvedValue({
@@ -1624,7 +1633,6 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
       const { createLiveItem, messageCodeAlreadyUsed } = await import(
         "~/server/live-item/createLiveItem"
@@ -1661,7 +1669,7 @@ describe("webhook-processor", () => {
     it("Story 3.5: vendeur envoie photo seule, dernier code créé il y a 1 min → photo liée, réponse « Photo ajoutée à [code]. »", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
-      const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+      const mediaUrl = "https://example.com/media/test-image.jpg";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
@@ -1723,7 +1731,7 @@ describe("webhook-processor", () => {
     it("Story 3.5: vendeur envoie photo seule sans code récent → « Envoie d'abord CODE PRIX »", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
-      const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+      const mediaUrl = "https://example.com/media/test-image.jpg";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
@@ -1765,7 +1773,7 @@ describe("webhook-processor", () => {
     it("Story 3.5: vendeur envoie photo seule, dernier code il y a 3 min → « Envoie d'abord CODE PRIX »", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
-      const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+      const mediaUrl = "https://example.com/media/test-image.jpg";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
@@ -1804,7 +1812,7 @@ describe("webhook-processor", () => {
     it("Story 3.4 unchanged: message A12 x5 + mediaUrl → item créé et photo liée (pas branche 3.5)", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
-      const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+      const mediaUrl = "https://example.com/media/test-image.jpg";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
@@ -1814,7 +1822,6 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
-        created: false,
       });
       const { createLiveItem } = await import("~/server/live-item/createLiveItem");
       vi.mocked(createLiveItem).mockResolvedValue({
@@ -1902,7 +1909,7 @@ describe("webhook-processor", () => {
       it("AC#1: vendeur photo + code existant → uploadMediaToCatalogueItem fire-and-forget + confirmation 'Photo ajoutée'", async () => {
         const tenantId = "tenant-123";
         const from = "+33612345678";
-        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+        const mediaUrl = "https://example.com/media/test-image.jpg";
 
         vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
           { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
@@ -1964,7 +1971,7 @@ describe("webhook-processor", () => {
       it("AC#2: vendeur photo + code introuvable (upsert échoue) → message 'Code introuvable'", async () => {
         const tenantId = "tenant-123";
         const from = "+33612345678";
-        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+        const mediaUrl = "https://example.com/media/test-image.jpg";
 
         vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
           { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
@@ -2013,7 +2020,7 @@ describe("webhook-processor", () => {
       it("AC#3: vendeur photo SANS code (body vide) + session active → flux Story 3.5 préservé (photo seule → dernier LiveItem)", async () => {
         const tenantId = "tenant-123";
         const from = "+33612345678";
-        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+        const mediaUrl = "https://example.com/media/test-image.jpg";
 
         vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
           { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
@@ -2069,7 +2076,7 @@ describe("webhook-processor", () => {
       it("AC#4: vendeur photo + code + session live active → photo vers CatalogueItem + message consolidé unique", async () => {
         const tenantId = "tenant-123";
         const from = "+33612345678";
-        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+        const mediaUrl = "https://example.com/media/test-image.jpg";
 
         vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
           { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
@@ -2161,7 +2168,7 @@ describe("webhook-processor", () => {
       it("AC#5: vendeur renvoie photo + même code → nouvelle photo remplace l'ancienne (même clé R2 déterministe)", async () => {
         const tenantId = "tenant-123";
         const from = "+33612345678";
-        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx2";
+        const mediaUrl = "https://example.com/media/test-image.jpg2";
 
         vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
           { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
@@ -2252,7 +2259,7 @@ describe("webhook-processor", () => {
       it("H1 fix: vendeur photo + code mais R2 non configuré → pas d'upload ni de confirmation photo", async () => {
         const tenantId = "tenant-123";
         const from = "+33612345678";
-        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+        const mediaUrl = "https://example.com/media/test-image.jpg";
 
         vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
           { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
@@ -2307,7 +2314,7 @@ describe("webhook-processor", () => {
       it("M3 fix: vendeur photo + code avec prix non configuré → message 'pas de prix' au lieu de 'code introuvable'", async () => {
         const tenantId = "tenant-123";
         const from = "+33612345678";
-        const mediaUrl = "https://api.twilio.com/2010-04-01/Accounts/ACx/Messages/MMx/Media/MEx";
+        const mediaUrl = "https://example.com/media/test-image.jpg";
 
         vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
           { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },

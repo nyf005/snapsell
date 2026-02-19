@@ -54,7 +54,7 @@ describe("reservation-ttl (Story 4.3 + 9.1)", () => {
       liveItem: { id: "item-1", code: "A12" },
     };
     vi.mocked(db.reservation.findMany).mockResolvedValue([
-      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+      res as unknown as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
     ]);
 
     vi.mocked(db.$transaction).mockImplementation(async (fn) => {
@@ -91,7 +91,7 @@ describe("reservation-ttl (Story 4.3 + 9.1)", () => {
       liveItem: { id: "item-1", code: "A12" },
     };
     vi.mocked(db.reservation.findMany).mockResolvedValue([
-      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+      res as unknown as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
     ]);
 
     const promoted = {
@@ -166,7 +166,7 @@ describe("reservation-ttl (Story 4.3 + 9.1)", () => {
       liveItem: null,
     };
     vi.mocked(db.reservation.findMany).mockResolvedValue([
-      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+      res as unknown as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
     ]);
 
     vi.mocked(db.$transaction).mockImplementation(async (fn) => {
@@ -210,7 +210,7 @@ describe("reservation-ttl (Story 4.3 + 9.1)", () => {
       liveItem: null,
     };
     vi.mocked(db.reservation.findMany).mockResolvedValue([
-      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+      res as unknown as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
     ]);
 
     const promoted = {
@@ -280,7 +280,7 @@ describe("reservation-ttl (Story 4.3 + 9.1)", () => {
       liveItem: null,
     };
     vi.mocked(db.reservation.findMany).mockResolvedValue([
-      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+      res as unknown as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
     ]);
 
     const result = await runReservationTtlJob();
@@ -299,7 +299,7 @@ describe("reservation-ttl (Story 4.3 + 9.1)", () => {
       liveItem: { id: "item-2", code: "B7" },
     };
     vi.mocked(db.reservation.findMany).mockResolvedValue([
-      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+      res as unknown as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
     ]);
     const promoted = {
       id: "w2",
@@ -361,7 +361,7 @@ describe("runReservationReminderJob (Story 4.4)", () => {
       reminderSentAt: null,
     };
     vi.mocked(db.reservation.findMany).mockResolvedValue([
-      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+      res as unknown as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
     ]);
     vi.mocked(db.reservation.updateMany).mockResolvedValue({ count: 1 });
 
@@ -403,7 +403,7 @@ describe("runReservationReminderJob (Story 4.4)", () => {
       reminderSentAt: null,
     };
     vi.mocked(db.reservation.findMany).mockResolvedValue([
-      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+      res as unknown as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
     ]);
     vi.mocked(db.reservation.updateMany).mockResolvedValue({ count: 0 });
 
@@ -430,7 +430,7 @@ describe("runReservationReminderJob (Story 4.4)", () => {
       reminderSentAt: null,
     };
     vi.mocked(db.reservation.findMany).mockResolvedValue([
-      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+      res as unknown as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
     ]);
     vi.mocked(db.reservation.updateMany).mockResolvedValue({ count: 1 });
 
@@ -476,7 +476,7 @@ describe("runReservationReminderJob (Story 4.4)", () => {
       reminderSentAt: null,
     };
     vi.mocked(db.reservation.findMany).mockResolvedValue([
-      res as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
+      res as unknown as Awaited<ReturnType<typeof db.reservation.findMany>>[number],
     ]);
     vi.mocked(db.reservation.updateMany)
       .mockResolvedValueOnce({ count: 1 })

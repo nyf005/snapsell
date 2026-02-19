@@ -23,7 +23,6 @@ enum Role {
 model Tenant {
   id                    String                @id @default(cuid())
   name                  String
-  whatsappPhoneNumber   String?               @unique @map("whatsapp_phone_number")
   // Meta WhatsApp Cloud API (Story 10.1)
   metaPhoneNumberId     String?               @unique @map("meta_phone_number_id")
   metaWabaId            String?               @map("meta_waba_id")
@@ -227,7 +226,7 @@ model MessageIn {
   id                String   @id @default(cuid())
   tenantId          String?  @map("tenant_id") // nullable si tenant non résolu
   tenant            Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
-  providerMessageId String   @map("provider_message_id") // ex. MessageSid Twilio
+  providerMessageId String   @map("provider_message_id") // ex. wamid Meta
   from              String   // numéro WhatsApp expéditeur
   body              String   @db.Text
   mediaUrl          String?  @map("media_url")
@@ -304,7 +303,7 @@ model MessageOut {
   nextAttemptAt      DateTime? @map("next_attempt_at")
   lastError          String?  @db.Text @map("last_error")
   correlationId      String   @map("correlation_id") // UUID ou message_sid pour traçabilité
-  providerMessageId  String?  @map("provider_message_id") // MessageSid Twilio après envoi réussi
+  providerMessageId  String?  @map("provider_message_id") // wamid Meta après envoi réussi
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
 

@@ -103,14 +103,12 @@ export const settingsRouter = createTRPCRouter({
     const tenant = await db.tenant.findUnique({
       where: { id: tenantId },
       select: {
-        whatsappPhoneNumber: true,
         metaPhoneNumberId: true,
         metaWabaId: true,
         metaAccessToken: true,
       },
     });
     return {
-      whatsappPhoneNumber: tenant?.whatsappPhoneNumber ?? null,
       metaPhoneNumberId: tenant?.metaPhoneNumberId ?? null,
       metaWabaId: tenant?.metaWabaId ?? null,
       hasAccessToken: !!(tenant?.metaAccessToken),

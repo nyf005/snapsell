@@ -439,7 +439,7 @@ describe("ops router", () => {
           tenantId: tenant1Id,
           jobType: "message_out",
           payload: { to: "+33612345678", body: "Hello" },
-          errorMessage: "Twilio error",
+          errorMessage: "Provider send error",
           errorStack: null,
           attempts: 3,
           createdAt: new Date("2024-01-01T10:00:00Z"),
@@ -462,7 +462,7 @@ describe("ops router", () => {
       expect(result.items).toHaveLength(1);
       expect(result.items[0]?.jobType).toBe("message_out");
       expect(result.items[0]?.tenantName).toBe("Tenant 1");
-      expect(result.items[0]?.errorMessage).toBe("Twilio error");
+      expect(result.items[0]?.errorMessage).toBe("Provider send error");
       expect(result.items[0]?.attempts).toBe(3);
       const payload = result.items[0]?.payload as Record<string, unknown>;
       expect(payload?.to).toMatch(/^\+\d\*\*\*\*\d{2}$/);

@@ -11,7 +11,7 @@
  * Pour executer : RUN_INTEGRATION_TESTS=true npx vitest run meta-e2e.integration.test.ts
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, afterEach, beforeEach, vi } from "vitest";
 import crypto from "crypto";
 
 // ─── Hoisted refs (avant vi.mock) ───
@@ -189,9 +189,8 @@ describe.skipIf(!shouldRun)(
       expect(messageIn!.body).toBe("A12");
       expect(messageIn!.tenantId).toBe(testTenantId);
 
-      // correlationId must be a valid UUID (not the wamid)
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      expect(messageIn!.correlationId).toMatch(uuidRegex);
+      // correlationId must be the wamid (native provider message ID)
+      expect(messageIn!.correlationId).toBe("wamid.e2e-ac1");
 
       expect(mockQueueAdd).toHaveBeenCalledTimes(1);
       // L1 fix: le meme correlationId doit etre present dans le record DB ET dans le payload BullMQ
@@ -279,16 +278,13 @@ describe.skipIf(!shouldRun)(
       });
       expect(messagesIn).toHaveLength(3);
 
-      // 3 distinct UUID correlationIds
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      const correlationIds = messagesIn.map((m) => m.correlationId);
-      for (const cid of correlationIds) {
-        expect(cid).toMatch(uuidRegex);
-      }
-      expect(new Set(correlationIds).size).toBe(3);
+      // correlationIds must match the wamids of each message
+      const msgById = Object.fromEntries(messagesIn.map((m) => [m.providerMessageId, m]));
+      expect(msgById["wamid.e2e-batch-1"]!.correlationId).toBe("wamid.e2e-batch-1");
+      expect(msgById["wamid.e2e-batch-2"]!.correlationId).toBe("wamid.e2e-batch-2");
+      expect(msgById["wamid.e2e-batch-3"]!.correlationId).toBe("wamid.e2e-batch-3");
 
       // M2 fix: verifier le format `+` prefix du champ `from` et la valeur `body` pour chaque message
-      const msgById = Object.fromEntries(messagesIn.map((m) => [m.providerMessageId, m]));
       expect(msgById["wamid.e2e-batch-1"]!.from).toBe("+33600000001");
       expect(msgById["wamid.e2e-batch-1"]!.body).toBe("Msg1");
       expect(msgById["wamid.e2e-batch-2"]!.from).toBe("+33600000002");

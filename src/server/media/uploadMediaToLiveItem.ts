@@ -1,18 +1,17 @@
 /**
- * Story 3.4: Télécharger le média Twilio, uploader vers R2, enregistrer la clé sur LiveItem.
+ * Story 3.4: Télécharger le média, uploader vers R2, enregistrer la clé sur LiveItem.
  * Exécuté en async (ne pas bloquer le worker).
- * Si R2 ou Twilio non configurés, no-op.
+ * Si R2 non configuré, no-op.
  * En cas d'échec (fetch, upload, update), l'item reste sans mediaStorageKey ; pas de retry/DLQ dédié (MVP).
  */
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { env } from "~/env";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { isR2Configured, createR2Client, getR2BucketName } from "~/server/media/r2-client";
 
 /**
- * Télécharge le média depuis mediaUrl (Twilio avec auth si besoin), upload vers R2,
+ * Télécharge le média depuis mediaUrl, upload vers R2,
  * met à jour LiveItem.mediaStorageKey. No-op si R2 non configuré.
  */
 export async function uploadMediaAndLinkToLiveItem(
@@ -42,16 +41,7 @@ export async function uploadMediaAndLinkToLiveItem(
   }
 
   try {
-    const isTwilioUrl = mediaUrl.includes("api.twilio.com") || mediaUrl.includes("twilio.com");
-    const accountSid = env.TWILIO_ACCOUNT_SID;
-    const authToken = env.TWILIO_AUTH_TOKEN;
-    const headers: HeadersInit = {};
-    if (isTwilioUrl && accountSid && authToken) {
-      headers["Authorization"] =
-        "Basic " + Buffer.from(`${accountSid}:${authToken}`).toString("base64");
-    }
-
-    const response = await fetch(mediaUrl, { headers });
+    const response = await fetch(mediaUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch media: ${response.status} ${response.statusText}`);
     }

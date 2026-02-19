@@ -124,7 +124,6 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.TenantScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  whatsappPhoneNumber: 'whatsappPhoneNumber',
   metaPhoneNumberId: 'metaPhoneNumberId',
   metaWabaId: 'metaWabaId',
   metaAccessToken: 'metaAccessToken',

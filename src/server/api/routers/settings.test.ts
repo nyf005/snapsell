@@ -171,7 +171,6 @@ describe("settings router — getWhatsAppConfig (Meta)", () => {
 
   it("returns Meta fields with hasAccessToken=true when token exists", async () => {
     mockTenantFindUnique.mockResolvedValue({
-      whatsappPhoneNumber: "+33612345678",
       metaPhoneNumberId: "123",
       metaWabaId: "456",
       metaAccessToken: "secret-token",
@@ -181,7 +180,6 @@ describe("settings router — getWhatsAppConfig (Meta)", () => {
     const result = await caller.settings.getWhatsAppConfig();
 
     expect(result).toEqual({
-      whatsappPhoneNumber: "+33612345678",
       metaPhoneNumberId: "123",
       metaWabaId: "456",
       hasAccessToken: true,
@@ -190,7 +188,6 @@ describe("settings router — getWhatsAppConfig (Meta)", () => {
 
   it("returns hasAccessToken=false when token is null", async () => {
     mockTenantFindUnique.mockResolvedValue({
-      whatsappPhoneNumber: null,
       metaPhoneNumberId: "123",
       metaWabaId: null,
       metaAccessToken: null,
@@ -204,7 +201,6 @@ describe("settings router — getWhatsAppConfig (Meta)", () => {
 
   it("never exposes the raw access token", async () => {
     mockTenantFindUnique.mockResolvedValue({
-      whatsappPhoneNumber: null,
       metaPhoneNumberId: "123",
       metaWabaId: "456",
       metaAccessToken: "super-secret",

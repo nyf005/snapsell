@@ -7,8 +7,6 @@ vi.mock("~/env", () => ({
     R2_ACCESS_KEY_ID: undefined,
     R2_SECRET_ACCESS_KEY: undefined,
     R2_BUCKET_NAME: undefined,
-    TWILIO_ACCOUNT_SID: undefined,
-    TWILIO_AUTH_TOKEN: undefined,
   },
 }));
 
@@ -42,12 +40,11 @@ describe("uploadMediaAndLinkToLiveItem (Story 3.4)", () => {
     await uploadMediaAndLinkToLiveItem(
       "tenant-1",
       "item-1",
-      "https://api.twilio.com/foo/bar",
+      "https://example.com/foo/bar",
       "corr-1",
     );
 
     expect(db.liveItem.update).not.toHaveBeenCalled();
-    // fetch is global; we didn't call it because we exited before
   });
 
   it("returns early when mediaUrl is invalid (no fetch) when R2 is configured", async () => {

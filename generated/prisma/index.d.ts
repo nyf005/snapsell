@@ -3477,7 +3477,6 @@ export namespace Prisma {
   export type TenantMinAggregateOutputType = {
     id: string | null
     name: string | null
-    whatsappPhoneNumber: string | null
     metaPhoneNumberId: string | null
     metaWabaId: string | null
     metaAccessToken: string | null
@@ -3509,7 +3508,6 @@ export namespace Prisma {
   export type TenantMaxAggregateOutputType = {
     id: string | null
     name: string | null
-    whatsappPhoneNumber: string | null
     metaPhoneNumberId: string | null
     metaWabaId: string | null
     metaAccessToken: string | null
@@ -3541,7 +3539,6 @@ export namespace Prisma {
   export type TenantCountAggregateOutputType = {
     id: number
     name: number
-    whatsappPhoneNumber: number
     metaPhoneNumberId: number
     metaWabaId: number
     metaAccessToken: number
@@ -3589,7 +3586,6 @@ export namespace Prisma {
   export type TenantMinAggregateInputType = {
     id?: true
     name?: true
-    whatsappPhoneNumber?: true
     metaPhoneNumberId?: true
     metaWabaId?: true
     metaAccessToken?: true
@@ -3621,7 +3617,6 @@ export namespace Prisma {
   export type TenantMaxAggregateInputType = {
     id?: true
     name?: true
-    whatsappPhoneNumber?: true
     metaPhoneNumberId?: true
     metaWabaId?: true
     metaAccessToken?: true
@@ -3653,7 +3648,6 @@ export namespace Prisma {
   export type TenantCountAggregateInputType = {
     id?: true
     name?: true
-    whatsappPhoneNumber?: true
     metaPhoneNumberId?: true
     metaWabaId?: true
     metaAccessToken?: true
@@ -3772,7 +3766,6 @@ export namespace Prisma {
   export type TenantGroupByOutputType = {
     id: string
     name: string
-    whatsappPhoneNumber: string | null
     metaPhoneNumberId: string | null
     metaWabaId: string | null
     metaAccessToken: string | null
@@ -3823,7 +3816,6 @@ export namespace Prisma {
   export type TenantSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    whatsappPhoneNumber?: boolean
     metaPhoneNumberId?: boolean
     metaWabaId?: boolean
     metaAccessToken?: boolean
@@ -3875,7 +3867,6 @@ export namespace Prisma {
   export type TenantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    whatsappPhoneNumber?: boolean
     metaPhoneNumberId?: boolean
     metaWabaId?: boolean
     metaAccessToken?: boolean
@@ -3907,7 +3898,6 @@ export namespace Prisma {
   export type TenantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    whatsappPhoneNumber?: boolean
     metaPhoneNumberId?: boolean
     metaWabaId?: boolean
     metaAccessToken?: boolean
@@ -3939,7 +3929,6 @@ export namespace Prisma {
   export type TenantSelectScalar = {
     id?: boolean
     name?: boolean
-    whatsappPhoneNumber?: boolean
     metaPhoneNumberId?: boolean
     metaWabaId?: boolean
     metaAccessToken?: boolean
@@ -3968,7 +3957,7 @@ export namespace Prisma {
     showUpgradeBanner?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "whatsappPhoneNumber" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     categoryPrices?: boolean | Tenant$categoryPricesArgs<ExtArgs>
@@ -4020,7 +4009,6 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
-      whatsappPhoneNumber: string | null
       metaPhoneNumberId: string | null
       metaWabaId: string | null
       metaAccessToken: string | null
@@ -4491,7 +4479,6 @@ export namespace Prisma {
   interface TenantFieldRefs {
     readonly id: FieldRef<"Tenant", 'String'>
     readonly name: FieldRef<"Tenant", 'String'>
-    readonly whatsappPhoneNumber: FieldRef<"Tenant", 'String'>
     readonly metaPhoneNumberId: FieldRef<"Tenant", 'String'>
     readonly metaWabaId: FieldRef<"Tenant", 'String'>
     readonly metaAccessToken: FieldRef<"Tenant", 'String'>
@@ -31474,7 +31461,6 @@ export namespace Prisma {
   export const TenantScalarFieldEnum: {
     id: 'id',
     name: 'name',
-    whatsappPhoneNumber: 'whatsappPhoneNumber',
     metaPhoneNumberId: 'metaPhoneNumberId',
     metaWabaId: 'metaWabaId',
     metaAccessToken: 'metaAccessToken',
@@ -32059,7 +32045,6 @@ export namespace Prisma {
     NOT?: TenantWhereInput | TenantWhereInput[]
     id?: StringFilter<"Tenant"> | string
     name?: StringFilter<"Tenant"> | string
-    whatsappPhoneNumber?: StringNullableFilter<"Tenant"> | string | null
     metaPhoneNumberId?: StringNullableFilter<"Tenant"> | string | null
     metaWabaId?: StringNullableFilter<"Tenant"> | string | null
     metaAccessToken?: StringNullableFilter<"Tenant"> | string | null
@@ -32110,7 +32095,6 @@ export namespace Prisma {
   export type TenantOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
-    whatsappPhoneNumber?: SortOrderInput | SortOrder
     metaPhoneNumberId?: SortOrderInput | SortOrder
     metaWabaId?: SortOrderInput | SortOrder
     metaAccessToken?: SortOrderInput | SortOrder
@@ -32160,7 +32144,6 @@ export namespace Prisma {
 
   export type TenantWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    whatsappPhoneNumber?: string
     metaPhoneNumberId?: string
     paystackCustomerCode?: string
     paystackSubscriptionCode?: string
@@ -32210,12 +32193,11 @@ export namespace Prisma {
     orders?: OrderListRelationFilter
     paymentProofs?: PaymentProofListRelationFilter
     subscriptionPayments?: SubscriptionPaymentListRelationFilter
-  }, "id" | "whatsappPhoneNumber" | "metaPhoneNumberId" | "paystackCustomerCode" | "paystackSubscriptionCode">
+  }, "id" | "metaPhoneNumberId" | "paystackCustomerCode" | "paystackSubscriptionCode">
 
   export type TenantOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
-    whatsappPhoneNumber?: SortOrderInput | SortOrder
     metaPhoneNumberId?: SortOrderInput | SortOrder
     metaWabaId?: SortOrderInput | SortOrder
     metaAccessToken?: SortOrderInput | SortOrder
@@ -32255,7 +32237,6 @@ export namespace Prisma {
     NOT?: TenantScalarWhereWithAggregatesInput | TenantScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Tenant"> | string
     name?: StringWithAggregatesFilter<"Tenant"> | string
-    whatsappPhoneNumber?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     metaPhoneNumberId?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     metaWabaId?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     metaAccessToken?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
@@ -34017,7 +33998,6 @@ export namespace Prisma {
   export type TenantCreateInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -34068,7 +34048,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -34119,7 +34098,6 @@ export namespace Prisma {
   export type TenantUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34170,7 +34148,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34221,7 +34198,6 @@ export namespace Prisma {
   export type TenantCreateManyInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -34253,7 +34229,6 @@ export namespace Prisma {
   export type TenantUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34285,7 +34260,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36418,7 +36392,6 @@ export namespace Prisma {
   export type TenantCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    whatsappPhoneNumber?: SortOrder
     metaPhoneNumberId?: SortOrder
     metaWabaId?: SortOrder
     metaAccessToken?: SortOrder
@@ -36457,7 +36430,6 @@ export namespace Prisma {
   export type TenantMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    whatsappPhoneNumber?: SortOrder
     metaPhoneNumberId?: SortOrder
     metaWabaId?: SortOrder
     metaAccessToken?: SortOrder
@@ -36489,7 +36461,6 @@ export namespace Prisma {
   export type TenantMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    whatsappPhoneNumber?: SortOrder
     metaPhoneNumberId?: SortOrder
     metaWabaId?: SortOrder
     metaAccessToken?: SortOrder
@@ -41106,7 +41077,6 @@ export namespace Prisma {
   export type TenantCreateWithoutInvitationsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -41156,7 +41126,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutInvitationsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -41222,7 +41191,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutInvitationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41272,7 +41240,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutInvitationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41322,7 +41289,6 @@ export namespace Prisma {
   export type TenantCreateWithoutDeliveryZonesInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -41372,7 +41338,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutDeliveryZonesInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -41458,7 +41423,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutDeliveryZonesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41508,7 +41472,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutDeliveryZonesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41635,7 +41598,6 @@ export namespace Prisma {
   export type TenantCreateWithoutDeliveryFeeCommuneInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -41685,7 +41647,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutDeliveryFeeCommuneInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -41751,7 +41712,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutDeliveryFeeCommuneInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41801,7 +41761,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutDeliveryFeeCommuneInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41851,7 +41810,6 @@ export namespace Prisma {
   export type TenantCreateWithoutUsersInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -41901,7 +41859,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutUsersInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -42027,7 +41984,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutUsersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42077,7 +42033,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutUsersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42331,7 +42286,6 @@ export namespace Prisma {
   export type TenantCreateWithoutCategoryPricesInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -42381,7 +42335,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutCategoryPricesInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -42447,7 +42400,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutCategoryPricesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42497,7 +42449,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutCategoryPricesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42547,7 +42498,6 @@ export namespace Prisma {
   export type TenantCreateWithoutMessagesInInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -42597,7 +42547,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutMessagesInInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -42663,7 +42612,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutMessagesInInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42713,7 +42661,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutMessagesInInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42763,7 +42710,6 @@ export namespace Prisma {
   export type TenantCreateWithoutSellerPhonesInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -42813,7 +42759,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutSellerPhonesInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -42879,7 +42824,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutSellerPhonesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42929,7 +42873,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutSellerPhonesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42979,7 +42922,6 @@ export namespace Prisma {
   export type TenantCreateWithoutEventLogsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -43029,7 +42971,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutEventLogsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -43095,7 +43036,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutEventLogsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43145,7 +43085,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutEventLogsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43195,7 +43134,6 @@ export namespace Prisma {
   export type TenantCreateWithoutOptOutsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -43245,7 +43183,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutOptOutsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -43311,7 +43248,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutOptOutsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43361,7 +43297,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutOptOutsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43411,7 +43346,6 @@ export namespace Prisma {
   export type TenantCreateWithoutMessagesOutInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -43461,7 +43395,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutMessagesOutInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -43527,7 +43460,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutMessagesOutInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43577,7 +43509,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutMessagesOutInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43627,7 +43558,6 @@ export namespace Prisma {
   export type TenantCreateWithoutLiveSessionsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -43677,7 +43607,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutLiveSessionsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -43823,7 +43752,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutLiveSessionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43873,7 +43801,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutLiveSessionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43955,7 +43882,6 @@ export namespace Prisma {
   export type TenantCreateWithoutLiveItemsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -44005,7 +43931,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutLiveItemsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -44138,7 +44063,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutLiveItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44188,7 +44112,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutLiveItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44285,7 +44208,6 @@ export namespace Prisma {
   export type TenantCreateWithoutCatalogueItemsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -44335,7 +44257,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutCatalogueItemsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -44475,7 +44396,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutCatalogueItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44525,7 +44445,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutCatalogueItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44607,7 +44526,6 @@ export namespace Prisma {
   export type TenantCreateWithoutReservationsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -44657,7 +44575,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutReservationsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -44845,7 +44762,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutReservationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44895,7 +44811,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutReservationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45091,7 +45006,6 @@ export namespace Prisma {
   export type TenantCreateWithoutOrdersInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -45141,7 +45055,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutOrdersInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -45278,7 +45191,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutOrdersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45328,7 +45240,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutOrdersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45466,7 +45377,6 @@ export namespace Prisma {
   export type TenantCreateWithoutPaymentProofsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -45516,7 +45426,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutPaymentProofsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -45617,7 +45526,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutPaymentProofsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45667,7 +45575,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutPaymentProofsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45717,7 +45624,6 @@ export namespace Prisma {
   export type TenantCreateWithoutWaitlistsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -45767,7 +45673,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutWaitlistsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -45868,7 +45773,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutWaitlistsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45918,7 +45822,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutWaitlistsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46009,7 +45912,6 @@ export namespace Prisma {
   export type TenantCreateWithoutDeadLetterJobsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -46059,7 +45961,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutDeadLetterJobsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -46125,7 +46026,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutDeadLetterJobsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46175,7 +46075,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutDeadLetterJobsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46225,7 +46124,6 @@ export namespace Prisma {
   export type TenantCreateWithoutSubscriptionPaymentsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -46275,7 +46173,6 @@ export namespace Prisma {
   export type TenantUncheckedCreateWithoutSubscriptionPaymentsInput = {
     id?: string
     name: string
-    whatsappPhoneNumber?: string | null
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
@@ -46341,7 +46238,6 @@ export namespace Prisma {
   export type TenantUpdateWithoutSubscriptionPaymentsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46391,7 +46287,6 @@ export namespace Prisma {
   export type TenantUncheckedUpdateWithoutSubscriptionPaymentsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null

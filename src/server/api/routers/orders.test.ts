@@ -142,7 +142,7 @@ describe("orders router", () => {
       const result = await caller.orders.list({ status: "delivered" });
 
       expect(result).toHaveLength(1);
-      expect(result[0].status).toBe("delivered");
+      expect(result[0]!.status).toBe("delivered");
       expect(mockOrderFindMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { tenantId: "tenant-1", status: "delivered" },
@@ -247,7 +247,7 @@ describe("orders router", () => {
       const result = await caller.orders.list({ status: "preparing" });
 
       expect(result).toHaveLength(1);
-      expect(result[0].status).toBe("preparing");
+      expect(result[0]!.status).toBe("preparing");
       expect(mockOrderFindMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { tenantId: "tenant-1", status: "preparing" },

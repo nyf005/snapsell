@@ -226,7 +226,7 @@ describe("eventLog", () => {
       // ID avec 8+ chiffres mais préfixe texte (pas un numéro de téléphone)
       const payload = {
         message_in_id: "msg12345678", // 8+ chiffres mais préfixe "msg"
-        provider_message_id: "SM1234567890", // ID Twilio avec chiffres
+        provider_message_id: "SM1234567890", // ID provider avec chiffres
         tenant_id: tenantId,
       };
 

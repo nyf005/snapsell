@@ -2,12 +2,12 @@ import type { IncomingMessage } from "node:http";
 
 /**
  * Message entrant normalisé (provider-agnostic)
- * Le métier ne dépend jamais des types SDK BSP (ex. Twilio)
+ * Le métier ne dépend jamais des types SDK BSP
  * Note: tenantId peut être null si tenant non résolu (pour traçabilité)
  */
 export interface InboundMessage {
   tenantId: string | null;
-  providerMessageId: string; // ex. MessageSid Twilio
+  providerMessageId: string; // ex. wamid Meta
   from: string; // numéro WhatsApp expéditeur
   body: string;
   mediaUrl?: string;
@@ -25,7 +25,7 @@ export interface EnrichedInboundMessage extends InboundMessage {
 
 /**
  * Message sortant normalisé (provider-agnostic)
- * Le métier ne dépend jamais des types SDK BSP (ex. Twilio)
+ * Le métier ne dépend jamais des types SDK BSP
  */
 export interface OutboundMessage {
   tenantId: string;
@@ -40,12 +40,12 @@ export interface OutboundMessage {
  */
 export interface ProviderSendResult {
   success: boolean;
-  providerMessageId?: string; // ex. MessageSid Twilio
+  providerMessageId?: string; // ex. wamid Meta
   error?: string;
 }
 
 /**
- * Interface pour les adaptateurs de messaging providers (Twilio, Meta Cloud API, etc.)
+ * Interface pour les adaptateurs de messaging providers (Meta Cloud API, etc.)
  * Architecture provider-agnostic (§7.1) : le métier ne dépend que de cette interface
  */
 export interface MessagingProvider {
@@ -59,7 +59,7 @@ export interface MessagingProvider {
   /**
    * Vérifie la signature du webhook pour authentifier la requête
    * @param req - Requête HTTP du webhook
-   * @param secret - Secret partagé avec le provider (ex. TWILIO_WEBHOOK_SECRET)
+   * @param secret - Secret partagé avec le provider (ex. META_APP_SECRET)
    * @param bodyText - Body de la requête en texte (optionnel, pour éviter double lecture)
    * @param fullUrl - URL complète de la requête (optionnel, pour éviter reconstruction)
    * @returns true si signature valide, false sinon

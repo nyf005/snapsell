@@ -100,7 +100,7 @@ describe.skipIf(!shouldRun)(
           providerMessageId: `SM-stop-${Date.now()}`,
           from: testPhone,
           body: "STOP",
-          mediaUrl: null,
+          mediaUrl: undefined,
           correlationId: correlationIdStop,
         } as InboundMessage,
       } as Job<InboundMessage>;

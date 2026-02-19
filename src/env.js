@@ -21,12 +21,7 @@ export const env = createEnv({
           (typeof val === "string" && val.length > 0),
         { message: "AUTH_SECRET is required in production" },
       ),
-    // Twilio configuration
-    TWILIO_ACCOUNT_SID: z.string().min(1).optional(),
-    TWILIO_AUTH_TOKEN: z.string().min(1).optional(),
-    TWILIO_WEBHOOK_SECRET: z.string().min(1).optional(),
-    TWILIO_WHATSAPP_NUMBER: z.string().min(1).optional(),
-    // URL exacte du webhook (celle configurée dans Twilio). Si définie, utilisée pour la vérification de signature.
+    // URL publique du webhook (optionnelle, pour logs/rate limiting)
     WEBHOOK_PUBLIC_URL: z.string().url().optional(),
     // Outbox worker (Story 2.4) - optionnel, valeurs par défaut en code
     OUTBOX_MAX_RETRIES: z.coerce.number().int().min(1).max(20).optional(),
@@ -87,10 +82,6 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     AUTH_SECRET: process.env.AUTH_SECRET,
-    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
-    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
-    TWILIO_WEBHOOK_SECRET: process.env.TWILIO_WEBHOOK_SECRET,
-    TWILIO_WHATSAPP_NUMBER: process.env.TWILIO_WHATSAPP_NUMBER,
     WEBHOOK_PUBLIC_URL: process.env.WEBHOOK_PUBLIC_URL,
     OUTBOX_MAX_RETRIES: process.env.OUTBOX_MAX_RETRIES,
     OUTBOX_BACKOFF_MAX_MS: process.env.OUTBOX_BACKOFF_MAX_MS,

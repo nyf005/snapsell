@@ -151,7 +151,7 @@ describe.skipIf(!shouldRunIntegrationTests)(
         });
 
         worker.on("failed", async (failedJob, err) => {
-          if (failedJob.id === job.id) {
+          if (failedJob!.id === job.id) {
             clearTimeout(timeout);
             reject(err);
           }
@@ -203,7 +203,7 @@ describe.skipIf(!shouldRunIntegrationTests)(
         });
 
         worker.on("failed", async (failedJob, err) => {
-          if (failedJob.id === job.id) {
+          if (failedJob!.id === job.id) {
             clearTimeout(timeout);
             reject(err);
           }

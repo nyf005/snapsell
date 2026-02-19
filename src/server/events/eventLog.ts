@@ -203,7 +203,7 @@ export async function logEvent(input: LogEventInput): Promise<Prisma.EventLogGet
  * @param tenantId - ID du tenant
  * @param messageInId - ID du MessageIn créé
  * @param correlationId - correlationId du message (propagé depuis MessageIn)
- * @param providerMessageId - MessageSid Twilio (métadonnée, pas PII)
+ * @param providerMessageId - provider message ID (métadonnée, pas PII)
  */
 export async function logWebhookReceived(
   tenantId: string,
@@ -220,7 +220,7 @@ export async function logWebhookReceived(
     actorType: "system",
     payload: {
       message_in_id: messageInId,
-      provider_message_id: providerMessageId, // MessageSid Twilio (métadonnée)
+      provider_message_id: providerMessageId, // provider message ID (métadonnée)
     },
   });
 }
@@ -232,7 +232,7 @@ export async function logWebhookReceived(
  * @param tenantId - ID du tenant
  * @param messageOutId - ID du message sortant (si disponible)
  * @param correlationId - correlationId du message original (propagé depuis MessageIn)
- * @param providerMessageId - MessageSid Twilio du message sortant (métadonnée)
+ * @param providerMessageId - provider message ID du message sortant (métadonnée)
  */
 export async function logMessageSent(
   tenantId: string,
@@ -249,7 +249,7 @@ export async function logMessageSent(
     actorType: "system",
     payload: {
       message_out_id: messageOutId,
-      provider_message_id: providerMessageId, // MessageSid Twilio (métadonnée)
+      provider_message_id: providerMessageId, // provider message ID (métadonnée)
     },
   });
 }
@@ -260,7 +260,7 @@ export async function logMessageSent(
  * 
  * @param tenantId - ID du tenant (peut être null si tenant non résolu)
  * @param correlationId - correlationId du message dupliqué
- * @param providerMessageId - MessageSid Twilio du message dupliqué (métadonnée)
+ * @param providerMessageId - provider message ID du message dupliqué (métadonnée)
  */
 export async function logIdempotentIgnored(
   tenantId: string | null,
@@ -285,7 +285,7 @@ export async function logIdempotentIgnored(
     correlationId,
     actorType: "system",
     payload: {
-      provider_message_id: providerMessageId, // MessageSid Twilio (métadonnée)
+      provider_message_id: providerMessageId, // provider message ID (métadonnée)
       reason: "duplicate_detected",
     },
   });
