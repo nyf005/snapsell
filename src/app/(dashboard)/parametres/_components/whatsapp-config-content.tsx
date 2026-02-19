@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { Bell, Info, Phone, Plus, Trash2, Zap } from "lucide-react";
+import { Bell, Eye, EyeOff, Info, KeyRound, Phone, Plus, Trash2, Zap } from "lucide-react";
 
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import {
@@ -22,10 +22,11 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { api } from "~/trpc/react";
 
-const PLACEHOLDER = "+33612345678";
-
 export function WhatsAppConfigContent() {
-  const [phone, setPhone] = useState("");
+  const [metaPhoneNumberId, setMetaPhoneNumberId] = useState("");
+  const [metaWabaId, setMetaWabaId] = useState("");
+  const [metaAccessToken, setMetaAccessToken] = useState("");
+  const [showToken, setShowToken] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [newSellerPhone, setNewSellerPhone] = useState("");
@@ -57,27 +58,40 @@ export function WhatsAppConfigContent() {
     onError: (e) => setSaveError(e.message),
   });
 
-  const currentNumber = data?.whatsappPhoneNumber ?? null;
-  const isConnected = currentNumber != null && currentNumber !== "";
+  const serverPhoneNumberId = data?.metaPhoneNumberId ?? null;
+  const serverWabaId = data?.metaWabaId ?? null;
+  const serverHasToken = data?.hasAccessToken ?? false;
+
+  const isConnected =
+    serverPhoneNumberId != null && serverPhoneNumberId !== "" &&
+    serverWabaId != null && serverWabaId !== "" &&
+    serverHasToken;
+
   const hasInitialSync = useRef(false);
 
   const hydrateFromServer = useCallback(() => {
-    if (currentNumber != null) setPhone(currentNumber);
-    else setPhone("");
-  }, [currentNumber]);
+    setMetaPhoneNumberId(serverPhoneNumberId ?? "");
+    setMetaWabaId(serverWabaId ?? "");
+    setMetaAccessToken("");
+  }, [serverPhoneNumberId, serverWabaId]);
 
   useEffect(() => {
     if (data === undefined || hasInitialSync.current) return;
     hasInitialSync.current = true;
-    setPhone(currentNumber != null ? currentNumber : "");
-  }, [data, currentNumber]);
+    hydrateFromServer();
+  }, [data, hydrateFromServer]);
 
   const handleSave = useCallback(() => {
-    const value = phone.trim();
+    const phoneId = metaPhoneNumberId.trim();
+    const wabaId = metaWabaId.trim();
+    const token = metaAccessToken.trim();
     setConfig.mutate({
-      whatsappPhoneNumber: value === "" ? null : value,
+      metaPhoneNumberId: phoneId === "" ? null : phoneId,
+      metaWabaId: wabaId === "" ? null : wabaId,
+      // null = pas de changement côté backend (le token existant est conservé)
+      metaAccessToken: token === "" ? null : token,
     });
-  }, [phone, setConfig]);
+  }, [metaPhoneNumberId, metaWabaId, metaAccessToken, setConfig]);
 
   const handleCancel = useCallback(() => {
     hydrateFromServer();
@@ -90,6 +104,8 @@ export function WhatsAppConfigContent() {
     setSellerPhoneError(null);
     addSellerPhone.mutate({ phoneNumber: value });
   }, [newSellerPhone, addSellerPhone]);
+
+  const PLACEHOLDER = "+33612345678";
 
   return (
     <>
@@ -110,10 +126,10 @@ export function WhatsAppConfigContent() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-              Paramètres de connexion WhatsApp
+              Connexion WhatsApp
             </h1>
             <p className="mt-1 text-base text-muted-foreground">
-              Configurez l’intégration WhatsApp de votre boutique.
+              Configurez votre connexion WhatsApp Business via l&apos;API Meta.
             </p>
           </div>
           <Badge
@@ -134,14 +150,14 @@ export function WhatsAppConfigContent() {
           </Badge>
         </div>
 
-        <Card className="overflow-hidden border-border shadow-sm">
+        <Card className="border-border shadow-sm">
           <CardHeader className="border-b border-border pb-6">
             <CardTitle className="text-xl">
-              Configuration WhatsApp
+              Identifiants Meta WhatsApp Business
             </CardTitle>
             <CardDescription className="text-sm">
-              Saisissez le numéro WhatsApp professionnel pour activer les
-              notifications.
+              Saisissez vos identifiants de l&apos;API WhatsApp Business Meta pour activer
+              l&apos;envoi et la réception de messages.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
@@ -156,9 +172,9 @@ export function WhatsAppConfigContent() {
                     <div className="w-px flex-1 bg-border" style={{ minHeight: 48 }} />
                   </div>
                   <div className="pb-6">
-                    <p className="text-sm font-semibold">Saisir le numéro WhatsApp</p>
+                    <p className="text-sm font-semibold">Saisir les identifiants Meta</p>
                     <p className="text-xs text-muted-foreground">
-                      Format international E.164 (ex. +33…)
+                      Phone Number ID, WABA ID et Access Token depuis votre compte Meta Business
                     </p>
                   </div>
                   <div className="flex flex-col items-center">
@@ -167,7 +183,7 @@ export function WhatsAppConfigContent() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold">Enregistrer la configuration</p>
+                    <p className="text-sm font-semibold">Enregistrer</p>
                     <p className="text-xs text-muted-foreground">
                       Vérifier et enregistrer pour activer la connexion
                     </p>
@@ -177,38 +193,91 @@ export function WhatsAppConfigContent() {
 
               {/* Formulaire (droite) */}
               <div className="flex flex-col gap-6 md:col-span-8">
+                {/* Phone Number ID */}
                 <div className="space-y-2">
                   <Label
-                    htmlFor="whatsapp-phone"
+                    htmlFor="meta-phone-number-id"
                     className="text-sm font-semibold text-foreground"
                   >
-                    Numéro WhatsApp professionnel
+                    Phone Number ID
                   </Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      id="whatsapp-phone"
+                      id="meta-phone-number-id"
                       type="text"
-                      placeholder={PLACEHOLDER}
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="123456789012345"
+                      value={metaPhoneNumberId}
+                      onChange={(e) => setMetaPhoneNumberId(e.target.value)}
                       className="pl-10"
                       disabled={isLoading}
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Utilisez le format international (ex. +33612345678)
+                    Identifiant numérique du numéro de téléphone Meta (pas le numéro E.164)
                   </p>
                 </div>
 
-                <Alert className="border-dashed bg-muted/50">
-                  <Info className="size-4 text-primary" />
-                  <AlertDescription className="text-xs leading-relaxed">
-                    Côté plateforme, les identifiants techniques sont gérés
-                    automatiquement. Vous devez uniquement renseigner le
-                    numéro WhatsApp professionnel associé à votre compte.
-                  </AlertDescription>
-                </Alert>
+                {/* WABA ID */}
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="meta-waba-id"
+                    className="text-sm font-semibold text-foreground"
+                  >
+                    WABA ID (WhatsApp Business Account)
+                  </Label>
+                  <Input
+                    id="meta-waba-id"
+                    type="text"
+                    placeholder="109876543210"
+                    value={metaWabaId}
+                    onChange={(e) => setMetaWabaId(e.target.value)}
+                    disabled={isLoading}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Identifiant de votre compte WhatsApp Business
+                  </p>
+                </div>
+
+                {/* Access Token */}
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="meta-access-token"
+                    className="text-sm font-semibold text-foreground"
+                  >
+                    Access Token
+                  </Label>
+                  <div className="relative">
+                    <KeyRound className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="meta-access-token"
+                      type={showToken ? "text" : "password"}
+                      placeholder={serverHasToken ? "Token configuré — laisser vide pour conserver" : "EAAxxxxxxx..."}
+                      value={metaAccessToken}
+                      onChange={(e) => setMetaAccessToken(e.target.value)}
+                      className="pl-10 pr-10"
+                      disabled={isLoading}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 p-0"
+                      onClick={() => setShowToken((v) => !v)}
+                      aria-label={showToken ? "Masquer le token" : "Afficher le token"}
+                    >
+                      {showToken ? (
+                        <EyeOff className="size-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="size-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Token d&apos;accès permanent de votre application Meta.
+                    {serverHasToken && " Un token est déjà configuré. Laissez vide pour le conserver."}
+                  </p>
+                </div>
 
                 <div className="pt-2">
                   <Button
@@ -222,13 +291,24 @@ export function WhatsAppConfigContent() {
                     Tester la connexion
                   </Button>
                 </div>
+
+                <Alert className="border-dashed bg-muted/50">
+                  <Info className="size-4 text-primary" />
+                  <AlertDescription className="text-xs leading-relaxed">
+                    Retrouvez ces identifiants dans votre{" "}
+                    <strong>Meta Business Suite → WhatsApp → Configuration API</strong>.
+                    Le Phone Number ID et le WABA ID se trouvent dans les paramètres
+                    de votre numéro WhatsApp Business. L&apos;Access Token se génère
+                    depuis les paramètres de votre application Meta.
+                  </AlertDescription>
+                </Alert>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Numéros vendeur */}
-        <Card className="overflow-hidden border-border shadow-sm">
+        <Card className="border-border shadow-sm">
           <CardHeader className="border-b border-border pb-6">
             <CardTitle className="text-xl">Numéros vendeur</CardTitle>
             <CardDescription className="text-sm">

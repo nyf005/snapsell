@@ -9,7 +9,7 @@ import {
 } from "~/server/api/trpc";
 import {
   setCategoryPricesInputSchema,
-  setWhatsAppConfigInputSchema,
+  setMetaConfigInputSchema,
 } from "./settings.schema";
 
 export const settingsRouter = createTRPCRouter({
@@ -102,15 +102,23 @@ export const settingsRouter = createTRPCRouter({
     }
     const tenant = await db.tenant.findUnique({
       where: { id: tenantId },
-      select: { whatsappPhoneNumber: true },
+      select: {
+        whatsappPhoneNumber: true,
+        metaPhoneNumberId: true,
+        metaWabaId: true,
+        metaAccessToken: true,
+      },
     });
     return {
       whatsappPhoneNumber: tenant?.whatsappPhoneNumber ?? null,
+      metaPhoneNumberId: tenant?.metaPhoneNumberId ?? null,
+      metaWabaId: tenant?.metaWabaId ?? null,
+      hasAccessToken: !!(tenant?.metaAccessToken),
     };
   }),
 
   setWhatsAppConfig: protectedProcedure
-    .input(setWhatsAppConfigInputSchema)
+    .input(setMetaConfigInputSchema)
     .mutation(async ({ ctx, input }) => {
       if (!canManageGrid(ctx.session.user.role as string)) {
         throw new TRPCError({
@@ -125,31 +133,39 @@ export const settingsRouter = createTRPCRouter({
           message: "Tenant non identifié.",
         });
       }
-      const phone = input.whatsappPhoneNumber;
-      if (phone != null) {
+      const phoneId = input.metaPhoneNumberId;
+      if (phoneId != null) {
         const existing = await db.tenant.findFirst({
           where: {
-            whatsappPhoneNumber: phone,
+            metaPhoneNumberId: phoneId,
             id: { not: tenantId },
           },
         });
         if (existing) {
           throw new TRPCError({
             code: "CONFLICT",
-            message: "Ce numéro est déjà associé à un autre vendeur.",
+            message: "Ce Phone Number ID est déjà associé à un autre vendeur.",
           });
         }
+      }
+      // H1-fix: ne pas écraser le token existant si l'utilisateur n'en a pas saisi un nouveau
+      const data: Record<string, string | null> = {
+        metaPhoneNumberId: phoneId,
+        metaWabaId: input.metaWabaId,
+      };
+      if (input.metaAccessToken != null) {
+        data.metaAccessToken = input.metaAccessToken;
       }
       try {
         await db.tenant.update({
           where: { id: tenantId },
-          data: { whatsappPhoneNumber: phone },
+          data,
         });
       } catch (err) {
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
           throw new TRPCError({
             code: "CONFLICT",
-            message: "Ce numéro est déjà associé à un autre vendeur.",
+            message: "Ce Phone Number ID est déjà associé à un autre vendeur.",
           });
         }
         throw err;

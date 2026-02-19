@@ -6,7 +6,9 @@ const mockMessageOutFindUnique = vi.fn();
 const mockMessageOutUpdateMany = vi.fn();
 const mockMessageOutFindMany = vi.fn();
 const mockDeadLetterJobCreate = vi.fn();
+const mockTenantFindUnique = vi.fn();
 const mockSend = vi.fn();
+let lastAdapterArgs: { phoneNumberId: string; accessToken: string } | null = null;
 
 const mockTx = {
   messageOut: {
@@ -39,13 +41,21 @@ vi.mock("~/server/db", () => ({
         return mockDeadLetterJobCreate;
       },
     },
+    tenant: {
+      get findUnique() {
+        return mockTenantFindUnique;
+      },
+    },
     $transaction: vi.fn((fn: (tx: unknown) => Promise<unknown>) => fn(mockTx)),
   },
 }));
 
-// Mock TwilioAdapter as a class
-vi.mock("~/server/messaging/providers/twilio/adapter", () => ({
-  TwilioAdapter: class {
+// Mock MetaCloudAdapter as a class (Task 2.1) — captures constructor args (L2 fix)
+vi.mock("~/server/messaging/providers/meta/adapter", () => ({
+  MetaCloudAdapter: class {
+    constructor(phoneNumberId: string, accessToken: string) {
+      lastAdapterArgs = { phoneNumberId, accessToken };
+    }
     send = mockSend;
   },
 }));
@@ -74,11 +84,9 @@ vi.mock("~/lib/logger", () => ({
   },
 }));
 
+// Task 2.5: env vars Twilio supprimées — seules les vars outbox conservées
 vi.mock("~/env", () => ({
   env: {
-    TWILIO_AUTH_TOKEN: "test-token",
-    TWILIO_ACCOUNT_SID: "test-sid",
-    TWILIO_WHATSAPP_NUMBER: "+14155238886",
     OUTBOX_MAX_RETRIES: 5,
     OUTBOX_BACKOFF_MAX_MS: 30000,
   },
@@ -101,8 +109,15 @@ describe("outbox-sender worker", () => {
     mockMessageOutUpdateMany.mockReset();
     mockMessageOutFindMany.mockReset();
     mockDeadLetterJobCreate.mockReset();
+    mockTenantFindUnique.mockReset();
+    lastAdapterArgs = null;
     mockCheckOptOut.mockResolvedValue(false); // par défaut pas d'opt-out
     mockGenerateSignedR2Url.mockReset();
+    // Task 2.2: mock tenant valide par défaut
+    mockTenantFindUnique.mockResolvedValue({
+      metaPhoneNumberId: "123456",
+      metaAccessToken: "token-test",
+    });
   });
 
   describe("processOutboundMessage", () => {
@@ -139,7 +154,7 @@ describe("outbox-sender worker", () => {
       );
     });
 
-    it("should send message when OptOut does not exist", async () => {
+    it("should send message via MetaCloudAdapter when tenant config valid (AC #1)", async () => {
       const messageOut = {
         id: "msg-out-123",
         tenantId: "tenant-123",
@@ -153,7 +168,7 @@ describe("outbox-sender worker", () => {
       mockCheckOptOut.mockResolvedValue(false);
       mockSend.mockResolvedValue({
         success: true,
-        providerMessageId: "SM123456",
+        providerMessageId: "wamid.abc123",
       });
 
       mockMessageOutUpdate.mockResolvedValue({} as never);
@@ -162,7 +177,12 @@ describe("outbox-sender worker", () => {
       const result = await processOutboundMessage(messageOut as never);
 
       expect(result.success).toBe(true);
-      expect(result.providerMessageId).toBe("SM123456");
+      expect(result.providerMessageId).toBe("wamid.abc123");
+      // Verify tenant lookup (AC #1)
+      expect(mockTenantFindUnique).toHaveBeenCalledWith({
+        where: { id: messageOut.tenantId },
+        select: { metaPhoneNumberId: true, metaAccessToken: true },
+      });
       expect(mockCheckOptOut).toHaveBeenCalledWith(messageOut.tenantId, messageOut.to);
       expect(mockSend).toHaveBeenCalledWith({
         tenantId: messageOut.tenantId,
@@ -174,7 +194,7 @@ describe("outbox-sender worker", () => {
         where: { id: messageOut.id },
         data: {
           status: "sent",
-          providerMessageId: "SM123456",
+          providerMessageId: "wamid.abc123",
           updatedAt: expect.any(Date),
         },
       });
@@ -182,8 +202,13 @@ describe("outbox-sender worker", () => {
         messageOut.tenantId,
         messageOut.id,
         messageOut.correlationId,
-        "SM123456",
+        "wamid.abc123",
       );
+      // L2 fix: verify MetaCloudAdapter constructor received correct tenant config
+      expect(lastAdapterArgs).toEqual({
+        phoneNumberId: "123456",
+        accessToken: "token-test",
+      });
     });
 
     it("should handle send failure and update status to failed with retry", async () => {
@@ -199,7 +224,7 @@ describe("outbox-sender worker", () => {
 
       mockSend.mockResolvedValue({
         success: false,
-        error: "Twilio error",
+        error: "Meta API error",
       });
 
       mockMessageOutUpdate.mockResolvedValue({
@@ -211,14 +236,14 @@ describe("outbox-sender worker", () => {
       const result = await processOutboundMessage(messageOut as never);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Twilio error");
+      expect(result.error).toBe("Meta API error");
       expect(mockMessageOutUpdate).toHaveBeenCalledWith({
         where: { id: messageOut.id },
         data: {
           status: "failed",
           attempts: 1,
           nextAttemptAt: expect.any(Date),
-          lastError: "Twilio error",
+          lastError: "Meta API error",
           updatedAt: expect.any(Date),
         },
       });
@@ -237,7 +262,7 @@ describe("outbox-sender worker", () => {
 
       mockSend.mockResolvedValue({
         success: false,
-        error: "Twilio error",
+        error: "Meta API error",
       });
 
       mockMessageOutUpdate.mockResolvedValue({
@@ -251,7 +276,7 @@ describe("outbox-sender worker", () => {
 
       const updateCall = mockMessageOutUpdate.mock.calls[0];
       expect(updateCall).toBeDefined();
-      
+
       const nextAttemptAt = updateCall![0]?.data?.nextAttemptAt as Date;
 
       // Backoff: newAttempts = 3 → 1000 * 2^(3-1) = 4000ms (4s) — spec 1s, 2s, 4s, 8s, 16s
@@ -261,6 +286,145 @@ describe("outbox-sender worker", () => {
       expect(actualBackoff).toBeGreaterThanOrEqual(expectedBackoff - 100); // Allow 100ms tolerance
       expect(actualBackoff).toBeLessThanOrEqual(expectedBackoff + 100);
       expect(updateCall![0]?.data?.attempts).toBe(3);
+    });
+
+    // Task 2.3: Tenant sans config Meta → erreur gracieuse (AC #3)
+    it("AC #3: should fail gracefully when tenant has no Meta config (meta_config_missing)", async () => {
+      const messageOut = {
+        id: "msg-no-meta",
+        tenantId: "tenant-no-meta",
+        to: "+33612345678",
+        body: "Hello",
+        status: "pending",
+        attempts: 0,
+        correlationId: "corr-no-meta",
+      };
+
+      // Tenant exists but no Meta config
+      mockTenantFindUnique.mockResolvedValue({
+        metaPhoneNumberId: null,
+        metaAccessToken: null,
+      });
+      mockMessageOutUpdate.mockResolvedValue({} as never);
+
+      const result = await processOutboundMessage(messageOut as never);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("meta_config_missing");
+      expect(mockSend).not.toHaveBeenCalled();
+      expect(mockMessageOutUpdate).toHaveBeenCalledWith({
+        where: { id: messageOut.id },
+        data: {
+          status: "failed",
+          attempts: 1,
+          nextAttemptAt: expect.any(Date),
+          lastError: "meta_config_missing",
+          updatedAt: expect.any(Date),
+        },
+      });
+      // L3 fix: verify workerLogger.error called for observability
+      const { workerLogger } = await import("~/lib/logger");
+      expect(workerLogger.error).toHaveBeenCalledWith(
+        "Cannot send message: tenant Meta config missing",
+        expect.any(Error),
+        expect.objectContaining({ messageOutId: "msg-no-meta", tenantId: "tenant-no-meta" }),
+      );
+    });
+
+    // Task 2.4: Tenant introuvable → erreur gracieuse (AC #4)
+    it("AC #4: should fail gracefully when tenant not found (tenant_not_found)", async () => {
+      const messageOut = {
+        id: "msg-no-tenant",
+        tenantId: "tenant-ghost",
+        to: "+33612345678",
+        body: "Hello",
+        status: "pending",
+        attempts: 0,
+        correlationId: "corr-no-tenant",
+      };
+
+      mockTenantFindUnique.mockResolvedValue(null);
+      mockMessageOutUpdate.mockResolvedValue({} as never);
+
+      const result = await processOutboundMessage(messageOut as never);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("tenant_not_found");
+      expect(mockSend).not.toHaveBeenCalled();
+      expect(mockMessageOutUpdate).toHaveBeenCalledWith({
+        where: { id: messageOut.id },
+        data: {
+          status: "failed",
+          attempts: 1,
+          nextAttemptAt: expect.any(Date),
+          lastError: "tenant_not_found",
+          updatedAt: expect.any(Date),
+        },
+      });
+      // L3 fix: verify workerLogger.error called for observability
+      const { workerLogger } = await import("~/lib/logger");
+      expect(workerLogger.error).toHaveBeenCalledWith(
+        "Cannot send message: tenant Meta config missing",
+        expect.any(Error),
+        expect.objectContaining({ messageOutId: "msg-no-tenant", tenantId: "tenant-ghost" }),
+      );
+    });
+
+    // Task 2.3 variant: partial config (only phoneNumberId, missing accessToken)
+    it("AC #3: should fail gracefully when tenant has partial Meta config", async () => {
+      const messageOut = {
+        id: "msg-partial",
+        tenantId: "tenant-partial",
+        to: "+33612345678",
+        body: "Hello",
+        status: "pending",
+        attempts: 0,
+        correlationId: "corr-partial",
+      };
+
+      mockTenantFindUnique.mockResolvedValue({
+        metaPhoneNumberId: "123456",
+        metaAccessToken: null,
+      });
+      mockMessageOutUpdate.mockResolvedValue({} as never);
+
+      const result = await processOutboundMessage(messageOut as never);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("meta_config_missing");
+      expect(mockSend).not.toHaveBeenCalled();
+    });
+
+    // L1 fix: DB error during tenant lookup → catch generique → failed + retry
+    it("should handle DB error during tenant lookup gracefully", async () => {
+      const messageOut = {
+        id: "msg-db-error",
+        tenantId: "tenant-db-err",
+        to: "+33612345678",
+        body: "Hello",
+        status: "pending",
+        attempts: 0,
+        correlationId: "corr-db-err",
+      };
+
+      mockTenantFindUnique.mockRejectedValue(new Error("ECONNREFUSED"));
+      mockMessageOutUpdate.mockResolvedValue({} as never);
+
+      const result = await processOutboundMessage(messageOut as never);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("ECONNREFUSED");
+      expect(mockSend).not.toHaveBeenCalled();
+      expect(mockMessageOutUpdate).toHaveBeenCalledWith({
+        where: { id: messageOut.id },
+        data: {
+          status: "failed",
+          attempts: 1,
+          nextAttemptAt: expect.any(Date),
+          lastError: "ECONNREFUSED",
+          updatedAt: expect.any(Date),
+        },
+      });
     });
 
     it("Story 9.4: should sign storageKey and pass mediaUrl to provider (AC #6)", async () => {
@@ -380,7 +544,7 @@ describe("outbox-sender worker", () => {
         body: "Hello World",
         status: "failed",
         attempts: 5, // Max retries reached
-        lastError: "Twilio error",
+        lastError: "Meta API error",
         correlationId: "corr-123",
       };
 

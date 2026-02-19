@@ -3478,6 +3478,9 @@ export namespace Prisma {
     id: string | null
     name: string | null
     whatsappPhoneNumber: string | null
+    metaPhoneNumberId: string | null
+    metaWabaId: string | null
+    metaAccessToken: string | null
     requireDeposit: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3507,6 +3510,9 @@ export namespace Prisma {
     id: string | null
     name: string | null
     whatsappPhoneNumber: string | null
+    metaPhoneNumberId: string | null
+    metaWabaId: string | null
+    metaAccessToken: string | null
     requireDeposit: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3536,6 +3542,9 @@ export namespace Prisma {
     id: number
     name: number
     whatsappPhoneNumber: number
+    metaPhoneNumberId: number
+    metaWabaId: number
+    metaAccessToken: number
     requireDeposit: number
     createdAt: number
     updatedAt: number
@@ -3581,6 +3590,9 @@ export namespace Prisma {
     id?: true
     name?: true
     whatsappPhoneNumber?: true
+    metaPhoneNumberId?: true
+    metaWabaId?: true
+    metaAccessToken?: true
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
@@ -3610,6 +3622,9 @@ export namespace Prisma {
     id?: true
     name?: true
     whatsappPhoneNumber?: true
+    metaPhoneNumberId?: true
+    metaWabaId?: true
+    metaAccessToken?: true
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
@@ -3639,6 +3654,9 @@ export namespace Prisma {
     id?: true
     name?: true
     whatsappPhoneNumber?: true
+    metaPhoneNumberId?: true
+    metaWabaId?: true
+    metaAccessToken?: true
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
@@ -3755,6 +3773,9 @@ export namespace Prisma {
     id: string
     name: string
     whatsappPhoneNumber: string | null
+    metaPhoneNumberId: string | null
+    metaWabaId: string | null
+    metaAccessToken: string | null
     requireDeposit: boolean
     createdAt: Date
     updatedAt: Date
@@ -3803,6 +3824,9 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     whatsappPhoneNumber?: boolean
+    metaPhoneNumberId?: boolean
+    metaWabaId?: boolean
+    metaAccessToken?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3852,6 +3876,9 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     whatsappPhoneNumber?: boolean
+    metaPhoneNumberId?: boolean
+    metaWabaId?: boolean
+    metaAccessToken?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3881,6 +3908,9 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     whatsappPhoneNumber?: boolean
+    metaPhoneNumberId?: boolean
+    metaWabaId?: boolean
+    metaAccessToken?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3910,6 +3940,9 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     whatsappPhoneNumber?: boolean
+    metaPhoneNumberId?: boolean
+    metaWabaId?: boolean
+    metaAccessToken?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3935,7 +3968,7 @@ export namespace Prisma {
     showUpgradeBanner?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "whatsappPhoneNumber" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "whatsappPhoneNumber" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     categoryPrices?: boolean | Tenant$categoryPricesArgs<ExtArgs>
@@ -3988,6 +4021,9 @@ export namespace Prisma {
       id: string
       name: string
       whatsappPhoneNumber: string | null
+      metaPhoneNumberId: string | null
+      metaWabaId: string | null
+      metaAccessToken: string | null
       requireDeposit: boolean
       createdAt: Date
       updatedAt: Date
@@ -4456,6 +4492,9 @@ export namespace Prisma {
     readonly id: FieldRef<"Tenant", 'String'>
     readonly name: FieldRef<"Tenant", 'String'>
     readonly whatsappPhoneNumber: FieldRef<"Tenant", 'String'>
+    readonly metaPhoneNumberId: FieldRef<"Tenant", 'String'>
+    readonly metaWabaId: FieldRef<"Tenant", 'String'>
+    readonly metaAccessToken: FieldRef<"Tenant", 'String'>
     readonly requireDeposit: FieldRef<"Tenant", 'Boolean'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
@@ -31436,6 +31475,9 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     whatsappPhoneNumber: 'whatsappPhoneNumber',
+    metaPhoneNumberId: 'metaPhoneNumberId',
+    metaWabaId: 'metaWabaId',
+    metaAccessToken: 'metaAccessToken',
     requireDeposit: 'requireDeposit',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -32018,6 +32060,9 @@ export namespace Prisma {
     id?: StringFilter<"Tenant"> | string
     name?: StringFilter<"Tenant"> | string
     whatsappPhoneNumber?: StringNullableFilter<"Tenant"> | string | null
+    metaPhoneNumberId?: StringNullableFilter<"Tenant"> | string | null
+    metaWabaId?: StringNullableFilter<"Tenant"> | string | null
+    metaAccessToken?: StringNullableFilter<"Tenant"> | string | null
     requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
@@ -32066,6 +32111,9 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     whatsappPhoneNumber?: SortOrderInput | SortOrder
+    metaPhoneNumberId?: SortOrderInput | SortOrder
+    metaWabaId?: SortOrderInput | SortOrder
+    metaAccessToken?: SortOrderInput | SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -32113,12 +32161,15 @@ export namespace Prisma {
   export type TenantWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     whatsappPhoneNumber?: string
+    metaPhoneNumberId?: string
     paystackCustomerCode?: string
     paystackSubscriptionCode?: string
     AND?: TenantWhereInput | TenantWhereInput[]
     OR?: TenantWhereInput[]
     NOT?: TenantWhereInput | TenantWhereInput[]
     name?: StringFilter<"Tenant"> | string
+    metaWabaId?: StringNullableFilter<"Tenant"> | string | null
+    metaAccessToken?: StringNullableFilter<"Tenant"> | string | null
     requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
@@ -32159,12 +32210,15 @@ export namespace Prisma {
     orders?: OrderListRelationFilter
     paymentProofs?: PaymentProofListRelationFilter
     subscriptionPayments?: SubscriptionPaymentListRelationFilter
-  }, "id" | "whatsappPhoneNumber" | "paystackCustomerCode" | "paystackSubscriptionCode">
+  }, "id" | "whatsappPhoneNumber" | "metaPhoneNumberId" | "paystackCustomerCode" | "paystackSubscriptionCode">
 
   export type TenantOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
     whatsappPhoneNumber?: SortOrderInput | SortOrder
+    metaPhoneNumberId?: SortOrderInput | SortOrder
+    metaWabaId?: SortOrderInput | SortOrder
+    metaAccessToken?: SortOrderInput | SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -32202,6 +32256,9 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Tenant"> | string
     name?: StringWithAggregatesFilter<"Tenant"> | string
     whatsappPhoneNumber?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    metaPhoneNumberId?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    metaWabaId?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    metaAccessToken?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     requireDeposit?: BoolWithAggregatesFilter<"Tenant"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
@@ -33961,6 +34018,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34009,6 +34069,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34057,6 +34120,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34105,6 +34171,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34153,6 +34222,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34182,6 +34254,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34211,6 +34286,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36341,6 +36419,9 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     whatsappPhoneNumber?: SortOrder
+    metaPhoneNumberId?: SortOrder
+    metaWabaId?: SortOrder
+    metaAccessToken?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -36377,6 +36458,9 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     whatsappPhoneNumber?: SortOrder
+    metaPhoneNumberId?: SortOrder
+    metaWabaId?: SortOrder
+    metaAccessToken?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -36406,6 +36490,9 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     whatsappPhoneNumber?: SortOrder
+    metaPhoneNumberId?: SortOrder
+    metaWabaId?: SortOrder
+    metaAccessToken?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -41020,6 +41107,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41067,6 +41157,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41130,6 +41223,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41177,6 +41273,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41224,6 +41323,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41271,6 +41373,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41354,6 +41459,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41401,6 +41509,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41525,6 +41636,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41572,6 +41686,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41635,6 +41752,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41682,6 +41802,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41729,6 +41852,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41776,6 +41902,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41899,6 +42028,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41946,6 +42078,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42197,6 +42332,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42244,6 +42382,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42307,6 +42448,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42354,6 +42498,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42401,6 +42548,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42448,6 +42598,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42511,6 +42664,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42558,6 +42714,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42605,6 +42764,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42652,6 +42814,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42715,6 +42880,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42762,6 +42930,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42809,6 +42980,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42856,6 +43030,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42919,6 +43096,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42966,6 +43146,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43013,6 +43196,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -43060,6 +43246,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -43123,6 +43312,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43170,6 +43362,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43217,6 +43412,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -43264,6 +43462,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -43327,6 +43528,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43374,6 +43578,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43421,6 +43628,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -43468,6 +43678,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -43611,6 +43824,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43658,6 +43874,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43737,6 +43956,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -43784,6 +44006,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -43914,6 +44139,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43961,6 +44189,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44055,6 +44286,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -44102,6 +44336,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -44239,6 +44476,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44286,6 +44526,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44365,6 +44608,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -44412,6 +44658,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -44597,6 +44846,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44644,6 +44896,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44837,6 +45092,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -44884,6 +45142,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -45018,6 +45279,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45065,6 +45329,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45200,6 +45467,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -45247,6 +45517,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -45345,6 +45618,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45392,6 +45668,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45439,6 +45718,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -45486,6 +45768,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -45584,6 +45869,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45631,6 +45919,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45719,6 +46010,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -45766,6 +46060,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -45829,6 +46126,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45876,6 +46176,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45923,6 +46226,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -45970,6 +46276,9 @@ export namespace Prisma {
     id?: string
     name: string
     whatsappPhoneNumber?: string | null
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -46033,6 +46342,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -46080,6 +46392,9 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     whatsappPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

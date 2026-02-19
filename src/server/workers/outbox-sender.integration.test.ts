@@ -1,10 +1,10 @@
 /**
- * Tests d'intégration pour le worker outbox-sender (Story 2.4)
+ * Tests d'intégration pour le worker outbox-sender (Story 2.4, 10.4)
  *
- * - Worker outbox-sender avec message réel → envoi (simulé) Twilio réussi
- * - Échec Twilio → retry avec backoff → DLQ après N échecs
+ * - Worker outbox-sender avec message réel → envoi (simulé) Meta réussi
+ * - Échec Meta → retry avec backoff → DLQ après N échecs
  *
- * Nécessite DATABASE_URL. Twilio est mocké (pas d'appel réel).
+ * Nécessite DATABASE_URL. MetaCloudAdapter est mocké (pas d'appel réel).
  * Pour exécuter : RUN_INTEGRATION_TESTS=true npm test -- outbox-sender.integration.test.ts
  */
 
@@ -17,8 +17,8 @@ import {
 
 const mockSend = vi.fn();
 
-vi.mock("~/server/messaging/providers/twilio/adapter", () => ({
-  TwilioAdapter: class {
+vi.mock("~/server/messaging/providers/meta/adapter", () => ({
+  MetaCloudAdapter: class {
     send = mockSend;
   },
 }));
@@ -38,9 +38,8 @@ vi.mock("~/lib/logger", () => ({
 
 vi.mock("~/env", () => ({
   env: {
-    TWILIO_AUTH_TOKEN: "test-token",
-    TWILIO_ACCOUNT_SID: "test-sid",
-    TWILIO_WHATSAPP_NUMBER: "+14155238886",
+    OUTBOX_MAX_RETRIES: 5,
+    OUTBOX_BACKOFF_MAX_MS: 30000,
   },
 }));
 
@@ -54,7 +53,11 @@ describe.skipIf(!shouldRun)(
 
     beforeAll(async () => {
       const tenant = await db.tenant.create({
-        data: { name: "Test Tenant Outbox Integration" },
+        data: {
+          name: "Test Tenant Outbox Integration",
+          metaPhoneNumberId: "integration-test-phone-id",
+          metaAccessToken: "integration-test-access-token",
+        },
       });
       testTenantId = tenant.id;
     });
@@ -70,7 +73,7 @@ describe.skipIf(!shouldRun)(
       mockSend.mockReset();
     });
 
-    it("worker outbox-sender with real message → Twilio send success (mock)", async () => {
+    it("worker outbox-sender with real message → Meta send success (mock)", async () => {
       const correlationId = `corr-int-success-${Date.now()}`;
       await writeToOutbox({
         tenantId: testTenantId,
@@ -95,7 +98,7 @@ describe.skipIf(!shouldRun)(
       expect(updated!.providerMessageId).toBe("SM-INTEGRATION-SUCCESS");
     });
 
-    it("Twilio failure → retry with backoff → DLQ after N failures", async () => {
+    it("Meta failure → retry with backoff → DLQ after N failures", async () => {
       const correlationId = `corr-int-dlq-${Date.now()}`;
       await writeToOutbox({
         tenantId: testTenantId,
@@ -106,7 +109,7 @@ describe.skipIf(!shouldRun)(
 
       mockSend.mockResolvedValue({
         success: false,
-        error: "Twilio error (simulated)",
+        error: "Meta API error (simulated)",
       });
 
       const MAX_RETRIES = 5;
@@ -128,7 +131,7 @@ describe.skipIf(!shouldRun)(
       expect(payload.correlation_id).toBe(correlationId);
       expect(payload.to).toBe("+33698765432");
       expect(payload.body).toBe("Message that will fail");
-      expect(dlq!.errorMessage).toContain("Twilio error");
+      expect(dlq!.errorMessage).toContain("Meta API error");
       expect(dlq!.attempts).toBe(MAX_RETRIES);
 
       const messageOut = await db.messageOut.findFirst({

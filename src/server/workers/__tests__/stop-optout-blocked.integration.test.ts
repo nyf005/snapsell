@@ -35,8 +35,8 @@ vi.mock("~/lib/logger", () => ({
   },
 }));
 
-vi.mock("~/server/messaging/providers/twilio/adapter", () => ({
-  TwilioAdapter: class {
+vi.mock("~/server/messaging/providers/meta/adapter", () => ({
+  MetaCloudAdapter: class {
     send = vi.fn().mockResolvedValue({ success: true, providerMessageId: "SM-mock" });
   },
 }));

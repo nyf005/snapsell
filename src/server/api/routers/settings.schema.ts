@@ -46,6 +46,18 @@ export const setWhatsAppConfigInputSchema = z.object({
     }),
 });
 
+/** Schema Meta WhatsApp Cloud API config (Story 10.1). */
+const nullableStringTrimmed = z
+  .union([z.string(), z.null()])
+  .transform((s) => (s === "" || s == null ? null : String(s).trim()));
+
+export const setMetaConfigInputSchema = z.object({
+  metaPhoneNumberId: nullableStringTrimmed,
+  metaWabaId: nullableStringTrimmed,
+  metaAccessToken: nullableStringTrimmed,
+});
+
 export type CategoryPriceItemInput = z.infer<typeof categoryPriceItemSchema>;
 export type SetCategoryPricesInput = z.infer<typeof setCategoryPricesInputSchema>;
 export type SetWhatsAppConfigInput = z.infer<typeof setWhatsAppConfigInputSchema>;
+export type SetMetaConfigInput = z.infer<typeof setMetaConfigInputSchema>;

@@ -25,9 +25,6 @@ npx tsx scripts/start-worker.ts
 - `DATABASE_URL` - URL PostgreSQL (Neon)
 - `REDIS_URL` - URL Redis (Upstash)
 - `REDIS_TOKEN` - Token Redis (si requis)
-- `TWILIO_ACCOUNT_SID` - Account SID Twilio (pour outbox-sender)
-- `TWILIO_AUTH_TOKEN` - Auth Token Twilio (pour outbox-sender)
-- `TWILIO_WHATSAPP_NUMBER` - Numéro WhatsApp Twilio (format E.164, ex. +14155238886)
 - `LIVE_SESSION_INACTIVITY_WINDOW_MINUTES` - (optionnel, défaut 45) Fenêtre d'inactivité en min pour fermeture auto des sessions live (Story 2.6)
 
 ### Déploiement
@@ -110,7 +107,7 @@ Le worker `outbox-sender` traite les messages sortants via le pattern outbox ave
 
 - **Pattern:** Polling DB (lecture directe depuis `messages_out` table)
 - **Status:** Lit les messages avec `status = 'pending'` ou `status = 'failed'` avec `next_attempt_at <= now`
-- **Provider:** Twilio (via interface MessagingProvider, architecture §7.1)
+- **Provider:** Meta WhatsApp Cloud API via MetaCloudAdapter (credentials per-tenant en DB, architecture §7.1)
 - **Plateforme:** Railway - même service que webhook-processor
 
 ### Fonctionnalités
@@ -145,7 +142,7 @@ Voir `DEPLOYMENT.md` à la racine du projet pour le guide complet de déploiemen
 
 Le worker logge les événements suivants:
 - `Processing outbound message` - Début traitement message
-- `Message sent successfully` - Envoi réussi via Twilio
+- `Message sent successfully` - Envoi réussi via Meta WhatsApp Cloud API
 - `Message send failed, will retry` - Échec avec retry programmé
 - `Creating DeadLetterJob after max retries` - DLQ créé après N échecs
 - `Batch processed` - Batch de messages traité
@@ -165,18 +162,19 @@ Le worker logge les événements suivants:
 **Messages ne sont pas envoyés:**
 - Vérifier que le worker est démarré (logs "Outbox sender worker started successfully")
 - Vérifier table `messages_out` pour messages avec `status = 'pending'`
-- Vérifier variables d'environnement Twilio (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER)
-- Vérifier logs pour erreurs Twilio
+- Vérifier que le tenant a `metaPhoneNumberId` et `metaAccessToken` configurés en base
+- Vérifier logs pour erreurs Meta API
 
 **Messages échouent systématiquement:**
-- Vérifier credentials Twilio (Account SID, Auth Token)
+- Vérifier config Meta du tenant en DB (`metaPhoneNumberId`, `metaAccessToken`)
 - Vérifier format numéro WhatsApp (E.164, ex. +33612345678)
-- Vérifier que TWILIO_WHATSAPP_NUMBER est configuré correctement
 - Vérifier logs avec `correlationId` pour traçabilité
+- Si `lastError = "meta_config_missing"` → le tenant n'a pas configuré ses credentials Meta
+- Si `lastError = "tenant_not_found"` → le tenantId du message ne correspond à aucun tenant
 
 **DLQ créé trop souvent:**
-- Vérifier santé API Twilio
-- Vérifier quotas Twilio (rate limiting)
+- Vérifier santé API Meta WhatsApp
+- Vérifier quotas Meta (rate limiting)
 - Vérifier format des messages (body, to)
 
 ### Architecture Compliance

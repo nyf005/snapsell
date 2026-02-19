@@ -1,0 +1,357 @@
+/**
+ * Adaptateur Meta WhatsApp Business API pour MessagingProvider
+ * Architecture §7.1: Provider-agnostic via interface MessagingProvider
+ *
+ * Credentials per-tenant: phoneNumberId + accessToken (DB)
+ * Secret global: META_APP_SECRET (env var, passe via verifySignature)
+ */
+
+import type { MessagingProvider, InboundMessage, OutboundMessage, ProviderSendResult } from "../../types";
+import { webhookLogger, workerLogger } from "~/lib/logger";
+import crypto from "node:crypto";
+
+const API_VERSION = "v21.0";
+
+const DOCUMENT_EXTENSIONS = new Set([".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".csv", ".txt"]);
+
+function isDocumentUrl(url: string): boolean {
+  try {
+    const pathname = new URL(url).pathname.toLowerCase();
+    return DOCUMENT_EXTENSIONS.has(pathname.slice(pathname.lastIndexOf(".")));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * MetaCloudAdapter implements MessagingProvider
+ * Per-tenant: phoneNumberId + accessToken proviennent de la DB (model Tenant)
+ */
+export class MetaCloudAdapter implements MessagingProvider {
+  private readonly phoneNumberId: string;
+  private readonly accessToken: string;
+
+  constructor(phoneNumberId: string, accessToken: string) {
+    if (!phoneNumberId) {
+      throw new Error("phoneNumberId is required for MetaCloudAdapter");
+    }
+    if (!accessToken) {
+      throw new Error("accessToken is required for MetaCloudAdapter");
+    }
+    this.phoneNumberId = phoneNumberId;
+    this.accessToken = accessToken;
+  }
+
+  /**
+   * Verifie la signature HMAC-SHA256 du webhook Meta
+   * Header: X-Hub-Signature-256 = "sha256=<hex>"
+   * Utilise timingSafeEqual pour eviter les timing attacks
+   */
+  async verifySignature(
+    req: Request,
+    secret: string,
+    bodyText?: string,
+    _fullUrl?: string,
+  ): Promise<boolean> {
+    try {
+      const signature = req.headers.get("X-Hub-Signature-256");
+      if (!signature) {
+        webhookLogger.debug("Missing X-Hub-Signature-256 header");
+        return false;
+      }
+
+      const receivedHash = signature.replace("sha256=", "");
+      const body = bodyText ?? (await req.clone().text());
+
+      const calculatedHash = crypto
+        .createHmac("sha256", secret)
+        .update(body)
+        .digest("hex");
+
+      // timingSafeEqual pour eviter timing attacks
+      const a = Buffer.from(calculatedHash, "hex");
+      const b = Buffer.from(receivedHash, "hex");
+
+      if (a.length !== b.length) {
+        webhookLogger.warn("Invalid Meta signature (length mismatch)");
+        return false;
+      }
+
+      const isValid = crypto.timingSafeEqual(a, b);
+
+      if (!isValid) {
+        webhookLogger.warn("Invalid Meta signature");
+      } else {
+        webhookLogger.debug("Meta signature valid");
+      }
+
+      return isValid;
+    } catch (error) {
+      webhookLogger.error("Error verifying Meta signature", error);
+      return false;
+    }
+  }
+
+  /**
+   * Parse le webhook Meta et retourne un message normalise
+   * Gere batch (plusieurs messages dans 1 POST) — retourne le premier message
+   * Gere les payloads status-only (pas de messages[]) — retourne InboundMessage vide
+   *
+   * Pour le batch complet, utiliser parseInboundBatch()
+   */
+  async parseInbound(req: Request): Promise<InboundMessage> {
+    const messages = await this.parseInboundBatch(req);
+    if (messages.length === 0) {
+      // Status-only payload — pas de message utilisable
+      // La route 10-3 devrait utiliser parseInboundBatch() et ignorer les tableaux vides
+      webhookLogger.debug("Meta webhook status-only — no messages to parse");
+      return {
+        tenantId: null,
+        providerMessageId: "",
+        from: "",
+        body: "",
+        correlationId: "",
+      };
+    }
+    return messages[0]!;
+  }
+
+  /**
+   * Parse le webhook Meta et retourne TOUS les messages (batch support)
+   * Meta peut envoyer N messages dans un seul POST webhook
+   * Retourne [] si payload status-only (pas de messages[])
+   */
+  async parseInboundBatch(req: Request): Promise<InboundMessage[]> {
+    try {
+      const payload = await req.json();
+
+      if (payload.object !== "whatsapp_business_account" || !Array.isArray(payload.entry)) {
+        webhookLogger.warn("Meta webhook unexpected payload structure", {
+          object: payload.object,
+          hasEntry: !!payload.entry,
+        });
+        return [];
+      }
+
+      const results: InboundMessage[] = [];
+
+      for (const entry of payload.entry) {
+        for (const change of entry.changes ?? []) {
+          const messages = change.value?.messages;
+          if (!messages || !Array.isArray(messages)) {
+            // Status-only ou autre notification — pas de messages
+            continue;
+          }
+
+          for (const message of messages) {
+            const rawFrom = (message.from as string | undefined) ?? "";
+            const messageId = (message.id as string | undefined) ?? "";
+            const body = (message.text?.body as string) ?? "";
+
+            if (!rawFrom || !messageId) {
+              webhookLogger.warn("Meta webhook message missing from or id", {
+                from: rawFrom,
+                id: messageId,
+              });
+              continue;
+            }
+
+            // Prefixer + pour E.164, guard double prefix
+            const from = rawFrom.startsWith("+") ? rawFrom : `+${rawFrom}`;
+
+            // Media entrant: stocker le MEDIA_ID avec prefixe meta-media://
+            let mediaUrl: string | undefined;
+            if (message.type === "image" && message.image?.id) {
+              mediaUrl = `meta-media://${message.image.id}`;
+            } else if (message.type === "video" && message.video?.id) {
+              mediaUrl = `meta-media://${message.video.id}`;
+            } else if (message.type === "document" && message.document?.id) {
+              mediaUrl = `meta-media://${message.document.id}`;
+            }
+
+            results.push({
+              tenantId: null,
+              providerMessageId: messageId,
+              from,
+              body,
+              mediaUrl,
+              correlationId: messageId,
+            });
+          }
+        }
+      }
+
+      return results;
+    } catch (error) {
+      webhookLogger.error("Error parsing Meta webhook", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Envoie un message sortant via Meta WhatsApp Business API
+   * Support text + media (image avec URL publique)
+   */
+  async send(message: OutboundMessage): Promise<ProviderSendResult> {
+    try {
+      workerLogger.debug("Sending outbound message via Meta", {
+        tenantId: message.tenantId,
+        to: message.to,
+        correlationId: message.correlationId,
+      });
+
+      const toNumber = message.to.replace(/^\+/, "");
+      const apiUrl = `https://graph.facebook.com/${API_VERSION}/${this.phoneNumberId}/messages`;
+
+      // Si mediaUrl present, envoyer comme image ou document selon extension
+      // Sinon, envoyer comme texte
+      let requestBody: Record<string, unknown>;
+
+      if (message.mediaUrl) {
+        const mediaType = isDocumentUrl(message.mediaUrl) ? "document" : "image";
+        requestBody = {
+          messaging_product: "whatsapp",
+          to: toNumber,
+          type: mediaType,
+          [mediaType]: {
+            link: message.mediaUrl,
+            caption: message.body,
+          },
+        };
+      } else {
+        requestBody = {
+          messaging_product: "whatsapp",
+          to: toNumber,
+          type: "text",
+          text: {
+            body: message.body,
+          },
+        };
+      }
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${this.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } };
+        const errorMessage = errorData.error?.message ?? `HTTP ${response.status}`;
+
+        workerLogger.error("Error sending message via Meta", new Error(errorMessage), {
+          tenantId: message.tenantId,
+          to: message.to,
+          correlationId: message.correlationId,
+          status: response.status,
+        });
+
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      }
+
+      const result = await response.json() as { messages?: Array<{ id?: string }> };
+      const messageId = result.messages?.[0]?.id;
+
+      if (!messageId) {
+        workerLogger.warn("No message ID in Meta response", {
+          tenantId: message.tenantId,
+          to: message.to,
+          correlationId: message.correlationId,
+        });
+
+        return {
+          success: false,
+          error: "No message ID in Meta response",
+        };
+      }
+
+      workerLogger.info("Message sent successfully via Meta", {
+        tenantId: message.tenantId,
+        to: message.to,
+        correlationId: message.correlationId,
+        providerMessageId: messageId,
+      });
+
+      return {
+        success: true,
+        providerMessageId: messageId,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      workerLogger.error("Error sending message via Meta", error, {
+        tenantId: message.tenantId,
+        to: message.to,
+        correlationId: message.correlationId,
+      });
+
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  }
+
+  /**
+   * Envoie un message template (hors fenetre 24h)
+   * Hors scope MessagingProvider — methode bonus
+   */
+  async sendTemplate(
+    message: OutboundMessage,
+    templateName: string,
+    templateParams: string[] = [],
+  ): Promise<ProviderSendResult> {
+    try {
+      const toNumber = message.to.replace(/^\+/, "");
+      const apiUrl = `https://graph.facebook.com/${API_VERSION}/${this.phoneNumberId}/messages`;
+
+      const requestBody = {
+        messaging_product: "whatsapp",
+        to: toNumber,
+        type: "template",
+        template: {
+          name: templateName,
+          language: { code: "fr" },
+          components: templateParams.length > 0
+            ? [{
+                type: "body",
+                parameters: templateParams.map((param) => ({
+                  type: "text",
+                  text: param,
+                })),
+              }]
+            : undefined,
+        },
+      };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${this.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } };
+        const errorMessage = errorData.error?.message ?? `HTTP ${response.status}`;
+        return { success: false, error: errorMessage };
+      }
+
+      const result = await response.json() as { messages?: Array<{ id?: string }> };
+      const messageId = result.messages?.[0]?.id;
+
+      return { success: true, providerMessageId: messageId };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return { success: false, error: errorMessage };
+    }
+  }
+}

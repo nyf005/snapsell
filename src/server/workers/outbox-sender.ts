@@ -1,8 +1,8 @@
 /**
- * Worker outbox-sender pour envoi de messages sortants (Story 2.4)
+ * Worker outbox-sender pour envoi de messages sortants (Story 2.4, 10.4)
  * 
  * Architecture §4.5: Outbound messaging via outbox + retries + DLQ
- * Architecture §11.2: Workers sur Railway consomment l'outbox et envoient via Twilio
+ * Architecture §7.1: Provider-agnostic — MetaCloudAdapter per-tenant (credentials en DB)
  * 
  * Pattern: Polling DB pour lire MessageOut avec status = 'pending' ou 'failed' avec next_attempt_at <= now
  * Alternative: BullMQ queue (mais polling DB plus adapté pour outbox pattern)
@@ -12,7 +12,7 @@ import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { logMessageSent, logMessageBlockedOptOut } from "~/server/events/eventLog";
 import { checkOptOut } from "~/server/messaging/optout";
-import { TwilioAdapter } from "~/server/messaging/providers/twilio/adapter";
+import { MetaCloudAdapter } from "~/server/messaging/providers/meta/adapter";
 import type { OutboundMessage, ProviderSendResult } from "~/server/messaging/types";
 import { generateSignedR2Url } from "~/server/media/r2-signed-url";
 import { env } from "~/env";
@@ -101,11 +101,40 @@ export async function processOutboundMessage(messageOut: {
       return { success: true }; // Traité (bloqué), pas de retry
     }
 
-    // Créer adapteur Twilio
-    const adapter = new TwilioAdapter(
-      env.TWILIO_AUTH_TOKEN ?? "",
-      env.TWILIO_ACCOUNT_SID,
-      env.TWILIO_WHATSAPP_NUMBER,
+    // Story 10.4: Résolution per-tenant du provider Meta
+    const tenant = await db.tenant.findUnique({
+      where: { id: tenantId },
+      select: { metaPhoneNumberId: true, metaAccessToken: true },
+    });
+
+    if (!tenant?.metaPhoneNumberId || !tenant?.metaAccessToken) {
+      const errorMsg = !tenant
+        ? "tenant_not_found"
+        : "meta_config_missing";
+
+      workerLogger.error("Cannot send message: tenant Meta config missing", new Error(errorMsg), {
+        messageOutId: id,
+        tenantId,
+        correlationId,
+      });
+
+      await db.messageOut.update({
+        where: { id },
+        data: {
+          status: "failed",
+          attempts: messageOut.attempts + 1,
+          nextAttemptAt: calculateNextAttemptAt(messageOut.attempts + 1),
+          lastError: errorMsg,
+          updatedAt: new Date(),
+        },
+      });
+
+      return { success: false, error: errorMsg };
+    }
+
+    const adapter = new MetaCloudAdapter(
+      tenant.metaPhoneNumberId,
+      tenant.metaAccessToken,
     );
 
     // Story 9.4: si mediaUrl est une clé R2 (pas une URL), signer juste avant l'envoi
@@ -196,7 +225,6 @@ export async function processOutboundMessage(messageOut: {
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorStack = error instanceof Error ? error.stack : undefined;
 
     // Échec: incrémenter attempts et calculer next_attempt_at
     const newAttempts = messageOut.attempts + 1;

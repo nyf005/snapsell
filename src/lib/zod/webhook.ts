@@ -41,3 +41,44 @@ export const inboundMessageForQueueSchema = z.object({
 });
 
 export type InboundMessageInput = z.infer<typeof inboundMessageSchema>;
+
+/**
+ * Schema Zod pour un message individuel dans le payload webhook Meta WhatsApp Cloud API
+ * Story 10.3 AC#3
+ */
+export const metaWebhookMessageSchema = z.object({
+  from: z.string(),
+  id: z.string(),
+  timestamp: z.string(),
+  type: z.string(),
+  text: z.object({ body: z.string() }).optional(),
+  image: z.object({ mime_type: z.string(), sha256: z.string(), id: z.string() }).optional(),
+  video: z.object({ mime_type: z.string(), sha256: z.string(), id: z.string() }).optional(),
+  document: z.object({ mime_type: z.string(), sha256: z.string(), id: z.string(), filename: z.string().optional() }).optional(),
+});
+
+/**
+ * Schema Zod pour le payload complet du webhook Meta WhatsApp Cloud API
+ * Valide la structure: object "whatsapp_business_account", entry[].changes[].value
+ * messages[] est optionnel (payloads status-only possibles)
+ * Story 10.3 AC#3
+ */
+export const metaWebhookSchema = z.object({
+  object: z.literal("whatsapp_business_account"),
+  entry: z.array(z.object({
+    id: z.string(),
+    changes: z.array(z.object({
+      value: z.object({
+        messaging_product: z.literal("whatsapp"),
+        metadata: z.object({
+          display_phone_number: z.string(),
+          phone_number_id: z.string(),
+        }),
+        messages: z.array(metaWebhookMessageSchema).optional(),
+        statuses: z.array(z.unknown()).optional(),
+        contacts: z.array(z.unknown()).optional(),
+      }),
+      field: z.literal("messages"),
+    })),
+  })),
+});

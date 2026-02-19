@@ -24,6 +24,10 @@ model Tenant {
   id                    String    @id @default(cuid())
   name                  String
   whatsappPhoneNumber   String?   @unique @map("whatsapp_phone_number")
+  // Meta WhatsApp Cloud API (Story 10.1)
+  metaPhoneNumberId     String?   @unique @map("meta_phone_number_id")
+  metaWabaId            String?   @map("meta_waba_id")
+  metaAccessToken       String?   @map("meta_access_token")
   requireDeposit        Boolean   @default(false) @map("require_deposit") // Story 4.5: acompte activé → TTL locked, demande preuve
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")

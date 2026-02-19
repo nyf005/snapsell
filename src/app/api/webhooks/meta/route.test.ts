@@ -1,0 +1,556 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import crypto from "crypto";
+import { metaWebhookSchema, metaWebhookMessageSchema } from "~/lib/zod/webhook";
+
+// ─── Mocks ───
+
+vi.mock("~/server/db", () => ({
+  db: {
+    tenant: {
+      findUnique: vi.fn(),
+    },
+    messageIn: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+    },
+  },
+}));
+
+vi.mock("~/server/workers/queues", () => ({
+  webhookProcessingQueue: {
+    add: vi.fn(),
+  },
+}));
+
+vi.mock("~/server/events/eventLog", () => ({
+  logWebhookReceived: vi.fn().mockResolvedValue(undefined),
+  logIdempotentIgnored: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("~/lib/sentry", () => ({
+  captureException: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("~/lib/rate-limit", () => ({
+  checkWebhookRateLimit: vi.fn().mockReturnValue(true),
+  getClientIpFromRequest: vi.fn().mockReturnValue("127.0.0.1"),
+}));
+
+// Mock env with META_VERIFY_TOKEN and META_APP_SECRET
+vi.mock("~/env", () => ({
+  env: {
+    META_VERIFY_TOKEN: "test-verify-token",
+    META_APP_SECRET: "test-app-secret",
+    NODE_ENV: "production",
+    WEBHOOK_RATE_LIMIT_MAX: 120,
+    WEBHOOK_RATE_LIMIT_WINDOW_MS: 60000,
+  },
+}));
+
+vi.mock("~/server/messaging/providers/meta/adapter", () => ({
+  MetaCloudAdapter: vi.fn().mockImplementation(function () {
+    return { parseInboundBatch: vi.fn() };
+  }),
+}));
+
+// ─── Task 1: Tests schema Zod metaWebhookSchema ───
+
+describe("metaWebhookMessageSchema", () => {
+  it("valide un message text complet", () => {
+    const msg = {
+      from: "22891234567",
+      id: "wamid.HBgNMjI4OTEyMzQ1Njc",
+      timestamp: "1710000000",
+      type: "text",
+      text: { body: "Bonjour" },
+    };
+    expect(metaWebhookMessageSchema.parse(msg)).toEqual(msg);
+  });
+
+  it("valide un message image", () => {
+    const msg = {
+      from: "22891234567",
+      id: "wamid.abc",
+      timestamp: "1710000000",
+      type: "image",
+      image: { mime_type: "image/jpeg", sha256: "abc123", id: "img_001" },
+    };
+    expect(() => metaWebhookMessageSchema.parse(msg)).not.toThrow();
+  });
+
+  it("valide un message document avec filename optionnel", () => {
+    const msg = {
+      from: "22891234567",
+      id: "wamid.doc",
+      timestamp: "1710000000",
+      type: "document",
+      document: { mime_type: "application/pdf", sha256: "xyz", id: "doc_001", filename: "facture.pdf" },
+    };
+    expect(() => metaWebhookMessageSchema.parse(msg)).not.toThrow();
+  });
+
+  it("rejette un message sans from", () => {
+    const msg = { id: "wamid.abc", timestamp: "1710000000", type: "text" };
+    expect(() => metaWebhookMessageSchema.parse(msg)).toThrow();
+  });
+
+  it("rejette un message sans id", () => {
+    const msg = { from: "22891234567", timestamp: "1710000000", type: "text" };
+    expect(() => metaWebhookMessageSchema.parse(msg)).toThrow();
+  });
+});
+
+describe("metaWebhookSchema", () => {
+  const validPayload = {
+    object: "whatsapp_business_account",
+    entry: [
+      {
+        id: "WHATSAPP_BUSINESS_ACCOUNT_ID",
+        changes: [
+          {
+            value: {
+              messaging_product: "whatsapp",
+              metadata: {
+                display_phone_number: "15551234567",
+                phone_number_id: "PHONE_NUMBER_ID",
+              },
+              messages: [
+                {
+                  from: "22891234567",
+                  id: "wamid.HBgNMjI4OTEyMzQ1Njc",
+                  timestamp: "1710000000",
+                  type: "text",
+                  text: { body: "A3" },
+                },
+              ],
+              contacts: [{ profile: { name: "Client" }, wa_id: "22891234567" }],
+            },
+            field: "messages",
+          },
+        ],
+      },
+    ],
+  };
+
+  it("valide un payload Meta complet avec message text", () => {
+    expect(() => metaWebhookSchema.parse(validPayload)).not.toThrow();
+  });
+
+  it("valide un payload status-only (sans messages[])", () => {
+    const statusOnly = {
+      object: "whatsapp_business_account",
+      entry: [
+        {
+          id: "WABA_ID",
+          changes: [
+            {
+              value: {
+                messaging_product: "whatsapp",
+                metadata: {
+                  display_phone_number: "15551234567",
+                  phone_number_id: "PHONE_NUMBER_ID",
+                },
+                statuses: [
+                  {
+                    id: "wamid.xyz",
+                    status: "delivered",
+                    timestamp: "1710000000",
+                    recipient_id: "22891234567",
+                  },
+                ],
+              },
+              field: "messages",
+            },
+          ],
+        },
+      ],
+    };
+    expect(() => metaWebhookSchema.parse(statusOnly)).not.toThrow();
+  });
+
+  it("valide un payload batch multi-messages", () => {
+    const batch = {
+      object: "whatsapp_business_account",
+      entry: [
+        {
+          id: "WABA_ID",
+          changes: [
+            {
+              value: {
+                messaging_product: "whatsapp",
+                metadata: {
+                  display_phone_number: "15551234567",
+                  phone_number_id: "PHONE_NUMBER_ID",
+                },
+                messages: [
+                  { from: "111", id: "wamid.1", timestamp: "1710000000", type: "text", text: { body: "A1" } },
+                  { from: "222", id: "wamid.2", timestamp: "1710000001", type: "text", text: { body: "B2" } },
+                  { from: "333", id: "wamid.3", timestamp: "1710000002", type: "text", text: { body: "C3" } },
+                ],
+              },
+              field: "messages",
+            },
+          ],
+        },
+      ],
+    };
+    const parsed = metaWebhookSchema.parse(batch);
+    expect(parsed.entry[0]!.changes[0]!.value.messages).toHaveLength(3);
+  });
+
+  it("rejette un payload avec object invalide", () => {
+    const invalid = { ...validPayload, object: "instagram" };
+    expect(() => metaWebhookSchema.parse(invalid)).toThrow();
+  });
+
+  it("rejette un payload avec field invalide", () => {
+    const invalid = structuredClone(validPayload);
+    // @ts-expect-error — test volontaire avec valeur invalide
+    invalid.entry[0]!.changes[0]!.field = "account";
+    expect(() => metaWebhookSchema.parse(invalid)).toThrow();
+  });
+
+  it("rejette un payload sans messaging_product whatsapp", () => {
+    const invalid = structuredClone(validPayload);
+    // @ts-expect-error — test volontaire avec valeur invalide
+    invalid.entry[0]!.changes[0]!.value.messaging_product = "facebook";
+    expect(() => metaWebhookSchema.parse(invalid)).toThrow();
+  });
+
+  it("extrait phone_number_id depuis metadata", () => {
+    const parsed = metaWebhookSchema.parse(validPayload);
+    expect(parsed.entry[0]!.changes[0]!.value.metadata.phone_number_id).toBe("PHONE_NUMBER_ID");
+  });
+});
+
+// ─── Task 2: Tests route GET challenge (AC #1) ───
+
+describe("GET /api/webhooks/meta — challenge", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  async function callGET(params: Record<string, string>) {
+    // Dynamic import to get fresh module with mocked deps
+    const { GET } = await import("./route");
+    const url = new URL("http://localhost:3000/api/webhooks/meta");
+    for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+    return GET(new Request(url.toString()));
+  }
+
+  it("challenge valide → 200 + retourne hub.challenge", async () => {
+    const resp = await callGET({
+      "hub.mode": "subscribe",
+      "hub.verify_token": "test-verify-token",
+      "hub.challenge": "CHALLENGE_CODE_123",
+    });
+    expect(resp.status).toBe(200);
+    const body = await resp.text();
+    expect(body).toBe("CHALLENGE_CODE_123");
+  });
+
+  it("token invalide → 403", async () => {
+    const resp = await callGET({
+      "hub.mode": "subscribe",
+      "hub.verify_token": "wrong-token",
+      "hub.challenge": "CHALLENGE_CODE_123",
+    });
+    expect(resp.status).toBe(403);
+  });
+
+  it("mode invalide → 403", async () => {
+    const resp = await callGET({
+      "hub.mode": "unsubscribe",
+      "hub.verify_token": "test-verify-token",
+      "hub.challenge": "CHALLENGE_CODE_123",
+    });
+    expect(resp.status).toBe(403);
+  });
+
+  it("META_VERIFY_TOKEN absent → 403", async () => {
+    // Temporarily override env
+    const envMod = await import("~/env");
+    const original = envMod.env.META_VERIFY_TOKEN;
+    (envMod.env as Record<string, unknown>).META_VERIFY_TOKEN = undefined;
+    try {
+      const resp = await callGET({
+        "hub.mode": "subscribe",
+        "hub.verify_token": "test-verify-token",
+        "hub.challenge": "CHALLENGE_CODE_123",
+      });
+      expect(resp.status).toBe(403);
+    } finally {
+      (envMod.env as Record<string, unknown>).META_VERIFY_TOKEN = original;
+    }
+  });
+});
+
+// ─── Task 3 & 4: Tests route POST inbound (AC #2, #4, #5) ───
+
+function signPayload(body: string, secret: string): string {
+  return "sha256=" + crypto.createHmac("sha256", secret).update(body).digest("hex");
+}
+
+function makeMetaPayload(messages: Array<Record<string, unknown>>, phoneNumberId = "PN_ID_123") {
+  return {
+    object: "whatsapp_business_account",
+    entry: [
+      {
+        id: "WABA_ID",
+        changes: [
+          {
+            value: {
+              messaging_product: "whatsapp",
+              metadata: {
+                display_phone_number: "15551234567",
+                phone_number_id: phoneNumberId,
+              },
+              messages,
+              contacts: [{ profile: { name: "Client" }, wa_id: "22891234567" }],
+            },
+            field: "messages",
+          },
+        ],
+      },
+    ],
+  };
+}
+
+function makeStatusOnlyPayload(phoneNumberId = "PN_ID_123") {
+  return {
+    object: "whatsapp_business_account",
+    entry: [
+      {
+        id: "WABA_ID",
+        changes: [
+          {
+            value: {
+              messaging_product: "whatsapp",
+              metadata: {
+                display_phone_number: "15551234567",
+                phone_number_id: phoneNumberId,
+              },
+              statuses: [{ id: "wamid.xyz", status: "delivered", timestamp: "1710000000", recipient_id: "22891234567" }],
+            },
+            field: "messages",
+          },
+        ],
+      },
+    ],
+  };
+}
+
+describe("POST /api/webhooks/meta — inbound", () => {
+  let dbMock: typeof import("~/server/db");
+  let queueMock: typeof import("~/server/workers/queues");
+  let adapterModule: typeof import("~/server/messaging/providers/meta/adapter");
+  let rateLimitMock: typeof import("~/lib/rate-limit");
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    dbMock = await import("~/server/db");
+    queueMock = await import("~/server/workers/queues");
+    adapterModule = await import("~/server/messaging/providers/meta/adapter");
+    rateLimitMock = await import("~/lib/rate-limit");
+    // Re-set rate limit mock after clearAllMocks
+    vi.mocked(rateLimitMock.checkWebhookRateLimit).mockReturnValue(true);
+  });
+
+  async function callPOST(body: string, signature?: string) {
+    const { POST } = await import("./route");
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (signature) headers["X-Hub-Signature-256"] = signature;
+    return POST(new Request("http://localhost:3000/api/webhooks/meta", {
+      method: "POST",
+      headers,
+      body,
+    }));
+  }
+
+  it("single message text → 200 + persist + enqueue", async () => {
+    const payload = makeMetaPayload([
+      { from: "22891234567", id: "wamid.abc", timestamp: "1710000000", type: "text", text: { body: "A3" } },
+    ]);
+    const bodyText = JSON.stringify(payload);
+    const sig = signPayload(bodyText, "test-app-secret");
+
+    // Mock tenant found
+    vi.mocked(dbMock.db.tenant.findUnique).mockResolvedValue({ id: "tenant-1", metaPhoneNumberId: "PN_ID_123", metaAccessToken: "tok" } as never);
+    // Mock no existing message (idempotence)
+    vi.mocked(dbMock.db.messageIn.findUnique).mockResolvedValue(null);
+    // Mock create
+    vi.mocked(dbMock.db.messageIn.create).mockResolvedValue({ id: "msg-1", correlationId: "wamid.abc" } as never);
+    // Mock adapter parseInboundBatch
+    const mockParseInboundBatch = vi.fn().mockResolvedValue([
+      { tenantId: null, providerMessageId: "wamid.abc", from: "+22891234567", body: "A3", correlationId: "wamid.abc" },
+    ]);
+    vi.mocked(adapterModule.MetaCloudAdapter).mockImplementation(function () {
+      return {
+        parseInboundBatch: mockParseInboundBatch,
+        parseInbound: vi.fn(),
+        send: vi.fn(),
+        verifySignature: vi.fn(),
+      };
+    } as never);
+
+    const resp = await callPOST(bodyText, sig);
+    expect(resp.status).toBe(200);
+    expect(dbMock.db.messageIn.create).toHaveBeenCalledTimes(1);
+    expect(queueMock.webhookProcessingQueue.add).toHaveBeenCalledTimes(1);
+  });
+
+  it("batch multi-messages → N persist + N enqueue", async () => {
+    const payload = makeMetaPayload([
+      { from: "111", id: "wamid.1", timestamp: "1710000000", type: "text", text: { body: "A1" } },
+      { from: "222", id: "wamid.2", timestamp: "1710000001", type: "text", text: { body: "B2" } },
+      { from: "333", id: "wamid.3", timestamp: "1710000002", type: "text", text: { body: "C3" } },
+    ]);
+    const bodyText = JSON.stringify(payload);
+    const sig = signPayload(bodyText, "test-app-secret");
+
+    vi.mocked(dbMock.db.tenant.findUnique).mockResolvedValue({ id: "tenant-1", metaPhoneNumberId: "PN_ID_123", metaAccessToken: "tok" } as never);
+    vi.mocked(dbMock.db.messageIn.findUnique).mockResolvedValue(null);
+    vi.mocked(dbMock.db.messageIn.create).mockImplementation((args: never) => {
+      const data = (args as { data: { providerMessageId: string; correlationId: string } }).data;
+      return Promise.resolve({ id: `msg-${data.providerMessageId}`, correlationId: data.correlationId }) as never;
+    });
+
+    const mockParseInboundBatch = vi.fn().mockResolvedValue([
+      { tenantId: null, providerMessageId: "wamid.1", from: "+111", body: "A1", correlationId: "wamid.1" },
+      { tenantId: null, providerMessageId: "wamid.2", from: "+222", body: "B2", correlationId: "wamid.2" },
+      { tenantId: null, providerMessageId: "wamid.3", from: "+333", body: "C3", correlationId: "wamid.3" },
+    ]);
+    vi.mocked(adapterModule.MetaCloudAdapter).mockImplementation(function () {
+      return {
+        parseInboundBatch: mockParseInboundBatch,
+        parseInbound: vi.fn(),
+        send: vi.fn(),
+        verifySignature: vi.fn(),
+      };
+    } as never);
+
+    const resp = await callPOST(bodyText, sig);
+    expect(resp.status).toBe(200);
+    expect(dbMock.db.messageIn.create).toHaveBeenCalledTimes(3);
+    expect(queueMock.webhookProcessingQueue.add).toHaveBeenCalledTimes(3);
+  });
+
+  it("tenant non trouve → 200 + persist MessageIn avec tenantId null", async () => {
+    const payload = makeMetaPayload([
+      { from: "22891234567", id: "wamid.abc", timestamp: "1710000000", type: "text", text: { body: "A3" } },
+    ]);
+    const bodyText = JSON.stringify(payload);
+    const sig = signPayload(bodyText, "test-app-secret");
+
+    vi.mocked(dbMock.db.tenant.findUnique).mockResolvedValue(null);
+    vi.mocked(dbMock.db.messageIn.create).mockResolvedValue({ id: "msg-orphan" } as never);
+
+    const resp = await callPOST(bodyText, sig);
+    expect(resp.status).toBe(200);
+    // Persist with null tenantId
+    expect(dbMock.db.messageIn.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ tenantId: null }),
+      }),
+    );
+    // No enqueue (no tenant)
+    expect(queueMock.webhookProcessingQueue.add).not.toHaveBeenCalled();
+  });
+
+  it("signature invalide → 401", async () => {
+    const payload = makeMetaPayload([
+      { from: "22891234567", id: "wamid.abc", timestamp: "1710000000", type: "text", text: { body: "A3" } },
+    ]);
+    const bodyText = JSON.stringify(payload);
+
+    const resp = await callPOST(bodyText, "sha256=invalidsignature");
+    expect(resp.status).toBe(401);
+  });
+
+  it("payload status-only (pas de messages[]) → 200 sans persist", async () => {
+    const payload = makeStatusOnlyPayload();
+    const bodyText = JSON.stringify(payload);
+    const sig = signPayload(bodyText, "test-app-secret");
+
+    vi.mocked(dbMock.db.tenant.findUnique).mockResolvedValue({ id: "tenant-1", metaPhoneNumberId: "PN_ID_123", metaAccessToken: "tok" } as never);
+
+    const mockParseInboundBatch = vi.fn().mockResolvedValue([]);
+    vi.mocked(adapterModule.MetaCloudAdapter).mockImplementation(function () {
+      return {
+        parseInboundBatch: mockParseInboundBatch,
+        parseInbound: vi.fn(),
+        send: vi.fn(),
+        verifySignature: vi.fn(),
+      };
+    } as never);
+
+    const resp = await callPOST(bodyText, sig);
+    expect(resp.status).toBe(200);
+    expect(dbMock.db.messageIn.create).not.toHaveBeenCalled();
+    expect(queueMock.webhookProcessingQueue.add).not.toHaveBeenCalled();
+  });
+
+  it("message image → 200 + persist avec mediaUrl", async () => {
+    const payload = makeMetaPayload([
+      { from: "22891234567", id: "wamid.img1", timestamp: "1710000000", type: "image", image: { mime_type: "image/jpeg", sha256: "abc123", id: "img_001" } },
+    ]);
+    const bodyText = JSON.stringify(payload);
+    const sig = signPayload(bodyText, "test-app-secret");
+
+    vi.mocked(dbMock.db.tenant.findUnique).mockResolvedValue({ id: "tenant-1", metaPhoneNumberId: "PN_ID_123", metaAccessToken: "tok" } as never);
+    vi.mocked(dbMock.db.messageIn.findUnique).mockResolvedValue(null);
+    vi.mocked(dbMock.db.messageIn.create).mockResolvedValue({ id: "msg-img", correlationId: "uuid-img" } as never);
+
+    const mockParseInboundBatch = vi.fn().mockResolvedValue([
+      { tenantId: null, providerMessageId: "wamid.img1", from: "+22891234567", body: "", mediaUrl: "meta-media://img_001", correlationId: "wamid.img1" },
+    ]);
+    vi.mocked(adapterModule.MetaCloudAdapter).mockImplementation(function () {
+      return {
+        parseInboundBatch: mockParseInboundBatch,
+        parseInbound: vi.fn(),
+        send: vi.fn(),
+        verifySignature: vi.fn(),
+      };
+    } as never);
+
+    const resp = await callPOST(bodyText, sig);
+    expect(resp.status).toBe(200);
+    expect(dbMock.db.messageIn.create).toHaveBeenCalledTimes(1);
+    expect(dbMock.db.messageIn.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ mediaUrl: "meta-media://img_001" }),
+      }),
+    );
+    expect(queueMock.webhookProcessingQueue.add).toHaveBeenCalledTimes(1);
+  });
+
+  it("idempotence — message deja existant → 200 sans doublon", async () => {
+    const payload = makeMetaPayload([
+      { from: "22891234567", id: "wamid.dup", timestamp: "1710000000", type: "text", text: { body: "A3" } },
+    ]);
+    const bodyText = JSON.stringify(payload);
+    const sig = signPayload(bodyText, "test-app-secret");
+
+    vi.mocked(dbMock.db.tenant.findUnique).mockResolvedValue({ id: "tenant-1", metaPhoneNumberId: "PN_ID_123", metaAccessToken: "tok" } as never);
+    // Message already exists
+    vi.mocked(dbMock.db.messageIn.findUnique).mockResolvedValue({ id: "msg-existing", correlationId: "wamid.dup" } as never);
+
+    const mockParseInboundBatch = vi.fn().mockResolvedValue([
+      { tenantId: null, providerMessageId: "wamid.dup", from: "+22891234567", body: "A3", correlationId: "wamid.dup" },
+    ]);
+    vi.mocked(adapterModule.MetaCloudAdapter).mockImplementation(function () {
+      return {
+        parseInboundBatch: mockParseInboundBatch,
+        parseInbound: vi.fn(),
+        send: vi.fn(),
+        verifySignature: vi.fn(),
+      };
+    } as never);
+
+    const resp = await callPOST(bodyText, sig);
+    expect(resp.status).toBe(200);
+    // No create (idempotent)
+    expect(dbMock.db.messageIn.create).not.toHaveBeenCalled();
+    expect(queueMock.webhookProcessingQueue.add).not.toHaveBeenCalled();
+  });
+});
