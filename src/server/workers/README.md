@@ -8,9 +8,9 @@ Le worker `webhook-processor` consomme la queue `webhook-processing` et détermi
 
 ### Architecture
 
-- **Queue:** `webhook-processing` (créée dans Story 2.1)
+- **Queue:** `webhook-processing` (pg-boss sur Postgres/Neon)
 - **Payload:** `InboundMessage` normalisé (tenantId, providerMessageId, from, body, correlationId)
-- **Output:** `EnrichedInboundMessage` avec `messageType: 'seller' | 'client'`, `liveSessionId` (Story 2.6, optionnel)
+- **Output:** `EnrichedInboundMessage` avec `messageType: 'seller' | 'client'`, `liveSessionId` (optionnel)
 - **Plateforme:** Railway - séparé du webhook Vercel
 
 ### Démarrage local
@@ -22,10 +22,8 @@ npx tsx scripts/start-worker.ts
 ```
 
 **Variables d'environnement requises:**
-- `DATABASE_URL` - URL PostgreSQL (Neon)
-- `REDIS_URL` - URL Redis (Upstash)
-- `REDIS_TOKEN` - Token Redis (si requis)
-- `LIVE_SESSION_INACTIVITY_WINDOW_MINUTES` - (optionnel, défaut 45) Fenêtre d'inactivité en min pour fermeture auto des sessions live (Story 2.6)
+- `DATABASE_URL` - URL PostgreSQL directe Neon (non-pooler, obligatoire pour pg-boss)
+- `LIVE_SESSION_INACTIVITY_WINDOW_MINUTES` - (optionnel, défaut 45) Fenêtre d'inactivité en min pour fermeture auto des sessions live
 
 ### Déploiement
 
@@ -34,10 +32,9 @@ Voir `DEPLOYMENT.md` à la racine du projet pour le guide complet de déploiemen
 ### Monitoring
 
 Le worker logge les événements suivants:
-- `Job completed` - Job traité avec succès
-- `Job failed` - Job échoué (retry automatique via BullMQ)
-- `Worker error` - Erreur du worker lui-même
-- `Worker metrics` - Métriques périodiques (toutes les 100 jobs ou 5 minutes)
+- `Processing webhook job` - Job en cours de traitement
+- `Message type determined` - Type vendeur/client déterminé
+- `Job failed` - Job échoué (retry automatique via pg-boss)
 
 **Logs structurés:**
 - Tous les logs incluent `correlationId` pour traçabilité
@@ -45,44 +42,33 @@ Le worker logge les événements suivants:
 
 **Métriques exposées:**
 - Temps de traitement par job (`processingTimeMs`)
-- Uptime du worker (`uptimeMs`)
-- Compteurs: jobs complétés, jobs échoués
-- Taux de succès (`successRate`)
-- Profondeur de queue: waiting, active, completed, failed
-- Nombre de tentatives pour jobs échoués (`attemptsMade`, `attemptsRemaining`)
-
-**Métriques périodiques:**
-Les métriques sont loggées automatiquement:
-- Toutes les 100 jobs traités (complétés ou échoués)
-- Toutes les 5 minutes (intervalle fixe)
+- Compteurs locaux: jobs complétés, jobs échoués
 
 **Intégration Sentry (optionnel):**
-L'intégration Sentry est préparée mais désactivée par défaut (voir TODOs dans le code).
-Pour activer: installer `@sentry/node`, configurer `SENTRY_DSN` dans env, décommenter les blocs Sentry.
+Configurer `SENTRY_DSN` dans env pour remonter les erreurs critiques.
 
 ### Graceful Shutdown
 
 Le worker gère automatiquement:
-- **SIGTERM/SIGINT:** Arrêt propre en attendant la fin des jobs en cours
-- **Timeout:** BullMQ attend max 30s par défaut pour finir les jobs
+- **SIGTERM/SIGINT:** Arrêt propre via `boss.stop({ graceful: true, timeout: 30000 })`
 - **Erreurs non capturées:** Log et shutdown propre
 
 ### Scaling
 
-- **Concurrency:** 5 jobs en parallèle par défaut (configurable dans `createWebhookProcessorWorker`)
-- **Scaling Railway:** Augmenter le nombre d'instances selon la profondeur de la queue
+- **Concurrency:** 5 jobs en parallèle (configurable via `localConcurrency`)
+- **Scaling Railway:** Augmenter le nombre d'instances selon la charge
 - **Isolation:** Chaque job est isolé par tenant (pas de partage d'état)
 
 ### Troubleshooting
 
 **Worker ne démarre pas:**
-- Vérifier variables d'environnement (DATABASE_URL, REDIS_URL)
-- Vérifier connexion Redis (Upstash peut nécessiter REDIS_TOKEN)
+- Vérifier variables d'environnement (`DATABASE_URL`)
+- Vérifier que l'URL est l'URL **directe** Neon (pas l'URL pooler `-pooler.`)
 - Vérifier logs Railway pour erreurs de connexion
 
 **Jobs ne sont pas traités:**
 - Vérifier que le worker est démarré (logs "Worker started successfully")
-- Vérifier la queue dans Redis/Upstash dashboard
+- Vérifier les tables pg-boss (`pgboss.job`) pour les jobs en attente
 - Vérifier les logs pour erreurs de traitement
 
 **Jobs échouent:**
@@ -101,94 +87,58 @@ Le worker gère automatiquement:
 
 ## Worker: outbox-sender
 
-Le worker `outbox-sender` traite les messages sortants via le pattern outbox avec retries et DLQ (Story 2.4).
+Le worker `outbox-sender` traite les messages sortants via pg-boss queue `outbox-send` avec retries et DLQ.
 
 ### Architecture
 
-- **Pattern:** Polling DB (lecture directe depuis `messages_out` table)
-- **Status:** Lit les messages avec `status = 'pending'` ou `status = 'failed'` avec `next_attempt_at <= now`
-- **Provider:** Meta WhatsApp Cloud API via MetaCloudAdapter (credentials per-tenant en DB, architecture §7.1)
+- **Queue:** `outbox-send` (pg-boss, `localConcurrency: 3`)
+- **Pattern:** Event-driven via pg-boss (plus de polling setInterval)
+- **Provider:** Meta WhatsApp Cloud API via MetaCloudAdapter (credentials per-tenant en DB)
+- **DLQ:** Queue `outbox-dlq` (pg-boss deadLetter natif après 5 retries)
 - **Plateforme:** Railway - même service que webhook-processor
 
 ### Fonctionnalités
 
-- **Outbox Pattern:** Tout message sortant écrit d'abord dans `MessageOut` avec `status = 'pending'`
-- **Retries avec backoff exponentiel:** 1s, 2s, 4s, 8s, 16s (max 30s)
-- **DLQ après N échecs:** Après 5 échecs, création d'un `DeadLetterJob` pour traçabilité ops
-- **Event Log:** Intégration `logMessageSent()` après envoi réussi (Story 2.3)
+- **Outbox Pattern:** Tout message sortant écrit d'abord dans `MessageOut` avec `status = 'pending'`, puis enqueued via `boss.send("outbox-send", { messageOutId })`
+- **Retries:** pg-boss natif (retryLimit: 5, retryBackoff: true)
+- **DLQ:** pg-boss deadLetter natif vers `outbox-dlq`
+- **Event Log:** Intégration `logMessageSent()` après envoi réussi
 - **Isolation tenant:** Filtrage strict par `tenant_id`
-
-### Démarrage local
-
-Le worker est démarré automatiquement avec `start-worker.ts`:
-
-```bash
-npm run dev:worker
-# ou
-npx tsx scripts/start-worker.ts
-```
-
-**Configuration polling:**
-- Intervalle: 5 secondes (configurable dans `startOutboxSenderWorker`)
-- Batch size: 10 messages par cycle (configurable)
-
-### Déploiement
-
-Voir `DEPLOYMENT.md` à la racine du projet pour le guide complet de déploiement sur Railway.
-
-**Migration requise:** `20260205171901_add_message_out_and_dead_letter_job`
 
 ### Monitoring
 
 Le worker logge les événements suivants:
 - `Processing outbound message` - Début traitement message
 - `Message sent successfully` - Envoi réussi via Meta WhatsApp Cloud API
-- `Message send failed, will retry` - Échec avec retry programmé
-- `Creating DeadLetterJob after max retries` - DLQ créé après N échecs
-- `Batch processed` - Batch de messages traité
+- `Message send failed` - Échec (pg-boss gère le retry)
+- `Message blocked (opt-out)` - Message bloqué par opt-out
 
 **Logs structurés:**
 - Tous les logs incluent `correlationId` pour traçabilité bout en bout
-- Format: `[timestamp] [LEVEL] [Worker] message {context}`
-
-**Métriques à surveiller:**
-- Nombre de messages pending dans `messages_out`
-- Taux de succès d'envoi (status = 'sent' vs 'failed')
-- Nombre de DeadLetterJobs créés
-- Temps moyen entre création et envoi réussi
 
 ### Troubleshooting
 
 **Messages ne sont pas envoyés:**
-- Vérifier que le worker est démarré (logs "Outbox sender worker started successfully")
+- Vérifier que le worker est démarré (logs "Outbox sender worker started")
 - Vérifier table `messages_out` pour messages avec `status = 'pending'`
 - Vérifier que le tenant a `metaPhoneNumberId` et `metaAccessToken` configurés en base
-- Vérifier logs pour erreurs Meta API
 
 **Messages échouent systématiquement:**
-- Vérifier config Meta du tenant en DB (`metaPhoneNumberId`, `metaAccessToken`)
-- Vérifier format numéro WhatsApp (E.164, ex. +33612345678)
-- Vérifier logs avec `correlationId` pour traçabilité
 - Si `lastError = "meta_config_missing"` → le tenant n'a pas configuré ses credentials Meta
-- Si `lastError = "tenant_not_found"` → le tenantId du message ne correspond à aucun tenant
-
-**DLQ créé trop souvent:**
-- Vérifier santé API Meta WhatsApp
-- Vérifier quotas Meta (rate limiting)
-- Vérifier format des messages (body, to)
+- Si `lastError = "tenant_not_found"` → le tenantId ne correspond à aucun tenant
+- Vérifier format numéro WhatsApp (E.164)
 
 ### Architecture Compliance
 
-- **§4.5:** Outbound messaging via outbox + retries + DLQ - Tout envoi sortant écrit d'abord dans MessageOut (outbox) avec statut pending
-- **§7.1:** Messaging provider-agnostic - Worker appelle uniquement l'interface MessagingProvider.send, aucune dépendance directe au SDK BSP dans le métier
-- **§11.2:** Worker sur Railway - Envoi WhatsApp sortant via outbox (retries + DLQ)
-- **§10:** Isolation tenant stricte - MessageOut et DeadLetterJob filtrés par tenant_id
+- **§4.5:** Outbound messaging via outbox + retries + DLQ
+- **§7.1:** Provider-agnostic via MetaCloudAdapter
+- **§11.2:** Worker sur Railway
 
 ---
 
 ## Worker: close-inactive-live-sessions (Story 2.6)
 
-Le worker ferme périodiquement les sessions live inactives (last_activity_at &lt; now - INACTIVITY_WINDOW).
+Le worker ferme périodiquement les sessions live inactives (last_activity_at < now - INACTIVITY_WINDOW).
 
 ### Architecture
 
@@ -199,28 +149,9 @@ Le worker ferme périodiquement les sessions live inactives (last_activity_at &l
 
 ### Variables d'environnement
 
-- `LIVE_SESSION_INACTIVITY_WINDOW_MINUTES` - (optionnel, défaut 45) Fenêtre d'inactivité en minutes. Même valeur pour « session courante » et pour le job de fermeture.
-
-### Démarrage local
-
-Démarré automatiquement avec les autres workers :
-
-```bash
-npm run dev:worker
-# ou
-npx tsx scripts/start-worker.ts
-```
-
-### Monitoring
-
-- `Live session closed (inactivity)` - Session fermée
-- `Close inactive live sessions run completed` - Fin de passe (closedCount, windowMinutes)
+- `LIVE_SESSION_INACTIVITY_WINDOW_MINUTES` - (optionnel, défaut 45) Fenêtre d'inactivité en minutes.
 
 ### Architecture Compliance
 
 - **§6:** Live Session Auto - fermeture après inactivité (T_inactive configurable)
 - **§11.2:** Cron clôture live session auto sur Railway
-
-### Service live-session (getOrCreateCurrentSession)
-
-Le service `src/server/live-session/service.ts` est utilisé par le webhook-processor pour obtenir ou créer la session live courante du tenant. **Garantie (Story 2.6 durci) :** une seule session active par tenant. Contrainte unique partielle en base (`live_sessions_tenant_id_active_key` sur `(tenant_id) WHERE status = 'active'`) ; en cas de création concurrente (plusieurs jobs en parallèle), un seul `create` réussit, l’autre reçoit P2002 et reprend la session créée (retry). Migration : `20260209200000_live_sessions_unique_active_per_tenant`.

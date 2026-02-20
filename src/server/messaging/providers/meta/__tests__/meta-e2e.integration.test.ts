@@ -1,11 +1,11 @@
 /**
- * Tests d'integration bout en bout Meta WhatsApp (Story 10.5)
+ * Tests d'integration bout en bout Meta WhatsApp (Story 10.5, 11.1)
  *
  * Couvre le flux complet:
- * - Inbound: webhook POST -> messageIn DB -> job enqueue BullMQ
- * - Outbound: messageOut pending -> processOutboxBatch -> MetaCloudAdapter.send
+ * - Inbound: webhook POST -> messageIn DB -> job enqueue pg-boss
+ * - Outbound: messageOut pending -> processOutboundMessage -> MetaCloudAdapter.send
  *
- * Vraie DB Prisma. Mock: BullMQ queue, env, logger, eventLog.
+ * Vraie DB Prisma. Mock: pg-boss queue, env, logger, eventLog.
  * MetaCloudAdapter: parsing reel (inbound), send() spy (outbound).
  *
  * Pour executer : RUN_INTEGRATION_TESTS=true npx vitest run meta-e2e.integration.test.ts
@@ -22,9 +22,10 @@ const { capturedAdapterCtorArgs } = vi.hoisted(() => ({
 
 // ─── Mocks (hoisted) ───
 
-const mockQueueAdd = vi.fn();
+const mockBossSend = vi.fn().mockResolvedValue("job-id-mock");
 vi.mock("~/server/workers/queues", () => ({
-  webhookProcessingQueue: { add: mockQueueAdd },
+  boss: { send: mockBossSend },
+  QUEUE: { WEBHOOK_PROCESSING: "webhook-processing", OUTBOX_SEND: "outbox-send", OUTBOX_DLQ: "outbox-dlq" },
 }));
 
 vi.mock("~/server/events/eventLog", () => ({
@@ -68,8 +69,6 @@ vi.mock("~/env", () => ({
     NODE_ENV: "production",
     WEBHOOK_RATE_LIMIT_MAX: 120,
     WEBHOOK_RATE_LIMIT_WINDOW_MS: 60000,
-    OUTBOX_MAX_RETRIES: 5,
-    OUTBOX_BACKOFF_MAX_MS: 30000,
   },
 }));
 
@@ -114,7 +113,7 @@ describe.skipIf(!shouldRun)(
     let testTenantId: string;
     let db: typeof import("~/server/db").db;
     let POST: typeof import("~/app/api/webhooks/meta/route").POST;
-    let processOutboxBatch: typeof import("~/server/workers/outbox-sender").processOutboxBatch;
+    let processOutboundMessage: typeof import("~/server/workers/outbox-sender").processOutboundMessage;
     let writeToOutbox: typeof import("~/server/messaging/outbox").writeToOutbox;
 
     beforeAll(async () => {
@@ -123,7 +122,7 @@ describe.skipIf(!shouldRun)(
       const routeMod = await import("~/app/api/webhooks/meta/route");
       POST = routeMod.POST;
       const outboxSenderMod = await import("~/server/workers/outbox-sender");
-      processOutboxBatch = outboxSenderMod.processOutboxBatch;
+      processOutboundMessage = outboxSenderMod.processOutboundMessage;
       const outboxMod = await import("~/server/messaging/outbox");
       writeToOutbox = outboxMod.writeToOutbox;
 
@@ -192,10 +191,10 @@ describe.skipIf(!shouldRun)(
       // correlationId must be the wamid (native provider message ID)
       expect(messageIn!.correlationId).toBe("wamid.e2e-ac1");
 
-      expect(mockQueueAdd).toHaveBeenCalledTimes(1);
-      // L1 fix: le meme correlationId doit etre present dans le record DB ET dans le payload BullMQ
-      expect(mockQueueAdd).toHaveBeenCalledWith(
-        "process-inbound",
+      expect(mockBossSend).toHaveBeenCalledTimes(1);
+      // L1 fix: le meme correlationId doit etre present dans le record DB ET dans le payload pg-boss
+      expect(mockBossSend).toHaveBeenCalledWith(
+        "webhook-processing",
         expect.objectContaining({
           tenantId: testTenantId,
           providerMessageId: "wamid.e2e-ac1",
@@ -203,13 +202,13 @@ describe.skipIf(!shouldRun)(
           body: "A12",
           correlationId: messageIn!.correlationId,
         }),
-        expect.objectContaining({ jobId: `${testTenantId}-wamid.e2e-ac1` }),
+        expect.objectContaining({ singletonKey: `${testTenantId}-wamid.e2e-ac1` }),
       );
     });
 
     // ─── AC#2: Outbound send success ───
 
-    it("AC#2 — messageOut pending → processOutboxBatch → sent + providerMessageId", async () => {
+    it("AC#2 — messageOut pending → processOutboundMessage → sent + providerMessageId", async () => {
       const { MetaCloudAdapter } = await import("~/server/messaging/providers/meta/adapter");
       const sendSpy = vi.spyOn(MetaCloudAdapter.prototype, "send").mockResolvedValue({
         success: true,
@@ -218,22 +217,27 @@ describe.skipIf(!shouldRun)(
 
       try {
         const correlationId = `corr-e2e-ac2-${Date.now()}`;
-        await writeToOutbox({
-          tenantId: testTenantId,
-          to: "+33612345678",
-          body: "Test outbound Meta E2E",
-          correlationId,
+        const messageOut = await db.messageOut.create({
+          data: {
+            tenantId: testTenantId,
+            to: "+33612345678",
+            body: "Test outbound Meta E2E",
+            status: "pending",
+            attempts: 0,
+            correlationId,
+          },
         });
 
-        // H1 fix: batchSize > 1 pour traiter le bon message meme si d'autres pending existent en DB
-        await processOutboxBatch(10);
+        const result = await processOutboundMessage(messageOut);
+        expect(result.success).toBe(true);
+        expect(result.providerMessageId).toBe("wamid.e2e-outbound-success");
 
-        const messageOut = await db.messageOut.findFirst({
-          where: { tenantId: testTenantId, correlationId },
+        const updated = await db.messageOut.findUnique({
+          where: { id: messageOut.id },
         });
-        expect(messageOut).toBeDefined();
-        expect(messageOut!.status).toBe("sent");
-        expect(messageOut!.providerMessageId).toBe("wamid.e2e-outbound-success");
+        expect(updated).toBeDefined();
+        expect(updated!.status).toBe("sent");
+        expect(updated!.providerMessageId).toBe("wamid.e2e-outbound-success");
 
         // Verify send() called with correct OutboundMessage params
         expect(sendSpy).toHaveBeenCalledWith(
@@ -292,7 +296,7 @@ describe.skipIf(!shouldRun)(
       expect(msgById["wamid.e2e-batch-3"]!.from).toBe("+33600000003");
       expect(msgById["wamid.e2e-batch-3"]!.body).toBe("Msg3");
 
-      expect(mockQueueAdd).toHaveBeenCalledTimes(3);
+      expect(mockBossSend).toHaveBeenCalledTimes(3);
     });
 
     // ─── AC#4: Idempotence ───
@@ -329,7 +333,7 @@ describe.skipIf(!shouldRun)(
       expect(countAfter).toBe(countBefore);
 
       // 0 job enqueued
-      expect(mockQueueAdd).not.toHaveBeenCalled();
+      expect(mockBossSend).not.toHaveBeenCalled();
 
       // idempotent_ignored logged
       const { logIdempotentIgnored } = await import("~/server/events/eventLog");
@@ -342,51 +346,39 @@ describe.skipIf(!shouldRun)(
 
     // ─── AC#5: Tenant sans config Meta ───
 
-    it("AC#5 — tenant sans config Meta → failed + lastError meta_config_missing + DLQ after MAX_RETRIES", async () => {
+    it("AC#5 — tenant sans config Meta → failed + lastError meta_config_missing (pg-boss handles DLQ)", async () => {
       const tenantNoMeta = await db.tenant.create({
         data: { name: "Test Tenant No Meta Config E2E" },
       });
 
       try {
         const correlationId = `corr-e2e-ac5-${Date.now()}`;
-        await writeToOutbox({
-          tenantId: tenantNoMeta.id,
-          to: "+33612345678",
-          body: "Should fail — no Meta config",
-          correlationId,
+        const messageOut = await db.messageOut.create({
+          data: {
+            tenantId: tenantNoMeta.id,
+            to: "+33612345678",
+            body: "Should fail — no Meta config",
+            status: "pending",
+            attempts: 0,
+            correlationId,
+          },
         });
 
-        const MAX_RETRIES = 5;
-        for (let i = 0; i < MAX_RETRIES; i++) {
-          if (i > 0) {
-            // Reset nextAttemptAt to allow immediate retry
-            await db.messageOut.updateMany({
-              where: { tenantId: tenantNoMeta.id, correlationId, status: "failed" },
-              data: { nextAttemptAt: new Date(0) },
-            });
-          }
-          // H1 fix: batchSize > 1 pour traiter le bon message meme si d'autres pending existent en DB
-          await processOutboxBatch(10);
-        }
+        const result = await processOutboundMessage(messageOut);
+
+        expect(result.success).toBe(false);
+        expect(result.error).toBe("meta_config_missing");
 
         // Verify status failed + lastError
-        const messageOut = await db.messageOut.findFirst({
-          where: { tenantId: tenantNoMeta.id, correlationId },
+        const updated = await db.messageOut.findUnique({
+          where: { id: messageOut.id },
         });
-        expect(messageOut).toBeDefined();
-        expect(messageOut!.status).toBe("failed");
-        expect(messageOut!.lastError).toBe("meta_config_missing");
-
-        // Verify DLQ entry after MAX_RETRIES
-        const dlq = await db.deadLetterJob.findFirst({
-          where: { tenantId: tenantNoMeta.id, jobType: "message_out" },
-        });
-        expect(dlq).toBeDefined();
-        expect(dlq!.attempts).toBe(MAX_RETRIES);
-        expect(dlq!.errorMessage).toContain("meta_config_missing");
+        expect(updated).toBeDefined();
+        expect(updated!.status).toBe("failed");
+        expect(updated!.lastError).toBe("meta_config_missing");
+        // pg-boss handles DLQ natively via deadLetter queue option
       } finally {
         await db.messageOut.deleteMany({ where: { tenantId: tenantNoMeta.id } });
-        await db.deadLetterJob.deleteMany({ where: { tenantId: tenantNoMeta.id } });
         await db.tenant.delete({ where: { id: tenantNoMeta.id } });
       }
     });

@@ -23,9 +23,6 @@ export const env = createEnv({
       ),
     // URL publique du webhook (optionnelle, pour logs/rate limiting)
     WEBHOOK_PUBLIC_URL: z.string().url().optional(),
-    // Outbox worker (Story 2.4) - optionnel, valeurs par défaut en code
-    OUTBOX_MAX_RETRIES: z.coerce.number().int().min(1).max(20).optional(),
-    OUTBOX_BACKOFF_MAX_MS: z.coerce.number().int().min(1000).optional(),
     // Live session auto close (Story 2.6) - fenêtre inactivité en minutes, MVP 30–60
     LIVE_SESSION_INACTIVITY_WINDOW_MINUTES: z.coerce.number().int().min(1).max(1440).optional(),
     // Reservation TTL (Story 4.3) - durée en minutes avant expiration (5–15), défaut 10
@@ -53,15 +50,6 @@ export const env = createEnv({
     // Meta WhatsApp Cloud API (Story 10.1)
     META_APP_SECRET: z.string().min(1).optional(),
     META_VERIFY_TOKEN: z.string().min(1).optional(),
-    // Redis/Upstash configuration
-    REDIS_URL: z
-      .string()
-      .refine(
-        (val) => !val || val.startsWith("redis://") || val.startsWith("rediss://"),
-        { message: "REDIS_URL must start with redis:// or rediss://" },
-      )
-      .optional(),
-    REDIS_TOKEN: z.string().optional(),
   },
 
   /**
@@ -83,8 +71,6 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     AUTH_SECRET: process.env.AUTH_SECRET,
     WEBHOOK_PUBLIC_URL: process.env.WEBHOOK_PUBLIC_URL,
-    OUTBOX_MAX_RETRIES: process.env.OUTBOX_MAX_RETRIES,
-    OUTBOX_BACKOFF_MAX_MS: process.env.OUTBOX_BACKOFF_MAX_MS,
     LIVE_SESSION_INACTIVITY_WINDOW_MINUTES: process.env.LIVE_SESSION_INACTIVITY_WINDOW_MINUTES,
     RESERVATION_TTL_MINUTES: process.env.RESERVATION_TTL_MINUTES,
     RESERVATION_TTL_SOFT_MINUTES: process.env.RESERVATION_TTL_SOFT_MINUTES,
@@ -103,8 +89,6 @@ export const env = createEnv({
     PAYSTACK_PLAN_PRO: process.env.PAYSTACK_PLAN_PRO,
     META_APP_SECRET: process.env.META_APP_SECRET,
     META_VERIFY_TOKEN: process.env.META_VERIFY_TOKEN,
-    REDIS_URL: process.env.REDIS_URL,
-    REDIS_TOKEN: process.env.REDIS_TOKEN,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
   /**

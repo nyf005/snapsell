@@ -1,8 +1,7 @@
-import { Worker, type Job } from "bullmq";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { captureException } from "~/lib/sentry";
-import { webhookProcessingQueue } from "./queues";
+import { boss, QUEUE, type PgBossJob } from "./queues";
 import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types";
 import { normalizeAndValidatePhoneNumber } from "~/lib/validations/phone";
 import {
@@ -172,11 +171,11 @@ export async function determineMessageType(
  * Architecture §7.1 : Utilise uniquement types normalisés (InboundMessage)
  * Architecture §255 : Ne jamais traiter un message vendeur comme client
  * 
- * @param job - Job BullMQ avec payload InboundMessage
+ * @param job - Job pg-boss avec payload InboundMessage
  * @returns Message enrichi avec messageType
  */
 export async function processWebhookJob(
-  job: Job<InboundMessage>,
+  job: PgBossJob<InboundMessage>,
 ): Promise<EnrichedInboundMessage> {
   const startTime = Date.now();
   const { tenantId, providerMessageId, from, body, mediaUrl, correlationId } = job.data;
@@ -715,149 +714,41 @@ export async function processWebhookJob(
         processingTimeMs: processingTime,
       },
     );
-    // Re-throw pour que BullMQ gère le retry automatique
+    // Re-throw pour que pg-boss gère le retry automatique
     throw error;
   }
 }
 
-export function createWebhookProcessorWorker(): Worker<InboundMessage, EnrichedInboundMessage> {
-  return new Worker<InboundMessage, EnrichedInboundMessage>(
-    "webhook-processing",
-    processWebhookJob,
-    {
-      connection: webhookProcessingQueue.opts.connection,
-      concurrency: 5, // Traiter jusqu'à 5 jobs en parallèle
-      removeOnComplete: {
-        age: 3600, // Garder 1h pour debug
-        count: 1000,
-      },
-      removeOnFail: {
-        age: 86400, // Garder 24h pour analyse
-      },
-    },
-  );
-}
-
 /**
- * Démarre le worker webhook-processor avec gestion graceful shutdown et métriques
- * À appeler depuis un script Railway ou un processus dédié
- * @returns Objet avec worker et interval de métriques pour nettoyage au shutdown
+ * Enregistre le handler pg-boss pour la queue webhook-processing.
+ * À appeler après boss.start() dans le worker.
  */
-export function startWebhookProcessorWorker(): {
-  worker: Worker<InboundMessage, EnrichedInboundMessage>;
-  metricsInterval: NodeJS.Timeout;
-} {
-  const worker = createWebhookProcessorWorker();
-
-  // Métriques: compteurs pour monitoring
-  let completedJobs = 0;
-  let failedJobs = 0;
-  const startTime = Date.now();
-
-  // Log métriques toutes les 100 jobs ou toutes les 5 minutes
-  const METRICS_LOG_INTERVAL = 100;
-  const METRICS_LOG_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
-  let lastMetricsLog = Date.now();
-
-  const logMetrics = async () => {
-    try {
-      const queue = webhookProcessingQueue;
-      const [waiting, active, completed, failed] = await Promise.all([
-        queue.getWaitingCount(),
-        queue.getActiveCount(),
-        queue.getCompletedCount(),
-        queue.getFailedCount(),
-      ]);
-
-      const uptime = Date.now() - startTime;
-      const successRate =
-        completedJobs + failedJobs > 0
-          ? ((completedJobs / (completedJobs + failedJobs)) * 100).toFixed(2)
-          : "0.00";
-
-      workerLogger.info("Worker metrics", {
-        queueName: "webhook-processing",
-        uptimeMs: uptime,
-        completedJobs,
-        failedJobs,
-        successRate: `${successRate}%`,
-        queueDepth: {
-          waiting,
-          active,
-          completed,
-          failed,
-        },
-      });
-
-      lastMetricsLog = Date.now();
-    } catch (error) {
-      workerLogger.error("Error logging metrics", error);
-    }
-  };
-
-  worker.on("completed", (job) => {
-    completedJobs++;
-    workerLogger.info("Job completed", {
-      jobId: job.id,
-      correlationId: job.data.correlationId,
-      messageType: job.returnvalue?.messageType,
-    });
-
-    // Log métriques périodiquement
-    if (
-      completedJobs % METRICS_LOG_INTERVAL === 0 ||
-      Date.now() - lastMetricsLog > METRICS_LOG_INTERVAL_MS
-    ) {
-      void logMetrics();
-    }
-  });
-
-  worker.on("failed", (job, err) => {
-    failedJobs++;
-    workerLogger.error(
-      "Job failed",
-      err,
-      {
-        jobId: job?.id,
-        correlationId: job?.data?.correlationId,
-        attemptsMade: job?.attemptsMade,
-        attemptsRemaining: job?.opts?.attempts
-          ? job.opts.attempts - (job.attemptsMade ?? 0)
-          : undefined,
-      },
-    );
-
-    // Log métriques périodiquement
-    if (
-      failedJobs % METRICS_LOG_INTERVAL === 0 ||
-      Date.now() - lastMetricsLog > METRICS_LOG_INTERVAL_MS
-    ) {
-      void logMetrics();
-    }
-
-    void captureException(err, {
-      correlationId: job?.data?.correlationId as string | undefined,
-      tags: { component: "webhook-processor" },
-    });
-  });
-
-  worker.on("error", (err) => {
-    workerLogger.error("Worker error", err);
-    void captureException(err, {
-      tags: { component: "webhook-processor" },
-    });
-  });
-
-  // Log métriques au démarrage et périodiquement
+export async function startWebhookProcessorWorker(): Promise<string> {
   workerLogger.info("Webhook processor worker started", {
-    queueName: "webhook-processing",
+    queueName: QUEUE.WEBHOOK_PROCESSING,
     concurrency: 5,
   });
 
-  // Log métriques toutes les 5 minutes
-  const metricsInterval = setInterval(() => {
-    void logMetrics();
-  }, METRICS_LOG_INTERVAL_MS);
-
-  return { worker, metricsInterval };
+  // batchSize par défaut = 1 : chaque batch contient un seul job.
+  // Le throw dans le catch marque le job comme failed pour retry pg-boss.
+  return boss.work<InboundMessage>(
+    QUEUE.WEBHOOK_PROCESSING,
+    { localConcurrency: 5, batchSize: 1 },
+    async (jobs: PgBossJob<InboundMessage>[]) => {
+      const job = jobs[0]!;
+      try {
+        await processWebhookJob(job);
+      } catch (error) {
+        workerLogger.error("Job failed", error, {
+          jobId: job.id,
+          correlationId: job.data.correlationId,
+        });
+        void captureException(error instanceof Error ? error : new Error(String(error)), {
+          correlationId: job.data.correlationId,
+          tags: { component: "webhook-processor" },
+        });
+        throw error;
+      }
+    },
+  );
 }

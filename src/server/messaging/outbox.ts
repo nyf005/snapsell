@@ -8,6 +8,7 @@
 import { z } from "zod";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
+import { boss, QUEUE } from "~/server/workers/queues";
 import type { OutboundMessage } from "./types";
 
 /**
@@ -60,6 +61,21 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
         correlationId: validatedMessage.correlationId,
       },
     });
+
+    // Enqueue pour traitement immédiat par le worker outbox-send
+    // AC6: si boss.send() échoue, le MessageOut reste en `pending` (fallback possible)
+    try {
+      await boss.send(QUEUE.OUTBOX_SEND, { messageOutId: messageOut.id }, {
+        singletonKey: messageOut.id,
+      });
+    } catch (enqueueError) {
+      workerLogger.warn("Failed to enqueue outbox-send job, MessageOut remains pending", {
+        messageOutId: messageOut.id,
+        tenantId: validatedMessage.tenantId,
+        correlationId: validatedMessage.correlationId,
+        error: enqueueError instanceof Error ? enqueueError.message : String(enqueueError),
+      });
+    }
 
     workerLogger.info("Message written to outbox", {
       messageOutId: messageOut.id,

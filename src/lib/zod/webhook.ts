@@ -2,7 +2,7 @@ import { z } from "zod";
 
 /**
  * Schéma Zod pour validation du message entrant normalisé
- * Utilisé avant enqueue dans BullMQ
+ * Utilisé avant enqueue dans pg-boss
  * Note: tenantId peut être null si tenant non résolu (pour traçabilité)
  */
 export const inboundMessageSchema = z.object({

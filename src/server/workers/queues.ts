@@ -1,53 +1,58 @@
-import { Queue } from "bullmq";
-import Redis from "ioredis";
+import { PgBoss, type Job as PgBossJobType } from "pg-boss";
 import { env } from "~/env";
-import type { InboundMessage } from "../messaging/types";
 
 /**
- * Client Redis (Upstash) pour BullMQ
- * Upstash supporte le protocole Redis standard via ioredis
+ * pg-boss instance — backend de queue sur Postgres (Neon).
+ *
+ * IMPORTANT : Neon nécessite l'URL directe (non-pooler).
+ * L'URL pooler (-pooler.) utilise PgBouncer transaction mode,
+ * incompatible avec pg-boss (advisory locks, session state).
+ *
+ * Contexte serverless (Vercel) : pg-boss v12 supporte send() sans start().
+ * send() fait un INSERT direct via le pool de connexions du constructeur.
+ * start() n'est nécessaire que pour work() (consommation de jobs) — appelé
+ * uniquement dans start-worker.ts (Railway).
  */
-const createRedisConnection = () => {
-  if (!env.REDIS_URL) {
-    throw new Error("REDIS_URL is required for BullMQ");
-  }
+export const boss = new PgBoss({
+  connectionString: env.DATABASE_URL,
+  max: 5,
+});
 
-  const url = new URL(env.REDIS_URL);
-  const isUpstash = url.hostname.includes("upstash.io");
-  const useTls = url.protocol === "rediss:" || isUpstash;
+boss.on("error", (error) => {
+  console.error("[pg-boss] error:", error);
+});
 
-  return new Redis({
-    host: url.hostname,
-    port: parseInt(url.port) || 6379,
-    password: env.REDIS_TOKEN || url.password || undefined,
-    tls: useTls ? {} : undefined,
-    maxRetriesPerRequest: null, // Requis pour BullMQ
-    enableReadyCheck: false, // Upstash peut avoir des problèmes avec ready check
+/** Noms de queues (centralisés pour éviter les typos) */
+export const QUEUE = {
+  WEBHOOK_PROCESSING: "webhook-processing",
+  OUTBOX_SEND: "outbox-send",
+  OUTBOX_DLQ: "outbox-dlq",
+} as const;
+
+/**
+ * Crée les queues pg-boss avec leurs options.
+ * À appeler après boss.start() dans le worker.
+ */
+export async function ensureQueues(): Promise<void> {
+  await boss.createQueue(QUEUE.OUTBOX_DLQ, {
+    deleteAfterSeconds: 604800, // 7 jours
   });
-};
 
-/**
- * Queue BullMQ pour traitement asynchrone des messages entrants
- * Payload normalisé : InboundMessage (tenantId, providerMessageId, from, body, correlationId)
- * Worker consommateur : Story 2.2 (hors scope Story 2.1)
- */
-export const webhookProcessingQueue = new Queue<InboundMessage>(
-  "webhook-processing",
-  {
-    connection: createRedisConnection(),
-    defaultJobOptions: {
-      attempts: 3,
-      backoff: {
-        type: "exponential",
-        delay: 2000,
-      },
-      removeOnComplete: {
-        age: 3600, // Garder 1h pour debug
-        count: 1000,
-      },
-      removeOnFail: {
-        age: 86400, // Garder 24h pour analyse
-      },
-    },
-  },
-);
+  await boss.createQueue(QUEUE.WEBHOOK_PROCESSING, {
+    retryLimit: 2,
+    retryDelay: 2,
+    retryBackoff: true,
+    deleteAfterSeconds: 3600,
+  });
+
+  await boss.createQueue(QUEUE.OUTBOX_SEND, {
+    retryLimit: 5,
+    retryDelay: 1,
+    retryBackoff: true,
+    deleteAfterSeconds: 3600,
+    deadLetter: QUEUE.OUTBOX_DLQ,
+  });
+}
+
+/** Re-export du type Job pg-boss pour usage dans les workers */
+export type PgBossJob<T extends object = object> = PgBossJobType<T>;

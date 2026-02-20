@@ -11,7 +11,7 @@ import {
 } from "./webhook-processor";
 import type { InboundMessage } from "../messaging/types";
 import { db } from "~/server/db";
-import type { Job } from "bullmq";
+import type { PgBossJob } from "./queues";
 
 // Mock Prisma client
 vi.mock("~/server/db", () => ({
@@ -41,11 +41,8 @@ vi.mock("~/lib/logger", () => ({
 
 // Mock queues to avoid env validation
 vi.mock("./queues", () => ({
-  webhookProcessingQueue: {
-    opts: {
-      connection: {},
-    },
-  },
+  boss: { send: vi.fn() },
+  QUEUE: { WEBHOOK_PROCESSING: "webhook-processing", OUTBOX_SEND: "outbox-send", OUTBOX_DLQ: "outbox-dlq" },
 }));
 
 vi.mock("~/server/events/eventLog", () => ({
@@ -450,7 +447,7 @@ describe("webhook-processor", () => {
           mediaUrl,
           correlationId: "corr-200",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -465,7 +462,7 @@ describe("webhook-processor", () => {
       });
     });
 
-    it("should re-throw errors for BullMQ retry handling", async () => {
+    it("should re-throw errors for pg-boss retry handling", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
@@ -482,7 +479,7 @@ describe("webhook-processor", () => {
           body: "Test",
           correlationId: "corr-300",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await expect(processWebhookJob(job)).rejects.toThrow("Database connection failed");
     });
@@ -513,7 +510,7 @@ describe("webhook-processor", () => {
           body: "STOP",
           correlationId: "corr-stop",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -554,7 +551,7 @@ describe("webhook-processor", () => {
           body: "stop",
           correlationId: "corr-stop2",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -581,7 +578,7 @@ describe("webhook-processor", () => {
           body: "STOP",
           correlationId: "corr-stop-invalid",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -612,7 +609,7 @@ describe("webhook-processor", () => {
           body: "hello",
           correlationId: "corr-live",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -640,7 +637,7 @@ describe("webhook-processor", () => {
           body: "code",
           correlationId: "corr-live-new",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -670,7 +667,7 @@ describe("webhook-processor", () => {
           body: "salut",
           correlationId: "corr-hello",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -700,7 +697,7 @@ describe("webhook-processor", () => {
           body: "A12",
           correlationId: "corr-code",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -742,7 +739,7 @@ describe("webhook-processor", () => {
           body: "A12",
           correlationId: "corr-a12",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -800,7 +797,7 @@ describe("webhook-processor", () => {
           body: "A12",
           correlationId: "corr-a12-2",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -855,7 +852,7 @@ describe("webhook-processor", () => {
           body: "A12",
           correlationId: "corr-ex",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -916,7 +913,7 @@ describe("webhook-processor", () => {
           body: "B7",
           correlationId: "corr-race",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -950,7 +947,7 @@ describe("webhook-processor", () => {
           body: "A12",
           correlationId: "corr-uk",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -990,7 +987,7 @@ describe("webhook-processor", () => {
           body: "A12A",
           correlationId: "corr-typo",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1038,7 +1035,7 @@ describe("webhook-processor", () => {
           body: "A12A",
           correlationId: "corr-typo2",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1076,7 +1073,7 @@ describe("webhook-processor", () => {
           body: "Z99",
           correlationId: "corr-no",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1134,7 +1131,7 @@ describe("webhook-processor", () => {
           body: addressText,
           correlationId: "corr-addr",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -1222,7 +1219,7 @@ describe("webhook-processor", () => {
           body: "OUI",
           correlationId: "corr-oui",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1309,7 +1306,7 @@ describe("webhook-processor", () => {
           body: "  oui  ",
           correlationId: "corr-oui",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1403,7 +1400,7 @@ describe("webhook-processor", () => {
           body: "OUI",
           correlationId: "corr-oui",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
       const job2 = {
         id: "job-oui-2",
         data: {
@@ -1413,7 +1410,7 @@ describe("webhook-processor", () => {
           body: "oui",
           correlationId: "corr-oui",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job1);
       await processWebhookJob(job2);
@@ -1487,7 +1484,7 @@ describe("webhook-processor", () => {
           body: "A12",
           correlationId: "corr-a12",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -1548,7 +1545,7 @@ describe("webhook-processor", () => {
           body: "A12",
           correlationId: "corr-dup",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1608,7 +1605,7 @@ describe("webhook-processor", () => {
           mediaUrl,
           correlationId: "corr-a12m",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1650,7 +1647,7 @@ describe("webhook-processor", () => {
           body: "A12 x3",
           correlationId: "corr-dup3",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1699,7 +1696,7 @@ describe("webhook-processor", () => {
           mediaUrl,
           correlationId: "corr-photo",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1753,7 +1750,7 @@ describe("webhook-processor", () => {
           mediaUrl,
           correlationId: "corr-photo2",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1795,7 +1792,7 @@ describe("webhook-processor", () => {
           mediaUrl,
           correlationId: "corr-photo3",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1850,7 +1847,7 @@ describe("webhook-processor", () => {
           mediaUrl,
           correlationId: "corr-a12m",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -1887,7 +1884,7 @@ describe("webhook-processor", () => {
           body: "B7 x3",
           correlationId: "corr-nosession",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       const result = await processWebhookJob(job);
 
@@ -1942,7 +1939,7 @@ describe("webhook-processor", () => {
             mediaUrl,
             correlationId: "corr-photocat",
           } as InboundMessage,
-        } as Job<InboundMessage>;
+        } as PgBossJob<InboundMessage>;
 
         await processWebhookJob(job);
 
@@ -2002,7 +1999,7 @@ describe("webhook-processor", () => {
             mediaUrl,
             correlationId: "corr-photounknown",
           } as InboundMessage,
-        } as Job<InboundMessage>;
+        } as PgBossJob<InboundMessage>;
 
         await processWebhookJob(job);
 
@@ -2053,7 +2050,7 @@ describe("webhook-processor", () => {
             mediaUrl,
             correlationId: "corr-photoseule93",
           } as InboundMessage,
-        } as Job<InboundMessage>;
+        } as PgBossJob<InboundMessage>;
 
         await processWebhookJob(job);
 
@@ -2130,7 +2127,7 @@ describe("webhook-processor", () => {
             mediaUrl,
             correlationId: "corr-photolive",
           } as InboundMessage,
-        } as Job<InboundMessage>;
+        } as PgBossJob<InboundMessage>;
 
         await processWebhookJob(job);
 
@@ -2199,7 +2196,7 @@ describe("webhook-processor", () => {
             mediaUrl,
             correlationId: "corr-photoreplace",
           } as InboundMessage,
-        } as Job<InboundMessage>;
+        } as PgBossJob<InboundMessage>;
 
         await processWebhookJob(job);
 
@@ -2248,7 +2245,7 @@ describe("webhook-processor", () => {
             // PAS de mediaUrl
             correlationId: "corr-nophoto",
           } as InboundMessage,
-        } as Job<InboundMessage>;
+        } as PgBossJob<InboundMessage>;
 
         await processWebhookJob(job);
 
@@ -2296,7 +2293,7 @@ describe("webhook-processor", () => {
             mediaUrl,
             correlationId: "corr-photonor2",
           } as InboundMessage,
-        } as Job<InboundMessage>;
+        } as PgBossJob<InboundMessage>;
 
         await processWebhookJob(job);
 
@@ -2342,7 +2339,7 @@ describe("webhook-processor", () => {
             mediaUrl,
             correlationId: "corr-photonoprice",
           } as InboundMessage,
-        } as Job<InboundMessage>;
+        } as PgBossJob<InboundMessage>;
 
         await processWebhookJob(job);
 
@@ -2409,7 +2406,7 @@ describe("webhook-processor", () => {
           body: addressText,
           correlationId: "corr-photo",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -2472,7 +2469,7 @@ describe("webhook-processor", () => {
           body: "Mon adresse ici",
           correlationId: "corr-no-photo",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -2537,7 +2534,7 @@ describe("webhook-processor", () => {
           body: "Mon adresse",
           correlationId: "corr-key",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -2594,7 +2591,7 @@ describe("webhook-processor", () => {
           body: "Adresse live",
           correlationId: "corr-live",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 
@@ -2652,7 +2649,7 @@ describe("webhook-processor", () => {
           body: "oui",
           correlationId: "corr-oui-photo",
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(job);
 

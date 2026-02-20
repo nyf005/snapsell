@@ -1,11 +1,11 @@
 /**
- * Worker outbox-sender pour envoi de messages sortants (Story 2.4, 10.4)
- * 
+ * Worker outbox-sender pour envoi de messages sortants (Story 2.4, 10.4, 11.1)
+ *
  * Architecture §4.5: Outbound messaging via outbox + retries + DLQ
  * Architecture §7.1: Provider-agnostic — MetaCloudAdapter per-tenant (credentials en DB)
- * 
- * Pattern: Polling DB pour lire MessageOut avec status = 'pending' ou 'failed' avec next_attempt_at <= now
- * Alternative: BullMQ queue (mais polling DB plus adapté pour outbox pattern)
+ *
+ * Story 11.1: Migré de polling setInterval vers pg-boss queue "outbox-send"
+ * pg-boss gère retries (retryLimit: 5, retryBackoff) et DLQ (deadLetter: "outbox-dlq")
  */
 
 import { db } from "~/server/db";
@@ -15,36 +15,11 @@ import { checkOptOut } from "~/server/messaging/optout";
 import { MetaCloudAdapter } from "~/server/messaging/providers/meta/adapter";
 import type { OutboundMessage, ProviderSendResult } from "~/server/messaging/types";
 import { generateSignedR2Url } from "~/server/media/r2-signed-url";
-import { env } from "~/env";
+import { boss, QUEUE, type PgBossJob } from "./queues";
 
-/**
- * Nombre maximum de retries avant DLQ (env OUTBOX_MAX_RETRIES ou défaut 5)
- */
-function getMaxRetries(): number {
-  return env.OUTBOX_MAX_RETRIES ?? 5;
-}
-
-/**
- * Cap backoff en ms (env OUTBOX_BACKOFF_MAX_MS ou défaut 30000)
- */
-const DEFAULT_BACKOFF_MAX_MS = 30000;
-function getBackoffMaxMs(): number {
-  return env.OUTBOX_BACKOFF_MAX_MS ?? DEFAULT_BACKOFF_MAX_MS;
-}
-
-/**
- * Calcule le prochain attempt_at avec backoff exponentiel
- * Exemples: 1s, 2s, 4s, 8s, 16s (cap configurable, défaut 30s)
- * @param newAttempts - Nombre de tentatives après incrément (1-based)
- * @returns Date du prochain attempt
- */
-function calculateNextAttemptAt(newAttempts: number): Date {
-  const capMs = getBackoffMaxMs();
-  const backoffMs = Math.min(
-    1000 * Math.pow(2, Math.max(0, newAttempts - 1)),
-    capMs,
-  );
-  return new Date(Date.now() + backoffMs);
+/** Payload du job outbox-send */
+export interface OutboxSendPayload {
+  messageOutId: string;
 }
 
 /**
@@ -74,8 +49,6 @@ export async function processOutboundMessage(messageOut: {
 
   try {
     // Story 2.5 + 7B.3 (FR46) : Politique STOP explicite — scope = tenant (tenant_id, phone_number).
-    // Politique MVP : aucun message après STOP. Si OptOut existe → blocage systématique.
-    // Voir docs/stop-policy.md. Option future : allow_transactional_after_stop (transactionnels stricts).
     const optedOut = await checkOptOut(tenantId, to);
     if (optedOut) {
       await db.messageOut.update({
@@ -123,7 +96,6 @@ export async function processOutboundMessage(messageOut: {
         data: {
           status: "failed",
           attempts: messageOut.attempts + 1,
-          nextAttemptAt: calculateNextAttemptAt(messageOut.attempts + 1),
           lastError: errorMsg,
           updatedAt: new Date(),
         },
@@ -138,7 +110,6 @@ export async function processOutboundMessage(messageOut: {
     );
 
     // Story 9.4: si mediaUrl est une clé R2 (pas une URL), signer juste avant l'envoi
-    // Évite l'expiration de l'URL signée si l'outbox a du backlog ou des retries
     let resolvedMediaUrl: string | undefined;
     if (messageOut.mediaUrl) {
       if (messageOut.mediaUrl.startsWith("http")) {
@@ -161,7 +132,6 @@ export async function processOutboundMessage(messageOut: {
     const result: ProviderSendResult = await adapter.send(outboundMessage);
 
     if (result.success && result.providerMessageId) {
-      // Succès: mettre à jour status = 'sent' et providerMessageId
       await db.messageOut.update({
         where: { id },
         data: {
@@ -171,14 +141,12 @@ export async function processOutboundMessage(messageOut: {
         },
       });
 
-      // Logger événement message_sent (Story 2.3)
       await logMessageSent(
         tenantId,
         id,
         correlationId,
         result.providerMessageId,
       ).catch((error) => {
-        // Ne pas bloquer l'envoi si event_log échoue
         workerLogger.error("Error logging message_sent event", error, {
           correlationId,
           tenantId,
@@ -196,28 +164,24 @@ export async function processOutboundMessage(messageOut: {
 
       return { success: true, providerMessageId: result.providerMessageId };
     } else {
-      // Échec: incrémenter attempts et calculer next_attempt_at
       const newAttempts = messageOut.attempts + 1;
-      const nextAttemptAt = calculateNextAttemptAt(newAttempts);
 
       await db.messageOut.update({
         where: { id },
         data: {
           status: "failed",
           attempts: newAttempts,
-          nextAttemptAt,
           lastError: result.error ?? "Unknown error",
           updatedAt: new Date(),
         },
       });
 
-      workerLogger.warn("Message send failed, will retry", {
+      workerLogger.warn("Message send failed", {
         messageOutId: id,
         tenantId,
         to,
         correlationId,
         attempts: newAttempts,
-        nextAttemptAt,
         error: result.error,
       });
 
@@ -225,17 +189,13 @@ export async function processOutboundMessage(messageOut: {
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-
-    // Échec: incrémenter attempts et calculer next_attempt_at
     const newAttempts = messageOut.attempts + 1;
-    const nextAttemptAt = calculateNextAttemptAt(newAttempts);
 
     await db.messageOut.update({
       where: { id },
       data: {
         status: "failed",
         attempts: newAttempts,
-        nextAttemptAt,
         lastError: errorMessage,
         updatedAt: new Date(),
       },
@@ -247,7 +207,6 @@ export async function processOutboundMessage(messageOut: {
       to,
       correlationId,
       attempts: newAttempts,
-      nextAttemptAt,
     });
 
     return { success: false, error: errorMessage };
@@ -255,209 +214,53 @@ export async function processOutboundMessage(messageOut: {
 }
 
 /**
- * Crée un DeadLetterJob après N échecs
- * @param messageOut - MessageOut qui a échoué N fois
+ * Enregistre le handler pg-boss pour la queue outbox-send.
+ * À appeler après boss.start() dans le worker.
+ *
+ * pg-boss gère les retries (retryLimit: 5, retryBackoff: true)
+ * et la DLQ (deadLetter: "outbox-dlq") automatiquement.
  */
-export async function createDeadLetterJob(messageOut: {
-  id: string;
-  tenantId: string;
-  to: string;
-  body: string;
-  status: string;
-  attempts: number;
-  lastError: string | null;
-  correlationId: string;
-}): Promise<void> {
-  const { id, tenantId, to, body, lastError, correlationId } = messageOut;
-
-  workerLogger.warn("Creating DeadLetterJob after max retries", {
-    messageOutId: id,
-    tenantId,
-    to,
-    correlationId,
-    attempts: messageOut.attempts,
+export async function startOutboxSenderWorker(): Promise<string> {
+  workerLogger.info("Outbox sender worker started (pg-boss)", {
+    queueName: QUEUE.OUTBOX_SEND,
   });
 
-  try {
-    await db.$transaction(async (tx) => {
-      await tx.deadLetterJob.create({
-        data: {
-          tenantId,
-          jobType: "message_out",
-          payload: {
-            message_out_id: id,
-            to,
-            body,
-            correlation_id: correlationId,
-          },
-          errorMessage: lastError ?? "Max retries exceeded",
-          attempts: messageOut.attempts,
-        },
+  // batchSize: 1 — un seul job par batch pour isolation des erreurs/retries
+  return boss.work<OutboxSendPayload>(
+    QUEUE.OUTBOX_SEND,
+    { localConcurrency: 3, batchSize: 1 },
+    async (jobs: PgBossJob<OutboxSendPayload>[]) => {
+      const job = jobs[0]!;
+      const { messageOutId } = job.data;
+
+      const messageOut = await db.messageOut.findUnique({
+        where: { id: messageOutId },
       });
-      await tx.messageOut.update({
-        where: { id },
-        data: {
-          status: "failed",
-          updatedAt: new Date(),
-        },
-      });
-    });
 
-    workerLogger.info("DeadLetterJob created", {
-      messageOutId: id,
-      tenantId,
-      correlationId,
-    });
-  } catch (error) {
-    workerLogger.error("Error creating DeadLetterJob", error, {
-      messageOutId: id,
-      tenantId,
-      correlationId,
-    });
-    // Ne pas re-throw: on ne veut pas bloquer le worker si DLQ échoue
-  }
-}
-
-/**
- * Traite un batch de messages depuis l'outbox
- * Lit les MessageOut avec status = 'pending' ou 'failed' avec next_attempt_at <= now
- * @param batchSize - Nombre de messages à traiter par batch
- * @internal Exporté pour les tests d'intégration
- */
-export async function processOutboxBatch(batchSize: number = 10): Promise<number> {
-  const now = new Date();
-
-  // Lire les messages pending ou failed avec next_attempt_at <= now
-  const messagesToProcess = await db.messageOut.findMany({
-    where: {
-      OR: [
-        { status: "pending" },
-        {
-          status: "failed",
-          nextAttemptAt: { lte: now },
-        },
-      ],
-    },
-    take: batchSize,
-    orderBy: {
-      createdAt: "asc", // Traiter les plus anciens en premier
-    },
-  });
-
-  if (messagesToProcess.length === 0) {
-    return 0;
-  }
-
-  workerLogger.debug("Processing outbox batch", {
-    batchSize: messagesToProcess.length,
-  });
-
-  let processedCount = 0;
-
-  for (const messageOut of messagesToProcess) {
-    try {
-      // Claim atomique : update seulement si encore pending/failed éligible (évite double envoi en concurrence)
-      const claimed = await db.messageOut.updateMany({
-        where: {
-          id: messageOut.id,
-          OR: [
-            { status: "pending" },
-            { status: "failed", nextAttemptAt: { lte: now } },
-          ],
-        },
-        data: {
-          status: "sending",
-          updatedAt: new Date(),
-        },
-      });
-      if (claimed.count === 0) {
-        continue; // Déjà pris par un autre worker ou plus éligible
+      if (!messageOut) {
+        workerLogger.warn("MessageOut not found, skipping", {
+          messageOutId,
+          jobId: job.id,
+        });
+        return;
       }
 
-      // Traiter le message
+      // Skip si déjà envoyé ou bloqué (idempotence)
+      if (messageOut.status === "sent" || messageOut.status === "blocked") {
+        workerLogger.debug("MessageOut already processed, skipping", {
+          messageOutId,
+          status: messageOut.status,
+          jobId: job.id,
+        });
+        return;
+      }
+
       const result = await processOutboundMessage(messageOut);
 
       if (!result.success) {
-        // Échec: vérifier si on a atteint MAX_RETRIES
-        const updatedMessage = await db.messageOut.findUnique({
-          where: { id: messageOut.id },
-        });
-
-        if (updatedMessage && updatedMessage.attempts >= getMaxRetries()) {
-          // Créer DeadLetterJob après N échecs
-          await createDeadLetterJob(updatedMessage);
-        }
+        // Throw pour que pg-boss gère le retry automatique
+        throw new Error(result.error ?? "Outbound message failed");
       }
-
-      processedCount++;
-    } catch (error) {
-      workerLogger.error("Error processing message in batch", error, {
-        messageOutId: messageOut.id,
-        tenantId: messageOut.tenantId,
-        correlationId: messageOut.correlationId,
-      });
-
-      // En cas d'erreur critique, remettre status = 'failed' pour retry
-      await db.messageOut.update({
-        where: { id: messageOut.id },
-        data: {
-          status: "failed",
-          updatedAt: new Date(),
-        },
-      }).catch((updateError) => {
-        workerLogger.error("Error updating message status after error", updateError, {
-          messageOutId: messageOut.id,
-        });
-      });
-    }
-  }
-
-  return processedCount;
-}
-
-/**
- * Démarre le worker outbox-sender avec polling périodique
- * @param pollIntervalMs - Intervalle de polling en millisecondes (défaut: 5s)
- * @param batchSize - Nombre de messages à traiter par batch (défaut: 10)
- * @returns Interval ID pour nettoyage au shutdown
- */
-export function startOutboxSenderWorker(
-  pollIntervalMs: number = 5000,
-  batchSize: number = 10,
-): NodeJS.Timeout {
-  workerLogger.info("Outbox sender worker started", {
-    pollIntervalMs,
-    batchSize,
-    maxRetries: getMaxRetries(),
-  });
-
-  // Traiter immédiatement au démarrage
-  void processOutboxBatch(batchSize).then((count) => {
-    if (count > 0) {
-      workerLogger.debug("Initial batch processed", { count });
-    }
-  });
-
-  // Polling périodique
-  const interval = setInterval(async () => {
-    try {
-      const count = await processOutboxBatch(batchSize);
-      if (count > 0) {
-        workerLogger.debug("Batch processed", { count });
-      }
-    } catch (error) {
-      workerLogger.error("Error in outbox polling cycle", error);
-    }
-  }, pollIntervalMs);
-
-  return interval;
-}
-
-/**
- * Arrête le worker outbox-sender
- * @param interval - Interval ID retourné par startOutboxSenderWorker
- */
-export function stopOutboxSenderWorker(interval: NodeJS.Timeout): void {
-  clearInterval(interval);
-  workerLogger.info("Outbox sender worker stopped");
+    },
+  );
 }

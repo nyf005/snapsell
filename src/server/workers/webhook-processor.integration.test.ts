@@ -1,21 +1,20 @@
 /**
- * Tests d'intégration pour le worker webhook-processor
- * 
- * Ces tests vérifient que le worker fonctionne correctement avec une vraie queue BullMQ.
- * 
- * Note: Ces tests nécessitent une connexion Redis. En CI/CD, utiliser un service Redis de test.
- * Pour exécuter localement: REDIS_URL=redis://localhost:6379 npm test -- webhook-processor.integration.test.ts
- * 
- * ⚠️ Ces tests sont désactivés par défaut (skip) car ils nécessitent Redis.
- * Pour les activer: supprimer `.skip` ou utiliser variable d'environnement RUN_INTEGRATION_TESTS=true
+ * Tests d'intégration pour le worker webhook-processor (pg-boss)
+ *
+ * Ces tests vérifient que le worker fonctionne correctement avec pg-boss.
+ *
+ * Note: Ces tests nécessitent une connexion PostgreSQL (DATABASE_URL).
+ * Pour exécuter localement: RUN_INTEGRATION_TESTS=true pnpm test -- webhook-processor.integration.test.ts
+ *
+ * ⚠️ Ces tests sont désactivés par défaut (skip) car ils nécessitent une DB.
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
-import { Queue, Worker } from "bullmq";
-import Redis from "ioredis";
-import { processWebhookJob, createWebhookProcessorWorker } from "./webhook-processor";
+import PgBoss from "pg-boss";
+import { processWebhookJob } from "./webhook-processor";
 import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types";
 import { db } from "~/server/db";
+import type { PgBossJob } from "./queues";
 
 // Mock Prisma pour éviter les vraies connexions DB dans les tests d'intégration
 vi.mock("~/server/db", () => ({
@@ -38,78 +37,119 @@ vi.mock("~/lib/logger", () => ({
 
 // Mock queues pour éviter la validation env
 vi.mock("./queues", () => ({
-  webhookProcessingQueue: {
-    opts: {
-      connection: {},
-    },
-  },
+  boss: { send: vi.fn() },
+  QUEUE: { WEBHOOK_PROCESSING: "webhook-processing", OUTBOX_SEND: "outbox-send", OUTBOX_DLQ: "outbox-dlq" },
+}));
+
+vi.mock("~/server/events/eventLog", () => ({
+  logOptOutRecorded: vi.fn().mockResolvedValue(undefined),
+  logLiveItemCreated: vi.fn().mockResolvedValue(undefined),
+  logLiveItemDuplicateRejected: vi.fn().mockResolvedValue(undefined),
+  logLiveItemPhotoLinked: vi.fn().mockResolvedValue(undefined),
+  logCatalogueItemPhotoLinked: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("~/server/live-session/service", () => ({
+  getCurrentSessionReadOnly: vi.fn().mockResolvedValue(null),
+}));
+
+vi.mock("~/server/reservation/service", () => ({
+  createReservation: vi.fn(),
+  getActiveReservationForClient: vi.fn().mockResolvedValue(null),
+  collectAddress: vi.fn(),
+}));
+
+vi.mock("~/server/messaging/outbox", () => ({
+  writeToOutbox: vi.fn(),
+}));
+
+vi.mock("~/server/catalogue/findOrderableItemByCode", () => ({
+  findOrderableItemByCode: vi.fn(),
+}));
+
+vi.mock("~/server/catalogue/findOrCreateOrderableItemByCode", () => ({
+  findOrCreateOrderableItemByCode: vi.fn(),
+}));
+
+vi.mock("~/server/catalogue/upsertCatalogueItemFromWebhook", () => ({
+  upsertCatalogueItemFromWebhook: vi.fn(),
+}));
+
+vi.mock("~/server/live-item/createLiveItem", () => ({
+  createLiveItem: vi.fn(),
+  messageCodeAlreadyUsed: vi.fn(),
+  messageCodeUnknown: vi.fn(),
+  messageCodeUnknownSuggestion: vi.fn(),
+  normalizeCode: vi.fn((s: string) => s.trim().toUpperCase()),
+}));
+
+vi.mock("~/server/live-item/findLiveItemByCode", () => ({
+  findLiveItemByCode: vi.fn(),
+}));
+
+vi.mock("~/server/live-item/getLastEditedLiveItemInWindow", () => ({
+  getLastEditedLiveItemInWindow: vi.fn(),
+}));
+
+vi.mock("~/server/media/uploadMediaToLiveItem", () => ({
+  uploadMediaAndLinkToLiveItem: vi.fn(),
+}));
+
+vi.mock("~/server/media/uploadMediaToCatalogueItem", () => ({
+  uploadMediaToCatalogueItem: vi.fn(),
+}));
+
+vi.mock("~/server/media/r2-client", () => ({
+  isR2Configured: vi.fn().mockReturnValue(false),
+}));
+
+vi.mock("~/server/waitlist/addToWaitlist", () => ({
+  addToWaitlist: vi.fn(),
+}));
+
+vi.mock("~/server/order/createOrderFromReservation", () => ({
+  createOrderFromReservation: vi.fn(),
+}));
+
+vi.mock("~/lib/sentry", () => ({
+  captureException: vi.fn().mockResolvedValue(undefined),
 }));
 
 const shouldRunIntegrationTests =
-  process.env.RUN_INTEGRATION_TESTS === "true" && !!process.env.REDIS_URL;
+  process.env.RUN_INTEGRATION_TESTS === "true" && !!process.env.DATABASE_URL;
 
 describe.skipIf(!shouldRunIntegrationTests)(
-  "webhook-processor integration",
+  "webhook-processor integration (pg-boss)",
   () => {
-    let redis: Redis;
-    let testQueue: Queue<InboundMessage>;
-    let worker: Worker<InboundMessage, EnrichedInboundMessage>;
+    let testBoss: PgBoss;
     const queueName = "webhook-processing-test";
 
     beforeAll(async () => {
-      // Créer connexion Redis pour les tests
-      const redisUrl = process.env.REDIS_URL;
-      if (!redisUrl) {
-        throw new Error("REDIS_URL is required for integration tests");
-      }
-
-      const url = new URL(redisUrl);
-      const isUpstash = url.hostname.includes("upstash.io");
-      const useTls = url.protocol === "rediss:" || isUpstash;
-
-      redis = new Redis({
-        host: url.hostname,
-        port: parseInt(url.port) || 6379,
-        password: process.env.REDIS_TOKEN || url.password || undefined,
-        tls: useTls ? {} : undefined,
-        maxRetriesPerRequest: null,
-        enableReadyCheck: false,
+      testBoss = new PgBoss({
+        connectionString: process.env.DATABASE_URL!,
+        max: 2,
       });
-
-      // Créer queue de test
-      testQueue = new Queue<InboundMessage>(queueName, {
-        connection: redis,
+      await testBoss.start();
+      await testBoss.createQueue(queueName, {
+        retryLimit: 2,
+        retryDelay: 2,
+        retryBackoff: true,
+        deleteAfterSeconds: 60,
       });
-
-      // Créer worker de test
-      worker = new Worker<InboundMessage, EnrichedInboundMessage>(
-        queueName,
-        processWebhookJob,
-        {
-          connection: redis,
-          concurrency: 1, // Traiter un job à la fois pour les tests
-        },
-      );
     });
 
     afterAll(async () => {
-      // Nettoyer: fermer worker et queue
-      await worker.close();
-      await testQueue.close();
-      await redis.quit();
+      await testBoss.stop({ graceful: true, timeout: 5000 });
     });
 
-    beforeEach(async () => {
-      // Nettoyer la queue avant chaque test
-      await testQueue.obliterate({ force: true });
+    beforeEach(() => {
       vi.clearAllMocks();
     });
 
-    it("should process job from queue and determine message type as seller", async () => {
+    it("should process job and determine message type as seller", async () => {
       const tenantId = "tenant-integration-1";
       const sellerPhoneNumber = "+33612345678";
 
-      // Mock seller_phone trouvé
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
         {
           id: "seller-phone-1",
@@ -127,90 +167,65 @@ describe.skipIf(!shouldRunIntegrationTests)(
         correlationId: "corr-integration-1",
       };
 
-      // Ajouter job à la queue
-      const job = await testQueue.add("test-job", jobData, {
-        jobId: `test-${Date.now()}`,
-      });
+      // Send job to queue
+      const jobId = await testBoss.send(queueName, jobData);
+      expect(jobId).toBeTruthy();
 
-      // Attendre que le worker traite le job (max 5s)
+      // Process job via handler
       const result = await new Promise<EnrichedInboundMessage>((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error("Job processing timeout"));
-        }, 5000);
+        }, 10000);
 
-        worker.on("completed", async (completedJob) => {
-          if (completedJob.id === job.id) {
+        void testBoss.work<InboundMessage>(
+          queueName,
+          { batchSize: 1, localConcurrency: 1 },
+          async (job) => {
             clearTimeout(timeout);
-            const jobResult = await completedJob.returnvalue;
-            if (jobResult) {
-              resolve(jobResult);
-            } else {
-              reject(new Error("Job completed but no return value"));
-            }
-          }
-        });
-
-        worker.on("failed", async (failedJob, err) => {
-          if (failedJob!.id === job.id) {
-            clearTimeout(timeout);
-            reject(err);
-          }
-        });
+            const enriched = await processWebhookJob(job);
+            resolve(enriched);
+          },
+        );
       });
 
-      // Vérifier le résultat
       expect(result.messageType).toBe("seller");
       expect(result.tenantId).toBe(tenantId);
       expect(result.providerMessageId).toBe("SM-INTEGRATION-1");
     });
 
-    it("should process job from queue and determine message type as client", async () => {
+    it("should process job and determine message type as client", async () => {
       const tenantId = "tenant-integration-2";
       const clientPhoneNumber = "+33698765432";
 
-      // Mock seller_phone non trouvé
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
 
       const jobData: InboundMessage = {
         tenantId,
         providerMessageId: "SM-INTEGRATION-2",
         from: `whatsapp:${clientPhoneNumber}`,
-        body: "Je veux réserver A12",
+        body: "Bonjour",
         correlationId: "corr-integration-2",
       };
 
-      // Ajouter job à la queue
-      const job = await testQueue.add("test-job", jobData, {
-        jobId: `test-${Date.now()}`,
-      });
+      const jobId = await testBoss.send(queueName, jobData);
+      expect(jobId).toBeTruthy();
 
-      // Attendre que le worker traite le job
       const result = await new Promise<EnrichedInboundMessage>((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error("Job processing timeout"));
-        }, 5000);
+        }, 10000);
 
-        worker.on("completed", async (completedJob) => {
-          if (completedJob.id === job.id) {
+        void testBoss.work<InboundMessage>(
+          queueName,
+          { batchSize: 1, localConcurrency: 1 },
+          async (job) => {
             clearTimeout(timeout);
-            const jobResult = await completedJob.returnvalue;
-            if (jobResult) {
-              resolve(jobResult);
-            } else {
-              reject(new Error("Job completed but no return value"));
-            }
-          }
-        });
-
-        worker.on("failed", async (failedJob, err) => {
-          if (failedJob!.id === job.id) {
-            clearTimeout(timeout);
-            reject(err);
-          }
-        });
+            const enriched = await processWebhookJob(job);
+            resolve(enriched);
+          },
+        );
       });
 
-      // Vérifier le résultat
       expect(result.messageType).toBe("client");
       expect(result.tenantId).toBe(tenantId);
     });

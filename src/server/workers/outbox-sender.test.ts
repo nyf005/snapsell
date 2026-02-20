@@ -2,23 +2,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock dependencies - define mocks first
 const mockMessageOutUpdate = vi.fn();
-const mockMessageOutFindUnique = vi.fn();
-const mockMessageOutUpdateMany = vi.fn();
-const mockMessageOutFindMany = vi.fn();
-const mockDeadLetterJobCreate = vi.fn();
 const mockTenantFindUnique = vi.fn();
 const mockSend = vi.fn();
 let lastAdapterArgs: { phoneNumberId: string; accessToken: string } | null = null;
-
-const mockTx = {
-  messageOut: {
-    update: mockMessageOutUpdate,
-    findUnique: mockMessageOutFindUnique,
-    updateMany: mockMessageOutUpdateMany,
-    findMany: mockMessageOutFindMany,
-  },
-  deadLetterJob: { create: mockDeadLetterJobCreate },
-};
 
 vi.mock("~/server/db", () => ({
   db: {
@@ -26,27 +12,12 @@ vi.mock("~/server/db", () => ({
       get update() {
         return mockMessageOutUpdate;
       },
-      get findUnique() {
-        return mockMessageOutFindUnique;
-      },
-      get updateMany() {
-        return mockMessageOutUpdateMany;
-      },
-      get findMany() {
-        return mockMessageOutFindMany;
-      },
-    },
-    deadLetterJob: {
-      get create() {
-        return mockDeadLetterJobCreate;
-      },
     },
     tenant: {
       get findUnique() {
         return mockTenantFindUnique;
       },
     },
-    $transaction: vi.fn((fn: (tx: unknown) => Promise<unknown>) => fn(mockTx)),
   },
 }));
 
@@ -84,12 +55,8 @@ vi.mock("~/lib/logger", () => ({
   },
 }));
 
-// Seules les vars outbox sont nécessaires (pas de vars provider dans le worker)
 vi.mock("~/env", () => ({
-  env: {
-    OUTBOX_MAX_RETRIES: 5,
-    OUTBOX_BACKOFF_MAX_MS: 30000,
-  },
+  env: {},
 }));
 
 // Import after mocks
@@ -97,7 +64,6 @@ import { logMessageSent } from "~/server/events/eventLog";
 import { logMessageBlockedOptOut } from "~/server/events/eventLog";
 import {
   processOutboundMessage,
-  createDeadLetterJob,
 } from "./outbox-sender";
 
 describe("outbox-sender worker", () => {
@@ -105,10 +71,6 @@ describe("outbox-sender worker", () => {
     vi.clearAllMocks();
     mockSend.mockReset();
     mockMessageOutUpdate.mockReset();
-    mockMessageOutFindUnique.mockReset();
-    mockMessageOutUpdateMany.mockReset();
-    mockMessageOutFindMany.mockReset();
-    mockDeadLetterJobCreate.mockReset();
     mockTenantFindUnique.mockReset();
     lastAdapterArgs = null;
     mockCheckOptOut.mockResolvedValue(false); // par défaut pas d'opt-out
@@ -242,50 +204,10 @@ describe("outbox-sender worker", () => {
         data: {
           status: "failed",
           attempts: 1,
-          nextAttemptAt: expect.any(Date),
           lastError: "Meta API error",
           updatedAt: expect.any(Date),
         },
       });
-    });
-
-    it("should calculate next_attempt_at with exponential backoff", async () => {
-      const messageOut = {
-        id: "msg-out-123",
-        tenantId: "tenant-123",
-        to: "+33612345678",
-        body: "Hello World",
-        status: "failed",
-        attempts: 2, // 3rd attempt
-        correlationId: "corr-123",
-      };
-
-      mockSend.mockResolvedValue({
-        success: false,
-        error: "Meta API error",
-      });
-
-      mockMessageOutUpdate.mockResolvedValue({
-        ...messageOut,
-        attempts: 3,
-      } as never);
-
-      const beforeTime = Date.now();
-      await processOutboundMessage(messageOut as never);
-      const afterTime = Date.now();
-
-      const updateCall = mockMessageOutUpdate.mock.calls[0];
-      expect(updateCall).toBeDefined();
-
-      const nextAttemptAt = updateCall![0]?.data?.nextAttemptAt as Date;
-
-      // Backoff: newAttempts = 3 → 1000 * 2^(3-1) = 4000ms (4s) — spec 1s, 2s, 4s, 8s, 16s
-      const expectedBackoff = 4000;
-      const actualBackoff = nextAttemptAt.getTime() - beforeTime;
-
-      expect(actualBackoff).toBeGreaterThanOrEqual(expectedBackoff - 100); // Allow 100ms tolerance
-      expect(actualBackoff).toBeLessThanOrEqual(expectedBackoff + 100);
-      expect(updateCall![0]?.data?.attempts).toBe(3);
     });
 
     // Task 2.3: Tenant sans config Meta → erreur gracieuse (AC #3)
@@ -317,7 +239,6 @@ describe("outbox-sender worker", () => {
         data: {
           status: "failed",
           attempts: 1,
-          nextAttemptAt: expect.any(Date),
           lastError: "meta_config_missing",
           updatedAt: expect.any(Date),
         },
@@ -356,7 +277,6 @@ describe("outbox-sender worker", () => {
         data: {
           status: "failed",
           attempts: 1,
-          nextAttemptAt: expect.any(Date),
           lastError: "tenant_not_found",
           updatedAt: expect.any(Date),
         },
@@ -420,7 +340,6 @@ describe("outbox-sender worker", () => {
         data: {
           status: "failed",
           attempts: 1,
-          nextAttemptAt: expect.any(Date),
           lastError: "ECONNREFUSED",
           updatedAt: expect.any(Date),
         },
@@ -535,56 +454,4 @@ describe("outbox-sender worker", () => {
     });
   });
 
-  describe("createDeadLetterJob", () => {
-    it("should create DeadLetterJob after N failures", async () => {
-      const messageOut = {
-        id: "msg-out-123",
-        tenantId: "tenant-123",
-        to: "+33612345678",
-        body: "Hello World",
-        status: "failed",
-        attempts: 5, // Max retries reached
-        lastError: "Meta API error",
-        correlationId: "corr-123",
-      };
-
-      const mockDeadLetterJob = {
-        id: "dlq-123",
-        tenantId: messageOut.tenantId,
-        jobType: "message_out",
-        payload: {},
-        errorMessage: messageOut.lastError,
-        attempts: messageOut.attempts,
-      };
-
-      mockDeadLetterJobCreate.mockResolvedValue(mockDeadLetterJob as never);
-      mockMessageOutUpdate.mockResolvedValue({} as never);
-
-      await createDeadLetterJob(messageOut as never);
-
-      expect(mockDeadLetterJobCreate).toHaveBeenCalledWith({
-        data: {
-          tenantId: messageOut.tenantId,
-          jobType: "message_out",
-          payload: {
-            message_out_id: messageOut.id,
-            to: messageOut.to,
-            body: messageOut.body,
-            correlation_id: messageOut.correlationId,
-          },
-          errorMessage: messageOut.lastError,
-          attempts: messageOut.attempts,
-        },
-      });
-
-      expect(mockMessageOutUpdate).toHaveBeenCalledWith({
-        where: { id: messageOut.id },
-        data: {
-          status: "failed",
-          updatedAt: expect.any(Date),
-        },
-      });
-    });
-
-  });
 });

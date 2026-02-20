@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { MetaCloudAdapter } from "~/server/messaging/providers/meta/adapter";
-import { webhookProcessingQueue } from "~/server/workers/queues";
+import { boss, QUEUE } from "~/server/workers/queues";
 import { metaWebhookSchema, inboundMessageForQueueSchema } from "~/lib/zod/webhook";
 import { env } from "~/env";
 import { webhookLogger } from "~/lib/logger";
@@ -244,7 +244,18 @@ export async function POST(request: Request) {
         const validatedPayload = inboundMessageForQueueSchema.parse(normalizedMessage);
 
         const jobId = `${tenant.id}-${message.providerMessageId}`;
-        await webhookProcessingQueue.add("process-inbound", validatedPayload, { jobId });
+        const sendResult = await boss.send(QUEUE.WEBHOOK_PROCESSING, validatedPayload, { singletonKey: jobId });
+
+        if (sendResult === null) {
+          // singletonKey duplicate — job déjà enqueued, skip silencieusement
+          webhookLogger.info("Meta job already enqueued (singletonKey duplicate)", {
+            correlationId,
+            providerMessageId: message.providerMessageId,
+            tenantId: tenant.id,
+            jobId,
+          });
+          continue;
+        }
 
         webhookLogger.info("Meta job enqueued", {
           correlationId,
@@ -282,9 +293,7 @@ export async function POST(request: Request) {
       (error.message.includes("ECONNREFUSED") ||
         error.message.includes("ETIMEDOUT") ||
         error.message.includes("ENOTFOUND") ||
-        error.message.includes("database") ||
-        error.message.includes("redis") ||
-        error.message.includes("Redis"));
+        error.message.includes("database"));
 
     if (isCriticalError) {
       webhookLogger.error("Critical error processing Meta webhook", error, {

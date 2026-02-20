@@ -3,7 +3,7 @@
  *
  * 1. Simule le traitement d'un message STOP (processWebhookJob) → OptOut créé pour (tenant_id, phone).
  * 2. Met un message en outbox vers ce numéro.
- * 3. Traite l'outbox (processOutboxBatch) → le message n'est pas envoyé (status = 'blocked').
+ * 3. Traite l'outbox (processOutboundMessage) → le message n'est pas envoyé (status = 'blocked').
  * 4. Vérifie que l'événement message_blocked_optout est loggé.
  *
  * Nécessite DATABASE_URL. Exécutable en CI avec une DB de test.
@@ -13,8 +13,8 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
-import type { Job } from "bullmq";
 import type { InboundMessage } from "~/server/messaging/types";
+import type { PgBossJob } from "~/server/workers/queues";
 
 const mockLogOptOutRecorded = vi.fn().mockResolvedValue(undefined);
 const mockLogMessageBlockedOptOut = vi.fn().mockResolvedValue(undefined);
@@ -56,7 +56,7 @@ describe.skipIf(!shouldRun)(
     let db: typeof import("~/server/db").db;
     let processWebhookJob: typeof import("../webhook-processor").processWebhookJob;
     let writeToOutbox: typeof import("~/server/messaging/outbox").writeToOutbox;
-    let processOutboxBatch: typeof import("../outbox-sender").processOutboxBatch;
+    let processOutboundMessage: typeof import("../outbox-sender").processOutboundMessage;
 
     beforeAll(async () => {
       const dbMod = await import("~/server/db");
@@ -66,7 +66,7 @@ describe.skipIf(!shouldRun)(
       const outboxMod = await import("~/server/messaging/outbox");
       writeToOutbox = outboxMod.writeToOutbox;
       const osMod = await import("../outbox-sender");
-      processOutboxBatch = osMod.processOutboxBatch;
+      processOutboundMessage = osMod.processOutboundMessage;
 
       const tenant = await db.tenant.create({
         data: { name: "Test Tenant STOP Integration" },
@@ -103,7 +103,7 @@ describe.skipIf(!shouldRun)(
           mediaUrl: undefined,
           correlationId: correlationIdStop,
         } as InboundMessage,
-      } as Job<InboundMessage>;
+      } as PgBossJob<InboundMessage>;
 
       await processWebhookJob(stopJob);
 
@@ -130,15 +130,19 @@ describe.skipIf(!shouldRun)(
         correlationId: correlationIdOutbox,
       });
 
-      // 4. Traiter l'outbox → le message doit être bloqué (status = 'blocked')
-      const processed = await processOutboxBatch(1);
-      expect(processed).toBe(1);
-
+      // 4. Traiter le message outbox directement → doit être bloqué (status = 'blocked')
       const messageOut = await db.messageOut.findFirst({
         where: { tenantId: testTenantId, correlationId: correlationIdOutbox },
       });
       expect(messageOut).toBeDefined();
-      expect(messageOut!.status).toBe("blocked");
+
+      const result = await processOutboundMessage(messageOut!);
+      expect(result.success).toBe(true); // blocked = traité (pas de retry)
+
+      const updatedMessage = await db.messageOut.findUnique({
+        where: { id: messageOut!.id },
+      });
+      expect(updatedMessage!.status).toBe("blocked");
 
       // 5. Vérifier que l'événement message_blocked_optout a été loggé
       expect(mockLogMessageBlockedOptOut).toHaveBeenCalledWith(

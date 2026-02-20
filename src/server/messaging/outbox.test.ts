@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { writeToOutbox } from "./outbox";
 import { db } from "~/server/db";
+import { boss, QUEUE } from "~/server/workers/queues";
 
 // Mock db
 vi.mock("~/server/db", () => ({
@@ -16,8 +17,15 @@ vi.mock("~/lib/logger", () => ({
   workerLogger: {
     debug: vi.fn(),
     info: vi.fn(),
+    warn: vi.fn(),
     error: vi.fn(),
   },
+}));
+
+// Mock queues (pg-boss)
+vi.mock("~/server/workers/queues", () => ({
+  boss: { send: vi.fn().mockResolvedValue("job-id-mock") },
+  QUEUE: { OUTBOX_SEND: "outbox-send" },
 }));
 
 describe("writeToOutbox", () => {
@@ -69,6 +77,13 @@ describe("writeToOutbox", () => {
       attempts: 0,
       correlationId: message.correlationId,
     });
+
+    // AC6: boss.send() appelé après create pour enqueue immédiat
+    expect(boss.send).toHaveBeenCalledWith(
+      QUEUE.OUTBOX_SEND,
+      { messageOutId: "msg-out-123" },
+      { singletonKey: "msg-out-123" },
+    );
   });
 
   it("Story 9.4: should persist mediaUrl when provided", async () => {
@@ -118,6 +133,36 @@ describe("writeToOutbox", () => {
 
     await expect(writeToOutbox(invalidMessage as never)).rejects.toThrow();
     expect(db.messageOut.create).not.toHaveBeenCalled();
+  });
+
+  it("AC6: should succeed even if boss.send() fails (MessageOut remains pending)", async () => {
+    const message = {
+      tenantId: "tenant-123",
+      to: "+33612345678",
+      body: "Hello",
+      correlationId: "corr-resilient",
+    };
+
+    const mockMessageOut = {
+      id: "msg-out-resilient",
+      tenantId: message.tenantId,
+      to: message.to,
+      body: message.body,
+      status: "pending",
+      attempts: 0,
+      correlationId: message.correlationId,
+      createdAt: new Date(),
+    };
+
+    vi.mocked(db.messageOut.create).mockResolvedValue(mockMessageOut as never);
+    vi.mocked(boss.send).mockRejectedValueOnce(new Error("pg-boss connection failed"));
+
+    const result = await writeToOutbox(message);
+
+    // MessageOut créé malgré l'échec de boss.send()
+    expect(result.id).toBe("msg-out-resilient");
+    expect(result.status).toBe("pending");
+    expect(db.messageOut.create).toHaveBeenCalled();
   });
 
   it("should throw error if DB create fails", async () => {

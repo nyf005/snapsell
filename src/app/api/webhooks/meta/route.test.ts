@@ -17,8 +17,13 @@ vi.mock("~/server/db", () => ({
 }));
 
 vi.mock("~/server/workers/queues", () => ({
-  webhookProcessingQueue: {
-    add: vi.fn(),
+  boss: {
+    send: vi.fn().mockResolvedValue("job-id-mock"),
+  },
+  QUEUE: {
+    WEBHOOK_PROCESSING: "webhook-processing",
+    OUTBOX_SEND: "outbox-send",
+    OUTBOX_DLQ: "outbox-dlq",
   },
 }));
 
@@ -394,7 +399,7 @@ describe("POST /api/webhooks/meta — inbound", () => {
     const resp = await callPOST(bodyText, sig);
     expect(resp.status).toBe(200);
     expect(dbMock.db.messageIn.create).toHaveBeenCalledTimes(1);
-    expect(queueMock.webhookProcessingQueue.add).toHaveBeenCalledTimes(1);
+    expect(queueMock.boss.send).toHaveBeenCalledTimes(1);
   });
 
   it("batch multi-messages → N persist + N enqueue", async () => {
@@ -430,7 +435,7 @@ describe("POST /api/webhooks/meta — inbound", () => {
     const resp = await callPOST(bodyText, sig);
     expect(resp.status).toBe(200);
     expect(dbMock.db.messageIn.create).toHaveBeenCalledTimes(3);
-    expect(queueMock.webhookProcessingQueue.add).toHaveBeenCalledTimes(3);
+    expect(queueMock.boss.send).toHaveBeenCalledTimes(3);
   });
 
   it("tenant non trouve → 200 + persist MessageIn avec tenantId null", async () => {
@@ -452,7 +457,7 @@ describe("POST /api/webhooks/meta — inbound", () => {
       }),
     );
     // No enqueue (no tenant)
-    expect(queueMock.webhookProcessingQueue.add).not.toHaveBeenCalled();
+    expect(queueMock.boss.send).not.toHaveBeenCalled();
   });
 
   it("signature invalide → 401", async () => {
@@ -485,7 +490,7 @@ describe("POST /api/webhooks/meta — inbound", () => {
     const resp = await callPOST(bodyText, sig);
     expect(resp.status).toBe(200);
     expect(dbMock.db.messageIn.create).not.toHaveBeenCalled();
-    expect(queueMock.webhookProcessingQueue.add).not.toHaveBeenCalled();
+    expect(queueMock.boss.send).not.toHaveBeenCalled();
   });
 
   it("message image → 200 + persist avec mediaUrl", async () => {
@@ -519,7 +524,7 @@ describe("POST /api/webhooks/meta — inbound", () => {
         data: expect.objectContaining({ mediaUrl: "meta-media://img_001" }),
       }),
     );
-    expect(queueMock.webhookProcessingQueue.add).toHaveBeenCalledTimes(1);
+    expect(queueMock.boss.send).toHaveBeenCalledTimes(1);
   });
 
   it("idempotence — message deja existant → 200 sans doublon", async () => {
@@ -549,6 +554,6 @@ describe("POST /api/webhooks/meta — inbound", () => {
     expect(resp.status).toBe(200);
     // No create (idempotent)
     expect(dbMock.db.messageIn.create).not.toHaveBeenCalled();
-    expect(queueMock.webhookProcessingQueue.add).not.toHaveBeenCalled();
+    expect(queueMock.boss.send).not.toHaveBeenCalled();
   });
 });
