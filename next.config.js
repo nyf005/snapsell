@@ -5,6 +5,14 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  serverExternalPackages: [
+    "@opentelemetry/instrumentation",
+    "@sentry/node",
+    "@sentry/node-core",
+    "@sentry/nextjs",
+    "require-in-the-middle",
+  ],
+};
 
 export default config;
