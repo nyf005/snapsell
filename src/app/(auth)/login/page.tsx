@@ -7,6 +7,7 @@ import { Suspense, useState, useMemo, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { Eye, EyeOff } from "lucide-react";
 
+
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -327,7 +328,6 @@ function SignupTabContent() {
 }
 
 function LoginPageContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const tabFromUrl = searchParams.get("tab");
@@ -346,7 +346,7 @@ function LoginPageContent() {
     setSlideDir(t === "signup" ? "right" : "left");
     setActiveTab(t);
     const url = t === "signup" ? "/login?tab=signup" : "/login";
-    router.replace(url, { scroll: false });
+    window.history.replaceState(null, "", url);
   };
 
   return (

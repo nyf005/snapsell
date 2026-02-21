@@ -25,33 +25,39 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section className="py-24">
+    <section className="bg-muted/40 py-24 lg:py-36">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="flex flex-col items-center gap-16 lg:flex-row">
+        <div className="flex flex-col items-center gap-16 lg:flex-row lg:gap-20">
           {/* Left — Steps */}
           <div className="lg:w-1/2">
             <AnimateOnScroll animation="fade-up">
-              <h2 className="mb-8 text-3xl font-extrabold lg:text-5xl">
+              <h2 className="mb-12 text-3xl font-extrabold lg:text-5xl">
                 Opérationnel en 5 minutes
               </h2>
             </AnimateOnScroll>
 
-            <div className="space-y-12">
+            <div className="space-y-14">
               {steps.map((step) => (
                 <AnimateOnScroll
                   key={step.number}
                   animation="slide-right"
-                  delay={step.number * 150}
+                  delay={step.number * 100}
                 >
-                  <div className="flex gap-6">
-                    <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground shadow-lg shadow-primary/30">
+                  <div className="relative flex gap-6">
+                    {/* Giant background number */}
+                    <span
+                      className="step-bg-number absolute -top-4 -left-2"
+                      aria-hidden="true"
+                    >
+                      {step.number}
+                    </span>
+                    {/* Step indicator */}
+                    <div className="relative z-10 flex size-12 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground shadow-lg shadow-primary/30">
                       {step.number}
                     </div>
-                    <div>
+                    <div className="relative z-10">
                       <h3 className="mb-2 text-xl font-bold">{step.title}</h3>
-                      <p className="text-muted-foreground">
-                        {step.description}
-                      </p>
+                      <p className="text-muted-foreground">{step.description}</p>
                     </div>
                   </div>
                 </AnimateOnScroll>
