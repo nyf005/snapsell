@@ -146,6 +146,26 @@ export const settingsRouter = createTRPCRouter({
           });
         }
       }
+      // Valider les credentials auprès de l'API Meta avant toute sauvegarde
+      if (phoneId != null && input.metaAccessToken != null) {
+        let metaRes: Response;
+        try {
+          metaRes = await fetch(
+            `https://graph.facebook.com/v20.0/${encodeURIComponent(phoneId)}?access_token=${encodeURIComponent(input.metaAccessToken)}`,
+          );
+        } catch {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Impossible de contacter l'API Meta. Réessaie dans quelques instants.",
+          });
+        }
+        if (!metaRes.ok) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Credentials WhatsApp invalides. Vérifie ton Phone Number ID et ton Access Token Meta.",
+          });
+        }
+      }
       // H1-fix: ne pas écraser le token existant si l'utilisateur n'en a pas saisi un nouveau
       const data: Record<string, string | null> = {
         metaPhoneNumberId: phoneId,

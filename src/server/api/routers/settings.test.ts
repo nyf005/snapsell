@@ -7,6 +7,9 @@ import { createTRPCContext } from "~/server/api/trpc";
 const mockTenantFindUnique = vi.hoisted(() => vi.fn());
 const mockTenantFindFirst = vi.hoisted(() => vi.fn());
 const mockTenantUpdate = vi.hoisted(() => vi.fn());
+const mockFetch = vi.hoisted(() => vi.fn());
+
+vi.stubGlobal("fetch", mockFetch);
 
 vi.mock("~/server/db", () => ({
   db: {
@@ -54,9 +57,10 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     return createCaller(ctx);
   }
 
-  it("saves Meta fields for Owner", async () => {
+  it("saves Meta fields for Owner when Meta API validates OK", async () => {
     mockTenantFindFirst.mockResolvedValue(null);
     mockTenantUpdate.mockResolvedValue({});
+    mockFetch.mockResolvedValue({ ok: true });
 
     const caller = await makeCaller(ownerSession);
     const result = await caller.settings.setWhatsAppConfig({
@@ -66,6 +70,9 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     });
 
     expect(result).toEqual({ ok: true });
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("graph.facebook.com/v20.0/123456"),
+    );
     expect(mockTenantUpdate).toHaveBeenCalledWith({
       where: { id: "tenant-1" },
       data: {
@@ -76,7 +83,39 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     });
   });
 
-  it("does NOT overwrite token when metaAccessToken is null", async () => {
+  it("rejects invalid Meta credentials with BAD_REQUEST", async () => {
+    mockTenantFindFirst.mockResolvedValue(null);
+    mockFetch.mockResolvedValue({ ok: false, status: 401 });
+
+    const caller = await makeCaller(ownerSession);
+    await expect(
+      caller.settings.setWhatsAppConfig({
+        metaPhoneNumberId: "bad-phone-id",
+        metaWabaId: "789",
+        metaAccessToken: "invalid-token",
+      }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+
+    expect(mockTenantUpdate).not.toHaveBeenCalled();
+  });
+
+  it("rejects when Meta API is unreachable with INTERNAL_SERVER_ERROR", async () => {
+    mockTenantFindFirst.mockResolvedValue(null);
+    mockFetch.mockRejectedValue(new Error("Network error"));
+
+    const caller = await makeCaller(ownerSession);
+    await expect(
+      caller.settings.setWhatsAppConfig({
+        metaPhoneNumberId: "123456",
+        metaWabaId: "789",
+        metaAccessToken: "EAAtoken",
+      }),
+    ).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR" });
+
+    expect(mockTenantUpdate).not.toHaveBeenCalled();
+  });
+
+  it("skips Meta API validation when metaAccessToken is null (préserve token existant)", async () => {
     mockTenantFindFirst.mockResolvedValue(null);
     mockTenantUpdate.mockResolvedValue({});
 
@@ -87,6 +126,7 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
       metaAccessToken: null,
     });
 
+    expect(mockFetch).not.toHaveBeenCalled();
     expect(mockTenantUpdate).toHaveBeenCalledWith({
       where: { id: "tenant-1" },
       data: {
@@ -95,7 +135,6 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
         // metaAccessToken absent → token existant préservé
       },
     });
-    // Vérifie que metaAccessToken n'est PAS dans data
     const updateCall = mockTenantUpdate.mock.calls[0]![0] as { data: Record<string, unknown> };
     expect(updateCall.data).not.toHaveProperty("metaAccessToken");
   });
@@ -132,7 +171,7 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     ).rejects.toMatchObject({ code: "CONFLICT" });
   });
 
-  it("skips uniqueness check when metaPhoneNumberId is null", async () => {
+  it("skips uniqueness check and Meta API validation when metaPhoneNumberId is null", async () => {
     mockTenantUpdate.mockResolvedValue({});
 
     const caller = await makeCaller(ownerSession);
@@ -143,6 +182,7 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     });
 
     expect(mockTenantFindFirst).not.toHaveBeenCalled();
+    expect(mockFetch).not.toHaveBeenCalled();
     expect(mockTenantUpdate).toHaveBeenCalled();
   });
 });
