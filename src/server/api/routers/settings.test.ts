@@ -253,3 +253,82 @@ describe("settings router — getWhatsAppConfig (Meta)", () => {
     expect(JSON.stringify(result)).not.toContain("super-secret");
   });
 });
+
+describe("settings router — testWhatsAppConnection", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const ownerSession = {
+    user: { id: "user-1", email: "owner@example.com", tenantId: "tenant-1", role: "OWNER" },
+  };
+  const agentSession = {
+    user: { id: "user-2", email: "agent@example.com", tenantId: "tenant-1", role: "AGENT" },
+  };
+
+  async function makeCaller(session: any) {
+    const ctx = await createTRPCContext({ headers: new Headers(), session: session as any });
+    return createCaller(ctx);
+  }
+
+  it("returns ok:true when Meta API responds 200", async () => {
+    mockTenantFindUnique.mockResolvedValue({
+      metaPhoneNumberId: "123",
+      metaAccessToken: "valid-token",
+    });
+    mockFetch.mockResolvedValue({ ok: true });
+
+    const caller = await makeCaller(ownerSession);
+    const result = await caller.settings.testWhatsAppConnection();
+
+    expect(result).toEqual({ ok: true });
+    expect(mockFetch).toHaveBeenCalledOnce();
+  });
+
+  it("throws BAD_REQUEST when Meta API returns error", async () => {
+    mockTenantFindUnique.mockResolvedValue({
+      metaPhoneNumberId: "123",
+      metaAccessToken: "bad-token",
+    });
+    mockFetch.mockResolvedValue({ ok: false, status: 401 });
+
+    const caller = await makeCaller(ownerSession);
+    await expect(caller.settings.testWhatsAppConnection()).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+    });
+  });
+
+  it("throws BAD_REQUEST when config is incomplete", async () => {
+    mockTenantFindUnique.mockResolvedValue({
+      metaPhoneNumberId: null,
+      metaAccessToken: null,
+    });
+
+    const caller = await makeCaller(ownerSession);
+    await expect(caller.settings.testWhatsAppConnection()).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+    });
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it("throws INTERNAL_SERVER_ERROR when Meta API is unreachable", async () => {
+    mockTenantFindUnique.mockResolvedValue({
+      metaPhoneNumberId: "123",
+      metaAccessToken: "valid-token",
+    });
+    mockFetch.mockRejectedValue(new Error("Network error"));
+
+    const caller = await makeCaller(ownerSession);
+    await expect(caller.settings.testWhatsAppConnection()).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+    });
+  });
+
+  it("throws FORBIDDEN for AGENT role", async () => {
+    const caller = await makeCaller(agentSession);
+    await expect(caller.settings.testWhatsAppConnection()).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+});

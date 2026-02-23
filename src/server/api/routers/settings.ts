@@ -190,4 +190,45 @@ export const settingsRouter = createTRPCRouter({
       }
       return { ok: true };
     }),
+
+  testWhatsAppConnection: protectedProcedure.mutation(async ({ ctx }) => {
+    if (!canManageGrid(ctx.session.user.role as string)) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Seuls Owner et Manager peuvent tester la connexion WhatsApp.",
+      });
+    }
+    const tenantId = ctx.session.user.tenantId;
+    if (tenantId == null || tenantId === "") {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+    }
+    const tenant = await db.tenant.findUnique({
+      where: { id: tenantId },
+      select: { metaPhoneNumberId: true, metaAccessToken: true },
+    });
+    if (!tenant?.metaPhoneNumberId || !tenant?.metaAccessToken) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Configuration incomplète. Enregistrez vos identifiants Meta d'abord.",
+      });
+    }
+    let metaRes: Response;
+    try {
+      metaRes = await fetch(
+        `https://graph.facebook.com/v20.0/${encodeURIComponent(tenant.metaPhoneNumberId)}?access_token=${encodeURIComponent(tenant.metaAccessToken)}`,
+      );
+    } catch {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Impossible de contacter l'API Meta. Réessaie dans quelques instants.",
+      });
+    }
+    if (!metaRes.ok) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Credentials WhatsApp invalides. Vérifie ton Phone Number ID et ton Access Token Meta.",
+      });
+    }
+    return { ok: true };
+  }),
 });

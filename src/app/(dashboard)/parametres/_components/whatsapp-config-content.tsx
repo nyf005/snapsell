@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { Bell, Eye, EyeOff, Info, KeyRound, Phone, Plus, Trash2, Zap } from "lucide-react";
+import { Bell, Check, Eye, EyeOff, Info, KeyRound, Phone, Plus, Trash2, Zap } from "lucide-react";
+
+import { cn } from "~/lib/utils";
 
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import {
@@ -29,6 +31,9 @@ export function WhatsAppConfigContent() {
   const [showToken, setShowToken] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [testError, setTestError] = useState<string | null>(null);
+  const [testSuccess, setTestSuccess] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [newSellerPhone, setNewSellerPhone] = useState("");
   const [sellerPhoneError, setSellerPhoneError] = useState<string | null>(null);
 
@@ -48,10 +53,20 @@ export function WhatsAppConfigContent() {
     onSuccess: () => void utils.sellerPhones.list.invalidate(),
   });
 
+  const testConnection = api.settings.testWhatsAppConnection.useMutation({
+    onSuccess: () => {
+      setTestError(null);
+      setTestSuccess(true);
+      setTimeout(() => setTestSuccess(false), 4000);
+    },
+    onError: (e) => setTestError(e.message),
+  });
+
   const setConfig = api.settings.setWhatsAppConfig.useMutation({
     onSuccess: () => {
       setSaveError(null);
       setSaveSuccess(true);
+      setIsEditing(false);
       void utils.settings.getWhatsAppConfig.invalidate();
       setTimeout(() => setSaveSuccess(false), 3000);
     },
@@ -66,6 +81,16 @@ export function WhatsAppConfigContent() {
     serverPhoneNumberId != null && serverPhoneNumberId !== "" &&
     serverWabaId != null && serverWabaId !== "" &&
     serverHasToken;
+
+  const isLocked = isConnected && !isEditing;
+
+  const fieldsComplete =
+    metaPhoneNumberId.trim() !== "" &&
+    metaWabaId.trim() !== "" &&
+    (metaAccessToken.trim() !== "" || serverHasToken);
+
+  const step1Done = fieldsComplete;
+  const step2Done = isConnected;
 
   const hasInitialSync = useRef(false);
 
@@ -96,6 +121,7 @@ export function WhatsAppConfigContent() {
   const handleCancel = useCallback(() => {
     hydrateFromServer();
     setSaveError(null);
+    setIsEditing(false);
   }, [hydrateFromServer]);
 
   const handleAddSellerPhone = useCallback(() => {
@@ -166,10 +192,23 @@ export function WhatsAppConfigContent() {
               <div className="flex flex-col md:col-span-4">
                 <div className="grid grid-cols-[32px_1fr] gap-x-4">
                   <div className="flex flex-col items-center">
-                    <div className="flex size-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                      1
+                    <div
+                      className={cn(
+                        "flex size-8 items-center justify-center rounded-full text-sm font-bold transition-colors",
+                        step1Done
+                          ? "bg-success text-success-foreground"
+                          : "bg-primary text-primary-foreground",
+                      )}
+                    >
+                      {step1Done ? <Check className="size-4" /> : "1"}
                     </div>
-                    <div className="w-px flex-1 bg-border" style={{ minHeight: 48 }} />
+                    <div
+                      className={cn(
+                        "w-px flex-1 transition-colors",
+                        step1Done ? "bg-success" : "bg-border",
+                      )}
+                      style={{ minHeight: 48 }}
+                    />
                   </div>
                   <div className="pb-6">
                     <p className="text-sm font-semibold">Saisir les identifiants Meta</p>
@@ -178,8 +217,17 @@ export function WhatsAppConfigContent() {
                     </p>
                   </div>
                   <div className="flex flex-col items-center">
-                    <div className="flex size-8 items-center justify-center rounded-full border border-border bg-muted text-sm font-bold text-muted-foreground">
-                      2
+                    <div
+                      className={cn(
+                        "flex size-8 items-center justify-center rounded-full text-sm font-bold transition-colors",
+                        step2Done
+                          ? "bg-success text-success-foreground"
+                          : step1Done
+                            ? "bg-primary text-primary-foreground"
+                            : "border border-border bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {step2Done ? <Check className="size-4" /> : "2"}
                     </div>
                   </div>
                   <div>
@@ -210,7 +258,7 @@ export function WhatsAppConfigContent() {
                       value={metaPhoneNumberId}
                       onChange={(e) => setMetaPhoneNumberId(e.target.value)}
                       className="pl-10"
-                      disabled={isLoading}
+                      disabled={isLoading || isLocked}
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -232,7 +280,7 @@ export function WhatsAppConfigContent() {
                     placeholder="109876543210"
                     value={metaWabaId}
                     onChange={(e) => setMetaWabaId(e.target.value)}
-                    disabled={isLoading}
+                    disabled={isLoading || isLocked}
                   />
                   <p className="text-xs text-muted-foreground">
                     Identifiant de votre compte WhatsApp Business
@@ -256,7 +304,7 @@ export function WhatsAppConfigContent() {
                       value={metaAccessToken}
                       onChange={(e) => setMetaAccessToken(e.target.value)}
                       className="pl-10 pr-10"
-                      disabled={isLoading}
+                      disabled={isLoading || isLocked}
                     />
                     <Button
                       type="button"
@@ -284,11 +332,14 @@ export function WhatsAppConfigContent() {
                     type="button"
                     variant="secondary"
                     className="gap-2"
-                    disabled
-                    title="Disponible dans une prochaine version"
+                    disabled={!isConnected || testConnection.isPending}
+                    onClick={() => {
+                      setTestError(null);
+                      testConnection.mutate();
+                    }}
                   >
                     <Zap className="size-4" />
-                    Tester la connexion
+                    {testConnection.isPending ? "Test en cours…" : "Tester la connexion"}
                   </Button>
                 </div>
 
@@ -406,6 +457,21 @@ export function WhatsAppConfigContent() {
         </Card>
 
         {/* Messages + actions */}
+        {testError && (
+          <Alert variant="destructive" className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <AlertDescription className="flex flex-1 items-center justify-between gap-2">
+              <span>{testError}</span>
+              <Button variant="ghost" size="sm" className="h-auto p-1" onClick={() => setTestError(null)}>
+                Fermer
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+        {testSuccess && (
+          <Alert className="border-success/50 bg-success/10 text-success [&>svg]:text-success">
+            <AlertDescription>Connexion WhatsApp opérationnelle.</AlertDescription>
+          </Alert>
+        )}
         {saveError && (
           <Alert variant="destructive" className="flex flex-row flex-wrap items-center justify-between gap-2">
             <AlertDescription className="flex flex-1 items-center justify-between gap-2">
@@ -430,22 +496,41 @@ export function WhatsAppConfigContent() {
         )}
 
         <div className="flex justify-end gap-3 pb-12">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            className="font-semibold"
-          >
-            Annuler
-          </Button>
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={setConfig.isPending || isLoading}
-            className="font-semibold shadow-lg shadow-primary/20"
-          >
-            {setConfig.isPending ? "Enregistrement…" : "Enregistrer la configuration"}
-          </Button>
+          {isLocked ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsEditing(true)}
+              className="font-semibold"
+            >
+              Modifier les identifiants
+            </Button>
+          ) : (
+            <>
+              {isConnected && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancel}
+                  className="font-semibold"
+                >
+                  Annuler
+                </Button>
+              )}
+              <Button
+                type="button"
+                onClick={handleSave}
+                disabled={setConfig.isPending || isLoading}
+                className="font-semibold shadow-lg shadow-primary/20"
+              >
+                {setConfig.isPending
+                  ? "Enregistrement…"
+                  : isConnected
+                    ? "Mettre à jour"
+                    : "Connecter"}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </>
