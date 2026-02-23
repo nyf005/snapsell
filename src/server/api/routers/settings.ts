@@ -146,12 +146,22 @@ export const settingsRouter = createTRPCRouter({
           });
         }
       }
-      // Valider les credentials auprès de l'API Meta avant toute sauvegarde
-      if (phoneId != null && input.metaAccessToken != null) {
+      // Valider les credentials auprès de l'API Meta avant toute sauvegarde.
+      // Si l'utilisateur ne fournit pas de nouveau token, on utilise le token stocké
+      // pour valider quand même le (potentiellement nouveau) phoneId.
+      let tokenToValidate = input.metaAccessToken;
+      if (tokenToValidate === null && phoneId != null) {
+        const currentTenant = await db.tenant.findUnique({
+          where: { id: tenantId },
+          select: { metaAccessToken: true },
+        });
+        tokenToValidate = currentTenant?.metaAccessToken ?? null;
+      }
+      if (phoneId != null && tokenToValidate != null) {
         let metaRes: Response;
         try {
           metaRes = await fetch(
-            `https://graph.facebook.com/v20.0/${encodeURIComponent(phoneId)}?access_token=${encodeURIComponent(input.metaAccessToken)}`,
+            `https://graph.facebook.com/v20.0/${encodeURIComponent(phoneId)}?access_token=${encodeURIComponent(tokenToValidate)}`,
           );
         } catch {
           throw new TRPCError({

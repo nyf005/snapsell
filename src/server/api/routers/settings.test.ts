@@ -115,8 +115,46 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     expect(mockTenantUpdate).not.toHaveBeenCalled();
   });
 
-  it("skips Meta API validation when metaAccessToken is null (préserve token existant)", async () => {
+  it("valide le phoneId avec le token stocké quand aucun nouveau token n'est fourni", async () => {
     mockTenantFindFirst.mockResolvedValue(null);
+    mockTenantFindUnique.mockResolvedValue({ metaAccessToken: "stored-token" });
+    mockTenantUpdate.mockResolvedValue({});
+    mockFetch.mockResolvedValue({ ok: true });
+
+    const caller = await makeCaller(ownerSession);
+    await caller.settings.setWhatsAppConfig({
+      metaPhoneNumberId: "123456",
+      metaWabaId: "789",
+      metaAccessToken: null,
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("graph.facebook.com/v20.0/123456"),
+    );
+    const updateCall = mockTenantUpdate.mock.calls[0]![0] as { data: Record<string, unknown> };
+    expect(updateCall.data).not.toHaveProperty("metaAccessToken");
+  });
+
+  it("rejette un faux phoneId même sans nouveau token (utilise le token stocké)", async () => {
+    mockTenantFindFirst.mockResolvedValue(null);
+    mockTenantFindUnique.mockResolvedValue({ metaAccessToken: "stored-token" });
+    mockFetch.mockResolvedValue({ ok: false, status: 401 });
+
+    const caller = await makeCaller(ownerSession);
+    await expect(
+      caller.settings.setWhatsAppConfig({
+        metaPhoneNumberId: "fake-phone-id",
+        metaWabaId: "789",
+        metaAccessToken: null,
+      }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+
+    expect(mockTenantUpdate).not.toHaveBeenCalled();
+  });
+
+  it("skips Meta API validation when metaAccessToken is null AND aucun token stocké", async () => {
+    mockTenantFindFirst.mockResolvedValue(null);
+    mockTenantFindUnique.mockResolvedValue({ metaAccessToken: null });
     mockTenantUpdate.mockResolvedValue({});
 
     const caller = await makeCaller(ownerSession);
@@ -127,14 +165,6 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     });
 
     expect(mockFetch).not.toHaveBeenCalled();
-    expect(mockTenantUpdate).toHaveBeenCalledWith({
-      where: { id: "tenant-1" },
-      data: {
-        metaPhoneNumberId: "123456",
-        metaWabaId: "789",
-        // metaAccessToken absent → token existant préservé
-      },
-    });
     const updateCall = mockTenantUpdate.mock.calls[0]![0] as { data: Record<string, unknown> };
     expect(updateCall.data).not.toHaveProperty("metaAccessToken");
   });
