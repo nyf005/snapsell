@@ -60,7 +60,10 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
   it("saves Meta fields for Owner when Meta API validates OK", async () => {
     mockTenantFindFirst.mockResolvedValue(null);
     mockTenantUpdate.mockResolvedValue({});
-    mockFetch.mockResolvedValue({ ok: true });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: [{ id: "123456" }] }),
+    });
 
     const caller = await makeCaller(ownerSession);
     const result = await caller.settings.setWhatsAppConfig({
@@ -71,7 +74,7 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
 
     expect(result).toEqual({ ok: true });
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining("graph.facebook.com/v20.0/123456"),
+      expect.stringContaining("graph.facebook.com/v20.0/789/phone_numbers"),
     );
     expect(mockTenantUpdate).toHaveBeenCalledWith({
       where: { id: "tenant-1" },
@@ -83,7 +86,7 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     });
   });
 
-  it("rejects invalid Meta credentials with BAD_REQUEST", async () => {
+  it("rejects when WABA ID or token is invalid (Meta API returns non-OK)", async () => {
     mockTenantFindFirst.mockResolvedValue(null);
     mockFetch.mockResolvedValue({ ok: false, status: 401 });
 
@@ -91,8 +94,27 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     await expect(
       caller.settings.setWhatsAppConfig({
         metaPhoneNumberId: "bad-phone-id",
-        metaWabaId: "789",
+        metaWabaId: "bad-waba",
         metaAccessToken: "invalid-token",
+      }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+
+    expect(mockTenantUpdate).not.toHaveBeenCalled();
+  });
+
+  it("rejects when phone ID not found in WABA phone_numbers list", async () => {
+    mockTenantFindFirst.mockResolvedValue(null);
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: [{ id: "other-phone-id" }] }),
+    });
+
+    const caller = await makeCaller(ownerSession);
+    await expect(
+      caller.settings.setWhatsAppConfig({
+        metaPhoneNumberId: "123456",
+        metaWabaId: "789",
+        metaAccessToken: "EAAtoken",
       }),
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
 
@@ -115,21 +137,24 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     expect(mockTenantUpdate).not.toHaveBeenCalled();
   });
 
-  it("valide le phoneId avec le token stocké quand aucun nouveau token n'est fourni", async () => {
+  it("valide le phoneId avec le token et wabaId stockés quand aucun n'est fourni", async () => {
     mockTenantFindFirst.mockResolvedValue(null);
-    mockTenantFindUnique.mockResolvedValue({ metaAccessToken: "stored-token" });
+    mockTenantFindUnique.mockResolvedValue({ metaAccessToken: "stored-token", metaWabaId: "789" });
     mockTenantUpdate.mockResolvedValue({});
-    mockFetch.mockResolvedValue({ ok: true });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: [{ id: "123456" }] }),
+    });
 
     const caller = await makeCaller(ownerSession);
     await caller.settings.setWhatsAppConfig({
       metaPhoneNumberId: "123456",
-      metaWabaId: "789",
+      metaWabaId: null,
       metaAccessToken: null,
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining("graph.facebook.com/v20.0/123456"),
+      expect.stringContaining("graph.facebook.com/v20.0/789/phone_numbers"),
     );
     const updateCall = mockTenantUpdate.mock.calls[0]![0] as { data: Record<string, unknown> };
     expect(updateCall.data).not.toHaveProperty("metaAccessToken");
@@ -137,14 +162,17 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
 
   it("rejette un faux phoneId même sans nouveau token (utilise le token stocké)", async () => {
     mockTenantFindFirst.mockResolvedValue(null);
-    mockTenantFindUnique.mockResolvedValue({ metaAccessToken: "stored-token" });
-    mockFetch.mockResolvedValue({ ok: false, status: 401 });
+    mockTenantFindUnique.mockResolvedValue({ metaAccessToken: "stored-token", metaWabaId: "789" });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: [{ id: "real-phone-id" }] }),
+    });
 
     const caller = await makeCaller(ownerSession);
     await expect(
       caller.settings.setWhatsAppConfig({
         metaPhoneNumberId: "fake-phone-id",
-        metaWabaId: "789",
+        metaWabaId: null,
         metaAccessToken: null,
       }),
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -154,13 +182,13 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
 
   it("skips Meta API validation when metaAccessToken is null AND aucun token stocké", async () => {
     mockTenantFindFirst.mockResolvedValue(null);
-    mockTenantFindUnique.mockResolvedValue({ metaAccessToken: null });
+    mockTenantFindUnique.mockResolvedValue({ metaAccessToken: null, metaWabaId: null });
     mockTenantUpdate.mockResolvedValue({});
 
     const caller = await makeCaller(ownerSession);
     await caller.settings.setWhatsAppConfig({
       metaPhoneNumberId: "123456",
-      metaWabaId: "789",
+      metaWabaId: null,
       metaAccessToken: null,
     });
 
@@ -301,23 +329,30 @@ describe("settings router — testWhatsAppConnection", () => {
     return createCaller(ctx);
   }
 
-  it("returns ok:true when Meta API responds 200", async () => {
+  it("returns ok:true when phone ID found in WABA phone_numbers", async () => {
     mockTenantFindUnique.mockResolvedValue({
       metaPhoneNumberId: "123",
+      metaWabaId: "456",
       metaAccessToken: "valid-token",
     });
-    mockFetch.mockResolvedValue({ ok: true });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: [{ id: "123" }] }),
+    });
 
     const caller = await makeCaller(ownerSession);
     const result = await caller.settings.testWhatsAppConnection();
 
     expect(result).toEqual({ ok: true });
-    expect(mockFetch).toHaveBeenCalledOnce();
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("graph.facebook.com/v20.0/456/phone_numbers"),
+    );
   });
 
   it("throws BAD_REQUEST when Meta API returns error", async () => {
     mockTenantFindUnique.mockResolvedValue({
       metaPhoneNumberId: "123",
+      metaWabaId: "456",
       metaAccessToken: "bad-token",
     });
     mockFetch.mockResolvedValue({ ok: false, status: 401 });
@@ -328,10 +363,28 @@ describe("settings router — testWhatsAppConnection", () => {
     });
   });
 
-  it("throws BAD_REQUEST when config is incomplete", async () => {
+  it("throws BAD_REQUEST when phone ID not found in WABA phone_numbers list", async () => {
     mockTenantFindUnique.mockResolvedValue({
-      metaPhoneNumberId: null,
-      metaAccessToken: null,
+      metaPhoneNumberId: "123",
+      metaWabaId: "456",
+      metaAccessToken: "valid-token",
+    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ data: [{ id: "other-id" }] }),
+    });
+
+    const caller = await makeCaller(ownerSession);
+    await expect(caller.settings.testWhatsAppConnection()).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+    });
+  });
+
+  it("throws BAD_REQUEST when config is incomplete (missing wabaId)", async () => {
+    mockTenantFindUnique.mockResolvedValue({
+      metaPhoneNumberId: "123",
+      metaWabaId: null,
+      metaAccessToken: "valid-token",
     });
 
     const caller = await makeCaller(ownerSession);
@@ -344,6 +397,7 @@ describe("settings router — testWhatsAppConnection", () => {
   it("throws INTERNAL_SERVER_ERROR when Meta API is unreachable", async () => {
     mockTenantFindUnique.mockResolvedValue({
       metaPhoneNumberId: "123",
+      metaWabaId: "456",
       metaAccessToken: "valid-token",
     });
     mockFetch.mockRejectedValue(new Error("Network error"));

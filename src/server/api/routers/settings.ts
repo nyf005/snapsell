@@ -147,32 +147,56 @@ export const settingsRouter = createTRPCRouter({
         }
       }
       // Valider les credentials auprès de l'API Meta avant toute sauvegarde.
-      // Si l'utilisateur ne fournit pas de nouveau token, on utilise le token stocké
-      // pour valider quand même le (potentiellement nouveau) phoneId.
+      // Si l'utilisateur ne fournit pas token ou wabaId, on récupère les valeurs stockées.
       let tokenToValidate = input.metaAccessToken;
-      if (tokenToValidate === null && phoneId != null) {
+      let wabaIdToValidate = input.metaWabaId;
+
+      if ((tokenToValidate === null || wabaIdToValidate === null) && phoneId != null) {
         const currentTenant = await db.tenant.findUnique({
           where: { id: tenantId },
-          select: { metaAccessToken: true },
+          select: { metaAccessToken: true, metaWabaId: true },
         });
-        tokenToValidate = currentTenant?.metaAccessToken ?? null;
+        tokenToValidate ??= currentTenant?.metaAccessToken ?? null;
+        wabaIdToValidate ??= currentTenant?.metaWabaId ?? null;
       }
+
       if (phoneId != null && tokenToValidate != null) {
-        let metaRes: Response;
         try {
-          metaRes = await fetch(
-            `https://graph.facebook.com/v20.0/${encodeURIComponent(phoneId)}?access_token=${encodeURIComponent(tokenToValidate)}`,
-          );
-        } catch {
+          if (wabaIdToValidate != null) {
+            // Validation stricte : le phoneId doit figurer dans la liste des numéros du WABA
+            const metaRes = await fetch(
+              `https://graph.facebook.com/v20.0/${encodeURIComponent(wabaIdToValidate)}/phone_numbers?access_token=${encodeURIComponent(tokenToValidate)}&limit=100`,
+            );
+            if (!metaRes.ok) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "Credentials WhatsApp invalides. Vérifie ton WABA ID et ton Access Token Meta.",
+              });
+            }
+            const body = (await metaRes.json()) as { data?: Array<{ id: string }> };
+            if (!(body.data ?? []).some((p) => p.id === phoneId)) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "Le Phone Number ID ne correspond pas à ce compte WABA. Vérifie tes identifiants Meta.",
+              });
+            }
+          } else {
+            // Fallback si wabaId absent : valide juste token + phoneId
+            const metaRes = await fetch(
+              `https://graph.facebook.com/v20.0/${encodeURIComponent(phoneId)}?access_token=${encodeURIComponent(tokenToValidate)}`,
+            );
+            if (!metaRes.ok) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "Credentials WhatsApp invalides. Vérifie ton Phone Number ID et ton Access Token Meta.",
+              });
+            }
+          }
+        } catch (err) {
+          if (err instanceof TRPCError) throw err;
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Impossible de contacter l'API Meta. Réessaie dans quelques instants.",
-          });
-        }
-        if (!metaRes.ok) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Credentials WhatsApp invalides. Vérifie ton Phone Number ID et ton Access Token Meta.",
           });
         }
       }
@@ -214,29 +238,36 @@ export const settingsRouter = createTRPCRouter({
     }
     const tenant = await db.tenant.findUnique({
       where: { id: tenantId },
-      select: { metaPhoneNumberId: true, metaAccessToken: true },
+      select: { metaPhoneNumberId: true, metaWabaId: true, metaAccessToken: true },
     });
-    if (!tenant?.metaPhoneNumberId || !tenant?.metaAccessToken) {
+    if (!tenant?.metaPhoneNumberId || !tenant?.metaWabaId || !tenant?.metaAccessToken) {
       throw new TRPCError({
         code: "BAD_REQUEST",
         message: "Configuration incomplète. Enregistrez vos identifiants Meta d'abord.",
       });
     }
-    let metaRes: Response;
     try {
-      metaRes = await fetch(
-        `https://graph.facebook.com/v20.0/${encodeURIComponent(tenant.metaPhoneNumberId)}?access_token=${encodeURIComponent(tenant.metaAccessToken)}`,
+      const metaRes = await fetch(
+        `https://graph.facebook.com/v20.0/${encodeURIComponent(tenant.metaWabaId)}/phone_numbers?access_token=${encodeURIComponent(tenant.metaAccessToken)}&limit=100`,
       );
-    } catch {
+      if (!metaRes.ok) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Credentials WhatsApp invalides. Vérifie ton Phone Number ID et ton Access Token Meta.",
+        });
+      }
+      const body = (await metaRes.json()) as { data?: Array<{ id: string }> };
+      if (!(body.data ?? []).some((p) => p.id === tenant.metaPhoneNumberId)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Le Phone Number ID ne correspond pas à ce compte WABA.",
+        });
+      }
+    } catch (err) {
+      if (err instanceof TRPCError) throw err;
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Impossible de contacter l'API Meta. Réessaie dans quelques instants.",
-      });
-    }
-    if (!metaRes.ok) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Credentials WhatsApp invalides. Vérifie ton Phone Number ID et ton Access Token Meta.",
       });
     }
     return { ok: true };
