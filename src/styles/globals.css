@@ -327,34 +327,51 @@ html {
   color: #fafafa;
 }
 
-/* Aurora: 3 animated gradient blobs */
-.aurora-1 {
-  background: radial-gradient(ellipse 65% 55% at 15% 50%, rgba(124, 58, 237, 0.45) 0%, transparent 70%);
-  animation: aurora-drift-1 14s ease-in-out infinite;
-}
-.aurora-2 {
-  background: radial-gradient(ellipse 55% 50% at 82% 25%, rgba(168, 85, 247, 0.3) 0%, transparent 65%);
-  animation: aurora-drift-2 18s ease-in-out infinite;
-}
-.aurora-3 {
-  background: radial-gradient(ellipse 45% 45% at 50% 90%, rgba(236, 72, 153, 0.2) 0%, transparent 60%);
-  animation: aurora-drift-3 22s ease-in-out infinite;
+/* Grid + Glow — dots + lueur centrale animée style Stripe/Clerk */
+.hero-dot-grid {
+  background-image: radial-gradient(circle, rgba(139, 92, 246, 0.5) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 95% 90% at 50% 45%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.35) 60%, transparent 86%);
+  -webkit-mask-image: radial-gradient(ellipse 95% 90% at 50% 45%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.35) 60%, transparent 86%);
 }
 
-@keyframes aurora-drift-1 {
-  0%, 100% { transform: translate(0%, 0%) scale(1); }
-  33%       { transform: translate(4%, -5%) scale(1.1); }
-  66%       { transform: translate(-3%, 4%) scale(0.93); }
+/* Ambient large et doux — couleur de fond, ne bouge pas */
+.hero-ambient-glow {
+  width: min(640px, 60vw);
+  height: min(440px, 44vw);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(100, 50, 200, 0.2) 0%,
+    transparent 70%
+  );
 }
-@keyframes aurora-drift-2 {
-  0%, 100% { transform: translate(0%, 0%) scale(1); }
-  33%       { transform: translate(-6%, 3%) scale(1.12); }
-  66%       { transform: translate(5%, -3%) scale(0.97); }
+
+/* Spotlight concentré — 280px, traverse le hero de part en part */
+.hero-spot-glow {
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgba(139, 92, 246, 0.7)  0%,
+    rgba(124, 58, 237, 0.3) 40%,
+    transparent              65%
+  );
+  will-change: transform;
+  animation: spot-wander 32s ease-in-out infinite;
 }
-@keyframes aurora-drift-3 {
-  0%, 100% { transform: translate(0%, 0%) scale(1); }
-  50%       { transform: translate(3%, -6%) scale(1.15); }
+
+@keyframes spot-wander {
+  0%   { transform: translate(0,       0);      }
+  14%  { transform: translate(310px, -100px);   }
+  28%  { transform: translate(-170px,   60px);  }
+  42%  { transform: translate(230px,   150px);  }
+  57%  { transform: translate(-260px,  -70px);  }
+  71%  { transform: translate(140px,  -160px);  }
+  85%  { transform: translate( -90px,  110px);  }
+  100% { transform: translate(0,       0);      }
 }
+
 
 /* Gradient text for hero headline */
 .hero-gradient-text {
@@ -425,6 +442,6 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .aurora-1, .aurora-2, .aurora-3 { animation: none !important; }
+  .hero-spot-glow { animation: none !important; }
   .scroll-indicator { animation: none !important; opacity: 0.4; }
 }
