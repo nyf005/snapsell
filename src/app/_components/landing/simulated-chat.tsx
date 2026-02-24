@@ -6,7 +6,7 @@ import { MessageCircle, MoreVertical, Phone, Video, Send, CheckCircle2 } from "l
 
 type Message = {
     id: string;
-    uid: string;
+    uid?: string;
     sender: "user" | "bot";
     text: string;
     delayMs: number;
@@ -115,7 +115,7 @@ export function SimulatedChat() {
 
                 {messages.map((msg) => (
                     <div
-                        key={msg.uid}
+                        key={msg.uid ?? msg.id}
                         className={cn(
                             "max-w-[85%] rounded-[1.1rem] px-3.5 py-2 text-[14px] leading-[1.4] shadow-sm transition-all duration-300 relative z-10",
                             "animate-in fade-in slide-in-from-bottom-3",
