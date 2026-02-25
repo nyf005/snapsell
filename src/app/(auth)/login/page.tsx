@@ -26,8 +26,8 @@ function LoginTabContent() {
   const rawCallback = searchParams.get("callbackUrl") ?? "/dashboard";
   const callbackUrl =
     typeof rawCallback === "string" &&
-    rawCallback.startsWith("/") &&
-    !rawCallback.startsWith("//")
+      rawCallback.startsWith("/") &&
+      !rawCallback.startsWith("//")
       ? rawCallback
       : "/dashboard";
 
@@ -351,16 +351,16 @@ function LoginPageContent() {
 
   return (
     <div className="max-w-[480px] w-full flex flex-col gap-8">
-      <div className="animate-entrance animate-fade-up flex flex-col gap-2" style={{ animationDelay: "100ms" }}>
-        <h2 className="text-2xl font-black tracking-tight text-foreground md:text-3xl">
+      <div className="animate-entrance animate-fade-up flex flex-col gap-3 text-center" style={{ animationDelay: "100ms" }}>
+        <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
           {activeTab === "login"
             ? "Connexion à votre compte"
             : "Créer un compte vendeur"}
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-lg text-muted-foreground/80 md:text-xl">
           {activeTab === "login"
             ? "Bienvenue. Saisissez vos identifiants pour accéder à votre dashboard."
-            : "Rejoignez plus de 10 000 entreprises qui automatisent leurs ventes WhatsApp."}
+            : "Rejoignez plus de 10 000 entreprises qui automatisent leurs ventes."}
         </p>
       </div>
 
@@ -380,22 +380,20 @@ function LoginPageContent() {
         <button
           type="button"
           onClick={() => setTab("login")}
-          className={`relative z-10 flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors duration-200 ${
-            activeTab === "login"
+          className={`relative z-10 flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors duration-200 ${activeTab === "login"
               ? "text-primary-foreground"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           Connexion
         </button>
         <button
           type="button"
           onClick={() => setTab("signup")}
-          className={`relative z-10 flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors duration-200 ${
-            activeTab === "signup"
+          className={`relative z-10 flex-1 rounded-lg py-2.5 text-sm font-semibold transition-colors duration-200 ${activeTab === "signup"
               ? "text-primary-foreground"
               : "text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           Créer un compte
         </button>
