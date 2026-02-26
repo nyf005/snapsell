@@ -14,6 +14,7 @@
     "postinstall": "prisma generate",
     "preview": "next build && next start",
     "start": "next start",
+    "lint": "npm run typecheck",
     "test": "vitest run",
     "test:ui": "vitest run --config vitest.config.ui.ts",
     "typecheck": "tsc --noEmit",

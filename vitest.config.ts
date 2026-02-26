@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts", "src/**/*.spec.ts"],
-    setupFiles: ["dotenv/config"],
+    setupFiles: ["./vitest.setup.env.ts"],
   },
   resolve: {
     alias: {

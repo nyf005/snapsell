@@ -48,6 +48,7 @@ export const env = createEnv({
     PAYSTACK_PLAN_STARTER: z.string().min(1).optional(),
     PAYSTACK_PLAN_PRO: z.string().min(1).optional(),
     // Meta WhatsApp Cloud API (Story 10.1)
+    META_APP_ID: z.string().min(1).optional(),
     META_APP_SECRET: z.string().min(1).optional(),
     META_VERIFY_TOKEN: z.string().min(1).optional(),
   },
@@ -60,6 +61,8 @@ export const env = createEnv({
   client: {
     // Optional at build time (Vercel). Accept any string so build never fails; app uses fallbacks (url.origin / localhost).
     NEXT_PUBLIC_APP_URL: z.string().optional(),
+    NEXT_PUBLIC_META_APP_ID: z.string().optional(),
+    NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID: z.string().optional(),
   },
 
   /**
@@ -87,9 +90,13 @@ export const env = createEnv({
     PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY,
     PAYSTACK_PLAN_STARTER: process.env.PAYSTACK_PLAN_STARTER,
     PAYSTACK_PLAN_PRO: process.env.PAYSTACK_PLAN_PRO,
+    META_APP_ID: process.env.META_APP_ID,
     META_APP_SECRET: process.env.META_APP_SECRET,
     META_VERIFY_TOKEN: process.env.META_VERIFY_TOKEN,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_META_APP_ID: process.env.NEXT_PUBLIC_META_APP_ID,
+    NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID:
+      process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

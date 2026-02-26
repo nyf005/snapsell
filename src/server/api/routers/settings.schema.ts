@@ -36,6 +36,13 @@ export const setMetaConfigInputSchema = z.object({
   metaAccessToken: nullableStringTrimmed,
 });
 
+export const connectWhatsAppEmbeddedInputSchema = z.object({
+  code: z.string().trim().min(1, "Le code OAuth est requis").max(4096),
+});
+
 export type CategoryPriceItemInput = z.infer<typeof categoryPriceItemSchema>;
 export type SetCategoryPricesInput = z.infer<typeof setCategoryPricesInputSchema>;
 export type SetMetaConfigInput = z.infer<typeof setMetaConfigInputSchema>;
+export type ConnectWhatsAppEmbeddedInput = z.infer<
+  typeof connectWhatsAppEmbeddedInputSchema
+>;

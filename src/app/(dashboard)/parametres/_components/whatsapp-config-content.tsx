@@ -8,6 +8,12 @@ import { cn } from "~/lib/utils";
 
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import {
+  extractOAuthCodeFromMetaLoginResponse,
+  getMetaEmbeddedSignupErrorMessage,
+  loadMetaEmbeddedSignupSdk,
+  startMetaEmbeddedSignup,
+} from "~/app/(dashboard)/parametres/_components/meta-embedded-signup-sdk";
+import {
   Alert,
   AlertDescription,
 } from "~/components/ui/alert";
@@ -36,6 +42,10 @@ export function WhatsAppConfigContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [newSellerPhone, setNewSellerPhone] = useState("");
   const [sellerPhoneError, setSellerPhoneError] = useState<string | null>(null);
+  const [embeddedSignupState, setEmbeddedSignupState] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+  const [embeddedSignupError, setEmbeddedSignupError] = useState<string | null>(null);
 
   const utils = api.useUtils();
   const { data, isLoading } = api.settings.getWhatsAppConfig.useQuery();
@@ -72,13 +82,20 @@ export function WhatsAppConfigContent() {
     },
     onError: (e) => setSaveError(e.message),
   });
+  const connectEmbedded = api.settings.connectWhatsAppEmbedded.useMutation({
+    onSuccess: () => {
+      void utils.settings.getWhatsAppConfig.invalidate();
+    },
+  });
 
   const serverPhoneNumberId = data?.metaPhoneNumberId ?? null;
   const serverWabaId = data?.metaWabaId ?? null;
   const serverHasToken = data?.hasAccessToken ?? false;
+  const canShowReconnect =
+    serverPhoneNumberId != null && serverPhoneNumberId !== "" && serverHasToken;
 
   const isConnected =
-    serverPhoneNumberId != null && serverPhoneNumberId !== "" &&
+    canShowReconnect &&
     serverWabaId != null && serverWabaId !== "" &&
     serverHasToken;
 
@@ -91,6 +108,9 @@ export function WhatsAppConfigContent() {
 
   const step1Done = fieldsComplete;
   const step2Done = isConnected;
+  const embeddedCtaLabel = canShowReconnect
+    ? "Reconnecter via Meta (recommandé)"
+    : "Connecter WhatsApp Business";
 
   const hasInitialSync = useRef(false);
 
@@ -132,6 +152,64 @@ export function WhatsAppConfigContent() {
   }, [newSellerPhone, addSellerPhone]);
 
   const PLACEHOLDER = "+33612345678";
+  const metaAppId = process.env.NEXT_PUBLIC_META_APP_ID ?? "";
+  const metaEmbeddedConfigId =
+    process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID ?? "";
+  const isEmbeddedSignupEnabled =
+    process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED === "true";
+
+  const handleEmbeddedSignup = useCallback(async () => {
+    setEmbeddedSignupError(null);
+    setEmbeddedSignupState("loading");
+
+    if (!isEmbeddedSignupEnabled) {
+      setEmbeddedSignupState("error");
+      setEmbeddedSignupError(
+        "Embedded Signup Meta n'est disponible que pour les comptes BSP/Tech Provider.",
+      );
+      return;
+    }
+
+    if (!metaAppId.trim()) {
+      setEmbeddedSignupState("error");
+      setEmbeddedSignupError(
+        "Configuration manquante: NEXT_PUBLIC_META_APP_ID est requis.",
+      );
+      return;
+    }
+    if (!metaEmbeddedConfigId.trim()) {
+      setEmbeddedSignupState("error");
+      setEmbeddedSignupError(
+        "Configuration manquante: NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID est requis.",
+      );
+      return;
+    }
+
+    try {
+      const sdk = await loadMetaEmbeddedSignupSdk(metaAppId);
+      const loginResponse = await startMetaEmbeddedSignup(sdk, metaEmbeddedConfigId);
+      const code = extractOAuthCodeFromMetaLoginResponse(loginResponse);
+
+      if (!code) {
+        throw new Error(
+          getMetaEmbeddedSignupErrorMessage(
+            loginResponse,
+            "Aucun code OAuth recu depuis Meta. Veuillez reessayer.",
+          ),
+        );
+      }
+
+      await connectEmbedded.mutateAsync({ code });
+      setEmbeddedSignupState("success");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erreur inattendue pendant la connexion Meta.";
+      setEmbeddedSignupError(message);
+      setEmbeddedSignupState("error");
+    }
+  }, [connectEmbedded, isEmbeddedSignupEnabled, metaAppId, metaEmbeddedConfigId]);
 
   return (
     <>
@@ -159,10 +237,10 @@ export function WhatsAppConfigContent() {
             </p>
           </div>
           <Badge
-            variant={isConnected ? "success" : "destructive"}
+            variant={canShowReconnect ? "success" : "destructive"}
             className="py-1.5 text-sm"
           >
-            {isConnected ? (
+            {canShowReconnect ? (
               <>
                 <span className="size-2 rounded-full bg-success" />
                 Connecté
@@ -187,6 +265,72 @@ export function WhatsAppConfigContent() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
+            <div className="mb-6 rounded-lg border border-border bg-muted/40 p-4">
+              {canShowReconnect ? (
+                <div className="mb-3 rounded-md border border-primary/20 bg-primary/5 p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-foreground">
+                      Reconnexion recommandée
+                    </p>
+                    <Badge variant="success">Connecté</Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Numéro actuellement connecté:{" "}
+                    <span className="font-mono text-foreground">{serverPhoneNumberId}</span>
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Reconnecter via Meta permet le renouvellement automatique du token et réduit la configuration manuelle, sans interruption de service.
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-foreground">
+                    Connexion guidee (Meta Embedded Signup)
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Ouvre le popup Meta sans quitter SnapSell. Les champs manuels restent disponibles juste en dessous.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => void handleEmbeddedSignup()}
+                  disabled={
+                    !isEmbeddedSignupEnabled ||
+                    embeddedSignupState === "loading" ||
+                    connectEmbedded.isPending
+                  }
+                  className="font-semibold"
+                >
+                  {embeddedSignupState === "loading" || connectEmbedded.isPending
+                    ? "Ouverture Meta…"
+                    : embeddedCtaLabel}
+                </Button>
+              </div>
+              {!isEmbeddedSignupEnabled && (
+                <Alert className="mt-3 border-dashed bg-muted/60">
+                  <AlertDescription>
+                    L&apos;Embedded Signup est actuellement desactive. Activez-le seulement
+                    quand votre compte Meta est valide en tant que BSP/Tech Provider.
+                  </AlertDescription>
+                </Alert>
+              )}
+              {embeddedSignupState === "success" && (
+                <Alert className="mt-3 border-success/50 bg-success/10 text-success [&>svg]:text-success">
+                  <AlertDescription>
+                    {canShowReconnect
+                      ? "Reconnexion Meta terminee. Les identifiants WhatsApp ont ete mis a jour."
+                      : "Code OAuth recu et transmis au backend SnapSell."}
+                  </AlertDescription>
+                </Alert>
+              )}
+              {embeddedSignupError && (
+                <Alert variant="destructive" className="mt-3">
+                  <AlertDescription>{embeddedSignupError}</AlertDescription>
+                </Alert>
+              )}
+            </div>
             <div className="grid gap-8 md:grid-cols-12">
               {/* Étapes (gauche) */}
               <div className="flex flex-col md:col-span-4">
@@ -327,7 +471,7 @@ export function WhatsAppConfigContent() {
                   </p>
                 </div>
 
-                <div className="pt-2">
+                <div className="flex flex-wrap items-center gap-3 pt-2">
                   <Button
                     type="button"
                     variant="secondary"
@@ -341,13 +485,49 @@ export function WhatsAppConfigContent() {
                     <Zap className="size-4" />
                     {testConnection.isPending ? "Test en cours…" : "Tester la connexion"}
                   </Button>
+                  {isLocked ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsEditing(true)}
+                      className="font-semibold"
+                    >
+                      Modifier les identifiants
+                    </Button>
+                  ) : (
+                    <>
+                      {isConnected && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleCancel}
+                          className="font-semibold"
+                        >
+                          Annuler
+                        </Button>
+                      )}
+                      <Button
+                        type="button"
+                        onClick={handleSave}
+                        disabled={setConfig.isPending || isLoading}
+                        className="font-semibold shadow-lg shadow-primary/20"
+                      >
+                        {setConfig.isPending
+                          ? "Enregistrement…"
+                          : isConnected
+                            ? "Mettre à jour"
+                            : "Connecter"}
+                      </Button>
+                    </>
+                  )}
                 </div>
 
                 <Alert className="border-dashed bg-muted/50">
                   <Info className="size-4 text-primary" />
                   <AlertDescription className="text-xs leading-relaxed">
                     Retrouvez ces identifiants dans votre{" "}
-                    <strong>Meta Business Suite → WhatsApp → Configuration API</strong>.
+                    <strong>Meta Business Suite → WhatsApp → Configuration API</strong>
+                    {" "}
                     Le Phone Number ID et le WABA ID se trouvent dans les paramètres
                     de votre numéro WhatsApp Business. L&apos;Access Token se génère
                     depuis les paramètres de votre application Meta.
@@ -495,43 +675,7 @@ export function WhatsAppConfigContent() {
           </Alert>
         )}
 
-        <div className="flex justify-end gap-3 pb-12">
-          {isLocked ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsEditing(true)}
-              className="font-semibold"
-            >
-              Modifier les identifiants
-            </Button>
-          ) : (
-            <>
-              {isConnected && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                  className="font-semibold"
-                >
-                  Annuler
-                </Button>
-              )}
-              <Button
-                type="button"
-                onClick={handleSave}
-                disabled={setConfig.isPending || isLoading}
-                className="font-semibold shadow-lg shadow-primary/20"
-              >
-                {setConfig.isPending
-                  ? "Enregistrement…"
-                  : isConnected
-                    ? "Mettre à jour"
-                    : "Connecter"}
-              </Button>
-            </>
-          )}
-        </div>
+        <div className="pb-12" />
       </div>
     </>
   );

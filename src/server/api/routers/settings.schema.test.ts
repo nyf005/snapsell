@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import {
+  connectWhatsAppEmbeddedInputSchema,
   setMetaConfigInputSchema,
 } from "~/server/api/routers/settings.schema";
 
@@ -58,5 +59,22 @@ describe("setMetaConfigInputSchema", () => {
     expect(out.metaPhoneNumberId).toBe("123");
     expect(out.metaWabaId).toBeNull();
     expect(out.metaAccessToken).toBeNull();
+  });
+});
+
+describe("connectWhatsAppEmbeddedInputSchema", () => {
+  it("accepts and trims OAuth code", () => {
+    const out = connectWhatsAppEmbeddedInputSchema.parse({
+      code: "  abc123  ",
+    });
+    expect(out.code).toBe("abc123");
+  });
+
+  it("rejects empty OAuth code", () => {
+    expect(() =>
+      connectWhatsAppEmbeddedInputSchema.parse({
+        code: "   ",
+      }),
+    ).toThrow();
   });
 });

@@ -15,6 +15,8 @@
  *   - DATABASE_URL: URL de connexion PostgreSQL directe (Neon, non-pooler)
  */
 
+import "./runtime-env";
+
 import { boss, ensureQueues } from "~/server/workers/queues";
 import { startWebhookProcessorWorker } from "~/server/workers/webhook-processor";
 import { startOutboxSenderWorker } from "~/server/workers/outbox-sender";

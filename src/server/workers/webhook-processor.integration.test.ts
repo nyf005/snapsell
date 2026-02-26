@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
-import PgBoss from "pg-boss";
+import { PgBoss } from "pg-boss";
 import { processWebhookJob } from "./webhook-processor";
 import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types";
 import { db } from "~/server/db";
@@ -179,9 +179,14 @@ describe.skipIf(!shouldRunIntegrationTests)(
 
         void testBoss.work<InboundMessage>(
           queueName,
-          { batchSize: 1, localConcurrency: 1 },
-          async (job) => {
+          { localConcurrency: 1 },
+          async (jobs: PgBossJob<InboundMessage>[]) => {
             clearTimeout(timeout);
+            const job = jobs[0];
+            if (!job) {
+              reject(new Error("No job received from pg-boss worker"));
+              return;
+            }
             const enriched = await processWebhookJob(job);
             resolve(enriched);
           },
@@ -217,9 +222,14 @@ describe.skipIf(!shouldRunIntegrationTests)(
 
         void testBoss.work<InboundMessage>(
           queueName,
-          { batchSize: 1, localConcurrency: 1 },
-          async (job) => {
+          { localConcurrency: 1 },
+          async (jobs: PgBossJob<InboundMessage>[]) => {
             clearTimeout(timeout);
+            const job = jobs[0];
+            if (!job) {
+              reject(new Error("No job received from pg-boss worker"));
+              return;
+            }
             const enriched = await processWebhookJob(job);
             resolve(enriched);
           },

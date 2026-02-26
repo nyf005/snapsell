@@ -7,12 +7,15 @@ import { createTRPCContext } from "~/server/api/trpc";
 const mockTenantFindUnique = vi.hoisted(() => vi.fn());
 const mockTenantFindFirst = vi.hoisted(() => vi.fn());
 const mockTenantUpdate = vi.hoisted(() => vi.fn());
+const mockSellerPhoneUpsert = vi.hoisted(() => vi.fn());
+const mockDbTransaction = vi.hoisted(() => vi.fn());
 const mockFetch = vi.hoisted(() => vi.fn());
 
 vi.stubGlobal("fetch", mockFetch);
 
 vi.mock("~/server/db", () => ({
   db: {
+    $transaction: mockDbTransaction,
     tenant: {
       findUnique: mockTenantFindUnique,
       findFirst: mockTenantFindFirst,
@@ -23,12 +26,27 @@ vi.mock("~/server/db", () => ({
       deleteMany: vi.fn(),
       upsert: vi.fn(),
     },
+    sellerPhone: {
+      upsert: mockSellerPhoneUpsert,
+    },
   },
 }));
+
+function setupTransactionMock() {
+  mockDbTransaction.mockImplementation(async (fn: any) =>
+    fn({
+      tenant: { update: mockTenantUpdate },
+      sellerPhone: {
+        upsert: mockSellerPhoneUpsert,
+      },
+    }),
+  );
+}
 
 describe("settings router — setWhatsAppConfig (Meta)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setupTransactionMock();
   });
 
   const ownerSession = {
@@ -248,6 +266,7 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
 describe("settings router — getWhatsAppConfig (Meta)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setupTransactionMock();
   });
 
   const ownerSession = {
@@ -315,6 +334,7 @@ describe("settings router — getWhatsAppConfig (Meta)", () => {
 describe("settings router — testWhatsAppConnection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setupTransactionMock();
   });
 
   const ownerSession = {
@@ -414,5 +434,301 @@ describe("settings router — testWhatsAppConnection", () => {
       code: "FORBIDDEN",
     });
     expect(mockFetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("settings router — connectWhatsAppEmbedded", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setupTransactionMock();
+    process.env.META_APP_ID = "test-meta-app-id";
+    process.env.META_APP_SECRET = "test-meta-app-secret";
+  });
+
+  const ownerSession = {
+    user: { id: "user-1", email: "owner@example.com", tenantId: "tenant-1", role: "OWNER" },
+  };
+  const agentSession = {
+    user: { id: "user-2", email: "agent@example.com", tenantId: "tenant-1", role: "AGENT" },
+  };
+
+  async function makeCaller(session: any) {
+    const ctx = await createTRPCContext({ headers: new Headers(), session: session as any });
+    return createCaller(ctx);
+  }
+
+  function mockMetaExchangeSuccess() {
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ access_token: "short-lived-token" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ access_token: "long-lived-token" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: [{ id: "biz-123" }],
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: [{ id: "sys-user-123", name: "SnapSell Embedded Signup" }],
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            access_token: "system-user-token",
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: {
+              is_valid: true,
+              scopes: ["whatsapp_business_management", "whatsapp_business_messaging"],
+            },
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: [
+              {
+                id: "waba-123",
+                phone_numbers: [{ id: "phone-123", display_phone_number: "33612345678" }],
+              },
+            ],
+          }),
+      });
+  }
+
+  it("connecte WhatsApp Embedded pour OWNER et persiste les credentials resolves", async () => {
+    mockMetaExchangeSuccess();
+    mockTenantUpdate.mockResolvedValue({});
+    mockSellerPhoneUpsert.mockResolvedValue({
+      id: "sp-1",
+      tenantId: "tenant-1",
+      phoneNumber: "+33612345678",
+    });
+
+    const caller = await makeCaller(ownerSession);
+    const result = await caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-success" });
+
+    expect(result).toEqual({ ok: true });
+    expect(mockFetch).toHaveBeenCalledTimes(7);
+    expect(mockTenantUpdate).toHaveBeenCalledWith({
+      where: { id: "tenant-1" },
+      data: {
+        metaPhoneNumberId: "phone-123",
+        metaWabaId: "waba-123",
+        metaAccessToken: "system-user-token",
+      },
+    });
+    expect(mockSellerPhoneUpsert).toHaveBeenCalledWith({
+      where: {
+        tenantId_phoneNumber: {
+          tenantId: "tenant-1",
+          phoneNumber: "+33612345678",
+        },
+      },
+      create: {
+        tenantId: "tenant-1",
+        phoneNumber: "+33612345678",
+      },
+      update: {},
+    });
+  });
+
+  it("rejette un code OAuth invalide/expire avec BAD_REQUEST", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+      json: () =>
+        Promise.resolve({
+          error: {
+            message: "Invalid verification code format.",
+            type: "OAuthException",
+            code: 100,
+          },
+        }),
+    });
+
+    const caller = await makeCaller(ownerSession);
+    await expect(
+      caller.settings.connectWhatsAppEmbedded({ code: "expired-or-invalid" }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+
+    expect(mockTenantUpdate).not.toHaveBeenCalled();
+  });
+
+  it("rejette permissions manquantes avec BAD_REQUEST", async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ access_token: "short-lived-token" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ access_token: "long-lived-token" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: [{ id: "biz-123" }],
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: [{ id: "sys-user-123", name: "SnapSell Embedded Signup" }],
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            access_token: "system-user-token",
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: {
+              is_valid: true,
+              scopes: ["public_profile"],
+            },
+          }),
+      });
+
+    const caller = await makeCaller(ownerSession);
+    await expect(
+      caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-perm" }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+
+    expect(mockTenantUpdate).not.toHaveBeenCalled();
+  });
+
+  it("rejette conflit unicite metaPhoneNumberId avec CONFLICT", async () => {
+    mockMetaExchangeSuccess();
+    mockTenantUpdate.mockRejectedValue({ code: "P2002" });
+
+    const caller = await makeCaller(ownerSession);
+    await expect(
+      caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-conflict" }),
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+
+    expect(mockTenantUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  it("n ajoute pas de doublon seller phone si le numero existe deja", async () => {
+    mockMetaExchangeSuccess();
+    mockTenantUpdate.mockResolvedValue({});
+    mockSellerPhoneUpsert.mockResolvedValue({
+      id: "sp-1",
+      tenantId: "tenant-1",
+      phoneNumber: "+33612345678",
+    });
+
+    const caller = await makeCaller(ownerSession);
+    const result = await caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-existing" });
+
+    expect(result).toEqual({ ok: true });
+    expect(mockSellerPhoneUpsert).toHaveBeenCalledTimes(1);
+  });
+
+  it("echoue avec INTERNAL_SERVER_ERROR si numero business non normalisable", async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ access_token: "short-lived-token" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ access_token: "long-lived-token" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: [{ id: "biz-123" }],
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: [{ id: "sys-user-123", name: "SnapSell Embedded Signup" }],
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            access_token: "system-user-token",
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: {
+              is_valid: true,
+              scopes: ["whatsapp_business_management", "whatsapp_business_messaging"],
+            },
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: [
+              {
+                id: "waba-123",
+                phone_numbers: [{ id: "phone-123", display_phone_number: "invalid_phone" }],
+              },
+            ],
+          }),
+      });
+
+    const caller = await makeCaller(ownerSession);
+    await expect(
+      caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-invalid-phone" }),
+    ).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR" });
+
+    expect(mockTenantUpdate).not.toHaveBeenCalled();
+    expect(mockSellerPhoneUpsert).not.toHaveBeenCalled();
+  });
+
+
+  it("rejette reutilisation du meme code OAuth pour le meme tenant", async () => {
+    mockMetaExchangeSuccess();
+    mockTenantUpdate.mockResolvedValue({});
+
+    const caller = await makeCaller(ownerSession);
+    await caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-replay" });
+
+    await expect(
+      caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-replay" }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("rejects AGENT role with FORBIDDEN", async () => {
+    const caller = await makeCaller(agentSession);
+    await expect(
+      caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-agent" }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 });

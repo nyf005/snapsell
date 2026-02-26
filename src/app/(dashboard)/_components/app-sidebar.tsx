@@ -2,13 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import * as React from "react";
 
 import {
   CheckCircle2,
-  ChevronDown,
-  ChevronRight,
   CreditCard,
   Grid3X3,
   LayoutDashboard,
@@ -48,57 +45,107 @@ type MenuItem = {
 
 type MenuGroup = {
   label: string;
+  section: "Opérations" | "Ventes" | "Pilotage" | "Configuration";
   items: MenuItem[];
   requiresGridRole?: boolean;
   mainItem?: MenuItem; // Item principal du groupe (si différent du premier item)
 };
 
+type VisibleMenuGroup = Omit<MenuGroup, "items"> & {
+  items: MenuItem[];
+};
+
 const menuGroups: MenuGroup[] = [
   {
     label: "Principal",
+    section: "Opérations",
     items: [
       { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
     ],
   },
   {
-    label: "Commandes",
-    mainItem: { href: "/dashboard/orders", label: "Commandes", icon: ShoppingCart },
-    items: [
-      { href: "/dashboard/orders", label: "Liste des commandes", icon: ShoppingCart },
-      { href: "/dashboard/proofs", label: "Preuves", icon: CheckCircle2 },
-    ],
-  },
-  {
     label: "Catalogue",
+    section: "Opérations",
     items: [
       { href: "/dashboard/catalogue", label: "Catalogue", icon: PackageOpen },
     ],
   },
   {
     label: "Sessions Live",
+    section: "Opérations",
     items: [
       { href: "/dashboard/live", label: "Sessions Live", icon: Radio },
     ],
   },
   {
+    label: "Liste des commandes",
+    section: "Ventes",
+    items: [
+      { href: "/dashboard/orders", label: "Liste des commandes", icon: ShoppingCart },
+    ],
+  },
+  {
+    label: "Preuves",
+    section: "Ventes",
+    items: [
+      { href: "/dashboard/proofs", label: "Preuves", icon: CheckCircle2 },
+    ],
+  },
+  {
     label: "Journal d'événements",
+    section: "Pilotage",
     items: [
       { href: "/dashboard/audit", label: "Journal d'événements", icon: ScrollText },
     ],
   },
   {
-    label: "Paramètres",
+    label: "Grille de prix",
+    section: "Configuration",
     requiresGridRole: true,
-    mainItem: { href: "/parametres", label: "Paramètres", icon: Settings, requiresGridRole: true },
     items: [
       { href: "/parametres", label: "Grille de prix", icon: Grid3X3, requiresGridRole: true },
+    ],
+  },
+  {
+    label: "Frais de livraison",
+    section: "Configuration",
+    requiresGridRole: true,
+    items: [
       { href: "/parametres/livraison", label: "Frais de livraison", icon: Package, requiresGridRole: true },
+    ],
+  },
+  {
+    label: "Connexion WhatsApp",
+    section: "Configuration",
+    requiresGridRole: true,
+    items: [
       { href: "/parametres/whatsapp", label: "Connexion WhatsApp", icon: MessageCircle, requiresGridRole: true },
+    ],
+  },
+  {
+    label: "Équipe",
+    section: "Configuration",
+    requiresGridRole: true,
+    items: [
       { href: "/parametres/team", label: "Équipe", icon: Users, requiresGridRole: true },
+    ],
+  },
+  {
+    label: "Abonnement",
+    section: "Configuration",
+    requiresGridRole: true,
+    items: [
       { href: "/parametres/abonnement", label: "Abonnement", icon: CreditCard, requiresGridRole: true },
     ],
   },
 ];
+
+const sectionOrder = [
+  "Opérations",
+  "Ventes",
+  "Pilotage",
+  "Configuration",
+] as const;
 
 type AppSidebarProps = {
   userName: string;
@@ -112,7 +159,6 @@ export function AppSidebar({
   canManageGrid,
 }: AppSidebarProps) {
   const pathname = usePathname();
-  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
 
   const isItemActive = (href: string, exactMatch = false) => {
     if (href === "/dashboard") {
@@ -124,48 +170,117 @@ export function AppSidebar({
     return pathname === href || pathname.startsWith(href + "/");
   };
 
-  const isGroupActive = (group: MenuGroup) => {
-    return group.items.some((item) => isItemActive(item.href));
-  };
-
   // Vérifier si un sous-item est actif dans un groupe
-  const hasActiveSubItem = (group: MenuGroup, subMenuItems: MenuItem[]) => {
+  const hasActiveSubItem = (subMenuItems: MenuItem[]) => {
     return subMenuItems.some((item) => isItemActive(item.href, true));
   };
 
-  const toggleGroup = (groupLabel: string) => {
-    setOpenGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(groupLabel)) {
-        next.delete(groupLabel);
-      } else {
-        next.add(groupLabel);
-      }
-      return next;
-    });
-  };
+  const visibleMenuGroups = React.useMemo<VisibleMenuGroup[]>(() => {
+    return menuGroups
+      .filter((group) => !group.requiresGridRole || canManageGrid)
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => !item.requiresGridRole || canManageGrid),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [canManageGrid]);
 
-  // Ouvrir automatiquement les groupes qui ont un item actif
-  React.useEffect(() => {
-    menuGroups.forEach((group) => {
-      const active = group.items.some((item) => {
-        if (item.href === "/dashboard") return pathname === "/dashboard";
-        return pathname === item.href || pathname.startsWith(item.href + "/");
-      });
-      if (active) {
-        setOpenGroups((prev) => new Set(prev).add(group.label));
-      }
-    });
-  }, [pathname]);
+  const renderGroup = (group: VisibleMenuGroup) => {
+    if (group.items.length === 1) {
+      const item = group.items[0]!;
+      const isActive = isItemActive(item.href);
+      const Icon = item.icon;
+      return (
+        <SidebarGroup key={group.label} className="py-0">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive}
+                  tooltip={item.label}
+                  className="h-10 rounded-md"
+                >
+                  <Link href={item.href}>
+                    <Icon className="size-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      );
+    }
+
+    const mainItem =
+      group.mainItem && (!group.mainItem.requiresGridRole || canManageGrid)
+        ? group.mainItem
+        : group.items[0]!;
+    const MainIcon = mainItem.icon;
+    const subMenuItems = group.mainItem ? group.items : group.items.slice(1);
+
+    const hasActiveSub = hasActiveSubItem(subMenuItems);
+    const mainItemActive = hasActiveSub || isItemActive(mainItem.href, true);
+
+    return (
+      <SidebarGroup key={group.label} className="py-0">
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <div className="flex w-full flex-col">
+                <div className="flex w-full items-center">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={mainItemActive}
+                    tooltip={mainItem.label}
+                    className="h-10 flex-1 rounded-md"
+                  >
+                    <Link href={mainItem.href}>
+                      <MainIcon className="size-4" />
+                      <span>{mainItem.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </div>
+                {subMenuItems.length > 0 && (
+                  <div className="ml-4 mt-1 space-y-0.5 px-2 py-1 group-data-[collapsible=icon]:hidden">
+                    {subMenuItems.map((item) => {
+                      const isActive = isItemActive(item.href, true);
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={cn(
+                            "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+                            "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                            isActive &&
+                              "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
+                          )}
+                        >
+                          <Icon className="size-4" />
+                          <span>{item.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border px-2 py-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard" className="flex items-center gap-3">
-                <SnapSellLogo className="!size-8 shrink-0 shadow-lg" />
+            <SidebarMenuButton size="lg" asChild className="h-auto rounded-md p-3">
+              <Link href="/dashboard" className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
+                <SnapSellLogo className="!size-8 shrink-0" />
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-bold">
                     Snap<span className="text-primary">Sell</span>
@@ -180,126 +295,29 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <div className="flex flex-col gap-1">
-          {menuGroups.map((group) => {
-            // Filtrer les groupes selon les permissions
-            if (group.requiresGridRole && !canManageGrid) {
+        <div className="flex flex-col pb-2 pt-3">
+          {sectionOrder.map((section) => {
+            const groupsInSection = visibleMenuGroups.filter((group) => group.section === section);
+            if (groupsInSection.length === 0) {
               return null;
             }
-
-            // Filtrer les items selon les permissions
-            const visibleItems = group.items.filter(
-              (item) => !item.requiresGridRole || canManageGrid
-            );
-
-            if (visibleItems.length === 0) {
-              return null;
-            }
-
-            // Si un seul item, afficher directement sans dropdown
-            if (visibleItems.length === 1) {
-              const item = visibleItems[0]!;
-              const isActive = isItemActive(item.href);
-              const Icon = item.icon;
-              return (
-                <SidebarGroup key={group.label} className="py-0">
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
-                          <Link href={item.href}>
-                            <Icon className="size-4" />
-                            <span>{item.label}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </SidebarGroup>
-              );
-            }
-
-            // Plusieurs items = groupe avec sous-menu déroulant
-            const groupActive = isGroupActive(group);
-            const isOpen = openGroups.has(group.label);
-            // Utiliser mainItem si défini, sinon le premier item
-            const mainItem = group.mainItem && (!group.mainItem.requiresGridRole || canManageGrid)
-              ? group.mainItem
-              : visibleItems[0]!;
-            const MainIcon = mainItem.icon;
-            // Si mainItem est défini, tous les items sont dans le sous-menu, sinon on exclut le premier
-            const subMenuItems = group.mainItem ? visibleItems : visibleItems.slice(1);
-
-            // Le bouton principal est actif si un sous-item est actif OU si on est exactement sur sa route
-            const hasActiveSub = hasActiveSubItem(group, subMenuItems);
-            const mainItemActive = hasActiveSub || isItemActive(mainItem.href, true);
 
             return (
-              <SidebarGroup key={group.label} className="py-0">
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    <SidebarMenuItem>
-                      <div className="flex flex-col w-full">
-                        <div className="flex w-full items-center">
-                          <SidebarMenuButton
-                            asChild
-                            isActive={mainItemActive}
-                            tooltip={mainItem.label}
-                            className="flex-1"
-                          >
-                            <Link href={mainItem.href}>
-                              <MainIcon className="size-4" />
-                              <span>{mainItem.label}</span>
-                            </Link>
-                          </SidebarMenuButton>
-                          <button
-                            className="flex items-center justify-center w-8 h-8 rounded-md hover:bg-sidebar-accent text-sidebar-foreground/70 hover:text-sidebar-accent-foreground transition-colors group-data-[collapsible=icon]:hidden"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleGroup(group.label);
-                            }}
-                            aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
-                          >
-                            {isOpen ? (
-                              <ChevronDown className="size-4" />
-                            ) : (
-                              <ChevronRight className="size-4" />
-                            )}
-                          </button>
-                        </div>
-                        {isOpen && subMenuItems.length > 0 && (
-                          <div className="ml-4 mt-1 space-y-0.5 border-l border-sidebar-border pl-3 group-data-[collapsible=icon]:hidden">
-                            {subMenuItems.map((item) => {
-                              const isActive = isItemActive(item.href, true);
-                              const Icon = item.icon;
-                              return (
-                                <Link
-                                  key={item.href}
-                                  href={item.href}
-                                  className={cn(
-                                    "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
-                                    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                                    isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                                  )}
-                                >
-                                  <Icon className="size-4" />
-                                  <span>{item.label}</span>
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </SidebarMenuItem>
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
+              <div key={section} className="px-2 pt-3 first:pt-1">
+                <div className="mb-1 px-2 group-data-[collapsible=icon]:sr-only">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {section}
+                  </p>
+                </div>
+                <div className="space-y-0.5">
+                  {groupsInSection.map((group) => renderGroup(group))}
+                </div>
+              </div>
             );
           })}
         </div>
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border">
+      <SidebarFooter className="border-t border-sidebar-border px-2 py-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex w-full items-center gap-2 rounded-md p-2">

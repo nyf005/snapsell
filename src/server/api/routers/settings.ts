@@ -2,15 +2,29 @@ import { TRPCError } from "@trpc/server";
 import { Prisma } from "../../../../generated/prisma";
 
 import { canManageGrid } from "~/lib/rbac";
+import { normalizeAndValidatePhoneNumber } from "~/lib/validations/phone";
+import { workerLogger } from "~/lib/logger";
 import { db } from "~/server/db";
 import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
 import {
+  connectWhatsAppEmbeddedInputSchema,
   setCategoryPricesInputSchema,
   setMetaConfigInputSchema,
 } from "./settings.schema";
+import {
+  MetaEmbeddedSignupError,
+  resolveMetaEmbeddedSignupCredentials,
+} from "~/server/messaging/providers/meta/embedded-signup";
+import { env } from "~/env";
+
+function normalizeMetaBusinessPhoneToE164(metaDisplayPhone: string): string {
+  const cleaned = metaDisplayPhone.replace(/[^\d+]/g, "");
+  const withPlus = cleaned.startsWith("+") ? cleaned : `+${cleaned}`;
+  return normalizeAndValidatePhoneNumber(withPlus);
+}
 
 export const settingsRouter = createTRPCRouter({
   getCategoryPrices: protectedProcedure.query(async ({ ctx }) => {
@@ -272,4 +286,115 @@ export const settingsRouter = createTRPCRouter({
     }
     return { ok: true };
   }),
+
+  connectWhatsAppEmbedded: protectedProcedure
+    .input(connectWhatsAppEmbeddedInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      if (!canManageGrid(ctx.session.user.role as string)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Seuls Owner et Manager peuvent connecter WhatsApp via Meta.",
+        });
+      }
+      const tenantId = ctx.session.user.tenantId;
+      if (tenantId == null || tenantId === "") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Tenant non identifié.",
+        });
+      }
+
+      const appId = env.META_APP_ID ?? process.env.META_APP_ID;
+      const appSecret = env.META_APP_SECRET ?? process.env.META_APP_SECRET;
+
+      try {
+        const credentials = await resolveMetaEmbeddedSignupCredentials({
+          tenantId,
+          code: input.code,
+          appId: appId ?? "",
+          appSecret: appSecret ?? "",
+        });
+
+        const normalizedBusinessPhone = normalizeMetaBusinessPhoneToE164(
+          credentials.businessPhoneNumber,
+        );
+
+        await db.$transaction(async (tx) => {
+          await tx.tenant.update({
+            where: { id: tenantId },
+            data: {
+              metaPhoneNumberId: credentials.phoneNumberId,
+              metaWabaId: credentials.wabaId,
+              metaAccessToken: credentials.accessToken,
+            },
+          });
+
+          await tx.sellerPhone.upsert({
+            where: {
+              tenantId_phoneNumber: {
+                tenantId,
+                phoneNumber: normalizedBusinessPhone,
+              },
+            },
+            create: {
+              tenantId,
+              phoneNumber: normalizedBusinessPhone,
+            },
+            update: {},
+          });
+          workerLogger.info("Embedded signup seller phone ensured", {
+            tenantId,
+            phoneNumber: normalizedBusinessPhone,
+          });
+        });
+      } catch (error) {
+        if (
+          error &&
+          typeof error === "object" &&
+          "code" in error &&
+          error.code === "P2002"
+        ) {
+          const target = Array.isArray((error as any).meta?.target)
+            ? (error as any).meta.target.join(",")
+            : "";
+          if (target === "" || target.includes("meta_phone_number_id")) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "Ce Phone Number ID est déjà associé à un autre vendeur.",
+            });
+          }
+        }
+
+        if (error instanceof MetaEmbeddedSignupError) {
+          if (error.kind === "BAD_REQUEST") {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: error.message,
+            });
+          }
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message:
+              error.kind === "CONFIG_ERROR"
+                ? "Configuration Meta incomplète côté serveur."
+                : error.message,
+          });
+        }
+
+        if (error instanceof Error) {
+          workerLogger.error("Failed to auto-add seller phone after embedded signup", error, {
+            tenantId,
+          });
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Impossible de finaliser la connexion WhatsApp via Meta.",
+        });
+      }
+
+      return {
+        ok: true,
+      };
+    }),
 });
