@@ -90,6 +90,7 @@ export function WhatsAppConfigContent() {
 
   const serverPhoneNumberId = data?.metaPhoneNumberId ?? null;
   const serverWabaId = data?.metaWabaId ?? null;
+  const serverBusinessPhoneNumber = data?.metaBusinessPhoneNumber ?? null;
   const serverHasToken = data?.hasAccessToken ?? false;
   const canShowReconnect =
     serverPhoneNumberId != null && serverPhoneNumberId !== "" && serverHasToken;
@@ -275,8 +276,10 @@ export function WhatsAppConfigContent() {
                     <Badge variant="success">Connecté</Badge>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Numéro actuellement connecté:{" "}
-                    <span className="font-mono text-foreground">{serverPhoneNumberId}</span>
+                    Numéro business actuellement connecté:{" "}
+                    <span className="font-mono text-foreground">
+                      {serverBusinessPhoneNumber ?? serverPhoneNumberId}
+                    </span>
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Reconnecter via Meta permet le renouvellement automatique du token et réduit la configuration manuelle, sans interruption de service.

@@ -9,6 +9,7 @@ const mockErrorMessage = vi.fn();
 const mockWhatsAppConfig = {
   metaPhoneNumberId: null as string | null,
   metaWabaId: null as string | null,
+  metaBusinessPhoneNumber: null as string | null,
   hasAccessToken: false,
 };
 
@@ -73,6 +74,7 @@ describe("WhatsAppConfigContent — embedded signup", () => {
     vi.clearAllMocks();
     mockWhatsAppConfig.metaPhoneNumberId = null;
     mockWhatsAppConfig.metaWabaId = null;
+    mockWhatsAppConfig.metaBusinessPhoneNumber = null;
     mockWhatsAppConfig.hasAccessToken = false;
     process.env.NEXT_PUBLIC_META_APP_ID = "meta-app-id";
     process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID = "meta-config-id";
@@ -93,6 +95,7 @@ describe("WhatsAppConfigContent — embedded signup", () => {
   it("shows reconnect CTA and migration info for already connected tenant", () => {
     mockWhatsAppConfig.metaPhoneNumberId = "phone-123";
     mockWhatsAppConfig.metaWabaId = "waba-123";
+    mockWhatsAppConfig.metaBusinessPhoneNumber = "+33612345678";
     mockWhatsAppConfig.hasAccessToken = true;
 
     render(<WhatsAppConfigContent />);
@@ -101,7 +104,8 @@ describe("WhatsAppConfigContent — embedded signup", () => {
       screen.getByRole("button", { name: "Reconnecter via Meta (recommandé)" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Reconnexion recommandée")).toBeInTheDocument();
-    expect(screen.getByText(/Numéro actuellement connecté:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Numéro business actuellement connecté:/i)).toBeInTheDocument();
+    expect(screen.getByText("+33612345678")).toBeInTheDocument();
     expect(screen.getByText(/renouvellement automatique du token/i)).toBeInTheDocument();
     expect(screen.getAllByText("Connecté")).toHaveLength(2);
     expect(screen.queryByText("Déconnecté")).not.toBeInTheDocument();

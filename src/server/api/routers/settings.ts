@@ -114,17 +114,25 @@ export const settingsRouter = createTRPCRouter({
         message: "Tenant non identifié.",
       });
     }
-    const tenant = await db.tenant.findUnique({
-      where: { id: tenantId },
-      select: {
-        metaPhoneNumberId: true,
-        metaWabaId: true,
-        metaAccessToken: true,
-      },
-    });
+    const [tenant, primarySellerPhone] = await Promise.all([
+      db.tenant.findUnique({
+        where: { id: tenantId },
+        select: {
+          metaPhoneNumberId: true,
+          metaWabaId: true,
+          metaAccessToken: true,
+        },
+      }),
+      db.sellerPhone.findFirst({
+        where: { tenantId },
+        orderBy: { createdAt: "asc" },
+        select: { phoneNumber: true },
+      }),
+    ]);
     return {
       metaPhoneNumberId: tenant?.metaPhoneNumberId ?? null,
       metaWabaId: tenant?.metaWabaId ?? null,
+      metaBusinessPhoneNumber: primarySellerPhone?.phoneNumber ?? null,
       hasAccessToken: !!(tenant?.metaAccessToken),
     };
   }),

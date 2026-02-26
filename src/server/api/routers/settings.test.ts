@@ -7,6 +7,7 @@ import { createTRPCContext } from "~/server/api/trpc";
 const mockTenantFindUnique = vi.hoisted(() => vi.fn());
 const mockTenantFindFirst = vi.hoisted(() => vi.fn());
 const mockTenantUpdate = vi.hoisted(() => vi.fn());
+const mockSellerPhoneFindFirst = vi.hoisted(() => vi.fn());
 const mockSellerPhoneUpsert = vi.hoisted(() => vi.fn());
 const mockDbTransaction = vi.hoisted(() => vi.fn());
 const mockFetch = vi.hoisted(() => vi.fn());
@@ -27,6 +28,7 @@ vi.mock("~/server/db", () => ({
       upsert: vi.fn(),
     },
     sellerPhone: {
+      findFirst: mockSellerPhoneFindFirst,
       upsert: mockSellerPhoneUpsert,
     },
   },
@@ -47,6 +49,7 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setupTransactionMock();
+    mockSellerPhoneFindFirst.mockResolvedValue(null);
   });
 
   const ownerSession = {
@@ -292,6 +295,7 @@ describe("settings router — getWhatsAppConfig (Meta)", () => {
       metaWabaId: "456",
       metaAccessToken: "secret-token",
     });
+    mockSellerPhoneFindFirst.mockResolvedValue({ phoneNumber: "+33612345678" });
 
     const caller = await makeCaller(ownerSession);
     const result = await caller.settings.getWhatsAppConfig();
@@ -299,6 +303,7 @@ describe("settings router — getWhatsAppConfig (Meta)", () => {
     expect(result).toEqual({
       metaPhoneNumberId: "123",
       metaWabaId: "456",
+      metaBusinessPhoneNumber: "+33612345678",
       hasAccessToken: true,
     });
   });
