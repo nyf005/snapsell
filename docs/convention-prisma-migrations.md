@@ -38,7 +38,7 @@
 | Test | Raison | Résolution |
 |------|--------|------------|
 | `meta-e2e.integration.test.ts` | Nécessite `RUN_INTEGRATION_TESTS=true` + `DATABASE_URL` | Skip automatique via `describe.skipIf` — pas un échec réel |
-| `webhook-processor.integration.test.ts` | Nécessite `RUN_INTEGRATION_TESTS=true` + `REDIS_URL` (quota Upstash) | Skip automatique via guard — limitation infra locale |
+| `webhook-processor.integration.test.ts` | Nécessite `RUN_INTEGRATION_TESTS=true` + `DATABASE_URL` | Skip automatique via guard — limitation infra locale |
 
 ## Checklist pré-CR
 

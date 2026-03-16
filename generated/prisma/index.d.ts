@@ -9756,8 +9756,18 @@ export namespace Prisma {
 
   export type AggregateUser = {
     _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
+  }
+
+  export type UserAvgAggregateOutputType = {
+    tokenVersion: number | null
+  }
+
+  export type UserSumAggregateOutputType = {
+    tokenVersion: number | null
   }
 
   export type UserMinAggregateOutputType = {
@@ -9769,6 +9779,7 @@ export namespace Prisma {
     image: string | null
     passwordHash: string | null
     role: $Enums.Role | null
+    tokenVersion: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9782,6 +9793,7 @@ export namespace Prisma {
     image: string | null
     passwordHash: string | null
     role: $Enums.Role | null
+    tokenVersion: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9795,11 +9807,20 @@ export namespace Prisma {
     image: number
     passwordHash: number
     role: number
+    tokenVersion: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
+
+  export type UserAvgAggregateInputType = {
+    tokenVersion?: true
+  }
+
+  export type UserSumAggregateInputType = {
+    tokenVersion?: true
+  }
 
   export type UserMinAggregateInputType = {
     id?: true
@@ -9810,6 +9831,7 @@ export namespace Prisma {
     image?: true
     passwordHash?: true
     role?: true
+    tokenVersion?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9823,6 +9845,7 @@ export namespace Prisma {
     image?: true
     passwordHash?: true
     role?: true
+    tokenVersion?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9836,6 +9859,7 @@ export namespace Prisma {
     image?: true
     passwordHash?: true
     role?: true
+    tokenVersion?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -9879,6 +9903,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: UserAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: UserMinAggregateInputType
@@ -9909,6 +9945,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: UserCountAggregateInputType | true
+    _avg?: UserAvgAggregateInputType
+    _sum?: UserSumAggregateInputType
     _min?: UserMinAggregateInputType
     _max?: UserMaxAggregateInputType
   }
@@ -9922,9 +9960,12 @@ export namespace Prisma {
     image: string | null
     passwordHash: string | null
     role: $Enums.Role
+    tokenVersion: number
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
   }
@@ -9952,6 +9993,7 @@ export namespace Prisma {
     image?: boolean
     passwordHash?: boolean
     role?: boolean
+    tokenVersion?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | User$tenantArgs<ExtArgs>
@@ -9969,6 +10011,7 @@ export namespace Prisma {
     image?: boolean
     passwordHash?: boolean
     role?: boolean
+    tokenVersion?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | User$tenantArgs<ExtArgs>
@@ -9983,6 +10026,7 @@ export namespace Prisma {
     image?: boolean
     passwordHash?: boolean
     role?: boolean
+    tokenVersion?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | User$tenantArgs<ExtArgs>
@@ -9997,11 +10041,12 @@ export namespace Prisma {
     image?: boolean
     passwordHash?: boolean
     role?: boolean
+    tokenVersion?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "email" | "emailVerified" | "name" | "image" | "passwordHash" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "email" | "emailVerified" | "name" | "image" | "passwordHash" | "role" | "tokenVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | User$tenantArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
@@ -10031,6 +10076,7 @@ export namespace Prisma {
       image: string | null
       passwordHash: string | null
       role: $Enums.Role
+      tokenVersion: number
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -10467,6 +10513,7 @@ export namespace Prisma {
     readonly image: FieldRef<"User", 'String'>
     readonly passwordHash: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'Role'>
+    readonly tokenVersion: FieldRef<"User", 'Int'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -31550,6 +31597,7 @@ export namespace Prisma {
     image: 'image',
     passwordHash: 'passwordHash',
     role: 'role',
+    tokenVersion: 'tokenVersion',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -32527,6 +32575,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"User"> | string | null
     passwordHash?: StringNullableFilter<"User"> | string | null
     role?: EnumRoleFilter<"User"> | $Enums.Role
+    tokenVersion?: IntFilter<"User"> | number
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
@@ -32543,6 +32592,7 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     passwordHash?: SortOrderInput | SortOrder
     role?: SortOrder
+    tokenVersion?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenant?: TenantOrderByWithRelationInput
@@ -32562,6 +32612,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"User"> | string | null
     passwordHash?: StringNullableFilter<"User"> | string | null
     role?: EnumRoleFilter<"User"> | $Enums.Role
+    tokenVersion?: IntFilter<"User"> | number
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
@@ -32578,11 +32629,14 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     passwordHash?: SortOrderInput | SortOrder
     role?: SortOrder
+    tokenVersion?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
+    _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
+    _sum?: UserSumOrderByAggregateInput
   }
 
   export type UserScalarWhereWithAggregatesInput = {
@@ -32597,6 +32651,7 @@ export namespace Prisma {
     image?: StringNullableWithAggregatesFilter<"User"> | string | null
     passwordHash?: StringNullableWithAggregatesFilter<"User"> | string | null
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
+    tokenVersion?: IntWithAggregatesFilter<"User"> | number
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -34549,6 +34604,7 @@ export namespace Prisma {
     image?: string | null
     passwordHash?: string | null
     role?: $Enums.Role
+    tokenVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant?: TenantCreateNestedOneWithoutUsersInput
@@ -34565,6 +34621,7 @@ export namespace Prisma {
     image?: string | null
     passwordHash?: string | null
     role?: $Enums.Role
+    tokenVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
@@ -34579,6 +34636,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneWithoutUsersNestedInput
@@ -34595,6 +34653,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -34610,6 +34669,7 @@ export namespace Prisma {
     image?: string | null
     passwordHash?: string | null
     role?: $Enums.Role
+    tokenVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -34622,6 +34682,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -34635,6 +34696,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36790,8 +36852,13 @@ export namespace Prisma {
     image?: SortOrder
     passwordHash?: SortOrder
     role?: SortOrder
+    tokenVersion?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type UserAvgOrderByAggregateInput = {
+    tokenVersion?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -36803,6 +36870,7 @@ export namespace Prisma {
     image?: SortOrder
     passwordHash?: SortOrder
     role?: SortOrder
+    tokenVersion?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -36816,8 +36884,13 @@ export namespace Prisma {
     image?: SortOrder
     passwordHash?: SortOrder
     role?: SortOrder
+    tokenVersion?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type UserSumOrderByAggregateInput = {
+    tokenVersion?: SortOrder
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -39869,6 +39942,7 @@ export namespace Prisma {
     image?: string | null
     passwordHash?: string | null
     role?: $Enums.Role
+    tokenVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
@@ -39883,6 +39957,7 @@ export namespace Prisma {
     image?: string | null
     passwordHash?: string | null
     role?: $Enums.Role
+    tokenVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
@@ -40515,6 +40590,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"User"> | string | null
     passwordHash?: StringNullableFilter<"User"> | string | null
     role?: EnumRoleFilter<"User"> | $Enums.Role
+    tokenVersion?: IntFilter<"User"> | number
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
   }
@@ -42148,6 +42224,7 @@ export namespace Prisma {
     image?: string | null
     passwordHash?: string | null
     role?: $Enums.Role
+    tokenVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant?: TenantCreateNestedOneWithoutUsersInput
@@ -42163,6 +42240,7 @@ export namespace Prisma {
     image?: string | null
     passwordHash?: string | null
     role?: $Enums.Role
+    tokenVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
@@ -42192,6 +42270,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneWithoutUsersNestedInput
@@ -42207,6 +42286,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -42220,6 +42300,7 @@ export namespace Prisma {
     image?: string | null
     passwordHash?: string | null
     role?: $Enums.Role
+    tokenVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant?: TenantCreateNestedOneWithoutUsersInput
@@ -42235,6 +42316,7 @@ export namespace Prisma {
     image?: string | null
     passwordHash?: string | null
     role?: $Enums.Role
+    tokenVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
@@ -42264,6 +42346,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneWithoutUsersNestedInput
@@ -42279,6 +42362,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -46342,6 +46426,7 @@ export namespace Prisma {
     image?: string | null
     passwordHash?: string | null
     role?: $Enums.Role
+    tokenVersion?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -46550,6 +46635,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
@@ -46564,6 +46650,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -46578,6 +46665,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

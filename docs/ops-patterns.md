@@ -30,11 +30,11 @@ await logReservationHold(tenantId, reservationId, correlationId);
 **Création :** `crypto.randomUUID()` à l'entrée du système (webhook route ou adapter)
 
 **Fichiers clés :**
-- `src/app/api/webhooks/twilio/route.ts` — génération à la réception webhook
-- `src/server/messaging/providers/twilio/adapter.ts` — génération pour messages sortants
+- `src/app/api/webhooks/meta/route.ts` — génération à la réception webhook
+- `src/server/messaging/providers/meta/adapter.ts` — génération pour messages sortants
 
 **Propagation :** le `correlationId` est passé dans :
-- Le job BullMQ (`job.data.correlationId`)
+- Le job pg-boss (`job.data.correlationId`)
 - Tous les appels `eventLog` (paramètre obligatoire)
 - Le logger structuré (champ de contexte)
 - Sentry (`captureException` avec tag `correlationId`)
@@ -75,16 +75,43 @@ Pattern polling DB pour envoi de messages sortants. Le worker lit les `MessageOu
 - Backoff exponentiel : 1s, 2s, 4s, 8s, 16s... cap configurable (`OUTBOX_BACKOFF_MAX_MS`, défaut 30s)
 - Max retries avant DLQ : 5 (configurable via `OUTBOX_MAX_RETRIES`)
 
-**Exemple de cycle :**
+**Exemple de cycle (QStash) :**
 ```
-poll → fetch 10 pending → send via Twilio → mark 'sent' | increment attempts + backoff → DLQ si max atteint
+writeToOutbox → persist MessageOut (pending) → publish QStash → route /api/qstash/outbox-send → send via Meta → mark 'sent' | QStash retry si 5xx → DLQ callback si max retries atteint
 ```
 
-**Convention :** ne pas utiliser BullMQ pour l'outbox — le polling DB assure la persistance et la reprise après crash.
+**Convention :** l'outbox utilise QStash en production (event-driven, serverless-native) avec pg-boss comme fallback en développement.
 
 ---
 
-## 5. Structured Logger
+## 5. Chiffrement at-rest (`metaAccessToken`)
+
+**Fichier source :** `src/lib/crypto.ts`
+
+AES-256-GCM symétrique pour le chiffrement de `metaAccessToken` en base de données. La clé est chargée depuis `ENCRYPTION_KEY` (64 hex = 32 octets).
+
+**Format stocké :** `enc:<iv_b64url>:<authTag_b64url>:<ciphertext_b64url>`
+
+**Utilisation :**
+```ts
+import { encrypt, decrypt } from "~/lib/crypto";
+
+// Avant écriture en DB
+data.metaAccessToken = encrypt(input.metaAccessToken);
+
+// Avant utilisation (appel API Meta)
+const token = decrypt(tenant.metaAccessToken);
+```
+
+**Dégradation gracieuse :** en dev/test sans `ENCRYPTION_KEY`, `encrypt()` retourne le plaintext et `decrypt()` passe les valeurs non-préfixées telles quelles. En production, `ENCRYPTION_KEY` est obligatoire.
+
+**Migration des tokens existants :** script one-shot idempotent `scripts/encrypt-existing-tokens.ts` (skip si déjà préfixé `enc:`).
+
+**Convention :** tout nouveau champ PII sensible (token, secret tiers) doit être chiffré via ce module.
+
+---
+
+## 6. Structured Logger
 
 **Fichier source :** `src/lib/logger.ts`
 

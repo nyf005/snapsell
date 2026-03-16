@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/reservation-ttl",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/close-sessions",
+      "schedule": "*/10 * * * *"
+    }
+  ]
+}

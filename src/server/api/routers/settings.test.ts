@@ -102,7 +102,7 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
       data: {
         metaPhoneNumberId: "123456",
         metaWabaId: "789",
-        metaAccessToken: "EAAtoken",
+        metaAccessToken: expect.stringMatching(/^enc:/),
       },
     });
   });
@@ -536,7 +536,7 @@ describe("settings router — connectWhatsAppEmbedded", () => {
       data: {
         metaPhoneNumberId: "phone-123",
         metaWabaId: "waba-123",
-        metaAccessToken: "system-user-token",
+        metaAccessToken: expect.stringMatching(/^enc:/),
       },
     });
     expect(mockSellerPhoneUpsert).toHaveBeenCalledWith({

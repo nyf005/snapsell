@@ -4,6 +4,7 @@ import { Prisma } from "../../../../generated/prisma";
 import { canManageGrid } from "~/lib/rbac";
 import { normalizeAndValidatePhoneNumber } from "~/lib/validations/phone";
 import { workerLogger } from "~/lib/logger";
+import { encrypt, decrypt } from "~/lib/crypto";
 import { db } from "~/server/db";
 import {
   createTRPCRouter,
@@ -178,7 +179,9 @@ export const settingsRouter = createTRPCRouter({
           where: { id: tenantId },
           select: { metaAccessToken: true, metaWabaId: true },
         });
-        tokenToValidate ??= currentTenant?.metaAccessToken ?? null;
+        tokenToValidate ??= currentTenant?.metaAccessToken
+          ? decrypt(currentTenant.metaAccessToken)
+          : null;
         wabaIdToValidate ??= currentTenant?.metaWabaId ?? null;
       }
 
@@ -228,7 +231,7 @@ export const settingsRouter = createTRPCRouter({
         metaWabaId: input.metaWabaId,
       };
       if (input.metaAccessToken != null) {
-        data.metaAccessToken = input.metaAccessToken;
+        data.metaAccessToken = encrypt(input.metaAccessToken);
       }
       try {
         await db.tenant.update({
@@ -268,9 +271,10 @@ export const settingsRouter = createTRPCRouter({
         message: "Configuration incomplète. Enregistrez vos identifiants Meta d'abord.",
       });
     }
+    const accessToken = decrypt(tenant.metaAccessToken);
     try {
       const metaRes = await fetch(
-        `https://graph.facebook.com/v20.0/${encodeURIComponent(tenant.metaWabaId)}/phone_numbers?access_token=${encodeURIComponent(tenant.metaAccessToken)}&limit=100`,
+        `https://graph.facebook.com/v20.0/${encodeURIComponent(tenant.metaWabaId)}/phone_numbers?access_token=${encodeURIComponent(accessToken)}&limit=100`,
       );
       if (!metaRes.ok) {
         throw new TRPCError({
@@ -333,7 +337,7 @@ export const settingsRouter = createTRPCRouter({
             data: {
               metaPhoneNumberId: credentials.phoneNumberId,
               metaWabaId: credentials.wabaId,
-              metaAccessToken: credentials.accessToken,
+              metaAccessToken: encrypt(credentials.accessToken),
             },
           });
 

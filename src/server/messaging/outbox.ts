@@ -6,10 +6,34 @@
  */
 
 import { z } from "zod";
+import { Client as QStashClient } from "@upstash/qstash";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { boss, QUEUE } from "~/server/workers/queues";
+import { env } from "~/env";
 import type { OutboundMessage } from "./types";
+
+/**
+ * Enqueue via QStash (production) ou pg-boss (dev/fallback).
+ * QStash est event-driven, serverless-native, et gère les retries automatiquement.
+ * pg-boss est utilisé comme fallback en développement local.
+ */
+async function enqueueOutboxSend(messageOutId: string): Promise<void> {
+  if (env.QSTASH_TOKEN && env.NEXT_PUBLIC_APP_URL) {
+    const client = new QStashClient({ token: env.QSTASH_TOKEN });
+    const callbackUrl = `${env.NEXT_PUBLIC_APP_URL}/api/qstash/outbox-send`;
+    const failureCallbackUrl = `${env.NEXT_PUBLIC_APP_URL}/api/qstash/outbox-dlq`;
+    await client.publishJSON({
+      url: callbackUrl,
+      body: { messageOutId },
+      retries: 5,
+      failureCallback: failureCallbackUrl,
+    });
+  } else {
+    // Fallback : pg-boss (développement local sans QStash configuré)
+    await boss.send(QUEUE.OUTBOX_SEND, { messageOutId }, { singletonKey: messageOutId });
+  }
+}
 
 /**
  * Schéma Zod pour validation OutboundMessage
@@ -62,12 +86,10 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
       },
     });
 
-    // Enqueue pour traitement immédiat par le worker outbox-send
-    // AC6: si boss.send() échoue, le MessageOut reste en `pending` (fallback possible)
+    // Enqueue via QStash (prod) ou pg-boss (dev) pour traitement immédiat
+    // Si enqueueOutboxSend() échoue, le MessageOut reste en `pending` (sera traité au prochain cycle)
     try {
-      await boss.send(QUEUE.OUTBOX_SEND, { messageOutId: messageOut.id }, {
-        singletonKey: messageOut.id,
-      });
+      await enqueueOutboxSend(messageOut.id);
     } catch (enqueueError) {
       workerLogger.warn("Failed to enqueue outbox-send job, MessageOut remains pending", {
         messageOutId: messageOut.id,

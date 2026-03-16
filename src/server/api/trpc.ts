@@ -14,6 +14,7 @@ import { ZodError } from "zod";
 import type { Session } from "next-auth";
 import { db } from "~/server/db";
 import { isOpsUser } from "~/lib/rbac";
+import { checkTrpcRateLimit } from "~/lib/trpc-rate-limit";
 
 /**
  * 1. CONTEXT
@@ -156,6 +157,24 @@ const enforceTenant = t.middleware(({ ctx, next }) => {
 });
 
 /**
+ * Rate limiting middleware — 20 mutations/min par userId via Upstash Redis.
+ * Désactivé silencieusement si UPSTASH_REDIS_REST_URL n'est pas configuré.
+ */
+const rateLimitMiddleware = t.middleware(async ({ ctx, next }) => {
+  const userId = ctx.session?.user?.id;
+  if (userId) {
+    const allowed = await checkTrpcRateLimit(userId);
+    if (!allowed) {
+      throw new TRPCError({
+        code: "TOO_MANY_REQUESTS",
+        message: "Trop de requêtes. Réessaie dans quelques secondes.",
+      });
+    }
+  }
+  return next();
+});
+
+/**
  * Protected (authenticated) procedure — requires a valid session + tenantId.
  * Use for all dashboard/tenant data.
  * Isolation tenant: never trust client for tenantId; always use ctx.session.user.tenantId in where/data.
@@ -164,7 +183,8 @@ const enforceTenant = t.middleware(({ ctx, next }) => {
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(enforceSession)
-  .use(enforceTenant);
+  .use(enforceTenant)
+  .use(rateLimitMiddleware);
 
 /**
  * Ops procedure — requires role OPS (tenantId null).

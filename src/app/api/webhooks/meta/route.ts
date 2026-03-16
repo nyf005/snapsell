@@ -8,6 +8,7 @@ import { env } from "~/env";
 import { webhookLogger } from "~/lib/logger";
 import { checkWebhookRateLimit, getClientIpFromRequest } from "~/lib/rate-limit";
 import { captureException as sendToSentry } from "~/lib/sentry";
+import { decrypt } from "~/lib/crypto";
 import {
   logWebhookReceived,
   logIdempotentIgnored,
@@ -155,7 +156,10 @@ export async function POST(request: Request) {
     });
 
     // 9. Instancier adapter + parser batch
-    const adapter = new MetaCloudAdapter(tenant.metaPhoneNumberId!, tenant.metaAccessToken!);
+    const adapter = new MetaCloudAdapter(
+      tenant.metaPhoneNumberId!,
+      decrypt(tenant.metaAccessToken!),
+    );
     const messages = await adapter.parseInboundBatch(requestClone);
 
     // 10. Si tableau vide (status-only) → return 200

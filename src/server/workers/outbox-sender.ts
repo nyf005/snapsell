@@ -13,6 +13,7 @@ import { workerLogger } from "~/lib/logger";
 import { logMessageSent, logMessageBlockedOptOut } from "~/server/events/eventLog";
 import { checkOptOut } from "~/server/messaging/optout";
 import { MetaCloudAdapter } from "~/server/messaging/providers/meta/adapter";
+import { decrypt } from "~/lib/crypto";
 import type { OutboundMessage, ProviderSendResult } from "~/server/messaging/types";
 import { generateSignedR2Url } from "~/server/media/r2-signed-url";
 import { boss, QUEUE, type PgBossJob } from "./queues";
@@ -106,7 +107,7 @@ export async function processOutboundMessage(messageOut: {
 
     const adapter = new MetaCloudAdapter(
       tenant.metaPhoneNumberId,
-      tenant.metaAccessToken,
+      decrypt(tenant.metaAccessToken),
     );
 
     // Story 9.4: si mediaUrl est une clé R2 (pas une URL), signer juste avant l'envoi

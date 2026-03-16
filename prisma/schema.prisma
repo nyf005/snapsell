@@ -148,19 +148,20 @@ model DeliveryFeeCommune {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  tenantId     String?   @map("tenant_id") // Nullable : null pour les users OPS (pas de tenant)
-  tenant       Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  email        String    @unique
-  emailVerified DateTime? @map("email_verified")
-  name         String?
-  image        String?
-  passwordHash String?   @map("password_hash")
-  role         Role      @default(OWNER)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  accounts     Account[]
-  sessions     Session[]
+  id             String    @id @default(cuid())
+  tenantId       String?   @map("tenant_id") // Nullable : null pour les users OPS (pas de tenant)
+  tenant         Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email          String    @unique
+  emailVerified  DateTime? @map("email_verified")
+  name           String?
+  image          String?
+  passwordHash   String?   @map("password_hash")
+  role           Role      @default(OWNER)
+  tokenVersion   Int       @default(0) @map("token_version") // Révocation JWT : incrémenter pour invalider toutes les sessions actives
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  accounts       Account[]
+  sessions       Session[]
 
   @@index([tenantId])
   @@map("users")

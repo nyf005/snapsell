@@ -47,6 +47,28 @@ export const env = createEnv({
     PAYSTACK_PUBLIC_KEY: z.string().min(1).optional(),
     PAYSTACK_PLAN_STARTER: z.string().min(1).optional(),
     PAYSTACK_PLAN_PRO: z.string().min(1).optional(),
+    // Upstash Redis — rate limiting tRPC (optionnel : si absent, rate limiting désactivé)
+    UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+    UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
+    // Chiffrement at-rest (metaAccessToken et autres secrets sensibles)
+    // Générer avec: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+    ENCRYPTION_KEY: z
+      .string()
+      .length(64, "ENCRYPTION_KEY doit être une chaîne hex de 64 caractères")
+      .optional()
+      .refine(
+        (val) =>
+          process.env.NODE_ENV !== "production" ||
+          (typeof val === "string" && val.length === 64),
+        { message: "ENCRYPTION_KEY est requis en production" },
+      ),
+    // QStash (Upstash) — outbox sender serverless (Option A)
+    // En prod: QSTASH_TOKEN requis. QSTASH_*_SIGNING_KEY pour vérification de signature.
+    QSTASH_TOKEN: z.string().min(1).optional(),
+    QSTASH_CURRENT_SIGNING_KEY: z.string().min(1).optional(),
+    QSTASH_NEXT_SIGNING_KEY: z.string().min(1).optional(),
+    // Secret partagé pour sécuriser les routes Vercel Cron (header Authorization: Bearer <CRON_SECRET>)
+    CRON_SECRET: z.string().min(1).optional(),
     // Meta WhatsApp Cloud API (Story 10.1)
     META_APP_ID: z.string().min(1).optional(),
     META_APP_SECRET: z.string().min(1).optional(),
@@ -63,6 +85,7 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: z.string().optional(),
     NEXT_PUBLIC_META_APP_ID: z.string().optional(),
     NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID: z.string().optional(),
+    NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED: z.enum(["true", "false"]).optional(),
   },
 
   /**
@@ -90,6 +113,13 @@ export const env = createEnv({
     PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY,
     PAYSTACK_PLAN_STARTER: process.env.PAYSTACK_PLAN_STARTER,
     PAYSTACK_PLAN_PRO: process.env.PAYSTACK_PLAN_PRO,
+    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+    UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
+    QSTASH_TOKEN: process.env.QSTASH_TOKEN,
+    QSTASH_CURRENT_SIGNING_KEY: process.env.QSTASH_CURRENT_SIGNING_KEY,
+    QSTASH_NEXT_SIGNING_KEY: process.env.QSTASH_NEXT_SIGNING_KEY,
+    CRON_SECRET: process.env.CRON_SECRET,
     META_APP_ID: process.env.META_APP_ID,
     META_APP_SECRET: process.env.META_APP_SECRET,
     META_VERIFY_TOKEN: process.env.META_VERIFY_TOKEN,
@@ -97,6 +127,8 @@ export const env = createEnv({
     NEXT_PUBLIC_META_APP_ID: process.env.NEXT_PUBLIC_META_APP_ID,
     NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID:
       process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID,
+    NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED:
+      process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
