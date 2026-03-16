@@ -19,15 +19,15 @@
 
 import "./runtime-env";
 
-import { boss, ensureQueues } from "~/server/workers/queues";
+import { boss, ensureQueues, QUEUE } from "~/server/workers/queues";
 import { startWebhookProcessorWorker } from "~/server/workers/webhook-processor";
 import { runReservationReminderJob, runReservationTtlJob } from "~/server/workers/reservation-ttl";
 import { runCloseInactiveLiveSessions } from "~/server/workers/close-inactive-live-sessions";
 import { workerLogger } from "~/lib/logger";
 
 const SCHEDULE = {
-  RESERVATION_TTL: "cron-reservation-ttl",
-  CLOSE_SESSIONS: "cron-close-sessions",
+  RESERVATION_TTL: QUEUE.CRON_RESERVATION_TTL,
+  CLOSE_SESSIONS: QUEUE.CRON_CLOSE_SESSIONS,
 } as const;
 
 /**

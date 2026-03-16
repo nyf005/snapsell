@@ -27,6 +27,9 @@ export const QUEUE = {
   WEBHOOK_PROCESSING: "webhook-processing",
   // Compatibilité : OUTBOX_SEND conservé pour le fallback pg-boss en développement local
   OUTBOX_SEND: "outbox-send",
+  // Crons pg-boss (schedule names)
+  CRON_RESERVATION_TTL: "cron-reservation-ttl",
+  CRON_CLOSE_SESSIONS: "cron-close-sessions",
 } as const;
 
 /**
@@ -47,6 +50,14 @@ export async function ensureQueues(): Promise<void> {
     retryLimit: 5,
     retryDelay: 1,
     retryBackoff: true,
+    deleteAfterSeconds: 3600,
+  });
+
+  // Queues pour les crons pg-boss (reservation-ttl et close-sessions)
+  await boss.createQueue(QUEUE.CRON_RESERVATION_TTL, {
+    deleteAfterSeconds: 3600,
+  });
+  await boss.createQueue(QUEUE.CRON_CLOSE_SESSIONS, {
     deleteAfterSeconds: 3600,
   });
 }
