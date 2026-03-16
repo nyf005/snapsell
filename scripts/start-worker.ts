@@ -25,6 +25,11 @@ import { runReservationReminderJob, runReservationTtlJob } from "~/server/worker
 import { runCloseInactiveLiveSessions } from "~/server/workers/close-inactive-live-sessions";
 import { workerLogger } from "~/lib/logger";
 
+const SCHEDULE = {
+  RESERVATION_TTL: "cron-reservation-ttl",
+  CLOSE_SESSIONS: "cron-close-sessions",
+} as const;
+
 /**
  * Gestion graceful shutdown
  */
@@ -67,24 +72,20 @@ async function main(): Promise<void> {
     await startWebhookProcessorWorker();
     workerLogger.info("Webhook processor worker started successfully");
 
-    // Reservation TTL : rappels T-2min + expirations, toutes les minutes
-    setInterval(() => {
-      void runReservationReminderJob().catch((err: unknown) =>
-        workerLogger.error("runReservationReminderJob failed", err, {})
-      );
-      void runReservationTtlJob().catch((err: unknown) =>
-        workerLogger.error("runReservationTtlJob failed", err, {})
-      );
-    }, 60_000);
+    // Schedules pg-boss : verrou distribué en DB, safe si redémarrage ou scale
+    await boss.schedule(SCHEDULE.RESERVATION_TTL, "* * * * *", {});
+    await boss.schedule(SCHEDULE.CLOSE_SESSIONS, "*/10 * * * *", {});
 
-    // Fermeture sessions inactives, toutes les 10 minutes
-    setInterval(() => {
-      void runCloseInactiveLiveSessions().catch((err: unknown) =>
-        workerLogger.error("runCloseInactiveLiveSessions failed", err, {})
-      );
-    }, 10 * 60_000);
+    await boss.work(SCHEDULE.RESERVATION_TTL, async () => {
+      await runReservationReminderJob();
+      await runReservationTtlJob();
+    });
 
-    workerLogger.info("Periodic jobs scheduled (reservation-ttl: 1min, close-sessions: 10min)");
+    await boss.work(SCHEDULE.CLOSE_SESSIONS, async () => {
+      await runCloseInactiveLiveSessions();
+    });
+
+    workerLogger.info("Periodic jobs scheduled via pg-boss (reservation-ttl: 1min, close-sessions: 10min)");
   } catch (error) {
     workerLogger.error("Failed to start workers", error);
     process.exit(1);
