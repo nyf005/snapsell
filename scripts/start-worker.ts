@@ -21,6 +21,8 @@ import "./runtime-env";
 
 import { boss, ensureQueues } from "~/server/workers/queues";
 import { startWebhookProcessorWorker } from "~/server/workers/webhook-processor";
+import { runReservationReminderJob, runReservationTtlJob } from "~/server/workers/reservation-ttl";
+import { runCloseInactiveLiveSessions } from "~/server/workers/close-inactive-live-sessions";
 import { workerLogger } from "~/lib/logger";
 
 /**
@@ -64,6 +66,25 @@ async function main(): Promise<void> {
     workerLogger.info("Starting webhook processor worker...");
     await startWebhookProcessorWorker();
     workerLogger.info("Webhook processor worker started successfully");
+
+    // Reservation TTL : rappels T-2min + expirations, toutes les minutes
+    setInterval(() => {
+      void runReservationReminderJob().catch((err: unknown) =>
+        workerLogger.error("runReservationReminderJob failed", err, {})
+      );
+      void runReservationTtlJob().catch((err: unknown) =>
+        workerLogger.error("runReservationTtlJob failed", err, {})
+      );
+    }, 60_000);
+
+    // Fermeture sessions inactives, toutes les 10 minutes
+    setInterval(() => {
+      void runCloseInactiveLiveSessions().catch((err: unknown) =>
+        workerLogger.error("runCloseInactiveLiveSessions failed", err, {})
+      );
+    }, 10 * 60_000);
+
+    workerLogger.info("Periodic jobs scheduled (reservation-ttl: 1min, close-sessions: 10min)");
   } catch (error) {
     workerLogger.error("Failed to start workers", error);
     process.exit(1);
