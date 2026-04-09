@@ -83,8 +83,14 @@ export function FaqSettingsContent() {
   return (
     <div className="flex flex-col gap-6">
       <DashboardHeader
-        heading="Réponses FAQ automatiques"
-        text="Configure les réponses envoyées automatiquement quand un client pose une question fréquente via WhatsApp. Laisse un champ vide pour ne pas répondre automatiquement sur ce sujet."
+        left={
+          <div>
+            <h1 className="text-base font-semibold">Réponses FAQ automatiques</h1>
+            <p className="text-xs text-muted-foreground">
+              Configure les réponses envoyées automatiquement quand un client pose une question fréquente via WhatsApp.
+            </p>
+          </div>
+        }
       />
 
       {isLoading ? (
