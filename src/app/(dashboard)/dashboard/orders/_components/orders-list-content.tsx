@@ -228,9 +228,6 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
     onSuccess: () => {
       void utils.orders.list.invalidate();
     },
-    onMutate: () => {
-      updateStatus.reset();
-    },
   });
 
   const bulkUpdateStatus = api.orders.bulkUpdateStatus.useMutation({
