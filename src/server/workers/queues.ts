@@ -8,10 +8,10 @@ import { env } from "~/env";
  * L'URL pooler (-pooler.) utilise PgBouncer transaction mode,
  * incompatible avec pg-boss (advisory locks, session state).
  *
- * Contexte serverless (Vercel) : pg-boss v12 supporte send() sans start().
- * send() fait un INSERT direct via le pool de connexions du constructeur.
- * start() n'est nécessaire que pour work() (consommation de jobs) — appelé
- * uniquement dans start-worker.ts (Railway).
+ * Contexte serverless (Vercel) : boss.send() requiert boss.start() même en
+ * mode producer-only. On utilise une initialisation lazy (ensureBossReady)
+ * appelée avant chaque send() dans le webhook route.
+ * start() pour work() (consommation de jobs) est appelé dans start-worker.ts (Railway).
  */
 export const boss = new PgBoss({
   connectionString: env.DATABASE_URL,
@@ -21,6 +21,19 @@ export const boss = new PgBoss({
 boss.on("error", (error) => {
   console.error("[pg-boss] error:", error);
 });
+
+/**
+ * Initialisation lazy du boss pour les contextes serverless (Vercel).
+ * Idempotent : le second appel retourne immédiatement si déjà démarré.
+ * À appeler avant boss.send() dans le webhook route.
+ */
+let _bossReady: Promise<void> | null = null;
+export function ensureBossReady(): Promise<void> {
+  if (!_bossReady) {
+    _bossReady = boss.start().then(() => undefined);
+  }
+  return _bossReady;
+}
 
 /** Noms de queues (centralisés pour éviter les typos) */
 export const QUEUE = {

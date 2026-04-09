@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { MetaCloudAdapter } from "~/server/messaging/providers/meta/adapter";
-import { boss, QUEUE } from "~/server/workers/queues";
+import { boss, ensureBossReady, QUEUE } from "~/server/workers/queues";
 import { metaWebhookSchema, inboundMessageForQueueSchema } from "~/lib/zod/webhook";
 import { env } from "~/env";
 import { webhookLogger } from "~/lib/logger";
@@ -247,6 +247,7 @@ export async function POST(request: Request) {
         };
         const validatedPayload = inboundMessageForQueueSchema.parse(normalizedMessage);
 
+        await ensureBossReady();
         const jobId = `${tenant.id}-${message.providerMessageId}`;
         const sendResult = await boss.send(QUEUE.WEBHOOK_PROCESSING, validatedPayload, { singletonKey: jobId });
 

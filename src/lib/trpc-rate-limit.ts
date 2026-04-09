@@ -42,6 +42,16 @@ export async function checkTrpcRateLimit(userId: string): Promise<boolean> {
   const limiter = getRateLimiter();
   if (!limiter) return true;
 
-  const { success } = await limiter.limit(userId);
-  return success;
+  try {
+    const result = await Promise.race([
+      limiter.limit(userId),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("rate-limit timeout")), 500)
+      ),
+    ]);
+    return result.success;
+  } catch {
+    // Upstash unreachable or timeout — degrade gracefully, never block the request
+    return true;
+  }
 }
