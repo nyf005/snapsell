@@ -17,6 +17,7 @@ import {
   logWaitlistPromoted,
 } from "~/server/events/eventLog";
 import { writeToOutbox } from "~/server/messaging/outbox";
+import { botMsg } from "~/server/messaging/templates";
 
 const ACTIVE_STATUSES = ["reserved", "address_collected"] as const;
 const BATCH_LIMIT = 50;
@@ -24,8 +25,7 @@ const BATCH_LIMIT = 50;
 /** Story 4.4: fenêtre T-2 min (Dev Notes REMINDER_WINDOW_MINUTES). */
 const REMINDER_WINDOW_MINUTES = 2;
 const REMINDER_WINDOW_END_OFFSET_MINUTES = 3; // now+2min à now+3min (fenêtre 1 min)
-const REMINDER_BODY =
-  "Il te reste 2 min pour confirmer. Réponds OUI ou envoie ton adresse.";
+const REMINDER_BODY = botMsg.client.reminder();
 
 export type ReservationTtlRunResult = {
   expiredCount: number;
@@ -139,8 +139,8 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
     take: BATCH_LIMIT,
     orderBy: { expiresAt: "asc" },
     include: {
-      liveItem: true,
-      catalogueItem: true,
+      liveItem: { select: { code: true } },
+      catalogueItem: { select: { code: true } },
     },
   });
 
@@ -242,6 +242,22 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
       });
     });
 
+    // Phase 3.2: notifier le client que sa réservation a expiré
+    const expiredCode = (res.catalogueItem?.code ?? res.liveItem?.code) ?? null;
+    if (expiredCode && res.clientPhone) {
+      await writeToOutbox({
+        tenantId: res.tenantId,
+        to: res.clientPhone,
+        body: botMsg.client.reservationExpired(expiredCode),
+        correlationId: res.correlationId,
+      }).catch((err) => {
+        workerLogger.warn("writeToOutbox reservation_expired notification failed", {
+          reservationId: res.id,
+          err,
+        });
+      });
+    }
+
     if (updated.promoted) {
       // Story 9.1: promotion catalogue utilise catalogueItemId directement (plus de sentinel)
       const isCataloguePromotion = !!updated.promoted.catalogueItemId;
@@ -290,7 +306,7 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
         const code = isCataloguePromotion
           ? (res.catalogueItem?.code ?? "article")
           : (res.liveItem?.code ?? "article");
-        const body = `Une place s'est libérée pour ${code}. Tu es réservé. Envoie ton adresse.`;
+        const body = botMsg.client.waitlistPromoted(code);
 
         await writeToOutbox({
           tenantId: updated.promoted.tenantId,

@@ -27,14 +27,15 @@ import {
 } from "~/server/live-item/createLiveItem";
 import { findLiveItemByCode } from "~/server/live-item/findLiveItemByCode";
 import { findOrderableItemByCode } from "~/server/catalogue/findOrderableItemByCode";
-import { findOrCreateOrderableItemByCode } from "~/server/catalogue/findOrCreateOrderableItemByCode";
 import { getLastEditedLiveItemInWindow } from "~/server/live-item/getLastEditedLiveItemInWindow";
 import { uploadMediaAndLinkToLiveItem } from "~/server/media/uploadMediaToLiveItem";
 import { uploadMediaToCatalogueItem } from "~/server/media/uploadMediaToCatalogueItem";
 import { isR2Configured } from "~/server/media/r2-client";
 import { writeToOutbox } from "~/server/messaging/outbox";
+import { botMsg } from "~/server/messaging/templates";
 import { createOrderFromReservation } from "~/server/order/createOrderFromReservation";
 import { upsertCatalogueItemFromWebhook } from "~/server/catalogue/upsertCatalogueItemFromWebhook";
+import { getConversationState, setHandedOff } from "~/server/conversation/conversationState";
 
 /** Story 3.5: fenêtre (2 min) pour lier une photo seule au dernier code créé/édité (export pour tests/doc) */
 export const PHOTO_TO_LAST_CODE_WINDOW_MS = 2 * 60 * 1000;
@@ -89,6 +90,24 @@ export function parseClientCodeIntent(body: string): ClientCodeIntent | null {
   if (!code.length) return null;
   const isStrict = trimmed === match[1]! || trimmed === code;
   return { code, isTypo: !isStrict };
+}
+
+/** Phase 5.2: Keywords that trigger handoff to human agent. */
+const HANDOFF_KEYWORDS = ["agent", "humain", "appel", "parler à quelqu'un", "parler a quelqu'un", "conseiller", "service client"];
+
+export function isHandoffRequest(body: string): boolean {
+  const lower = body.toLowerCase().trim();
+  return HANDOFF_KEYWORDS.some((kw) => lower.includes(kw));
+}
+
+/** Phase 5.3: FAQ keyword detection. Returns the FAQ category or null. */
+export function detectFaqIntent(body: string): "delivery" | "payment" | "location" | "availability" | null {
+  const lower = body.toLowerCase().trim();
+  if (/livrai?s(on)?|expéditi?on|délai|recevoir|arrive|quand/.test(lower)) return "delivery";
+  if (/paiement|payer|virement|dépôt|acompte|moyen.*(paiement|payer)|bank|mobile money|momo|wave|orange money/.test(lower)) return "payment";
+  if (/où|adresse|boutique|localisa|situé|trouver|localisation|quartier/.test(lower)) return "location";
+  if (/disponible|disponibilité|stock|reste.*article|encore.*dispo|rupture|épuisé/.test(lower)) return "availability";
+  return null;
 }
 
 /** Pattern vendeur « créer item » : code seul ou "code x qte" (Story 3.2) ex. A12, A12 x1, B7 x 2 */
@@ -243,6 +262,49 @@ export async function processWebhookJob(
       }
     }
 
+    // Phase 5.2: Handoff detection — detect keywords and suspend auto-replies when handed off.
+    let isHandedOff = false;
+    if (tenantId && messageType === "client" && !isStopMessage(body) && body.trim().length > 0) {
+      try {
+        const to = normalizePhoneNumber(from);
+        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+
+        if (isHandoffRequest(body)) {
+          await setHandedOff(tenantId, clientPhoneE164, true);
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: botMsg.client.handedOff(),
+            correlationId,
+          });
+          isHandedOff = true;
+        } else {
+          const state = await getConversationState(tenantId, clientPhoneE164);
+          isHandedOff = state?.handedOff ?? false;
+        }
+
+        if (isHandedOff && !isHandoffRequest(body)) {
+          // Conversation is handed off — skip all auto-replies, return early.
+          return {
+            tenantId,
+            providerMessageId,
+            from,
+            body,
+            mediaUrl,
+            correlationId,
+            messageType,
+            liveSessionId: undefined,
+          };
+        }
+      } catch (error) {
+        workerLogger.error("Error checking/setting handoff state (Phase 5.2)", error, {
+          correlationId,
+          tenantId,
+          from,
+        });
+      }
+    }
+
     // Story 8.3: Session live lecture seule pour vendeur et client (getCurrentSessionReadOnly).
     // La session n'est plus créée implicitement par le webhook ; elle est créée explicitement
     // par le clic sur "Lancer le live" dans le dashboard (via live.startLive).
@@ -280,10 +342,9 @@ export async function processWebhookJob(
         const to = normalizePhoneNumber(from);
         const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
 
-        // Story 8.1: résolution catalogue selon présence session live
-        const catalogueItem = liveSessionId
-          ? await findOrCreateOrderableItemByCode(tenantId, clientCodeIntent.code)
-          : await findOrderableItemByCode(tenantId, clientCodeIntent.code);
+        // Lookup catalogue uniquement — le client ne peut jamais créer un article.
+        // C'est au vendeur de créer les codes avant que les clients puissent les réserver.
+        const catalogueItem = await findOrderableItemByCode(tenantId, clientCodeIntent.code);
 
         if (!catalogueItem) {
           // Code inconnu (absent du catalogue, ou invalide — lettre non configurée)
@@ -318,8 +379,8 @@ export async function processWebhookJob(
             );
             const bodyMsg =
               waitResult.ok === true
-                ? `Tu es en file #${waitResult.position}. On te prévient quand une place se libère.`
-                : "Épuisé.";
+                ? botMsg.client.waitlist(clientCodeIntent.code, waitResult.position)
+                : botMsg.client.exhausted();
             await writeToOutbox({
               tenantId,
               to: clientPhoneE164,
@@ -340,14 +401,14 @@ export async function processWebhookJob(
               await writeToOutbox({
                 tenantId,
                 to: clientPhoneE164,
-                body: "Épuisé.",
+                body: botMsg.client.exhausted(),
                 correlationId,
               });
             } else {
               await writeToOutbox({
                 tenantId,
                 to: clientPhoneE164,
-                body: "Réservé. Envoie ton adresse.",
+                body: botMsg.client.reserved(clientCodeIntent.code),
                 correlationId,
               });
             }
@@ -393,7 +454,7 @@ export async function processWebhookJob(
               amount !== null
                 ? `${Math.round(amount / 100).toLocaleString("fr-FR")} FCFA`
                 : "—";
-            const recap = `Récap : ${code} — ${prix} — Total : ${total}. Réponds OUI pour confirmer.`;
+            const recap = botMsg.client.recap(code, prix, total, body.trim());
 
             // Story 9.4: passer storageKey brut (signé à l'envoi par outbox-sender, AC #1, #2, #4, #5)
             await writeToOutbox({
@@ -442,14 +503,10 @@ export async function processWebhookJob(
             correlationId,
           );
           if (orderResult.success) {
-            const msg =
-              requireDeposit
-                ? "Commande enregistrée."
-                : "Commande confirmée. Merci !";
             await writeToOutbox({
               tenantId,
               to: clientPhoneE164,
-              body: msg,
+              body: requireDeposit ? botMsg.client.orderWithDeposit(15) : botMsg.client.orderConfirmed(),
               correlationId,
             });
           }
@@ -489,8 +546,8 @@ export async function processWebhookJob(
             if (mediaUrl) {
               const errorMsg =
                 catalogueResult.reason === "no_price"
-                  ? `Pas de prix configuré pour la catégorie « ${normalizeCode(createItem.code).charAt(0).toUpperCase()} ». Configure les prix dans le dashboard.`
-                  : `Code ${normalizeCode(createItem.code)} introuvable dans ton catalogue. Crée l'article d'abord (dashboard ou envoie ${normalizeCode(createItem.code)} x1).`;
+                  ? botMsg.seller.noPriceConfigured(normalizeCode(createItem.code).charAt(0).toUpperCase())
+                  : botMsg.seller.codeNotInCatalogue(normalizeCode(createItem.code));
               await writeToOutbox({
                 tenantId,
                 to,
@@ -550,8 +607,8 @@ export async function processWebhookJob(
               // M1 fix: message consolidé (photo + création) au lieu de deux messages séparés
               const createdMsg =
                 mediaUrl && r2Available
-                  ? `Créé : ${result.liveItem.code} (x${result.liveItem.quantity}). Photo ajoutée au catalogue.`
-                  : `Créé : ${result.liveItem.code} (x${result.liveItem.quantity}).`;
+                  ? botMsg.seller.itemCreatedWithPhoto(result.liveItem.code, result.liveItem.quantity)
+                  : botMsg.seller.itemCreated(result.liveItem.code, result.liveItem.quantity);
               await writeToOutbox({
                 tenantId,
                 to,
@@ -613,8 +670,8 @@ export async function processWebhookJob(
             });
             const noSessionMsg =
               mediaUrl && r2Available
-                ? `Photo ajoutée à ${normalizeCode(createItem.code)}.`
-                : `Ajouté au catalogue : ${normalizeCode(createItem.code)} (x${createItem.quantity}).`;
+                ? botMsg.seller.catalogueWithPhoto(normalizeCode(createItem.code))
+                : botMsg.seller.catalogueAdded(normalizeCode(createItem.code), createItem.quantity);
             await writeToOutbox({
               tenantId,
               to,
@@ -654,7 +711,7 @@ export async function processWebhookJob(
             await writeToOutbox({
               tenantId,
               to,
-              body: `Photo ajoutée à ${lastItem.code}.`,
+              body: botMsg.seller.photoLinked(lastItem.code),
               correlationId,
             });
             // Event log avant fin upload (async) : si l'upload R2 échoue, l'item n'aura pas de mediaStorageKey mais l'event reste cohérent avec l'intent (story 3.4 même choix).
@@ -674,7 +731,7 @@ export async function processWebhookJob(
             await writeToOutbox({
               tenantId,
               to,
-              body: "Envoie d'abord CODE PRIX",
+              body: botMsg.seller.photoNoCode(),
               correlationId,
             });
           }
@@ -684,6 +741,96 @@ export async function processWebhookJob(
             tenantId,
           });
         }
+      }
+    }
+
+    // Phase 5.3: FAQ auto-reply — detect FAQ keywords and respond with tenant-configured answers.
+    if (tenantId && messageType === "client" && !clientCodeIntent && !isStopMessage(body) && body.trim().length > 0) {
+      try {
+        const to = normalizePhoneNumber(from);
+        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const faqIntent = detectFaqIntent(body);
+
+        if (faqIntent) {
+          const tenant = await db.tenant.findUnique({
+            where: { id: tenantId },
+            select: { faqDelivery: true, faqPayment: true, faqLocation: true, faqAvailability: true },
+          });
+
+          const faqAnswer =
+            faqIntent === "delivery" ? tenant?.faqDelivery :
+            faqIntent === "payment" ? tenant?.faqPayment :
+            faqIntent === "location" ? tenant?.faqLocation :
+            tenant?.faqAvailability;
+
+          if (faqAnswer) {
+            await writeToOutbox({ tenantId, to: clientPhoneE164, body: faqAnswer, correlationId });
+            // Skip Phase 2 fallback since we already responded.
+            const enrichedMessage: EnrichedInboundMessage = {
+              tenantId,
+              providerMessageId,
+              from,
+              body,
+              mediaUrl,
+              correlationId,
+              messageType,
+              liveSessionId: liveSessionId ?? undefined,
+            };
+            return enrichedMessage;
+          }
+        }
+      } catch (error) {
+        workerLogger.error("Error FAQ handler (Phase 5.3)", error, { correlationId, tenantId });
+      }
+    }
+
+    // Phase 2: Welcome / Fallback / Post-order auto-reply
+    // Fires for client messages that did not match any intent above (no code, no active reservation).
+    if (tenantId && messageType === "client" && !clientCodeIntent && !isStopMessage(body) && body.trim().length > 0) {
+      try {
+        const to = normalizePhoneNumber(from);
+        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
+        const alreadyHandled = active && (active.status === "reserved" || active.status === "address_collected");
+
+        if (!alreadyHandled) {
+          const msgCount = await db.messageIn.count({ where: { tenantId, from: clientPhoneE164 } });
+
+          if (msgCount <= 1) {
+            // Phase 2.1: First contact — send welcome
+            const tenant = await db.tenant.findUnique({ where: { id: tenantId }, select: { name: true } });
+            await writeToOutbox({
+              tenantId,
+              to: clientPhoneE164,
+              body: botMsg.client.welcome(tenant?.name ?? "la boutique"),
+              correlationId,
+            });
+          } else {
+            // Phase 2.4: Post-order auto-reply if client has a recent active order
+            const recentOrder = await db.order.findFirst({
+              where: {
+                tenantId,
+                reservation: { clientPhone: clientPhoneE164 },
+                status: { in: ["confirmed", "confirmed_pending_deposit", "preparing", "in_delivery"] },
+              },
+              orderBy: { createdAt: "desc" },
+            });
+
+            await writeToOutbox({
+              tenantId,
+              to: clientPhoneE164,
+              body: recentOrder
+                ? botMsg.client.orderStatus(recentOrder.orderNumber)
+                : botMsg.client.fallback(), // Phase 2.2
+              correlationId,
+            });
+          }
+        }
+      } catch (error) {
+        workerLogger.error("Error fallback/welcome/post-order handler (Phase 2)", error, {
+          correlationId,
+          tenantId,
+        });
       }
     }
 

@@ -46,3 +46,13 @@ export type SetMetaConfigInput = z.infer<typeof setMetaConfigInputSchema>;
 export type ConnectWhatsAppEmbeddedInput = z.infer<
   typeof connectWhatsAppEmbeddedInputSchema
 >;
+
+/** Phase 5.3: FAQ settings per tenant. Each field is an optional freetext answer. */
+export const setFaqSettingsInputSchema = z.object({
+  faqDelivery: z.string().max(1000).nullable().optional(),
+  faqPayment: z.string().max(1000).nullable().optional(),
+  faqLocation: z.string().max(1000).nullable().optional(),
+  faqAvailability: z.string().max(1000).nullable().optional(),
+});
+
+export type SetFaqSettingsInput = z.infer<typeof setFaqSettingsInputSchema>;

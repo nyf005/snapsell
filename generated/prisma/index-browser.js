@@ -148,7 +148,11 @@ exports.Prisma.TenantScalarFieldEnum = {
   hasAdvancedFilters: 'hasAdvancedFilters',
   hasPrioritySupport: 'hasPrioritySupport',
   showBranding: 'showBranding',
-  showUpgradeBanner: 'showUpgradeBanner'
+  showUpgradeBanner: 'showUpgradeBanner',
+  faqDelivery: 'faqDelivery',
+  faqPayment: 'faqPayment',
+  faqLocation: 'faqLocation',
+  faqAvailability: 'faqAvailability'
 };
 
 exports.Prisma.InvitationScalarFieldEnum = {
@@ -347,6 +351,14 @@ exports.Prisma.ReservationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ConversationStateScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  phone: 'phone',
+  handedOff: 'handedOff',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.OrderScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -504,6 +516,7 @@ exports.Prisma.ModelName = {
   LiveItem: 'LiveItem',
   CatalogueItem: 'CatalogueItem',
   Reservation: 'Reservation',
+  ConversationState: 'ConversationState',
   Order: 'Order',
   PaymentProof: 'PaymentProof',
   Waitlist: 'Waitlist',

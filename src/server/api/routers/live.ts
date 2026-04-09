@@ -20,6 +20,7 @@ import {
 } from "~/server/reservation/service";
 import { logEvent, logWaitlistPromoted, logLiveSessionCreated, logLiveSessionClosed } from "~/server/events/eventLog";
 import { writeToOutbox } from "~/server/messaging/outbox";
+import { botMsg } from "~/server/messaging/templates";
 import { workerLogger } from "~/lib/logger";
 import { LiveSessionStatus } from "../../../../generated/prisma";
 import { promoteSessionToCatalogue } from "~/server/catalogue/promoteSessionToCatalogue";
@@ -162,6 +163,55 @@ export const liveRouter = createTRPCRouter({
         err,
       });
     });
+
+    // Phase 6.1: Post-live summary — send to seller WhatsApp.
+    void (async () => {
+      try {
+        const [orderCount, pendingReservations, items, sellerPhone, tenant] = await Promise.all([
+          db.order.count({ where: { tenantId, reservation: { liveSessionId: session.id } } }),
+          db.reservation.count({
+            where: { tenantId, liveSessionId: session.id, status: { in: ["reserved", "address_collected"] } },
+          }),
+          db.liveItem.findMany({
+            where: { tenantId, liveSessionId: session.id },
+            select: { availableQty: true, reservedQty: true, amount: true },
+          }),
+          db.sellerPhone.findFirst({
+            where: { tenantId },
+            orderBy: { createdAt: "asc" },
+            select: { phoneNumber: true },
+          }),
+          db.tenant.findUnique({ where: { id: tenantId }, select: { name: true } }),
+        ]);
+
+        const unsoldItems = items.reduce((sum, i) => sum + (i.availableQty - i.reservedQty), 0);
+        const revenue = items.reduce((sum, i) => {
+          const soldQty = i.reservedQty;
+          return sum + (soldQty * (i.amount ?? 0));
+        }, 0);
+        const revenueInFcfa = Math.round(revenue / 100);
+
+        if (sellerPhone) {
+          await writeToOutbox({
+            tenantId,
+            to: sellerPhone.phoneNumber,
+            body: botMsg.seller.liveSummary({
+              orderCount,
+              pendingReservations,
+              unsoldItems,
+              revenue: revenueInFcfa,
+            }),
+            correlationId: `live-summary-${session.id}`,
+          });
+        }
+      } catch (err) {
+        workerLogger.warn("Failed to send post-live summary (Phase 6.1)", {
+          tenantId,
+          liveSessionId: session.id,
+          err,
+        });
+      }
+    })();
 
     return { success: true };
   }),
@@ -368,7 +418,7 @@ export const liveRouter = createTRPCRouter({
         });
 
         const code = reservation.catalogueItem?.code ?? reservation.liveItem?.code ?? "article";
-        const body = `Une place s'est libérée pour ${code}. Tu es réservé. Envoie ton adresse.`;
+        const body = botMsg.client.waitlistPromoted(code);
         await writeToOutbox({
           tenantId: firstInWaitlist.tenantId,
           to: firstInWaitlist.clientPhone,

@@ -12,6 +12,7 @@ import { db } from "~/server/db";
 import { confirmReservation } from "~/server/live-item/reservation";
 import type { PrismaTransactionClient } from "~/server/live-item/reservation";
 import { writeToOutbox } from "~/server/messaging/outbox";
+import { botMsg } from "~/server/messaging/templates";
 import { logEvent, logOrderCreated, logDepositRequested } from "~/server/events/eventLog";
 import { workerLogger } from "~/lib/logger";
 import { env } from "~/env";
@@ -288,7 +289,7 @@ export async function createOrderFromReservation(
   });
 
   if (requireDeposit) {
-    const body = `Envoyez votre preuve d'acompte (photo ou message) dans les ${DEPOSIT_TTL_MINUTES} min.`;
+    const body = botMsg.client.orderWithDeposit(DEPOSIT_TTL_MINUTES);
     await writeToOutbox({
       tenantId,
       to: clientPhone,

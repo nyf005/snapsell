@@ -61,7 +61,14 @@ model Tenant {
   showBranding               Boolean @default(true) @map("show_branding") // Free = true
   showUpgradeBanner          Boolean @default(true) @map("show_upgrade_banner") // Free = true
 
+  // FAQ bot — réponses configurables par le vendeur (Phase 5.3)
+  faqDelivery     String? @map("faq_delivery") @db.Text
+  faqPayment      String? @map("faq_payment") @db.Text
+  faqLocation     String? @map("faq_location") @db.Text
+  faqAvailability String? @map("faq_availability") @db.Text
+
   users                User[]
+  conversationStates   ConversationState[]
   categoryPrices       CategoryPrice[]
   deliveryZones        DeliveryZone[]
   deliveryFeeCommune   DeliveryFeeCommune[]
@@ -420,6 +427,20 @@ model Reservation {
   @@index([liveItemId, liveSessionId])
   @@index([catalogueItemId])
   @@map("reservations")
+}
+
+// État de conversation par client (Phase 5.1) — handoff + contexte bot
+model ConversationState {
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  phone     String
+  handedOff Boolean  @default(false) @map("handed_off")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, phone])
+  @@index([tenantId])
+  @@map("conversation_states")
 }
 
 // Commande créée à la confirmation (OUI) — Story 4.5

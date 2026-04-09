@@ -12,6 +12,7 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import {
+  bulkUpdateStatusInputSchema,
   exportCsvOrdersInputSchema,
   getOrderByIdInputSchema,
   listOrdersInputSchema,
@@ -19,6 +20,7 @@ import {
 } from "./orders.schema";
 import { logOrderStatusChanged } from "~/server/events/eventLog";
 import { writeToOutbox } from "~/server/messaging/outbox";
+import { botMsg } from "~/server/messaging/templates";
 import { workerLogger } from "~/lib/logger";
 import { canTransitionFrom } from "~/lib/order-status-transitions";
 import type { OrderStatus, Prisma } from "../../../../generated/prisma";
@@ -91,6 +93,7 @@ export const ordersRouter = createTRPCRouter({
             select: {
               id: true,
               clientPhone: true,
+              address: true,
               liveItemId: true,
               liveItem: { select: { code: true } },
               catalogueItemId: true,
@@ -108,6 +111,7 @@ export const ordersRouter = createTRPCRouter({
         updatedAt: o.updatedAt,
         reservationId: o.reservationId,
         clientPhone: o.reservation.clientPhone,
+        deliveryAddress: o.reservation.address ?? null,
         liveItemCode: o.reservation.catalogueItem?.code ?? o.reservation.liveItem?.code ?? null,
       }));
     }),
@@ -246,10 +250,10 @@ export const ordersRouter = createTRPCRouter({
         const clientPhone = order.reservation.clientPhone;
         const body =
           to === "delivered"
-            ? `Ta commande ${updated.orderNumber} est livrée.`
+            ? botMsg.client.orderDelivered(updated.orderNumber)
             : to === "cancelled"
-              ? `Ta commande ${updated.orderNumber} a été annulée.`
-              : `Ta commande ${updated.orderNumber} est en cours de livraison.`;
+              ? botMsg.client.orderCancelled(updated.orderNumber)
+              : botMsg.client.orderInDelivery(updated.orderNumber);
         try {
           await writeToOutbox({
             tenantId,
@@ -273,6 +277,67 @@ export const ordersRouter = createTRPCRouter({
         orderNumber: updated.orderNumber,
         status: updated.status,
         updatedAt: updated.updatedAt,
+      };
+    }),
+
+  /** Phase 4.2: Bulk marking de plusieurs commandes vers un même statut (ex: "delivered"). */
+  bulkUpdateStatus: protectedProcedure
+    .input(bulkUpdateStatusInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const tenantId = ctx.session.user.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+      }
+
+      const orders = await db.order.findMany({
+        where: { id: { in: input.orderIds }, tenantId },
+        include: { reservation: { select: { clientPhone: true } } },
+      });
+
+      if (orders.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Aucune commande trouvée." });
+      }
+
+      const to = input.status as OrderStatus;
+      const results: { orderId: string; ok: boolean; orderNumber?: string }[] = [];
+
+      await db.$transaction(async (tx) => {
+        for (const order of orders) {
+          const from = order.status as OrderStatus;
+          if (!canTransitionFrom(from as Parameters<typeof canTransitionFrom>[0], to as Parameters<typeof canTransitionFrom>[1])) {
+            results.push({ orderId: order.id, ok: false });
+            continue;
+          }
+          await tx.order.update({ where: { id: order.id }, data: { status: to } });
+          results.push({ orderId: order.id, ok: true, orderNumber: order.orderNumber });
+        }
+      });
+
+      // Notifications WhatsApp pour les commandes réussies
+      if (to === "delivered" || to === "cancelled" || to === "in_delivery") {
+        for (const r of results.filter((r) => r.ok && r.orderNumber)) {
+          const order = orders.find((o) => o.id === r.orderId);
+          if (!order) continue;
+          const body =
+            to === "delivered"
+              ? botMsg.client.orderDelivered(r.orderNumber!)
+              : to === "cancelled"
+                ? botMsg.client.orderCancelled(r.orderNumber!)
+                : botMsg.client.orderInDelivery(r.orderNumber!);
+          await writeToOutbox({
+            tenantId,
+            to: order.reservation.clientPhone,
+            body,
+            correlationId: `bulk-${order.id}-${Date.now()}`,
+          }).catch((err) => {
+            workerLogger.error("Outbox write failed after bulk status change", { orderId: order.id, err });
+          });
+        }
+      }
+
+      return {
+        updated: results.filter((r) => r.ok).length,
+        skipped: results.filter((r) => !r.ok).length,
       };
     }),
 });

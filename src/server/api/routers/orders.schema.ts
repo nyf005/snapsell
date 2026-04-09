@@ -47,7 +47,14 @@ export const updateOrderStatusInputSchema = z.object({
 /** Story 6.5: même critères que list pour l'export CSV. */
 export const exportCsvOrdersInputSchema = listOrdersInputSchema;
 
+/** Phase 4.2: bulk marking statut sur plusieurs commandes */
+export const bulkUpdateStatusInputSchema = z.object({
+  orderIds: z.array(z.string().min(1)).min(1).max(200),
+  status: orderStatusSchema,
+});
+
 export type ListOrdersInput = z.infer<typeof listOrdersInputSchema>;
 export type GetOrderByIdInput = z.infer<typeof getOrderByIdInputSchema>;
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusInputSchema>;
 export type ExportCsvOrdersInput = z.infer<typeof exportCsvOrdersInputSchema>;
+export type BulkUpdateStatusInput = z.infer<typeof bulkUpdateStatusInputSchema>;

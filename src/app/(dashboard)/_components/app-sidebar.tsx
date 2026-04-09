@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   CreditCard,
   Grid3X3,
+  HelpCircle,
   LayoutDashboard,
   MessageCircle,
   Package,
@@ -128,6 +129,14 @@ const menuGroups: MenuGroup[] = [
     requiresGridRole: true,
     items: [
       { href: "/parametres/team", label: "Équipe", icon: Users, requiresGridRole: true },
+    ],
+  },
+  {
+    label: "Réponses FAQ",
+    section: "Configuration",
+    requiresGridRole: true,
+    items: [
+      { href: "/parametres/faq", label: "Réponses FAQ", icon: HelpCircle, requiresGridRole: true },
     ],
   },
   {

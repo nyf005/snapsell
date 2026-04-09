@@ -8,6 +8,7 @@ import { Prisma } from "../../../generated/prisma";
 import { db } from "~/server/db";
 import { getPriceFromCode } from "~/server/pricing/getPriceFromCode";
 import { getOrCreateCurrentSession, updateLastActivity } from "~/server/live-session/service";
+import { botMsg } from "~/server/messaging/templates";
 
 /** Code normalisé : trim + uppercase (aligné Story 3.1, contrainte unique) */
 export function normalizeCode(code: string): string {
@@ -17,19 +18,19 @@ export function normalizeCode(code: string): string {
 /** Message FR40 : code déjà utilisé (inclut le code pour MODIF) */
 export function messageCodeAlreadyUsed(code: string): string {
   const c = normalizeCode(code) || code;
-  return `Code déjà utilisé, choisis un autre ou envoie MODIF ${c} …`;
+  return botMsg.seller.itemAlreadyUsed(c);
 }
 
 /** Story 4.2 FR42 : code inexistant ou typo — message clair avec exemple */
 export function messageCodeUnknown(code: string): string {
   const c = normalizeCode(code) || code;
-  return `Code inconnu (ex: ${c}). Vérifie et renvoie.`;
+  return botMsg.client.codeUnknown(c);
 }
 
 /** Story 4.2 FR42 : typo avec suggestion quand le code extrait existe en session */
 export function messageCodeUnknownSuggestion(code: string): string {
   const c = normalizeCode(code) || code;
-  return `Code inconnu. Tu voulais dire ${c} ?`;
+  return botMsg.client.codeSuggestion(c);
 }
 
 export type CreateLiveItemResult =

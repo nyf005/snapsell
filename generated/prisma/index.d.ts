@@ -109,6 +109,11 @@ export type CatalogueItem = $Result.DefaultSelection<Prisma.$CatalogueItemPayloa
  */
 export type Reservation = $Result.DefaultSelection<Prisma.$ReservationPayload>
 /**
+ * Model ConversationState
+ * 
+ */
+export type ConversationState = $Result.DefaultSelection<Prisma.$ConversationStatePayload>
+/**
  * Model Order
  * 
  */
@@ -529,6 +534,16 @@ export class PrismaClient<
     * ```
     */
   get reservation(): Prisma.ReservationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.conversationState`: Exposes CRUD operations for the **ConversationState** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ConversationStates
+    * const conversationStates = await prisma.conversationState.findMany()
+    * ```
+    */
+  get conversationState(): Prisma.ConversationStateDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.order`: Exposes CRUD operations for the **Order** model.
@@ -1032,6 +1047,7 @@ export namespace Prisma {
     LiveItem: 'LiveItem',
     CatalogueItem: 'CatalogueItem',
     Reservation: 'Reservation',
+    ConversationState: 'ConversationState',
     Order: 'Order',
     PaymentProof: 'PaymentProof',
     Waitlist: 'Waitlist',
@@ -1052,7 +1068,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "messageOut" | "liveSession" | "liveItem" | "catalogueItem" | "reservation" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "subscriptionPayment"
+      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "messageOut" | "liveSession" | "liveItem" | "catalogueItem" | "reservation" | "conversationState" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "subscriptionPayment"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2462,6 +2478,80 @@ export namespace Prisma {
           }
         }
       }
+      ConversationState: {
+        payload: Prisma.$ConversationStatePayload<ExtArgs>
+        fields: Prisma.ConversationStateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ConversationStateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationStatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ConversationStateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationStatePayload>
+          }
+          findFirst: {
+            args: Prisma.ConversationStateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationStatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ConversationStateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationStatePayload>
+          }
+          findMany: {
+            args: Prisma.ConversationStateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationStatePayload>[]
+          }
+          create: {
+            args: Prisma.ConversationStateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationStatePayload>
+          }
+          createMany: {
+            args: Prisma.ConversationStateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ConversationStateCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationStatePayload>[]
+          }
+          delete: {
+            args: Prisma.ConversationStateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationStatePayload>
+          }
+          update: {
+            args: Prisma.ConversationStateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationStatePayload>
+          }
+          deleteMany: {
+            args: Prisma.ConversationStateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ConversationStateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ConversationStateUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationStatePayload>[]
+          }
+          upsert: {
+            args: Prisma.ConversationStateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationStatePayload>
+          }
+          aggregate: {
+            args: Prisma.ConversationStateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConversationState>
+          }
+          groupBy: {
+            args: Prisma.ConversationStateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConversationStateGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ConversationStateCountArgs<ExtArgs>
+            result: $Utils.Optional<ConversationStateCountAggregateOutputType> | number
+          }
+        }
+      }
       Order: {
         payload: Prisma.$OrderPayload<ExtArgs>
         fields: Prisma.OrderFieldRefs
@@ -2959,6 +3049,7 @@ export namespace Prisma {
     liveItem?: LiveItemOmit
     catalogueItem?: CatalogueItemOmit
     reservation?: ReservationOmit
+    conversationState?: ConversationStateOmit
     order?: OrderOmit
     paymentProof?: PaymentProofOmit
     waitlist?: WaitlistOmit
@@ -3045,6 +3136,7 @@ export namespace Prisma {
 
   export type TenantCountOutputType = {
     users: number
+    conversationStates: number
     categoryPrices: number
     deliveryZones: number
     deliveryFeeCommune: number
@@ -3067,6 +3159,7 @@ export namespace Prisma {
 
   export type TenantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | TenantCountOutputTypeCountUsersArgs
+    conversationStates?: boolean | TenantCountOutputTypeCountConversationStatesArgs
     categoryPrices?: boolean | TenantCountOutputTypeCountCategoryPricesArgs
     deliveryZones?: boolean | TenantCountOutputTypeCountDeliveryZonesArgs
     deliveryFeeCommune?: boolean | TenantCountOutputTypeCountDeliveryFeeCommuneArgs
@@ -3103,6 +3196,13 @@ export namespace Prisma {
    */
   export type TenantCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountConversationStatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConversationStateWhereInput
   }
 
   /**
@@ -3504,6 +3604,10 @@ export namespace Prisma {
     hasPrioritySupport: boolean | null
     showBranding: boolean | null
     showUpgradeBanner: boolean | null
+    faqDelivery: string | null
+    faqPayment: string | null
+    faqLocation: string | null
+    faqAvailability: string | null
   }
 
   export type TenantMaxAggregateOutputType = {
@@ -3535,6 +3639,10 @@ export namespace Prisma {
     hasPrioritySupport: boolean | null
     showBranding: boolean | null
     showUpgradeBanner: boolean | null
+    faqDelivery: string | null
+    faqPayment: string | null
+    faqLocation: string | null
+    faqAvailability: string | null
   }
 
   export type TenantCountAggregateOutputType = {
@@ -3566,6 +3674,10 @@ export namespace Prisma {
     hasPrioritySupport: number
     showBranding: number
     showUpgradeBanner: number
+    faqDelivery: number
+    faqPayment: number
+    faqLocation: number
+    faqAvailability: number
     _all: number
   }
 
@@ -3613,6 +3725,10 @@ export namespace Prisma {
     hasPrioritySupport?: true
     showBranding?: true
     showUpgradeBanner?: true
+    faqDelivery?: true
+    faqPayment?: true
+    faqLocation?: true
+    faqAvailability?: true
   }
 
   export type TenantMaxAggregateInputType = {
@@ -3644,6 +3760,10 @@ export namespace Prisma {
     hasPrioritySupport?: true
     showBranding?: true
     showUpgradeBanner?: true
+    faqDelivery?: true
+    faqPayment?: true
+    faqLocation?: true
+    faqAvailability?: true
   }
 
   export type TenantCountAggregateInputType = {
@@ -3675,6 +3795,10 @@ export namespace Prisma {
     hasPrioritySupport?: true
     showBranding?: true
     showUpgradeBanner?: true
+    faqDelivery?: true
+    faqPayment?: true
+    faqLocation?: true
+    faqAvailability?: true
     _all?: true
   }
 
@@ -3793,6 +3917,10 @@ export namespace Prisma {
     hasPrioritySupport: boolean
     showBranding: boolean
     showUpgradeBanner: boolean
+    faqDelivery: string | null
+    faqPayment: string | null
+    faqLocation: string | null
+    faqAvailability: string | null
     _count: TenantCountAggregateOutputType | null
     _avg: TenantAvgAggregateOutputType | null
     _sum: TenantSumAggregateOutputType | null
@@ -3843,7 +3971,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: boolean
+    faqPayment?: boolean
+    faqLocation?: boolean
+    faqAvailability?: boolean
     users?: boolean | Tenant$usersArgs<ExtArgs>
+    conversationStates?: boolean | Tenant$conversationStatesArgs<ExtArgs>
     categoryPrices?: boolean | Tenant$categoryPricesArgs<ExtArgs>
     deliveryZones?: boolean | Tenant$deliveryZonesArgs<ExtArgs>
     deliveryFeeCommune?: boolean | Tenant$deliveryFeeCommuneArgs<ExtArgs>
@@ -3894,6 +4027,10 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: boolean
+    faqPayment?: boolean
+    faqLocation?: boolean
+    faqAvailability?: boolean
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3925,6 +4062,10 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: boolean
+    faqPayment?: boolean
+    faqLocation?: boolean
+    faqAvailability?: boolean
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectScalar = {
@@ -3956,11 +4097,16 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: boolean
+    faqPayment?: boolean
+    faqLocation?: boolean
+    faqAvailability?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
+    conversationStates?: boolean | Tenant$conversationStatesArgs<ExtArgs>
     categoryPrices?: boolean | Tenant$categoryPricesArgs<ExtArgs>
     deliveryZones?: boolean | Tenant$deliveryZonesArgs<ExtArgs>
     deliveryFeeCommune?: boolean | Tenant$deliveryFeeCommuneArgs<ExtArgs>
@@ -3988,6 +4134,7 @@ export namespace Prisma {
     name: "Tenant"
     objects: {
       users: Prisma.$UserPayload<ExtArgs>[]
+      conversationStates: Prisma.$ConversationStatePayload<ExtArgs>[]
       categoryPrices: Prisma.$CategoryPricePayload<ExtArgs>[]
       deliveryZones: Prisma.$DeliveryZonePayload<ExtArgs>[]
       deliveryFeeCommune: Prisma.$DeliveryFeeCommunePayload<ExtArgs>[]
@@ -4036,6 +4183,10 @@ export namespace Prisma {
       hasPrioritySupport: boolean
       showBranding: boolean
       showUpgradeBanner: boolean
+      faqDelivery: string | null
+      faqPayment: string | null
+      faqLocation: string | null
+      faqAvailability: string | null
     }, ExtArgs["result"]["tenant"]>
     composites: {}
   }
@@ -4431,6 +4582,7 @@ export namespace Prisma {
   export interface Prisma__TenantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     users<T extends Tenant$usersArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    conversationStates<T extends Tenant$conversationStatesArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$conversationStatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     categoryPrices<T extends Tenant$categoryPricesArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$categoryPricesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CategoryPricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     deliveryZones<T extends Tenant$deliveryZonesArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$deliveryZonesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeliveryZonePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     deliveryFeeCommune<T extends Tenant$deliveryFeeCommuneArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$deliveryFeeCommuneArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeliveryFeeCommunePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4506,6 +4658,10 @@ export namespace Prisma {
     readonly hasPrioritySupport: FieldRef<"Tenant", 'Boolean'>
     readonly showBranding: FieldRef<"Tenant", 'Boolean'>
     readonly showUpgradeBanner: FieldRef<"Tenant", 'Boolean'>
+    readonly faqDelivery: FieldRef<"Tenant", 'String'>
+    readonly faqPayment: FieldRef<"Tenant", 'String'>
+    readonly faqLocation: FieldRef<"Tenant", 'String'>
+    readonly faqAvailability: FieldRef<"Tenant", 'String'>
   }
     
 
@@ -4915,6 +5071,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.conversationStates
+   */
+  export type Tenant$conversationStatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateInclude<ExtArgs> | null
+    where?: ConversationStateWhereInput
+    orderBy?: ConversationStateOrderByWithRelationInput | ConversationStateOrderByWithRelationInput[]
+    cursor?: ConversationStateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ConversationStateScalarFieldEnum | ConversationStateScalarFieldEnum[]
   }
 
   /**
@@ -25702,6 +25882,1064 @@ export namespace Prisma {
 
 
   /**
+   * Model ConversationState
+   */
+
+  export type AggregateConversationState = {
+    _count: ConversationStateCountAggregateOutputType | null
+    _min: ConversationStateMinAggregateOutputType | null
+    _max: ConversationStateMaxAggregateOutputType | null
+  }
+
+  export type ConversationStateMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    phone: string | null
+    handedOff: boolean | null
+    updatedAt: Date | null
+  }
+
+  export type ConversationStateMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    phone: string | null
+    handedOff: boolean | null
+    updatedAt: Date | null
+  }
+
+  export type ConversationStateCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    phone: number
+    handedOff: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ConversationStateMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    phone?: true
+    handedOff?: true
+    updatedAt?: true
+  }
+
+  export type ConversationStateMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    phone?: true
+    handedOff?: true
+    updatedAt?: true
+  }
+
+  export type ConversationStateCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    phone?: true
+    handedOff?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ConversationStateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversationState to aggregate.
+     */
+    where?: ConversationStateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationStates to fetch.
+     */
+    orderBy?: ConversationStateOrderByWithRelationInput | ConversationStateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ConversationStateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationStates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationStates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ConversationStates
+    **/
+    _count?: true | ConversationStateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ConversationStateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ConversationStateMaxAggregateInputType
+  }
+
+  export type GetConversationStateAggregateType<T extends ConversationStateAggregateArgs> = {
+        [P in keyof T & keyof AggregateConversationState]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateConversationState[P]>
+      : GetScalarType<T[P], AggregateConversationState[P]>
+  }
+
+
+
+
+  export type ConversationStateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConversationStateWhereInput
+    orderBy?: ConversationStateOrderByWithAggregationInput | ConversationStateOrderByWithAggregationInput[]
+    by: ConversationStateScalarFieldEnum[] | ConversationStateScalarFieldEnum
+    having?: ConversationStateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ConversationStateCountAggregateInputType | true
+    _min?: ConversationStateMinAggregateInputType
+    _max?: ConversationStateMaxAggregateInputType
+  }
+
+  export type ConversationStateGroupByOutputType = {
+    id: string
+    tenantId: string
+    phone: string
+    handedOff: boolean
+    updatedAt: Date
+    _count: ConversationStateCountAggregateOutputType | null
+    _min: ConversationStateMinAggregateOutputType | null
+    _max: ConversationStateMaxAggregateOutputType | null
+  }
+
+  type GetConversationStateGroupByPayload<T extends ConversationStateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ConversationStateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ConversationStateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ConversationStateGroupByOutputType[P]>
+            : GetScalarType<T[P], ConversationStateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ConversationStateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    phone?: boolean
+    handedOff?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationState"]>
+
+  export type ConversationStateSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    phone?: boolean
+    handedOff?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationState"]>
+
+  export type ConversationStateSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    phone?: boolean
+    handedOff?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationState"]>
+
+  export type ConversationStateSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    phone?: boolean
+    handedOff?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ConversationStateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "phone" | "handedOff" | "updatedAt", ExtArgs["result"]["conversationState"]>
+  export type ConversationStateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type ConversationStateIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type ConversationStateIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+
+  export type $ConversationStatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConversationState"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      phone: string
+      handedOff: boolean
+      updatedAt: Date
+    }, ExtArgs["result"]["conversationState"]>
+    composites: {}
+  }
+
+  type ConversationStateGetPayload<S extends boolean | null | undefined | ConversationStateDefaultArgs> = $Result.GetResult<Prisma.$ConversationStatePayload, S>
+
+  type ConversationStateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ConversationStateFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ConversationStateCountAggregateInputType | true
+    }
+
+  export interface ConversationStateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConversationState'], meta: { name: 'ConversationState' } }
+    /**
+     * Find zero or one ConversationState that matches the filter.
+     * @param {ConversationStateFindUniqueArgs} args - Arguments to find a ConversationState
+     * @example
+     * // Get one ConversationState
+     * const conversationState = await prisma.conversationState.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ConversationStateFindUniqueArgs>(args: SelectSubset<T, ConversationStateFindUniqueArgs<ExtArgs>>): Prisma__ConversationStateClient<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ConversationState that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ConversationStateFindUniqueOrThrowArgs} args - Arguments to find a ConversationState
+     * @example
+     * // Get one ConversationState
+     * const conversationState = await prisma.conversationState.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ConversationStateFindUniqueOrThrowArgs>(args: SelectSubset<T, ConversationStateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConversationStateClient<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversationState that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationStateFindFirstArgs} args - Arguments to find a ConversationState
+     * @example
+     * // Get one ConversationState
+     * const conversationState = await prisma.conversationState.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ConversationStateFindFirstArgs>(args?: SelectSubset<T, ConversationStateFindFirstArgs<ExtArgs>>): Prisma__ConversationStateClient<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversationState that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationStateFindFirstOrThrowArgs} args - Arguments to find a ConversationState
+     * @example
+     * // Get one ConversationState
+     * const conversationState = await prisma.conversationState.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ConversationStateFindFirstOrThrowArgs>(args?: SelectSubset<T, ConversationStateFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConversationStateClient<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ConversationStates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationStateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ConversationStates
+     * const conversationStates = await prisma.conversationState.findMany()
+     * 
+     * // Get first 10 ConversationStates
+     * const conversationStates = await prisma.conversationState.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const conversationStateWithIdOnly = await prisma.conversationState.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ConversationStateFindManyArgs>(args?: SelectSubset<T, ConversationStateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ConversationState.
+     * @param {ConversationStateCreateArgs} args - Arguments to create a ConversationState.
+     * @example
+     * // Create one ConversationState
+     * const ConversationState = await prisma.conversationState.create({
+     *   data: {
+     *     // ... data to create a ConversationState
+     *   }
+     * })
+     * 
+     */
+    create<T extends ConversationStateCreateArgs>(args: SelectSubset<T, ConversationStateCreateArgs<ExtArgs>>): Prisma__ConversationStateClient<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ConversationStates.
+     * @param {ConversationStateCreateManyArgs} args - Arguments to create many ConversationStates.
+     * @example
+     * // Create many ConversationStates
+     * const conversationState = await prisma.conversationState.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ConversationStateCreateManyArgs>(args?: SelectSubset<T, ConversationStateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ConversationStates and returns the data saved in the database.
+     * @param {ConversationStateCreateManyAndReturnArgs} args - Arguments to create many ConversationStates.
+     * @example
+     * // Create many ConversationStates
+     * const conversationState = await prisma.conversationState.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ConversationStates and only return the `id`
+     * const conversationStateWithIdOnly = await prisma.conversationState.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ConversationStateCreateManyAndReturnArgs>(args?: SelectSubset<T, ConversationStateCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ConversationState.
+     * @param {ConversationStateDeleteArgs} args - Arguments to delete one ConversationState.
+     * @example
+     * // Delete one ConversationState
+     * const ConversationState = await prisma.conversationState.delete({
+     *   where: {
+     *     // ... filter to delete one ConversationState
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ConversationStateDeleteArgs>(args: SelectSubset<T, ConversationStateDeleteArgs<ExtArgs>>): Prisma__ConversationStateClient<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ConversationState.
+     * @param {ConversationStateUpdateArgs} args - Arguments to update one ConversationState.
+     * @example
+     * // Update one ConversationState
+     * const conversationState = await prisma.conversationState.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ConversationStateUpdateArgs>(args: SelectSubset<T, ConversationStateUpdateArgs<ExtArgs>>): Prisma__ConversationStateClient<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ConversationStates.
+     * @param {ConversationStateDeleteManyArgs} args - Arguments to filter ConversationStates to delete.
+     * @example
+     * // Delete a few ConversationStates
+     * const { count } = await prisma.conversationState.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ConversationStateDeleteManyArgs>(args?: SelectSubset<T, ConversationStateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversationStates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationStateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ConversationStates
+     * const conversationState = await prisma.conversationState.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ConversationStateUpdateManyArgs>(args: SelectSubset<T, ConversationStateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversationStates and returns the data updated in the database.
+     * @param {ConversationStateUpdateManyAndReturnArgs} args - Arguments to update many ConversationStates.
+     * @example
+     * // Update many ConversationStates
+     * const conversationState = await prisma.conversationState.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ConversationStates and only return the `id`
+     * const conversationStateWithIdOnly = await prisma.conversationState.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ConversationStateUpdateManyAndReturnArgs>(args: SelectSubset<T, ConversationStateUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ConversationState.
+     * @param {ConversationStateUpsertArgs} args - Arguments to update or create a ConversationState.
+     * @example
+     * // Update or create a ConversationState
+     * const conversationState = await prisma.conversationState.upsert({
+     *   create: {
+     *     // ... data to create a ConversationState
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ConversationState we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ConversationStateUpsertArgs>(args: SelectSubset<T, ConversationStateUpsertArgs<ExtArgs>>): Prisma__ConversationStateClient<$Result.GetResult<Prisma.$ConversationStatePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ConversationStates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationStateCountArgs} args - Arguments to filter ConversationStates to count.
+     * @example
+     * // Count the number of ConversationStates
+     * const count = await prisma.conversationState.count({
+     *   where: {
+     *     // ... the filter for the ConversationStates we want to count
+     *   }
+     * })
+    **/
+    count<T extends ConversationStateCountArgs>(
+      args?: Subset<T, ConversationStateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ConversationStateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ConversationState.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationStateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ConversationStateAggregateArgs>(args: Subset<T, ConversationStateAggregateArgs>): Prisma.PrismaPromise<GetConversationStateAggregateType<T>>
+
+    /**
+     * Group by ConversationState.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationStateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ConversationStateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ConversationStateGroupByArgs['orderBy'] }
+        : { orderBy?: ConversationStateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ConversationStateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConversationStateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ConversationState model
+   */
+  readonly fields: ConversationStateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ConversationState.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ConversationStateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ConversationState model
+   */
+  interface ConversationStateFieldRefs {
+    readonly id: FieldRef<"ConversationState", 'String'>
+    readonly tenantId: FieldRef<"ConversationState", 'String'>
+    readonly phone: FieldRef<"ConversationState", 'String'>
+    readonly handedOff: FieldRef<"ConversationState", 'Boolean'>
+    readonly updatedAt: FieldRef<"ConversationState", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ConversationState findUnique
+   */
+  export type ConversationStateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationState to fetch.
+     */
+    where: ConversationStateWhereUniqueInput
+  }
+
+  /**
+   * ConversationState findUniqueOrThrow
+   */
+  export type ConversationStateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationState to fetch.
+     */
+    where: ConversationStateWhereUniqueInput
+  }
+
+  /**
+   * ConversationState findFirst
+   */
+  export type ConversationStateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationState to fetch.
+     */
+    where?: ConversationStateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationStates to fetch.
+     */
+    orderBy?: ConversationStateOrderByWithRelationInput | ConversationStateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversationStates.
+     */
+    cursor?: ConversationStateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationStates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationStates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversationStates.
+     */
+    distinct?: ConversationStateScalarFieldEnum | ConversationStateScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationState findFirstOrThrow
+   */
+  export type ConversationStateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationState to fetch.
+     */
+    where?: ConversationStateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationStates to fetch.
+     */
+    orderBy?: ConversationStateOrderByWithRelationInput | ConversationStateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversationStates.
+     */
+    cursor?: ConversationStateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationStates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationStates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversationStates.
+     */
+    distinct?: ConversationStateScalarFieldEnum | ConversationStateScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationState findMany
+   */
+  export type ConversationStateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationStates to fetch.
+     */
+    where?: ConversationStateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationStates to fetch.
+     */
+    orderBy?: ConversationStateOrderByWithRelationInput | ConversationStateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ConversationStates.
+     */
+    cursor?: ConversationStateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationStates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationStates.
+     */
+    skip?: number
+    distinct?: ConversationStateScalarFieldEnum | ConversationStateScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationState create
+   */
+  export type ConversationStateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ConversationState.
+     */
+    data: XOR<ConversationStateCreateInput, ConversationStateUncheckedCreateInput>
+  }
+
+  /**
+   * ConversationState createMany
+   */
+  export type ConversationStateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ConversationStates.
+     */
+    data: ConversationStateCreateManyInput | ConversationStateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ConversationState createManyAndReturn
+   */
+  export type ConversationStateCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * The data used to create many ConversationStates.
+     */
+    data: ConversationStateCreateManyInput | ConversationStateCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ConversationState update
+   */
+  export type ConversationStateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ConversationState.
+     */
+    data: XOR<ConversationStateUpdateInput, ConversationStateUncheckedUpdateInput>
+    /**
+     * Choose, which ConversationState to update.
+     */
+    where: ConversationStateWhereUniqueInput
+  }
+
+  /**
+   * ConversationState updateMany
+   */
+  export type ConversationStateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ConversationStates.
+     */
+    data: XOR<ConversationStateUpdateManyMutationInput, ConversationStateUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversationStates to update
+     */
+    where?: ConversationStateWhereInput
+    /**
+     * Limit how many ConversationStates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversationState updateManyAndReturn
+   */
+  export type ConversationStateUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * The data used to update ConversationStates.
+     */
+    data: XOR<ConversationStateUpdateManyMutationInput, ConversationStateUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversationStates to update
+     */
+    where?: ConversationStateWhereInput
+    /**
+     * Limit how many ConversationStates to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ConversationState upsert
+   */
+  export type ConversationStateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ConversationState to update in case it exists.
+     */
+    where: ConversationStateWhereUniqueInput
+    /**
+     * In case the ConversationState found by the `where` argument doesn't exist, create a new ConversationState with this data.
+     */
+    create: XOR<ConversationStateCreateInput, ConversationStateUncheckedCreateInput>
+    /**
+     * In case the ConversationState was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ConversationStateUpdateInput, ConversationStateUncheckedUpdateInput>
+  }
+
+  /**
+   * ConversationState delete
+   */
+  export type ConversationStateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateInclude<ExtArgs> | null
+    /**
+     * Filter which ConversationState to delete.
+     */
+    where: ConversationStateWhereUniqueInput
+  }
+
+  /**
+   * ConversationState deleteMany
+   */
+  export type ConversationStateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversationStates to delete
+     */
+    where?: ConversationStateWhereInput
+    /**
+     * Limit how many ConversationStates to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversationState without action
+   */
+  export type ConversationStateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationState
+     */
+    select?: ConversationStateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationState
+     */
+    omit?: ConversationStateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationStateInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model Order
    */
 
@@ -31534,7 +32772,11 @@ export namespace Prisma {
     hasAdvancedFilters: 'hasAdvancedFilters',
     hasPrioritySupport: 'hasPrioritySupport',
     showBranding: 'showBranding',
-    showUpgradeBanner: 'showUpgradeBanner'
+    showUpgradeBanner: 'showUpgradeBanner',
+    faqDelivery: 'faqDelivery',
+    faqPayment: 'faqPayment',
+    faqLocation: 'faqLocation',
+    faqAvailability: 'faqAvailability'
   };
 
   export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
@@ -31788,6 +33030,17 @@ export namespace Prisma {
   };
 
   export type ReservationScalarFieldEnum = (typeof ReservationScalarFieldEnum)[keyof typeof ReservationScalarFieldEnum]
+
+
+  export const ConversationStateScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    phone: 'phone',
+    handedOff: 'handedOff',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ConversationStateScalarFieldEnum = (typeof ConversationStateScalarFieldEnum)[keyof typeof ConversationStateScalarFieldEnum]
 
 
   export const OrderScalarFieldEnum: {
@@ -32120,7 +33373,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFilter<"Tenant"> | boolean
     showBranding?: BoolFilter<"Tenant"> | boolean
     showUpgradeBanner?: BoolFilter<"Tenant"> | boolean
+    faqDelivery?: StringNullableFilter<"Tenant"> | string | null
+    faqPayment?: StringNullableFilter<"Tenant"> | string | null
+    faqLocation?: StringNullableFilter<"Tenant"> | string | null
+    faqAvailability?: StringNullableFilter<"Tenant"> | string | null
     users?: UserListRelationFilter
+    conversationStates?: ConversationStateListRelationFilter
     categoryPrices?: CategoryPriceListRelationFilter
     deliveryZones?: DeliveryZoneListRelationFilter
     deliveryFeeCommune?: DeliveryFeeCommuneListRelationFilter
@@ -32170,7 +33428,12 @@ export namespace Prisma {
     hasPrioritySupport?: SortOrder
     showBranding?: SortOrder
     showUpgradeBanner?: SortOrder
+    faqDelivery?: SortOrderInput | SortOrder
+    faqPayment?: SortOrderInput | SortOrder
+    faqLocation?: SortOrderInput | SortOrder
+    faqAvailability?: SortOrderInput | SortOrder
     users?: UserOrderByRelationAggregateInput
+    conversationStates?: ConversationStateOrderByRelationAggregateInput
     categoryPrices?: CategoryPriceOrderByRelationAggregateInput
     deliveryZones?: DeliveryZoneOrderByRelationAggregateInput
     deliveryFeeCommune?: DeliveryFeeCommuneOrderByRelationAggregateInput
@@ -32223,7 +33486,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFilter<"Tenant"> | boolean
     showBranding?: BoolFilter<"Tenant"> | boolean
     showUpgradeBanner?: BoolFilter<"Tenant"> | boolean
+    faqDelivery?: StringNullableFilter<"Tenant"> | string | null
+    faqPayment?: StringNullableFilter<"Tenant"> | string | null
+    faqLocation?: StringNullableFilter<"Tenant"> | string | null
+    faqAvailability?: StringNullableFilter<"Tenant"> | string | null
     users?: UserListRelationFilter
+    conversationStates?: ConversationStateListRelationFilter
     categoryPrices?: CategoryPriceListRelationFilter
     deliveryZones?: DeliveryZoneListRelationFilter
     deliveryFeeCommune?: DeliveryFeeCommuneListRelationFilter
@@ -32273,6 +33541,10 @@ export namespace Prisma {
     hasPrioritySupport?: SortOrder
     showBranding?: SortOrder
     showUpgradeBanner?: SortOrder
+    faqDelivery?: SortOrderInput | SortOrder
+    faqPayment?: SortOrderInput | SortOrder
+    faqLocation?: SortOrderInput | SortOrder
+    faqAvailability?: SortOrderInput | SortOrder
     _count?: TenantCountOrderByAggregateInput
     _avg?: TenantAvgOrderByAggregateInput
     _max?: TenantMaxOrderByAggregateInput
@@ -32312,6 +33584,10 @@ export namespace Prisma {
     hasPrioritySupport?: BoolWithAggregatesFilter<"Tenant"> | boolean
     showBranding?: BoolWithAggregatesFilter<"Tenant"> | boolean
     showUpgradeBanner?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    faqDelivery?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    faqPayment?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    faqLocation?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    faqAvailability?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
   }
 
   export type InvitationWhereInput = {
@@ -33627,6 +34903,62 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Reservation"> | Date | string
   }
 
+  export type ConversationStateWhereInput = {
+    AND?: ConversationStateWhereInput | ConversationStateWhereInput[]
+    OR?: ConversationStateWhereInput[]
+    NOT?: ConversationStateWhereInput | ConversationStateWhereInput[]
+    id?: StringFilter<"ConversationState"> | string
+    tenantId?: StringFilter<"ConversationState"> | string
+    phone?: StringFilter<"ConversationState"> | string
+    handedOff?: BoolFilter<"ConversationState"> | boolean
+    updatedAt?: DateTimeFilter<"ConversationState"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }
+
+  export type ConversationStateOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    phone?: SortOrder
+    handedOff?: SortOrder
+    updatedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+  }
+
+  export type ConversationStateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenantId_phone?: ConversationStateTenantIdPhoneCompoundUniqueInput
+    AND?: ConversationStateWhereInput | ConversationStateWhereInput[]
+    OR?: ConversationStateWhereInput[]
+    NOT?: ConversationStateWhereInput | ConversationStateWhereInput[]
+    tenantId?: StringFilter<"ConversationState"> | string
+    phone?: StringFilter<"ConversationState"> | string
+    handedOff?: BoolFilter<"ConversationState"> | boolean
+    updatedAt?: DateTimeFilter<"ConversationState"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }, "id" | "tenantId_phone">
+
+  export type ConversationStateOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    phone?: SortOrder
+    handedOff?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ConversationStateCountOrderByAggregateInput
+    _max?: ConversationStateMaxOrderByAggregateInput
+    _min?: ConversationStateMinOrderByAggregateInput
+  }
+
+  export type ConversationStateScalarWhereWithAggregatesInput = {
+    AND?: ConversationStateScalarWhereWithAggregatesInput | ConversationStateScalarWhereWithAggregatesInput[]
+    OR?: ConversationStateScalarWhereWithAggregatesInput[]
+    NOT?: ConversationStateScalarWhereWithAggregatesInput | ConversationStateScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ConversationState"> | string
+    tenantId?: StringWithAggregatesFilter<"ConversationState"> | string
+    phone?: StringWithAggregatesFilter<"ConversationState"> | string
+    handedOff?: BoolWithAggregatesFilter<"ConversationState"> | boolean
+    updatedAt?: DateTimeWithAggregatesFilter<"ConversationState"> | Date | string
+  }
+
   export type OrderWhereInput = {
     AND?: OrderWhereInput | OrderWhereInput[]
     OR?: OrderWhereInput[]
@@ -34080,7 +35412,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -34130,7 +35467,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -34180,7 +35522,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -34230,7 +35577,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -34280,6 +35632,10 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
   }
 
   export type TenantUpdateManyMutationInput = {
@@ -34311,6 +35667,10 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TenantUncheckedUpdateManyInput = {
@@ -34342,6 +35702,10 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InvitationCreateInput = {
@@ -35731,6 +37095,61 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ConversationStateCreateInput = {
+    id?: string
+    phone: string
+    handedOff?: boolean
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutConversationStatesInput
+  }
+
+  export type ConversationStateUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    phone: string
+    handedOff?: boolean
+    updatedAt?: Date | string
+  }
+
+  export type ConversationStateUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutConversationStatesNestedInput
+  }
+
+  export type ConversationStateUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationStateCreateManyInput = {
+    id?: string
+    tenantId: string
+    phone: string
+    handedOff?: boolean
+    updatedAt?: Date | string
+  }
+
+  export type ConversationStateUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationStateUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OrderCreateInput = {
     id?: string
     orderNumber: string
@@ -36263,6 +37682,12 @@ export namespace Prisma {
     none?: UserWhereInput
   }
 
+  export type ConversationStateListRelationFilter = {
+    every?: ConversationStateWhereInput
+    some?: ConversationStateWhereInput
+    none?: ConversationStateWhereInput
+  }
+
   export type CategoryPriceListRelationFilter = {
     every?: CategoryPriceWhereInput
     some?: CategoryPriceWhereInput
@@ -36380,6 +37805,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type ConversationStateOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type CategoryPriceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -36481,6 +37910,10 @@ export namespace Prisma {
     hasPrioritySupport?: SortOrder
     showBranding?: SortOrder
     showUpgradeBanner?: SortOrder
+    faqDelivery?: SortOrder
+    faqPayment?: SortOrder
+    faqLocation?: SortOrder
+    faqAvailability?: SortOrder
   }
 
   export type TenantAvgOrderByAggregateInput = {
@@ -36519,6 +37952,10 @@ export namespace Prisma {
     hasPrioritySupport?: SortOrder
     showBranding?: SortOrder
     showUpgradeBanner?: SortOrder
+    faqDelivery?: SortOrder
+    faqPayment?: SortOrder
+    faqLocation?: SortOrder
+    faqAvailability?: SortOrder
   }
 
   export type TenantMinOrderByAggregateInput = {
@@ -36550,6 +37987,10 @@ export namespace Prisma {
     hasPrioritySupport?: SortOrder
     showBranding?: SortOrder
     showUpgradeBanner?: SortOrder
+    faqDelivery?: SortOrder
+    faqPayment?: SortOrder
+    faqLocation?: SortOrder
+    faqAvailability?: SortOrder
   }
 
   export type TenantSumOrderByAggregateInput = {
@@ -37568,6 +39009,35 @@ export namespace Prisma {
     _max?: NestedEnumReservationStatusFilter<$PrismaModel>
   }
 
+  export type ConversationStateTenantIdPhoneCompoundUniqueInput = {
+    tenantId: string
+    phone: string
+  }
+
+  export type ConversationStateCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    phone?: SortOrder
+    handedOff?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ConversationStateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    phone?: SortOrder
+    handedOff?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ConversationStateMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    phone?: SortOrder
+    handedOff?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type EnumOrderStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.OrderStatus | EnumOrderStatusFieldRefInput<$PrismaModel>
     in?: $Enums.OrderStatus[] | ListEnumOrderStatusFieldRefInput<$PrismaModel>
@@ -37906,6 +39376,13 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
+  export type ConversationStateCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ConversationStateCreateWithoutTenantInput, ConversationStateUncheckedCreateWithoutTenantInput> | ConversationStateCreateWithoutTenantInput[] | ConversationStateUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationStateCreateOrConnectWithoutTenantInput | ConversationStateCreateOrConnectWithoutTenantInput[]
+    createMany?: ConversationStateCreateManyTenantInputEnvelope
+    connect?: ConversationStateWhereUniqueInput | ConversationStateWhereUniqueInput[]
+  }
+
   export type CategoryPriceCreateNestedManyWithoutTenantInput = {
     create?: XOR<CategoryPriceCreateWithoutTenantInput, CategoryPriceUncheckedCreateWithoutTenantInput> | CategoryPriceCreateWithoutTenantInput[] | CategoryPriceUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: CategoryPriceCreateOrConnectWithoutTenantInput | CategoryPriceCreateOrConnectWithoutTenantInput[]
@@ -38037,6 +39514,13 @@ export namespace Prisma {
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
     createMany?: UserCreateManyTenantInputEnvelope
     connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
+  export type ConversationStateUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ConversationStateCreateWithoutTenantInput, ConversationStateUncheckedCreateWithoutTenantInput> | ConversationStateCreateWithoutTenantInput[] | ConversationStateUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationStateCreateOrConnectWithoutTenantInput | ConversationStateCreateOrConnectWithoutTenantInput[]
+    createMany?: ConversationStateCreateManyTenantInputEnvelope
+    connect?: ConversationStateWhereUniqueInput | ConversationStateWhereUniqueInput[]
   }
 
   export type CategoryPriceUncheckedCreateNestedManyWithoutTenantInput = {
@@ -38205,6 +39689,20 @@ export namespace Prisma {
     update?: UserUpdateWithWhereUniqueWithoutTenantInput | UserUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: UserUpdateManyWithWhereWithoutTenantInput | UserUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type ConversationStateUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ConversationStateCreateWithoutTenantInput, ConversationStateUncheckedCreateWithoutTenantInput> | ConversationStateCreateWithoutTenantInput[] | ConversationStateUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationStateCreateOrConnectWithoutTenantInput | ConversationStateCreateOrConnectWithoutTenantInput[]
+    upsert?: ConversationStateUpsertWithWhereUniqueWithoutTenantInput | ConversationStateUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ConversationStateCreateManyTenantInputEnvelope
+    set?: ConversationStateWhereUniqueInput | ConversationStateWhereUniqueInput[]
+    disconnect?: ConversationStateWhereUniqueInput | ConversationStateWhereUniqueInput[]
+    delete?: ConversationStateWhereUniqueInput | ConversationStateWhereUniqueInput[]
+    connect?: ConversationStateWhereUniqueInput | ConversationStateWhereUniqueInput[]
+    update?: ConversationStateUpdateWithWhereUniqueWithoutTenantInput | ConversationStateUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ConversationStateUpdateManyWithWhereWithoutTenantInput | ConversationStateUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ConversationStateScalarWhereInput | ConversationStateScalarWhereInput[]
   }
 
   export type CategoryPriceUpdateManyWithoutTenantNestedInput = {
@@ -38471,6 +39969,20 @@ export namespace Prisma {
     update?: UserUpdateWithWhereUniqueWithoutTenantInput | UserUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: UserUpdateManyWithWhereWithoutTenantInput | UserUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
+  export type ConversationStateUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ConversationStateCreateWithoutTenantInput, ConversationStateUncheckedCreateWithoutTenantInput> | ConversationStateCreateWithoutTenantInput[] | ConversationStateUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationStateCreateOrConnectWithoutTenantInput | ConversationStateCreateOrConnectWithoutTenantInput[]
+    upsert?: ConversationStateUpsertWithWhereUniqueWithoutTenantInput | ConversationStateUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ConversationStateCreateManyTenantInputEnvelope
+    set?: ConversationStateWhereUniqueInput | ConversationStateWhereUniqueInput[]
+    disconnect?: ConversationStateWhereUniqueInput | ConversationStateWhereUniqueInput[]
+    delete?: ConversationStateWhereUniqueInput | ConversationStateWhereUniqueInput[]
+    connect?: ConversationStateWhereUniqueInput | ConversationStateWhereUniqueInput[]
+    update?: ConversationStateUpdateWithWhereUniqueWithoutTenantInput | ConversationStateUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ConversationStateUpdateManyWithWhereWithoutTenantInput | ConversationStateUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ConversationStateScalarWhereInput | ConversationStateScalarWhereInput[]
   }
 
   export type CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput = {
@@ -39417,6 +40929,20 @@ export namespace Prisma {
     update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutReservationInput, OrderUpdateWithoutReservationInput>, OrderUncheckedUpdateWithoutReservationInput>
   }
 
+  export type TenantCreateNestedOneWithoutConversationStatesInput = {
+    create?: XOR<TenantCreateWithoutConversationStatesInput, TenantUncheckedCreateWithoutConversationStatesInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutConversationStatesInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type TenantUpdateOneRequiredWithoutConversationStatesNestedInput = {
+    create?: XOR<TenantCreateWithoutConversationStatesInput, TenantUncheckedCreateWithoutConversationStatesInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutConversationStatesInput
+    upsert?: TenantUpsertWithoutConversationStatesInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutConversationStatesInput, TenantUpdateWithoutConversationStatesInput>, TenantUncheckedUpdateWithoutConversationStatesInput>
+  }
+
   export type TenantCreateNestedOneWithoutOrdersInput = {
     create?: XOR<TenantCreateWithoutOrdersInput, TenantUncheckedCreateWithoutOrdersInput>
     connectOrCreate?: TenantCreateOrConnectWithoutOrdersInput
@@ -39971,6 +41497,30 @@ export namespace Prisma {
 
   export type UserCreateManyTenantInputEnvelope = {
     data: UserCreateManyTenantInput | UserCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ConversationStateCreateWithoutTenantInput = {
+    id?: string
+    phone: string
+    handedOff?: boolean
+    updatedAt?: Date | string
+  }
+
+  export type ConversationStateUncheckedCreateWithoutTenantInput = {
+    id?: string
+    phone: string
+    handedOff?: boolean
+    updatedAt?: Date | string
+  }
+
+  export type ConversationStateCreateOrConnectWithoutTenantInput = {
+    where: ConversationStateWhereUniqueInput
+    create: XOR<ConversationStateCreateWithoutTenantInput, ConversationStateUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ConversationStateCreateManyTenantInputEnvelope = {
+    data: ConversationStateCreateManyTenantInput | ConversationStateCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
@@ -40595,6 +42145,33 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
   }
 
+  export type ConversationStateUpsertWithWhereUniqueWithoutTenantInput = {
+    where: ConversationStateWhereUniqueInput
+    update: XOR<ConversationStateUpdateWithoutTenantInput, ConversationStateUncheckedUpdateWithoutTenantInput>
+    create: XOR<ConversationStateCreateWithoutTenantInput, ConversationStateUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ConversationStateUpdateWithWhereUniqueWithoutTenantInput = {
+    where: ConversationStateWhereUniqueInput
+    data: XOR<ConversationStateUpdateWithoutTenantInput, ConversationStateUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type ConversationStateUpdateManyWithWhereWithoutTenantInput = {
+    where: ConversationStateScalarWhereInput
+    data: XOR<ConversationStateUpdateManyMutationInput, ConversationStateUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type ConversationStateScalarWhereInput = {
+    AND?: ConversationStateScalarWhereInput | ConversationStateScalarWhereInput[]
+    OR?: ConversationStateScalarWhereInput[]
+    NOT?: ConversationStateScalarWhereInput | ConversationStateScalarWhereInput[]
+    id?: StringFilter<"ConversationState"> | string
+    tenantId?: StringFilter<"ConversationState"> | string
+    phone?: StringFilter<"ConversationState"> | string
+    handedOff?: BoolFilter<"ConversationState"> | boolean
+    updatedAt?: DateTimeFilter<"ConversationState"> | Date | string
+  }
+
   export type CategoryPriceUpsertWithWhereUniqueWithoutTenantInput = {
     where: CategoryPriceWhereUniqueInput
     update: XOR<CategoryPriceUpdateWithoutTenantInput, CategoryPriceUncheckedUpdateWithoutTenantInput>
@@ -41180,7 +42757,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -41229,7 +42811,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -41294,7 +42881,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -41343,7 +42935,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -41392,7 +42989,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
     invitations?: InvitationCreateNestedManyWithoutTenantInput
@@ -41441,7 +43043,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
@@ -41526,7 +43133,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUpdateManyWithoutTenantNestedInput
@@ -41575,7 +43187,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
@@ -41701,7 +43318,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     invitations?: InvitationCreateNestedManyWithoutTenantInput
@@ -41750,7 +43372,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
@@ -41815,7 +43442,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUpdateManyWithoutTenantNestedInput
@@ -41864,7 +43496,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
@@ -41913,6 +43550,11 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -41962,6 +43604,11 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -42087,6 +43734,11 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -42136,6 +43788,11 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -42397,7 +44054,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
     invitations?: InvitationCreateNestedManyWithoutTenantInput
@@ -42446,7 +44108,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
     invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
@@ -42511,7 +44178,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUpdateManyWithoutTenantNestedInput
@@ -42560,7 +44232,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
@@ -42609,7 +44286,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -42658,7 +44340,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -42723,7 +44410,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -42772,7 +44464,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -42821,7 +44518,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -42870,7 +44572,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -42935,7 +44642,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -42984,7 +44696,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -43033,7 +44750,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -43082,7 +44804,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -43147,7 +44874,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -43196,7 +44928,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -43245,7 +44982,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -43294,7 +45036,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -43359,7 +45106,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -43408,7 +45160,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -43457,7 +45214,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -43506,7 +45268,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -43571,7 +45338,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -43620,7 +45392,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -43669,7 +45446,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -43718,7 +45500,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -43863,7 +45650,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -43912,7 +45704,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -43993,7 +45790,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -44042,7 +45844,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -44174,7 +45981,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -44223,7 +46035,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -44319,7 +46136,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -44368,7 +46190,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -44507,7 +46334,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -44556,7 +46388,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -44637,7 +46474,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -44686,7 +46528,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -44873,7 +46720,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -44922,7 +46774,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -45088,6 +46945,238 @@ export namespace Prisma {
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutOrderNestedInput
   }
 
+  export type TenantCreateWithoutConversationStatesInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    users?: UserCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutConversationStatesInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutConversationStatesInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutConversationStatesInput, TenantUncheckedCreateWithoutConversationStatesInput>
+  }
+
+  export type TenantUpsertWithoutConversationStatesInput = {
+    update: XOR<TenantUpdateWithoutConversationStatesInput, TenantUncheckedUpdateWithoutConversationStatesInput>
+    create: XOR<TenantCreateWithoutConversationStatesInput, TenantUncheckedCreateWithoutConversationStatesInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutConversationStatesInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutConversationStatesInput, TenantUncheckedUpdateWithoutConversationStatesInput>
+  }
+
+  export type TenantUpdateWithoutConversationStatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutConversationStatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
   export type TenantCreateWithoutOrdersInput = {
     id?: string
     name: string
@@ -45117,7 +47206,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -45166,7 +47260,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -45302,7 +47401,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -45351,7 +47455,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -45488,7 +47597,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -45537,7 +47651,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -45637,7 +47756,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -45686,7 +47810,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -45735,7 +47864,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -45784,7 +47918,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -45884,7 +48023,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -45933,7 +48077,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -46023,7 +48172,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -46072,7 +48226,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -46137,7 +48296,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -46186,7 +48350,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -46235,7 +48404,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
@@ -46284,7 +48458,12 @@ export namespace Prisma {
     hasPrioritySupport?: boolean
     showBranding?: boolean
     showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
@@ -46349,7 +48528,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
@@ -46398,7 +48582,12 @@ export namespace Prisma {
     hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
     showBranding?: BoolFieldUpdateOperationsInput | boolean
     showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
@@ -46428,6 +48617,13 @@ export namespace Prisma {
     role?: $Enums.Role
     tokenVersion?: number
     createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ConversationStateCreateManyTenantInput = {
+    id?: string
+    phone: string
+    handedOff?: boolean
     updatedAt?: Date | string
   }
 
@@ -46667,6 +48863,27 @@ export namespace Prisma {
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     tokenVersion?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationStateUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationStateUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationStateUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

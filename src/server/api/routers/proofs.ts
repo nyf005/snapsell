@@ -18,6 +18,7 @@ import {
 import { workerLogger } from "~/lib/logger";
 import { logDepositApproved, logDepositRejected } from "~/server/events/eventLog";
 import { writeToOutbox } from "~/server/messaging/outbox";
+import { botMsg } from "~/server/messaging/templates";
 
 export const proofsRouter = createTRPCRouter({
   listPending: protectedProcedure.query(async ({ ctx }) => {
@@ -138,7 +139,7 @@ export const proofsRouter = createTRPCRouter({
         await writeToOutbox({
           tenantId,
           to: clientPhone,
-          body: `Ta commande ${proof.order.orderNumber} est confirmée.`,
+          body: botMsg.client.proofApproved(proof.order.orderNumber),
           correlationId,
         });
       } catch (err) {
@@ -214,7 +215,7 @@ export const proofsRouter = createTRPCRouter({
         await writeToOutbox({
           tenantId,
           to: clientPhone,
-          body: `Ta preuve d'acompte pour ${proof.order.orderNumber} n'a pas été acceptée. Réenvoie une preuve ou contacte le vendeur.`,
+          body: botMsg.client.proofRejected(proof.order.orderNumber),
           correlationId,
         });
       } catch (err) {
@@ -296,7 +297,7 @@ export const proofsRouter = createTRPCRouter({
             await writeToOutbox({
               tenantId,
               to: clientPhone,
-              body: `Ta commande ${proof.order.orderNumber} est confirmée.`,
+              body: botMsg.client.proofApproved(proof.order.orderNumber),
               correlationId,
             });
           } catch (err) {
@@ -371,7 +372,7 @@ export const proofsRouter = createTRPCRouter({
             await writeToOutbox({
               tenantId,
               to: clientPhone,
-              body: `Ta preuve d'acompte pour ${proof.order.orderNumber} n'a pas été acceptée. Réenvoie une preuve ou contacte le vendeur.`,
+              body: botMsg.client.proofRejected(proof.order.orderNumber),
               correlationId,
             });
           } catch (err) {

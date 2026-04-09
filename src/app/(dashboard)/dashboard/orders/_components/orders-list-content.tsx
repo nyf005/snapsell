@@ -9,6 +9,7 @@ import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header"
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
+import { Checkbox } from "~/components/ui/checkbox";
 import {
   Popover,
   PopoverContent,
@@ -59,8 +60,12 @@ import {
   CalendarIcon,
   FileCheck,
   Download,
+  MapPin,
+  Phone,
+  CheckCheck,
 } from "lucide-react";
 import { getAllowedNextStatuses } from "~/lib/order-status-transitions";
+
 function formatOrderDate(date: Date) {
   return new Intl.DateTimeFormat("fr-FR", {
     day: "numeric",
@@ -77,6 +82,11 @@ function formatDateShort(date: Date) {
     month: "short",
     year: "numeric",
   }).format(date);
+}
+
+function formatPrice(cents: number | null) {
+  if (!cents) return "—";
+  return new Intl.NumberFormat("fr-FR").format(Math.round(cents / 100)) + " FCFA";
 }
 
 type OrderStatus =
@@ -106,7 +116,7 @@ const STATUS_FILTER_OPTIONS: { value: "" | OrderStatus; label: string }[] = [
   { value: "cancelled", label: "Annulée" },
 ];
 
-/** Story 6.3: transitions depuis ~/lib/order-status-transitions (partagé avec le serveur). */
+const TERMINAL_STATUSES: OrderStatus[] = ["delivered", "cancelled"];
 
 function StatusBadge({
   status,
@@ -153,11 +163,51 @@ function StatusBadge({
 const canChangeStatus = (s: OrderStatus) =>
   getAllowedNextStatuses(s as Parameters<typeof getAllowedNextStatuses>[0]).length > 0;
 
+type Order = {
+  id: string;
+  orderNumber: string;
+  status: string;
+  depositStatus: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  reservationId: string;
+  clientPhone: string;
+  deliveryAddress: string | null;
+  liveItemCode: string | null;
+};
+
+type ClientGroup = {
+  clientPhone: string;
+  deliveryAddress: string | null;
+  orders: Order[];
+};
+
+function groupByClient(orders: Order[]): ClientGroup[] {
+  const map = new Map<string, ClientGroup>();
+  for (const order of orders) {
+    const existing = map.get(order.clientPhone);
+    if (existing) {
+      existing.orders.push(order);
+      // Use most recent address
+      if (order.deliveryAddress) existing.deliveryAddress = order.deliveryAddress;
+    } else {
+      map.set(order.clientPhone, {
+        clientPhone: order.clientPhone,
+        deliveryAddress: order.deliveryAddress,
+        orders: [order],
+      });
+    }
+  }
+  return Array.from(map.values());
+}
+
 export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boolean }) {
   const [statusFilter, setStatusFilter] = useState<"" | OrderStatus>("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [search, setSearch] = useState("");
+  const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
+  const [bulkError, setBulkError] = useState<string | null>(null);
 
   const queryInput = useMemo(
     () => ({
@@ -173,6 +223,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
   const [exportError, setExportError] = useState<string | null>(null);
   const { data: orders = [], isLoading } = api.orders.list.useQuery(queryInput);
   const { data: pendingProofCount = 0 } = api.proofs.pendingCount.useQuery();
+
   const updateStatus = api.orders.updateStatus.useMutation({
     onSuccess: () => {
       void utils.orders.list.invalidate();
@@ -182,24 +233,31 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
     },
   });
 
+  const bulkUpdateStatus = api.orders.bulkUpdateStatus.useMutation({
+    onSuccess: () => {
+      setSelectedOrderIds(new Set());
+      setBulkError(null);
+      void utils.orders.list.invalidate();
+    },
+    onError: (err) => {
+      setBulkError(err.message);
+    },
+  });
+
   const handleExportCsv = async () => {
     if (!canExportCsv) return;
     setIsExporting(true);
     setExportError(null);
     try {
       const data = await utils.orders.exportCsv.fetch(queryInput);
-      const blob = new Blob([data.csv], {
-        type: "text/csv;charset=utf-8",
-      });
+      const blob = new Blob([data.csv], { type: "text/csv;charset=utf-8" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = data.filename;
       a.click();
       URL.revokeObjectURL(a.href);
     } catch (e) {
-      const message =
-        e instanceof Error ? e.message : "Export impossible. Réessayez.";
-      setExportError(message);
+      setExportError(e instanceof Error ? e.message : "Export impossible. Réessayez.");
     } finally {
       setIsExporting(false);
     }
@@ -216,20 +274,61 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
     );
   }, [orders, search]);
 
-  const kpis = useMemo(() => {
-    return {
-      total: orders.length,
-      pendingDeposit: orders.filter((o) => o.status === "confirmed_pending_deposit").length,
-      toDeliver: orders.filter(
-        (o) =>
-          o.status === "confirmed" ||
-          o.status === "confirmed_pending_deposit" ||
-          o.status === "preparing" ||
-          o.status === "in_delivery",
-      ).length,
-      cancelled: orders.filter((o) => o.status === "cancelled").length,
-    };
-  }, [orders]);
+  const clientGroups = useMemo(() => groupByClient(filteredBySearch), [filteredBySearch]);
+
+  const kpis = useMemo(() => ({
+    total: orders.length,
+    pendingDeposit: orders.filter((o) => o.status === "confirmed_pending_deposit").length,
+    toDeliver: orders.filter((o) =>
+      ["confirmed", "confirmed_pending_deposit", "preparing", "in_delivery"].includes(o.status),
+    ).length,
+    cancelled: orders.filter((o) => o.status === "cancelled").length,
+  }), [orders]);
+
+  const selectableOrderIds = useMemo(
+    () => filteredBySearch.filter((o) => !TERMINAL_STATUSES.includes(o.status as OrderStatus)).map((o) => o.id),
+    [filteredBySearch],
+  );
+
+  const allSelected = selectableOrderIds.length > 0 && selectableOrderIds.every((id) => selectedOrderIds.has(id));
+  const someSelected = selectedOrderIds.size > 0;
+
+  function toggleOrder(id: string) {
+    setSelectedOrderIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    if (allSelected) {
+      setSelectedOrderIds(new Set());
+    } else {
+      setSelectedOrderIds(new Set(selectableOrderIds));
+    }
+  }
+
+  function toggleGroup(group: ClientGroup) {
+    const groupSelectableIds = group.orders
+      .filter((o) => !TERMINAL_STATUSES.includes(o.status as OrderStatus))
+      .map((o) => o.id);
+    const allGroupSelected = groupSelectableIds.every((id) => selectedOrderIds.has(id));
+    setSelectedOrderIds((prev) => {
+      const next = new Set(prev);
+      if (allGroupSelected) {
+        groupSelectableIds.forEach((id) => next.delete(id));
+      } else {
+        groupSelectableIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  }
+
+  function handleBulkDeliver() {
+    if (selectedOrderIds.size === 0) return;
+    bulkUpdateStatus.mutate({ orderIds: Array.from(selectedOrderIds), status: "delivered" });
+  }
 
   return (
     <>
@@ -240,12 +339,9 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
             {/* Page Header */}
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-black tracking-tight">
-                  Gestion des commandes
-                </h1>
+                <h1 className="text-3xl font-black tracking-tight">Gestion des commandes</h1>
                 <p className="max-w-2xl text-muted-foreground">
-                  Consultez la liste des commandes avec filtres par statut et date.
-                  Gérez les livraisons et annulations.
+                  Commandes groupées par client. Préparez les colis et marquez les livraisons en masse.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -256,9 +352,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                     aria-label={`${pendingProofCount} preuve(s) à valider`}
                   >
                     <FileCheck className="size-4" />
-                    <span>
-                      {pendingProofCount} preuve{pendingProofCount > 1 ? "s" : ""} à valider
-                    </span>
+                    <span>{pendingProofCount} preuve{pendingProofCount > 1 ? "s" : ""} à valider</span>
                   </Link>
                 )}
                 {canExportCsv && (
@@ -270,16 +364,11 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                       onClick={() => void handleExportCsv()}
                       disabled={isExporting}
                       className="gap-2"
-                      aria-label="Exporter les commandes en CSV"
                     >
                       <Download className="size-4" />
                       {isExporting ? "Export…" : "Exporter en CSV"}
                     </Button>
-                    {exportError && (
-                      <p className="text-sm text-destructive" role="alert">
-                        {exportError}
-                      </p>
-                    )}
+                    {exportError && <p className="text-sm text-destructive">{exportError}</p>}
                   </div>
                 )}
               </div>
@@ -287,30 +376,10 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <KpiCard
-                label="Total commandes"
-                value={kpis.total}
-                icon={ListOrdered}
-                iconVariant="primary"
-              />
-              <KpiCard
-                label="En attente acompte"
-                value={kpis.pendingDeposit}
-                icon={Wallet}
-                iconVariant="warning"
-              />
-              <KpiCard
-                label="À livrer"
-                value={kpis.toDeliver}
-                icon={Truck}
-                iconVariant="success"
-              />
-              <KpiCard
-                label="Annulées"
-                value={kpis.cancelled}
-                icon={XCircle}
-                iconVariant="destructive"
-              />
+              <KpiCard label="Total commandes" value={kpis.total} icon={ListOrdered} iconVariant="primary" />
+              <KpiCard label="En attente acompte" value={kpis.pendingDeposit} icon={Wallet} iconVariant="warning" />
+              <KpiCard label="À livrer" value={kpis.toDeliver} icon={Truck} iconVariant="success" />
+              <KpiCard label="Annulées" value={kpis.cancelled} icon={XCircle} iconVariant="destructive" />
             </div>
 
             {/* Filter Section */}
@@ -340,9 +409,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                     </label>
                     <Select
                       value={statusFilter || "all"}
-                      onValueChange={(v) =>
-                        setStatusFilter((v === "all" ? "" : v) as "" | OrderStatus)
-                      }
+                      onValueChange={(v) => setStatusFilter((v === "all" ? "" : v) as "" | OrderStatus)}
                     >
                       <SelectTrigger
                         id="orders-status-filter"
@@ -352,10 +419,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                       </SelectTrigger>
                       <SelectContent>
                         {STATUS_FILTER_OPTIONS.map((opt) => (
-                          <SelectItem
-                            key={opt.value || "all"}
-                            value={opt.value || "all"}
-                          >
+                          <SelectItem key={opt.value || "all"} value={opt.value || "all"}>
                             {opt.label}
                           </SelectItem>
                         ))}
@@ -371,9 +435,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                         <Button
                           variant="outline"
                           className="h-11 w-full justify-start rounded-lg border-border bg-muted/50 text-left font-normal data-[empty=true]:text-muted-foreground"
-                          data-empty={
-                            !dateFrom && !dateTo
-                          }
+                          data-empty={!dateFrom && !dateTo}
                         >
                           <CalendarIcon className="mr-2 size-4" />
                           {dateFrom && dateTo
@@ -388,28 +450,15 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="range"
-                          defaultMonth={
-                            dateFrom
-                              ? new Date(dateFrom)
-                              : dateTo
-                                ? new Date(dateTo)
-                                : new Date()
-                          }
+                          defaultMonth={dateFrom ? new Date(dateFrom) : dateTo ? new Date(dateTo) : new Date()}
                           selected={
                             dateFrom || dateTo
-                              ? {
-                                  from: dateFrom ? new Date(dateFrom) : undefined,
-                                  to: dateTo ? new Date(dateTo) : undefined,
-                                }
+                              ? { from: dateFrom ? new Date(dateFrom) : undefined, to: dateTo ? new Date(dateTo) : undefined }
                               : undefined
                           }
                           onSelect={(range: DateRange | undefined) => {
-                            setDateFrom(
-                              range?.from?.toISOString().slice(0, 10) ?? "",
-                            );
-                            setDateTo(
-                              range?.to?.toISOString().slice(0, 10) ?? "",
-                            );
+                            setDateFrom(range?.from?.toISOString().slice(0, 10) ?? "");
+                            setDateTo(range?.to?.toISOString().slice(0, 10) ?? "");
                           }}
                           numberOfMonths={2}
                           locale={fr}
@@ -427,15 +476,12 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                     Rafraîchir
                   </Button>
                 </div>
-                {/* Tabs (quick filters) */}
+                {/* Quick filter tabs */}
                 <div className="flex gap-1 border-t border-border pt-3">
                   {[
                     { value: "" as const, label: "Toutes" },
                     { value: "confirmed" as const, label: "Confirmée" },
-                    {
-                      value: "confirmed_pending_deposit" as const,
-                      label: "En attente acompte",
-                    },
+                    { value: "confirmed_pending_deposit" as const, label: "En attente acompte" },
                     { value: "preparing" as const, label: "Prépa" },
                     { value: "in_delivery" as const, label: "En livraison" },
                     { value: "delivered" as const, label: "Livrée" },
@@ -458,186 +504,284 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
               </CardContent>
             </Card>
 
-            {/* Table */}
+            {/* Bulk action bar */}
+            {someSelected && (
+              <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
+                <span className="text-sm font-semibold text-foreground">
+                  {selectedOrderIds.size} commande{selectedOrderIds.size > 1 ? "s" : ""} sélectionnée{selectedOrderIds.size > 1 ? "s" : ""}
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedOrderIds(new Set())}
+                  >
+                    Désélectionner
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+                    onClick={handleBulkDeliver}
+                    disabled={bulkUpdateStatus.isPending}
+                  >
+                    <CheckCheck className="size-4" />
+                    {bulkUpdateStatus.isPending ? "Mise à jour…" : "Marquer comme livré"}
+                  </Button>
+                </div>
+              </div>
+            )}
+            {bulkError && <p className="text-sm text-destructive">{bulkError}</p>}
+
+            {/* Table groupée par client */}
             <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
                   <Spinner className="size-8" />
                   <span className="text-sm">Chargement…</span>
                 </div>
+              ) : filteredBySearch.length === 0 ? (
+                <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+                  <Empty className="mx-auto max-w-sm border-0 p-0">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
+                        <Package />
+                      </EmptyMedia>
+                      <EmptyTitle>Aucune commande</EmptyTitle>
+                      <EmptyDescription>
+                        Aucune commande ne correspond aux critères. Modifiez les filtres ou la recherche.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                </div>
               ) : (
                 <>
-                <div className="min-h-0 flex-1 overflow-x-auto">
-                  <Table aria-label="Liste des commandes">
+                  <div className="min-h-0 flex-1 overflow-x-auto">
+                    <Table aria-label="Liste des commandes groupées par client">
                       <TableHeader>
                         <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
-                          <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <TableHead className="w-10 px-4 py-4">
+                            <Checkbox
+                              checked={allSelected}
+                              onCheckedChange={toggleAll}
+                              aria-label="Tout sélectionner"
+                            />
+                          </TableHead>
+                          <TableHead className="px-4 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             N° commande
                           </TableHead>
-                          <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <TableHead className="px-4 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             Code article
                           </TableHead>
-                          <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            Client
-                          </TableHead>
-                          <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <TableHead className="px-4 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             Statut
                           </TableHead>
-                          <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <TableHead className="px-4 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             Créée le
                           </TableHead>
-                          <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <TableHead className="w-12 px-4 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             Actions
                           </TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredBySearch.length === 0 ? (
-                          <TableRow className="hover:bg-transparent">
-                            <TableCell colSpan={6} className="px-6 py-16 text-center">
-                              <Empty className="mx-auto max-w-sm border-0 p-0">
-                                <EmptyHeader>
-                                  <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
-                                    <Package />
-                                  </EmptyMedia>
-                                  <EmptyTitle>Aucune commande</EmptyTitle>
-                                  <EmptyDescription>
-                                    Aucune commande ne correspond aux critères. Modifiez les filtres ou la recherche.
-                                  </EmptyDescription>
-                                </EmptyHeader>
-                              </Empty>
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          filteredBySearch.map((order, idx) => {
-                            const status = order.status as OrderStatus;
-                            const canAct = canChangeStatus(status);
-                            return (
+                        {clientGroups.map((group) => {
+                          const groupSelectableIds = group.orders
+                            .filter((o) => !TERMINAL_STATUSES.includes(o.status as OrderStatus))
+                            .map((o) => o.id);
+                          const groupAllSelected =
+                            groupSelectableIds.length > 0 &&
+                            groupSelectableIds.every((id) => selectedOrderIds.has(id));
+                          const hasSelectableOrders = groupSelectableIds.length > 0;
+
+                          const hasMixedStatuses = new Set(group.orders.map((o) => o.status)).size > 1;
+
+                          return (
+                            <>
+                              {/* Client group header row */}
                               <TableRow
-                                key={order.id}
-                                className={`border-border transition-colors hover:bg-muted/40 ${idx % 2 === 1 ? "bg-muted/20" : ""}`}
+                                key={`group-${group.clientPhone}`}
+                                className="border-border bg-muted/40 hover:bg-muted/50"
                               >
-                              <TableCell className="px-6 py-4 font-bold text-primary">
-                                {order.orderNumber}
-                              </TableCell>
-                              <TableCell className="px-6 py-4 text-sm font-medium text-foreground">
-                                {order.liveItemCode ?? "—"}
-                              </TableCell>
-                              <TableCell className="px-6 py-4">
-                                <div className="flex flex-col">
-                                  <span className="text-sm font-bold text-foreground">
-                                    {order.clientPhone}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="px-6 py-4">
-                                <StatusBadge
-                                  status={status}
-                                  depositStatus={order.depositStatus}
-                                />
-                              </TableCell>
-                              <TableCell className="px-6 py-4 text-sm text-muted-foreground">
-                                {formatOrderDate(new Date(order.createdAt))}
-                              </TableCell>
-                              <TableCell className="px-6 py-4 text-right">
-                                <div className="flex justify-end gap-1">
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="size-9 text-muted-foreground hover:bg-muted hover:text-foreground"
-                                        aria-label={`Voir la commande ${order.orderNumber}`}
-                                      >
-                                        <Eye className="size-5" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>Voir le détail</TooltipContent>
-                                  </Tooltip>
-                                  {canAct && (
-                                    <Select
-                                      value=""
-                                      onValueChange={(newStatus) => {
-                                        if (newStatus && getAllowedNextStatuses(status as Parameters<typeof getAllowedNextStatuses>[0]).includes(newStatus as OrderStatus)) {
-                                          updateStatus.mutate({
-                                            orderId: order.id,
-                                            status: newStatus as OrderStatus,
-                                          });
-                                        }
-                                      }}
-                                      disabled={updateStatus.isPending}
-                                      aria-label={`Changer le statut de la commande ${order.orderNumber}`}
-                                    >
-                                      <SelectTrigger className="h-9 w-[140px] border-border bg-muted/50">
-                                        <SelectValue placeholder="Nouveau statut" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {getAllowedNextStatuses(status as Parameters<typeof getAllowedNextStatuses>[0]).map((next) => (
-                                          <SelectItem
-                                            key={next}
-                                            value={next}
-                                          >
-                                            {STATUS_LABELS[next]}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
+                                <TableCell className="px-4 py-3">
+                                  {hasSelectableOrders ? (
+                                    <Checkbox
+                                      checked={groupAllSelected}
+                                      onCheckedChange={() => toggleGroup(group)}
+                                      aria-label={`Sélectionner toutes les commandes de ${group.clientPhone}`}
+                                    />
+                                  ) : (
+                                    <span className="inline-block size-4" />
                                   )}
-                                  {status === "delivered" && (
+                                </TableCell>
+                                <TableCell colSpan={4} className="px-4 py-3">
+                                  <div className="flex flex-wrap items-center gap-4">
+                                    <div className="flex items-center gap-2 font-bold text-foreground">
+                                      <Phone className="size-4 text-muted-foreground" />
+                                      {group.clientPhone}
+                                    </div>
+                                    {group.deliveryAddress && (
+                                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                        <MapPin className="size-3.5 shrink-0" />
+                                        <span className="max-w-xs truncate">{group.deliveryAddress}</span>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                      <span className="font-semibold">{group.orders.length} commande{group.orders.length > 1 ? "s" : ""}</span>
+                                      {hasMixedStatuses && (
+                                        <Badge variant="secondary" className="text-xs">
+                                          Statuts mixtes
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="px-4 py-3 text-right">
+                                  {hasSelectableOrders && (
                                     <Tooltip>
                                       <TooltipTrigger asChild>
-                                        <span className="inline-flex size-9 cursor-not-allowed items-center justify-center rounded-lg text-muted-foreground/50">
-                                          <CheckCircle className="size-5" />
-                                        </span>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="gap-1.5 text-xs"
+                                          onClick={() => {
+                                            bulkUpdateStatus.mutate({
+                                              orderIds: groupSelectableIds,
+                                              status: "delivered",
+                                            });
+                                          }}
+                                          disabled={bulkUpdateStatus.isPending}
+                                        >
+                                          <CheckCheck className="size-3.5" />
+                                          Tout livrer
+                                        </Button>
                                       </TooltipTrigger>
-                                      <TooltipContent>
-                                        Déjà livrée
-                                      </TooltipContent>
+                                      <TooltipContent>Marquer toutes les commandes de ce client comme livrées</TooltipContent>
                                     </Tooltip>
                                   )}
-                                  {status === "cancelled" && (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <span className="inline-flex size-9 cursor-not-allowed items-center justify-center rounded-lg text-muted-foreground/50">
-                                          <Ban className="size-5" />
-                                        </span>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        Commande annulée
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                </div>
-                              </TableCell>
+                                </TableCell>
                               </TableRow>
-                            );
-                          })
-                        )}
+
+                              {/* Order rows for this client */}
+                              {group.orders.map((order, idx) => {
+                                const status = order.status as OrderStatus;
+                                const canAct = canChangeStatus(status);
+                                const isTerminal = TERMINAL_STATUSES.includes(status);
+                                const isSelected = selectedOrderIds.has(order.id);
+
+                                return (
+                                  <TableRow
+                                    key={order.id}
+                                    className={`border-border transition-colors hover:bg-muted/40 ${idx % 2 === 1 ? "bg-muted/10" : ""} ${isSelected ? "bg-primary/5" : ""}`}
+                                  >
+                                    <TableCell className="px-4 py-3">
+                                      {!isTerminal ? (
+                                        <Checkbox
+                                          checked={isSelected}
+                                          onCheckedChange={() => toggleOrder(order.id)}
+                                          aria-label={`Sélectionner la commande ${order.orderNumber}`}
+                                        />
+                                      ) : (
+                                        <span className="inline-block size-4" />
+                                      )}
+                                    </TableCell>
+                                    <TableCell className="px-4 py-3 font-bold text-primary">
+                                      {order.orderNumber}
+                                    </TableCell>
+                                    <TableCell className="px-4 py-3 text-sm font-medium text-foreground">
+                                      {order.liveItemCode ?? "—"}
+                                    </TableCell>
+                                    <TableCell className="px-4 py-3">
+                                      <StatusBadge status={status} depositStatus={order.depositStatus} />
+                                    </TableCell>
+                                    <TableCell className="px-4 py-3 text-sm text-muted-foreground">
+                                      {formatOrderDate(new Date(order.createdAt))}
+                                    </TableCell>
+                                    <TableCell className="px-4 py-3 text-right">
+                                      <div className="flex justify-end gap-1">
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <Button
+                                              size="icon"
+                                              variant="ghost"
+                                              className="size-9 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                              aria-label={`Voir la commande ${order.orderNumber}`}
+                                            >
+                                              <Eye className="size-5" />
+                                            </Button>
+                                          </TooltipTrigger>
+                                          <TooltipContent>Voir le détail</TooltipContent>
+                                        </Tooltip>
+                                        {canAct && (
+                                          <Select
+                                            value=""
+                                            onValueChange={(newStatus) => {
+                                              if (
+                                                newStatus &&
+                                                getAllowedNextStatuses(status as Parameters<typeof getAllowedNextStatuses>[0]).includes(newStatus as OrderStatus)
+                                              ) {
+                                                updateStatus.mutate({ orderId: order.id, status: newStatus as OrderStatus });
+                                              }
+                                            }}
+                                            disabled={updateStatus.isPending}
+                                          >
+                                            <SelectTrigger className="h-9 w-[140px] border-border bg-muted/50">
+                                              <SelectValue placeholder="Nouveau statut" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              {getAllowedNextStatuses(status as Parameters<typeof getAllowedNextStatuses>[0]).map((next) => (
+                                                <SelectItem key={next} value={next}>
+                                                  {STATUS_LABELS[next]}
+                                                </SelectItem>
+                                              ))}
+                                            </SelectContent>
+                                          </Select>
+                                        )}
+                                        {status === "delivered" && (
+                                          <Tooltip>
+                                            <TooltipTrigger asChild>
+                                              <span className="inline-flex size-9 cursor-not-allowed items-center justify-center rounded-lg text-muted-foreground/50">
+                                                <CheckCircle className="size-5" />
+                                              </span>
+                                            </TooltipTrigger>
+                                            <TooltipContent>Déjà livrée</TooltipContent>
+                                          </Tooltip>
+                                        )}
+                                        {status === "cancelled" && (
+                                          <Tooltip>
+                                            <TooltipTrigger asChild>
+                                              <span className="inline-flex size-9 cursor-not-allowed items-center justify-center rounded-lg text-muted-foreground/50">
+                                                <Ban className="size-5" />
+                                              </span>
+                                            </TooltipTrigger>
+                                            <TooltipContent>Commande annulée</TooltipContent>
+                                          </Tooltip>
+                                        )}
+                                      </div>
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </>
+                          );
+                        })}
                       </TableBody>
                     </Table>
-                </div>
-                <div className="flex shrink-0 items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
-                  <p className="text-xs text-muted-foreground">
-                    {filteredBySearch.length} sur {filteredBySearch.length} résultat{filteredBySearch.length > 1 ? "s" : ""}
-                  </p>
-                  <span className="flex gap-2" aria-label="Pagination (sera activée avec les données serveur)">
-                    <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                      Précédent
-                    </Button>
-                    <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                      Suivant
-                    </Button>
-                  </span>
-                </div>
+                  </div>
+                  <div className="flex shrink-0 items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
+                    <p className="text-xs text-muted-foreground">
+                      {filteredBySearch.length} commande{filteredBySearch.length > 1 ? "s" : ""} — {clientGroups.length} client{clientGroups.length > 1 ? "s" : ""}
+                    </p>
+                    <span className="flex gap-2" aria-label="Pagination">
+                      <Button variant="outline" size="xs" disabled>Précédent</Button>
+                      <Button variant="outline" size="xs" disabled>Suivant</Button>
+                    </span>
+                  </div>
                 </>
               )}
             </Card>
 
             {updateStatus.isError && (
-              <p
-                className="text-sm text-destructive"
-                role="alert"
-              >
+              <p className="text-sm text-destructive" role="alert">
                 {updateStatus.error.message}
               </p>
             )}

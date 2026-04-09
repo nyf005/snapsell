@@ -13,6 +13,7 @@ import {
 import {
   connectWhatsAppEmbeddedInputSchema,
   setCategoryPricesInputSchema,
+  setFaqSettingsInputSchema,
   setMetaConfigInputSchema,
 } from "./settings.schema";
 import {
@@ -408,5 +409,49 @@ export const settingsRouter = createTRPCRouter({
       return {
         ok: true,
       };
+    }),
+
+  /** Phase 5.3: Get FAQ answers configured for this tenant. */
+  getFaqSettings: protectedProcedure.query(async ({ ctx }) => {
+    if (!canManageGrid(ctx.session.user.role as string)) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Seuls Owner et Manager peuvent consulter les FAQ." });
+    }
+    const tenantId = ctx.session.user.tenantId;
+    if (!tenantId) throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+
+    const tenant = await db.tenant.findUnique({
+      where: { id: tenantId },
+      select: { faqDelivery: true, faqPayment: true, faqLocation: true, faqAvailability: true },
+    });
+
+    return {
+      faqDelivery: tenant?.faqDelivery ?? null,
+      faqPayment: tenant?.faqPayment ?? null,
+      faqLocation: tenant?.faqLocation ?? null,
+      faqAvailability: tenant?.faqAvailability ?? null,
+    };
+  }),
+
+  /** Phase 5.3: Save FAQ answers for this tenant. */
+  setFaqSettings: protectedProcedure
+    .input(setFaqSettingsInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      if (!canManageGrid(ctx.session.user.role as string)) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Seuls Owner et Manager peuvent modifier les FAQ." });
+      }
+      const tenantId = ctx.session.user.tenantId;
+      if (!tenantId) throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+
+      await db.tenant.update({
+        where: { id: tenantId },
+        data: {
+          faqDelivery: input.faqDelivery ?? null,
+          faqPayment: input.faqPayment ?? null,
+          faqLocation: input.faqLocation ?? null,
+          faqAvailability: input.faqAvailability ?? null,
+        },
+      });
+
+      return { ok: true };
     }),
 });
