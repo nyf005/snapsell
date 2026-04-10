@@ -170,8 +170,10 @@ export function AppSidebar({
   const pathname = usePathname();
 
   const isItemActive = (href: string, exactMatch = false) => {
-    if (href === "/dashboard") {
-      return pathname === "/dashboard";
+    // Pages racines : correspondance exacte uniquement pour éviter les faux positifs
+    // Ex: /parametres ne doit pas être actif sur /parametres/whatsapp
+    if (href === "/dashboard" || href === "/parametres") {
+      return pathname === href;
     }
     if (exactMatch) {
       return pathname === href;
@@ -284,7 +286,7 @@ export function AppSidebar({
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border px-2 py-2">
+      <SidebarHeader className="h-[65px] border-b border-sidebar-border px-2 py-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild className="h-auto rounded-md p-3">
