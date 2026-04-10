@@ -120,6 +120,16 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
         attempts: 0,
         correlationId: validatedMessage.correlationId,
       },
+      select: {
+        id: true,
+        tenantId: true,
+        to: true,
+        body: true,
+        status: true,
+        attempts: true,
+        correlationId: true,
+        createdAt: true,
+      },
     });
 
     // Enqueue via QStash (prod) ou pg-boss (dev) pour traitement immédiat

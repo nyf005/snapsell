@@ -9,6 +9,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { isR2Configured, createR2Client, getR2BucketName } from "~/server/media/r2-client";
+import { resolveMetaMediaUrl } from "~/server/media/resolve-meta-media";
 
 /**
  * Télécharge le média depuis mediaUrl, upload vers R2,
@@ -28,20 +29,39 @@ export async function uploadMediaAndLinkToLiveItem(
     return;
   }
 
-  // Valider que mediaUrl est une URL valide (évite fetch vers chaîne arbitraire)
+  // Résoudre meta-media:// → URL HTTPS téléchargeable via Meta Graph API
+  let resolvedUrl = mediaUrl;
+  if (mediaUrl.startsWith("meta-media://")) {
+    const tenant = await db.tenant.findUnique({
+      where: { id: tenantId },
+      select: { metaAccessToken: true },
+    });
+    if (!tenant?.metaAccessToken) {
+      workerLogger.warn("No Meta access token, skipping live item media upload", { correlationId, liveItemId });
+      return;
+    }
+    const resolved = await resolveMetaMediaUrl(mediaUrl, tenant.metaAccessToken, correlationId);
+    if (!resolved) {
+      workerLogger.warn("Could not resolve meta-media URL, skipping live item upload", { correlationId, liveItemId });
+      return;
+    }
+    resolvedUrl = resolved;
+  }
+
+  // Valider que l'URL résolue est bien une URL HTTP(S) valide
   try {
-    new URL(mediaUrl);
+    new URL(resolvedUrl);
   } catch {
-    workerLogger.warn("Invalid mediaUrl, skipping upload", {
+    workerLogger.warn("Invalid resolved mediaUrl, skipping upload", {
       correlationId,
       liveItemId,
-      mediaUrl: mediaUrl.slice(0, 80),
+      mediaUrl: resolvedUrl.slice(0, 80),
     });
     return;
   }
 
   try {
-    const response = await fetch(mediaUrl);
+    const response = await fetch(resolvedUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch media: ${response.status} ${response.statusText}`);
     }
@@ -76,7 +96,7 @@ export async function uploadMediaAndLinkToLiveItem(
       correlationId,
       tenantId,
       liveItemId,
-      mediaUrl: mediaUrl.slice(0, 80),
+      mediaUrl: resolvedUrl.slice(0, 80),
     });
     throw error;
   }
