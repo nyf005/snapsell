@@ -81,7 +81,7 @@ export function FaqSettingsContent() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-6 md:p-8">
+    <>
       <DashboardHeader
         left={
           <div>
@@ -93,57 +93,59 @@ export function FaqSettingsContent() {
         }
       />
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Spinner />
-        </div>
-      ) : (
-        <Card>
-          <CardHeader className="pb-2 text-sm font-medium text-muted-foreground">
-            Chaque réponse sera envoyée automatiquement quand le bot détecte la question correspondante.
-          </CardHeader>
-          <CardContent className="flex flex-col gap-6">
-            {FAQ_FIELDS.map((field) => (
-              <div key={field.key} className="flex flex-col gap-1.5">
-                <Label htmlFor={field.key} className="font-semibold">
-                  {field.label}
-                </Label>
-                <p className="text-xs text-muted-foreground">{field.description}</p>
-                <textarea
-                  id={field.key}
-                  className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  placeholder={field.placeholder}
-                  value={values[field.key]}
-                  onChange={(e) => handleChange(field.key, e.target.value)}
-                  maxLength={1000}
-                />
-                <p className="text-xs text-muted-foreground text-right">
-                  {values[field.key].length}/1000
-                </p>
-              </div>
-            ))}
+      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Spinner />
+          </div>
+        ) : (
+          <Card>
+            <CardHeader className="pb-2 text-sm font-medium text-muted-foreground">
+              Chaque réponse sera envoyée automatiquement quand le bot détecte la question correspondante.
+            </CardHeader>
+            <CardContent className="flex flex-col gap-6">
+              {FAQ_FIELDS.map((field) => (
+                <div key={field.key} className="flex flex-col gap-1.5">
+                  <Label htmlFor={field.key} className="font-semibold">
+                    {field.label}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">{field.description}</p>
+                  <textarea
+                    id={field.key}
+                    className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    placeholder={field.placeholder}
+                    value={values[field.key]}
+                    onChange={(e) => handleChange(field.key, e.target.value)}
+                    maxLength={1000}
+                  />
+                  <p className="text-right text-xs text-muted-foreground">
+                    {values[field.key].length}/1000
+                  </p>
+                </div>
+              ))}
 
-            <div className="flex items-center justify-between pt-2">
-              {saveMutation.isSuccess && (
-                <span className="text-sm text-green-600">Réponses enregistrées ✓</span>
-              )}
-              {saveMutation.isError && (
-                <span className="text-sm text-red-600">Erreur lors de la sauvegarde.</span>
-              )}
-              {!saveMutation.isSuccess && !saveMutation.isError && <span />}
-
-              <Button onClick={handleSave} disabled={saveMutation.isPending}>
-                {saveMutation.isPending ? (
-                  <Spinner className="mr-2 h-4 w-4" />
-                ) : (
-                  <Save className="mr-2 h-4 w-4" />
+              <div className="flex items-center justify-between pt-2">
+                {saveMutation.isSuccess && (
+                  <span className="text-sm text-green-600">Réponses enregistrées ✓</span>
                 )}
-                Enregistrer
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+                {saveMutation.isError && (
+                  <span className="text-sm text-red-600">Erreur lors de la sauvegarde.</span>
+                )}
+                {!saveMutation.isSuccess && !saveMutation.isError && <span />}
+
+                <Button onClick={handleSave} disabled={saveMutation.isPending}>
+                  {saveMutation.isPending ? (
+                    <Spinner className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  Enregistrer
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </>
   );
 }
