@@ -168,8 +168,9 @@ export const liveRouter = createTRPCRouter({
     // Awaité directement (pas de fire-and-forget) pour garantir l'envoi avant que
     // Vercel serverless termine la fonction. Erreur non-bloquante : catch silencieux.
     try {
-      const [orderCount, pendingReservations, items, sellerPhone] = await Promise.all([
-        db.order.count({ where: { tenantId, reservation: { liveSessionId: session.id } } }),
+      const [orderCount, pendingDeposit, pendingReservations, items, sellerPhone] = await Promise.all([
+        db.order.count({ where: { tenantId, reservation: { liveSessionId: session.id }, status: { not: "confirmed_pending_deposit" } } }),
+        db.order.count({ where: { tenantId, reservation: { liveSessionId: session.id }, status: "confirmed_pending_deposit" } }),
         db.reservation.count({
           where: { tenantId, liveSessionId: session.id, status: { in: ["reserved", "address_collected"] } },
         }),
@@ -194,6 +195,7 @@ export const liveRouter = createTRPCRouter({
           to: sellerPhone.phoneNumber,
           body: botMsg.seller.liveSummary({
             orderCount,
+            pendingDeposit,
             pendingReservations,
             unsoldItems,
             revenue: revenueInFcfa,

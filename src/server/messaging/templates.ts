@@ -220,47 +220,49 @@ export const botMsg = {
     liveSummary: (opts: {
       orderCount: number;
       pendingReservations: number;
+      pendingDeposit: number;
       unsoldItems: number;
       revenue: number;
     }) => {
       const revenueFormatted = opts.revenue.toLocaleString("fr-FR");
       return (
         `📊 *Résumé de ta session live*\n\n` +
-        `✅ Commandes créées : ${opts.orderCount}\n` +
-        `⏳ Réservations en attente : ${opts.pendingReservations}\n` +
+        `✅ Commandes confirmées : ${opts.orderCount}\n` +
+        (opts.pendingDeposit > 0 ? `💳 En attente d'acompte : ${opts.pendingDeposit}\n` : "") +
+        `⏳ Réservations en cours : ${opts.pendingReservations}\n` +
         `📦 Articles non vendus : ${opts.unsoldItems}\n` +
         `💰 Chiffre d'affaires : ${revenueFormatted} FCFA`
       );
     },
 
     itemCreated: (code: string, qty: number) =>
-      `Créé : ${code} (x${qty}) ✅`,
+      `✅ *${code}* ajouté — ${qty} en stock`,
 
     itemCreatedWithPhoto: (code: string, qty: number) =>
-      `Créé : ${code} (x${qty}) ✅ Photo ajoutée au catalogue.`,
+      `✅ *${code}* ajouté — ${qty} en stock 📸`,
 
     itemAlreadyUsed: (code: string) =>
-      `Code déjà utilisé, choisis un autre ou envoie MODIF ${code} …`,
+      `⚠️ Le code *${code}* est déjà utilisé dans cette session.\n\nChoisis un autre code (ex: ${code}B) ou libère le stock existant depuis le dashboard.`,
 
     catalogueAdded: (code: string, qty: number) =>
-      `Ajouté au catalogue : ${code} (x${qty}) ✅`,
+      `✅ *${code}* ajouté au catalogue — ${qty} en stock`,
 
     catalogueWithPhoto: (code: string) =>
-      `Photo ajoutée à ${code} ✅`,
+      `✅ Photo ajoutée à *${code}*`,
 
     photoLinked: (code: string) =>
-      `Photo ajoutée à ${code} ✅`,
+      `✅ Photo ajoutée à *${code}*`,
 
     photoNoCode: () =>
-      `Envoie d'abord CODE PRIX`,
+      `📸 Photo reçue, mais je ne sais pas à quel article la lier.\n\nEnvoie d'abord le code et le prix (ex: *A12 5000*) puis renvoie la photo.`,
 
     noPriceConfigured: (letter: string) =>
-      `Pas de prix configuré pour la catégorie « ${letter} ». Configure les prix dans le dashboard.`,
+      `⚠️ Aucun prix configuré pour la catégorie *${letter}*.\n\nVa dans le dashboard → Grille de prix pour l'ajouter.`,
 
     codeNotInCatalogue: (code: string) =>
-      `Code ${code} introuvable dans ton catalogue. Crée l'article d'abord (dashboard ou envoie ${code} x1).`,
+      `⚠️ Le code *${code}* n'existe pas dans ton catalogue.\n\nCrée-le d'abord depuis le dashboard ou envoie-le avec une quantité (ex: *${code} 3*).`,
 
     codeAlreadyInStock: (code: string, availableQty: number) =>
-      `${code} est déjà en stock (${availableQty} dispo). Épuise le stock actuel ou choisis un autre code.`,
+      `⚠️ *${code}* a encore *${availableQty}* unité${availableQty > 1 ? "s" : ""} en stock.\n\nÉpuise d'abord ce stock ou choisis un autre code.`,
   },
 };
