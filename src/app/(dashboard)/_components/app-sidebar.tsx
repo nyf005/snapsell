@@ -160,12 +160,14 @@ type AppSidebarProps = {
   userName: string;
   tenantName: string;
   canManageGrid: boolean;
+  showBranding: boolean;
 };
 
 export function AppSidebar({
   userName,
   tenantName,
   canManageGrid,
+  showBranding,
 }: AppSidebarProps) {
   const pathname = usePathname();
 
@@ -328,6 +330,16 @@ export function AppSidebar({
           })}
         </div>
       </SidebarContent>
+      {showBranding && (
+        <div className="px-4 py-2 text-center group-data-[collapsible=icon]:hidden">
+          <p className="text-[10px] text-muted-foreground/60">
+            Propulsé par{" "}
+            <span className="font-semibold">
+              Snap<span className="text-primary">Sell</span>
+            </span>
+          </p>
+        </div>
+      )}
       <SidebarFooter className="border-t border-sidebar-border px-2 py-2">
         <SidebarMenu>
           <SidebarMenuItem>

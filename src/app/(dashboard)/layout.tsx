@@ -35,7 +35,7 @@ export default async function DashboardLayout({
     }),
     db.tenant.findUnique({
       where: { id: tenantId },
-      select: { name: true },
+      select: { name: true, showBranding: true, showUpgradeBanner: true },
     }),
   ]);
 
@@ -51,6 +51,7 @@ export default async function DashboardLayout({
         userName={session.user.name ?? session.user.email ?? ""}
         tenantName={tenant.name}
         canManageGrid={canManageGridRole}
+        showBranding={tenant.showBranding}
       />
       <SidebarInset className="flex flex-1 flex-col min-h-0 overflow-hidden">
         <div className="flex flex-1 flex-col min-h-0 overflow-hidden">

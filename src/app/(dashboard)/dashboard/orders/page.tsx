@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "~/server/auth";
+import { db } from "~/server/db";
 import { OrdersListContent } from "./_components/orders-list-content";
 
 export default async function OrdersPage() {
@@ -10,7 +11,17 @@ export default async function OrdersPage() {
   }
 
   const role = session.user.role as string | undefined;
-  const canExportCsv = role === "OWNER" || role === "MANAGER";
+  const canManageRole = role === "OWNER" || role === "MANAGER";
+
+  const tenantId = session.user.tenantId;
+  let canExportCsv = false;
+  if (canManageRole && tenantId) {
+    const tenant = await db.tenant.findUnique({
+      where: { id: tenantId },
+      select: { hasExportCsv: true },
+    });
+    canExportCsv = tenant?.hasExportCsv ?? false;
+  }
 
   return <OrdersListContent canExportCsv={canExportCsv} />;
 }

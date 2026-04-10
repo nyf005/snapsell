@@ -26,6 +26,7 @@ import {
   TrendingDown,
   History,
   Wallet,
+  Zap,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 
@@ -88,7 +89,7 @@ function formatRelativeTime(date: Date): string {
   return `Il y a ${diffD}j`;
 }
 
-export function DashboardContent() {
+export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boolean }) {
   const router = useRouter();
   const { data: summary, isLoading } = api.dashboard.getSummary.useQuery(
     undefined,
@@ -127,6 +128,22 @@ export function DashboardContent() {
 
   return (
     <div className="space-y-10">
+      {showUpgradeBanner && (
+        <div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+          <Zap className="size-4 shrink-0 text-primary" />
+          <p className="flex-1 text-foreground">
+            Vous êtes sur le plan <span className="font-semibold">Gratuit</span>. Passez au plan{" "}
+            <span className="font-semibold">Starter</span> ou{" "}
+            <span className="font-semibold">Pro</span> pour débloquer l'export CSV, les filtres avancés et plus encore.
+          </p>
+          <a
+            href="/parametres/abonnement"
+            className="shrink-0 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            Mettre à niveau
+          </a>
+        </div>
+      )}
       {/* Section: À traiter */}
       <section aria-labelledby="a-traiter-heading">
         <h2

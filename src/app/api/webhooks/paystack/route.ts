@@ -251,6 +251,8 @@ async function handleChargeSuccess(data: PaystackWebhookData) {
         hasPrioritySupport: planConfig.entitlements.hasPrioritySupport,
         showBranding: planConfig.entitlements.showBranding,
         showUpgradeBanner: planConfig.entitlements.showUpgradeBanner,
+        // On first subscription (not renewal), auto-enable deposit if plan recommends it
+        ...(!isRenewal && planConfig.entitlements.hasDepositRecommended ? { requireDeposit: true } : {}),
       },
     });
   }

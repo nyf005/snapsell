@@ -86,7 +86,7 @@ function formatDateShort(date: Date) {
   }).format(date);
 }
 
-export function AuditTrailContent() {
+export function AuditTrailContent({ canExportCsv }: { canExportCsv: boolean }) {
   const [eventTypeFilter, setEventTypeFilter] = useState<EventType | "">("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -295,25 +295,27 @@ export function AuditTrailContent() {
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="default"
-                      className="h-9 gap-2"
-                      onClick={() => void handleExportCsv()}
-                      disabled={isExporting}
-                      aria-label="Exporter l'audit trail en CSV"
-                    >
-                      <Download className="size-4" />
-                      {isExporting ? "Export…" : "Exporter en CSV"}
-                    </Button>
-                    {exportError && (
-                      <p className="text-sm text-destructive" role="alert">
-                        {exportError}
-                      </p>
-                    )}
-                  </div>
+                  {canExportCsv && (
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="default"
+                        className="h-9 gap-2"
+                        onClick={() => void handleExportCsv()}
+                        disabled={isExporting}
+                        aria-label="Exporter l'audit trail en CSV"
+                      >
+                        <Download className="size-4" />
+                        {isExporting ? "Export…" : "Exporter en CSV"}
+                      </Button>
+                      {exportError && (
+                        <p className="text-sm text-destructive" role="alert">
+                          {exportError}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

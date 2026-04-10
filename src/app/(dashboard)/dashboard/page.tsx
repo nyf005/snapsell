@@ -27,7 +27,7 @@ export default async function DashboardPage() {
 
   const tenant = await db.tenant.findUnique({
     where: { id: session.user.tenantId },
-    select: { name: true },
+    select: { name: true, showUpgradeBanner: true },
   });
 
   const userName = session.user.name ?? session.user.email ?? "Utilisateur";
@@ -59,7 +59,7 @@ export default async function DashboardPage() {
               </span>
             </div>
           </header>
-          <DashboardContent />
+          <DashboardContent showUpgradeBanner={tenant?.showUpgradeBanner ?? false} />
         </div>
       </main>
     </>

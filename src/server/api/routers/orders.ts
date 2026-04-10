@@ -131,6 +131,16 @@ export const ordersRouter = createTRPCRouter({
       if (!tenantId) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
       }
+      const tenantFeatures = await db.tenant.findUnique({
+        where: { id: tenantId },
+        select: { hasExportCsv: true },
+      });
+      if (!tenantFeatures?.hasExportCsv) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "L'export CSV est disponible à partir du plan Starter.",
+        });
+      }
       const where = buildOrdersWhere(tenantId, {
         status: input?.status,
         dateFrom: input?.dateFrom,

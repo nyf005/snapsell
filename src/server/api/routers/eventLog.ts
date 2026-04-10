@@ -57,11 +57,28 @@ export const eventLogRouter = createTRPCRouter({
   exportCsv: protectedProcedure
     .input(exportCsvEventLogsInputSchema)
     .query(async ({ ctx, input }) => {
+      const role = ctx.session.user.role as string | undefined;
+      if (role !== "OWNER" && role !== "MANAGER") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Seuls les managers ou propriétaires peuvent exporter le journal en CSV.",
+        });
+      }
       const tenantId = ctx.session.user.tenantId;
       if (!tenantId) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Tenant non identifié.",
+        });
+      }
+      const tenantFeatures = await db.tenant.findUnique({
+        where: { id: tenantId },
+        select: { hasExportCsv: true },
+      });
+      if (!tenantFeatures?.hasExportCsv) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "L'export CSV est disponible à partir du plan Starter.",
         });
       }
       const opts = input ?? {};
