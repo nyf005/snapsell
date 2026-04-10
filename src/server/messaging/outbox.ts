@@ -67,6 +67,15 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
   // Migration CI : normaliser le numéro destinataire (ancien format 8 chiffres → nouveau 10 chiffres)
   const normalizedMessage = { ...message, to: migrateCIPhoneNumber(message.to) };
 
+  // Branding : plan Free → ajouter signature en pied de message
+  const tenant = await db.tenant.findUnique({
+    where: { id: normalizedMessage.tenantId },
+    select: { showBranding: true },
+  });
+  if (tenant?.showBranding) {
+    normalizedMessage.body = `${normalizedMessage.body}\n\n_Propulsé par SnapSell_`;
+  }
+
   // Valider le message avec Zod
   const validatedMessage = outboundMessageSchema.parse(normalizedMessage);
 
