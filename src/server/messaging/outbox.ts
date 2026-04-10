@@ -11,6 +11,7 @@ import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { boss, QUEUE } from "~/server/workers/queues";
 import { env } from "~/env";
+import { migrateCIPhoneNumber } from "~/lib/validations/phone";
 import type { OutboundMessage } from "./types";
 
 /**
@@ -63,8 +64,11 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
   correlationId: string;
   createdAt: Date;
 }> {
+  // Migration CI : normaliser le numéro destinataire (ancien format 8 chiffres → nouveau 10 chiffres)
+  const normalizedMessage = { ...message, to: migrateCIPhoneNumber(message.to) };
+
   // Valider le message avec Zod
-  const validatedMessage = outboundMessageSchema.parse(message);
+  const validatedMessage = outboundMessageSchema.parse(normalizedMessage);
 
   workerLogger.debug("Writing message to outbox", {
     tenantId: validatedMessage.tenantId,

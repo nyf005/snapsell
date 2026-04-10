@@ -3,7 +3,7 @@ import { workerLogger } from "~/lib/logger";
 import { captureException } from "~/lib/sentry";
 import { boss, QUEUE, type PgBossJob } from "./queues";
 import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types";
-import { normalizeAndValidatePhoneNumber } from "~/lib/validations/phone";
+import { normalizeAndValidatePhoneNumber, migrateCIPhoneNumber } from "~/lib/validations/phone";
 import {
   logOptOutRecorded,
   logLiveItemCreated,
@@ -158,21 +158,18 @@ export async function determineMessageType(
     return "client";
   }
 
-  // Normaliser le numéro expéditeur (enlever préfixe "whatsapp:" si présent)
-  const normalizedFrom = normalizePhoneNumber(from);
+  // Normaliser le numéro expéditeur : enlever "whatsapp:" + migration CI 8→10 chiffres
+  const normalizedFrom = migrateCIPhoneNumber(normalizePhoneNumber(from));
 
   // Lookup seller_phone(s) pour le tenant
-  // Note: On normalise aussi les numéros stockés en DB lors de la comparaison
-  // pour gérer le cas où des numéros avec préfixe "whatsapp:" seraient stockés
   const sellerPhones = await db.sellerPhone.findMany({
-    where: {
-      tenantId,
-    },
+    where: { tenantId },
   });
 
-  // Comparer avec normalisation des deux côtés pour garantir matching
+  // Comparer avec migration CI des deux côtés : fonctionne que le numéro stocké
+  // soit en ancien format (8 chiffres) ou nouveau format (10 chiffres)
   const sellerPhone = sellerPhones.find((sp) => {
-    const normalizedStored = normalizePhoneNumber(sp.phoneNumber);
+    const normalizedStored = migrateCIPhoneNumber(normalizePhoneNumber(sp.phoneNumber));
     return normalizedStored === normalizedFrom;
   });
 
