@@ -542,19 +542,17 @@ export async function processWebhookJob(
               code: createItem.code,
               reason: catalogueResult.reason,
             });
-            // Story 9.3: si photo + code invalide/prix manquant → message d'erreur ciblé
-            if (mediaUrl) {
-              const errorMsg =
-                catalogueResult.reason === "no_price"
-                  ? botMsg.seller.noPriceConfigured(normalizeCode(createItem.code).charAt(0).toUpperCase())
-                  : botMsg.seller.codeNotInCatalogue(normalizeCode(createItem.code));
-              await writeToOutbox({
-                tenantId,
-                to,
-                body: errorMsg,
-                correlationId,
-              });
-            }
+            // Toujours notifier le vendeur de l'échec (avec ou sans photo)
+            const errorMsg =
+              catalogueResult.reason === "no_price"
+                ? botMsg.seller.noPriceConfigured(normalizeCode(createItem.code).charAt(0).toUpperCase())
+                : botMsg.seller.codeNotInCatalogue(normalizeCode(createItem.code));
+            await writeToOutbox({
+              tenantId,
+              to,
+              body: errorMsg,
+              correlationId,
+            });
             // Continue sans créer de session ni de LiveItem - retourner message enrichi
             return {
               tenantId,
