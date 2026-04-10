@@ -146,7 +146,6 @@ export class MetaCloudAdapter implements MessagingProvider {
           for (const message of messages) {
             const rawFrom = (message.from as string | undefined) ?? "";
             const messageId = (message.id as string | undefined) ?? "";
-            const body = (message.text?.body as string) ?? "";
 
             if (!rawFrom || !messageId) {
               webhookLogger.warn("Meta webhook message missing from or id", {
@@ -158,6 +157,17 @@ export class MetaCloudAdapter implements MessagingProvider {
 
             // Prefixer + pour E.164, guard double prefix
             const from = rawFrom.startsWith("+") ? rawFrom : `+${rawFrom}`;
+
+            // Réponse interactive (bouton ou liste) — extraire l'ID et le titre
+            let body = (message.text?.body as string) ?? "";
+            let interactiveReplyId: string | undefined;
+            if (message.type === "interactive") {
+              const buttonReply = message.interactive?.button_reply as { id?: string; title?: string } | undefined;
+              const listReply = message.interactive?.list_reply as { id?: string; title?: string } | undefined;
+              interactiveReplyId = buttonReply?.id ?? listReply?.id;
+              // body = titre affiché (pour logs) ; le routing se fait sur interactiveReplyId
+              body = buttonReply?.title ?? listReply?.title ?? "";
+            }
 
             // Media entrant: stocker le MEDIA_ID avec prefixe meta-media://
             let mediaUrl: string | undefined;
@@ -176,6 +186,7 @@ export class MetaCloudAdapter implements MessagingProvider {
               body,
               mediaUrl,
               correlationId: messageId,
+              ...(interactiveReplyId ? { interactiveReplyId } : {}),
             });
           }
         }
@@ -203,11 +214,11 @@ export class MetaCloudAdapter implements MessagingProvider {
       const toNumber = message.to.replace(/^\+/, "");
       const apiUrl = `https://graph.facebook.com/${API_VERSION}/${this.phoneNumberId}/messages`;
 
-      // Si mediaUrl present, envoyer comme image ou document selon extension
-      // Sinon, envoyer comme texte
+      // Construction du body selon le type de message
       let requestBody: Record<string, unknown>;
 
       if (message.mediaUrl) {
+        // Media (image ou document)
         const mediaType = isDocumentUrl(message.mediaUrl) ? "document" : "image";
         requestBody = {
           messaging_product: "whatsapp",
@@ -218,7 +229,48 @@ export class MetaCloudAdapter implements MessagingProvider {
             caption: message.body,
           },
         };
+      } else if (message.interactive?.type === "buttons") {
+        // Reply buttons (max 3)
+        requestBody = {
+          messaging_product: "whatsapp",
+          to: toNumber,
+          type: "interactive",
+          interactive: {
+            type: "button",
+            body: { text: message.body },
+            action: {
+              buttons: message.interactive.buttons.map((btn) => ({
+                type: "reply",
+                reply: { id: btn.id, title: btn.title },
+              })),
+            },
+          },
+        };
+      } else if (message.interactive?.type === "list") {
+        // List message (max 10 options)
+        requestBody = {
+          messaging_product: "whatsapp",
+          to: toNumber,
+          type: "interactive",
+          interactive: {
+            type: "list",
+            body: { text: message.body },
+            action: {
+              button: message.interactive.buttonLabel,
+              sections: [
+                {
+                  rows: message.interactive.items.map((item) => ({
+                    id: item.id,
+                    title: item.title,
+                    ...(item.description ? { description: item.description } : {}),
+                  })),
+                },
+              ],
+            },
+          },
+        };
       } else {
+        // Texte brut
         requestBody = {
           messaging_product: "whatsapp",
           to: toNumber,

@@ -25,7 +25,7 @@ const BATCH_LIMIT = 50;
 /** Story 4.4: fenêtre T-2 min (Dev Notes REMINDER_WINDOW_MINUTES). */
 const REMINDER_WINDOW_MINUTES = 2;
 const REMINDER_WINDOW_END_OFFSET_MINUTES = 3; // now+2min à now+3min (fenêtre 1 min)
-const REMINDER_BODY = botMsg.client.reminder();
+const REMINDER_MSG = botMsg.client.reminderInteractive();
 
 export type ReservationTtlRunResult = {
   expiredCount: number;
@@ -73,7 +73,7 @@ export async function runReservationReminderJob(): Promise<ReservationReminderRu
       await writeToOutbox({
         tenantId: res.tenantId,
         to: res.clientPhone,
-        body: REMINDER_BODY,
+        ...REMINDER_MSG,
         correlationId: res.correlationId,
       });
 
@@ -248,7 +248,7 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
       await writeToOutbox({
         tenantId: res.tenantId,
         to: res.clientPhone,
-        body: botMsg.client.reservationExpired(expiredCode),
+        ...botMsg.client.reservationExpiredInteractive(expiredCode),
         correlationId: res.correlationId,
       }).catch((err) => {
         workerLogger.warn("writeToOutbox reservation_expired notification failed", {

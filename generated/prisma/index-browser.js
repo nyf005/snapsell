@@ -288,6 +288,7 @@ exports.Prisma.MessageOutScalarFieldEnum = {
   to: 'to',
   body: 'body',
   mediaUrl: 'mediaUrl',
+  interactivePayload: 'interactivePayload',
   status: 'status',
   attempts: 'attempts',
   nextAttemptAt: 'nextAttemptAt',

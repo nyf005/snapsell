@@ -12,6 +12,8 @@ export interface InboundMessage {
   body: string;
   mediaUrl?: string;
   correlationId: string; // UUID ou message_sid pour traçabilité
+  /** ID du bouton ou de l'option liste cliqué (messages interactifs) */
+  interactiveReplyId?: string;
 }
 
 /**
@@ -24,6 +26,33 @@ export interface EnrichedInboundMessage extends InboundMessage {
 }
 
 /**
+ * Payload interactif pour messages WhatsApp avec boutons ou liste déroulante.
+ * Stocké en DB (interactivePayload JSON) et transmis au provider à l'envoi.
+ */
+export type InteractivePayload =
+  | {
+      type: "buttons";
+      /** Max 3 boutons */
+      buttons: Array<{
+        /** ID reçu dans le webhook quand le client clique (max 256 chars) */
+        id: string;
+        /** Texte affiché sur le bouton (max 20 chars) */
+        title: string;
+      }>;
+    }
+  | {
+      type: "list";
+      /** Texte du bouton qui ouvre la liste */
+      buttonLabel: string;
+      /** Max 10 options */
+      items: Array<{
+        id: string;
+        title: string;
+        description?: string;
+      }>;
+    };
+
+/**
  * Message sortant normalisé (provider-agnostic)
  * Le métier ne dépend jamais des types SDK BSP
  */
@@ -33,6 +62,8 @@ export interface OutboundMessage {
   body: string;
   correlationId: string; // UUID ou message_sid pour traçabilité
   mediaUrl?: string; // Story 9.4: URL média ou clé R2 storage (signée à l'envoi par outbox-sender)
+  /** Payload interactif optionnel (boutons ou liste). Si absent → texte brut. */
+  interactive?: InteractivePayload;
 }
 
 /**

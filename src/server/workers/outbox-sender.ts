@@ -14,7 +14,7 @@ import { logMessageSent, logMessageBlockedOptOut } from "~/server/events/eventLo
 import { checkOptOut } from "~/server/messaging/optout";
 import { MetaCloudAdapter } from "~/server/messaging/providers/meta/adapter";
 import { decrypt } from "~/lib/crypto";
-import type { OutboundMessage, ProviderSendResult } from "~/server/messaging/types";
+import type { OutboundMessage, ProviderSendResult, InteractivePayload } from "~/server/messaging/types";
 import { generateSignedR2Url } from "~/server/media/r2-signed-url";
 import { boss, QUEUE, type PgBossJob } from "./queues";
 
@@ -34,6 +34,7 @@ export async function processOutboundMessage(messageOut: {
   to: string;
   body: string;
   mediaUrl?: string | null;
+  interactivePayload?: unknown;
   status: string;
   attempts: number;
   correlationId: string;
@@ -127,6 +128,9 @@ export async function processOutboundMessage(messageOut: {
       body,
       correlationId,
       ...(resolvedMediaUrl ? { mediaUrl: resolvedMediaUrl } : {}),
+      ...(messageOut.interactivePayload
+        ? { interactive: messageOut.interactivePayload as InteractivePayload }
+        : {}),
     };
 
     // Envoyer via MessagingProvider

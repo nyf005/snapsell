@@ -39,12 +39,34 @@ async function enqueueOutboxSend(messageOutId: string): Promise<void> {
 /**
  * Schéma Zod pour validation OutboundMessage
  */
+const interactiveButtonSchema = z.object({
+  id: z.string().min(1).max(256),
+  title: z.string().min(1).max(20),
+});
+
+const interactivePayloadSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("buttons"),
+    buttons: z.array(interactiveButtonSchema).min(1).max(3),
+  }),
+  z.object({
+    type: z.literal("list"),
+    buttonLabel: z.string().min(1).max(20),
+    items: z.array(z.object({
+      id: z.string().min(1),
+      title: z.string().min(1).max(24),
+      description: z.string().max(72).optional(),
+    })).min(1).max(10),
+  }),
+]);
+
 const outboundMessageSchema = z.object({
   tenantId: z.string().min(1),
   to: z.string().min(1), // Format E.164 normalisé
   body: z.string().min(1),
   correlationId: z.string().min(1), // UUID ou message_sid pour traçabilité
   mediaUrl: z.string().min(1).optional(), // Story 9.4: clé R2 storage ou URL média
+  interactive: interactivePayloadSchema.optional(),
 });
 
 /**
@@ -93,6 +115,7 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
         to: validatedMessage.to,
         body: validatedMessage.body,
         mediaUrl: validatedMessage.mediaUrl ?? null,
+        interactivePayload: validatedMessage.interactive ?? undefined,
         status: "pending",
         attempts: 0,
         correlationId: validatedMessage.correlationId,

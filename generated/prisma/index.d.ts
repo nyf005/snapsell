@@ -19888,6 +19888,7 @@ export namespace Prisma {
     to: number
     body: number
     mediaUrl: number
+    interactivePayload: number
     status: number
     attempts: number
     nextAttemptAt: number
@@ -19946,6 +19947,7 @@ export namespace Prisma {
     to?: true
     body?: true
     mediaUrl?: true
+    interactivePayload?: true
     status?: true
     attempts?: true
     nextAttemptAt?: true
@@ -20049,6 +20051,7 @@ export namespace Prisma {
     to: string
     body: string
     mediaUrl: string | null
+    interactivePayload: JsonValue | null
     status: string
     attempts: number
     nextAttemptAt: Date | null
@@ -20084,6 +20087,7 @@ export namespace Prisma {
     to?: boolean
     body?: boolean
     mediaUrl?: boolean
+    interactivePayload?: boolean
     status?: boolean
     attempts?: boolean
     nextAttemptAt?: boolean
@@ -20101,6 +20105,7 @@ export namespace Prisma {
     to?: boolean
     body?: boolean
     mediaUrl?: boolean
+    interactivePayload?: boolean
     status?: boolean
     attempts?: boolean
     nextAttemptAt?: boolean
@@ -20118,6 +20123,7 @@ export namespace Prisma {
     to?: boolean
     body?: boolean
     mediaUrl?: boolean
+    interactivePayload?: boolean
     status?: boolean
     attempts?: boolean
     nextAttemptAt?: boolean
@@ -20135,6 +20141,7 @@ export namespace Prisma {
     to?: boolean
     body?: boolean
     mediaUrl?: boolean
+    interactivePayload?: boolean
     status?: boolean
     attempts?: boolean
     nextAttemptAt?: boolean
@@ -20145,7 +20152,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type MessageOutOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "to" | "body" | "mediaUrl" | "status" | "attempts" | "nextAttemptAt" | "lastError" | "correlationId" | "providerMessageId" | "createdAt" | "updatedAt", ExtArgs["result"]["messageOut"]>
+  export type MessageOutOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "to" | "body" | "mediaUrl" | "interactivePayload" | "status" | "attempts" | "nextAttemptAt" | "lastError" | "correlationId" | "providerMessageId" | "createdAt" | "updatedAt", ExtArgs["result"]["messageOut"]>
   export type MessageOutInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
   }
@@ -20167,6 +20174,7 @@ export namespace Prisma {
       to: string
       body: string
       mediaUrl: string | null
+      interactivePayload: Prisma.JsonValue | null
       status: string
       attempts: number
       nextAttemptAt: Date | null
@@ -20604,6 +20612,7 @@ export namespace Prisma {
     readonly to: FieldRef<"MessageOut", 'String'>
     readonly body: FieldRef<"MessageOut", 'String'>
     readonly mediaUrl: FieldRef<"MessageOut", 'String'>
+    readonly interactivePayload: FieldRef<"MessageOut", 'Json'>
     readonly status: FieldRef<"MessageOut", 'String'>
     readonly attempts: FieldRef<"MessageOut", 'Int'>
     readonly nextAttemptAt: FieldRef<"MessageOut", 'DateTime'>
@@ -32954,6 +32963,7 @@ export namespace Prisma {
     to: 'to',
     body: 'body',
     mediaUrl: 'mediaUrl',
+    interactivePayload: 'interactivePayload',
     status: 'status',
     attempts: 'attempts',
     nextAttemptAt: 'nextAttemptAt',
@@ -34453,6 +34463,7 @@ export namespace Prisma {
     to?: StringFilter<"MessageOut"> | string
     body?: StringFilter<"MessageOut"> | string
     mediaUrl?: StringNullableFilter<"MessageOut"> | string | null
+    interactivePayload?: JsonNullableFilter<"MessageOut">
     status?: StringFilter<"MessageOut"> | string
     attempts?: IntFilter<"MessageOut"> | number
     nextAttemptAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
@@ -34470,6 +34481,7 @@ export namespace Prisma {
     to?: SortOrder
     body?: SortOrder
     mediaUrl?: SortOrderInput | SortOrder
+    interactivePayload?: SortOrderInput | SortOrder
     status?: SortOrder
     attempts?: SortOrder
     nextAttemptAt?: SortOrderInput | SortOrder
@@ -34491,6 +34503,7 @@ export namespace Prisma {
     to?: StringFilter<"MessageOut"> | string
     body?: StringFilter<"MessageOut"> | string
     mediaUrl?: StringNullableFilter<"MessageOut"> | string | null
+    interactivePayload?: JsonNullableFilter<"MessageOut">
     status?: StringFilter<"MessageOut"> | string
     attempts?: IntFilter<"MessageOut"> | number
     nextAttemptAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
@@ -34508,6 +34521,7 @@ export namespace Prisma {
     to?: SortOrder
     body?: SortOrder
     mediaUrl?: SortOrderInput | SortOrder
+    interactivePayload?: SortOrderInput | SortOrder
     status?: SortOrder
     attempts?: SortOrder
     nextAttemptAt?: SortOrderInput | SortOrder
@@ -34532,6 +34546,7 @@ export namespace Prisma {
     to?: StringWithAggregatesFilter<"MessageOut"> | string
     body?: StringWithAggregatesFilter<"MessageOut"> | string
     mediaUrl?: StringNullableWithAggregatesFilter<"MessageOut"> | string | null
+    interactivePayload?: JsonNullableWithAggregatesFilter<"MessageOut">
     status?: StringWithAggregatesFilter<"MessageOut"> | string
     attempts?: IntWithAggregatesFilter<"MessageOut"> | number
     nextAttemptAt?: DateTimeNullableWithAggregatesFilter<"MessageOut"> | Date | string | null
@@ -36602,6 +36617,7 @@ export namespace Prisma {
     to: string
     body: string
     mediaUrl?: string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status: string
     attempts?: number
     nextAttemptAt?: Date | string | null
@@ -36619,6 +36635,7 @@ export namespace Prisma {
     to: string
     body: string
     mediaUrl?: string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status: string
     attempts?: number
     nextAttemptAt?: Date | string | null
@@ -36634,6 +36651,7 @@ export namespace Prisma {
     to?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36651,6 +36669,7 @@ export namespace Prisma {
     to?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36667,6 +36686,7 @@ export namespace Prisma {
     to: string
     body: string
     mediaUrl?: string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status: string
     attempts?: number
     nextAttemptAt?: Date | string | null
@@ -36682,6 +36702,7 @@ export namespace Prisma {
     to?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36698,6 +36719,7 @@ export namespace Prisma {
     to?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38689,6 +38711,29 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type MessageOutTenantIdCorrelationIdToCompoundUniqueInput = {
     tenantId: string
@@ -38702,6 +38747,7 @@ export namespace Prisma {
     to?: SortOrder
     body?: SortOrder
     mediaUrl?: SortOrder
+    interactivePayload?: SortOrder
     status?: SortOrder
     attempts?: SortOrder
     nextAttemptAt?: SortOrder
@@ -38750,6 +38796,32 @@ export namespace Prisma {
 
   export type MessageOutSumOrderByAggregateInput = {
     attempts?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type EnumLiveSessionStatusFilter<$PrismaModel = never> = {
@@ -39264,29 +39336,6 @@ export namespace Prisma {
   export type DeadLetterJobSumOrderByAggregateInput = {
     attempts?: SortOrder
   }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type SubscriptionPaymentCountOrderByAggregateInput = {
     id?: SortOrder
@@ -39341,32 +39390,6 @@ export namespace Prisma {
 
   export type SubscriptionPaymentSumOrderByAggregateInput = {
     amount?: SortOrder
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type UserCreateNestedManyWithoutTenantInput = {
@@ -41351,6 +41374,29 @@ export namespace Prisma {
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedEnumLiveSessionStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.LiveSessionStatus | EnumLiveSessionStatusFieldRefInput<$PrismaModel>
@@ -41435,29 +41481,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPaymentProofStatusFilter<$PrismaModel>
     _max?: NestedEnumPaymentProofStatusFilter<$PrismaModel>
-  }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type UserCreateWithoutTenantInput = {
@@ -41673,6 +41696,7 @@ export namespace Prisma {
     to: string
     body: string
     mediaUrl?: string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status: string
     attempts?: number
     nextAttemptAt?: Date | string | null
@@ -41688,6 +41712,7 @@ export namespace Prisma {
     to: string
     body: string
     mediaUrl?: string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status: string
     attempts?: number
     nextAttemptAt?: Date | string | null
@@ -42343,6 +42368,7 @@ export namespace Prisma {
     to?: StringFilter<"MessageOut"> | string
     body?: StringFilter<"MessageOut"> | string
     mediaUrl?: StringNullableFilter<"MessageOut"> | string | null
+    interactivePayload?: JsonNullableFilter<"MessageOut">
     status?: StringFilter<"MessageOut"> | string
     attempts?: IntFilter<"MessageOut"> | number
     nextAttemptAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
@@ -48678,6 +48704,7 @@ export namespace Prisma {
     to: string
     body: string
     mediaUrl?: string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status: string
     attempts?: number
     nextAttemptAt?: Date | string | null
@@ -49032,6 +49059,7 @@ export namespace Prisma {
     to?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49047,6 +49075,7 @@ export namespace Prisma {
     to?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49062,6 +49091,7 @@ export namespace Prisma {
     to?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

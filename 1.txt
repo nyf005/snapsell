@@ -1,0 +1,33 @@
+L’utilisateur commence par accéder à la plateforme.
+
+Il se rend ensuite sur la page de connexion.
+
+Ici, il saisit ses informations de connexion.
+
+Une fois connecté, il accède au dashboard de l’application.
+
+Depuis ce dashboard, il ouvre la page de connexion WhatsApp Business.
+
+Sur cette page, nous utilisons actuellement une méthode manuelle basée sur trois champs.
+
+L’utilisateur renseigne d’abord le Phone Number ID.
+
+Puis le WABA ID.
+
+Et enfin l’Access Token.
+
+Ces informations nous permettent de vérifier le compte WhatsApp Business et de l’associer à la plateforme.
+
+Une fois les champs remplis, il lance le test de connexion.
+
+Les informations sont ensuite sauvegardées.
+
+Nous montrons également le bouton Connexion à Facebook.
+
+Ce bouton correspond au flow Embedded Signup de Meta.
+
+Pour le moment, ce flow n’est pas encore disponible dans cet environnement de test.
+
+L’application est toujours en cours de review.
+
+En attendant, la connexion du compte se fait à travers les trois champs manuels affichés ici.

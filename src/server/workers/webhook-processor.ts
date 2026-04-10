@@ -194,7 +194,7 @@ export async function processWebhookJob(
   job: PgBossJob<InboundMessage>,
 ): Promise<EnrichedInboundMessage> {
   const startTime = Date.now();
-  const { tenantId, providerMessageId, from, body, mediaUrl, correlationId } = job.data;
+  const { tenantId, providerMessageId, from, body, mediaUrl, correlationId, interactiveReplyId } = job.data;
 
   workerLogger.info("Processing webhook job", {
     correlationId,
@@ -298,6 +298,152 @@ export async function processWebhookJob(
           correlationId,
           tenantId,
           from,
+        });
+      }
+    }
+
+    // Réponses interactives (boutons/liste) : mapper l'ID vers le comportement équivalent
+    if (tenantId && messageType === "client" && interactiveReplyId) {
+      try {
+        const to = normalizePhoneNumber(from);
+        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+
+        // Annulation : libérer la réservation active
+        if (interactiveReplyId === "cancel_order") {
+          const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
+          if (active) {
+            await db.reservation.update({
+              where: { id: active.id },
+              data: { status: "expired" },
+            });
+          }
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
+        // Confirmation commande (équivalent "OUI" en état address_collected)
+        if (interactiveReplyId === "confirm_order") {
+          const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
+          if (active?.status === "address_collected") {
+            const tenant = await db.tenant.findUnique({
+              where: { id: tenantId },
+              select: { requireDeposit: true },
+            });
+            const requireDeposit = tenant?.requireDeposit ?? false;
+            const orderResult = await createOrderFromReservation(
+              tenantId, active.id, requireDeposit, clientPhoneE164, correlationId,
+            );
+            if (orderResult.success) {
+              await writeToOutbox({
+                tenantId,
+                to: clientPhoneE164,
+                ...(requireDeposit ? botMsg.client.orderWithDepositInteractive(15) : botMsg.client.orderConfirmedInteractive()),
+                correlationId,
+              });
+            }
+          }
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
+        // Retry code (ex: "retry_code:A12") — traiter le code extrait
+        if (interactiveReplyId.startsWith("retry_code:")) {
+          const code = interactiveReplyId.slice("retry_code:".length).toUpperCase();
+          if (code) {
+            const catalogueItem = await findOrderableItemByCode(tenantId, code);
+            if (!catalogueItem) {
+              await writeToOutbox({
+                tenantId,
+                to: clientPhoneE164,
+                body: botMsg.client.codeUnknown(code),
+                correlationId,
+              });
+            } else {
+              const free = catalogueItem.availableQty - catalogueItem.reservedQty;
+              if (free <= 0) {
+                const waitResult = await addToWaitlist(
+                  tenantId, null, null, clientPhoneE164, correlationId,
+                  { table: "catalogue_items", catalogueItemId: catalogueItem.id },
+                );
+                await writeToOutbox({
+                  tenantId,
+                  to: clientPhoneE164,
+                  body: waitResult.ok
+                    ? botMsg.client.waitlist(code, waitResult.position)
+                    : botMsg.client.exhausted(),
+                  correlationId,
+                });
+              } else {
+                const session = await getCurrentSessionReadOnly(tenantId);
+                await createReservation(
+                  tenantId, session?.id ?? null, null, clientPhoneE164, correlationId,
+                  { catalogueItemId: catalogueItem.id, liveSessionId: session?.id ?? null },
+                );
+                await writeToOutbox({
+                  tenantId,
+                  to: clientPhoneE164,
+                  body: botMsg.client.reserved(code),
+                  correlationId,
+                });
+              }
+            }
+          }
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
+        // Demande agent humain via bouton
+        if (interactiveReplyId === "contact_agent") {
+          await setHandedOff(tenantId, clientPhoneE164, true);
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: botMsg.client.handedOff(),
+            correlationId,
+          });
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
+        // Suivi commande via bouton
+        if (interactiveReplyId === "track_order") {
+          const order = await db.order.findFirst({
+            where: { tenantId, reservation: { clientPhone: clientPhoneE164 } },
+            orderBy: { createdAt: "desc" },
+          });
+          if (order) {
+            await writeToOutbox({
+              tenantId,
+              to: clientPhoneE164,
+              body: botMsg.client.orderStatus(order.orderNumber),
+              correlationId,
+            });
+          }
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
+        // send_proof : aucune action côté bot, le client va envoyer une photo
+        // On laisse simplement passer sans réponse
+        if (interactiveReplyId === "send_proof") {
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+      } catch (error) {
+        workerLogger.error("Error handling interactive reply", error, {
+          correlationId, tenantId, interactiveReplyId,
         });
       }
     }
@@ -451,13 +597,13 @@ export async function processWebhookJob(
               amount !== null
                 ? `${Math.round(amount / 100).toLocaleString("fr-FR")} FCFA`
                 : "—";
-            const recap = botMsg.client.recap(code, prix, total, body.trim());
+            const recap = botMsg.client.recapInteractive(code, prix, total, body.trim());
 
             // Story 9.4: passer storageKey brut (signé à l'envoi par outbox-sender, AC #1, #2, #4, #5)
             await writeToOutbox({
               tenantId,
               to: clientPhoneE164,
-              body: recap,
+              ...recap,
               correlationId,
               ...(mediaStorageKey ? { mediaUrl: mediaStorageKey } : {}),
             });

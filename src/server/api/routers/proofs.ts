@@ -215,7 +215,7 @@ export const proofsRouter = createTRPCRouter({
         await writeToOutbox({
           tenantId,
           to: clientPhone,
-          body: botMsg.client.proofRejected(proof.order.orderNumber),
+          ...botMsg.client.proofRejectedInteractive(proof.order.orderNumber),
           correlationId,
         });
       } catch (err) {
@@ -372,7 +372,7 @@ export const proofsRouter = createTRPCRouter({
             await writeToOutbox({
               tenantId,
               to: clientPhone,
-              body: botMsg.client.proofRejected(proof.order.orderNumber),
+              ...botMsg.client.proofRejectedInteractive(proof.order.orderNumber),
               correlationId,
             });
           } catch (err) {

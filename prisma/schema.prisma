@@ -305,6 +305,7 @@ model MessageOut {
   to                 String   // destinataire (format E.164 normalisé)
   body               String   @db.Text
   mediaUrl           String?  @map("media_url") @db.Text // Story 9.4: URL média (photo article) pour MMS WhatsApp
+  interactivePayload Json?    @map("interactive_payload") // Payload boutons/liste pour messages interactifs WhatsApp
   status             String   // pending | sending | sent | failed | blocked (STOP)
   attempts           Int      @default(0)
   nextAttemptAt      DateTime? @map("next_attempt_at")
