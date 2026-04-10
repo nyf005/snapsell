@@ -306,12 +306,11 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
         const code = isCataloguePromotion
           ? (res.catalogueItem?.code ?? "article")
           : (res.liveItem?.code ?? "article");
-        const body = botMsg.client.waitlistPromoted(code);
 
         await writeToOutbox({
           tenantId: updated.promoted.tenantId,
           to: updated.promoted.clientPhone,
-          body,
+          ...botMsg.client.waitlistPromotedInteractive(code),
           correlationId: updated.promoted.correlationId,
         });
       } else {

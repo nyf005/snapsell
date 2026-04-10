@@ -500,11 +500,10 @@ export async function processWebhookJob(
           });
         } else if (clientCodeIntent.isTypo) {
           // Story 4.2 : typo (ex. A12A) mais code extrait (A12) existe → suggestion, pas de réservation
-          const msg = messageCodeUnknownSuggestion(catalogueItem.code);
           await writeToOutbox({
             tenantId,
             to: clientPhoneE164,
-            body: msg,
+            ...botMsg.client.codeSuggestionInteractive(catalogueItem.code),
             correlationId,
           });
         } else {
@@ -941,12 +940,49 @@ export async function processWebhookJob(
           const msgCount = await db.messageIn.count({ where: { tenantId, from: clientPhoneE164 } });
 
           if (msgCount <= 1) {
-            // Phase 2.1: First contact — send welcome
+            // Phase 2.1: First contact — send welcome (list si live actif avec articles, texte sinon)
             const tenant = await db.tenant.findUnique({ where: { id: tenantId }, select: { name: true } });
+            const shopName = tenant?.name ?? "la boutique";
+
+            // Si live actif, charger les articles disponibles pour un list message
+            let welcomeMsg: { body: string; interactive?: import("~/server/messaging/types").InteractivePayload };
+            if (liveSessionId) {
+              const liveItems = await db.liveItem.findMany({
+                where: {
+                  liveSessionId,
+                  availableQty: { gt: 0 },
+                },
+                select: { code: true, amount: true },
+                take: 10,
+                orderBy: { createdAt: "asc" },
+              });
+
+              if (liveItems.length > 0) {
+                welcomeMsg = {
+                  body: `Bonjour ! 👋 Bienvenue chez *${shopName}*.\nVoici les articles disponibles en ce moment :`,
+                  interactive: {
+                    type: "list",
+                    buttonLabel: "Voir les articles",
+                    items: liveItems.map((item) => ({
+                      id: `retry_code:${item.code}`,
+                      title: item.code,
+                      description: item.amount != null
+                        ? `${Math.round(item.amount / 100).toLocaleString("fr-FR")} FCFA`
+                        : undefined,
+                    })),
+                  },
+                };
+              } else {
+                welcomeMsg = { body: botMsg.client.welcome(shopName) };
+              }
+            } else {
+              welcomeMsg = { body: botMsg.client.welcome(shopName) };
+            }
+
             await writeToOutbox({
               tenantId,
               to: clientPhoneE164,
-              body: botMsg.client.welcome(tenant?.name ?? "la boutique"),
+              ...welcomeMsg,
               correlationId,
             });
           } else {
@@ -963,9 +999,9 @@ export async function processWebhookJob(
             await writeToOutbox({
               tenantId,
               to: clientPhoneE164,
-              body: recentOrder
-                ? botMsg.client.orderStatus(recentOrder.orderNumber)
-                : botMsg.client.fallback(), // Phase 2.2
+              ...(recentOrder
+                ? { body: botMsg.client.orderStatus(recentOrder.orderNumber) }
+                : botMsg.client.fallbackInteractive()), // Phase 2.2
               correlationId,
             });
           }

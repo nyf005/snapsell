@@ -414,11 +414,10 @@ export const liveRouter = createTRPCRouter({
         });
 
         const code = reservation.catalogueItem?.code ?? reservation.liveItem?.code ?? "article";
-        const body = botMsg.client.waitlistPromoted(code);
         await writeToOutbox({
           tenantId: firstInWaitlist.tenantId,
           to: firstInWaitlist.clientPhone,
-          body,
+          ...botMsg.client.waitlistPromotedInteractive(code),
           correlationId: firstInWaitlist.correlationId,
         }).catch((err) => {
           workerLogger.warn("writeToOutbox after waitlist promotion failed", {

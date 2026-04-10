@@ -169,6 +169,29 @@ export const botMsg = {
       } satisfies InteractivePayload,
     }),
 
+    /** Liste d'attente promue avec boutons Envoyer adresse / Annuler */
+    waitlistPromotedInteractive: (code: string): InteractiveMessage => ({
+      body: `Bonne nouvelle ! 🎉 Une place s'est libérée pour l'article *${code}*.\n\nIl est réservé pour toi ! Envoie ton adresse de livraison 📍`,
+      interactive: {
+        type: "buttons",
+        buttons: [
+          { id: "send_proof", title: "📍 J'envoie mon adresse" },
+          { id: "cancel_order", title: "❌ Je ne veux plus" },
+        ],
+      } satisfies InteractivePayload,
+    }),
+
+    /** Acompte approuvé avec bouton Suivre commande */
+    proofApprovedInteractive: (orderNumber: string): InteractiveMessage => ({
+      body: `Ton acompte pour la commande *${orderNumber}* a été validé ! ✅\n\nTa commande est confirmée. On te recontacte pour la livraison 💛`,
+      interactive: {
+        type: "buttons",
+        buttons: [
+          { id: "track_order", title: "📦 Suivre ma commande" },
+        ],
+      } satisfies InteractivePayload,
+    }),
+
     /** Commande confirmée avec bouton Suivre */
     orderConfirmedInteractive: (): InteractiveMessage => ({
       body: `C'est validé ! 🙌 Ta commande est bien enregistrée.\n\nOn te recontacte très vite pour les détails de livraison. Merci de nous faire confiance 💛`,
