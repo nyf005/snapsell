@@ -50,7 +50,8 @@ import {
   Play,
 } from "lucide-react";
 
-const POLL_INTERVAL_MS = 45_000;
+const POLL_INTERVAL_LIVE_MS = 5_000;  // live actif : rafraîchissement toutes les 5s
+const POLL_INTERVAL_IDLE_MS = 45_000; // pas de live : rafraîchissement toutes les 45s
 const EXPIRING_SOON_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
 
 function formatPrice(amount: number | null): string {
@@ -110,7 +111,10 @@ export function LiveOpsContent() {
   const [showEndLiveDialog, setShowEndLiveDialog] = useState(false);
 
   const { data: liveOpsData, isLoading } = api.live.getLiveOpsData.useQuery(undefined, {
-    refetchInterval: POLL_INTERVAL_MS,
+    refetchInterval: (query) => {
+      const hasLive = query.state.data?.session != null;
+      return hasLive ? POLL_INTERVAL_LIVE_MS : POLL_INTERVAL_IDLE_MS;
+    },
   });
 
   const startLiveMutation = api.live.startLive.useMutation({
