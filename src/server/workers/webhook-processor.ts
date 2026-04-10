@@ -27,7 +27,6 @@ import {
 } from "~/server/live-item/createLiveItem";
 import { findLiveItemByCode } from "~/server/live-item/findLiveItemByCode";
 import { findOrderableItemByCode } from "~/server/catalogue/findOrderableItemByCode";
-import { getLastEditedLiveItemInWindow } from "~/server/live-item/getLastEditedLiveItemInWindow";
 import { uploadMediaAndLinkToLiveItem } from "~/server/media/uploadMediaToLiveItem";
 import { uploadMediaToCatalogueItem } from "~/server/media/uploadMediaToCatalogueItem";
 import { isR2Configured } from "~/server/media/r2-client";
@@ -36,9 +35,6 @@ import { botMsg } from "~/server/messaging/templates";
 import { createOrderFromReservation } from "~/server/order/createOrderFromReservation";
 import { upsertCatalogueItemFromWebhook } from "~/server/catalogue/upsertCatalogueItemFromWebhook";
 import { getConversationState, setHandedOff } from "~/server/conversation/conversationState";
-
-/** Story 3.5: fenêtre (2 min) pour lier une photo seule au dernier code créé/édité (export pour tests/doc) */
-export const PHOTO_TO_LAST_CODE_WINDOW_MS = 2 * 60 * 1000;
 
 /**
  * Normalise un numéro de téléphone en enlevant le préfixe "whatsapp:" si présent
@@ -831,55 +827,17 @@ export async function processWebhookJob(
           // Ne pas faire échouer le job
         }
       } else if (mediaUrl) {
-        // Story 3.5: photo seule — body vide ou non parseable en CODE/CODE xQTE + mediaUrl
+        // Photo sans caption — demander au vendeur d'utiliser le caption pour lier l'article
         try {
-          const lastItem = await getLastEditedLiveItemInWindow(
-            tenantId,
-            PHOTO_TO_LAST_CODE_WINDOW_MS,
-          );
           const to = normalizePhoneNumber(from);
-          if (lastItem) {
-            void uploadMediaAndLinkToLiveItem(
-              tenantId,
-              lastItem.id,
-              mediaUrl,
-              correlationId,
-            ).catch((err) => {
-              workerLogger.error("Error uploading media to last code (Story 3.5)", err, {
-                correlationId,
-                tenantId,
-                liveItemId: lastItem.id,
-              });
-            });
-            await writeToOutbox({
-              tenantId,
-              to,
-              body: botMsg.seller.photoLinked(lastItem.code),
-              correlationId,
-            });
-            // Event log avant fin upload (async) : si l'upload R2 échoue, l'item n'aura pas de mediaStorageKey mais l'event reste cohérent avec l'intent (story 3.4 même choix).
-            await logLiveItemPhotoLinked(
-              tenantId,
-              lastItem.id,
-              lastItem.code,
-              correlationId,
-            ).catch((err) => {
-              workerLogger.error("Error logging live_item_photo_linked", err, {
-                correlationId,
-                tenantId,
-                liveItemId: lastItem.id,
-              });
-            });
-          } else {
-            await writeToOutbox({
-              tenantId,
-              to,
-              body: botMsg.seller.photoNoCode(),
-              correlationId,
-            });
-          }
+          await writeToOutbox({
+            tenantId,
+            to,
+            body: botMsg.seller.photoNoCode(),
+            correlationId,
+          });
         } catch (error) {
-          workerLogger.error("Error photo seule → dernier code (Story 3.5)", error, {
+          workerLogger.error("Error photo sans caption (vendeur)", error, {
             correlationId,
             tenantId,
           });
