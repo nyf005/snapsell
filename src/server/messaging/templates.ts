@@ -254,7 +254,7 @@ export const botMsg = {
       `✅ Photo ajoutée à *${code}*`,
 
     photoNoCode: () =>
-      `📸 Photo reçue, mais je ne sais pas à quel article la lier.\n\nAstuce : envoie la photo avec le code en légende (ex: *A12*) pour la lier directement.`,
+      `📸 Photo reçue, mais je ne sais pas à quel article la lier.\n\nAstuce : envoie la photo avec le code en légende (ex: *A12 x3*) pour la lier directement.`,
 
     noPriceConfigured: (letter: string) =>
       `⚠️ Aucun prix configuré pour la catégorie *${letter}*.\n\nVa dans le dashboard → Grille de prix pour l'ajouter.`,
