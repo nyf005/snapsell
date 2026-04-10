@@ -170,13 +170,17 @@ export class MetaCloudAdapter implements MessagingProvider {
             }
 
             // Media entrant: stocker le MEDIA_ID avec prefixe meta-media://
+            // Caption (texte accompagnant la photo) → utilisé comme body si présent
             let mediaUrl: string | undefined;
             if (message.type === "image" && message.image?.id) {
               mediaUrl = `meta-media://${message.image.id}`;
+              if (!body && message.image.caption) body = message.image.caption as string;
             } else if (message.type === "video" && message.video?.id) {
               mediaUrl = `meta-media://${message.video.id}`;
+              if (!body && message.video.caption) body = message.video.caption as string;
             } else if (message.type === "document" && message.document?.id) {
               mediaUrl = `meta-media://${message.document.id}`;
+              if (!body && message.document.caption) body = message.document.caption as string;
             }
 
             results.push({
