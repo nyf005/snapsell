@@ -32,6 +32,7 @@ export async function uploadMediaToCatalogueItem(
 
   // Résoudre meta-media:// → URL HTTPS téléchargeable via Meta Graph API
   let resolvedUrl = mediaUrl;
+  let metaAccessToken: string | undefined;
   if (mediaUrl.startsWith("meta-media://")) {
     const tenant = await db.tenant.findUnique({
       where: { id: tenantId },
@@ -41,12 +42,14 @@ export async function uploadMediaToCatalogueItem(
       workerLogger.warn("No Meta access token, skipping catalogue media upload", { correlationId, catalogueItemId });
       return;
     }
-    const resolved = await resolveMetaMediaUrl(mediaUrl, decrypt(tenant.metaAccessToken), correlationId);
+    const decryptedToken = decrypt(tenant.metaAccessToken);
+    const resolved = await resolveMetaMediaUrl(mediaUrl, decryptedToken, correlationId);
     if (!resolved) {
       workerLogger.warn("Could not resolve meta-media URL, skipping catalogue upload", { correlationId, catalogueItemId });
       return;
     }
     resolvedUrl = resolved;
+    metaAccessToken = decryptedToken;
   }
 
   // Valider que l'URL résolue est bien une URL HTTP(S) valide
@@ -62,8 +65,11 @@ export async function uploadMediaToCatalogueItem(
   }
 
   try {
-    // 1. Fetch media
-    const response = await fetch(resolvedUrl);
+    // 1. Fetch media — Meta exige le Bearer token (URL non pré-signée)
+    const fetchHeaders: HeadersInit = metaAccessToken
+      ? { Authorization: `Bearer ${metaAccessToken}` }
+      : {};
+    const response = await fetch(resolvedUrl, { headers: fetchHeaders });
     if (!response.ok) {
       throw new Error(`Failed to fetch media: ${response.status} ${response.statusText}`);
     }
