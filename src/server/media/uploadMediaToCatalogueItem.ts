@@ -10,6 +10,7 @@ import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { isR2Configured, createR2Client, getR2BucketName } from "~/server/media/r2-client";
 import { resolveMetaMediaUrl } from "~/server/media/resolve-meta-media";
+import { decrypt } from "~/lib/crypto";
 
 /**
  * Télécharge le média depuis mediaUrl, upload vers R2,
@@ -40,7 +41,7 @@ export async function uploadMediaToCatalogueItem(
       workerLogger.warn("No Meta access token, skipping catalogue media upload", { correlationId, catalogueItemId });
       return;
     }
-    const resolved = await resolveMetaMediaUrl(mediaUrl, tenant.metaAccessToken, correlationId);
+    const resolved = await resolveMetaMediaUrl(mediaUrl, decrypt(tenant.metaAccessToken), correlationId);
     if (!resolved) {
       workerLogger.warn("Could not resolve meta-media URL, skipping catalogue upload", { correlationId, catalogueItemId });
       return;
