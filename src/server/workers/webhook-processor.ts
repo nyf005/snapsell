@@ -533,17 +533,20 @@ export async function processWebhookJob(
           );
 
           if (!catalogueResult.success) {
-            // Code invalide ou pas de prix configuré
+            // Code invalide, pas de prix configuré, ou stock existant non nul
             workerLogger.warn("Cannot upsert catalogue item from webhook", {
               tenantId,
               code: createItem.code,
               reason: catalogueResult.reason,
             });
             // Toujours notifier le vendeur de l'échec (avec ou sans photo)
+            const normalizedCode = normalizeCode(createItem.code);
             const errorMsg =
               catalogueResult.reason === "no_price"
-                ? botMsg.seller.noPriceConfigured(normalizeCode(createItem.code).charAt(0).toUpperCase())
-                : botMsg.seller.codeNotInCatalogue(normalizeCode(createItem.code));
+                ? botMsg.seller.noPriceConfigured(normalizedCode.charAt(0).toUpperCase())
+                : catalogueResult.reason === "already_in_stock"
+                  ? botMsg.seller.codeAlreadyInStock(normalizedCode, catalogueResult.availableQty ?? 0)
+                  : botMsg.seller.codeNotInCatalogue(normalizedCode);
             await writeToOutbox({
               tenantId,
               to,

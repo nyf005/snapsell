@@ -14,7 +14,7 @@ import { workerLogger } from "~/lib/logger";
 
 export type UpsertCatalogueFromWebhookResult =
   | { success: true; created: boolean; catalogueItemId: string }
-  | { success: false; reason: "invalid_code" | "no_price" };
+  | { success: false; reason: "invalid_code" | "no_price" | "already_in_stock"; availableQty?: number };
 
 /**
  * Upsert un CatalogueItem lors de l'intent vendeur "créer item" via WhatsApp.
@@ -48,7 +48,24 @@ export async function upsertCatalogueItemFromWebhook(
   }
 
   try {
+    // Vérifier si l'item existe et son stock avant toute modification
+    const existing = await db.catalogueItem.findUnique({
+      where: { tenantId_code: { tenantId, code: normalized } },
+      select: { id: true, availableQty: true },
+    });
+
+    // Si l'item existe avec un stock non nul → refuser (le vendeur doit d'abord l'épuiser)
+    if (existing && existing.availableQty > 0) {
+      workerLogger.warn("Cannot upsert catalogue item: already in stock", {
+        tenantId,
+        code: normalized,
+        availableQty: existing.availableQty,
+      });
+      return { success: false, reason: "already_in_stock", availableQty: existing.availableQty };
+    }
+
     // Tenter de mettre à jour un item existant (ajouter les quantités)
+    // Cas autorisé : item inexistant (created: true) ou item avec availableQty = 0 (restock)
     const updated = await db.catalogueItem.updateMany({
       where: { tenantId, code: normalized },
       data: {

@@ -165,53 +165,49 @@ export const liveRouter = createTRPCRouter({
     });
 
     // Phase 6.1: Post-live summary — send to seller WhatsApp.
-    void (async () => {
-      try {
-        const [orderCount, pendingReservations, items, sellerPhone, tenant] = await Promise.all([
-          db.order.count({ where: { tenantId, reservation: { liveSessionId: session.id } } }),
-          db.reservation.count({
-            where: { tenantId, liveSessionId: session.id, status: { in: ["reserved", "address_collected"] } },
-          }),
-          db.liveItem.findMany({
-            where: { tenantId, liveSessionId: session.id },
-            select: { availableQty: true, reservedQty: true, amount: true },
-          }),
-          db.sellerPhone.findFirst({
-            where: { tenantId },
-            orderBy: { createdAt: "asc" },
-            select: { phoneNumber: true },
-          }),
-          db.tenant.findUnique({ where: { id: tenantId }, select: { name: true } }),
-        ]);
+    // Awaité directement (pas de fire-and-forget) pour garantir l'envoi avant que
+    // Vercel serverless termine la fonction. Erreur non-bloquante : catch silencieux.
+    try {
+      const [orderCount, pendingReservations, items, sellerPhone] = await Promise.all([
+        db.order.count({ where: { tenantId, reservation: { liveSessionId: session.id } } }),
+        db.reservation.count({
+          where: { tenantId, liveSessionId: session.id, status: { in: ["reserved", "address_collected"] } },
+        }),
+        db.liveItem.findMany({
+          where: { tenantId, liveSessionId: session.id },
+          select: { availableQty: true, reservedQty: true, amount: true },
+        }),
+        db.sellerPhone.findFirst({
+          where: { tenantId },
+          orderBy: { createdAt: "asc" },
+          select: { phoneNumber: true },
+        }),
+      ]);
 
-        const unsoldItems = items.reduce((sum, i) => sum + (i.availableQty - i.reservedQty), 0);
-        const revenue = items.reduce((sum, i) => {
-          const soldQty = i.reservedQty;
-          return sum + (soldQty * (i.amount ?? 0));
-        }, 0);
-        const revenueInFcfa = Math.round(revenue / 100);
+      const unsoldItems = items.reduce((sum, i) => sum + (i.availableQty - i.reservedQty), 0);
+      const revenue = items.reduce((sum, i) => sum + (i.reservedQty * (i.amount ?? 0)), 0);
+      const revenueInFcfa = Math.round(revenue / 100);
 
-        if (sellerPhone) {
-          await writeToOutbox({
-            tenantId,
-            to: sellerPhone.phoneNumber,
-            body: botMsg.seller.liveSummary({
-              orderCount,
-              pendingReservations,
-              unsoldItems,
-              revenue: revenueInFcfa,
-            }),
-            correlationId: `live-summary-${session.id}`,
-          });
-        }
-      } catch (err) {
-        workerLogger.warn("Failed to send post-live summary (Phase 6.1)", {
+      if (sellerPhone) {
+        await writeToOutbox({
           tenantId,
-          liveSessionId: session.id,
-          err,
+          to: sellerPhone.phoneNumber,
+          body: botMsg.seller.liveSummary({
+            orderCount,
+            pendingReservations,
+            unsoldItems,
+            revenue: revenueInFcfa,
+          }),
+          correlationId: `live-summary-${session.id}`,
         });
       }
-    })();
+    } catch (err) {
+      workerLogger.warn("Failed to send post-live summary (Phase 6.1)", {
+        tenantId,
+        liveSessionId: session.id,
+        err,
+      });
+    }
 
     return { success: true };
   }),

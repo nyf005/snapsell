@@ -130,5 +130,8 @@ export const botMsg = {
 
     codeNotInCatalogue: (code: string) =>
       `Code ${code} introuvable dans ton catalogue. Crée l'article d'abord (dashboard ou envoie ${code} x1).`,
+
+    codeAlreadyInStock: (code: string, availableQty: number) =>
+      `${code} est déjà en stock (${availableQty} dispo). Épuise le stock actuel ou choisis un autre code.`,
   },
 };
