@@ -242,7 +242,8 @@ export function ProofsListContent() {
                               <img
                                 src={`/api/proofs/${proof.id}/media`}
                                 alt={`Preuve pour ${proof.orderNumber}`}
-                                className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                className="absolute inset-0 size-full object-cover opacity-0 transition-[opacity,transform] duration-300 group-hover:scale-110"
+                                onLoad={(e) => e.currentTarget.classList.replace("opacity-0", "opacity-100")}
                               />
                             </a>
                           ) : (
