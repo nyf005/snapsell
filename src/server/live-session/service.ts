@@ -12,6 +12,7 @@ export async function getCurrentSessionReadOnly(tenantId: string): Promise<{
   id: string;
   status: LiveSessionStatus;
   lastActivityAt: Date;
+  createdAt: Date;
 } | null> {
   const windowMinutes = getInactivityWindowMinutes();
   const cutoff = new Date(Date.now() - windowMinutes * 60 * 1000);
@@ -23,7 +24,7 @@ export async function getCurrentSessionReadOnly(tenantId: string): Promise<{
       lastActivityAt: { gt: cutoff },
     },
     orderBy: { lastActivityAt: "desc" },
-    select: { id: true, status: true, lastActivityAt: true },
+    select: { id: true, status: true, lastActivityAt: true, createdAt: true },
   });
 
   return session;
