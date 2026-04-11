@@ -42,7 +42,7 @@ describe("upsertCatalogueItemFromWebhook", () => {
     vi.clearAllMocks();
   });
 
-  it("should create new catalogue item if code doesn't exist", async () => {
+  it("should create new catalogue item outside live with createdInLive=false", async () => {
     vi.mocked(getPriceFromCode).mockResolvedValue(1000);
     vi.mocked(db.catalogueItem.updateMany).mockResolvedValue({ count: 0 } as never);
     vi.mocked(db.catalogueItem.create).mockResolvedValue({
@@ -52,7 +52,7 @@ describe("upsertCatalogueItemFromWebhook", () => {
       quantity: 5,
       availableQty: 5,
       reservedQty: 0,
-      createdInLive: true,
+      createdInLive: false,
     } as never);
 
     const result = await upsertCatalogueItemFromWebhook(tenantId, "a1", 5);
@@ -78,6 +78,42 @@ describe("upsertCatalogueItemFromWebhook", () => {
         amount: 1000,
         quantity: 5,
         availableQty: 5,
+        reservedQty: 0,
+        createdInLive: false,
+      },
+    });
+  });
+
+  it("should create new catalogue item during live with createdInLive=true", async () => {
+    vi.mocked(getPriceFromCode).mockResolvedValue(1000);
+    vi.mocked(db.catalogueItem.updateMany).mockResolvedValue({ count: 0 } as never);
+    vi.mocked(db.catalogueItem.create).mockResolvedValue({
+      id: "cat-live-1",
+      code: "A2",
+      amount: 1000,
+      quantity: 2,
+      availableQty: 2,
+      reservedQty: 0,
+      createdInLive: true,
+    } as never);
+
+    const result = await upsertCatalogueItemFromWebhook(tenantId, "a2", 2, {
+      createdInLive: true,
+    });
+
+    expect(result).toEqual({
+      success: true,
+      created: true,
+      catalogueItemId: "cat-live-1",
+    });
+
+    expect(db.catalogueItem.create).toHaveBeenCalledWith({
+      data: {
+        tenantId,
+        code: "A2",
+        amount: 1000,
+        quantity: 2,
+        availableQty: 2,
         reservedQty: 0,
         createdInLive: true,
       },

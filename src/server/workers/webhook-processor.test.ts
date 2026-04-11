@@ -598,6 +598,7 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
 
       const job = {
@@ -656,6 +657,7 @@ describe("webhook-processor", () => {
         id: "live-session-hello",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
 
       const job = {
@@ -686,6 +688,7 @@ describe("webhook-processor", () => {
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
 
       const job = {
@@ -716,6 +719,7 @@ describe("webhook-processor", () => {
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
@@ -774,6 +778,7 @@ describe("webhook-processor", () => {
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
@@ -827,6 +832,7 @@ describe("webhook-processor", () => {
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
@@ -888,6 +894,7 @@ describe("webhook-processor", () => {
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
@@ -938,6 +945,7 @@ describe("webhook-processor", () => {
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue(null);
@@ -978,6 +986,7 @@ describe("webhook-processor", () => {
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue(null);
@@ -1015,6 +1024,7 @@ describe("webhook-processor", () => {
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
@@ -1067,6 +1077,7 @@ describe("webhook-processor", () => {
         id: "live-session-client",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
       vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue(null);
@@ -1102,6 +1113,7 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const {
         getActiveReservationForClient,
@@ -1181,6 +1193,7 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { getActiveReservationForClient } = await import("~/server/reservation/service");
       vi.mocked(getActiveReservationForClient).mockResolvedValue({
@@ -1268,6 +1281,7 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { getActiveReservationForClient } = await import("~/server/reservation/service");
       vi.mocked(getActiveReservationForClient).mockResolvedValue({
@@ -1377,6 +1391,7 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { getActiveReservationForClient } = await import("~/server/reservation/service");
       vi.mocked(getActiveReservationForClient).mockResolvedValue(reservationAddressCollected as never);
@@ -1457,6 +1472,7 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { createLiveItem } = await import("~/server/live-item/createLiveItem");
       vi.mocked(createLiveItem).mockResolvedValue({
@@ -1527,6 +1543,7 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { createLiveItem, messageCodeAlreadyUsed } = await import(
         "~/server/live-item/createLiveItem"
@@ -1587,6 +1604,7 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { createLiveItem } = await import("~/server/live-item/createLiveItem");
       vi.mocked(createLiveItem).mockResolvedValue({
@@ -1640,6 +1658,7 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { createLiveItem, messageCodeAlreadyUsed } = await import(
         "~/server/live-item/createLiveItem"
@@ -1792,6 +1811,7 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { createLiveItem } = await import("~/server/live-item/createLiveItem");
       vi.mocked(createLiveItem).mockResolvedValue({
@@ -1863,7 +1883,9 @@ describe("webhook-processor", () => {
 
       expect(result.messageType).toBe("seller");
       expect(result.liveSessionId).toBeUndefined();
-      expect(upsertCatalogueItemFromWebhook).toHaveBeenCalledWith(tenantId, "B7", 3);
+      expect(upsertCatalogueItemFromWebhook).toHaveBeenCalledWith(tenantId, "B7", 3, {
+        createdInLive: false,
+      });
       expect(createLiveItem).not.toHaveBeenCalled();
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -2041,6 +2063,7 @@ describe("webhook-processor", () => {
           id: "live-session-1",
           status: "active",
           lastActivityAt: new Date(),
+        createdAt: new Date(),
         });
 
         const { upsertCatalogueItemFromWebhook } = await import(
@@ -2511,6 +2534,7 @@ describe("webhook-processor", () => {
         id: "live-session-1",
         status: "active",
         lastActivityAt: new Date(),
+      createdAt: new Date(),
       });
       const { getActiveReservationForClient, collectAddress } = await import(
         "~/server/reservation/service"

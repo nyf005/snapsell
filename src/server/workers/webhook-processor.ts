@@ -672,6 +672,7 @@ export async function processWebhookJob(
             tenantId,
             createItem.code,
             createItem.quantity,
+            { createdInLive: Boolean(activeSession) },
           );
 
           if (!catalogueResult.success) {

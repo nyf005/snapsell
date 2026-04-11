@@ -19,7 +19,7 @@ export type UpsertCatalogueFromWebhookResult =
 /**
  * Upsert un CatalogueItem lors de l'intent vendeur "créer item" via WhatsApp.
  * - Si le code existe déjà : ajoute les quantités
- * - Si absent : crée avec createdInLive = true
+ * - Si absent : crée avec createdInLive selon le contexte du flux
  *
  * @param tenantId - ID tenant
  * @param code - Code brut (sera normalisé)
@@ -30,6 +30,9 @@ export async function upsertCatalogueItemFromWebhook(
   tenantId: string,
   code: string,
   quantity: number,
+  options?: {
+    createdInLive?: boolean;
+  },
 ): Promise<UpsertCatalogueFromWebhookResult> {
   const normalized = normalizeCode(code);
   if (!normalized.length) {
@@ -48,6 +51,8 @@ export async function upsertCatalogueItemFromWebhook(
   }
 
   try {
+    const createdInLive = options?.createdInLive ?? false;
+
     // Vérifier si l'item existe et son stock avant toute modification
     const existing = await db.catalogueItem.findUnique({
       where: { tenantId_code: { tenantId, code: normalized } },
@@ -86,7 +91,7 @@ export async function upsertCatalogueItemFromWebhook(
             quantity,
             availableQty: quantity,
             reservedQty: 0,
-            createdInLive: true, // Provenance : création en live par WhatsApp
+            createdInLive,
           },
         });
 

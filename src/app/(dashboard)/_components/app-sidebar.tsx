@@ -333,7 +333,7 @@ export function AppSidebar({
       {showBranding && (
         <div className="px-4 py-2 text-center group-data-[collapsible=icon]:hidden">
           <p className="text-[10px] text-muted-foreground/60">
-            Propulsé par{" "}
+            Via{" "}
             <span className="font-semibold">
               Snap<span className="text-primary">Sell</span>
             </span>
