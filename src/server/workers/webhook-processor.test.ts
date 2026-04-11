@@ -6,6 +6,7 @@ import {
   isStopMessage,
   shouldReadSession,
   parseCreateItemIntent,
+  parseOffLiveCreateItemIntent,
   parseClientCodeIntent,
   isConfirmOui,
 } from "./webhook-processor";
@@ -245,9 +246,24 @@ describe("webhook-processor", () => {
 
     it("returns null for non-code body", () => {
       expect(parseCreateItemIntent("hello")).toBeNull();
+      expect(parseCreateItemIntent("ajout A12")).toBeNull();
       expect(parseCreateItemIntent("MODIF A12")).toBeNull();
       expect(parseCreateItemIntent("")).toBeNull();
       expect(parseCreateItemIntent("   ")).toBeNull();
+    });
+  });
+
+  describe("parseOffLiveCreateItemIntent", () => {
+    it("parses explicit off-live commands", () => {
+      expect(parseOffLiveCreateItemIntent("ajout A12")).toEqual({ code: "A12", quantity: 1 });
+      expect(parseOffLiveCreateItemIntent("ajout A12 x1")).toEqual({ code: "A12", quantity: 1 });
+      expect(parseOffLiveCreateItemIntent("ajout B7 x 3")).toEqual({ code: "B7", quantity: 3 });
+    });
+
+    it("returns null for implicit or invalid off-live commands", () => {
+      expect(parseOffLiveCreateItemIntent("A12")).toBeNull();
+      expect(parseOffLiveCreateItemIntent("B7 x3")).toBeNull();
+      expect(parseOffLiveCreateItemIntent("hello")).toBeNull();
     });
   });
 
@@ -1848,7 +1864,7 @@ describe("webhook-processor", () => {
       expect(getLastEditedLiveItemInWindow).not.toHaveBeenCalled();
     });
 
-    it("Story 8.2 AC#5: seller sends code without active session → catalogue upsert only, no LiveItem, sends 'Ajouté au catalogue'", async () => {
+    it("Story 8.2 AC#5: seller sends explicit ajout command without active session → catalogue upsert only, no LiveItem, sends 'Ajouté au catalogue'", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
@@ -1874,7 +1890,7 @@ describe("webhook-processor", () => {
           tenantId,
           providerMessageId: "SMnoSession",
           from,
-          body: "B7 x3",
+          body: "ajout B7 x3",
           correlationId: "corr-nosession",
         } as InboundMessage,
       } as PgBossJob<InboundMessage>;
@@ -1893,6 +1909,45 @@ describe("webhook-processor", () => {
           to: from,
           body: "✅ *B7* ajouté au catalogue — 3 en stock",
           correlationId: "corr-nosession",
+        }),
+      );
+    });
+
+    it("seller sends code without active session → no creation, sends off-live instruction", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+        { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+      ] as never);
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+
+      const { upsertCatalogueItemFromWebhook } = await import("~/server/catalogue/upsertCatalogueItemFromWebhook");
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+
+      const job = {
+        id: "job-seller-no-session-implicit",
+        data: {
+          tenantId,
+          providerMessageId: "SMnoSessionImplicit",
+          from,
+          body: "B7 x3",
+          correlationId: "corr-nosession-implicit",
+        } as InboundMessage,
+      } as PgBossJob<InboundMessage>;
+
+      const result = await processWebhookJob(job);
+
+      expect(result.messageType).toBe("seller");
+      expect(result.liveSessionId).toBeUndefined();
+      expect(upsertCatalogueItemFromWebhook).not.toHaveBeenCalled();
+      expect(writeToOutbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenantId,
+          to: from,
+          body: "Hors live, utilise *ajout A12* ou *ajout A12 x3* pour créer un article.",
+          correlationId: "corr-nosession-implicit",
         }),
       );
     });
@@ -1930,7 +1985,7 @@ describe("webhook-processor", () => {
             tenantId,
             providerMessageId: "SMphotocat",
             from,
-            body: "A12",
+            body: "ajout A12",
             mediaUrl,
             correlationId: "corr-photocat",
           } as InboundMessage,
@@ -1990,7 +2045,7 @@ describe("webhook-processor", () => {
             tenantId,
             providerMessageId: "SMphotounknown",
             from,
-            body: "Z99",
+            body: "ajout Z99",
             mediaUrl,
             correlationId: "corr-photounknown",
           } as InboundMessage,
@@ -2173,7 +2228,7 @@ describe("webhook-processor", () => {
             tenantId,
             providerMessageId: "SMphotoreplace",
             from,
-            body: "A12",
+            body: "ajout A12",
             mediaUrl,
             correlationId: "corr-photoreplace",
           } as InboundMessage,
@@ -2222,7 +2277,7 @@ describe("webhook-processor", () => {
             tenantId,
             providerMessageId: "SMnophoto",
             from,
-            body: "A12 x3",
+            body: "ajout A12 x3",
             // PAS de mediaUrl
             correlationId: "corr-nophoto",
           } as InboundMessage,
@@ -2270,7 +2325,7 @@ describe("webhook-processor", () => {
             tenantId,
             providerMessageId: "SMphotonor2",
             from,
-            body: "A12",
+            body: "ajout A12",
             mediaUrl,
             correlationId: "corr-photonor2",
           } as InboundMessage,
@@ -2316,7 +2371,7 @@ describe("webhook-processor", () => {
             tenantId,
             providerMessageId: "SMphotonoprice",
             from,
-            body: "Z99",
+            body: "ajout Z99",
             mediaUrl,
             correlationId: "corr-photonoprice",
           } as InboundMessage,

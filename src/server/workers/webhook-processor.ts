@@ -109,6 +109,8 @@ export function detectFaqIntent(body: string): "delivery" | "payment" | "locatio
 
 /** Pattern vendeur « créer item » : code seul ou "code x qte" (Story 3.2) ex. A12, A12 x1, B7 x 2 */
 const SELLER_CREATE_ITEM_PATTERN = /^([A-Za-z]+\d+)(?:\s*x\s*(\d+))?$/i;
+/** Pattern hors live : création explicite "ajout A12" ou "ajout A12 x3". */
+const SELLER_CREATE_ITEM_OFFLIVE_PATTERN = /^ajout\s+([A-Za-z]+\d+)(?:\s*x\s*(\d+))?$/i;
 
 /**
  * Parse le body vendeur pour intent « créer item ».
@@ -118,6 +120,18 @@ export function parseCreateItemIntent(body: string): { code: string; quantity: n
   const trimmed = body.trim();
   if (!trimmed.length) return null;
   const match = trimmed.match(SELLER_CREATE_ITEM_PATTERN);
+  if (!match) return null;
+  const code = match[1]!;
+  const quantity = match[2] ? Math.max(1, parseInt(match[2], 10)) : 1;
+  return { code, quantity };
+}
+
+export function parseOffLiveCreateItemIntent(
+  body: string,
+): { code: string; quantity: number } | null {
+  const trimmed = body.trim();
+  if (!trimmed.length) return null;
+  const match = trimmed.match(SELLER_CREATE_ITEM_OFFLIVE_PATTERN);
   if (!match) return null;
   const code = match[1]!;
   const quantity = match[2] ? Math.max(1, parseInt(match[2], 10)) : 1;
@@ -660,11 +674,10 @@ export async function processWebhookJob(
 
     // Story 3.2 + 8.2 : intent vendeur « créer item » (code ou code x qte) → upsert catalogue (+ LiveItem si session active)
     if (tenantId && messageType === "seller") {
-      const createItem = parseCreateItemIntent(body);
+      const activeSession = liveSessionId ? { id: liveSessionId } : null;
+      const createItem = activeSession ? parseCreateItemIntent(body) : parseOffLiveCreateItemIntent(body);
       if (createItem) {
         try {
-          // Story 8.2 Task 4: Réutiliser la session déjà lue (pas de 2e appel DB)
-          const activeSession = liveSessionId ? { id: liveSessionId } : null;
           const to = normalizePhoneNumber(from);
 
           // Story 8.2: Upsert catalogue (toujours, session active ou non)
@@ -827,6 +840,21 @@ export async function processWebhookJob(
             code: createItem.code,
           });
           // Ne pas faire échouer le job
+        }
+      } else if (!activeSession && SELLER_CREATE_ITEM_PATTERN.test(body.trim())) {
+        try {
+          const to = normalizePhoneNumber(from);
+          await writeToOutbox({
+            tenantId,
+            to,
+            body: botMsg.seller.offLiveCreateInstruction(),
+            correlationId,
+          });
+        } catch (error) {
+          workerLogger.error("Error sending off-live create instruction", error, {
+            correlationId,
+            tenantId,
+          });
         }
       } else if (mediaUrl) {
         // Photo sans caption — demander au vendeur d'utiliser le caption pour lier l'article

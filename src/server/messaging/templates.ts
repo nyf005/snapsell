@@ -238,5 +238,8 @@ export const botMsg = {
 
     codeAlreadyInStock: (code: string, availableQty: number) =>
       `⚠️ *${code}* a encore *${availableQty}* unité${availableQty > 1 ? "s" : ""} en stock.\n\nÉpuise d'abord ce stock ou choisis un autre code.`,
+
+    offLiveCreateInstruction: () =>
+      `Hors live, utilise *ajout A12* ou *ajout A12 x3* pour créer un article.`,
   },
 };
