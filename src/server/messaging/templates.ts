@@ -22,9 +22,6 @@ export const botMsg = {
     waitlist: (code: string, position: number) =>
       `Oh non, l'article *${code}* est épuisé 😔\n\nJe t'ajoute en liste d'attente à la position #${position}. Si une place se libère, tu seras prévenu(e) automatiquement ! 🔔`,
 
-    recap: (code: string, prix: string, total: string, address: string) =>
-      `Parfait ! Voici le récap de ta commande 👇\n\n🛍️ Article : *${code}*\n💰 Prix : ${prix}\n📍 Adresse : ${address}\n💳 Total : ${total}\n\nTout est bon ? Réponds *OUI* pour confirmer ✅`,
-
     orderConfirmed: () =>
       `C'est validé ! 🙌 Ta commande est bien enregistrée.\n\nOn te recontacte très vite pour les détails de livraison. Merci de nous faire confiance 💛`,
 
@@ -35,9 +32,6 @@ export const botMsg = {
 
     codeUnknown: (code: string) =>
       `Je n'ai pas trouvé l'article *${code}* 🔍\n\nVérifie le code vu lors du live et renvoie-le moi.`,
-
-    codeUnknownNoSession: (code: string) =>
-      `Je n'ai pas trouvé l'article *${code}* 😕\n\nLe live est peut-être terminé. Si tu as vu cet article, il sera disponible dans notre catalogue prochainement.`,
 
     codeSuggestion: (code: string) =>
       `Je n'ai pas trouvé ce code. Tu voulais dire *${code}* ? Renvoie-le moi 😊`,
@@ -63,27 +57,6 @@ export const botMsg = {
 
     orderInDelivery: (orderNumber: string) =>
       `Bonne nouvelle ! 🚚 Ta commande *${orderNumber}* est en cours de livraison.\n\nTu la reçois très bientôt !`,
-
-    // --- Payment proof notifications ---
-
-    proofApproved: (orderNumber: string) =>
-      `Ton acompte pour la commande *${orderNumber}* a été validé ! ✅\n\nTa commande est confirmée. On te recontacte pour la livraison 💛`,
-
-    proofRejected: (orderNumber: string) =>
-      `Oops, ta preuve d'acompte pour *${orderNumber}* n'a pas pu être validée 😕\n\nRenvoie une nouvelle preuve ou contacte-nous directement.`,
-
-    // --- Reminder & expiration ---
-
-    reminder: () =>
-      `Hey ! 👀 Ta réservation expire dans 2 minutes.\n\nEnvoie ton adresse vite pour ne pas la perdre 📍`,
-
-    reservationExpired: (code: string) =>
-      `Ta réservation pour *${code}* a malheureusement expiré ⏰\n\nSi l'article est encore disponible, renvoie simplement le code *${code}* pour recommencer 💪`,
-
-    // --- Waitlist promotion ---
-
-    waitlistPromoted: (code: string) =>
-      `Bonne nouvelle ! 🎉 Une place s'est libérée pour l'article *${code}*.\n\nIl est réservé pour toi ! Envoie ton adresse de livraison 📍`,
 
     // --- Handoff ---
 
