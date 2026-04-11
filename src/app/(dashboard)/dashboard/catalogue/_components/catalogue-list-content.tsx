@@ -35,6 +35,7 @@ import {
 import { Plus, Pencil, Trash2, PackageOpen, ImageOff } from "lucide-react";
 import { CatalogueItemFormDialog } from "./catalogue-item-form-dialog";
 import type { CatalogueItemOutput } from "~/server/api/routers/catalogue.schema";
+import { getCatalogueOriginLabel, isLiveCatalogueOrigin } from "~/server/catalogue/origin";
 
 function formatPrice(amount: number | null): string {
   if (amount === null) return "—";
@@ -175,8 +176,8 @@ export function CatalogueListContent() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={item.createdInLive ? "default" : "secondary"}>
-                            {item.createdInLive ? "Live" : "Manuel"}
+                          <Badge variant={isLiveCatalogueOrigin(item.origin) ? "default" : "secondary"}>
+                            {getCatalogueOriginLabel(item.origin)}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">

@@ -24,6 +24,13 @@ npx tsx scripts/start-worker.ts
 **Variables d'environnement requises:**
 - `DATABASE_URL` - URL PostgreSQL directe Neon (non-pooler, obligatoire pour pg-boss)
 - `LIVE_SESSION_INACTIVITY_WINDOW_MINUTES` - (optionnel, défaut 45) Fenêtre d'inactivité en min pour fermeture auto des sessions live
+- `QSTASH_TOKEN` - optionnel sur le worker, utilisé pour publier les jobs outbox en production
+
+**Variables non requises sur le worker seul:**
+- `QSTASH_CURRENT_SIGNING_KEY`
+- `QSTASH_NEXT_SIGNING_KEY`
+
+Ces deux clés servent à vérifier la signature des callbacks QStash sur les routes HTTP `/api/qstash/*`. Elles doivent être présentes sur le runtime qui expose ces routes.
 
 ### Déploiement
 
@@ -65,6 +72,7 @@ Le worker gère automatiquement:
 - Vérifier variables d'environnement (`DATABASE_URL`)
 - Vérifier que l'URL est l'URL **directe** Neon (pas l'URL pooler `-pooler.`)
 - Vérifier logs Railway pour erreurs de connexion
+- Vérifier que le service Railway n'est pas en mode `Serverless`
 
 **Jobs ne sont pas traités:**
 - Vérifier que le worker est démarré (logs "Worker started successfully")

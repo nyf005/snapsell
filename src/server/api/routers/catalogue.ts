@@ -75,6 +75,7 @@ export const catalogueRouter = createTRPCRouter({
             availableQty: input.quantity,
             reservedQty: 0,
             mediaStorageKey: input.mediaStorageKey ?? null,
+            origin: "dashboard",
             createdInLive: false, // Création manuelle via dashboard
           },
         });

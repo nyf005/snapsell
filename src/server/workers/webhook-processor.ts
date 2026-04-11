@@ -36,6 +36,16 @@ import { botMsg } from "~/server/messaging/templates";
 import { createOrderFromReservation } from "~/server/order/createOrderFromReservation";
 import { upsertCatalogueItemFromWebhook } from "~/server/catalogue/upsertCatalogueItemFromWebhook";
 import { getConversationState, setHandedOff } from "~/server/conversation/conversationState";
+import {
+  looksLikeImplicitSellerCreateItem,
+  parseSellerCreateItemIntent,
+  parseSellerOffLiveCreateItemIntent,
+} from "~/server/catalogue/sellerCreateIntent";
+
+export {
+  parseSellerCreateItemIntent as parseCreateItemIntent,
+  parseSellerOffLiveCreateItemIntent as parseOffLiveCreateItemIntent,
+};
 
 /**
  * Normalise un numéro de téléphone en enlevant le préfixe "whatsapp:" si présent
@@ -105,37 +115,6 @@ export function detectFaqIntent(body: string): "delivery" | "payment" | "locatio
   if (/où|adresse|boutique|localisa|situé|trouver|localisation|quartier/.test(lower)) return "location";
   if (/disponible|disponibilité|stock|reste.*article|encore.*dispo|rupture|épuisé/.test(lower)) return "availability";
   return null;
-}
-
-/** Pattern vendeur « créer item » : code seul ou "code x qte" (Story 3.2) ex. A12, A12 x1, B7 x 2 */
-const SELLER_CREATE_ITEM_PATTERN = /^([A-Za-z]+\d+)(?:\s*x\s*(\d+))?$/i;
-/** Pattern hors live : création explicite "ajout A12" ou "ajout A12 x3". */
-const SELLER_CREATE_ITEM_OFFLIVE_PATTERN = /^ajout\s+([A-Za-z]+\d+)(?:\s*x\s*(\d+))?$/i;
-
-/**
- * Parse le body vendeur pour intent « créer item ».
- * @returns { code, quantity } ou null si pas un message créer item
- */
-export function parseCreateItemIntent(body: string): { code: string; quantity: number } | null {
-  const trimmed = body.trim();
-  if (!trimmed.length) return null;
-  const match = trimmed.match(SELLER_CREATE_ITEM_PATTERN);
-  if (!match) return null;
-  const code = match[1]!;
-  const quantity = match[2] ? Math.max(1, parseInt(match[2], 10)) : 1;
-  return { code, quantity };
-}
-
-export function parseOffLiveCreateItemIntent(
-  body: string,
-): { code: string; quantity: number } | null {
-  const trimmed = body.trim();
-  if (!trimmed.length) return null;
-  const match = trimmed.match(SELLER_CREATE_ITEM_OFFLIVE_PATTERN);
-  if (!match) return null;
-  const code = match[1]!;
-  const quantity = match[2] ? Math.max(1, parseInt(match[2], 10)) : 1;
-  return { code, quantity };
 }
 
 /**
@@ -675,7 +654,9 @@ export async function processWebhookJob(
     // Story 3.2 + 8.2 : intent vendeur « créer item » (code ou code x qte) → upsert catalogue (+ LiveItem si session active)
     if (tenantId && messageType === "seller") {
       const activeSession = liveSessionId ? { id: liveSessionId } : null;
-      const createItem = activeSession ? parseCreateItemIntent(body) : parseOffLiveCreateItemIntent(body);
+      const createItem = activeSession
+        ? parseSellerCreateItemIntent(body)
+        : parseSellerOffLiveCreateItemIntent(body);
       if (createItem) {
         try {
           const to = normalizePhoneNumber(from);
@@ -685,7 +666,7 @@ export async function processWebhookJob(
             tenantId,
             createItem.code,
             createItem.quantity,
-            { createdInLive: Boolean(activeSession) },
+            { createdInLive: Boolean(activeSession), origin: activeSession ? "live" : "seller_whatsapp" },
           );
 
           if (!catalogueResult.success) {
@@ -841,7 +822,7 @@ export async function processWebhookJob(
           });
           // Ne pas faire échouer le job
         }
-      } else if (!activeSession && SELLER_CREATE_ITEM_PATTERN.test(body.trim())) {
+      } else if (!activeSession && looksLikeImplicitSellerCreateItem(body)) {
         try {
           const to = normalizePhoneNumber(from);
           await writeToOutbox({

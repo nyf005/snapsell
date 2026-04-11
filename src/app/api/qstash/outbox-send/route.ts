@@ -10,25 +10,26 @@
 import { Receiver } from "@upstash/qstash";
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
-import { env } from "~/env";
 import { processOutboundMessage } from "~/server/workers/outbox-sender";
 import { workerLogger } from "~/lib/logger";
+import { createQStashReceiver, hasQStashSigningKeys, isQStashMisconfiguredForHttpRoute } from "~/server/qstash/config";
 
 function isProduction(): boolean {
-  return env.NODE_ENV === "production";
+  return process.env.NODE_ENV === "production";
 }
 
 function getReceiver(): Receiver | "misconfigured" | null {
-  if (!env.QSTASH_CURRENT_SIGNING_KEY || !env.QSTASH_NEXT_SIGNING_KEY) {
-    if (isProduction()) {
-      return "misconfigured";
-    }
+  if (isQStashMisconfiguredForHttpRoute()) {
+    return "misconfigured";
+  }
+  const receiver = createQStashReceiver();
+  if (!receiver && isProduction() && hasQStashSigningKeys()) {
+    return "misconfigured";
+  }
+  if (!receiver) {
     return null;
   }
-  return new Receiver({
-    currentSigningKey: env.QSTASH_CURRENT_SIGNING_KEY,
-    nextSigningKey: env.QSTASH_NEXT_SIGNING_KEY,
-  });
+  return receiver;
 }
 
 export async function POST(request: Request) {
@@ -39,8 +40,8 @@ export async function POST(request: Request) {
   if (receiver === "misconfigured") {
     workerLogger.error("QStash outbox-send: signature config missing in production", undefined, {
       route: "/api/qstash/outbox-send",
-      hasCurrentSigningKey: !!env.QSTASH_CURRENT_SIGNING_KEY,
-      hasNextSigningKey: !!env.QSTASH_NEXT_SIGNING_KEY,
+      hasCurrentSigningKey: !!process.env.QSTASH_CURRENT_SIGNING_KEY,
+      hasNextSigningKey: !!process.env.QSTASH_NEXT_SIGNING_KEY,
     });
     return new NextResponse("Service Unavailable", { status: 503 });
   }

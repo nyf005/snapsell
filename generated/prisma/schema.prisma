@@ -370,18 +370,19 @@ model LiveItem {
 // Story 8.1: Article catalogue persistant — seule source d'articles commandables
 // Unicité (tenantId, code) — le code = étiquette persistante de l'article
 model CatalogueItem {
-  id              String   @id @default(cuid())
-  tenantId        String   @map("tenant_id")
-  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id              String              @id @default(cuid())
+  tenantId        String              @map("tenant_id")
+  tenant          Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   code            String // normalisé trim + uppercase
-  amount          Int?     @map("amount_cents")
-  quantity        Int      @default(1)
-  availableQty    Int      @default(1) @map("available_qty")
-  reservedQty     Int      @default(0) @map("reserved_qty")
-  mediaStorageKey String?  @map("media_storage_key")
-  createdInLive   Boolean  @default(false) @map("created_in_live")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  amount          Int?                @map("amount_cents")
+  quantity        Int                 @default(1)
+  availableQty    Int                 @default(1) @map("available_qty")
+  reservedQty     Int                 @default(0) @map("reserved_qty")
+  mediaStorageKey String?             @map("media_storage_key")
+  origin          CatalogueItemOrigin @default(dashboard)
+  createdInLive   Boolean             @default(false) @map("created_in_live")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
 
   reservations Reservation[]
   waitlist     Waitlist[]
@@ -389,6 +390,12 @@ model CatalogueItem {
   @@unique([tenantId, code])
   @@index([tenantId])
   @@map("catalogue_items")
+}
+
+enum CatalogueItemOrigin {
+  live
+  seller_whatsapp
+  dashboard
 }
 
 // Réservation client par article (Story 4.1)

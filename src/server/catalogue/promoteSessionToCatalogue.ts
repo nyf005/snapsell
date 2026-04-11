@@ -162,6 +162,7 @@ async function upsertCatalogueItemFromLive(
             availableQty: additionalQty,
             reservedQty: 0,
             mediaStorageKey,
+            origin: "live",
             createdInLive: true, // Provenance : session live
           },
         });

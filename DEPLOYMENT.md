@@ -130,6 +130,10 @@ DATABASE_URL=<production-url> npx prisma migrate deploy
 
 **Configuration automatique:** Le fichier `railway.json` est déjà configuré.
 
+**Réglage Railway important:** pour `webhook-worker`, laisser le service en mode worker classique.
+- `Enable Serverless` doit être **OFF**
+- le service doit rester connecté au repo `nyf005/snapsell` sur la branche `main`
+
 ### 3. Variables d'Environnement Railway
 
 Dans l'onglet **"Variables"** du service, ajouter :
@@ -144,6 +148,10 @@ TWILIO_ACCOUNT_SID=<votre-account-sid>
 TWILIO_AUTH_TOKEN=<votre-auth-token>
 TWILIO_WHATSAPP_NUMBER=<votre-numero-whatsapp>  # Format E.164, ex. +14155238886
 ```
+
+**Note QStash:**
+- le worker Railway n'a besoin que de `QSTASH_TOKEN` pour publier les jobs outbox
+- `QSTASH_CURRENT_SIGNING_KEY` et `QSTASH_NEXT_SIGNING_KEY` sont requises sur les routes HTTP QStash (`/api/qstash/*`), typiquement côté Vercel
 
 **Où trouver les valeurs:**
 - **DATABASE_URL:** [Neon Console](https://console.neon.tech) → Connection string

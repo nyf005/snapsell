@@ -747,6 +747,7 @@ describe("webhook-processor", () => {
         availableQty: 1,
         reservedQty: 0,
         mediaStorageKey: null,
+        origin: "dashboard",
         createdInLive: false,
       });
 
@@ -806,6 +807,7 @@ describe("webhook-processor", () => {
         availableQty: 1,
         reservedQty: 0,
         mediaStorageKey: null,
+        origin: "dashboard",
         createdInLive: false,
       });
 
@@ -860,6 +862,7 @@ describe("webhook-processor", () => {
         availableQty: 1,
         reservedQty: 1,
         mediaStorageKey: null,
+        origin: "dashboard",
         createdInLive: false,
       });
       const { addToWaitlist } = await import("~/server/waitlist/addToWaitlist");
@@ -922,6 +925,7 @@ describe("webhook-processor", () => {
         availableQty: 2,
         reservedQty: 0,
         mediaStorageKey: null,
+        origin: "dashboard",
         createdInLive: false,
       });
       const { createReservation } = await import("~/server/reservation/service");
@@ -1052,6 +1056,7 @@ describe("webhook-processor", () => {
         availableQty: 1,
         reservedQty: 0,
         mediaStorageKey: null,
+        origin: "dashboard",
         createdInLive: false,
       });
       const { createReservation } = await import("~/server/reservation/service");
@@ -1901,6 +1906,7 @@ describe("webhook-processor", () => {
       expect(result.liveSessionId).toBeUndefined();
       expect(upsertCatalogueItemFromWebhook).toHaveBeenCalledWith(tenantId, "B7", 3, {
         createdInLive: false,
+        origin: "seller_whatsapp",
       });
       expect(createLiveItem).not.toHaveBeenCalled();
       expect(writeToOutbox).toHaveBeenCalledWith(

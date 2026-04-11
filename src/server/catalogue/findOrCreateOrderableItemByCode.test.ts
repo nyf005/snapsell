@@ -32,6 +32,7 @@ const CATALOGUE_ITEM = {
   availableQty: 1,
   reservedQty: 0,
   mediaStorageKey: null,
+  origin: "live",
   createdInLive: true,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -64,6 +65,7 @@ describe("findOrCreateOrderableItemByCode", () => {
     expect(result).not.toBeNull();
     expect(result!.code).toBe("A12");
     expect(result!.amount).toBe(5000);
+    expect(result!.origin).toBe("live");
     expect(result!.createdInLive).toBe(true);
     expect(mockCreate).toHaveBeenCalledWith({
       data: {
@@ -73,6 +75,7 @@ describe("findOrCreateOrderableItemByCode", () => {
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,
+        origin: "live",
         createdInLive: true,
       },
     });

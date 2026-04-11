@@ -23,6 +23,7 @@ const CATALOGUE_ITEM = {
   availableQty: 2,
   reservedQty: 1,
   mediaStorageKey: null,
+  origin: "dashboard",
   createdInLive: false,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -44,6 +45,7 @@ describe("findOrderableItemByCode", () => {
     expect(result!.amount).toBe(5000);
     expect(result!.availableQty).toBe(2);
     expect(result!.reservedQty).toBe(1);
+    expect(result!.origin).toBe("dashboard");
     expect(result!.createdInLive).toBe(false);
 
     expect(mockFindUnique).toHaveBeenCalledWith({

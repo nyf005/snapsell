@@ -162,6 +162,15 @@ export const LiveSessionStatus: {
 export type LiveSessionStatus = (typeof LiveSessionStatus)[keyof typeof LiveSessionStatus]
 
 
+export const CatalogueItemOrigin: {
+  live: 'live',
+  seller_whatsapp: 'seller_whatsapp',
+  dashboard: 'dashboard'
+};
+
+export type CatalogueItemOrigin = (typeof CatalogueItemOrigin)[keyof typeof CatalogueItemOrigin]
+
+
 export const ReservationStatus: {
   reserved: 'reserved',
   address_collected: 'address_collected',
@@ -211,6 +220,10 @@ export const Role: typeof $Enums.Role
 export type LiveSessionStatus = $Enums.LiveSessionStatus
 
 export const LiveSessionStatus: typeof $Enums.LiveSessionStatus
+
+export type CatalogueItemOrigin = $Enums.CatalogueItemOrigin
+
+export const CatalogueItemOrigin: typeof $Enums.CatalogueItemOrigin
 
 export type ReservationStatus = $Enums.ReservationStatus
 
@@ -23406,6 +23419,7 @@ export namespace Prisma {
     availableQty: number | null
     reservedQty: number | null
     mediaStorageKey: string | null
+    origin: $Enums.CatalogueItemOrigin | null
     createdInLive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -23420,6 +23434,7 @@ export namespace Prisma {
     availableQty: number | null
     reservedQty: number | null
     mediaStorageKey: string | null
+    origin: $Enums.CatalogueItemOrigin | null
     createdInLive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -23434,6 +23449,7 @@ export namespace Prisma {
     availableQty: number
     reservedQty: number
     mediaStorageKey: number
+    origin: number
     createdInLive: number
     createdAt: number
     updatedAt: number
@@ -23464,6 +23480,7 @@ export namespace Prisma {
     availableQty?: true
     reservedQty?: true
     mediaStorageKey?: true
+    origin?: true
     createdInLive?: true
     createdAt?: true
     updatedAt?: true
@@ -23478,6 +23495,7 @@ export namespace Prisma {
     availableQty?: true
     reservedQty?: true
     mediaStorageKey?: true
+    origin?: true
     createdInLive?: true
     createdAt?: true
     updatedAt?: true
@@ -23492,6 +23510,7 @@ export namespace Prisma {
     availableQty?: true
     reservedQty?: true
     mediaStorageKey?: true
+    origin?: true
     createdInLive?: true
     createdAt?: true
     updatedAt?: true
@@ -23593,6 +23612,7 @@ export namespace Prisma {
     availableQty: number
     reservedQty: number
     mediaStorageKey: string | null
+    origin: $Enums.CatalogueItemOrigin
     createdInLive: boolean
     createdAt: Date
     updatedAt: Date
@@ -23626,6 +23646,7 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    origin?: boolean
     createdInLive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -23644,6 +23665,7 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    origin?: boolean
     createdInLive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -23659,6 +23681,7 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    origin?: boolean
     createdInLive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -23674,12 +23697,13 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    origin?: boolean
     createdInLive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CatalogueItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "code" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "createdInLive" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogueItem"]>
+  export type CatalogueItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "code" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "origin" | "createdInLive" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogueItem"]>
   export type CatalogueItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     reservations?: boolean | CatalogueItem$reservationsArgs<ExtArgs>
@@ -23709,6 +23733,7 @@ export namespace Prisma {
       availableQty: number
       reservedQty: number
       mediaStorageKey: string | null
+      origin: $Enums.CatalogueItemOrigin
       createdInLive: boolean
       createdAt: Date
       updatedAt: Date
@@ -24146,6 +24171,7 @@ export namespace Prisma {
     readonly availableQty: FieldRef<"CatalogueItem", 'Int'>
     readonly reservedQty: FieldRef<"CatalogueItem", 'Int'>
     readonly mediaStorageKey: FieldRef<"CatalogueItem", 'String'>
+    readonly origin: FieldRef<"CatalogueItem", 'CatalogueItemOrigin'>
     readonly createdInLive: FieldRef<"CatalogueItem", 'Boolean'>
     readonly createdAt: FieldRef<"CatalogueItem", 'DateTime'>
     readonly updatedAt: FieldRef<"CatalogueItem", 'DateTime'>
@@ -33001,6 +33027,7 @@ export namespace Prisma {
     availableQty: 'availableQty',
     reservedQty: 'reservedQty',
     mediaStorageKey: 'mediaStorageKey',
+    origin: 'origin',
     createdInLive: 'createdInLive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -33261,6 +33288,20 @@ export namespace Prisma {
    * Reference to a field of type 'LiveSessionStatus[]'
    */
   export type ListEnumLiveSessionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LiveSessionStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'CatalogueItemOrigin'
+   */
+  export type EnumCatalogueItemOriginFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CatalogueItemOrigin'>
+    
+
+
+  /**
+   * Reference to a field of type 'CatalogueItemOrigin[]'
+   */
+  export type ListEnumCatalogueItemOriginFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CatalogueItemOrigin[]'>
     
 
 
@@ -34710,6 +34751,7 @@ export namespace Prisma {
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
     createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
     updatedAt?: DateTimeFilter<"CatalogueItem"> | Date | string
@@ -34727,6 +34769,7 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrderInput | SortOrder
+    origin?: SortOrder
     createdInLive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -34748,6 +34791,7 @@ export namespace Prisma {
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
     createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
     updatedAt?: DateTimeFilter<"CatalogueItem"> | Date | string
@@ -34765,6 +34809,7 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrderInput | SortOrder
+    origin?: SortOrder
     createdInLive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -34787,6 +34832,7 @@ export namespace Prisma {
     availableQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
     reservedQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableWithAggregatesFilter<"CatalogueItem"> | string | null
+    origin?: EnumCatalogueItemOriginWithAggregatesFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolWithAggregatesFilter<"CatalogueItem"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"CatalogueItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CatalogueItem"> | Date | string
@@ -36882,6 +36928,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36899,6 +36946,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36914,6 +36962,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36931,6 +36980,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36947,6 +36997,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36960,6 +37011,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36974,6 +37026,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38906,6 +38959,13 @@ export namespace Prisma {
     reservedQty?: SortOrder
   }
 
+  export type EnumCatalogueItemOriginFilter<$PrismaModel = never> = {
+    equals?: $Enums.CatalogueItemOrigin | EnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    in?: $Enums.CatalogueItemOrigin[] | ListEnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CatalogueItemOrigin[] | ListEnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    not?: NestedEnumCatalogueItemOriginFilter<$PrismaModel> | $Enums.CatalogueItemOrigin
+  }
+
   export type CatalogueItemTenantIdCodeCompoundUniqueInput = {
     tenantId: string
     code: string
@@ -38920,6 +38980,7 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrder
+    origin?: SortOrder
     createdInLive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -38941,6 +39002,7 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrder
+    origin?: SortOrder
     createdInLive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -38955,6 +39017,7 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrder
+    origin?: SortOrder
     createdInLive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -38965,6 +39028,16 @@ export namespace Prisma {
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
+  }
+
+  export type EnumCatalogueItemOriginWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CatalogueItemOrigin | EnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    in?: $Enums.CatalogueItemOrigin[] | ListEnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CatalogueItemOrigin[] | ListEnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    not?: NestedEnumCatalogueItemOriginWithAggregatesFilter<$PrismaModel> | $Enums.CatalogueItemOrigin
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCatalogueItemOriginFilter<$PrismaModel>
+    _max?: NestedEnumCatalogueItemOriginFilter<$PrismaModel>
   }
 
   export type EnumReservationStatusFilter<$PrismaModel = never> = {
@@ -40761,6 +40834,10 @@ export namespace Prisma {
     connect?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
   }
 
+  export type EnumCatalogueItemOriginFieldUpdateOperationsInput = {
+    set?: $Enums.CatalogueItemOrigin
+  }
+
   export type TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput = {
     create?: XOR<TenantCreateWithoutCatalogueItemsInput, TenantUncheckedCreateWithoutCatalogueItemsInput>
     connectOrCreate?: TenantCreateOrConnectWithoutCatalogueItemsInput
@@ -41386,6 +41463,23 @@ export namespace Prisma {
     _max?: NestedEnumLiveSessionStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumCatalogueItemOriginFilter<$PrismaModel = never> = {
+    equals?: $Enums.CatalogueItemOrigin | EnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    in?: $Enums.CatalogueItemOrigin[] | ListEnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CatalogueItemOrigin[] | ListEnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    not?: NestedEnumCatalogueItemOriginFilter<$PrismaModel> | $Enums.CatalogueItemOrigin
+  }
+
+  export type NestedEnumCatalogueItemOriginWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CatalogueItemOrigin | EnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    in?: $Enums.CatalogueItemOrigin[] | ListEnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CatalogueItemOrigin[] | ListEnumCatalogueItemOriginFieldRefInput<$PrismaModel>
+    not?: NestedEnumCatalogueItemOriginWithAggregatesFilter<$PrismaModel> | $Enums.CatalogueItemOrigin
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCatalogueItemOriginFilter<$PrismaModel>
+    _max?: NestedEnumCatalogueItemOriginFilter<$PrismaModel>
+  }
+
   export type NestedEnumReservationStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.ReservationStatus | EnumReservationStatusFieldRefInput<$PrismaModel>
     in?: $Enums.ReservationStatus[] | ListEnumReservationStatusFieldRefInput<$PrismaModel>
@@ -41890,6 +41984,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41905,6 +42000,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -42552,6 +42648,7 @@ export namespace Prisma {
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
     createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
     updatedAt?: DateTimeFilter<"CatalogueItem"> | Date | string
@@ -46618,6 +46715,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -46634,6 +46732,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -46882,6 +46981,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -46898,6 +46998,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -47950,6 +48051,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -47966,6 +48068,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -48115,6 +48218,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -48131,6 +48235,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -48747,6 +48852,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49251,6 +49357,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49266,6 +49373,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49281,6 +49389,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

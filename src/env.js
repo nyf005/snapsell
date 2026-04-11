@@ -65,44 +65,8 @@ export const env = createEnv({
     // QStash (Upstash) — outbox sender serverless (Option A)
     // En prod: QSTASH_TOKEN requis. QSTASH_*_SIGNING_KEY pour vérification de signature.
     QSTASH_TOKEN: z.string().min(1).optional(),
-    QSTASH_CURRENT_SIGNING_KEY: z
-      .string()
-      .min(1)
-      .optional()
-      .refine(
-        (val) => {
-          if (process.env.NODE_ENV !== "production") return true;
-          const hasAnyQstashConfig =
-            !!process.env.QSTASH_TOKEN ||
-            !!process.env.QSTASH_CURRENT_SIGNING_KEY ||
-            !!process.env.QSTASH_NEXT_SIGNING_KEY;
-          if (!hasAnyQstashConfig) return true;
-          return typeof val === "string" && val.length > 0;
-        },
-        {
-          message:
-            "QSTASH_CURRENT_SIGNING_KEY est requis en production dès qu'une configuration QStash est présente",
-        },
-      ),
-    QSTASH_NEXT_SIGNING_KEY: z
-      .string()
-      .min(1)
-      .optional()
-      .refine(
-        (val) => {
-          if (process.env.NODE_ENV !== "production") return true;
-          const hasAnyQstashConfig =
-            !!process.env.QSTASH_TOKEN ||
-            !!process.env.QSTASH_CURRENT_SIGNING_KEY ||
-            !!process.env.QSTASH_NEXT_SIGNING_KEY;
-          if (!hasAnyQstashConfig) return true;
-          return typeof val === "string" && val.length > 0;
-        },
-        {
-          message:
-            "QSTASH_NEXT_SIGNING_KEY est requis en production dès qu'une configuration QStash est présente",
-        },
-      ),
+    QSTASH_CURRENT_SIGNING_KEY: z.string().min(1).optional(),
+    QSTASH_NEXT_SIGNING_KEY: z.string().min(1).optional(),
     // Secret partagé pour sécuriser les routes Vercel Cron (header Authorization: Bearer <CRON_SECRET>)
     CRON_SECRET: z.string().min(1).optional(),
     // Meta WhatsApp Cloud API (Story 10.1)

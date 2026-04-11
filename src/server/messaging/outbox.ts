@@ -13,6 +13,7 @@ import { boss, QUEUE } from "~/server/workers/queues";
 import { env } from "~/env";
 import { migrateCIPhoneNumber } from "~/lib/validations/phone";
 import type { OutboundMessage } from "./types";
+import { appendBranding } from "./render";
 
 /**
  * Enqueue via QStash (production) ou pg-boss (dev/fallback).
@@ -95,7 +96,7 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
     select: { showBranding: true },
   });
   if (tenant?.showBranding) {
-    normalizedMessage.body = `${normalizedMessage.body}\n\n_Via SnapSell_`;
+    normalizedMessage.body = appendBranding(normalizedMessage.body, true);
   }
 
   // Valider le message avec Zod

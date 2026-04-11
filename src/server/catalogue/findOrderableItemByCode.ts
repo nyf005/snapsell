@@ -5,6 +5,7 @@
 
 import { db } from "~/server/db";
 import { normalizeCode } from "~/server/live-item/createLiveItem";
+import type { CatalogueItemOriginValue } from "./origin";
 
 export type CatalogueItemLookup = {
   id: string;
@@ -15,6 +16,7 @@ export type CatalogueItemLookup = {
   availableQty: number;
   reservedQty: number;
   mediaStorageKey: string | null;
+  origin: CatalogueItemOriginValue;
   createdInLive: boolean;
 };
 
@@ -46,6 +48,7 @@ export async function findOrderableItemByCode(
     availableQty: item.availableQty,
     reservedQty: item.reservedQty,
     mediaStorageKey: item.mediaStorageKey,
+    origin: item.origin,
     createdInLive: item.createdInLive,
   };
 }

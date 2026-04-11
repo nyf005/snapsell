@@ -20,6 +20,7 @@ function toCatalogueItemLookup(item: {
   availableQty: number;
   reservedQty: number;
   mediaStorageKey: string | null;
+  origin: "live" | "seller_whatsapp" | "dashboard";
   createdInLive: boolean;
 }): CatalogueItemLookup {
   return {
@@ -31,6 +32,7 @@ function toCatalogueItemLookup(item: {
     availableQty: item.availableQty,
     reservedQty: item.reservedQty,
     mediaStorageKey: item.mediaStorageKey,
+    origin: item.origin,
     createdInLive: item.createdInLive,
   };
 }
@@ -72,6 +74,7 @@ export async function findOrCreateOrderableItemByCode(
         quantity: 1,
         availableQty: 1,
         reservedQty: 0,
+        origin: "live",
         createdInLive: true,
       },
     });

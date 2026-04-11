@@ -330,6 +330,7 @@ exports.Prisma.CatalogueItemScalarFieldEnum = {
   availableQty: 'availableQty',
   reservedQty: 'reservedQty',
   mediaStorageKey: 'mediaStorageKey',
+  origin: 'origin',
   createdInLive: 'createdInLive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -465,6 +466,12 @@ exports.Role = exports.$Enums.Role = {
 exports.LiveSessionStatus = exports.$Enums.LiveSessionStatus = {
   active: 'active',
   closed: 'closed'
+};
+
+exports.CatalogueItemOrigin = exports.$Enums.CatalogueItemOrigin = {
+  live: 'live',
+  seller_whatsapp: 'seller_whatsapp',
+  dashboard: 'dashboard'
 };
 
 exports.ReservationStatus = exports.$Enums.ReservationStatus = {

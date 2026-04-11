@@ -27,6 +27,7 @@ vi.mock("~/server/workers/outbox-sender", () => ({
 vi.mock("~/env", () => ({
   env: {
     NODE_ENV: "production",
+    QSTASH_TOKEN: "qstash-token",
     QSTASH_CURRENT_SIGNING_KEY: "current-key",
     QSTASH_NEXT_SIGNING_KEY: "next-key",
   },
@@ -50,6 +51,7 @@ describe("POST /api/qstash/outbox-send", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (env as Record<string, unknown>).NODE_ENV = "production";
+    (env as Record<string, unknown>).QSTASH_TOKEN = "qstash-token";
     (env as Record<string, unknown>).QSTASH_CURRENT_SIGNING_KEY = "current-key";
     (env as Record<string, unknown>).QSTASH_NEXT_SIGNING_KEY = "next-key";
 

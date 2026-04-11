@@ -52,6 +52,7 @@ describe("upsertCatalogueItemFromWebhook", () => {
       quantity: 5,
       availableQty: 5,
       reservedQty: 0,
+      origin: "seller_whatsapp",
       createdInLive: false,
     } as never);
 
@@ -79,6 +80,7 @@ describe("upsertCatalogueItemFromWebhook", () => {
         quantity: 5,
         availableQty: 5,
         reservedQty: 0,
+        origin: "seller_whatsapp",
         createdInLive: false,
       },
     });
@@ -94,6 +96,7 @@ describe("upsertCatalogueItemFromWebhook", () => {
       quantity: 2,
       availableQty: 2,
       reservedQty: 0,
+      origin: "live",
       createdInLive: true,
     } as never);
 
@@ -115,6 +118,7 @@ describe("upsertCatalogueItemFromWebhook", () => {
         quantity: 2,
         availableQty: 2,
         reservedQty: 0,
+        origin: "live",
         createdInLive: true,
       },
     });

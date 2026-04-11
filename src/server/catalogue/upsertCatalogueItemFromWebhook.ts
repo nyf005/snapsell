@@ -11,6 +11,7 @@ import { Prisma } from "../../../generated/prisma";
 import { normalizeCode } from "~/server/live-item/createLiveItem";
 import { getPriceFromCode } from "~/server/pricing/getPriceFromCode";
 import { workerLogger } from "~/lib/logger";
+import type { CatalogueItemOriginValue } from "./origin";
 
 export type UpsertCatalogueFromWebhookResult =
   | { success: true; created: boolean; catalogueItemId: string }
@@ -32,6 +33,7 @@ export async function upsertCatalogueItemFromWebhook(
   quantity: number,
   options?: {
     createdInLive?: boolean;
+    origin?: CatalogueItemOriginValue;
   },
 ): Promise<UpsertCatalogueFromWebhookResult> {
   const normalized = normalizeCode(code);
@@ -52,6 +54,7 @@ export async function upsertCatalogueItemFromWebhook(
 
   try {
     const createdInLive = options?.createdInLive ?? false;
+    const origin = options?.origin ?? (createdInLive ? "live" : "seller_whatsapp");
 
     // Vérifier si l'item existe et son stock avant toute modification
     const existing = await db.catalogueItem.findUnique({
@@ -91,6 +94,7 @@ export async function upsertCatalogueItemFromWebhook(
             quantity,
             availableQty: quantity,
             reservedQty: 0,
+            origin,
             createdInLive,
           },
         });

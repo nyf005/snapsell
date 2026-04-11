@@ -9,23 +9,32 @@
 import { Receiver } from "@upstash/qstash";
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
-import { env } from "~/env";
 import { workerLogger } from "~/lib/logger";
+import { createQStashReceiver, isQStashMisconfiguredForHttpRoute } from "~/server/qstash/config";
 
-function getReceiver(): Receiver | null {
-  if (!env.QSTASH_CURRENT_SIGNING_KEY || !env.QSTASH_NEXT_SIGNING_KEY) {
+function getReceiver(): Receiver | "misconfigured" | null {
+  if (isQStashMisconfiguredForHttpRoute()) {
+    return "misconfigured";
+  }
+  const receiver = createQStashReceiver();
+  if (!receiver) {
     return null;
   }
-  return new Receiver({
-    currentSigningKey: env.QSTASH_CURRENT_SIGNING_KEY,
-    nextSigningKey: env.QSTASH_NEXT_SIGNING_KEY,
-  });
+  return receiver;
 }
 
 export async function POST(request: Request) {
   const bodyText = await request.text();
 
   const receiver = getReceiver();
+  if (receiver === "misconfigured") {
+    workerLogger.error("QStash outbox-dlq: signature config missing in production", undefined, {
+      route: "/api/qstash/outbox-dlq",
+      hasCurrentSigningKey: !!process.env.QSTASH_CURRENT_SIGNING_KEY,
+      hasNextSigningKey: !!process.env.QSTASH_NEXT_SIGNING_KEY,
+    });
+    return new NextResponse("Service Unavailable", { status: 503 });
+  }
   if (receiver) {
     const signature = request.headers.get("upstash-signature") ?? "";
     const isValid = await receiver.verify({ signature, body: bodyText }).catch(() => false);

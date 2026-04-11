@@ -379,6 +379,7 @@ model CatalogueItem {
   availableQty    Int      @default(1) @map("available_qty")
   reservedQty     Int      @default(0) @map("reserved_qty")
   mediaStorageKey String?  @map("media_storage_key")
+  origin          CatalogueItemOrigin @default(dashboard)
   createdInLive   Boolean  @default(false) @map("created_in_live")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
@@ -389,6 +390,12 @@ model CatalogueItem {
   @@unique([tenantId, code])
   @@index([tenantId])
   @@map("catalogue_items")
+}
+
+enum CatalogueItemOrigin {
+  live
+  seller_whatsapp
+  dashboard
 }
 
 // Réservation client par article (Story 4.1)
