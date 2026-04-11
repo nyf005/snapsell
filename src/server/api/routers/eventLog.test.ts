@@ -9,9 +9,13 @@ import { createCaller } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
 
 const mockEventLogFindMany = vi.hoisted(() => vi.fn());
+const mockTenantFindUnique = vi.hoisted(() => vi.fn());
 
 vi.mock("~/server/db", () => ({
   db: {
+    tenant: {
+      findUnique: mockTenantFindUnique,
+    },
     eventLog: {
       findMany: (...args: unknown[]) => mockEventLogFindMany(...args),
     },
@@ -39,6 +43,7 @@ describe("eventLog router", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockTenantFindUnique.mockResolvedValue({ hasExportCsv: true });
   });
 
   describe("list", () => {

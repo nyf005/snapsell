@@ -12,6 +12,10 @@ import { env } from "~/env";
 let ratelimiter: Ratelimit | null = null;
 
 function getRateLimiter(): Ratelimit | null {
+  if (env.NODE_ENV === "test") {
+    return null;
+  }
+
   if (ratelimiter !== null) return ratelimiter;
 
   if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {

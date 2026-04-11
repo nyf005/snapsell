@@ -14,8 +14,15 @@ import { env } from "~/env";
 import { processOutboundMessage } from "~/server/workers/outbox-sender";
 import { workerLogger } from "~/lib/logger";
 
-function getReceiver(): Receiver | null {
+function isProduction(): boolean {
+  return env.NODE_ENV === "production";
+}
+
+function getReceiver(): Receiver | "misconfigured" | null {
   if (!env.QSTASH_CURRENT_SIGNING_KEY || !env.QSTASH_NEXT_SIGNING_KEY) {
+    if (isProduction()) {
+      return "misconfigured";
+    }
     return null;
   }
   return new Receiver({
@@ -27,8 +34,17 @@ function getReceiver(): Receiver | null {
 export async function POST(request: Request) {
   const bodyText = await request.text();
 
-  // Vérification de la signature QStash (désactivée si clés absentes — dev uniquement)
+  // Vérification de la signature QStash
   const receiver = getReceiver();
+  if (receiver === "misconfigured") {
+    workerLogger.error("QStash outbox-send: signature config missing in production", undefined, {
+      route: "/api/qstash/outbox-send",
+      hasCurrentSigningKey: !!env.QSTASH_CURRENT_SIGNING_KEY,
+      hasNextSigningKey: !!env.QSTASH_NEXT_SIGNING_KEY,
+    });
+    return new NextResponse("Service Unavailable", { status: 503 });
+  }
+
   if (receiver) {
     const signature = request.headers.get("upstash-signature") ?? "";
     const isValid = await receiver.verify({ signature, body: bodyText }).catch(() => false);

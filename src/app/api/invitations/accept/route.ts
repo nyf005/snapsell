@@ -21,15 +21,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Valider et récupérer l'invitation
-    const tokenHash = hashToken(token);
-    // Rechercher d'abord par tokenHash (nouveau), puis par token (ancien pour compatibilité)
     const inv = await db.invitation.findFirst({
-      where: {
-        OR: [
-          { tokenHash },
-          { token }, // Fallback pour compatibilité
-        ],
-      },
+      where: { tokenHash: hashToken(token) },
     });
 
     if (!inv) {

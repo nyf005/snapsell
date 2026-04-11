@@ -98,14 +98,12 @@ model Invitation {
   tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   email      String
   role       Role      @default(AGENT)
-  token      String?   @unique // Temporaire pour migration, sera supprimé après
-  tokenHash  String?   @unique @map("token_hash") // Hash SHA-256 du token
+  tokenHash  String    @unique @map("token_hash") // Hash SHA-256 du token
   expiresAt  DateTime  @map("expires_at")
   consumedAt DateTime? @map("consumed_at")
   createdAt  DateTime  @default(now()) @map("created_at")
 
   @@index([tenantId])
-  @@index([token])
   @@index([tokenHash])
   // Note: Contrainte unique partielle (tenantId, email) où consumedAt IS NULL
   // sera créée via migration SQL car Prisma ne supporte pas directement les contraintes partielles

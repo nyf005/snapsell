@@ -58,7 +58,9 @@ describe("uploadMediaToCatalogueItem", () => {
       "corr-1",
     );
 
-    expect(globalThis.fetch).toHaveBeenCalledWith("https://example.com/media/123");
+    expect(globalThis.fetch).toHaveBeenCalledWith("https://example.com/media/123", {
+      headers: {},
+    });
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
         input: expect.objectContaining({

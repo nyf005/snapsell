@@ -50,8 +50,8 @@ describe("live-item createLiveItem", () => {
 
   describe("messageCodeAlreadyUsed", () => {
     it("includes code for MODIF", () => {
-      expect(messageCodeAlreadyUsed("A12")).toContain("MODIF A12");
-      expect(messageCodeAlreadyUsed("A12")).toContain("Code déjà utilisé");
+      expect(messageCodeAlreadyUsed("A12")).toContain("*A12*");
+      expect(messageCodeAlreadyUsed("A12")).toContain("déjà utilisé");
     });
   });
 

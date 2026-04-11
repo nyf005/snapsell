@@ -27,6 +27,7 @@ import {
 } from "~/server/live-item/createLiveItem";
 import { findLiveItemByCode } from "~/server/live-item/findLiveItemByCode";
 import { findOrderableItemByCode } from "~/server/catalogue/findOrderableItemByCode";
+import { findOrCreateOrderableItemByCode } from "~/server/catalogue/findOrCreateOrderableItemByCode";
 import { uploadMediaAndLinkToLiveItem } from "~/server/media/uploadMediaToLiveItem";
 import { uploadMediaToCatalogueItem } from "~/server/media/uploadMediaToCatalogueItem";
 import { isR2Configured } from "~/server/media/r2-client";
@@ -481,9 +482,9 @@ export async function processWebhookJob(
         const to = normalizePhoneNumber(from);
         const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
 
-        // Lookup catalogue uniquement — le client ne peut jamais créer un article.
-        // C'est au vendeur de créer les codes avant que les clients puissent les réserver.
-        const catalogueItem = await findOrderableItemByCode(tenantId, clientCodeIntent.code);
+        const catalogueItem = liveSessionId
+          ? await findOrCreateOrderableItemByCode(tenantId, clientCodeIntent.code)
+          : await findOrderableItemByCode(tenantId, clientCodeIntent.code);
 
         if (!catalogueItem) {
           // Code inconnu (absent du catalogue, ou invalide — lettre non configurée)

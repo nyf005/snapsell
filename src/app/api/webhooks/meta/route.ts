@@ -52,7 +52,10 @@ export async function GET(request: Request) {
     return new NextResponse(challenge, { status: 200 });
   }
 
-  webhookLogger.warn("Meta webhook challenge failed", { mode: mode ?? "", verifyToken: verifyToken ?? "" });
+  webhookLogger.warn("Meta webhook challenge failed", {
+    mode: mode ?? "",
+    hasVerifyToken: verifyToken != null && verifyToken.length > 0,
+  });
   return new NextResponse("Forbidden", { status: 403 });
 }
 
@@ -68,10 +71,24 @@ export async function POST(request: Request) {
   // 1. Rate limiting par IP
   const maxPerWindow = env.WEBHOOK_RATE_LIMIT_MAX ?? 120;
   const windowMs = env.WEBHOOK_RATE_LIMIT_WINDOW_MS ?? 60_000;
-  if (!checkWebhookRateLimit(request, maxPerWindow, windowMs)) {
-    const ip = getClientIpFromRequest(request);
-    webhookLogger.warn("Meta webhook rate limit exceeded", { correlationId, ip, maxPerWindow, windowMs });
-    return new NextResponse("OK", { status: 200 });
+  try {
+    const allowed = await checkWebhookRateLimit(request, maxPerWindow, windowMs);
+    if (!allowed) {
+      const ip = getClientIpFromRequest(request);
+      webhookLogger.warn("Meta webhook rate limit exceeded", {
+        correlationId,
+        ip,
+        maxPerWindow,
+        windowMs,
+      });
+      return new NextResponse("OK", { status: 200 });
+    }
+  } catch (error) {
+    webhookLogger.error("Meta webhook rate limit unavailable", error, {
+      correlationId,
+      errorType: "rate_limit_unavailable",
+    });
+    return new NextResponse("Service Unavailable", { status: 503 });
   }
 
   try {

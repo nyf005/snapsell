@@ -191,7 +191,12 @@ export const settingsRouter = createTRPCRouter({
           if (wabaIdToValidate != null) {
             // Validation stricte : le phoneId doit figurer dans la liste des numéros du WABA
             const metaRes = await fetch(
-              `https://graph.facebook.com/v20.0/${encodeURIComponent(wabaIdToValidate)}/phone_numbers?access_token=${encodeURIComponent(tokenToValidate)}&limit=100`,
+              `https://graph.facebook.com/v20.0/${encodeURIComponent(wabaIdToValidate)}/phone_numbers?limit=100`,
+              {
+                headers: {
+                  Authorization: `Bearer ${tokenToValidate}`,
+                },
+              },
             );
             if (!metaRes.ok) {
               throw new TRPCError({
@@ -209,7 +214,12 @@ export const settingsRouter = createTRPCRouter({
           } else {
             // Fallback si wabaId absent : valide juste token + phoneId
             const metaRes = await fetch(
-              `https://graph.facebook.com/v20.0/${encodeURIComponent(phoneId)}?access_token=${encodeURIComponent(tokenToValidate)}`,
+              `https://graph.facebook.com/v20.0/${encodeURIComponent(phoneId)}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${tokenToValidate}`,
+                },
+              },
             );
             if (!metaRes.ok) {
               throw new TRPCError({
@@ -275,7 +285,12 @@ export const settingsRouter = createTRPCRouter({
     const accessToken = decrypt(tenant.metaAccessToken);
     try {
       const metaRes = await fetch(
-        `https://graph.facebook.com/v20.0/${encodeURIComponent(tenant.metaWabaId)}/phone_numbers?access_token=${encodeURIComponent(accessToken)}&limit=100`,
+        `https://graph.facebook.com/v20.0/${encodeURIComponent(tenant.metaWabaId)}/phone_numbers?limit=100`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
       if (!metaRes.ok) {
         throw new TRPCError({

@@ -758,7 +758,7 @@ describe("webhook-processor", () => {
         expect.objectContaining({
           tenantId,
           to: from,
-          body: "Réservé. Envoie ton adresse.",
+          body: expect.stringContaining("L'article *A12* est réservé pour toi"),
           correlationId: "corr-a12",
         }),
       );
@@ -813,7 +813,7 @@ describe("webhook-processor", () => {
         { catalogueItemId: "cat-item-existing", liveSessionId: "live-session-client" },
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
-        expect.objectContaining({ body: "Réservé. Envoie ton adresse." }),
+        expect.objectContaining({ body: expect.stringContaining("L'article *A12* est réservé pour toi") }),
       );
     });
 
@@ -871,7 +871,7 @@ describe("webhook-processor", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Tu es en file #2. On te prévient quand une place se libère.",
+          body: expect.stringContaining("position #2"),
           to: from,
           correlationId: "corr-ex",
         }),
@@ -920,7 +920,11 @@ describe("webhook-processor", () => {
       expect(result.messageType).toBe("client");
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       expect(writeToOutbox).toHaveBeenCalledWith(
-        expect.objectContaining({ body: "Épuisé.", to: from, correlationId: "corr-race" }),
+        expect.objectContaining({
+          body: expect.stringContaining("vient d'être épuisé"),
+          to: from,
+          correlationId: "corr-race",
+        }),
       );
     });
 
@@ -1044,7 +1048,10 @@ describe("webhook-processor", () => {
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Code inconnu. Tu voulais dire A12 ?",
+          body: expect.stringContaining("Tu voulais dire *A12*"),
+          interactive: expect.objectContaining({
+            type: "buttons",
+          }),
           correlationId: "corr-typo2",
         }),
       );
@@ -1080,7 +1087,7 @@ describe("webhook-processor", () => {
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const outboxCalls = vi.mocked(writeToOutbox).mock.calls;
       const bodies = outboxCalls.map((c) => c[0].body);
-      expect(bodies).not.toContain("Épuisé.");
+      expect(bodies).not.toContain("Oh non, cet article vient d'être épuisé 😔");
       expect(bodies.some((b) => b.includes("Code inconnu"))).toBe(true);
     });
 
@@ -1152,7 +1159,10 @@ describe("webhook-processor", () => {
           tenantId,
           to: from,
           correlationId: "corr-addr",
-          body: "Récap : A12 — 50 FCFA — Total : 50 FCFA. Réponds OUI pour confirmer.",
+          body: expect.stringContaining("Voici le récap de ta commande"),
+          interactive: expect.objectContaining({
+            type: "buttons",
+          }),
         }),
       );
     });
@@ -1240,7 +1250,7 @@ describe("webhook-processor", () => {
           tenantId,
           to: from,
           correlationId: "corr-oui",
-          body: "Commande confirmée. Merci !",
+          body: expect.stringContaining("Ta commande est bien enregistrée"),
         }),
       );
     });
@@ -1323,7 +1333,7 @@ describe("webhook-processor", () => {
           tenantId,
           to: from,
           correlationId: "corr-oui",
-          body: "Commande enregistrée.",
+          body: expect.stringContaining("on a besoin d'un acompte"),
         }),
       );
     });
@@ -1493,7 +1503,7 @@ describe("webhook-processor", () => {
       expect(writeToOutbox).toHaveBeenCalledWith({
         tenantId,
         to: from,
-        body: "Créé : A12 (x1).",
+        body: "✅ *A12* ajouté — 1 en stock",
         correlationId: "corr-a12",
       });
       expect(logLiveItemCreated).toHaveBeenCalledWith(tenantId, "item-1", "corr-a12", {
@@ -1663,7 +1673,7 @@ describe("webhook-processor", () => {
       );
     });
 
-    it("Story 3.5: vendeur envoie photo seule, dernier code créé il y a 1 min → photo liée, réponse « Photo ajoutée à [code]. »", async () => {
+    it("Story 3.5: vendeur envoie photo seule → demande d'ajouter le code en légende", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
       const mediaUrl = "https://example.com/media/test-image.jpg";
@@ -1672,19 +1682,10 @@ describe("webhook-processor", () => {
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
       ] as never);
       const { createLiveItem } = await import("~/server/live-item/createLiveItem");
-      const { getLastEditedLiveItemInWindow } = await import(
-        "~/server/live-item/getLastEditedLiveItemInWindow"
-      );
-      vi.mocked(getLastEditedLiveItemInWindow).mockResolvedValue({
-        id: "item-a12",
-        code: "A12",
-        liveSessionId: "live-session-1",
-      });
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const { uploadMediaAndLinkToLiveItem } = await import(
         "~/server/media/uploadMediaToLiveItem"
       );
-      const { logLiveItemPhotoLinked } = await import("~/server/events/eventLog");
 
       const job = {
         id: "job-photo-seule",
@@ -1701,31 +1702,16 @@ describe("webhook-processor", () => {
       await processWebhookJob(job);
 
       expect(createLiveItem).not.toHaveBeenCalled();
-      expect(getLastEditedLiveItemInWindow).toHaveBeenCalledWith(
-        tenantId,
-        2 * 60 * 1000,
-      );
-      expect(uploadMediaAndLinkToLiveItem).toHaveBeenCalledWith(
-        tenantId,
-        "item-a12",
-        mediaUrl,
-        "corr-photo",
-      );
+      expect(uploadMediaAndLinkToLiveItem).not.toHaveBeenCalled();
       expect(writeToOutbox).toHaveBeenCalledWith({
         tenantId,
         to: from,
-        body: "Photo ajoutée à A12.",
+        body: expect.stringContaining("Photo reçue, mais je ne sais pas à quel article la lier"),
         correlationId: "corr-photo",
       });
-      expect(logLiveItemPhotoLinked).toHaveBeenCalledWith(
-        tenantId,
-        "item-a12",
-        "A12",
-        "corr-photo",
-      );
     });
 
-    it("Story 3.5: vendeur envoie photo seule sans code récent → « Envoie d'abord CODE PRIX »", async () => {
+    it("Story 3.5: vendeur envoie photo seule sans code → même guidage caption/code", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
       const mediaUrl = "https://example.com/media/test-image.jpg";
@@ -1734,10 +1720,6 @@ describe("webhook-processor", () => {
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
       ] as never);
       const { createLiveItem } = await import("~/server/live-item/createLiveItem");
-      const { getLastEditedLiveItemInWindow } = await import(
-        "~/server/live-item/getLastEditedLiveItemInWindow"
-      );
-      vi.mocked(getLastEditedLiveItemInWindow).mockResolvedValue(null);
       const { writeToOutbox } = await import("~/server/messaging/outbox");
 
       const job = {
@@ -1755,19 +1737,15 @@ describe("webhook-processor", () => {
       await processWebhookJob(job);
 
       expect(createLiveItem).not.toHaveBeenCalled();
-      expect(getLastEditedLiveItemInWindow).toHaveBeenCalledWith(
-        tenantId,
-        2 * 60 * 1000,
-      );
       expect(writeToOutbox).toHaveBeenCalledWith({
         tenantId,
         to: from,
-        body: "Envoie d'abord CODE PRIX",
+        body: expect.stringContaining("Photo reçue, mais je ne sais pas à quel article la lier"),
         correlationId: "corr-photo2",
       });
     });
 
-    it("Story 3.5: vendeur envoie photo seule, dernier code il y a 3 min → « Envoie d'abord CODE PRIX »", async () => {
+    it("Story 3.5: vendeur envoie photo seule, même avec ancien contexte → guidage caption/code", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
       const mediaUrl = "https://example.com/media/test-image.jpg";
@@ -1776,10 +1754,6 @@ describe("webhook-processor", () => {
         { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
       ] as never);
       const { createLiveItem } = await import("~/server/live-item/createLiveItem");
-      const { getLastEditedLiveItemInWindow } = await import(
-        "~/server/live-item/getLastEditedLiveItemInWindow"
-      );
-      vi.mocked(getLastEditedLiveItemInWindow).mockResolvedValue(null);
       const { writeToOutbox } = await import("~/server/messaging/outbox");
 
       const job = {
@@ -1797,10 +1771,9 @@ describe("webhook-processor", () => {
       await processWebhookJob(job);
 
       expect(createLiveItem).not.toHaveBeenCalled();
-      expect(getLastEditedLiveItemInWindow).toHaveBeenCalled();
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Envoie d'abord CODE PRIX",
+          body: expect.stringContaining("Photo reçue, mais je ne sais pas à quel article la lier"),
           correlationId: "corr-photo3",
         }),
       );
@@ -1896,7 +1869,7 @@ describe("webhook-processor", () => {
         expect.objectContaining({
           tenantId,
           to: from,
-          body: "Ajouté au catalogue : B7 (x3).",
+          body: "✅ *B7* ajouté au catalogue — 3 en stock",
           correlationId: "corr-nosession",
         }),
       );
@@ -1959,7 +1932,7 @@ describe("webhook-processor", () => {
           expect.objectContaining({
             tenantId,
             to: from,
-            body: "Photo ajoutée à A12.",
+            body: "✅ Photo ajoutée à *A12*",
             correlationId: "corr-photocat",
           }),
         );
@@ -2008,13 +1981,13 @@ describe("webhook-processor", () => {
           expect.objectContaining({
             tenantId,
             to: from,
-            body: expect.stringContaining("Z99 introuvable dans ton catalogue"),
+            body: expect.stringContaining("Le code *Z99* n'existe pas dans ton catalogue"),
             correlationId: "corr-photounknown",
           }),
         );
       });
 
-      it("AC#3: vendeur photo SANS code (body vide) + session active → flux Story 3.5 préservé (photo seule → dernier LiveItem)", async () => {
+      it("AC#3: vendeur photo SANS code (body vide) + session active → guidage caption/code, pas d'upload direct", async () => {
         const tenantId = "tenant-123";
         const from = "+33612345678";
         const mediaUrl = "https://example.com/media/test-image.jpg";
@@ -2022,15 +1995,6 @@ describe("webhook-processor", () => {
         vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
           { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
         ] as never);
-
-        const { getLastEditedLiveItemInWindow } = await import(
-          "~/server/live-item/getLastEditedLiveItemInWindow"
-        );
-        vi.mocked(getLastEditedLiveItemInWindow).mockResolvedValue({
-          id: "item-last",
-          code: "B7",
-          liveSessionId: "live-session-1",
-        });
 
         const { uploadMediaToCatalogueItem } = await import(
           "~/server/media/uploadMediaToCatalogueItem"
@@ -2056,16 +2020,10 @@ describe("webhook-processor", () => {
 
         // Story 9.3 n'intervient PAS (pas de code dans body)
         expect(uploadMediaToCatalogueItem).not.toHaveBeenCalled();
-        // Story 3.5 fonctionne normalement
-        expect(uploadMediaAndLinkToLiveItem).toHaveBeenCalledWith(
-          tenantId,
-          "item-last",
-          mediaUrl,
-          "corr-photoseule93",
-        );
+        expect(uploadMediaAndLinkToLiveItem).not.toHaveBeenCalled();
         expect(writeToOutbox).toHaveBeenCalledWith(
           expect.objectContaining({
-            body: "Photo ajoutée à B7.",
+            body: expect.stringContaining("Photo reçue, mais je ne sais pas à quel article la lier"),
           }),
         );
       });
@@ -2148,7 +2106,7 @@ describe("webhook-processor", () => {
         expect(writeToOutbox).toHaveBeenCalledTimes(1);
         expect(writeToOutbox).toHaveBeenCalledWith(
           expect.objectContaining({
-            body: "Créé : A12 (x1). Photo ajoutée au catalogue.",
+            body: "✅ *A12* ajouté — 1 en stock 📸",
             correlationId: "corr-photolive",
           }),
         );
@@ -2303,7 +2261,7 @@ describe("webhook-processor", () => {
         // Message catalogue standard (sans mention photo)
         expect(writeToOutbox).toHaveBeenCalledWith(
           expect.objectContaining({
-            body: "Ajouté au catalogue : A12 (x1).",
+            body: "✅ *A12* ajouté au catalogue — 1 en stock",
           }),
         );
       });
@@ -2345,13 +2303,7 @@ describe("webhook-processor", () => {
 
         expect(writeToOutbox).toHaveBeenCalledWith(
           expect.objectContaining({
-            body: expect.stringContaining("Pas de prix configuré pour la catégorie"),
-          }),
-        );
-        // Vérifie que c'est bien "Z" (la première lettre du code normalisé)
-        expect(writeToOutbox).toHaveBeenCalledWith(
-          expect.objectContaining({
-            body: expect.stringContaining("« Z »"),
+            body: expect.stringContaining("Aucun prix configuré pour la catégorie *Z*"),
           }),
         );
       });
@@ -2416,9 +2368,12 @@ describe("webhook-processor", () => {
         expect.objectContaining({
           tenantId,
           to: from,
-          body: "Récap : A12 — 50 FCFA — Total : 50 FCFA. Réponds OUI pour confirmer.",
+          body: expect.stringContaining("Voici le récap de ta commande"),
           mediaUrl: "tenants/t1/catalogue-items/ci1/photo",
           correlationId: "corr-photo",
+          interactive: expect.objectContaining({
+            type: "buttons",
+          }),
         }),
       );
     });
@@ -2478,12 +2433,12 @@ describe("webhook-processor", () => {
         expect.objectContaining({
           tenantId,
           to: from,
-          body: expect.stringContaining("Récap : B5"),
+          body: expect.stringContaining("Voici le récap de ta commande"),
         }),
       );
       // Pas de mediaUrl
       const writeCall = vi.mocked(writeToOutbox).mock.calls.find(
-        (c) => (c[0] as { body: string }).body.includes("Récap"),
+        (c) => (c[0] as { body: string }).body.includes("Voici le récap"),
       );
       expect(writeCall?.[0]).not.toHaveProperty("mediaUrl");
     });
@@ -2540,7 +2495,7 @@ describe("webhook-processor", () => {
 
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const writeCall = vi.mocked(writeToOutbox).mock.calls.find(
-        (c) => (c[0] as { body: string }).body.includes("Récap"),
+        (c) => (c[0] as { body: string }).body.includes("Voici le récap"),
       );
       // H1 fix: storageKey brut passé (signé dans outbox-sender, fallback géré là-bas)
       expect(writeCall?.[0]).toHaveProperty("mediaUrl", "tenants/t1/catalogue-items/key/photo");
@@ -2597,7 +2552,7 @@ describe("webhook-processor", () => {
 
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const writeCall = vi.mocked(writeToOutbox).mock.calls.find(
-        (c) => (c[0] as { body: string }).body.includes("Récap"),
+        (c) => (c[0] as { body: string }).body.includes("Voici le récap"),
       );
       // LiveItem (pas de mediaStorageKey) → pas de mediaUrl
       expect(writeCall?.[0]).not.toHaveProperty("mediaUrl");
@@ -2656,7 +2611,7 @@ describe("webhook-processor", () => {
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       // Le message de confirmation doit être texte uniquement (pas de photo en double)
       const confirmCall = vi.mocked(writeToOutbox).mock.calls.find(
-        (c) => (c[0] as { body: string }).body.includes("Commande confirmée"),
+        (c) => (c[0] as { body: string }).body.includes("Ta commande est bien enregistrée"),
       );
       expect(confirmCall).toBeDefined();
       expect(confirmCall?.[0]).not.toHaveProperty("mediaUrl");

@@ -249,7 +249,10 @@ describe("proofs router", () => {
         expect.objectContaining({
           tenantId: "tenant-1",
           to: "+33612345678",
-          body: "Ta commande SS-0001 est confirmée.",
+          body: "Ton acompte pour la commande *SS-0001* a été validé ! ✅\n\nTa commande est confirmée. On te recontacte pour la livraison 💛",
+          interactive: expect.objectContaining({
+            type: "buttons",
+          }),
           correlationId: expect.any(String),
         }),
       );
@@ -339,7 +342,7 @@ describe("proofs router", () => {
       const outboxCall = vi.mocked(writeToOutbox).mock.calls[0]![0];
       expect(outboxCall.tenantId).toBe("tenant-1");
       expect(outboxCall.to).toBe("+33612345678");
-      expect(outboxCall.body).toContain("n'a pas été acceptée");
+      expect(outboxCall.body).toContain("n'a pas pu être validée");
       expect(outboxCall.body).toContain("SS-0001");
     });
 

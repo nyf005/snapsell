@@ -146,7 +146,10 @@ describe("reservation-ttl (Story 4.3 + 9.1)", () => {
       expect.objectContaining({
         tenantId: "t1",
         to: "+33699999999",
-        body: expect.stringContaining("Une place s'est libérée pour A12"),
+        body: expect.stringContaining("Une place s'est libérée pour l'article *A12*"),
+        interactive: expect.objectContaining({
+          type: "buttons",
+        }),
         correlationId: "corr-w",
       }),
     );

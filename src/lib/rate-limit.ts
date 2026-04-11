@@ -1,7 +1,14 @@
 /**
- * Rate limiting simple en mémoire pour les invitations
- * En production, utiliser Redis ou un service dédié
+ * Rate limiting partagé pour invitations et webhooks.
+ *
+ * En production, Upstash Redis est requis pour éviter les compteurs locaux
+ * incohérents entre instances. En développement/test, un fallback mémoire
+ * reste disponible pour faciliter le travail local.
  */
+
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+import { env } from "~/env";
 
 type RateLimitEntry = {
   count: number;
@@ -9,27 +16,30 @@ type RateLimitEntry = {
 };
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
+const sharedLimiterCache = new Map<string, Ratelimit>();
 
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 heure
 const MAX_INVITATIONS_PER_HOUR = 10;
+const WEBHOOK_RATE_LIMIT_KEY_PREFIX = "webhook:";
+const SHARED_RATE_LIMIT_TIMEOUT_MS = 500;
 
-/**
- * Vérifie si une action est autorisée selon le rate limiting
- * @param key Clé unique pour le rate limiting (ex: tenantId)
- * @param maxRequests Nombre maximum de requêtes autorisées
- * @param windowMs Fenêtre de temps en millisecondes
- * @returns true si autorisé, false sinon
- */
-export function checkRateLimit(
+function isProduction(): boolean {
+  return env.NODE_ENV === "production";
+}
+
+function isSharedRateLimitConfigured(): boolean {
+  return !!(env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN);
+}
+
+function checkMemoryRateLimit(
   key: string,
-  maxRequests: number = MAX_INVITATIONS_PER_HOUR,
-  windowMs: number = RATE_LIMIT_WINDOW_MS,
+  maxRequests: number,
+  windowMs: number,
 ): boolean {
   const now = Date.now();
   const entry = rateLimitStore.get(key);
 
   if (!entry || entry.resetAt < now) {
-    // Nouvelle fenêtre ou fenêtre expirée
     rateLimitStore.set(key, {
       count: 1,
       resetAt: now + windowMs,
@@ -45,15 +55,91 @@ export function checkRateLimit(
   return true;
 }
 
+function getSharedRateLimiter(
+  maxRequests: number,
+  windowMs: number,
+  prefix: string,
+): Ratelimit | null {
+  if (!isSharedRateLimitConfigured()) {
+    return null;
+  }
+
+  const cacheKey = `${prefix}:${maxRequests}:${windowMs}`;
+  const cached = sharedLimiterCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const redis = new Redis({
+    url: env.UPSTASH_REDIS_REST_URL!,
+    token: env.UPSTASH_REDIS_REST_TOKEN!,
+  });
+
+  const limiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(maxRequests, `${Math.ceil(windowMs / 1000)} s`),
+    prefix,
+    analytics: false,
+  });
+
+  sharedLimiterCache.set(cacheKey, limiter);
+  return limiter;
+}
+
+async function runSharedRateLimit(
+  key: string,
+  maxRequests: number,
+  windowMs: number,
+  prefix: string,
+): Promise<boolean> {
+  const limiter = getSharedRateLimiter(maxRequests, windowMs, prefix);
+
+  if (!limiter) {
+    if (isProduction()) {
+      throw new Error(
+        "Shared rate limiting requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in production.",
+      );
+    }
+    return checkMemoryRateLimit(key, maxRequests, windowMs);
+  }
+
+  try {
+    const result = (await Promise.race([
+      limiter.limit(key),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("shared rate-limit timeout")), SHARED_RATE_LIMIT_TIMEOUT_MS),
+      ),
+    ])) as Awaited<ReturnType<Ratelimit["limit"]>>;
+    return result.success;
+  } catch (error) {
+    if (isProduction()) {
+      throw error;
+    }
+    return checkMemoryRateLimit(key, maxRequests, windowMs);
+  }
+}
+
 /**
- * Réinitialise le rate limit pour une clé (utile pour les tests)
+ * Vérifie si une action est autorisée selon le rate limiting partagé.
+ * En dev/test, utilise un fallback mémoire si Redis n'est pas configuré.
+ */
+export async function checkRateLimit(
+  key: string,
+  maxRequests: number = MAX_INVITATIONS_PER_HOUR,
+  windowMs: number = RATE_LIMIT_WINDOW_MS,
+): Promise<boolean> {
+  return runSharedRateLimit(key, maxRequests, windowMs, "shared:rl");
+}
+
+/**
+ * Réinitialise le rate limit pour une clé (utile pour les tests locaux).
  */
 export function resetRateLimit(key: string): void {
   rateLimitStore.delete(key);
 }
 
 /**
- * Nettoie les entrées expirées (à appeler périodiquement)
+ * Nettoie les entrées expirées (à appeler périodiquement côté mémoire locale).
  */
 export function cleanupExpiredEntries(): void {
   const now = Date.now();
@@ -63,9 +149,6 @@ export function cleanupExpiredEntries(): void {
     }
   }
 }
-
-/** Préfixe des clés rate-limit pour le webhook (par IP). */
-const WEBHOOK_RATE_LIMIT_KEY_PREFIX = "webhook:";
 
 /**
  * Extrait l’IP client depuis les headers (Vercel/proxy) ou fallback.
@@ -84,17 +167,13 @@ export function getClientIpFromRequest(request: Request): string {
 
 /**
  * Rate limit spécifique au webhook : une clé par IP.
- * @param request - Requête HTTP (pour extraire l’IP)
- * @param maxRequests - Nombre max de requêtes dans la fenêtre (défaut 120)
- * @param windowMs - Fenêtre en ms (défaut 60_000)
- * @returns true si autorisé, false si limite dépassée
  */
-export function checkWebhookRateLimit(
+export async function checkWebhookRateLimit(
   request: Request,
   maxRequests: number = 120,
   windowMs: number = 60_000,
-): boolean {
+): Promise<boolean> {
   const ip = getClientIpFromRequest(request);
   const key = `${WEBHOOK_RATE_LIMIT_KEY_PREFIX}${ip}`;
-  return checkRateLimit(key, maxRequests, windowMs);
+  return runSharedRateLimit(key, maxRequests, windowMs, WEBHOOK_RATE_LIMIT_KEY_PREFIX);
 }

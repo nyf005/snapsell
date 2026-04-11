@@ -77,18 +77,18 @@ describe("invitations router", () => {
         tenantId: "tenant-1",
         email: "agent@example.com",
         role: "AGENT",
-        token: "token-123",
         tokenHash: "hash-123",
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         consumedAt: null,
         createdAt: new Date(),
       };
+      const createInvitationMock = vi.fn().mockResolvedValue(mockInvitation);
 
       mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
         const mockTx = {
           invitation: {
             findFirst: vi.fn().mockResolvedValue(null),
-            create: vi.fn().mockResolvedValue(mockInvitation),
+            create: createInvitationMock,
           },
         };
         return fn(mockTx);
@@ -109,6 +109,15 @@ describe("invitations router", () => {
         email: "agent@example.com",
         acceptLink: expect.stringContaining("/invite/accept?token="),
       });
+      expect(createInvitationMock).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          tenantId: "tenant-1",
+          email: "agent@example.com",
+          role: "AGENT",
+          tokenHash: expect.any(String),
+        }),
+      });
+      expect(createInvitationMock.mock.calls[0]?.[0]?.data).not.toHaveProperty("token");
       expect(mockTransaction).toHaveBeenCalled();
     });
 
@@ -119,7 +128,6 @@ describe("invitations router", () => {
         tenantId: "tenant-1",
         email: "agent@example.com",
         role: "AGENT",
-        token: "token-123",
         tokenHash: "hash-123",
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         consumedAt: null,

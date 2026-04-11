@@ -83,15 +83,23 @@ export const invitationsRouter = createTRPCRouter({
       }
 
       // Rate limiting : max 10 invitations par heure par tenant
-      if (!checkRateLimit(`invitation:${tenantId}`)) {
-        logInvitationAction("create", {
-          tenantId,
-          email: input.email,
-          error: "Rate limit exceeded",
-        });
+      try {
+        if (!(await checkRateLimit(`invitation:${tenantId}`))) {
+          logInvitationAction("create", {
+            tenantId,
+            email: input.email,
+            error: "Rate limit exceeded",
+          });
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "Trop de demandes. Veuillez réessayer dans une heure.",
+          });
+        }
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
         throw new TRPCError({
-          code: "TOO_MANY_REQUESTS",
-          message: "Trop de demandes. Veuillez réessayer dans une heure.",
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Rate limiting indisponible. Réessaie dans quelques instants.",
         });
       }
 
@@ -135,7 +143,6 @@ export const invitationsRouter = createTRPCRouter({
             tenantId,
             email: input.email,
             role: "AGENT",
-            token, // Gardé temporairement pour compatibilité migration
             tokenHash, // Hash SHA-256 du token
             expiresAt,
           },
@@ -148,16 +155,16 @@ export const invitationsRouter = createTRPCRouter({
         });
 
         // Retourner invitation avec token original pour l'URL
-        return { ...newInvitation, token };
+        return { invitation: newInvitation, rawToken: token };
       });
 
       // Retourner le token original (non hashé) pour l'URL d'acceptation
       // Le tokenHash est stocké en DB, mais le token original est nécessaire pour l'URL
       return {
-        id: invitation.id,
-        email: invitation.email,
-        expiresAt: invitation.expiresAt,
-        acceptLink: `/invite/accept?token=${invitation.token}`, // Token original pour l'URL
+        id: invitation.invitation.id,
+        email: invitation.invitation.email,
+        expiresAt: invitation.invitation.expiresAt,
+        acceptLink: `/invite/accept?token=${invitation.rawToken}`, // Token original pour l'URL
       };
     }),
 
@@ -187,15 +194,8 @@ export const invitationsRouter = createTRPCRouter({
   getInvitationByToken: publicProcedure
     .input(getInvitationByTokenInputSchema)
     .query(async ({ input }) => {
-      const tokenHash = hashToken(input.token);
-      // Rechercher d'abord par tokenHash (nouveau), puis par token (ancien pour compatibilité)
       const inv = await db.invitation.findFirst({
-        where: {
-          OR: [
-            { tokenHash },
-            { token: input.token }, // Fallback pour invitations créées avant migration
-          ],
-        },
+        where: { tokenHash: hashToken(input.token) },
         include: { tenant: { select: { name: true } } },
       });
       validateInvitation(inv);
@@ -210,15 +210,8 @@ export const invitationsRouter = createTRPCRouter({
   acceptInvitation: publicProcedure
     .input(acceptInvitationInputSchema)
     .mutation(async ({ input }) => {
-      const tokenHash = hashToken(input.token);
-      // Rechercher d'abord par tokenHash (nouveau), puis par token (ancien pour compatibilité)
       const inv = await db.invitation.findFirst({
-        where: {
-          OR: [
-            { tokenHash },
-            { token: input.token }, // Fallback pour invitations créées avant migration
-          ],
-        },
+        where: { tokenHash: hashToken(input.token) },
       });
       validateInvitation(inv);
 

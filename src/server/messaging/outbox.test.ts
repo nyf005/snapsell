@@ -6,6 +6,9 @@ import { boss, QUEUE } from "~/server/workers/queues";
 // Mock db
 vi.mock("~/server/db", () => ({
   db: {
+    tenant: {
+      findUnique: vi.fn(),
+    },
     messageOut: {
       create: vi.fn(),
     },
@@ -28,9 +31,17 @@ vi.mock("~/server/workers/queues", () => ({
   QUEUE: { OUTBOX_SEND: "outbox-send" },
 }));
 
+vi.mock("~/env", () => ({
+  env: {
+    QSTASH_TOKEN: "",
+    NEXT_PUBLIC_APP_URL: "",
+  },
+}));
+
 describe("writeToOutbox", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(db.tenant.findUnique).mockResolvedValue({ showBranding: false } as never);
   });
 
   it("should write MessageOut with status pending", async () => {
@@ -62,9 +73,20 @@ describe("writeToOutbox", () => {
         to: message.to,
         body: message.body,
         mediaUrl: null,
+        interactivePayload: undefined,
         status: "pending",
         attempts: 0,
         correlationId: message.correlationId,
+      },
+      select: {
+        id: true,
+        tenantId: true,
+        to: true,
+        body: true,
+        status: true,
+        attempts: true,
+        correlationId: true,
+        createdAt: true,
       },
     });
 
@@ -116,9 +138,20 @@ describe("writeToOutbox", () => {
         to: message.to,
         body: message.body,
         mediaUrl: "tenants/t1/catalogue-items/ci1/photo",
+        interactivePayload: undefined,
         status: "pending",
         attempts: 0,
         correlationId: message.correlationId,
+      },
+      select: {
+        id: true,
+        tenantId: true,
+        to: true,
+        body: true,
+        status: true,
+        attempts: true,
+        correlationId: true,
+        createdAt: true,
       },
     });
   });

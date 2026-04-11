@@ -160,7 +160,6 @@ exports.Prisma.InvitationScalarFieldEnum = {
   tenantId: 'tenantId',
   email: 'email',
   role: 'role',
-  token: 'token',
   tokenHash: 'tokenHash',
   expiresAt: 'expiresAt',
   consumedAt: 'consumedAt',

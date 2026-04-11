@@ -16,9 +16,13 @@ import { writeToOutbox } from "~/server/messaging/outbox";
 const mockOrderFindMany = vi.hoisted(() => vi.fn());
 const mockOrderFindFirst = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
+const mockTenantFindUnique = vi.hoisted(() => vi.fn());
 
 vi.mock("~/server/db", () => ({
   db: {
+    tenant: {
+      findUnique: mockTenantFindUnique,
+    },
     order: {
       findMany: mockOrderFindMany,
       findFirst: mockOrderFindFirst,
@@ -66,6 +70,7 @@ describe("orders router", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockTenantFindUnique.mockResolvedValue({ hasExportCsv: true });
   });
 
   describe("list", () => {
@@ -566,7 +571,7 @@ describe("orders router", () => {
         expect.objectContaining({
           tenantId: "tenant-1",
           to: "+33612345678",
-          body: "Ta commande SS-0001 est livrée.",
+          body: "Ta commande *SS-0001* a bien été livrée ! 🎉\n\nMerci de ta confiance 💛",
           correlationId: expect.stringMatching(/^order-order-1-\d+$/),
         }),
       );
@@ -818,7 +823,7 @@ describe("orders router", () => {
         expect.objectContaining({
           tenantId: "tenant-1",
           to: "+33698765432",
-          body: "Ta commande SS-0011 est en cours de livraison.",
+          body: "Bonne nouvelle ! 🚚 Ta commande *SS-0011* est en cours de livraison.\n\nTu la reçois très bientôt !",
           correlationId: expect.stringMatching(/^order-order-d-\d+$/),
         }),
       );
@@ -862,7 +867,7 @@ describe("orders router", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Ta commande SS-0012 est livrée.",
+          body: "Ta commande *SS-0012* a bien été livrée ! 🎉\n\nMerci de ta confiance 💛",
           to: "+33611111111",
         }),
       );
@@ -906,7 +911,7 @@ describe("orders router", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Ta commande SS-0013 a été annulée.",
+          body: "Ta commande *SS-0013* a été annulée 😔\n\nN'hésite pas à nous écrire si tu as des questions.",
           to: "+33622222222",
         }),
       );
@@ -947,7 +952,7 @@ describe("orders router", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Ta commande SS-0016 a été annulée.",
+          body: "Ta commande *SS-0016* a été annulée 😔\n\nN'hésite pas à nous écrire si tu as des questions.",
           to: "+33633333333",
         }),
       );
@@ -988,7 +993,7 @@ describe("orders router", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Ta commande SS-0017 a été annulée.",
+          body: "Ta commande *SS-0017* a été annulée 😔\n\nN'hésite pas à nous écrire si tu as des questions.",
           to: "+33644444444",
         }),
       );
@@ -1029,7 +1034,7 @@ describe("orders router", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Ta commande SS-0018 a été annulée.",
+          body: "Ta commande *SS-0018* a été annulée 😔\n\nN'hésite pas à nous écrire si tu as des questions.",
           to: "+33655555555",
         }),
       );

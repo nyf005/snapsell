@@ -34,6 +34,10 @@ vi.mock("~/server/db", () => ({
   },
 }));
 
+vi.mock("~/lib/trpc-rate-limit", () => ({
+  checkTrpcRateLimit: vi.fn().mockResolvedValue(true),
+}));
+
 function setupTransactionMock() {
   mockDbTransaction.mockImplementation(async (fn: any) =>
     fn({
@@ -96,6 +100,11 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     expect(result).toEqual({ ok: true });
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining("graph.facebook.com/v20.0/789/phone_numbers"),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: "Bearer EAAtoken",
+        }),
+      }),
     );
     expect(mockTenantUpdate).toHaveBeenCalledWith({
       where: { id: "tenant-1" },
@@ -176,6 +185,11 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining("graph.facebook.com/v20.0/789/phone_numbers"),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: "Bearer stored-token",
+        }),
+      }),
     );
     const updateCall = mockTenantUpdate.mock.calls[0]![0] as { data: Record<string, unknown> };
     expect(updateCall.data).not.toHaveProperty("metaAccessToken");
@@ -371,6 +385,11 @@ describe("settings router — testWhatsAppConnection", () => {
     expect(result).toEqual({ ok: true });
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining("graph.facebook.com/v20.0/456/phone_numbers"),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: "Bearer valid-token",
+        }),
+      }),
     );
   });
 

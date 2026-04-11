@@ -4,6 +4,11 @@ import { metaWebhookSchema, metaWebhookMessageSchema } from "~/lib/zod/webhook";
 
 // ─── Mocks ───
 
+const mockWebhookLoggerWarn = vi.hoisted(() => vi.fn());
+const mockWebhookLoggerError = vi.hoisted(() => vi.fn());
+const mockWebhookLoggerInfo = vi.hoisted(() => vi.fn());
+const mockWebhookLoggerDebug = vi.hoisted(() => vi.fn());
+
 vi.mock("~/server/db", () => ({
   db: {
     tenant: {
@@ -20,6 +25,7 @@ vi.mock("~/server/workers/queues", () => ({
   boss: {
     send: vi.fn().mockResolvedValue("job-id-mock"),
   },
+  ensureBossReady: vi.fn().mockResolvedValue(undefined),
   QUEUE: {
     WEBHOOK_PROCESSING: "webhook-processing",
     OUTBOX_SEND: "outbox-send",
@@ -36,8 +42,17 @@ vi.mock("~/lib/sentry", () => ({
   captureException: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("~/lib/logger", () => ({
+  webhookLogger: {
+    warn: mockWebhookLoggerWarn,
+    error: mockWebhookLoggerError,
+    info: mockWebhookLoggerInfo,
+    debug: mockWebhookLoggerDebug,
+  },
+}));
+
 vi.mock("~/lib/rate-limit", () => ({
-  checkWebhookRateLimit: vi.fn().mockReturnValue(true),
+  checkWebhookRateLimit: vi.fn().mockResolvedValue(true),
   getClientIpFromRequest: vi.fn().mockReturnValue("127.0.0.1"),
 }));
 
@@ -259,6 +274,14 @@ describe("GET /api/webhooks/meta — challenge", () => {
       "hub.challenge": "CHALLENGE_CODE_123",
     });
     expect(resp.status).toBe(403);
+    expect(mockWebhookLoggerWarn).toHaveBeenCalledWith(
+      "Meta webhook challenge failed",
+      expect.objectContaining({
+        mode: "subscribe",
+        hasVerifyToken: true,
+      }),
+    );
+    expect(JSON.stringify(mockWebhookLoggerWarn.mock.calls)).not.toContain("wrong-token");
   });
 
   it("mode invalide → 403", async () => {
@@ -356,7 +379,7 @@ describe("POST /api/webhooks/meta — inbound", () => {
     adapterModule = await import("~/server/messaging/providers/meta/adapter");
     rateLimitMock = await import("~/lib/rate-limit");
     // Re-set rate limit mock after clearAllMocks
-    vi.mocked(rateLimitMock.checkWebhookRateLimit).mockReturnValue(true);
+    vi.mocked(rateLimitMock.checkWebhookRateLimit).mockResolvedValue(true);
   });
 
   async function callPOST(body: string, signature?: string) {
