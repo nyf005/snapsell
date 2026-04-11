@@ -805,7 +805,7 @@ export async function processWebhookJob(
             });
             const noSessionMsg =
               mediaUrl && r2Available
-                ? botMsg.seller.catalogueWithPhoto(normalizeCode(createItem.code))
+                ? botMsg.seller.catalogueAddedWithPhoto(normalizeCode(createItem.code), createItem.quantity)
                 : botMsg.seller.catalogueAdded(normalizeCode(createItem.code), createItem.quantity);
             await writeToOutbox({
               tenantId,

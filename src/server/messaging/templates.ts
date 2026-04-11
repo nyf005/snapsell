@@ -221,6 +221,9 @@ export const botMsg = {
     catalogueAdded: (code: string, qty: number) =>
       `✅ *${code}* ajouté au catalogue — ${qty} en stock`,
 
+    catalogueAddedWithPhoto: (code: string, qty: number) =>
+      `✅ *${code}* ajouté au catalogue — ${qty} en stock 📸`,
+
     catalogueWithPhoto: (code: string) =>
       `✅ Photo ajoutée à *${code}*`,
 
