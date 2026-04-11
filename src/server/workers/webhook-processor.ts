@@ -853,6 +853,25 @@ export async function processWebhookJob(
             tenantId,
           });
         }
+      } else if (activeSession && body.trim().length > 0) {
+        // Story 3.2: Fallback vendeur en live (syntaxe incorrecte)
+        try {
+          const to = normalizePhoneNumber(from);
+          const isTryingOffLivePayload = body.trim().toLowerCase().startsWith("ajout");
+          await writeToOutbox({
+            tenantId,
+            to,
+            body: isTryingOffLivePayload
+              ? botMsg.seller.liveCreateInstruction()
+              : botMsg.seller.sellerFallback(),
+            correlationId,
+          });
+        } catch (error) {
+          workerLogger.error("Error sending seller live fallback", error, {
+            correlationId,
+            tenantId,
+          });
+        }
       }
     }
 
