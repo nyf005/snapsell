@@ -104,6 +104,11 @@ export type LiveItem = $Result.DefaultSelection<Prisma.$LiveItemPayload>
  */
 export type CatalogueItem = $Result.DefaultSelection<Prisma.$CatalogueItemPayload>
 /**
+ * Model ItemVariant
+ * 
+ */
+export type ItemVariant = $Result.DefaultSelection<Prisma.$ItemVariantPayload>
+/**
  * Model Reservation
  * 
  */
@@ -537,6 +542,16 @@ export class PrismaClient<
     * ```
     */
   get catalogueItem(): Prisma.CatalogueItemDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.itemVariant`: Exposes CRUD operations for the **ItemVariant** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ItemVariants
+    * const itemVariants = await prisma.itemVariant.findMany()
+    * ```
+    */
+  get itemVariant(): Prisma.ItemVariantDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.reservation`: Exposes CRUD operations for the **Reservation** model.
@@ -1059,6 +1074,7 @@ export namespace Prisma {
     LiveSession: 'LiveSession',
     LiveItem: 'LiveItem',
     CatalogueItem: 'CatalogueItem',
+    ItemVariant: 'ItemVariant',
     Reservation: 'Reservation',
     ConversationState: 'ConversationState',
     Order: 'Order',
@@ -1081,7 +1097,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "messageOut" | "liveSession" | "liveItem" | "catalogueItem" | "reservation" | "conversationState" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "subscriptionPayment"
+      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "messageOut" | "liveSession" | "liveItem" | "catalogueItem" | "itemVariant" | "reservation" | "conversationState" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "subscriptionPayment"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2417,6 +2433,80 @@ export namespace Prisma {
           }
         }
       }
+      ItemVariant: {
+        payload: Prisma.$ItemVariantPayload<ExtArgs>
+        fields: Prisma.ItemVariantFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ItemVariantFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemVariantPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ItemVariantFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemVariantPayload>
+          }
+          findFirst: {
+            args: Prisma.ItemVariantFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemVariantPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ItemVariantFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemVariantPayload>
+          }
+          findMany: {
+            args: Prisma.ItemVariantFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemVariantPayload>[]
+          }
+          create: {
+            args: Prisma.ItemVariantCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemVariantPayload>
+          }
+          createMany: {
+            args: Prisma.ItemVariantCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ItemVariantCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemVariantPayload>[]
+          }
+          delete: {
+            args: Prisma.ItemVariantDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemVariantPayload>
+          }
+          update: {
+            args: Prisma.ItemVariantUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemVariantPayload>
+          }
+          deleteMany: {
+            args: Prisma.ItemVariantDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ItemVariantUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ItemVariantUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemVariantPayload>[]
+          }
+          upsert: {
+            args: Prisma.ItemVariantUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ItemVariantPayload>
+          }
+          aggregate: {
+            args: Prisma.ItemVariantAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateItemVariant>
+          }
+          groupBy: {
+            args: Prisma.ItemVariantGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ItemVariantGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ItemVariantCountArgs<ExtArgs>
+            result: $Utils.Optional<ItemVariantCountAggregateOutputType> | number
+          }
+        }
+      }
       Reservation: {
         payload: Prisma.$ReservationPayload<ExtArgs>
         fields: Prisma.ReservationFieldRefs
@@ -3061,6 +3151,7 @@ export namespace Prisma {
     liveSession?: LiveSessionOmit
     liveItem?: LiveItemOmit
     catalogueItem?: CatalogueItemOmit
+    itemVariant?: ItemVariantOmit
     reservation?: ReservationOmit
     conversationState?: ConversationStateOmit
     order?: OrderOmit
@@ -3168,6 +3259,7 @@ export namespace Prisma {
     orders: number
     paymentProofs: number
     subscriptionPayments: number
+    itemVariants: number
   }
 
   export type TenantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3191,6 +3283,7 @@ export namespace Prisma {
     orders?: boolean | TenantCountOutputTypeCountOrdersArgs
     paymentProofs?: boolean | TenantCountOutputTypeCountPaymentProofsArgs
     subscriptionPayments?: boolean | TenantCountOutputTypeCountSubscriptionPaymentsArgs
+    itemVariants?: boolean | TenantCountOutputTypeCountItemVariantsArgs
   }
 
   // Custom InputTypes
@@ -3344,6 +3437,13 @@ export namespace Prisma {
     where?: SubscriptionPaymentWhereInput
   }
 
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountItemVariantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ItemVariantWhereInput
+  }
+
 
   /**
    * Count Type DeliveryZoneCountOutputType
@@ -3462,10 +3562,12 @@ export namespace Prisma {
 
   export type LiveItemCountOutputType = {
     reservations: number
+    variants: number
   }
 
   export type LiveItemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     reservations?: boolean | LiveItemCountOutputTypeCountReservationsArgs
+    variants?: boolean | LiveItemCountOutputTypeCountVariantsArgs
   }
 
   // Custom InputTypes
@@ -3486,6 +3588,13 @@ export namespace Prisma {
     where?: ReservationWhereInput
   }
 
+  /**
+   * LiveItemCountOutputType without action
+   */
+  export type LiveItemCountOutputTypeCountVariantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ItemVariantWhereInput
+  }
+
 
   /**
    * Count Type CatalogueItemCountOutputType
@@ -3494,11 +3603,13 @@ export namespace Prisma {
   export type CatalogueItemCountOutputType = {
     reservations: number
     waitlist: number
+    variants: number
   }
 
   export type CatalogueItemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     reservations?: boolean | CatalogueItemCountOutputTypeCountReservationsArgs
     waitlist?: boolean | CatalogueItemCountOutputTypeCountWaitlistArgs
+    variants?: boolean | CatalogueItemCountOutputTypeCountVariantsArgs
   }
 
   // Custom InputTypes
@@ -3524,6 +3635,44 @@ export namespace Prisma {
    */
   export type CatalogueItemCountOutputTypeCountWaitlistArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WaitlistWhereInput
+  }
+
+  /**
+   * CatalogueItemCountOutputType without action
+   */
+  export type CatalogueItemCountOutputTypeCountVariantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ItemVariantWhereInput
+  }
+
+
+  /**
+   * Count Type ItemVariantCountOutputType
+   */
+
+  export type ItemVariantCountOutputType = {
+    reservations: number
+  }
+
+  export type ItemVariantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    reservations?: boolean | ItemVariantCountOutputTypeCountReservationsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ItemVariantCountOutputType without action
+   */
+  export type ItemVariantCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariantCountOutputType
+     */
+    select?: ItemVariantCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ItemVariantCountOutputType without action
+   */
+  export type ItemVariantCountOutputTypeCountReservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ReservationWhereInput
   }
 
 
@@ -4008,6 +4157,7 @@ export namespace Prisma {
     orders?: boolean | Tenant$ordersArgs<ExtArgs>
     paymentProofs?: boolean | Tenant$paymentProofsArgs<ExtArgs>
     subscriptionPayments?: boolean | Tenant$subscriptionPaymentsArgs<ExtArgs>
+    itemVariants?: boolean | Tenant$itemVariantsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
@@ -4138,6 +4288,7 @@ export namespace Prisma {
     orders?: boolean | Tenant$ordersArgs<ExtArgs>
     paymentProofs?: boolean | Tenant$paymentProofsArgs<ExtArgs>
     subscriptionPayments?: boolean | Tenant$subscriptionPaymentsArgs<ExtArgs>
+    itemVariants?: boolean | Tenant$itemVariantsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TenantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4166,6 +4317,7 @@ export namespace Prisma {
       orders: Prisma.$OrderPayload<ExtArgs>[]
       paymentProofs: Prisma.$PaymentProofPayload<ExtArgs>[]
       subscriptionPayments: Prisma.$SubscriptionPaymentPayload<ExtArgs>[]
+      itemVariants: Prisma.$ItemVariantPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4614,6 +4766,7 @@ export namespace Prisma {
     orders<T extends Tenant$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     paymentProofs<T extends Tenant$paymentProofsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$paymentProofsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentProofPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscriptionPayments<T extends Tenant$subscriptionPaymentsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$subscriptionPaymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    itemVariants<T extends Tenant$itemVariantsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$itemVariantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5540,6 +5693,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SubscriptionPaymentScalarFieldEnum | SubscriptionPaymentScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.itemVariants
+   */
+  export type Tenant$itemVariantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    where?: ItemVariantWhereInput
+    orderBy?: ItemVariantOrderByWithRelationInput | ItemVariantOrderByWithRelationInput[]
+    cursor?: ItemVariantWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ItemVariantScalarFieldEnum | ItemVariantScalarFieldEnum[]
   }
 
   /**
@@ -22228,6 +22405,7 @@ export namespace Prisma {
     availableQty: number
     reservedQty: number
     mediaStorageKey: number
+    attributes: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -22286,6 +22464,7 @@ export namespace Prisma {
     availableQty?: true
     reservedQty?: true
     mediaStorageKey?: true
+    attributes?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -22387,6 +22566,7 @@ export namespace Prisma {
     availableQty: number
     reservedQty: number
     mediaStorageKey: string | null
+    attributes: JsonValue | null
     createdAt: Date
     updatedAt: Date
     _count: LiveItemCountAggregateOutputType | null
@@ -22420,11 +22600,13 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    attributes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
     reservations?: boolean | LiveItem$reservationsArgs<ExtArgs>
+    variants?: boolean | LiveItem$variantsArgs<ExtArgs>
     _count?: boolean | LiveItemCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["liveItem"]>
 
@@ -22438,6 +22620,7 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    attributes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -22454,6 +22637,7 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    attributes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -22470,15 +22654,17 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    attributes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type LiveItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "code" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "createdAt" | "updatedAt", ExtArgs["result"]["liveItem"]>
+  export type LiveItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "code" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "attributes" | "createdAt" | "updatedAt", ExtArgs["result"]["liveItem"]>
   export type LiveItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     liveSession?: boolean | LiveSessionDefaultArgs<ExtArgs>
     reservations?: boolean | LiveItem$reservationsArgs<ExtArgs>
+    variants?: boolean | LiveItem$variantsArgs<ExtArgs>
     _count?: boolean | LiveItemCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type LiveItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -22496,6 +22682,7 @@ export namespace Prisma {
       tenant: Prisma.$TenantPayload<ExtArgs>
       liveSession: Prisma.$LiveSessionPayload<ExtArgs>
       reservations: Prisma.$ReservationPayload<ExtArgs>[]
+      variants: Prisma.$ItemVariantPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -22507,6 +22694,7 @@ export namespace Prisma {
       availableQty: number
       reservedQty: number
       mediaStorageKey: string | null
+      attributes: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["liveItem"]>
@@ -22906,6 +23094,7 @@ export namespace Prisma {
     tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     liveSession<T extends LiveSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LiveSessionDefaultArgs<ExtArgs>>): Prisma__LiveSessionClient<$Result.GetResult<Prisma.$LiveSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     reservations<T extends LiveItem$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, LiveItem$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    variants<T extends LiveItem$variantsArgs<ExtArgs> = {}>(args?: Subset<T, LiveItem$variantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -22944,6 +23133,7 @@ export namespace Prisma {
     readonly availableQty: FieldRef<"LiveItem", 'Int'>
     readonly reservedQty: FieldRef<"LiveItem", 'Int'>
     readonly mediaStorageKey: FieldRef<"LiveItem", 'String'>
+    readonly attributes: FieldRef<"LiveItem", 'Json'>
     readonly createdAt: FieldRef<"LiveItem", 'DateTime'>
     readonly updatedAt: FieldRef<"LiveItem", 'DateTime'>
   }
@@ -23366,6 +23556,30 @@ export namespace Prisma {
   }
 
   /**
+   * LiveItem.variants
+   */
+  export type LiveItem$variantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    where?: ItemVariantWhereInput
+    orderBy?: ItemVariantOrderByWithRelationInput | ItemVariantOrderByWithRelationInput[]
+    cursor?: ItemVariantWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ItemVariantScalarFieldEnum | ItemVariantScalarFieldEnum[]
+  }
+
+  /**
    * LiveItem without action
    */
   export type LiveItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -23449,6 +23663,7 @@ export namespace Prisma {
     availableQty: number
     reservedQty: number
     mediaStorageKey: number
+    attributes: number
     origin: number
     createdInLive: number
     createdAt: number
@@ -23510,6 +23725,7 @@ export namespace Prisma {
     availableQty?: true
     reservedQty?: true
     mediaStorageKey?: true
+    attributes?: true
     origin?: true
     createdInLive?: true
     createdAt?: true
@@ -23612,6 +23828,7 @@ export namespace Prisma {
     availableQty: number
     reservedQty: number
     mediaStorageKey: string | null
+    attributes: JsonValue | null
     origin: $Enums.CatalogueItemOrigin
     createdInLive: boolean
     createdAt: Date
@@ -23646,6 +23863,7 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
     createdAt?: boolean
@@ -23653,6 +23871,7 @@ export namespace Prisma {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     reservations?: boolean | CatalogueItem$reservationsArgs<ExtArgs>
     waitlist?: boolean | CatalogueItem$waitlistArgs<ExtArgs>
+    variants?: boolean | CatalogueItem$variantsArgs<ExtArgs>
     _count?: boolean | CatalogueItemCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["catalogueItem"]>
 
@@ -23665,6 +23884,7 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
     createdAt?: boolean
@@ -23681,6 +23901,7 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
     createdAt?: boolean
@@ -23697,17 +23918,19 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CatalogueItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "code" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "origin" | "createdInLive" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogueItem"]>
+  export type CatalogueItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "code" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "attributes" | "origin" | "createdInLive" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogueItem"]>
   export type CatalogueItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     reservations?: boolean | CatalogueItem$reservationsArgs<ExtArgs>
     waitlist?: boolean | CatalogueItem$waitlistArgs<ExtArgs>
+    variants?: boolean | CatalogueItem$variantsArgs<ExtArgs>
     _count?: boolean | CatalogueItemCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CatalogueItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -23723,6 +23946,7 @@ export namespace Prisma {
       tenant: Prisma.$TenantPayload<ExtArgs>
       reservations: Prisma.$ReservationPayload<ExtArgs>[]
       waitlist: Prisma.$WaitlistPayload<ExtArgs>[]
+      variants: Prisma.$ItemVariantPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -23733,6 +23957,7 @@ export namespace Prisma {
       availableQty: number
       reservedQty: number
       mediaStorageKey: string | null
+      attributes: Prisma.JsonValue | null
       origin: $Enums.CatalogueItemOrigin
       createdInLive: boolean
       createdAt: Date
@@ -24134,6 +24359,7 @@ export namespace Prisma {
     tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     reservations<T extends CatalogueItem$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, CatalogueItem$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     waitlist<T extends CatalogueItem$waitlistArgs<ExtArgs> = {}>(args?: Subset<T, CatalogueItem$waitlistArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    variants<T extends CatalogueItem$variantsArgs<ExtArgs> = {}>(args?: Subset<T, CatalogueItem$variantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -24171,6 +24397,7 @@ export namespace Prisma {
     readonly availableQty: FieldRef<"CatalogueItem", 'Int'>
     readonly reservedQty: FieldRef<"CatalogueItem", 'Int'>
     readonly mediaStorageKey: FieldRef<"CatalogueItem", 'String'>
+    readonly attributes: FieldRef<"CatalogueItem", 'Json'>
     readonly origin: FieldRef<"CatalogueItem", 'CatalogueItemOrigin'>
     readonly createdInLive: FieldRef<"CatalogueItem", 'Boolean'>
     readonly createdAt: FieldRef<"CatalogueItem", 'DateTime'>
@@ -24619,6 +24846,30 @@ export namespace Prisma {
   }
 
   /**
+   * CatalogueItem.variants
+   */
+  export type CatalogueItem$variantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    where?: ItemVariantWhereInput
+    orderBy?: ItemVariantOrderByWithRelationInput | ItemVariantOrderByWithRelationInput[]
+    cursor?: ItemVariantWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ItemVariantScalarFieldEnum | ItemVariantScalarFieldEnum[]
+  }
+
+  /**
    * CatalogueItem without action
    */
   export type CatalogueItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -24638,13 +24889,1281 @@ export namespace Prisma {
 
 
   /**
+   * Model ItemVariant
+   */
+
+  export type AggregateItemVariant = {
+    _count: ItemVariantCountAggregateOutputType | null
+    _avg: ItemVariantAvgAggregateOutputType | null
+    _sum: ItemVariantSumAggregateOutputType | null
+    _min: ItemVariantMinAggregateOutputType | null
+    _max: ItemVariantMaxAggregateOutputType | null
+  }
+
+  export type ItemVariantAvgAggregateOutputType = {
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+  }
+
+  export type ItemVariantSumAggregateOutputType = {
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+  }
+
+  export type ItemVariantMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    catalogueItemId: string | null
+    liveItemId: string | null
+    label: string | null
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ItemVariantMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    catalogueItemId: string | null
+    liveItemId: string | null
+    label: string | null
+    quantity: number | null
+    availableQty: number | null
+    reservedQty: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ItemVariantCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    catalogueItemId: number
+    liveItemId: number
+    label: number
+    values: number
+    quantity: number
+    availableQty: number
+    reservedQty: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ItemVariantAvgAggregateInputType = {
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+  }
+
+  export type ItemVariantSumAggregateInputType = {
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+  }
+
+  export type ItemVariantMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    catalogueItemId?: true
+    liveItemId?: true
+    label?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ItemVariantMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    catalogueItemId?: true
+    liveItemId?: true
+    label?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ItemVariantCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    catalogueItemId?: true
+    liveItemId?: true
+    label?: true
+    values?: true
+    quantity?: true
+    availableQty?: true
+    reservedQty?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ItemVariantAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ItemVariant to aggregate.
+     */
+    where?: ItemVariantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ItemVariants to fetch.
+     */
+    orderBy?: ItemVariantOrderByWithRelationInput | ItemVariantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ItemVariantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ItemVariants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ItemVariants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ItemVariants
+    **/
+    _count?: true | ItemVariantCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ItemVariantAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ItemVariantSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ItemVariantMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ItemVariantMaxAggregateInputType
+  }
+
+  export type GetItemVariantAggregateType<T extends ItemVariantAggregateArgs> = {
+        [P in keyof T & keyof AggregateItemVariant]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateItemVariant[P]>
+      : GetScalarType<T[P], AggregateItemVariant[P]>
+  }
+
+
+
+
+  export type ItemVariantGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ItemVariantWhereInput
+    orderBy?: ItemVariantOrderByWithAggregationInput | ItemVariantOrderByWithAggregationInput[]
+    by: ItemVariantScalarFieldEnum[] | ItemVariantScalarFieldEnum
+    having?: ItemVariantScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ItemVariantCountAggregateInputType | true
+    _avg?: ItemVariantAvgAggregateInputType
+    _sum?: ItemVariantSumAggregateInputType
+    _min?: ItemVariantMinAggregateInputType
+    _max?: ItemVariantMaxAggregateInputType
+  }
+
+  export type ItemVariantGroupByOutputType = {
+    id: string
+    tenantId: string
+    catalogueItemId: string | null
+    liveItemId: string | null
+    label: string
+    values: JsonValue
+    quantity: number
+    availableQty: number
+    reservedQty: number
+    createdAt: Date
+    updatedAt: Date
+    _count: ItemVariantCountAggregateOutputType | null
+    _avg: ItemVariantAvgAggregateOutputType | null
+    _sum: ItemVariantSumAggregateOutputType | null
+    _min: ItemVariantMinAggregateOutputType | null
+    _max: ItemVariantMaxAggregateOutputType | null
+  }
+
+  type GetItemVariantGroupByPayload<T extends ItemVariantGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ItemVariantGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ItemVariantGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ItemVariantGroupByOutputType[P]>
+            : GetScalarType<T[P], ItemVariantGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ItemVariantSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    catalogueItemId?: boolean
+    liveItemId?: boolean
+    label?: boolean
+    values?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    catalogueItem?: boolean | ItemVariant$catalogueItemArgs<ExtArgs>
+    liveItem?: boolean | ItemVariant$liveItemArgs<ExtArgs>
+    reservations?: boolean | ItemVariant$reservationsArgs<ExtArgs>
+    _count?: boolean | ItemVariantCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["itemVariant"]>
+
+  export type ItemVariantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    catalogueItemId?: boolean
+    liveItemId?: boolean
+    label?: boolean
+    values?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    catalogueItem?: boolean | ItemVariant$catalogueItemArgs<ExtArgs>
+    liveItem?: boolean | ItemVariant$liveItemArgs<ExtArgs>
+  }, ExtArgs["result"]["itemVariant"]>
+
+  export type ItemVariantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    catalogueItemId?: boolean
+    liveItemId?: boolean
+    label?: boolean
+    values?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    catalogueItem?: boolean | ItemVariant$catalogueItemArgs<ExtArgs>
+    liveItem?: boolean | ItemVariant$liveItemArgs<ExtArgs>
+  }, ExtArgs["result"]["itemVariant"]>
+
+  export type ItemVariantSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    catalogueItemId?: boolean
+    liveItemId?: boolean
+    label?: boolean
+    values?: boolean
+    quantity?: boolean
+    availableQty?: boolean
+    reservedQty?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ItemVariantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "catalogueItemId" | "liveItemId" | "label" | "values" | "quantity" | "availableQty" | "reservedQty" | "createdAt" | "updatedAt", ExtArgs["result"]["itemVariant"]>
+  export type ItemVariantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    catalogueItem?: boolean | ItemVariant$catalogueItemArgs<ExtArgs>
+    liveItem?: boolean | ItemVariant$liveItemArgs<ExtArgs>
+    reservations?: boolean | ItemVariant$reservationsArgs<ExtArgs>
+    _count?: boolean | ItemVariantCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ItemVariantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    catalogueItem?: boolean | ItemVariant$catalogueItemArgs<ExtArgs>
+    liveItem?: boolean | ItemVariant$liveItemArgs<ExtArgs>
+  }
+  export type ItemVariantIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    catalogueItem?: boolean | ItemVariant$catalogueItemArgs<ExtArgs>
+    liveItem?: boolean | ItemVariant$liveItemArgs<ExtArgs>
+  }
+
+  export type $ItemVariantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ItemVariant"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+      catalogueItem: Prisma.$CatalogueItemPayload<ExtArgs> | null
+      liveItem: Prisma.$LiveItemPayload<ExtArgs> | null
+      reservations: Prisma.$ReservationPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      catalogueItemId: string | null
+      liveItemId: string | null
+      label: string
+      values: Prisma.JsonValue
+      quantity: number
+      availableQty: number
+      reservedQty: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["itemVariant"]>
+    composites: {}
+  }
+
+  type ItemVariantGetPayload<S extends boolean | null | undefined | ItemVariantDefaultArgs> = $Result.GetResult<Prisma.$ItemVariantPayload, S>
+
+  type ItemVariantCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ItemVariantFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ItemVariantCountAggregateInputType | true
+    }
+
+  export interface ItemVariantDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ItemVariant'], meta: { name: 'ItemVariant' } }
+    /**
+     * Find zero or one ItemVariant that matches the filter.
+     * @param {ItemVariantFindUniqueArgs} args - Arguments to find a ItemVariant
+     * @example
+     * // Get one ItemVariant
+     * const itemVariant = await prisma.itemVariant.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ItemVariantFindUniqueArgs>(args: SelectSubset<T, ItemVariantFindUniqueArgs<ExtArgs>>): Prisma__ItemVariantClient<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ItemVariant that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ItemVariantFindUniqueOrThrowArgs} args - Arguments to find a ItemVariant
+     * @example
+     * // Get one ItemVariant
+     * const itemVariant = await prisma.itemVariant.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ItemVariantFindUniqueOrThrowArgs>(args: SelectSubset<T, ItemVariantFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ItemVariantClient<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ItemVariant that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemVariantFindFirstArgs} args - Arguments to find a ItemVariant
+     * @example
+     * // Get one ItemVariant
+     * const itemVariant = await prisma.itemVariant.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ItemVariantFindFirstArgs>(args?: SelectSubset<T, ItemVariantFindFirstArgs<ExtArgs>>): Prisma__ItemVariantClient<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ItemVariant that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemVariantFindFirstOrThrowArgs} args - Arguments to find a ItemVariant
+     * @example
+     * // Get one ItemVariant
+     * const itemVariant = await prisma.itemVariant.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ItemVariantFindFirstOrThrowArgs>(args?: SelectSubset<T, ItemVariantFindFirstOrThrowArgs<ExtArgs>>): Prisma__ItemVariantClient<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ItemVariants that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemVariantFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ItemVariants
+     * const itemVariants = await prisma.itemVariant.findMany()
+     * 
+     * // Get first 10 ItemVariants
+     * const itemVariants = await prisma.itemVariant.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const itemVariantWithIdOnly = await prisma.itemVariant.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ItemVariantFindManyArgs>(args?: SelectSubset<T, ItemVariantFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ItemVariant.
+     * @param {ItemVariantCreateArgs} args - Arguments to create a ItemVariant.
+     * @example
+     * // Create one ItemVariant
+     * const ItemVariant = await prisma.itemVariant.create({
+     *   data: {
+     *     // ... data to create a ItemVariant
+     *   }
+     * })
+     * 
+     */
+    create<T extends ItemVariantCreateArgs>(args: SelectSubset<T, ItemVariantCreateArgs<ExtArgs>>): Prisma__ItemVariantClient<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ItemVariants.
+     * @param {ItemVariantCreateManyArgs} args - Arguments to create many ItemVariants.
+     * @example
+     * // Create many ItemVariants
+     * const itemVariant = await prisma.itemVariant.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ItemVariantCreateManyArgs>(args?: SelectSubset<T, ItemVariantCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ItemVariants and returns the data saved in the database.
+     * @param {ItemVariantCreateManyAndReturnArgs} args - Arguments to create many ItemVariants.
+     * @example
+     * // Create many ItemVariants
+     * const itemVariant = await prisma.itemVariant.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ItemVariants and only return the `id`
+     * const itemVariantWithIdOnly = await prisma.itemVariant.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ItemVariantCreateManyAndReturnArgs>(args?: SelectSubset<T, ItemVariantCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ItemVariant.
+     * @param {ItemVariantDeleteArgs} args - Arguments to delete one ItemVariant.
+     * @example
+     * // Delete one ItemVariant
+     * const ItemVariant = await prisma.itemVariant.delete({
+     *   where: {
+     *     // ... filter to delete one ItemVariant
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ItemVariantDeleteArgs>(args: SelectSubset<T, ItemVariantDeleteArgs<ExtArgs>>): Prisma__ItemVariantClient<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ItemVariant.
+     * @param {ItemVariantUpdateArgs} args - Arguments to update one ItemVariant.
+     * @example
+     * // Update one ItemVariant
+     * const itemVariant = await prisma.itemVariant.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ItemVariantUpdateArgs>(args: SelectSubset<T, ItemVariantUpdateArgs<ExtArgs>>): Prisma__ItemVariantClient<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ItemVariants.
+     * @param {ItemVariantDeleteManyArgs} args - Arguments to filter ItemVariants to delete.
+     * @example
+     * // Delete a few ItemVariants
+     * const { count } = await prisma.itemVariant.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ItemVariantDeleteManyArgs>(args?: SelectSubset<T, ItemVariantDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ItemVariants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemVariantUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ItemVariants
+     * const itemVariant = await prisma.itemVariant.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ItemVariantUpdateManyArgs>(args: SelectSubset<T, ItemVariantUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ItemVariants and returns the data updated in the database.
+     * @param {ItemVariantUpdateManyAndReturnArgs} args - Arguments to update many ItemVariants.
+     * @example
+     * // Update many ItemVariants
+     * const itemVariant = await prisma.itemVariant.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ItemVariants and only return the `id`
+     * const itemVariantWithIdOnly = await prisma.itemVariant.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ItemVariantUpdateManyAndReturnArgs>(args: SelectSubset<T, ItemVariantUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ItemVariant.
+     * @param {ItemVariantUpsertArgs} args - Arguments to update or create a ItemVariant.
+     * @example
+     * // Update or create a ItemVariant
+     * const itemVariant = await prisma.itemVariant.upsert({
+     *   create: {
+     *     // ... data to create a ItemVariant
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ItemVariant we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ItemVariantUpsertArgs>(args: SelectSubset<T, ItemVariantUpsertArgs<ExtArgs>>): Prisma__ItemVariantClient<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ItemVariants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemVariantCountArgs} args - Arguments to filter ItemVariants to count.
+     * @example
+     * // Count the number of ItemVariants
+     * const count = await prisma.itemVariant.count({
+     *   where: {
+     *     // ... the filter for the ItemVariants we want to count
+     *   }
+     * })
+    **/
+    count<T extends ItemVariantCountArgs>(
+      args?: Subset<T, ItemVariantCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ItemVariantCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ItemVariant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemVariantAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ItemVariantAggregateArgs>(args: Subset<T, ItemVariantAggregateArgs>): Prisma.PrismaPromise<GetItemVariantAggregateType<T>>
+
+    /**
+     * Group by ItemVariant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ItemVariantGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ItemVariantGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ItemVariantGroupByArgs['orderBy'] }
+        : { orderBy?: ItemVariantGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ItemVariantGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetItemVariantGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ItemVariant model
+   */
+  readonly fields: ItemVariantFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ItemVariant.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ItemVariantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    catalogueItem<T extends ItemVariant$catalogueItemArgs<ExtArgs> = {}>(args?: Subset<T, ItemVariant$catalogueItemArgs<ExtArgs>>): Prisma__CatalogueItemClient<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    liveItem<T extends ItemVariant$liveItemArgs<ExtArgs> = {}>(args?: Subset<T, ItemVariant$liveItemArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    reservations<T extends ItemVariant$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, ItemVariant$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ItemVariant model
+   */
+  interface ItemVariantFieldRefs {
+    readonly id: FieldRef<"ItemVariant", 'String'>
+    readonly tenantId: FieldRef<"ItemVariant", 'String'>
+    readonly catalogueItemId: FieldRef<"ItemVariant", 'String'>
+    readonly liveItemId: FieldRef<"ItemVariant", 'String'>
+    readonly label: FieldRef<"ItemVariant", 'String'>
+    readonly values: FieldRef<"ItemVariant", 'Json'>
+    readonly quantity: FieldRef<"ItemVariant", 'Int'>
+    readonly availableQty: FieldRef<"ItemVariant", 'Int'>
+    readonly reservedQty: FieldRef<"ItemVariant", 'Int'>
+    readonly createdAt: FieldRef<"ItemVariant", 'DateTime'>
+    readonly updatedAt: FieldRef<"ItemVariant", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ItemVariant findUnique
+   */
+  export type ItemVariantFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    /**
+     * Filter, which ItemVariant to fetch.
+     */
+    where: ItemVariantWhereUniqueInput
+  }
+
+  /**
+   * ItemVariant findUniqueOrThrow
+   */
+  export type ItemVariantFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    /**
+     * Filter, which ItemVariant to fetch.
+     */
+    where: ItemVariantWhereUniqueInput
+  }
+
+  /**
+   * ItemVariant findFirst
+   */
+  export type ItemVariantFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    /**
+     * Filter, which ItemVariant to fetch.
+     */
+    where?: ItemVariantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ItemVariants to fetch.
+     */
+    orderBy?: ItemVariantOrderByWithRelationInput | ItemVariantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ItemVariants.
+     */
+    cursor?: ItemVariantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ItemVariants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ItemVariants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ItemVariants.
+     */
+    distinct?: ItemVariantScalarFieldEnum | ItemVariantScalarFieldEnum[]
+  }
+
+  /**
+   * ItemVariant findFirstOrThrow
+   */
+  export type ItemVariantFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    /**
+     * Filter, which ItemVariant to fetch.
+     */
+    where?: ItemVariantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ItemVariants to fetch.
+     */
+    orderBy?: ItemVariantOrderByWithRelationInput | ItemVariantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ItemVariants.
+     */
+    cursor?: ItemVariantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ItemVariants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ItemVariants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ItemVariants.
+     */
+    distinct?: ItemVariantScalarFieldEnum | ItemVariantScalarFieldEnum[]
+  }
+
+  /**
+   * ItemVariant findMany
+   */
+  export type ItemVariantFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    /**
+     * Filter, which ItemVariants to fetch.
+     */
+    where?: ItemVariantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ItemVariants to fetch.
+     */
+    orderBy?: ItemVariantOrderByWithRelationInput | ItemVariantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ItemVariants.
+     */
+    cursor?: ItemVariantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ItemVariants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ItemVariants.
+     */
+    skip?: number
+    distinct?: ItemVariantScalarFieldEnum | ItemVariantScalarFieldEnum[]
+  }
+
+  /**
+   * ItemVariant create
+   */
+  export type ItemVariantCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ItemVariant.
+     */
+    data: XOR<ItemVariantCreateInput, ItemVariantUncheckedCreateInput>
+  }
+
+  /**
+   * ItemVariant createMany
+   */
+  export type ItemVariantCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ItemVariants.
+     */
+    data: ItemVariantCreateManyInput | ItemVariantCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ItemVariant createManyAndReturn
+   */
+  export type ItemVariantCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * The data used to create many ItemVariants.
+     */
+    data: ItemVariantCreateManyInput | ItemVariantCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ItemVariant update
+   */
+  export type ItemVariantUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ItemVariant.
+     */
+    data: XOR<ItemVariantUpdateInput, ItemVariantUncheckedUpdateInput>
+    /**
+     * Choose, which ItemVariant to update.
+     */
+    where: ItemVariantWhereUniqueInput
+  }
+
+  /**
+   * ItemVariant updateMany
+   */
+  export type ItemVariantUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ItemVariants.
+     */
+    data: XOR<ItemVariantUpdateManyMutationInput, ItemVariantUncheckedUpdateManyInput>
+    /**
+     * Filter which ItemVariants to update
+     */
+    where?: ItemVariantWhereInput
+    /**
+     * Limit how many ItemVariants to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ItemVariant updateManyAndReturn
+   */
+  export type ItemVariantUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * The data used to update ItemVariants.
+     */
+    data: XOR<ItemVariantUpdateManyMutationInput, ItemVariantUncheckedUpdateManyInput>
+    /**
+     * Filter which ItemVariants to update
+     */
+    where?: ItemVariantWhereInput
+    /**
+     * Limit how many ItemVariants to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ItemVariant upsert
+   */
+  export type ItemVariantUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ItemVariant to update in case it exists.
+     */
+    where: ItemVariantWhereUniqueInput
+    /**
+     * In case the ItemVariant found by the `where` argument doesn't exist, create a new ItemVariant with this data.
+     */
+    create: XOR<ItemVariantCreateInput, ItemVariantUncheckedCreateInput>
+    /**
+     * In case the ItemVariant was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ItemVariantUpdateInput, ItemVariantUncheckedUpdateInput>
+  }
+
+  /**
+   * ItemVariant delete
+   */
+  export type ItemVariantDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    /**
+     * Filter which ItemVariant to delete.
+     */
+    where: ItemVariantWhereUniqueInput
+  }
+
+  /**
+   * ItemVariant deleteMany
+   */
+  export type ItemVariantDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ItemVariants to delete
+     */
+    where?: ItemVariantWhereInput
+    /**
+     * Limit how many ItemVariants to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ItemVariant.catalogueItem
+   */
+  export type ItemVariant$catalogueItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CatalogueItem
+     */
+    select?: CatalogueItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CatalogueItem
+     */
+    omit?: CatalogueItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CatalogueItemInclude<ExtArgs> | null
+    where?: CatalogueItemWhereInput
+  }
+
+  /**
+   * ItemVariant.liveItem
+   */
+  export type ItemVariant$liveItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LiveItem
+     */
+    select?: LiveItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LiveItem
+     */
+    omit?: LiveItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LiveItemInclude<ExtArgs> | null
+    where?: LiveItemWhereInput
+  }
+
+  /**
+   * ItemVariant.reservations
+   */
+  export type ItemVariant$reservationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reservation
+     */
+    select?: ReservationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reservation
+     */
+    omit?: ReservationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ReservationInclude<ExtArgs> | null
+    where?: ReservationWhereInput
+    orderBy?: ReservationOrderByWithRelationInput | ReservationOrderByWithRelationInput[]
+    cursor?: ReservationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ReservationScalarFieldEnum | ReservationScalarFieldEnum[]
+  }
+
+  /**
+   * ItemVariant without action
+   */
+  export type ItemVariantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model Reservation
    */
 
   export type AggregateReservation = {
     _count: ReservationCountAggregateOutputType | null
+    _avg: ReservationAvgAggregateOutputType | null
+    _sum: ReservationSumAggregateOutputType | null
     _min: ReservationMinAggregateOutputType | null
     _max: ReservationMaxAggregateOutputType | null
+  }
+
+  export type ReservationAvgAggregateOutputType = {
+    quantity: number | null
+  }
+
+  export type ReservationSumAggregateOutputType = {
+    quantity: number | null
   }
 
   export type ReservationMinAggregateOutputType = {
@@ -24654,6 +26173,8 @@ export namespace Prisma {
     liveItemId: string | null
     catalogueItemId: string | null
     clientPhone: string | null
+    quantity: number | null
+    variantId: string | null
     status: $Enums.ReservationStatus | null
     address: string | null
     expiresAt: Date | null
@@ -24670,6 +26191,8 @@ export namespace Prisma {
     liveItemId: string | null
     catalogueItemId: string | null
     clientPhone: string | null
+    quantity: number | null
+    variantId: string | null
     status: $Enums.ReservationStatus | null
     address: string | null
     expiresAt: Date | null
@@ -24686,6 +26209,8 @@ export namespace Prisma {
     liveItemId: number
     catalogueItemId: number
     clientPhone: number
+    quantity: number
+    variantId: number
     status: number
     address: number
     expiresAt: number
@@ -24697,6 +26222,14 @@ export namespace Prisma {
   }
 
 
+  export type ReservationAvgAggregateInputType = {
+    quantity?: true
+  }
+
+  export type ReservationSumAggregateInputType = {
+    quantity?: true
+  }
+
   export type ReservationMinAggregateInputType = {
     id?: true
     tenantId?: true
@@ -24704,6 +26237,8 @@ export namespace Prisma {
     liveItemId?: true
     catalogueItemId?: true
     clientPhone?: true
+    quantity?: true
+    variantId?: true
     status?: true
     address?: true
     expiresAt?: true
@@ -24720,6 +26255,8 @@ export namespace Prisma {
     liveItemId?: true
     catalogueItemId?: true
     clientPhone?: true
+    quantity?: true
+    variantId?: true
     status?: true
     address?: true
     expiresAt?: true
@@ -24736,6 +26273,8 @@ export namespace Prisma {
     liveItemId?: true
     catalogueItemId?: true
     clientPhone?: true
+    quantity?: true
+    variantId?: true
     status?: true
     address?: true
     expiresAt?: true
@@ -24784,6 +26323,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: ReservationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ReservationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: ReservationMinAggregateInputType
@@ -24814,6 +26365,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ReservationCountAggregateInputType | true
+    _avg?: ReservationAvgAggregateInputType
+    _sum?: ReservationSumAggregateInputType
     _min?: ReservationMinAggregateInputType
     _max?: ReservationMaxAggregateInputType
   }
@@ -24825,6 +26378,8 @@ export namespace Prisma {
     liveItemId: string | null
     catalogueItemId: string | null
     clientPhone: string
+    quantity: number
+    variantId: string | null
     status: $Enums.ReservationStatus
     address: string | null
     expiresAt: Date | null
@@ -24833,6 +26388,8 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     _count: ReservationCountAggregateOutputType | null
+    _avg: ReservationAvgAggregateOutputType | null
+    _sum: ReservationSumAggregateOutputType | null
     _min: ReservationMinAggregateOutputType | null
     _max: ReservationMaxAggregateOutputType | null
   }
@@ -24858,6 +26415,8 @@ export namespace Prisma {
     liveItemId?: boolean
     catalogueItemId?: boolean
     clientPhone?: boolean
+    quantity?: boolean
+    variantId?: boolean
     status?: boolean
     address?: boolean
     expiresAt?: boolean
@@ -24869,6 +26428,7 @@ export namespace Prisma {
     liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
     liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
     catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
+    variant?: boolean | Reservation$variantArgs<ExtArgs>
     order?: boolean | Reservation$orderArgs<ExtArgs>
   }, ExtArgs["result"]["reservation"]>
 
@@ -24879,6 +26439,8 @@ export namespace Prisma {
     liveItemId?: boolean
     catalogueItemId?: boolean
     clientPhone?: boolean
+    quantity?: boolean
+    variantId?: boolean
     status?: boolean
     address?: boolean
     expiresAt?: boolean
@@ -24890,6 +26452,7 @@ export namespace Prisma {
     liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
     liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
     catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
+    variant?: boolean | Reservation$variantArgs<ExtArgs>
   }, ExtArgs["result"]["reservation"]>
 
   export type ReservationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -24899,6 +26462,8 @@ export namespace Prisma {
     liveItemId?: boolean
     catalogueItemId?: boolean
     clientPhone?: boolean
+    quantity?: boolean
+    variantId?: boolean
     status?: boolean
     address?: boolean
     expiresAt?: boolean
@@ -24910,6 +26475,7 @@ export namespace Prisma {
     liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
     liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
     catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
+    variant?: boolean | Reservation$variantArgs<ExtArgs>
   }, ExtArgs["result"]["reservation"]>
 
   export type ReservationSelectScalar = {
@@ -24919,6 +26485,8 @@ export namespace Prisma {
     liveItemId?: boolean
     catalogueItemId?: boolean
     clientPhone?: boolean
+    quantity?: boolean
+    variantId?: boolean
     status?: boolean
     address?: boolean
     expiresAt?: boolean
@@ -24928,12 +26496,13 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ReservationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "liveItemId" | "catalogueItemId" | "clientPhone" | "status" | "address" | "expiresAt" | "reminderSentAt" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["reservation"]>
+  export type ReservationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "liveItemId" | "catalogueItemId" | "clientPhone" | "quantity" | "variantId" | "status" | "address" | "expiresAt" | "reminderSentAt" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["reservation"]>
   export type ReservationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
     liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
     catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
+    variant?: boolean | Reservation$variantArgs<ExtArgs>
     order?: boolean | Reservation$orderArgs<ExtArgs>
   }
   export type ReservationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -24941,12 +26510,14 @@ export namespace Prisma {
     liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
     liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
     catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
+    variant?: boolean | Reservation$variantArgs<ExtArgs>
   }
   export type ReservationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
     liveItem?: boolean | Reservation$liveItemArgs<ExtArgs>
     catalogueItem?: boolean | Reservation$catalogueItemArgs<ExtArgs>
+    variant?: boolean | Reservation$variantArgs<ExtArgs>
   }
 
   export type $ReservationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -24956,6 +26527,7 @@ export namespace Prisma {
       liveSession: Prisma.$LiveSessionPayload<ExtArgs> | null
       liveItem: Prisma.$LiveItemPayload<ExtArgs> | null
       catalogueItem: Prisma.$CatalogueItemPayload<ExtArgs> | null
+      variant: Prisma.$ItemVariantPayload<ExtArgs> | null
       order: Prisma.$OrderPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -24965,6 +26537,8 @@ export namespace Prisma {
       liveItemId: string | null
       catalogueItemId: string | null
       clientPhone: string
+      quantity: number
+      variantId: string | null
       status: $Enums.ReservationStatus
       address: string | null
       expiresAt: Date | null
@@ -25370,6 +26944,7 @@ export namespace Prisma {
     liveSession<T extends Reservation$liveSessionArgs<ExtArgs> = {}>(args?: Subset<T, Reservation$liveSessionArgs<ExtArgs>>): Prisma__LiveSessionClient<$Result.GetResult<Prisma.$LiveSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     liveItem<T extends Reservation$liveItemArgs<ExtArgs> = {}>(args?: Subset<T, Reservation$liveItemArgs<ExtArgs>>): Prisma__LiveItemClient<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     catalogueItem<T extends Reservation$catalogueItemArgs<ExtArgs> = {}>(args?: Subset<T, Reservation$catalogueItemArgs<ExtArgs>>): Prisma__CatalogueItemClient<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    variant<T extends Reservation$variantArgs<ExtArgs> = {}>(args?: Subset<T, Reservation$variantArgs<ExtArgs>>): Prisma__ItemVariantClient<$Result.GetResult<Prisma.$ItemVariantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     order<T extends Reservation$orderArgs<ExtArgs> = {}>(args?: Subset<T, Reservation$orderArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -25406,6 +26981,8 @@ export namespace Prisma {
     readonly liveItemId: FieldRef<"Reservation", 'String'>
     readonly catalogueItemId: FieldRef<"Reservation", 'String'>
     readonly clientPhone: FieldRef<"Reservation", 'String'>
+    readonly quantity: FieldRef<"Reservation", 'Int'>
+    readonly variantId: FieldRef<"Reservation", 'String'>
     readonly status: FieldRef<"Reservation", 'ReservationStatus'>
     readonly address: FieldRef<"Reservation", 'String'>
     readonly expiresAt: FieldRef<"Reservation", 'DateTime'>
@@ -25866,6 +27443,25 @@ export namespace Prisma {
   }
 
   /**
+   * Reservation.variant
+   */
+  export type Reservation$variantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemVariant
+     */
+    select?: ItemVariantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ItemVariant
+     */
+    omit?: ItemVariantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ItemVariantInclude<ExtArgs> | null
+    where?: ItemVariantWhereInput
+  }
+
+  /**
    * Reservation.order
    */
   export type Reservation$orderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -25918,6 +27514,7 @@ export namespace Prisma {
     tenantId: string | null
     phone: string | null
     handedOff: boolean | null
+    state: string | null
     updatedAt: Date | null
   }
 
@@ -25926,6 +27523,7 @@ export namespace Prisma {
     tenantId: string | null
     phone: string | null
     handedOff: boolean | null
+    state: string | null
     updatedAt: Date | null
   }
 
@@ -25934,6 +27532,8 @@ export namespace Prisma {
     tenantId: number
     phone: number
     handedOff: number
+    state: number
+    metadata: number
     updatedAt: number
     _all: number
   }
@@ -25944,6 +27544,7 @@ export namespace Prisma {
     tenantId?: true
     phone?: true
     handedOff?: true
+    state?: true
     updatedAt?: true
   }
 
@@ -25952,6 +27553,7 @@ export namespace Prisma {
     tenantId?: true
     phone?: true
     handedOff?: true
+    state?: true
     updatedAt?: true
   }
 
@@ -25960,6 +27562,8 @@ export namespace Prisma {
     tenantId?: true
     phone?: true
     handedOff?: true
+    state?: true
+    metadata?: true
     updatedAt?: true
     _all?: true
   }
@@ -26041,6 +27645,8 @@ export namespace Prisma {
     tenantId: string
     phone: string
     handedOff: boolean
+    state: string | null
+    metadata: JsonValue | null
     updatedAt: Date
     _count: ConversationStateCountAggregateOutputType | null
     _min: ConversationStateMinAggregateOutputType | null
@@ -26066,6 +27672,8 @@ export namespace Prisma {
     tenantId?: boolean
     phone?: boolean
     handedOff?: boolean
+    state?: boolean
+    metadata?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["conversationState"]>
@@ -26075,6 +27683,8 @@ export namespace Prisma {
     tenantId?: boolean
     phone?: boolean
     handedOff?: boolean
+    state?: boolean
+    metadata?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["conversationState"]>
@@ -26084,6 +27694,8 @@ export namespace Prisma {
     tenantId?: boolean
     phone?: boolean
     handedOff?: boolean
+    state?: boolean
+    metadata?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["conversationState"]>
@@ -26093,10 +27705,12 @@ export namespace Prisma {
     tenantId?: boolean
     phone?: boolean
     handedOff?: boolean
+    state?: boolean
+    metadata?: boolean
     updatedAt?: boolean
   }
 
-  export type ConversationStateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "phone" | "handedOff" | "updatedAt", ExtArgs["result"]["conversationState"]>
+  export type ConversationStateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "phone" | "handedOff" | "state" | "metadata" | "updatedAt", ExtArgs["result"]["conversationState"]>
   export type ConversationStateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
   }
@@ -26117,6 +27731,8 @@ export namespace Prisma {
       tenantId: string
       phone: string
       handedOff: boolean
+      state: string | null
+      metadata: Prisma.JsonValue | null
       updatedAt: Date
     }, ExtArgs["result"]["conversationState"]>
     composites: {}
@@ -26546,6 +28162,8 @@ export namespace Prisma {
     readonly tenantId: FieldRef<"ConversationState", 'String'>
     readonly phone: FieldRef<"ConversationState", 'String'>
     readonly handedOff: FieldRef<"ConversationState", 'Boolean'>
+    readonly state: FieldRef<"ConversationState", 'String'>
+    readonly metadata: FieldRef<"ConversationState", 'Json'>
     readonly updatedAt: FieldRef<"ConversationState", 'DateTime'>
   }
     
@@ -33011,6 +34629,7 @@ export namespace Prisma {
     availableQty: 'availableQty',
     reservedQty: 'reservedQty',
     mediaStorageKey: 'mediaStorageKey',
+    attributes: 'attributes',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -33027,6 +34646,7 @@ export namespace Prisma {
     availableQty: 'availableQty',
     reservedQty: 'reservedQty',
     mediaStorageKey: 'mediaStorageKey',
+    attributes: 'attributes',
     origin: 'origin',
     createdInLive: 'createdInLive',
     createdAt: 'createdAt',
@@ -33036,6 +34656,23 @@ export namespace Prisma {
   export type CatalogueItemScalarFieldEnum = (typeof CatalogueItemScalarFieldEnum)[keyof typeof CatalogueItemScalarFieldEnum]
 
 
+  export const ItemVariantScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    catalogueItemId: 'catalogueItemId',
+    liveItemId: 'liveItemId',
+    label: 'label',
+    values: 'values',
+    quantity: 'quantity',
+    availableQty: 'availableQty',
+    reservedQty: 'reservedQty',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ItemVariantScalarFieldEnum = (typeof ItemVariantScalarFieldEnum)[keyof typeof ItemVariantScalarFieldEnum]
+
+
   export const ReservationScalarFieldEnum: {
     id: 'id',
     tenantId: 'tenantId',
@@ -33043,6 +34680,8 @@ export namespace Prisma {
     liveItemId: 'liveItemId',
     catalogueItemId: 'catalogueItemId',
     clientPhone: 'clientPhone',
+    quantity: 'quantity',
+    variantId: 'variantId',
     status: 'status',
     address: 'address',
     expiresAt: 'expiresAt',
@@ -33060,6 +34699,8 @@ export namespace Prisma {
     tenantId: 'tenantId',
     phone: 'phone',
     handedOff: 'handedOff',
+    state: 'state',
+    metadata: 'metadata',
     updatedAt: 'updatedAt'
   };
 
@@ -33434,6 +35075,7 @@ export namespace Prisma {
     orders?: OrderListRelationFilter
     paymentProofs?: PaymentProofListRelationFilter
     subscriptionPayments?: SubscriptionPaymentListRelationFilter
+    itemVariants?: ItemVariantListRelationFilter
   }
 
   export type TenantOrderByWithRelationInput = {
@@ -33489,6 +35131,7 @@ export namespace Prisma {
     orders?: OrderOrderByRelationAggregateInput
     paymentProofs?: PaymentProofOrderByRelationAggregateInput
     subscriptionPayments?: SubscriptionPaymentOrderByRelationAggregateInput
+    itemVariants?: ItemVariantOrderByRelationAggregateInput
   }
 
   export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -33547,6 +35190,7 @@ export namespace Prisma {
     orders?: OrderListRelationFilter
     paymentProofs?: PaymentProofListRelationFilter
     subscriptionPayments?: SubscriptionPaymentListRelationFilter
+    itemVariants?: ItemVariantListRelationFilter
   }, "id" | "metaPhoneNumberId" | "paystackCustomerCode" | "paystackSubscriptionCode">
 
   export type TenantOrderByWithAggregationInput = {
@@ -34658,11 +36302,13 @@ export namespace Prisma {
     availableQty?: IntFilter<"LiveItem"> | number
     reservedQty?: IntFilter<"LiveItem"> | number
     mediaStorageKey?: StringNullableFilter<"LiveItem"> | string | null
+    attributes?: JsonNullableFilter<"LiveItem">
     createdAt?: DateTimeFilter<"LiveItem"> | Date | string
     updatedAt?: DateTimeFilter<"LiveItem"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     liveSession?: XOR<LiveSessionScalarRelationFilter, LiveSessionWhereInput>
     reservations?: ReservationListRelationFilter
+    variants?: ItemVariantListRelationFilter
   }
 
   export type LiveItemOrderByWithRelationInput = {
@@ -34675,11 +36321,13 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrderInput | SortOrder
+    attributes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenant?: TenantOrderByWithRelationInput
     liveSession?: LiveSessionOrderByWithRelationInput
     reservations?: ReservationOrderByRelationAggregateInput
+    variants?: ItemVariantOrderByRelationAggregateInput
   }
 
   export type LiveItemWhereUniqueInput = Prisma.AtLeast<{
@@ -34696,11 +36344,13 @@ export namespace Prisma {
     availableQty?: IntFilter<"LiveItem"> | number
     reservedQty?: IntFilter<"LiveItem"> | number
     mediaStorageKey?: StringNullableFilter<"LiveItem"> | string | null
+    attributes?: JsonNullableFilter<"LiveItem">
     createdAt?: DateTimeFilter<"LiveItem"> | Date | string
     updatedAt?: DateTimeFilter<"LiveItem"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     liveSession?: XOR<LiveSessionScalarRelationFilter, LiveSessionWhereInput>
     reservations?: ReservationListRelationFilter
+    variants?: ItemVariantListRelationFilter
   }, "id" | "tenantId_liveSessionId_code">
 
   export type LiveItemOrderByWithAggregationInput = {
@@ -34713,6 +36363,7 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrderInput | SortOrder
+    attributes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: LiveItemCountOrderByAggregateInput
@@ -34735,6 +36386,7 @@ export namespace Prisma {
     availableQty?: IntWithAggregatesFilter<"LiveItem"> | number
     reservedQty?: IntWithAggregatesFilter<"LiveItem"> | number
     mediaStorageKey?: StringNullableWithAggregatesFilter<"LiveItem"> | string | null
+    attributes?: JsonNullableWithAggregatesFilter<"LiveItem">
     createdAt?: DateTimeWithAggregatesFilter<"LiveItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"LiveItem"> | Date | string
   }
@@ -34751,6 +36403,7 @@ export namespace Prisma {
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    attributes?: JsonNullableFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
     createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
@@ -34758,6 +36411,7 @@ export namespace Prisma {
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     reservations?: ReservationListRelationFilter
     waitlist?: WaitlistListRelationFilter
+    variants?: ItemVariantListRelationFilter
   }
 
   export type CatalogueItemOrderByWithRelationInput = {
@@ -34769,6 +36423,7 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrderInput | SortOrder
+    attributes?: SortOrderInput | SortOrder
     origin?: SortOrder
     createdInLive?: SortOrder
     createdAt?: SortOrder
@@ -34776,6 +36431,7 @@ export namespace Prisma {
     tenant?: TenantOrderByWithRelationInput
     reservations?: ReservationOrderByRelationAggregateInput
     waitlist?: WaitlistOrderByRelationAggregateInput
+    variants?: ItemVariantOrderByRelationAggregateInput
   }
 
   export type CatalogueItemWhereUniqueInput = Prisma.AtLeast<{
@@ -34791,6 +36447,7 @@ export namespace Prisma {
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    attributes?: JsonNullableFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
     createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
@@ -34798,6 +36455,7 @@ export namespace Prisma {
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     reservations?: ReservationListRelationFilter
     waitlist?: WaitlistListRelationFilter
+    variants?: ItemVariantListRelationFilter
   }, "id" | "tenantId_code">
 
   export type CatalogueItemOrderByWithAggregationInput = {
@@ -34809,6 +36467,7 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrderInput | SortOrder
+    attributes?: SortOrderInput | SortOrder
     origin?: SortOrder
     createdInLive?: SortOrder
     createdAt?: SortOrder
@@ -34832,10 +36491,107 @@ export namespace Prisma {
     availableQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
     reservedQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableWithAggregatesFilter<"CatalogueItem"> | string | null
+    attributes?: JsonNullableWithAggregatesFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginWithAggregatesFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolWithAggregatesFilter<"CatalogueItem"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"CatalogueItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CatalogueItem"> | Date | string
+  }
+
+  export type ItemVariantWhereInput = {
+    AND?: ItemVariantWhereInput | ItemVariantWhereInput[]
+    OR?: ItemVariantWhereInput[]
+    NOT?: ItemVariantWhereInput | ItemVariantWhereInput[]
+    id?: StringFilter<"ItemVariant"> | string
+    tenantId?: StringFilter<"ItemVariant"> | string
+    catalogueItemId?: StringNullableFilter<"ItemVariant"> | string | null
+    liveItemId?: StringNullableFilter<"ItemVariant"> | string | null
+    label?: StringFilter<"ItemVariant"> | string
+    values?: JsonFilter<"ItemVariant">
+    quantity?: IntFilter<"ItemVariant"> | number
+    availableQty?: IntFilter<"ItemVariant"> | number
+    reservedQty?: IntFilter<"ItemVariant"> | number
+    createdAt?: DateTimeFilter<"ItemVariant"> | Date | string
+    updatedAt?: DateTimeFilter<"ItemVariant"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    catalogueItem?: XOR<CatalogueItemNullableScalarRelationFilter, CatalogueItemWhereInput> | null
+    liveItem?: XOR<LiveItemNullableScalarRelationFilter, LiveItemWhereInput> | null
+    reservations?: ReservationListRelationFilter
+  }
+
+  export type ItemVariantOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    catalogueItemId?: SortOrderInput | SortOrder
+    liveItemId?: SortOrderInput | SortOrder
+    label?: SortOrder
+    values?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    catalogueItem?: CatalogueItemOrderByWithRelationInput
+    liveItem?: LiveItemOrderByWithRelationInput
+    reservations?: ReservationOrderByRelationAggregateInput
+  }
+
+  export type ItemVariantWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ItemVariantWhereInput | ItemVariantWhereInput[]
+    OR?: ItemVariantWhereInput[]
+    NOT?: ItemVariantWhereInput | ItemVariantWhereInput[]
+    tenantId?: StringFilter<"ItemVariant"> | string
+    catalogueItemId?: StringNullableFilter<"ItemVariant"> | string | null
+    liveItemId?: StringNullableFilter<"ItemVariant"> | string | null
+    label?: StringFilter<"ItemVariant"> | string
+    values?: JsonFilter<"ItemVariant">
+    quantity?: IntFilter<"ItemVariant"> | number
+    availableQty?: IntFilter<"ItemVariant"> | number
+    reservedQty?: IntFilter<"ItemVariant"> | number
+    createdAt?: DateTimeFilter<"ItemVariant"> | Date | string
+    updatedAt?: DateTimeFilter<"ItemVariant"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+    catalogueItem?: XOR<CatalogueItemNullableScalarRelationFilter, CatalogueItemWhereInput> | null
+    liveItem?: XOR<LiveItemNullableScalarRelationFilter, LiveItemWhereInput> | null
+    reservations?: ReservationListRelationFilter
+  }, "id">
+
+  export type ItemVariantOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    catalogueItemId?: SortOrderInput | SortOrder
+    liveItemId?: SortOrderInput | SortOrder
+    label?: SortOrder
+    values?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ItemVariantCountOrderByAggregateInput
+    _avg?: ItemVariantAvgOrderByAggregateInput
+    _max?: ItemVariantMaxOrderByAggregateInput
+    _min?: ItemVariantMinOrderByAggregateInput
+    _sum?: ItemVariantSumOrderByAggregateInput
+  }
+
+  export type ItemVariantScalarWhereWithAggregatesInput = {
+    AND?: ItemVariantScalarWhereWithAggregatesInput | ItemVariantScalarWhereWithAggregatesInput[]
+    OR?: ItemVariantScalarWhereWithAggregatesInput[]
+    NOT?: ItemVariantScalarWhereWithAggregatesInput | ItemVariantScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ItemVariant"> | string
+    tenantId?: StringWithAggregatesFilter<"ItemVariant"> | string
+    catalogueItemId?: StringNullableWithAggregatesFilter<"ItemVariant"> | string | null
+    liveItemId?: StringNullableWithAggregatesFilter<"ItemVariant"> | string | null
+    label?: StringWithAggregatesFilter<"ItemVariant"> | string
+    values?: JsonWithAggregatesFilter<"ItemVariant">
+    quantity?: IntWithAggregatesFilter<"ItemVariant"> | number
+    availableQty?: IntWithAggregatesFilter<"ItemVariant"> | number
+    reservedQty?: IntWithAggregatesFilter<"ItemVariant"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"ItemVariant"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ItemVariant"> | Date | string
   }
 
   export type ReservationWhereInput = {
@@ -34848,6 +36604,8 @@ export namespace Prisma {
     liveItemId?: StringNullableFilter<"Reservation"> | string | null
     catalogueItemId?: StringNullableFilter<"Reservation"> | string | null
     clientPhone?: StringFilter<"Reservation"> | string
+    quantity?: IntFilter<"Reservation"> | number
+    variantId?: StringNullableFilter<"Reservation"> | string | null
     status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableFilter<"Reservation"> | string | null
     expiresAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
@@ -34859,6 +36617,7 @@ export namespace Prisma {
     liveSession?: XOR<LiveSessionNullableScalarRelationFilter, LiveSessionWhereInput> | null
     liveItem?: XOR<LiveItemNullableScalarRelationFilter, LiveItemWhereInput> | null
     catalogueItem?: XOR<CatalogueItemNullableScalarRelationFilter, CatalogueItemWhereInput> | null
+    variant?: XOR<ItemVariantNullableScalarRelationFilter, ItemVariantWhereInput> | null
     order?: XOR<OrderNullableScalarRelationFilter, OrderWhereInput> | null
   }
 
@@ -34869,6 +36628,8 @@ export namespace Prisma {
     liveItemId?: SortOrderInput | SortOrder
     catalogueItemId?: SortOrderInput | SortOrder
     clientPhone?: SortOrder
+    quantity?: SortOrder
+    variantId?: SortOrderInput | SortOrder
     status?: SortOrder
     address?: SortOrderInput | SortOrder
     expiresAt?: SortOrderInput | SortOrder
@@ -34880,6 +36641,7 @@ export namespace Prisma {
     liveSession?: LiveSessionOrderByWithRelationInput
     liveItem?: LiveItemOrderByWithRelationInput
     catalogueItem?: CatalogueItemOrderByWithRelationInput
+    variant?: ItemVariantOrderByWithRelationInput
     order?: OrderOrderByWithRelationInput
   }
 
@@ -34893,6 +36655,8 @@ export namespace Prisma {
     liveItemId?: StringNullableFilter<"Reservation"> | string | null
     catalogueItemId?: StringNullableFilter<"Reservation"> | string | null
     clientPhone?: StringFilter<"Reservation"> | string
+    quantity?: IntFilter<"Reservation"> | number
+    variantId?: StringNullableFilter<"Reservation"> | string | null
     status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableFilter<"Reservation"> | string | null
     expiresAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
@@ -34904,6 +36668,7 @@ export namespace Prisma {
     liveSession?: XOR<LiveSessionNullableScalarRelationFilter, LiveSessionWhereInput> | null
     liveItem?: XOR<LiveItemNullableScalarRelationFilter, LiveItemWhereInput> | null
     catalogueItem?: XOR<CatalogueItemNullableScalarRelationFilter, CatalogueItemWhereInput> | null
+    variant?: XOR<ItemVariantNullableScalarRelationFilter, ItemVariantWhereInput> | null
     order?: XOR<OrderNullableScalarRelationFilter, OrderWhereInput> | null
   }, "id">
 
@@ -34914,6 +36679,8 @@ export namespace Prisma {
     liveItemId?: SortOrderInput | SortOrder
     catalogueItemId?: SortOrderInput | SortOrder
     clientPhone?: SortOrder
+    quantity?: SortOrder
+    variantId?: SortOrderInput | SortOrder
     status?: SortOrder
     address?: SortOrderInput | SortOrder
     expiresAt?: SortOrderInput | SortOrder
@@ -34922,8 +36689,10 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ReservationCountOrderByAggregateInput
+    _avg?: ReservationAvgOrderByAggregateInput
     _max?: ReservationMaxOrderByAggregateInput
     _min?: ReservationMinOrderByAggregateInput
+    _sum?: ReservationSumOrderByAggregateInput
   }
 
   export type ReservationScalarWhereWithAggregatesInput = {
@@ -34936,6 +36705,8 @@ export namespace Prisma {
     liveItemId?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
     catalogueItemId?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
     clientPhone?: StringWithAggregatesFilter<"Reservation"> | string
+    quantity?: IntWithAggregatesFilter<"Reservation"> | number
+    variantId?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
     status?: EnumReservationStatusWithAggregatesFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
     expiresAt?: DateTimeNullableWithAggregatesFilter<"Reservation"> | Date | string | null
@@ -34953,6 +36724,8 @@ export namespace Prisma {
     tenantId?: StringFilter<"ConversationState"> | string
     phone?: StringFilter<"ConversationState"> | string
     handedOff?: BoolFilter<"ConversationState"> | boolean
+    state?: StringNullableFilter<"ConversationState"> | string | null
+    metadata?: JsonNullableFilter<"ConversationState">
     updatedAt?: DateTimeFilter<"ConversationState"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
   }
@@ -34962,6 +36735,8 @@ export namespace Prisma {
     tenantId?: SortOrder
     phone?: SortOrder
     handedOff?: SortOrder
+    state?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
     updatedAt?: SortOrder
     tenant?: TenantOrderByWithRelationInput
   }
@@ -34975,6 +36750,8 @@ export namespace Prisma {
     tenantId?: StringFilter<"ConversationState"> | string
     phone?: StringFilter<"ConversationState"> | string
     handedOff?: BoolFilter<"ConversationState"> | boolean
+    state?: StringNullableFilter<"ConversationState"> | string | null
+    metadata?: JsonNullableFilter<"ConversationState">
     updatedAt?: DateTimeFilter<"ConversationState"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
   }, "id" | "tenantId_phone">
@@ -34984,6 +36761,8 @@ export namespace Prisma {
     tenantId?: SortOrder
     phone?: SortOrder
     handedOff?: SortOrder
+    state?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
     updatedAt?: SortOrder
     _count?: ConversationStateCountOrderByAggregateInput
     _max?: ConversationStateMaxOrderByAggregateInput
@@ -34998,6 +36777,8 @@ export namespace Prisma {
     tenantId?: StringWithAggregatesFilter<"ConversationState"> | string
     phone?: StringWithAggregatesFilter<"ConversationState"> | string
     handedOff?: BoolWithAggregatesFilter<"ConversationState"> | boolean
+    state?: StringNullableWithAggregatesFilter<"ConversationState"> | string | null
+    metadata?: JsonNullableWithAggregatesFilter<"ConversationState">
     updatedAt?: DateTimeWithAggregatesFilter<"ConversationState"> | Date | string
   }
 
@@ -35478,6 +37259,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateInput = {
@@ -35533,6 +37315,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUpdateInput = {
@@ -35588,6 +37371,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateInput = {
@@ -35643,6 +37427,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateManyInput = {
@@ -36828,11 +38613,13 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutLiveItemsInput
     liveSession: LiveSessionCreateNestedOneWithoutLiveItemsInput
     reservations?: ReservationCreateNestedManyWithoutLiveItemInput
+    variants?: ItemVariantCreateNestedManyWithoutLiveItemInput
   }
 
   export type LiveItemUncheckedCreateInput = {
@@ -36845,9 +38632,11 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationUncheckedCreateNestedManyWithoutLiveItemInput
+    variants?: ItemVariantUncheckedCreateNestedManyWithoutLiveItemInput
   }
 
   export type LiveItemUpdateInput = {
@@ -36858,11 +38647,13 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutLiveItemsNestedInput
     liveSession?: LiveSessionUpdateOneRequiredWithoutLiveItemsNestedInput
     reservations?: ReservationUpdateManyWithoutLiveItemNestedInput
+    variants?: ItemVariantUpdateManyWithoutLiveItemNestedInput
   }
 
   export type LiveItemUncheckedUpdateInput = {
@@ -36875,9 +38666,11 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUncheckedUpdateManyWithoutLiveItemNestedInput
+    variants?: ItemVariantUncheckedUpdateManyWithoutLiveItemNestedInput
   }
 
   export type LiveItemCreateManyInput = {
@@ -36890,6 +38683,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -36902,6 +38696,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36916,6 +38711,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36928,6 +38724,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
@@ -36935,6 +38732,7 @@ export namespace Prisma {
     tenant: TenantCreateNestedOneWithoutCatalogueItemsInput
     reservations?: ReservationCreateNestedManyWithoutCatalogueItemInput
     waitlist?: WaitlistCreateNestedManyWithoutCatalogueItemInput
+    variants?: ItemVariantCreateNestedManyWithoutCatalogueItemInput
   }
 
   export type CatalogueItemUncheckedCreateInput = {
@@ -36946,12 +38744,14 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput
     waitlist?: WaitlistUncheckedCreateNestedManyWithoutCatalogueItemInput
+    variants?: ItemVariantUncheckedCreateNestedManyWithoutCatalogueItemInput
   }
 
   export type CatalogueItemUpdateInput = {
@@ -36962,6 +38762,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36969,6 +38770,7 @@ export namespace Prisma {
     tenant?: TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput
     reservations?: ReservationUpdateManyWithoutCatalogueItemNestedInput
     waitlist?: WaitlistUpdateManyWithoutCatalogueItemNestedInput
+    variants?: ItemVariantUpdateManyWithoutCatalogueItemNestedInput
   }
 
   export type CatalogueItemUncheckedUpdateInput = {
@@ -36980,12 +38782,14 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput
     waitlist?: WaitlistUncheckedUpdateManyWithoutCatalogueItemNestedInput
+    variants?: ItemVariantUncheckedUpdateManyWithoutCatalogueItemNestedInput
   }
 
   export type CatalogueItemCreateManyInput = {
@@ -36997,6 +38801,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
@@ -37011,6 +38816,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37026,8 +38832,108 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemVariantCreateInput = {
+    id?: string
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutItemVariantsInput
+    catalogueItem?: CatalogueItemCreateNestedOneWithoutVariantsInput
+    liveItem?: LiveItemCreateNestedOneWithoutVariantsInput
+    reservations?: ReservationCreateNestedManyWithoutVariantInput
+  }
+
+  export type ItemVariantUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    catalogueItemId?: string | null
+    liveItemId?: string | null
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutVariantInput
+  }
+
+  export type ItemVariantUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutItemVariantsNestedInput
+    catalogueItem?: CatalogueItemUpdateOneWithoutVariantsNestedInput
+    liveItem?: LiveItemUpdateOneWithoutVariantsNestedInput
+    reservations?: ReservationUpdateManyWithoutVariantNestedInput
+  }
+
+  export type ItemVariantUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutVariantNestedInput
+  }
+
+  export type ItemVariantCreateManyInput = {
+    id?: string
+    tenantId: string
+    catalogueItemId?: string | null
+    liveItemId?: string | null
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ItemVariantUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemVariantUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37035,6 +38941,7 @@ export namespace Prisma {
   export type ReservationCreateInput = {
     id?: string
     clientPhone: string
+    quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -37046,6 +38953,7 @@ export namespace Prisma {
     liveSession?: LiveSessionCreateNestedOneWithoutReservationsInput
     liveItem?: LiveItemCreateNestedOneWithoutReservationsInput
     catalogueItem?: CatalogueItemCreateNestedOneWithoutReservationsInput
+    variant?: ItemVariantCreateNestedOneWithoutReservationsInput
     order?: OrderCreateNestedOneWithoutReservationInput
   }
 
@@ -37056,6 +38964,8 @@ export namespace Prisma {
     liveItemId?: string | null
     catalogueItemId?: string | null
     clientPhone: string
+    quantity?: number
+    variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -37069,6 +38979,7 @@ export namespace Prisma {
   export type ReservationUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37080,6 +38991,7 @@ export namespace Prisma {
     liveSession?: LiveSessionUpdateOneWithoutReservationsNestedInput
     liveItem?: LiveItemUpdateOneWithoutReservationsNestedInput
     catalogueItem?: CatalogueItemUpdateOneWithoutReservationsNestedInput
+    variant?: ItemVariantUpdateOneWithoutReservationsNestedInput
     order?: OrderUpdateOneWithoutReservationNestedInput
   }
 
@@ -37090,6 +39002,8 @@ export namespace Prisma {
     liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
     catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37107,6 +39021,8 @@ export namespace Prisma {
     liveItemId?: string | null
     catalogueItemId?: string | null
     clientPhone: string
+    quantity?: number
+    variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -37119,6 +39035,7 @@ export namespace Prisma {
   export type ReservationUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37135,6 +39052,8 @@ export namespace Prisma {
     liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
     catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37148,6 +39067,8 @@ export namespace Prisma {
     id?: string
     phone: string
     handedOff?: boolean
+    state?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutConversationStatesInput
   }
@@ -37157,6 +39078,8 @@ export namespace Prisma {
     tenantId: string
     phone: string
     handedOff?: boolean
+    state?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: Date | string
   }
 
@@ -37164,6 +39087,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
     handedOff?: BoolFieldUpdateOperationsInput | boolean
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutConversationStatesNestedInput
   }
@@ -37173,6 +39098,8 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
     handedOff?: BoolFieldUpdateOperationsInput | boolean
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -37181,6 +39108,8 @@ export namespace Prisma {
     tenantId: string
     phone: string
     handedOff?: boolean
+    state?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: Date | string
   }
 
@@ -37188,6 +39117,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
     handedOff?: BoolFieldUpdateOperationsInput | boolean
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -37196,6 +39127,8 @@ export namespace Prisma {
     tenantId?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
     handedOff?: BoolFieldUpdateOperationsInput | boolean
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -37845,6 +39778,12 @@ export namespace Prisma {
     none?: SubscriptionPaymentWhereInput
   }
 
+  export type ItemVariantListRelationFilter = {
+    every?: ItemVariantWhereInput
+    some?: ItemVariantWhereInput
+    none?: ItemVariantWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -37927,6 +39866,10 @@ export namespace Prisma {
   }
 
   export type SubscriptionPaymentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ItemVariantOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -38913,6 +40856,7 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrder
+    attributes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -38980,6 +40924,7 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrder
+    attributes?: SortOrder
     origin?: SortOrder
     createdInLive?: SortOrder
     createdAt?: SortOrder
@@ -39040,6 +40985,68 @@ export namespace Prisma {
     _max?: NestedEnumCatalogueItemOriginFilter<$PrismaModel>
   }
 
+  export type CatalogueItemNullableScalarRelationFilter = {
+    is?: CatalogueItemWhereInput | null
+    isNot?: CatalogueItemWhereInput | null
+  }
+
+  export type LiveItemNullableScalarRelationFilter = {
+    is?: LiveItemWhereInput | null
+    isNot?: LiveItemWhereInput | null
+  }
+
+  export type ItemVariantCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    catalogueItemId?: SortOrder
+    liveItemId?: SortOrder
+    label?: SortOrder
+    values?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ItemVariantAvgOrderByAggregateInput = {
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+  }
+
+  export type ItemVariantMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    catalogueItemId?: SortOrder
+    liveItemId?: SortOrder
+    label?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ItemVariantMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    catalogueItemId?: SortOrder
+    liveItemId?: SortOrder
+    label?: SortOrder
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ItemVariantSumOrderByAggregateInput = {
+    quantity?: SortOrder
+    availableQty?: SortOrder
+    reservedQty?: SortOrder
+  }
+
   export type EnumReservationStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.ReservationStatus | EnumReservationStatusFieldRefInput<$PrismaModel>
     in?: $Enums.ReservationStatus[] | ListEnumReservationStatusFieldRefInput<$PrismaModel>
@@ -39052,14 +41059,9 @@ export namespace Prisma {
     isNot?: LiveSessionWhereInput | null
   }
 
-  export type LiveItemNullableScalarRelationFilter = {
-    is?: LiveItemWhereInput | null
-    isNot?: LiveItemWhereInput | null
-  }
-
-  export type CatalogueItemNullableScalarRelationFilter = {
-    is?: CatalogueItemWhereInput | null
-    isNot?: CatalogueItemWhereInput | null
+  export type ItemVariantNullableScalarRelationFilter = {
+    is?: ItemVariantWhereInput | null
+    isNot?: ItemVariantWhereInput | null
   }
 
   export type OrderNullableScalarRelationFilter = {
@@ -39074,6 +41076,8 @@ export namespace Prisma {
     liveItemId?: SortOrder
     catalogueItemId?: SortOrder
     clientPhone?: SortOrder
+    quantity?: SortOrder
+    variantId?: SortOrder
     status?: SortOrder
     address?: SortOrder
     expiresAt?: SortOrder
@@ -39083,6 +41087,10 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type ReservationAvgOrderByAggregateInput = {
+    quantity?: SortOrder
+  }
+
   export type ReservationMaxOrderByAggregateInput = {
     id?: SortOrder
     tenantId?: SortOrder
@@ -39090,6 +41098,8 @@ export namespace Prisma {
     liveItemId?: SortOrder
     catalogueItemId?: SortOrder
     clientPhone?: SortOrder
+    quantity?: SortOrder
+    variantId?: SortOrder
     status?: SortOrder
     address?: SortOrder
     expiresAt?: SortOrder
@@ -39106,6 +41116,8 @@ export namespace Prisma {
     liveItemId?: SortOrder
     catalogueItemId?: SortOrder
     clientPhone?: SortOrder
+    quantity?: SortOrder
+    variantId?: SortOrder
     status?: SortOrder
     address?: SortOrder
     expiresAt?: SortOrder
@@ -39113,6 +41125,10 @@ export namespace Prisma {
     correlationId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type ReservationSumOrderByAggregateInput = {
+    quantity?: SortOrder
   }
 
   export type EnumReservationStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -39135,6 +41151,8 @@ export namespace Prisma {
     tenantId?: SortOrder
     phone?: SortOrder
     handedOff?: SortOrder
+    state?: SortOrder
+    metadata?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -39143,6 +41161,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     phone?: SortOrder
     handedOff?: SortOrder
+    state?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -39151,6 +41170,7 @@ export namespace Prisma {
     tenantId?: SortOrder
     phone?: SortOrder
     handedOff?: SortOrder
+    state?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -39576,6 +41596,13 @@ export namespace Prisma {
     connect?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
   }
 
+  export type ItemVariantCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ItemVariantCreateWithoutTenantInput, ItemVariantUncheckedCreateWithoutTenantInput> | ItemVariantCreateWithoutTenantInput[] | ItemVariantUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutTenantInput | ItemVariantCreateOrConnectWithoutTenantInput[]
+    createMany?: ItemVariantCreateManyTenantInputEnvelope
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+  }
+
   export type UserUncheckedCreateNestedManyWithoutTenantInput = {
     create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
@@ -39714,6 +41741,13 @@ export namespace Prisma {
     connectOrCreate?: SubscriptionPaymentCreateOrConnectWithoutTenantInput | SubscriptionPaymentCreateOrConnectWithoutTenantInput[]
     createMany?: SubscriptionPaymentCreateManyTenantInputEnvelope
     connect?: SubscriptionPaymentWhereUniqueInput | SubscriptionPaymentWhereUniqueInput[]
+  }
+
+  export type ItemVariantUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ItemVariantCreateWithoutTenantInput, ItemVariantUncheckedCreateWithoutTenantInput> | ItemVariantCreateWithoutTenantInput[] | ItemVariantUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutTenantInput | ItemVariantCreateOrConnectWithoutTenantInput[]
+    createMany?: ItemVariantCreateManyTenantInputEnvelope
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -40024,6 +42058,20 @@ export namespace Prisma {
     deleteMany?: SubscriptionPaymentScalarWhereInput | SubscriptionPaymentScalarWhereInput[]
   }
 
+  export type ItemVariantUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ItemVariantCreateWithoutTenantInput, ItemVariantUncheckedCreateWithoutTenantInput> | ItemVariantCreateWithoutTenantInput[] | ItemVariantUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutTenantInput | ItemVariantCreateOrConnectWithoutTenantInput[]
+    upsert?: ItemVariantUpsertWithWhereUniqueWithoutTenantInput | ItemVariantUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ItemVariantCreateManyTenantInputEnvelope
+    set?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    disconnect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    delete?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    update?: ItemVariantUpdateWithWhereUniqueWithoutTenantInput | ItemVariantUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ItemVariantUpdateManyWithWhereWithoutTenantInput | ItemVariantUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ItemVariantScalarWhereInput | ItemVariantScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutTenantNestedInput = {
     create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
@@ -40302,6 +42350,20 @@ export namespace Prisma {
     update?: SubscriptionPaymentUpdateWithWhereUniqueWithoutTenantInput | SubscriptionPaymentUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: SubscriptionPaymentUpdateManyWithWhereWithoutTenantInput | SubscriptionPaymentUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: SubscriptionPaymentScalarWhereInput | SubscriptionPaymentScalarWhereInput[]
+  }
+
+  export type ItemVariantUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ItemVariantCreateWithoutTenantInput, ItemVariantUncheckedCreateWithoutTenantInput> | ItemVariantCreateWithoutTenantInput[] | ItemVariantUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutTenantInput | ItemVariantCreateOrConnectWithoutTenantInput[]
+    upsert?: ItemVariantUpsertWithWhereUniqueWithoutTenantInput | ItemVariantUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ItemVariantCreateManyTenantInputEnvelope
+    set?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    disconnect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    delete?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    update?: ItemVariantUpdateWithWhereUniqueWithoutTenantInput | ItemVariantUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ItemVariantUpdateManyWithWhereWithoutTenantInput | ItemVariantUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ItemVariantScalarWhereInput | ItemVariantScalarWhereInput[]
   }
 
   export type TenantCreateNestedOneWithoutInvitationsInput = {
@@ -40749,11 +42811,25 @@ export namespace Prisma {
     connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
   }
 
+  export type ItemVariantCreateNestedManyWithoutLiveItemInput = {
+    create?: XOR<ItemVariantCreateWithoutLiveItemInput, ItemVariantUncheckedCreateWithoutLiveItemInput> | ItemVariantCreateWithoutLiveItemInput[] | ItemVariantUncheckedCreateWithoutLiveItemInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutLiveItemInput | ItemVariantCreateOrConnectWithoutLiveItemInput[]
+    createMany?: ItemVariantCreateManyLiveItemInputEnvelope
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+  }
+
   export type ReservationUncheckedCreateNestedManyWithoutLiveItemInput = {
     create?: XOR<ReservationCreateWithoutLiveItemInput, ReservationUncheckedCreateWithoutLiveItemInput> | ReservationCreateWithoutLiveItemInput[] | ReservationUncheckedCreateWithoutLiveItemInput[]
     connectOrCreate?: ReservationCreateOrConnectWithoutLiveItemInput | ReservationCreateOrConnectWithoutLiveItemInput[]
     createMany?: ReservationCreateManyLiveItemInputEnvelope
     connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+  }
+
+  export type ItemVariantUncheckedCreateNestedManyWithoutLiveItemInput = {
+    create?: XOR<ItemVariantCreateWithoutLiveItemInput, ItemVariantUncheckedCreateWithoutLiveItemInput> | ItemVariantCreateWithoutLiveItemInput[] | ItemVariantUncheckedCreateWithoutLiveItemInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutLiveItemInput | ItemVariantCreateOrConnectWithoutLiveItemInput[]
+    createMany?: ItemVariantCreateManyLiveItemInputEnvelope
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
   }
 
   export type TenantUpdateOneRequiredWithoutLiveItemsNestedInput = {
@@ -40786,6 +42862,20 @@ export namespace Prisma {
     deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
   }
 
+  export type ItemVariantUpdateManyWithoutLiveItemNestedInput = {
+    create?: XOR<ItemVariantCreateWithoutLiveItemInput, ItemVariantUncheckedCreateWithoutLiveItemInput> | ItemVariantCreateWithoutLiveItemInput[] | ItemVariantUncheckedCreateWithoutLiveItemInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutLiveItemInput | ItemVariantCreateOrConnectWithoutLiveItemInput[]
+    upsert?: ItemVariantUpsertWithWhereUniqueWithoutLiveItemInput | ItemVariantUpsertWithWhereUniqueWithoutLiveItemInput[]
+    createMany?: ItemVariantCreateManyLiveItemInputEnvelope
+    set?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    disconnect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    delete?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    update?: ItemVariantUpdateWithWhereUniqueWithoutLiveItemInput | ItemVariantUpdateWithWhereUniqueWithoutLiveItemInput[]
+    updateMany?: ItemVariantUpdateManyWithWhereWithoutLiveItemInput | ItemVariantUpdateManyWithWhereWithoutLiveItemInput[]
+    deleteMany?: ItemVariantScalarWhereInput | ItemVariantScalarWhereInput[]
+  }
+
   export type ReservationUncheckedUpdateManyWithoutLiveItemNestedInput = {
     create?: XOR<ReservationCreateWithoutLiveItemInput, ReservationUncheckedCreateWithoutLiveItemInput> | ReservationCreateWithoutLiveItemInput[] | ReservationUncheckedCreateWithoutLiveItemInput[]
     connectOrCreate?: ReservationCreateOrConnectWithoutLiveItemInput | ReservationCreateOrConnectWithoutLiveItemInput[]
@@ -40798,6 +42888,20 @@ export namespace Prisma {
     update?: ReservationUpdateWithWhereUniqueWithoutLiveItemInput | ReservationUpdateWithWhereUniqueWithoutLiveItemInput[]
     updateMany?: ReservationUpdateManyWithWhereWithoutLiveItemInput | ReservationUpdateManyWithWhereWithoutLiveItemInput[]
     deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+  }
+
+  export type ItemVariantUncheckedUpdateManyWithoutLiveItemNestedInput = {
+    create?: XOR<ItemVariantCreateWithoutLiveItemInput, ItemVariantUncheckedCreateWithoutLiveItemInput> | ItemVariantCreateWithoutLiveItemInput[] | ItemVariantUncheckedCreateWithoutLiveItemInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutLiveItemInput | ItemVariantCreateOrConnectWithoutLiveItemInput[]
+    upsert?: ItemVariantUpsertWithWhereUniqueWithoutLiveItemInput | ItemVariantUpsertWithWhereUniqueWithoutLiveItemInput[]
+    createMany?: ItemVariantCreateManyLiveItemInputEnvelope
+    set?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    disconnect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    delete?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    update?: ItemVariantUpdateWithWhereUniqueWithoutLiveItemInput | ItemVariantUpdateWithWhereUniqueWithoutLiveItemInput[]
+    updateMany?: ItemVariantUpdateManyWithWhereWithoutLiveItemInput | ItemVariantUpdateManyWithWhereWithoutLiveItemInput[]
+    deleteMany?: ItemVariantScalarWhereInput | ItemVariantScalarWhereInput[]
   }
 
   export type TenantCreateNestedOneWithoutCatalogueItemsInput = {
@@ -40820,6 +42924,13 @@ export namespace Prisma {
     connect?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
   }
 
+  export type ItemVariantCreateNestedManyWithoutCatalogueItemInput = {
+    create?: XOR<ItemVariantCreateWithoutCatalogueItemInput, ItemVariantUncheckedCreateWithoutCatalogueItemInput> | ItemVariantCreateWithoutCatalogueItemInput[] | ItemVariantUncheckedCreateWithoutCatalogueItemInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutCatalogueItemInput | ItemVariantCreateOrConnectWithoutCatalogueItemInput[]
+    createMany?: ItemVariantCreateManyCatalogueItemInputEnvelope
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+  }
+
   export type ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput = {
     create?: XOR<ReservationCreateWithoutCatalogueItemInput, ReservationUncheckedCreateWithoutCatalogueItemInput> | ReservationCreateWithoutCatalogueItemInput[] | ReservationUncheckedCreateWithoutCatalogueItemInput[]
     connectOrCreate?: ReservationCreateOrConnectWithoutCatalogueItemInput | ReservationCreateOrConnectWithoutCatalogueItemInput[]
@@ -40832,6 +42943,13 @@ export namespace Prisma {
     connectOrCreate?: WaitlistCreateOrConnectWithoutCatalogueItemInput | WaitlistCreateOrConnectWithoutCatalogueItemInput[]
     createMany?: WaitlistCreateManyCatalogueItemInputEnvelope
     connect?: WaitlistWhereUniqueInput | WaitlistWhereUniqueInput[]
+  }
+
+  export type ItemVariantUncheckedCreateNestedManyWithoutCatalogueItemInput = {
+    create?: XOR<ItemVariantCreateWithoutCatalogueItemInput, ItemVariantUncheckedCreateWithoutCatalogueItemInput> | ItemVariantCreateWithoutCatalogueItemInput[] | ItemVariantUncheckedCreateWithoutCatalogueItemInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutCatalogueItemInput | ItemVariantCreateOrConnectWithoutCatalogueItemInput[]
+    createMany?: ItemVariantCreateManyCatalogueItemInputEnvelope
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
   }
 
   export type EnumCatalogueItemOriginFieldUpdateOperationsInput = {
@@ -40874,6 +42992,20 @@ export namespace Prisma {
     deleteMany?: WaitlistScalarWhereInput | WaitlistScalarWhereInput[]
   }
 
+  export type ItemVariantUpdateManyWithoutCatalogueItemNestedInput = {
+    create?: XOR<ItemVariantCreateWithoutCatalogueItemInput, ItemVariantUncheckedCreateWithoutCatalogueItemInput> | ItemVariantCreateWithoutCatalogueItemInput[] | ItemVariantUncheckedCreateWithoutCatalogueItemInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutCatalogueItemInput | ItemVariantCreateOrConnectWithoutCatalogueItemInput[]
+    upsert?: ItemVariantUpsertWithWhereUniqueWithoutCatalogueItemInput | ItemVariantUpsertWithWhereUniqueWithoutCatalogueItemInput[]
+    createMany?: ItemVariantCreateManyCatalogueItemInputEnvelope
+    set?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    disconnect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    delete?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    update?: ItemVariantUpdateWithWhereUniqueWithoutCatalogueItemInput | ItemVariantUpdateWithWhereUniqueWithoutCatalogueItemInput[]
+    updateMany?: ItemVariantUpdateManyWithWhereWithoutCatalogueItemInput | ItemVariantUpdateManyWithWhereWithoutCatalogueItemInput[]
+    deleteMany?: ItemVariantScalarWhereInput | ItemVariantScalarWhereInput[]
+  }
+
   export type ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput = {
     create?: XOR<ReservationCreateWithoutCatalogueItemInput, ReservationUncheckedCreateWithoutCatalogueItemInput> | ReservationCreateWithoutCatalogueItemInput[] | ReservationUncheckedCreateWithoutCatalogueItemInput[]
     connectOrCreate?: ReservationCreateOrConnectWithoutCatalogueItemInput | ReservationCreateOrConnectWithoutCatalogueItemInput[]
@@ -40902,6 +43034,108 @@ export namespace Prisma {
     deleteMany?: WaitlistScalarWhereInput | WaitlistScalarWhereInput[]
   }
 
+  export type ItemVariantUncheckedUpdateManyWithoutCatalogueItemNestedInput = {
+    create?: XOR<ItemVariantCreateWithoutCatalogueItemInput, ItemVariantUncheckedCreateWithoutCatalogueItemInput> | ItemVariantCreateWithoutCatalogueItemInput[] | ItemVariantUncheckedCreateWithoutCatalogueItemInput[]
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutCatalogueItemInput | ItemVariantCreateOrConnectWithoutCatalogueItemInput[]
+    upsert?: ItemVariantUpsertWithWhereUniqueWithoutCatalogueItemInput | ItemVariantUpsertWithWhereUniqueWithoutCatalogueItemInput[]
+    createMany?: ItemVariantCreateManyCatalogueItemInputEnvelope
+    set?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    disconnect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    delete?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    connect?: ItemVariantWhereUniqueInput | ItemVariantWhereUniqueInput[]
+    update?: ItemVariantUpdateWithWhereUniqueWithoutCatalogueItemInput | ItemVariantUpdateWithWhereUniqueWithoutCatalogueItemInput[]
+    updateMany?: ItemVariantUpdateManyWithWhereWithoutCatalogueItemInput | ItemVariantUpdateManyWithWhereWithoutCatalogueItemInput[]
+    deleteMany?: ItemVariantScalarWhereInput | ItemVariantScalarWhereInput[]
+  }
+
+  export type TenantCreateNestedOneWithoutItemVariantsInput = {
+    create?: XOR<TenantCreateWithoutItemVariantsInput, TenantUncheckedCreateWithoutItemVariantsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutItemVariantsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type CatalogueItemCreateNestedOneWithoutVariantsInput = {
+    create?: XOR<CatalogueItemCreateWithoutVariantsInput, CatalogueItemUncheckedCreateWithoutVariantsInput>
+    connectOrCreate?: CatalogueItemCreateOrConnectWithoutVariantsInput
+    connect?: CatalogueItemWhereUniqueInput
+  }
+
+  export type LiveItemCreateNestedOneWithoutVariantsInput = {
+    create?: XOR<LiveItemCreateWithoutVariantsInput, LiveItemUncheckedCreateWithoutVariantsInput>
+    connectOrCreate?: LiveItemCreateOrConnectWithoutVariantsInput
+    connect?: LiveItemWhereUniqueInput
+  }
+
+  export type ReservationCreateNestedManyWithoutVariantInput = {
+    create?: XOR<ReservationCreateWithoutVariantInput, ReservationUncheckedCreateWithoutVariantInput> | ReservationCreateWithoutVariantInput[] | ReservationUncheckedCreateWithoutVariantInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutVariantInput | ReservationCreateOrConnectWithoutVariantInput[]
+    createMany?: ReservationCreateManyVariantInputEnvelope
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+  }
+
+  export type ReservationUncheckedCreateNestedManyWithoutVariantInput = {
+    create?: XOR<ReservationCreateWithoutVariantInput, ReservationUncheckedCreateWithoutVariantInput> | ReservationCreateWithoutVariantInput[] | ReservationUncheckedCreateWithoutVariantInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutVariantInput | ReservationCreateOrConnectWithoutVariantInput[]
+    createMany?: ReservationCreateManyVariantInputEnvelope
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+  }
+
+  export type TenantUpdateOneRequiredWithoutItemVariantsNestedInput = {
+    create?: XOR<TenantCreateWithoutItemVariantsInput, TenantUncheckedCreateWithoutItemVariantsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutItemVariantsInput
+    upsert?: TenantUpsertWithoutItemVariantsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutItemVariantsInput, TenantUpdateWithoutItemVariantsInput>, TenantUncheckedUpdateWithoutItemVariantsInput>
+  }
+
+  export type CatalogueItemUpdateOneWithoutVariantsNestedInput = {
+    create?: XOR<CatalogueItemCreateWithoutVariantsInput, CatalogueItemUncheckedCreateWithoutVariantsInput>
+    connectOrCreate?: CatalogueItemCreateOrConnectWithoutVariantsInput
+    upsert?: CatalogueItemUpsertWithoutVariantsInput
+    disconnect?: CatalogueItemWhereInput | boolean
+    delete?: CatalogueItemWhereInput | boolean
+    connect?: CatalogueItemWhereUniqueInput
+    update?: XOR<XOR<CatalogueItemUpdateToOneWithWhereWithoutVariantsInput, CatalogueItemUpdateWithoutVariantsInput>, CatalogueItemUncheckedUpdateWithoutVariantsInput>
+  }
+
+  export type LiveItemUpdateOneWithoutVariantsNestedInput = {
+    create?: XOR<LiveItemCreateWithoutVariantsInput, LiveItemUncheckedCreateWithoutVariantsInput>
+    connectOrCreate?: LiveItemCreateOrConnectWithoutVariantsInput
+    upsert?: LiveItemUpsertWithoutVariantsInput
+    disconnect?: LiveItemWhereInput | boolean
+    delete?: LiveItemWhereInput | boolean
+    connect?: LiveItemWhereUniqueInput
+    update?: XOR<XOR<LiveItemUpdateToOneWithWhereWithoutVariantsInput, LiveItemUpdateWithoutVariantsInput>, LiveItemUncheckedUpdateWithoutVariantsInput>
+  }
+
+  export type ReservationUpdateManyWithoutVariantNestedInput = {
+    create?: XOR<ReservationCreateWithoutVariantInput, ReservationUncheckedCreateWithoutVariantInput> | ReservationCreateWithoutVariantInput[] | ReservationUncheckedCreateWithoutVariantInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutVariantInput | ReservationCreateOrConnectWithoutVariantInput[]
+    upsert?: ReservationUpsertWithWhereUniqueWithoutVariantInput | ReservationUpsertWithWhereUniqueWithoutVariantInput[]
+    createMany?: ReservationCreateManyVariantInputEnvelope
+    set?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    disconnect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    delete?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    update?: ReservationUpdateWithWhereUniqueWithoutVariantInput | ReservationUpdateWithWhereUniqueWithoutVariantInput[]
+    updateMany?: ReservationUpdateManyWithWhereWithoutVariantInput | ReservationUpdateManyWithWhereWithoutVariantInput[]
+    deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+  }
+
+  export type ReservationUncheckedUpdateManyWithoutVariantNestedInput = {
+    create?: XOR<ReservationCreateWithoutVariantInput, ReservationUncheckedCreateWithoutVariantInput> | ReservationCreateWithoutVariantInput[] | ReservationUncheckedCreateWithoutVariantInput[]
+    connectOrCreate?: ReservationCreateOrConnectWithoutVariantInput | ReservationCreateOrConnectWithoutVariantInput[]
+    upsert?: ReservationUpsertWithWhereUniqueWithoutVariantInput | ReservationUpsertWithWhereUniqueWithoutVariantInput[]
+    createMany?: ReservationCreateManyVariantInputEnvelope
+    set?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    disconnect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    delete?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    connect?: ReservationWhereUniqueInput | ReservationWhereUniqueInput[]
+    update?: ReservationUpdateWithWhereUniqueWithoutVariantInput | ReservationUpdateWithWhereUniqueWithoutVariantInput[]
+    updateMany?: ReservationUpdateManyWithWhereWithoutVariantInput | ReservationUpdateManyWithWhereWithoutVariantInput[]
+    deleteMany?: ReservationScalarWhereInput | ReservationScalarWhereInput[]
+  }
+
   export type TenantCreateNestedOneWithoutReservationsInput = {
     create?: XOR<TenantCreateWithoutReservationsInput, TenantUncheckedCreateWithoutReservationsInput>
     connectOrCreate?: TenantCreateOrConnectWithoutReservationsInput
@@ -40924,6 +43158,12 @@ export namespace Prisma {
     create?: XOR<CatalogueItemCreateWithoutReservationsInput, CatalogueItemUncheckedCreateWithoutReservationsInput>
     connectOrCreate?: CatalogueItemCreateOrConnectWithoutReservationsInput
     connect?: CatalogueItemWhereUniqueInput
+  }
+
+  export type ItemVariantCreateNestedOneWithoutReservationsInput = {
+    create?: XOR<ItemVariantCreateWithoutReservationsInput, ItemVariantUncheckedCreateWithoutReservationsInput>
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutReservationsInput
+    connect?: ItemVariantWhereUniqueInput
   }
 
   export type OrderCreateNestedOneWithoutReservationInput = {
@@ -40978,6 +43218,16 @@ export namespace Prisma {
     delete?: CatalogueItemWhereInput | boolean
     connect?: CatalogueItemWhereUniqueInput
     update?: XOR<XOR<CatalogueItemUpdateToOneWithWhereWithoutReservationsInput, CatalogueItemUpdateWithoutReservationsInput>, CatalogueItemUncheckedUpdateWithoutReservationsInput>
+  }
+
+  export type ItemVariantUpdateOneWithoutReservationsNestedInput = {
+    create?: XOR<ItemVariantCreateWithoutReservationsInput, ItemVariantUncheckedCreateWithoutReservationsInput>
+    connectOrCreate?: ItemVariantCreateOrConnectWithoutReservationsInput
+    upsert?: ItemVariantUpsertWithoutReservationsInput
+    disconnect?: ItemVariantWhereInput | boolean
+    delete?: ItemVariantWhereInput | boolean
+    connect?: ItemVariantWhereUniqueInput
+    update?: XOR<XOR<ItemVariantUpdateToOneWithWhereWithoutReservationsInput, ItemVariantUpdateWithoutReservationsInput>, ItemVariantUncheckedUpdateWithoutReservationsInput>
   }
 
   export type OrderUpdateOneWithoutReservationNestedInput = {
@@ -41592,6 +43842,8 @@ export namespace Prisma {
     id?: string
     phone: string
     handedOff?: boolean
+    state?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: Date | string
   }
 
@@ -41599,6 +43851,8 @@ export namespace Prisma {
     id?: string
     phone: string
     handedOff?: boolean
+    state?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: Date | string
   }
 
@@ -41946,10 +44200,12 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     liveSession: LiveSessionCreateNestedOneWithoutLiveItemsInput
     reservations?: ReservationCreateNestedManyWithoutLiveItemInput
+    variants?: ItemVariantCreateNestedManyWithoutLiveItemInput
   }
 
   export type LiveItemUncheckedCreateWithoutTenantInput = {
@@ -41961,9 +44217,11 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationUncheckedCreateNestedManyWithoutLiveItemInput
+    variants?: ItemVariantUncheckedCreateNestedManyWithoutLiveItemInput
   }
 
   export type LiveItemCreateOrConnectWithoutTenantInput = {
@@ -41984,12 +44242,14 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationCreateNestedManyWithoutCatalogueItemInput
     waitlist?: WaitlistCreateNestedManyWithoutCatalogueItemInput
+    variants?: ItemVariantCreateNestedManyWithoutCatalogueItemInput
   }
 
   export type CatalogueItemUncheckedCreateWithoutTenantInput = {
@@ -42000,12 +44260,14 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput
     waitlist?: WaitlistUncheckedCreateNestedManyWithoutCatalogueItemInput
+    variants?: ItemVariantUncheckedCreateNestedManyWithoutCatalogueItemInput
   }
 
   export type CatalogueItemCreateOrConnectWithoutTenantInput = {
@@ -42021,6 +44283,7 @@ export namespace Prisma {
   export type ReservationCreateWithoutTenantInput = {
     id?: string
     clientPhone: string
+    quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -42031,6 +44294,7 @@ export namespace Prisma {
     liveSession?: LiveSessionCreateNestedOneWithoutReservationsInput
     liveItem?: LiveItemCreateNestedOneWithoutReservationsInput
     catalogueItem?: CatalogueItemCreateNestedOneWithoutReservationsInput
+    variant?: ItemVariantCreateNestedOneWithoutReservationsInput
     order?: OrderCreateNestedOneWithoutReservationInput
   }
 
@@ -42040,6 +44304,8 @@ export namespace Prisma {
     liveItemId?: string | null
     catalogueItemId?: string | null
     clientPhone: string
+    quantity?: number
+    variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -42202,6 +44468,44 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ItemVariantCreateWithoutTenantInput = {
+    id?: string
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    catalogueItem?: CatalogueItemCreateNestedOneWithoutVariantsInput
+    liveItem?: LiveItemCreateNestedOneWithoutVariantsInput
+    reservations?: ReservationCreateNestedManyWithoutVariantInput
+  }
+
+  export type ItemVariantUncheckedCreateWithoutTenantInput = {
+    id?: string
+    catalogueItemId?: string | null
+    liveItemId?: string | null
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutVariantInput
+  }
+
+  export type ItemVariantCreateOrConnectWithoutTenantInput = {
+    where: ItemVariantWhereUniqueInput
+    create: XOR<ItemVariantCreateWithoutTenantInput, ItemVariantUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ItemVariantCreateManyTenantInputEnvelope = {
+    data: ItemVariantCreateManyTenantInput | ItemVariantCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithWhereUniqueWithoutTenantInput = {
     where: UserWhereUniqueInput
     update: XOR<UserUpdateWithoutTenantInput, UserUncheckedUpdateWithoutTenantInput>
@@ -42259,6 +44563,8 @@ export namespace Prisma {
     tenantId?: StringFilter<"ConversationState"> | string
     phone?: StringFilter<"ConversationState"> | string
     handedOff?: BoolFilter<"ConversationState"> | boolean
+    state?: StringNullableFilter<"ConversationState"> | string | null
+    metadata?: JsonNullableFilter<"ConversationState">
     updatedAt?: DateTimeFilter<"ConversationState"> | Date | string
   }
 
@@ -42616,6 +44922,7 @@ export namespace Prisma {
     availableQty?: IntFilter<"LiveItem"> | number
     reservedQty?: IntFilter<"LiveItem"> | number
     mediaStorageKey?: StringNullableFilter<"LiveItem"> | string | null
+    attributes?: JsonNullableFilter<"LiveItem">
     createdAt?: DateTimeFilter<"LiveItem"> | Date | string
     updatedAt?: DateTimeFilter<"LiveItem"> | Date | string
   }
@@ -42648,6 +44955,7 @@ export namespace Prisma {
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    attributes?: JsonNullableFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
     createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
@@ -42680,6 +44988,8 @@ export namespace Prisma {
     liveItemId?: StringNullableFilter<"Reservation"> | string | null
     catalogueItemId?: StringNullableFilter<"Reservation"> | string | null
     clientPhone?: StringFilter<"Reservation"> | string
+    quantity?: IntFilter<"Reservation"> | number
+    variantId?: StringNullableFilter<"Reservation"> | string | null
     status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableFilter<"Reservation"> | string | null
     expiresAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
@@ -42819,6 +45129,39 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"SubscriptionPayment"> | Date | string
   }
 
+  export type ItemVariantUpsertWithWhereUniqueWithoutTenantInput = {
+    where: ItemVariantWhereUniqueInput
+    update: XOR<ItemVariantUpdateWithoutTenantInput, ItemVariantUncheckedUpdateWithoutTenantInput>
+    create: XOR<ItemVariantCreateWithoutTenantInput, ItemVariantUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ItemVariantUpdateWithWhereUniqueWithoutTenantInput = {
+    where: ItemVariantWhereUniqueInput
+    data: XOR<ItemVariantUpdateWithoutTenantInput, ItemVariantUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type ItemVariantUpdateManyWithWhereWithoutTenantInput = {
+    where: ItemVariantScalarWhereInput
+    data: XOR<ItemVariantUpdateManyMutationInput, ItemVariantUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type ItemVariantScalarWhereInput = {
+    AND?: ItemVariantScalarWhereInput | ItemVariantScalarWhereInput[]
+    OR?: ItemVariantScalarWhereInput[]
+    NOT?: ItemVariantScalarWhereInput | ItemVariantScalarWhereInput[]
+    id?: StringFilter<"ItemVariant"> | string
+    tenantId?: StringFilter<"ItemVariant"> | string
+    catalogueItemId?: StringNullableFilter<"ItemVariant"> | string | null
+    liveItemId?: StringNullableFilter<"ItemVariant"> | string | null
+    label?: StringFilter<"ItemVariant"> | string
+    values?: JsonFilter<"ItemVariant">
+    quantity?: IntFilter<"ItemVariant"> | number
+    availableQty?: IntFilter<"ItemVariant"> | number
+    reservedQty?: IntFilter<"ItemVariant"> | number
+    createdAt?: DateTimeFilter<"ItemVariant"> | Date | string
+    updatedAt?: DateTimeFilter<"ItemVariant"> | Date | string
+  }
+
   export type TenantCreateWithoutInvitationsInput = {
     id?: string
     name: string
@@ -42871,6 +45214,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutInvitationsInput = {
@@ -42925,6 +45269,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutInvitationsInput = {
@@ -42995,6 +45340,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutInvitationsInput = {
@@ -43049,6 +45395,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutDeliveryZonesInput = {
@@ -43103,6 +45450,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutDeliveryZonesInput = {
@@ -43157,6 +45505,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutDeliveryZonesInput = {
@@ -43247,6 +45596,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutDeliveryZonesInput = {
@@ -43301,6 +45651,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type DeliveryZoneCommuneUpsertWithWhereUniqueWithoutZoneInput = {
@@ -43432,6 +45783,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutDeliveryFeeCommuneInput = {
@@ -43486,6 +45838,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutDeliveryFeeCommuneInput = {
@@ -43556,6 +45909,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutDeliveryFeeCommuneInput = {
@@ -43610,6 +45964,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutUsersInput = {
@@ -43664,6 +46019,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutUsersInput = {
@@ -43718,6 +46074,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutUsersInput = {
@@ -43848,6 +46205,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutUsersInput = {
@@ -43902,6 +46260,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
@@ -44168,6 +46527,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutCategoryPricesInput = {
@@ -44222,6 +46582,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutCategoryPricesInput = {
@@ -44292,6 +46653,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutCategoryPricesInput = {
@@ -44346,6 +46708,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutMessagesInInput = {
@@ -44400,6 +46763,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutMessagesInInput = {
@@ -44454,6 +46818,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutMessagesInInput = {
@@ -44524,6 +46889,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutMessagesInInput = {
@@ -44578,6 +46944,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutSellerPhonesInput = {
@@ -44632,6 +46999,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutSellerPhonesInput = {
@@ -44686,6 +47054,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutSellerPhonesInput = {
@@ -44756,6 +47125,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutSellerPhonesInput = {
@@ -44810,6 +47180,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutEventLogsInput = {
@@ -44864,6 +47235,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutEventLogsInput = {
@@ -44918,6 +47290,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutEventLogsInput = {
@@ -44988,6 +47361,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutEventLogsInput = {
@@ -45042,6 +47416,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutOptOutsInput = {
@@ -45096,6 +47471,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutOptOutsInput = {
@@ -45150,6 +47526,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutOptOutsInput = {
@@ -45220,6 +47597,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutOptOutsInput = {
@@ -45274,6 +47652,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutMessagesOutInput = {
@@ -45328,6 +47707,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutMessagesOutInput = {
@@ -45382,6 +47762,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutMessagesOutInput = {
@@ -45452,6 +47833,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutMessagesOutInput = {
@@ -45506,6 +47888,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutLiveSessionsInput = {
@@ -45560,6 +47943,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutLiveSessionsInput = {
@@ -45614,6 +47998,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutLiveSessionsInput = {
@@ -45629,10 +48014,12 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutLiveItemsInput
     reservations?: ReservationCreateNestedManyWithoutLiveItemInput
+    variants?: ItemVariantCreateNestedManyWithoutLiveItemInput
   }
 
   export type LiveItemUncheckedCreateWithoutLiveSessionInput = {
@@ -45644,9 +48031,11 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationUncheckedCreateNestedManyWithoutLiveItemInput
+    variants?: ItemVariantUncheckedCreateNestedManyWithoutLiveItemInput
   }
 
   export type LiveItemCreateOrConnectWithoutLiveSessionInput = {
@@ -45662,6 +48051,7 @@ export namespace Prisma {
   export type ReservationCreateWithoutLiveSessionInput = {
     id?: string
     clientPhone: string
+    quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -45672,6 +48062,7 @@ export namespace Prisma {
     tenant: TenantCreateNestedOneWithoutReservationsInput
     liveItem?: LiveItemCreateNestedOneWithoutReservationsInput
     catalogueItem?: CatalogueItemCreateNestedOneWithoutReservationsInput
+    variant?: ItemVariantCreateNestedOneWithoutReservationsInput
     order?: OrderCreateNestedOneWithoutReservationInput
   }
 
@@ -45681,6 +48072,8 @@ export namespace Prisma {
     liveItemId?: string | null
     catalogueItemId?: string | null
     clientPhone: string
+    quantity?: number
+    variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -45764,6 +48157,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutLiveSessionsInput = {
@@ -45818,6 +48212,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type LiveItemUpsertWithWhereUniqueWithoutLiveSessionInput = {
@@ -45904,6 +48299,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutLiveItemsInput = {
@@ -45958,6 +48354,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutLiveItemsInput = {
@@ -45993,6 +48390,7 @@ export namespace Prisma {
   export type ReservationCreateWithoutLiveItemInput = {
     id?: string
     clientPhone: string
+    quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -46003,6 +48401,7 @@ export namespace Prisma {
     tenant: TenantCreateNestedOneWithoutReservationsInput
     liveSession?: LiveSessionCreateNestedOneWithoutReservationsInput
     catalogueItem?: CatalogueItemCreateNestedOneWithoutReservationsInput
+    variant?: ItemVariantCreateNestedOneWithoutReservationsInput
     order?: OrderCreateNestedOneWithoutReservationInput
   }
 
@@ -46012,6 +48411,8 @@ export namespace Prisma {
     liveSessionId?: string | null
     catalogueItemId?: string | null
     clientPhone: string
+    quantity?: number
+    variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -46029,6 +48430,44 @@ export namespace Prisma {
 
   export type ReservationCreateManyLiveItemInputEnvelope = {
     data: ReservationCreateManyLiveItemInput | ReservationCreateManyLiveItemInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ItemVariantCreateWithoutLiveItemInput = {
+    id?: string
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutItemVariantsInput
+    catalogueItem?: CatalogueItemCreateNestedOneWithoutVariantsInput
+    reservations?: ReservationCreateNestedManyWithoutVariantInput
+  }
+
+  export type ItemVariantUncheckedCreateWithoutLiveItemInput = {
+    id?: string
+    tenantId: string
+    catalogueItemId?: string | null
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutVariantInput
+  }
+
+  export type ItemVariantCreateOrConnectWithoutLiveItemInput = {
+    where: ItemVariantWhereUniqueInput
+    create: XOR<ItemVariantCreateWithoutLiveItemInput, ItemVariantUncheckedCreateWithoutLiveItemInput>
+  }
+
+  export type ItemVariantCreateManyLiveItemInputEnvelope = {
+    data: ItemVariantCreateManyLiveItemInput | ItemVariantCreateManyLiveItemInput[]
     skipDuplicates?: boolean
   }
 
@@ -46095,6 +48534,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutLiveItemsInput = {
@@ -46149,6 +48589,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type LiveSessionUpsertWithoutLiveItemsInput = {
@@ -46196,6 +48637,22 @@ export namespace Prisma {
   export type ReservationUpdateManyWithWhereWithoutLiveItemInput = {
     where: ReservationScalarWhereInput
     data: XOR<ReservationUpdateManyMutationInput, ReservationUncheckedUpdateManyWithoutLiveItemInput>
+  }
+
+  export type ItemVariantUpsertWithWhereUniqueWithoutLiveItemInput = {
+    where: ItemVariantWhereUniqueInput
+    update: XOR<ItemVariantUpdateWithoutLiveItemInput, ItemVariantUncheckedUpdateWithoutLiveItemInput>
+    create: XOR<ItemVariantCreateWithoutLiveItemInput, ItemVariantUncheckedCreateWithoutLiveItemInput>
+  }
+
+  export type ItemVariantUpdateWithWhereUniqueWithoutLiveItemInput = {
+    where: ItemVariantWhereUniqueInput
+    data: XOR<ItemVariantUpdateWithoutLiveItemInput, ItemVariantUncheckedUpdateWithoutLiveItemInput>
+  }
+
+  export type ItemVariantUpdateManyWithWhereWithoutLiveItemInput = {
+    where: ItemVariantScalarWhereInput
+    data: XOR<ItemVariantUpdateManyMutationInput, ItemVariantUncheckedUpdateManyWithoutLiveItemInput>
   }
 
   export type TenantCreateWithoutCatalogueItemsInput = {
@@ -46250,6 +48707,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutCatalogueItemsInput = {
@@ -46304,6 +48762,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutCatalogueItemsInput = {
@@ -46314,6 +48773,7 @@ export namespace Prisma {
   export type ReservationCreateWithoutCatalogueItemInput = {
     id?: string
     clientPhone: string
+    quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -46324,6 +48784,7 @@ export namespace Prisma {
     tenant: TenantCreateNestedOneWithoutReservationsInput
     liveSession?: LiveSessionCreateNestedOneWithoutReservationsInput
     liveItem?: LiveItemCreateNestedOneWithoutReservationsInput
+    variant?: ItemVariantCreateNestedOneWithoutReservationsInput
     order?: OrderCreateNestedOneWithoutReservationInput
   }
 
@@ -46333,6 +48794,8 @@ export namespace Prisma {
     liveSessionId?: string | null
     liveItemId?: string | null
     clientPhone: string
+    quantity?: number
+    variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -46382,6 +48845,44 @@ export namespace Prisma {
 
   export type WaitlistCreateManyCatalogueItemInputEnvelope = {
     data: WaitlistCreateManyCatalogueItemInput | WaitlistCreateManyCatalogueItemInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ItemVariantCreateWithoutCatalogueItemInput = {
+    id?: string
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutItemVariantsInput
+    liveItem?: LiveItemCreateNestedOneWithoutVariantsInput
+    reservations?: ReservationCreateNestedManyWithoutVariantInput
+  }
+
+  export type ItemVariantUncheckedCreateWithoutCatalogueItemInput = {
+    id?: string
+    tenantId: string
+    liveItemId?: string | null
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutVariantInput
+  }
+
+  export type ItemVariantCreateOrConnectWithoutCatalogueItemInput = {
+    where: ItemVariantWhereUniqueInput
+    create: XOR<ItemVariantCreateWithoutCatalogueItemInput, ItemVariantUncheckedCreateWithoutCatalogueItemInput>
+  }
+
+  export type ItemVariantCreateManyCatalogueItemInputEnvelope = {
+    data: ItemVariantCreateManyCatalogueItemInput | ItemVariantCreateManyCatalogueItemInput[]
     skipDuplicates?: boolean
   }
 
@@ -46448,6 +48949,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutCatalogueItemsInput = {
@@ -46502,6 +49004,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type ReservationUpsertWithWhereUniqueWithoutCatalogueItemInput = {
@@ -46534,6 +49037,488 @@ export namespace Prisma {
   export type WaitlistUpdateManyWithWhereWithoutCatalogueItemInput = {
     where: WaitlistScalarWhereInput
     data: XOR<WaitlistUpdateManyMutationInput, WaitlistUncheckedUpdateManyWithoutCatalogueItemInput>
+  }
+
+  export type ItemVariantUpsertWithWhereUniqueWithoutCatalogueItemInput = {
+    where: ItemVariantWhereUniqueInput
+    update: XOR<ItemVariantUpdateWithoutCatalogueItemInput, ItemVariantUncheckedUpdateWithoutCatalogueItemInput>
+    create: XOR<ItemVariantCreateWithoutCatalogueItemInput, ItemVariantUncheckedCreateWithoutCatalogueItemInput>
+  }
+
+  export type ItemVariantUpdateWithWhereUniqueWithoutCatalogueItemInput = {
+    where: ItemVariantWhereUniqueInput
+    data: XOR<ItemVariantUpdateWithoutCatalogueItemInput, ItemVariantUncheckedUpdateWithoutCatalogueItemInput>
+  }
+
+  export type ItemVariantUpdateManyWithWhereWithoutCatalogueItemInput = {
+    where: ItemVariantScalarWhereInput
+    data: XOR<ItemVariantUpdateManyMutationInput, ItemVariantUncheckedUpdateManyWithoutCatalogueItemInput>
+  }
+
+  export type TenantCreateWithoutItemVariantsInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutItemVariantsInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutItemVariantsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutItemVariantsInput, TenantUncheckedCreateWithoutItemVariantsInput>
+  }
+
+  export type CatalogueItemCreateWithoutVariantsInput = {
+    id?: string
+    code: string
+    amount?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    origin?: $Enums.CatalogueItemOrigin
+    createdInLive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutCatalogueItemsInput
+    reservations?: ReservationCreateNestedManyWithoutCatalogueItemInput
+    waitlist?: WaitlistCreateNestedManyWithoutCatalogueItemInput
+  }
+
+  export type CatalogueItemUncheckedCreateWithoutVariantsInput = {
+    id?: string
+    tenantId: string
+    code: string
+    amount?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    origin?: $Enums.CatalogueItemOrigin
+    createdInLive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput
+    waitlist?: WaitlistUncheckedCreateNestedManyWithoutCatalogueItemInput
+  }
+
+  export type CatalogueItemCreateOrConnectWithoutVariantsInput = {
+    where: CatalogueItemWhereUniqueInput
+    create: XOR<CatalogueItemCreateWithoutVariantsInput, CatalogueItemUncheckedCreateWithoutVariantsInput>
+  }
+
+  export type LiveItemCreateWithoutVariantsInput = {
+    id?: string
+    code: string
+    amount?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutLiveItemsInput
+    liveSession: LiveSessionCreateNestedOneWithoutLiveItemsInput
+    reservations?: ReservationCreateNestedManyWithoutLiveItemInput
+  }
+
+  export type LiveItemUncheckedCreateWithoutVariantsInput = {
+    id?: string
+    tenantId: string
+    liveSessionId: string
+    code: string
+    amount?: number | null
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    reservations?: ReservationUncheckedCreateNestedManyWithoutLiveItemInput
+  }
+
+  export type LiveItemCreateOrConnectWithoutVariantsInput = {
+    where: LiveItemWhereUniqueInput
+    create: XOR<LiveItemCreateWithoutVariantsInput, LiveItemUncheckedCreateWithoutVariantsInput>
+  }
+
+  export type ReservationCreateWithoutVariantInput = {
+    id?: string
+    clientPhone: string
+    quantity?: number
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutReservationsInput
+    liveSession?: LiveSessionCreateNestedOneWithoutReservationsInput
+    liveItem?: LiveItemCreateNestedOneWithoutReservationsInput
+    catalogueItem?: CatalogueItemCreateNestedOneWithoutReservationsInput
+    order?: OrderCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationUncheckedCreateWithoutVariantInput = {
+    id?: string
+    tenantId: string
+    liveSessionId?: string | null
+    liveItemId?: string | null
+    catalogueItemId?: string | null
+    clientPhone: string
+    quantity?: number
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    order?: OrderUncheckedCreateNestedOneWithoutReservationInput
+  }
+
+  export type ReservationCreateOrConnectWithoutVariantInput = {
+    where: ReservationWhereUniqueInput
+    create: XOR<ReservationCreateWithoutVariantInput, ReservationUncheckedCreateWithoutVariantInput>
+  }
+
+  export type ReservationCreateManyVariantInputEnvelope = {
+    data: ReservationCreateManyVariantInput | ReservationCreateManyVariantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TenantUpsertWithoutItemVariantsInput = {
+    update: XOR<TenantUpdateWithoutItemVariantsInput, TenantUncheckedUpdateWithoutItemVariantsInput>
+    create: XOR<TenantCreateWithoutItemVariantsInput, TenantUncheckedCreateWithoutItemVariantsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutItemVariantsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutItemVariantsInput, TenantUncheckedUpdateWithoutItemVariantsInput>
+  }
+
+  export type TenantUpdateWithoutItemVariantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutItemVariantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type CatalogueItemUpsertWithoutVariantsInput = {
+    update: XOR<CatalogueItemUpdateWithoutVariantsInput, CatalogueItemUncheckedUpdateWithoutVariantsInput>
+    create: XOR<CatalogueItemCreateWithoutVariantsInput, CatalogueItemUncheckedCreateWithoutVariantsInput>
+    where?: CatalogueItemWhereInput
+  }
+
+  export type CatalogueItemUpdateToOneWithWhereWithoutVariantsInput = {
+    where?: CatalogueItemWhereInput
+    data: XOR<CatalogueItemUpdateWithoutVariantsInput, CatalogueItemUncheckedUpdateWithoutVariantsInput>
+  }
+
+  export type CatalogueItemUpdateWithoutVariantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
+    createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput
+    reservations?: ReservationUpdateManyWithoutCatalogueItemNestedInput
+    waitlist?: WaitlistUpdateManyWithoutCatalogueItemNestedInput
+  }
+
+  export type CatalogueItemUncheckedUpdateWithoutVariantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
+    createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput
+    waitlist?: WaitlistUncheckedUpdateManyWithoutCatalogueItemNestedInput
+  }
+
+  export type LiveItemUpsertWithoutVariantsInput = {
+    update: XOR<LiveItemUpdateWithoutVariantsInput, LiveItemUncheckedUpdateWithoutVariantsInput>
+    create: XOR<LiveItemCreateWithoutVariantsInput, LiveItemUncheckedCreateWithoutVariantsInput>
+    where?: LiveItemWhereInput
+  }
+
+  export type LiveItemUpdateToOneWithWhereWithoutVariantsInput = {
+    where?: LiveItemWhereInput
+    data: XOR<LiveItemUpdateWithoutVariantsInput, LiveItemUncheckedUpdateWithoutVariantsInput>
+  }
+
+  export type LiveItemUpdateWithoutVariantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutLiveItemsNestedInput
+    liveSession?: LiveSessionUpdateOneRequiredWithoutLiveItemsNestedInput
+    reservations?: ReservationUpdateManyWithoutLiveItemNestedInput
+  }
+
+  export type LiveItemUncheckedUpdateWithoutVariantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    amount?: NullableIntFieldUpdateOperationsInput | number | null
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutLiveItemNestedInput
+  }
+
+  export type ReservationUpsertWithWhereUniqueWithoutVariantInput = {
+    where: ReservationWhereUniqueInput
+    update: XOR<ReservationUpdateWithoutVariantInput, ReservationUncheckedUpdateWithoutVariantInput>
+    create: XOR<ReservationCreateWithoutVariantInput, ReservationUncheckedCreateWithoutVariantInput>
+  }
+
+  export type ReservationUpdateWithWhereUniqueWithoutVariantInput = {
+    where: ReservationWhereUniqueInput
+    data: XOR<ReservationUpdateWithoutVariantInput, ReservationUncheckedUpdateWithoutVariantInput>
+  }
+
+  export type ReservationUpdateManyWithWhereWithoutVariantInput = {
+    where: ReservationScalarWhereInput
+    data: XOR<ReservationUpdateManyMutationInput, ReservationUncheckedUpdateManyWithoutVariantInput>
   }
 
   export type TenantCreateWithoutReservationsInput = {
@@ -46588,6 +49573,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutReservationsInput = {
@@ -46642,6 +49628,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutReservationsInput = {
@@ -46682,10 +49669,12 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutLiveItemsInput
     liveSession: LiveSessionCreateNestedOneWithoutLiveItemsInput
+    variants?: ItemVariantCreateNestedManyWithoutLiveItemInput
   }
 
   export type LiveItemUncheckedCreateWithoutReservationsInput = {
@@ -46698,8 +49687,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    variants?: ItemVariantUncheckedCreateNestedManyWithoutLiveItemInput
   }
 
   export type LiveItemCreateOrConnectWithoutReservationsInput = {
@@ -46715,12 +49706,14 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutCatalogueItemsInput
     waitlist?: WaitlistCreateNestedManyWithoutCatalogueItemInput
+    variants?: ItemVariantCreateNestedManyWithoutCatalogueItemInput
   }
 
   export type CatalogueItemUncheckedCreateWithoutReservationsInput = {
@@ -46732,16 +49725,51 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     waitlist?: WaitlistUncheckedCreateNestedManyWithoutCatalogueItemInput
+    variants?: ItemVariantUncheckedCreateNestedManyWithoutCatalogueItemInput
   }
 
   export type CatalogueItemCreateOrConnectWithoutReservationsInput = {
     where: CatalogueItemWhereUniqueInput
     create: XOR<CatalogueItemCreateWithoutReservationsInput, CatalogueItemUncheckedCreateWithoutReservationsInput>
+  }
+
+  export type ItemVariantCreateWithoutReservationsInput = {
+    id?: string
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutItemVariantsInput
+    catalogueItem?: CatalogueItemCreateNestedOneWithoutVariantsInput
+    liveItem?: LiveItemCreateNestedOneWithoutVariantsInput
+  }
+
+  export type ItemVariantUncheckedCreateWithoutReservationsInput = {
+    id?: string
+    tenantId: string
+    catalogueItemId?: string | null
+    liveItemId?: string | null
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ItemVariantCreateOrConnectWithoutReservationsInput = {
+    where: ItemVariantWhereUniqueInput
+    create: XOR<ItemVariantCreateWithoutReservationsInput, ItemVariantUncheckedCreateWithoutReservationsInput>
   }
 
   export type OrderCreateWithoutReservationInput = {
@@ -46836,6 +49864,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutReservationsInput = {
@@ -46890,6 +49919,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type LiveSessionUpsertWithoutReservationsInput = {
@@ -46942,10 +49972,12 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutLiveItemsNestedInput
     liveSession?: LiveSessionUpdateOneRequiredWithoutLiveItemsNestedInput
+    variants?: ItemVariantUpdateManyWithoutLiveItemNestedInput
   }
 
   export type LiveItemUncheckedUpdateWithoutReservationsInput = {
@@ -46958,8 +49990,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    variants?: ItemVariantUncheckedUpdateManyWithoutLiveItemNestedInput
   }
 
   export type CatalogueItemUpsertWithoutReservationsInput = {
@@ -46981,12 +50015,14 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput
     waitlist?: WaitlistUpdateManyWithoutCatalogueItemNestedInput
+    variants?: ItemVariantUpdateManyWithoutCatalogueItemNestedInput
   }
 
   export type CatalogueItemUncheckedUpdateWithoutReservationsInput = {
@@ -46998,11 +50034,52 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     waitlist?: WaitlistUncheckedUpdateManyWithoutCatalogueItemNestedInput
+    variants?: ItemVariantUncheckedUpdateManyWithoutCatalogueItemNestedInput
+  }
+
+  export type ItemVariantUpsertWithoutReservationsInput = {
+    update: XOR<ItemVariantUpdateWithoutReservationsInput, ItemVariantUncheckedUpdateWithoutReservationsInput>
+    create: XOR<ItemVariantCreateWithoutReservationsInput, ItemVariantUncheckedCreateWithoutReservationsInput>
+    where?: ItemVariantWhereInput
+  }
+
+  export type ItemVariantUpdateToOneWithWhereWithoutReservationsInput = {
+    where?: ItemVariantWhereInput
+    data: XOR<ItemVariantUpdateWithoutReservationsInput, ItemVariantUncheckedUpdateWithoutReservationsInput>
+  }
+
+  export type ItemVariantUpdateWithoutReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutItemVariantsNestedInput
+    catalogueItem?: CatalogueItemUpdateOneWithoutVariantsNestedInput
+    liveItem?: LiveItemUpdateOneWithoutVariantsNestedInput
+  }
+
+  export type ItemVariantUncheckedUpdateWithoutReservationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OrderUpsertWithoutReservationInput = {
@@ -47092,6 +50169,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutConversationStatesInput = {
@@ -47146,6 +50224,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutConversationStatesInput = {
@@ -47216,6 +50295,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutConversationStatesInput = {
@@ -47270,6 +50350,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutOrdersInput = {
@@ -47324,6 +50405,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutOrdersInput = {
@@ -47378,6 +50460,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutOrdersInput = {
@@ -47388,6 +50471,7 @@ export namespace Prisma {
   export type ReservationCreateWithoutOrderInput = {
     id?: string
     clientPhone: string
+    quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -47399,6 +50483,7 @@ export namespace Prisma {
     liveSession?: LiveSessionCreateNestedOneWithoutReservationsInput
     liveItem?: LiveItemCreateNestedOneWithoutReservationsInput
     catalogueItem?: CatalogueItemCreateNestedOneWithoutReservationsInput
+    variant?: ItemVariantCreateNestedOneWithoutReservationsInput
   }
 
   export type ReservationUncheckedCreateWithoutOrderInput = {
@@ -47408,6 +50493,8 @@ export namespace Prisma {
     liveItemId?: string | null
     catalogueItemId?: string | null
     clientPhone: string
+    quantity?: number
+    variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -47519,6 +50606,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutOrdersInput = {
@@ -47573,6 +50661,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type ReservationUpsertWithoutOrderInput = {
@@ -47589,6 +50678,7 @@ export namespace Prisma {
   export type ReservationUpdateWithoutOrderInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -47600,6 +50690,7 @@ export namespace Prisma {
     liveSession?: LiveSessionUpdateOneWithoutReservationsNestedInput
     liveItem?: LiveItemUpdateOneWithoutReservationsNestedInput
     catalogueItem?: CatalogueItemUpdateOneWithoutReservationsNestedInput
+    variant?: ItemVariantUpdateOneWithoutReservationsNestedInput
   }
 
   export type ReservationUncheckedUpdateWithoutOrderInput = {
@@ -47609,6 +50700,8 @@ export namespace Prisma {
     liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
     catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -47715,6 +50808,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutPaymentProofsInput = {
@@ -47769,6 +50863,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutPaymentProofsInput = {
@@ -47874,6 +50969,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutPaymentProofsInput = {
@@ -47928,6 +51024,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutWaitlistsInput = {
@@ -47982,6 +51079,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutWaitlistsInput = {
@@ -48036,6 +51134,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutWaitlistsInput = {
@@ -48051,12 +51150,14 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutCatalogueItemsInput
     reservations?: ReservationCreateNestedManyWithoutCatalogueItemInput
+    variants?: ItemVariantCreateNestedManyWithoutCatalogueItemInput
   }
 
   export type CatalogueItemUncheckedCreateWithoutWaitlistInput = {
@@ -48068,11 +51169,13 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput
+    variants?: ItemVariantUncheckedCreateNestedManyWithoutCatalogueItemInput
   }
 
   export type CatalogueItemCreateOrConnectWithoutWaitlistInput = {
@@ -48143,6 +51246,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutWaitlistsInput = {
@@ -48197,6 +51301,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type CatalogueItemUpsertWithoutWaitlistInput = {
@@ -48218,12 +51323,14 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput
     reservations?: ReservationUpdateManyWithoutCatalogueItemNestedInput
+    variants?: ItemVariantUpdateManyWithoutCatalogueItemNestedInput
   }
 
   export type CatalogueItemUncheckedUpdateWithoutWaitlistInput = {
@@ -48235,11 +51342,13 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput
+    variants?: ItemVariantUncheckedUpdateManyWithoutCatalogueItemNestedInput
   }
 
   export type TenantCreateWithoutDeadLetterJobsInput = {
@@ -48294,6 +51403,7 @@ export namespace Prisma {
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutDeadLetterJobsInput = {
@@ -48348,6 +51458,7 @@ export namespace Prisma {
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutDeadLetterJobsInput = {
@@ -48418,6 +51529,7 @@ export namespace Prisma {
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutDeadLetterJobsInput = {
@@ -48472,6 +51584,7 @@ export namespace Prisma {
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
     subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutSubscriptionPaymentsInput = {
@@ -48526,6 +51639,7 @@ export namespace Prisma {
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutSubscriptionPaymentsInput = {
@@ -48580,6 +51694,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutSubscriptionPaymentsInput = {
@@ -48650,6 +51765,7 @@ export namespace Prisma {
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutSubscriptionPaymentsInput = {
@@ -48704,6 +51820,7 @@ export namespace Prisma {
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserCreateManyTenantInput = {
@@ -48723,6 +51840,8 @@ export namespace Prisma {
     id?: string
     phone: string
     handedOff?: boolean
+    state?: string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: Date | string
   }
 
@@ -48840,6 +51959,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -48852,6 +51972,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
     createdAt?: Date | string
@@ -48864,6 +51985,8 @@ export namespace Prisma {
     liveItemId?: string | null
     catalogueItemId?: string | null
     clientPhone: string
+    quantity?: number
+    variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -48923,6 +52046,19 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ItemVariantCreateManyTenantInput = {
+    id?: string
+    catalogueItemId?: string | null
+    liveItemId?: string | null
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type UserUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -48970,6 +52106,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
     handedOff?: BoolFieldUpdateOperationsInput | boolean
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -48977,6 +52115,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
     handedOff?: BoolFieldUpdateOperationsInput | boolean
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -48984,6 +52124,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
     handedOff?: BoolFieldUpdateOperationsInput | boolean
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -49316,10 +52458,12 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     liveSession?: LiveSessionUpdateOneRequiredWithoutLiveItemsNestedInput
     reservations?: ReservationUpdateManyWithoutLiveItemNestedInput
+    variants?: ItemVariantUpdateManyWithoutLiveItemNestedInput
   }
 
   export type LiveItemUncheckedUpdateWithoutTenantInput = {
@@ -49331,9 +52475,11 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUncheckedUpdateManyWithoutLiveItemNestedInput
+    variants?: ItemVariantUncheckedUpdateManyWithoutLiveItemNestedInput
   }
 
   export type LiveItemUncheckedUpdateManyWithoutTenantInput = {
@@ -49345,6 +52491,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49357,12 +52504,14 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUpdateManyWithoutCatalogueItemNestedInput
     waitlist?: WaitlistUpdateManyWithoutCatalogueItemNestedInput
+    variants?: ItemVariantUpdateManyWithoutCatalogueItemNestedInput
   }
 
   export type CatalogueItemUncheckedUpdateWithoutTenantInput = {
@@ -49373,12 +52522,14 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput
     waitlist?: WaitlistUncheckedUpdateManyWithoutCatalogueItemNestedInput
+    variants?: ItemVariantUncheckedUpdateManyWithoutCatalogueItemNestedInput
   }
 
   export type CatalogueItemUncheckedUpdateManyWithoutTenantInput = {
@@ -49389,6 +52540,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49398,6 +52550,7 @@ export namespace Prisma {
   export type ReservationUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49408,6 +52561,7 @@ export namespace Prisma {
     liveSession?: LiveSessionUpdateOneWithoutReservationsNestedInput
     liveItem?: LiveItemUpdateOneWithoutReservationsNestedInput
     catalogueItem?: CatalogueItemUpdateOneWithoutReservationsNestedInput
+    variant?: ItemVariantUpdateOneWithoutReservationsNestedInput
     order?: OrderUpdateOneWithoutReservationNestedInput
   }
 
@@ -49417,6 +52571,8 @@ export namespace Prisma {
     liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
     catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49433,6 +52589,8 @@ export namespace Prisma {
     liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
     catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49594,6 +52752,47 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ItemVariantUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    catalogueItem?: CatalogueItemUpdateOneWithoutVariantsNestedInput
+    liveItem?: LiveItemUpdateOneWithoutVariantsNestedInput
+    reservations?: ReservationUpdateManyWithoutVariantNestedInput
+  }
+
+  export type ItemVariantUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutVariantNestedInput
+  }
+
+  export type ItemVariantUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type DeliveryZoneCommuneCreateManyZoneInput = {
     id?: string
     communeName: string
@@ -49703,6 +52902,7 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -49713,6 +52913,8 @@ export namespace Prisma {
     liveItemId?: string | null
     catalogueItemId?: string | null
     clientPhone: string
+    quantity?: number
+    variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -49730,10 +52932,12 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutLiveItemsNestedInput
     reservations?: ReservationUpdateManyWithoutLiveItemNestedInput
+    variants?: ItemVariantUpdateManyWithoutLiveItemNestedInput
   }
 
   export type LiveItemUncheckedUpdateWithoutLiveSessionInput = {
@@ -49745,9 +52949,11 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUncheckedUpdateManyWithoutLiveItemNestedInput
+    variants?: ItemVariantUncheckedUpdateManyWithoutLiveItemNestedInput
   }
 
   export type LiveItemUncheckedUpdateManyWithoutLiveSessionInput = {
@@ -49759,6 +52965,7 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    attributes?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49766,6 +52973,7 @@ export namespace Prisma {
   export type ReservationUpdateWithoutLiveSessionInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49776,6 +52984,7 @@ export namespace Prisma {
     tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
     liveItem?: LiveItemUpdateOneWithoutReservationsNestedInput
     catalogueItem?: CatalogueItemUpdateOneWithoutReservationsNestedInput
+    variant?: ItemVariantUpdateOneWithoutReservationsNestedInput
     order?: OrderUpdateOneWithoutReservationNestedInput
   }
 
@@ -49785,6 +52994,8 @@ export namespace Prisma {
     liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
     catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49801,6 +53012,8 @@ export namespace Prisma {
     liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
     catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49816,6 +53029,8 @@ export namespace Prisma {
     liveSessionId?: string | null
     catalogueItemId?: string | null
     clientPhone: string
+    quantity?: number
+    variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -49825,9 +53040,23 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ItemVariantCreateManyLiveItemInput = {
+    id?: string
+    tenantId: string
+    catalogueItemId?: string | null
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type ReservationUpdateWithoutLiveItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49838,6 +53067,7 @@ export namespace Prisma {
     tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
     liveSession?: LiveSessionUpdateOneWithoutReservationsNestedInput
     catalogueItem?: CatalogueItemUpdateOneWithoutReservationsNestedInput
+    variant?: ItemVariantUpdateOneWithoutReservationsNestedInput
     order?: OrderUpdateOneWithoutReservationNestedInput
   }
 
@@ -49847,6 +53077,8 @@ export namespace Prisma {
     liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49863,11 +53095,54 @@ export namespace Prisma {
     liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemVariantUpdateWithoutLiveItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutItemVariantsNestedInput
+    catalogueItem?: CatalogueItemUpdateOneWithoutVariantsNestedInput
+    reservations?: ReservationUpdateManyWithoutVariantNestedInput
+  }
+
+  export type ItemVariantUncheckedUpdateWithoutLiveItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutVariantNestedInput
+  }
+
+  export type ItemVariantUncheckedUpdateManyWithoutLiveItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49878,6 +53153,8 @@ export namespace Prisma {
     liveSessionId?: string | null
     liveItemId?: string | null
     clientPhone: string
+    quantity?: number
+    variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
     expiresAt?: Date | string | null
@@ -49898,9 +53175,23 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type ItemVariantCreateManyCatalogueItemInput = {
+    id?: string
+    tenantId: string
+    liveItemId?: string | null
+    label: string
+    values: JsonNullValueInput | InputJsonValue
+    quantity?: number
+    availableQty?: number
+    reservedQty?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type ReservationUpdateWithoutCatalogueItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49911,6 +53202,7 @@ export namespace Prisma {
     tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
     liveSession?: LiveSessionUpdateOneWithoutReservationsNestedInput
     liveItem?: LiveItemUpdateOneWithoutReservationsNestedInput
+    variant?: ItemVariantUpdateOneWithoutReservationsNestedInput
     order?: OrderUpdateOneWithoutReservationNestedInput
   }
 
@@ -49920,6 +53212,8 @@ export namespace Prisma {
     liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49936,6 +53230,8 @@ export namespace Prisma {
     liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
     liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
     clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49976,6 +53272,117 @@ export namespace Prisma {
     position?: IntFieldUpdateOperationsInput | number
     correlationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemVariantUpdateWithoutCatalogueItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutItemVariantsNestedInput
+    liveItem?: LiveItemUpdateOneWithoutVariantsNestedInput
+    reservations?: ReservationUpdateManyWithoutVariantNestedInput
+  }
+
+  export type ItemVariantUncheckedUpdateWithoutCatalogueItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservations?: ReservationUncheckedUpdateManyWithoutVariantNestedInput
+  }
+
+  export type ItemVariantUncheckedUpdateManyWithoutCatalogueItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    label?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    quantity?: IntFieldUpdateOperationsInput | number
+    availableQty?: IntFieldUpdateOperationsInput | number
+    reservedQty?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservationCreateManyVariantInput = {
+    id?: string
+    tenantId: string
+    liveSessionId?: string | null
+    liveItemId?: string | null
+    catalogueItemId?: string | null
+    clientPhone: string
+    quantity?: number
+    status?: $Enums.ReservationStatus
+    address?: string | null
+    expiresAt?: Date | string | null
+    reminderSentAt?: Date | string | null
+    correlationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservationUpdateWithoutVariantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutReservationsNestedInput
+    liveSession?: LiveSessionUpdateOneWithoutReservationsNestedInput
+    liveItem?: LiveItemUpdateOneWithoutReservationsNestedInput
+    catalogueItem?: CatalogueItemUpdateOneWithoutReservationsNestedInput
+    order?: OrderUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationUncheckedUpdateWithoutVariantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUncheckedUpdateOneWithoutReservationNestedInput
+  }
+
+  export type ReservationUncheckedUpdateManyWithoutVariantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    liveSessionId?: NullableStringFieldUpdateOperationsInput | string | null
+    liveItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogueItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    clientPhone?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PaymentProofCreateManyOrderInput = {

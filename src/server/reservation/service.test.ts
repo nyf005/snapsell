@@ -6,7 +6,7 @@ import {
   collectAddress,
 } from "./service";
 import { db } from "~/server/db";
-import { reserveOneUnit, releaseReservation } from "~/server/live-item/reservation";
+import { reserveUnits, releaseReservation } from "~/server/live-item/reservation";
 import { logReservationStarted } from "~/server/events/eventLog";
 
 vi.mock("~/server/db", () => ({
@@ -43,7 +43,7 @@ describe("reservation/service (Story 4.1)", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(reserveOneUnit).mockResolvedValue({ success: true });
+    vi.mocked(reserveUnits).mockResolvedValue({ success: true });
     vi.mocked(db.tenant.findUnique).mockResolvedValue({
       requireDeposit: false,
     } as never);
@@ -87,12 +87,12 @@ describe("reservation/service (Story 4.1)", () => {
         reason: "already_reserved",
         reservation: { id: "res-existing" },
       });
-      expect(reserveOneUnit).not.toHaveBeenCalled();
+      expect(reserveUnits).not.toHaveBeenCalled();
       expect(db.reservation.create).not.toHaveBeenCalled();
     });
 
-    it("returns exhausted when reserveOneUnit returns exhausted", async () => {
-      vi.mocked(reserveOneUnit).mockResolvedValue({ success: false, reason: "exhausted" });
+    it("returns exhausted when reserveUnits returns exhausted", async () => {
+      vi.mocked(reserveUnits).mockResolvedValue({ success: false, reason: "exhausted" });
 
       const result = await createReservation(
         tenantId,
@@ -116,10 +116,9 @@ describe("reservation/service (Story 4.1)", () => {
       );
 
       expect(result).toEqual({
-        success: true,
         reservation: { id: "res-1", status: "reserved" },
       });
-      expect(reserveOneUnit).toHaveBeenCalledWith(tenantId, liveItemId, {
+      expect(reserveUnits).toHaveBeenCalledWith(tenantId, liveItemId, 1, {
         correlationId,
         table: "live_items",
       });
@@ -130,6 +129,8 @@ describe("reservation/service (Story 4.1)", () => {
           liveItemId,
           catalogueItemId: null,
           clientPhone,
+          quantity: 1,
+          variantId: null,
           status: "reserved",
           correlationId,
           expiresAt: expect.any(Date),
@@ -139,7 +140,7 @@ describe("reservation/service (Story 4.1)", () => {
         tenantId,
         "res-1",
         correlationId,
-        { live_item_id: liveItemId, live_session_id: liveSessionId },
+        { live_item_id: liveItemId, live_session_id: liveSessionId, quantity: 1, variant_id: null },
       );
     });
 
@@ -215,11 +216,11 @@ describe("reservation/service (Story 4.1)", () => {
         reason: "already_reserved",
         reservation: { id: "res-other" },
       });
-      expect(reserveOneUnit).toHaveBeenCalledWith(tenantId, liveItemId, {
+      expect(reserveUnits).toHaveBeenCalledWith(tenantId, liveItemId, 1, {
         correlationId,
         table: "live_items",
       });
-      expect(releaseReservation).toHaveBeenCalledWith(tenantId, liveItemId, {
+      expect(releaseReservation).toHaveBeenCalledWith(tenantId, liveItemId, 1, {
         correlationId,
         table: "live_items",
       });
@@ -272,12 +273,18 @@ describe("reservation/service (Story 4.1)", () => {
   describe("collectAddress", () => {
     beforeEach(() => {
       vi.mocked(db.reservation.findFirst).mockResolvedValue({
-        id: "res-1",
         status: "reserved",
         liveItem: { code: "A12", amount: 5000 },
         catalogueItem: null,
+        variant: null,
+        quantity: 1,
       } as never);
-      vi.mocked(db.reservation.update).mockResolvedValue({} as never);
+      vi.mocked(db.reservation.update).mockResolvedValue({
+        id: "res-1",
+        status: "address_collected",
+        quantity: 1,
+        variant: null,
+      } as never);
     });
 
     it("returns no_reservation when no reserved reservation for client", async () => {
@@ -315,7 +322,7 @@ describe("reservation/service (Story 4.1)", () => {
         success: true,
         reservation: {
           id: "res-1",
-          item: { code: "A12", amount: 5000 },
+          item: { code: "A12", amount: 5000, quantity: 1, variantLabel: null, mediaStorageKey: undefined, catalogueItemId: undefined },
         },
       });
       expect(db.reservation.update).toHaveBeenCalledWith({

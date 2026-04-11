@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
-  reserveOneUnit,
+  reserveUnits,
   releaseReservation,
   confirmReservation,
 } from "./reservation";
@@ -39,15 +39,15 @@ describe("reservation (Story 3.6)", () => {
     vi.restoreAllMocks();
   });
 
-  describe("reserveOneUnit", () => {
-    it("succeeds when (availableQty - reservedQty) >= 1", async () => {
+  describe("reserveUnits", () => {
+    it("succeeds when (availableQty - reservedQty) >= quantity", async () => {
       mockQueryRaw
         .mockResolvedValueOnce([
           { id: liveItemId, available_qty: 2, reserved_qty: 0 },
         ])
         .mockRejectedValue(new Error("unexpected second call"));
 
-      const result = await reserveOneUnit(tenantId, liveItemId);
+      const result = await reserveUnits(tenantId, liveItemId, 1);
 
       expect(result).toEqual({ success: true });
       expect(mockQueryRaw).toHaveBeenCalledTimes(1);
@@ -59,7 +59,7 @@ describe("reservation (Story 3.6)", () => {
           entityType: "live_item",
           entityId: liveItemId,
           actorType: "system",
-          payload: { live_item_id: liveItemId },
+          payload: { live_item_id: liveItemId, quantity: 1 },
         }),
       );
       expect(vi.mocked(logEvent).mock.calls[0]![0]).toHaveProperty(
@@ -72,7 +72,18 @@ describe("reservation (Story 3.6)", () => {
         { id: liveItemId, available_qty: 1, reserved_qty: 1 },
       ]);
 
-      const result = await reserveOneUnit(tenantId, liveItemId);
+      const result = await reserveUnits(tenantId, liveItemId, 1);
+
+      expect(result).toEqual({ success: false, reason: "exhausted" });
+      expect(mockExecuteRaw).not.toHaveBeenCalled();
+    });
+
+    it("fails with exhausted when not enough units (available 2, reserved 1, requested 2)", async () => {
+      mockQueryRaw.mockResolvedValueOnce([
+        { id: liveItemId, available_qty: 2, reserved_qty: 1 },
+      ]);
+
+      const result = await reserveUnits(tenantId, liveItemId, 2);
 
       expect(result).toEqual({ success: false, reason: "exhausted" });
       expect(mockExecuteRaw).not.toHaveBeenCalled();
@@ -81,7 +92,7 @@ describe("reservation (Story 3.6)", () => {
     it("fails with not_found when item does not exist", async () => {
       mockQueryRaw.mockResolvedValueOnce([]);
 
-      const result = await reserveOneUnit(tenantId, "nonexistent-id");
+      const result = await reserveUnits(tenantId, "nonexistent-id", 1);
 
       expect(result).toEqual({ success: false, reason: "not_found" });
       expect(mockExecuteRaw).not.toHaveBeenCalled();
@@ -94,7 +105,7 @@ describe("reservation (Story 3.6)", () => {
         .mockResolvedValueOnce([{ id: liveItemId, reserved_qty: 1 }])
         .mockRejectedValue(new Error("unexpected second call"));
 
-      const result = await releaseReservation(tenantId, liveItemId);
+      const result = await releaseReservation(tenantId, liveItemId, 1);
 
       expect(result).toEqual({ success: true });
       expect(mockQueryRaw).toHaveBeenCalledTimes(1);
@@ -106,7 +117,7 @@ describe("reservation (Story 3.6)", () => {
           entityType: "live_item",
           entityId: liveItemId,
           actorType: "system",
-          payload: { live_item_id: liveItemId },
+          payload: { live_item_id: liveItemId, quantity: 1 },
         }),
       );
     });
@@ -114,7 +125,7 @@ describe("reservation (Story 3.6)", () => {
     it("fails with no_reservation when reservedQty is 0", async () => {
       mockQueryRaw.mockResolvedValueOnce([{ id: liveItemId, reserved_qty: 0 }]);
 
-      const result = await releaseReservation(tenantId, liveItemId);
+      const result = await releaseReservation(tenantId, liveItemId, 1);
 
       expect(result).toEqual({ success: false, reason: "no_reservation" });
       expect(mockExecuteRaw).not.toHaveBeenCalled();
@@ -123,7 +134,7 @@ describe("reservation (Story 3.6)", () => {
     it("fails with not_found when item does not exist", async () => {
       mockQueryRaw.mockResolvedValueOnce([]);
 
-      const result = await releaseReservation(tenantId, "nonexistent-id");
+      const result = await releaseReservation(tenantId, "nonexistent-id", 1);
 
       expect(result).toEqual({ success: false, reason: "not_found" });
       expect(mockExecuteRaw).not.toHaveBeenCalled();
@@ -138,7 +149,7 @@ describe("reservation (Story 3.6)", () => {
         ])
         .mockResolvedValueOnce([{ available_qty: 1 }]);
 
-      const result = await confirmReservation(tenantId, liveItemId);
+      const result = await confirmReservation(tenantId, liveItemId, 1);
 
       expect(result).toEqual({ success: true });
       expect(mockQueryRaw).toHaveBeenCalledTimes(2);
@@ -150,7 +161,7 @@ describe("reservation (Story 3.6)", () => {
           entityType: "live_item",
           entityId: liveItemId,
           actorType: "system",
-          payload: { live_item_id: liveItemId },
+          payload: { live_item_id: liveItemId, quantity: 1 },
         }),
       );
     });
@@ -160,7 +171,7 @@ describe("reservation (Story 3.6)", () => {
         { id: liveItemId, available_qty: 1, reserved_qty: 0 },
       ]);
 
-      const result = await confirmReservation(tenantId, liveItemId);
+      const result = await confirmReservation(tenantId, liveItemId, 1);
 
       expect(result).toEqual({ success: false, reason: "no_reservation" });
       expect(mockExecuteRaw).not.toHaveBeenCalled();
@@ -169,7 +180,7 @@ describe("reservation (Story 3.6)", () => {
     it("fails with not_found when item does not exist", async () => {
       mockQueryRaw.mockResolvedValueOnce([]);
 
-      const result = await confirmReservation(tenantId, "nonexistent-id");
+      const result = await confirmReservation(tenantId, "nonexistent-id", 1);
 
       expect(result).toEqual({ success: false, reason: "not_found" });
       expect(mockExecuteRaw).not.toHaveBeenCalled();
@@ -184,7 +195,7 @@ describe("reservation (Story 3.6)", () => {
         ])
         .mockResolvedValueOnce([{ available_qty: -1 }]);
 
-      const result = await confirmReservation(tenantId, liveItemId);
+      const result = await confirmReservation(tenantId, liveItemId, 1);
 
       expect(result).toEqual({ success: false, reason: "concurrency" });
     });

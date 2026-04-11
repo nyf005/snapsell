@@ -18,6 +18,8 @@ export type CatalogueItemLookup = {
   mediaStorageKey: string | null;
   origin: CatalogueItemOriginValue;
   createdInLive: boolean;
+  attributes: any;
+  hasVariants: boolean;
 };
 
 /**
@@ -35,6 +37,11 @@ export async function findOrderableItemByCode(
     where: {
       tenantId_code: { tenantId, code: normalized },
     },
+    include: {
+      variants: {
+        select: { id: true }
+      }
+    }
   });
 
   if (!item) return null;
@@ -50,5 +57,7 @@ export async function findOrderableItemByCode(
     mediaStorageKey: item.mediaStorageKey,
     origin: item.origin,
     createdInLive: item.createdInLive,
+    attributes: item.attributes,
+    hasVariants: item.variants.length > 0,
   };
 }

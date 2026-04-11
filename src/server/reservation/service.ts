@@ -8,7 +8,7 @@
 
 import { Prisma } from "../../../generated/prisma";
 import { db } from "~/server/db";
-import { reserveOneUnit, releaseReservation } from "~/server/live-item/reservation";
+import { reserveUnits, releaseReservation } from "~/server/live-item/reservation";
 import { logReservationStarted } from "~/server/events/eventLog";
 import { workerLogger } from "~/lib/logger";
 import { env } from "~/env";
@@ -41,6 +41,8 @@ export type CreateReservationResult =
 export type CreateReservationCatalogueOptions = {
   catalogueItemId: string;
   liveSessionId?: string | null; // optionnel pour traçabilité
+  quantity?: number;
+  variantId?: string | null;
 };
 
 /**
@@ -57,6 +59,7 @@ export async function createReservation(
   liveItemId: string | null,
   clientPhone: string,
   correlationId: string,
+  quantity?: number,
 ): Promise<CreateReservationResult>;
 /**
  * Overload 2 : Catalogue (Story 8.1)
@@ -75,11 +78,14 @@ export async function createReservation(
   liveItemId: string | null,
   clientPhone: string,
   correlationId: string,
-  catalogueOptions?: CreateReservationCatalogueOptions,
+  catalogueOptionsOrQty?: CreateReservationCatalogueOptions | number,
 ): Promise<CreateReservationResult> {
-  const isCatalogue = !!catalogueOptions?.catalogueItemId;
+  const isCatalogue = typeof catalogueOptionsOrQty === "object" && !!catalogueOptionsOrQty.catalogueItemId;
+  const catalogueOptions = isCatalogue ? (catalogueOptionsOrQty as CreateReservationCatalogueOptions) : null;
   const catalogueItemId = catalogueOptions?.catalogueItemId ?? null;
   const effectiveSessionId = liveSessionId ?? catalogueOptions?.liveSessionId ?? null;
+  const quantity = isCatalogue ? (catalogueOptions?.quantity ?? 1) : (typeof catalogueOptionsOrQty === "number" ? catalogueOptionsOrQty : 1);
+  const variantId = catalogueOptions?.variantId ?? null;
 
   // Idempotence check
   const existing = await db.reservation.findFirst({
@@ -95,6 +101,7 @@ export async function createReservation(
           liveSessionId: liveSessionId!,
           clientPhone,
           liveItemId: liveItemId!,
+          variantId, // Support variants aussi en mode legacy si besoin
           status: { in: [...ACTIVE_STATUSES] },
         },
   });
@@ -111,9 +118,9 @@ export async function createReservation(
   const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
 
   // Reserve stock on the right table
-  const itemIdForStock = isCatalogue ? catalogueItemId! : liveItemId!;
-  const stockTable = isCatalogue ? "catalogue_items" as const : "live_items" as const;
-  const reserveResult = await reserveOneUnit(tenantId, itemIdForStock, {
+  const itemIdForStock = variantId ?? (isCatalogue ? catalogueItemId! : liveItemId!);
+  const stockTable = variantId ? "item_variants" : (isCatalogue ? "catalogue_items" : ("live_items" as const));
+  const reserveResult = await reserveUnits(tenantId, itemIdForStock, quantity, {
     correlationId,
     table: stockTable,
   });
@@ -129,6 +136,8 @@ export async function createReservation(
         liveItemId: liveItemId,
         catalogueItemId,
         clientPhone,
+        quantity,
+        variantId,
         status: "reserved",
         correlationId,
         expiresAt,
@@ -154,7 +163,7 @@ export async function createReservation(
     const isUniqueViolation =
       error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
     if (isUniqueViolation) {
-      await releaseReservation(tenantId, itemIdForStock, { correlationId, table: stockTable });
+      await releaseReservation(tenantId, itemIdForStock, quantity, { correlationId, table: stockTable });
       const existingAfter = await db.reservation.findFirst({
         where: isCatalogue
           ? { tenantId, clientPhone, catalogueItemId, status: { in: [...ACTIVE_STATUSES] } }
@@ -173,7 +182,7 @@ export async function createReservation(
       };
     }
     // Tout autre échec create : libérer l'unité réservée pour éviter une fuite de reserved_qty
-    await releaseReservation(tenantId, itemIdForStock, {
+    await releaseReservation(tenantId, itemIdForStock, quantity, {
       correlationId,
       table: stockTable,
     }).catch((releaseErr) => {
@@ -215,12 +224,13 @@ export async function getActiveReservationForClient(
   });
 }
 
-/** Type d'item retourné par collectAddress (code + prix, polymorphe LiveItem ou CatalogueItem). */
 export type CollectAddressItemInfo = {
   code: string;
   amount: number | null;
   catalogueItemId?: string | null; // Story 9.4: pour lookup photo
   mediaStorageKey?: string | null; // Story 9.4: clé R2 photo
+  quantity: number;
+  variantLabel?: string | null;
 };
 
 export type CollectAddressResult =
@@ -243,8 +253,12 @@ export async function collectAddress(
       clientPhone,
       status: "reserved",
     },
+    include: {
+      liveItem: true,
+      catalogueItem: true,
+      variant: true,
+    },
     orderBy: { createdAt: "desc" },
-    include: { liveItem: true, catalogueItem: true },
   });
   if (!reservation) return { success: false, reason: "no_reservation" };
   if (reservation.status !== "reserved") return { success: false, reason: "already_collected" };
@@ -253,7 +267,7 @@ export async function collectAddress(
   if (!trimmed.length) return { success: false, reason: "no_reservation" };
   if (trimmed.length > ADDRESS_MAX_LENGTH) return { success: false, reason: "address_too_long" };
 
-  await db.reservation.update({
+  const updated = await db.reservation.update({
     where: { id: reservation.id },
     data: { address: trimmed, status: "address_collected" },
   });
@@ -266,10 +280,17 @@ export async function collectAddress(
         amount: reservation.catalogueItem.amount,
         catalogueItemId: reservation.catalogueItem.id,
         mediaStorageKey: reservation.catalogueItem.mediaStorageKey,
+        quantity: updated.quantity,
+        variantLabel: reservation.variant?.label ?? null,
       }
     : reservation.liveItem
-      ? { code: reservation.liveItem.code, amount: reservation.liveItem.amount }
-      : { code: "?", amount: null };
+      ? {
+          code: reservation.liveItem.code,
+          amount: reservation.liveItem.amount,
+          quantity: updated.quantity,
+          variantLabel: reservation.variant?.label ?? null,
+        }
+      : { code: "?", amount: null, quantity: updated.quantity };
 
   return {
     success: true,

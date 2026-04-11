@@ -22,6 +22,8 @@ function toCatalogueItemLookup(item: {
   mediaStorageKey: string | null;
   origin: "live" | "seller_whatsapp" | "dashboard";
   createdInLive: boolean;
+  attributes?: any;
+  variants?: { id: string }[];
 }): CatalogueItemLookup {
   return {
     id: item.id,
@@ -34,6 +36,8 @@ function toCatalogueItemLookup(item: {
     mediaStorageKey: item.mediaStorageKey,
     origin: item.origin,
     createdInLive: item.createdInLive,
+    attributes: item.attributes,
+    hasVariants: (item.variants?.length ?? 0) > 0,
   };
 }
 
@@ -61,6 +65,7 @@ export async function findOrCreateOrderableItemByCode(
   // Lookup existant
   const existing = await db.catalogueItem.findUnique({
     where: { tenantId_code: { tenantId, code: normalized } },
+    include: { variants: { select: { id: true } } },
   });
   if (existing) return toCatalogueItemLookup(existing);
 
@@ -77,6 +82,7 @@ export async function findOrCreateOrderableItemByCode(
         origin: "live",
         createdInLive: true,
       },
+      include: { variants: { select: { id: true } } },
     });
     return toCatalogueItemLookup(created);
   } catch (error) {
@@ -88,6 +94,7 @@ export async function findOrCreateOrderableItemByCode(
     // Retry lookup
     const afterConflict = await db.catalogueItem.findUnique({
       where: { tenantId_code: { tenantId, code: normalized } },
+      include: { variants: { select: { id: true } } },
     });
     if (afterConflict) return toCatalogueItemLookup(afterConflict);
 

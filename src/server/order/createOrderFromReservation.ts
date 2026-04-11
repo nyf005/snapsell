@@ -123,12 +123,12 @@ export async function createOrderFromReservation(
     ? new Date(Date.now() + DEPOSIT_TTL_MINUTES * 60 * 1000)
     : null;
 
-  // Story 8.1: résoudre l'item et la table de stock
+  // Plan Variantes: résoudre l'item, la table et la quantité
   const isCatalogue = !!reservation.catalogueItemId;
-  const itemIdForStock = isCatalogue
-    ? reservation.catalogueItemId!
-    : reservation.liveItemId!;
-  const stockTable = isCatalogue ? "catalogue_items" as const : "live_items" as const;
+  const variantId = reservation.variantId;
+  const itemIdForStock = variantId ?? (isCatalogue ? reservation.catalogueItemId! : reservation.liveItemId!);
+  const stockTable = variantId ? "item_variants" : (isCatalogue ? "catalogue_items" : ("live_items" as const));
+  const quantity = reservation.quantity;
 
   // 3. TRANSACTION GLOBALE avec retry sur P2002 (order_number)
   //    Le retry ré-exécute toute la transaction (rollback = stock intact, on recommence).
@@ -140,7 +140,7 @@ export async function createOrderFromReservation(
     try {
       orderRecord = await db.$transaction(async (tx) => {
         // 3a. confirmReservation avec tx (SELECT FOR UPDATE + décrément stock)
-        const confirmResult = await confirmReservation(tenantId, itemIdForStock, {
+        const confirmResult = await confirmReservation(tenantId, itemIdForStock, quantity, {
           correlationId,
           tx,
           table: stockTable,
@@ -248,7 +248,7 @@ export async function createOrderFromReservation(
     entityId: itemIdForStock,
     correlationId,
     actorType: "system",
-    payload: { [`${entityType}_id`]: itemIdForStock },
+    payload: { [`${entityType}_id`]: itemIdForStock, quantity, variant_id: variantId },
   }).catch((err) => {
     workerLogger.warn("Event log reservation_confirmed failed", { correlationId, err });
   });

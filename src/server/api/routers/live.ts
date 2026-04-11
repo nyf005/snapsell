@@ -324,7 +324,7 @@ export const liveRouter = createTRPCRouter({
         data: { status: "expired" },
       });
 
-      const releaseResult = await releaseReservation(tenantId, itemIdForStock, { correlationId, table: stockTable });
+      const releaseResult = await releaseReservation(tenantId, itemIdForStock, reservation.quantity, { correlationId, table: stockTable });
       if (!releaseResult.success) {
         await db.reservation.update({
           where: { id: reservation.id },

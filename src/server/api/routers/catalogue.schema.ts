@@ -45,3 +45,36 @@ export type CreateCatalogueItemInput = z.infer<typeof createCatalogueItemInputSc
 export type UpdateCatalogueItemInput = z.infer<typeof updateCatalogueItemInputSchema>;
 export type DeleteCatalogueItemInput = z.infer<typeof deleteCatalogueItemInputSchema>;
 export type CatalogueItemOutput = z.infer<typeof catalogueItemOutputSchema>;
+
+/** Upsert d'une liste de variantes sur un article catalogue */
+export const upsertVariantsInputSchema = z.object({
+  catalogueItemId: z.string().cuid(),
+  /** Dimensions de l'article (ex: ["Couleur", "Taille"]) — persisté sur `attributes` */
+  dimensions: z.array(z.string().trim().min(1)).max(3),
+  /** Variantes à créer / remplacer */
+  variants: z.array(z.object({
+    label: z.string().trim().min(1),
+    values: z.record(z.string()),
+    quantity: z.number().int().min(0),
+  })).min(1).max(100),
+});
+
+export const deleteVariantsInputSchema = z.object({
+  catalogueItemId: z.string().cuid(),
+});
+
+export const listVariantsInputSchema = z.object({
+  catalogueItemId: z.string().cuid(),
+});
+
+export const itemVariantOutputSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  values: z.record(z.string()),
+  quantity: z.number(),
+  availableQty: z.number(),
+  reservedQty: z.number(),
+});
+
+export type UpsertVariantsInput = z.infer<typeof upsertVariantsInputSchema>;
+export type ItemVariantOutput = z.infer<typeof itemVariantOutputSchema>;

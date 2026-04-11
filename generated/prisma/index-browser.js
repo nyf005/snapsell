@@ -317,6 +317,7 @@ exports.Prisma.LiveItemScalarFieldEnum = {
   availableQty: 'availableQty',
   reservedQty: 'reservedQty',
   mediaStorageKey: 'mediaStorageKey',
+  attributes: 'attributes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -330,8 +331,23 @@ exports.Prisma.CatalogueItemScalarFieldEnum = {
   availableQty: 'availableQty',
   reservedQty: 'reservedQty',
   mediaStorageKey: 'mediaStorageKey',
+  attributes: 'attributes',
   origin: 'origin',
   createdInLive: 'createdInLive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ItemVariantScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  catalogueItemId: 'catalogueItemId',
+  liveItemId: 'liveItemId',
+  label: 'label',
+  values: 'values',
+  quantity: 'quantity',
+  availableQty: 'availableQty',
+  reservedQty: 'reservedQty',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -343,6 +359,8 @@ exports.Prisma.ReservationScalarFieldEnum = {
   liveItemId: 'liveItemId',
   catalogueItemId: 'catalogueItemId',
   clientPhone: 'clientPhone',
+  quantity: 'quantity',
+  variantId: 'variantId',
   status: 'status',
   address: 'address',
   expiresAt: 'expiresAt',
@@ -357,6 +375,8 @@ exports.Prisma.ConversationStateScalarFieldEnum = {
   tenantId: 'tenantId',
   phone: 'phone',
   handedOff: 'handedOff',
+  state: 'state',
+  metadata: 'metadata',
   updatedAt: 'updatedAt'
 };
 
@@ -522,6 +542,7 @@ exports.Prisma.ModelName = {
   LiveSession: 'LiveSession',
   LiveItem: 'LiveItem',
   CatalogueItem: 'CatalogueItem',
+  ItemVariant: 'ItemVariant',
   Reservation: 'Reservation',
   ConversationState: 'ConversationState',
   Order: 'Order',

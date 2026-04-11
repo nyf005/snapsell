@@ -18,16 +18,31 @@ import type { PgBossJob } from "./queues";
 vi.mock("~/server/db", () => ({
   db: {
     sellerPhone: {
-      findMany: vi.fn(),
+      findMany: vi.fn().mockResolvedValue([]),
     },
     tenant: {
-      findUnique: vi.fn(),
+      findUnique: vi.fn().mockResolvedValue(null),
     },
     optOut: {
-      findUnique: vi.fn(),
-      create: vi.fn(),
+      findUnique: vi.fn().mockResolvedValue(null),
+      create: vi.fn().mockResolvedValue({}),
+    },
+    conversationState: {
+      findUnique: vi.fn().mockResolvedValue(null),
+      upsert: vi.fn().mockResolvedValue({}),
+      update: vi.fn().mockResolvedValue({}),
+    },
+    catalogueItem: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      findUnique: vi.fn().mockResolvedValue(null),
     },
   },
+}));
+
+vi.mock("~/server/conversation/sellerVariantConfig", () => ({
+  SELLER_VARIANT_CONFIG_STATE: "seller_config_variants",
+  startSellerVariantConfig: vi.fn(),
+  handleSellerVariantConfigReply: vi.fn(),
 }));
 
 // Mock logger
@@ -202,16 +217,16 @@ describe("webhook-processor", () => {
   });
 
   describe("parseClientCodeIntent (Story 4.2)", () => {
-    it("retourne { code, isTypo: false } pour code strict (A12, B7)", () => {
-      expect(parseClientCodeIntent("A12")).toEqual({ code: "A12", isTypo: false });
-      expect(parseClientCodeIntent("B7")).toEqual({ code: "B7", isTypo: false });
-      expect(parseClientCodeIntent("  A12  ")).toEqual({ code: "A12", isTypo: false });
+    it("retourne { code, isTypo: false, quantity: 1 } pour code strict (A12, B7)", () => {
+      expect(parseClientCodeIntent("A12")).toEqual({ code: "A12", isTypo: false, quantity: 1 });
+      expect(parseClientCodeIntent("B7")).toEqual({ code: "B7", isTypo: false, quantity: 1 });
+      expect(parseClientCodeIntent("  A12  ")).toEqual({ code: "A12", isTypo: false, quantity: 1 });
     });
 
-    it("retourne { code, isTypo: true } pour typo (A12A, B7x)", () => {
-      expect(parseClientCodeIntent("A12A")).toEqual({ code: "A12", isTypo: true });
-      expect(parseClientCodeIntent("B7x")).toEqual({ code: "B7", isTypo: true });
-      expect(parseClientCodeIntent("A12B")).toEqual({ code: "A12", isTypo: true });
+    it("retourne { code, isTypo: true, quantity: 1 } pour typo (A12A, B7x)", () => {
+      expect(parseClientCodeIntent("A12A")).toEqual({ code: "A12", isTypo: true, quantity: 1 });
+      expect(parseClientCodeIntent("B7x")).toEqual({ code: "B7", isTypo: true, quantity: 1 });
+      expect(parseClientCodeIntent("A12B")).toEqual({ code: "A12", isTypo: true, quantity: 1 });
     });
 
     it("retourne null pour non-code", () => {
@@ -222,13 +237,13 @@ describe("webhook-processor", () => {
     });
 
     it("utilise la vraie normalisation (trim + uppercase) sans mock normalizeCode", async () => {
-      const realCreate = await vi.importActual<typeof import("~/server/live-item/createLiveItem")>(
+      const realCreateLiveItem = await vi.importActual<typeof import("~/server/live-item/createLiveItem")>(
         "~/server/live-item/createLiveItem",
       );
       const createMod = await import("~/server/live-item/createLiveItem");
-      vi.mocked(createMod.normalizeCode).mockImplementation(realCreate.normalizeCode);
-      expect(parseClientCodeIntent("  a12  ")).toEqual({ code: "A12", isTypo: false });
-      expect(parseClientCodeIntent("a12b")).toEqual({ code: "A12", isTypo: true });
+      vi.mocked(createMod.normalizeCode).mockImplementation(realCreateLiveItem.normalizeCode);
+      expect(parseClientCodeIntent("  a12  ")).toEqual({ code: "A12", isTypo: false, quantity: 1 });
+      expect(parseClientCodeIntent("a12b")).toEqual({ code: "A12", isTypo: true, quantity: 1 });
     });
   });
 
@@ -748,7 +763,7 @@ describe("webhook-processor", () => {
         reservedQty: 0,
         mediaStorageKey: null,
         origin: "dashboard",
-        createdInLive: false,
+        createdInLive: false, attributes: undefined, hasVariants: false,
       });
 
       const job = {
@@ -771,9 +786,9 @@ describe("webhook-processor", () => {
         tenantId,
         "live-session-client",
         null,
-        from,
+        "+33612345678",
         "corr-a12",
-        { catalogueItemId: "cat-item-1", liveSessionId: "live-session-client" },
+        { catalogueItemId: "cat-item-1", liveSessionId: "live-session-client", quantity: 1 },
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -808,7 +823,7 @@ describe("webhook-processor", () => {
         reservedQty: 0,
         mediaStorageKey: null,
         origin: "dashboard",
-        createdInLive: false,
+        createdInLive: false, attributes: undefined, hasVariants: false,
       });
 
       const job = {
@@ -831,9 +846,9 @@ describe("webhook-processor", () => {
         tenantId,
         "live-session-client",
         null,
-        from,
+        "+33612345678",
         "corr-a12-2",
-        { catalogueItemId: "cat-item-existing", liveSessionId: "live-session-client" },
+        { catalogueItemId: "cat-item-existing", liveSessionId: "live-session-client", quantity: 1 },
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({ body: expect.stringContaining("L'article *A12* est réservé pour toi") }),
@@ -863,7 +878,7 @@ describe("webhook-processor", () => {
         reservedQty: 1,
         mediaStorageKey: null,
         origin: "dashboard",
-        createdInLive: false,
+        createdInLive: false, attributes: undefined, hasVariants: false,
       });
       const { addToWaitlist } = await import("~/server/waitlist/addToWaitlist");
       vi.mocked(addToWaitlist).mockResolvedValue({ ok: true, position: 2 });
@@ -926,7 +941,7 @@ describe("webhook-processor", () => {
         reservedQty: 0,
         mediaStorageKey: null,
         origin: "dashboard",
-        createdInLive: false,
+        createdInLive: false, attributes: undefined, hasVariants: false,
       });
       const { createReservation } = await import("~/server/reservation/service");
       vi.mocked(createReservation).mockResolvedValue({ success: false, reason: "exhausted" });
@@ -1057,7 +1072,7 @@ describe("webhook-processor", () => {
         reservedQty: 0,
         mediaStorageKey: null,
         origin: "dashboard",
-        createdInLive: false,
+        createdInLive: false, attributes: undefined, hasVariants: false,
       });
       const { createReservation } = await import("~/server/reservation/service");
 
@@ -1158,7 +1173,7 @@ describe("webhook-processor", () => {
         success: true,
         reservation: {
           id: "res-1",
-          item: { code: "A12", amount: 5000 },
+          item: { code: "A12", amount: 5000, quantity: 1 },
         },
       });
 
@@ -2014,9 +2029,14 @@ describe("webhook-processor", () => {
         expect(writeToOutbox).toHaveBeenCalledWith(
           expect.objectContaining({
             tenantId,
-            to: from,
-            body: "✅ Photo ajoutée à *A12*",
-            correlationId: "corr-photocat",
+            to: normalizePhoneNumber(from),
+            body: expect.stringContaining("✅ *A12* ajouté au catalogue"),
+            interactive: expect.objectContaining({
+              type: "buttons",
+              buttons: expect.arrayContaining([
+                expect.objectContaining({ id: "configure_variants:A12" }),
+              ]),
+            }),
           }),
         );
       });
@@ -2427,6 +2447,8 @@ describe("webhook-processor", () => {
           item: {
             code: "A12",
             amount: 5000,
+            quantity: 1,
+            variantLabel: null,
             catalogueItemId: "cat-item-photo",
             mediaStorageKey: "tenants/t1/catalogue-items/ci1/photo",
           },
@@ -2493,6 +2515,8 @@ describe("webhook-processor", () => {
           item: {
             code: "B5",
             amount: 10000,
+            quantity: 1,
+            variantLabel: null,
             catalogueItemId: "cat-item-no-photo",
             mediaStorageKey: null,
           },
@@ -2558,6 +2582,8 @@ describe("webhook-processor", () => {
           item: {
             code: "C3",
             amount: 7500,
+            quantity: 1,
+            variantLabel: null,
             catalogueItemId: "cat-key",
             mediaStorageKey: "tenants/t1/catalogue-items/key/photo",
           },
@@ -2618,7 +2644,7 @@ describe("webhook-processor", () => {
         success: true,
         reservation: {
           id: "res-live",
-          item: { code: "D1", amount: 3000 },
+          item: { code: "D1", amount: 3000, quantity: 1 },
         },
       });
 

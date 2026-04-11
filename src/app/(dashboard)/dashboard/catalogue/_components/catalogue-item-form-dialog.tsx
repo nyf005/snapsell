@@ -14,9 +14,10 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Spinner } from "~/components/ui/spinner";
-import { ImagePlus, Trash2, Upload } from "lucide-react";
+import { ImagePlus, Trash2, Upload, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { CatalogueItemOutput } from "~/server/api/routers/catalogue.schema";
+import { VariantsSection } from "./variants-section";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -52,6 +53,46 @@ async function deletePhoto(itemId: string): Promise<void> {
   }
 }
 
+/** Fetches existing variants for an item and renders VariantsSection */
+function VariantsSectionLoader({
+  catalogueItemId,
+  onSaveSuccess,
+}: {
+  catalogueItemId: string;
+  onSaveSuccess?: () => void;
+}) {
+  const { data, isLoading } = api.catalogue.listVariants.useQuery({ catalogueItemId });
+  const utils = api.useUtils();
+
+  // Reconstruct dimensions from existing variants' values keys
+  const existingDimensions = data && data.length > 0
+    ? Object.keys(data[0]!.values as Record<string, string>)
+    : [];
+
+  const handleSave = () => {
+    void utils.catalogue.list.invalidate();
+    onSaveSuccess?.();
+  };
+
+  if (isLoading) return <div className="flex justify-center py-4"><Spinner /></div>;
+
+  return (
+    <VariantsSection
+      catalogueItemId={catalogueItemId}
+      initialDimensions={existingDimensions}
+      initialVariants={data?.map((v) => ({
+        id: v.id,
+        label: v.label,
+        values: v.values as Record<string, string>,
+        quantity: v.quantity,
+        availableQty: v.availableQty,
+        reservedQty: v.reservedQty,
+      })) ?? []}
+      onSaveSuccess={handleSave}
+    />
+  );
+}
+
 export function CatalogueItemFormDialog({
   open,
   onOpenChange,
@@ -63,6 +104,7 @@ export function CatalogueItemFormDialog({
   const [quantity, setQuantity] = useState("1");
   const [amount, setAmountCents] = useState("");
   const [error, setError] = useState("");
+  const [showVariants, setShowVariants] = useState(false);
 
   // Photo state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -93,6 +135,7 @@ export function CatalogueItemFormDialog({
       );
     } else {
       resetForm();
+      setShowVariants(false);
     }
     // Reset photo + error state on dialog open/item change
     setSelectedFile(null);
@@ -438,6 +481,28 @@ export function CatalogueItemFormDialog({
                     </div>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Variants section — edit mode only */}
+            {item && (
+              <div className="border-t border-border pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowVariants((v) => !v)}
+                  className="flex w-full items-center justify-between text-sm font-medium text-foreground hover:text-primary transition-colors"
+                >
+                  <span>Variantes (Taille, Couleur…)</span>
+                  {showVariants ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </button>
+                {showVariants && (
+                  <div className="mt-4">
+                    <VariantsSectionLoader
+                      catalogueItemId={item.id}
+                      onSaveSuccess={onSuccess}
+                    />
+                  </div>
+                )}
               </div>
             )}
 

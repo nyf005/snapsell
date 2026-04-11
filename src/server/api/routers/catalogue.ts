@@ -11,6 +11,9 @@ import {
   createCatalogueItemInputSchema,
   updateCatalogueItemInputSchema,
   deleteCatalogueItemInputSchema,
+  upsertVariantsInputSchema,
+  deleteVariantsInputSchema,
+  listVariantsInputSchema,
 } from "./catalogue.schema";
 import { normalizeCode } from "~/server/live-item/createLiveItem";
 import { getPriceFromCode } from "~/server/pricing/getPriceFromCode";
@@ -210,6 +213,130 @@ export const catalogueRouter = createTRPCRouter({
 
       await db.catalogueItem.delete({
         where: { id: input.id },
+      });
+
+      return { success: true };
+    }),
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Variantes
+  // ─────────────────────────────────────────────────────────────────────
+
+  /** Liste les variantes d'un article catalogue */
+  listVariants: protectedProcedure
+    .input(listVariantsInputSchema)
+    .query(async ({ ctx, input }) => {
+      const tenantId = ctx.session.user.tenantId;
+      if (!tenantId) throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+
+      const item = await db.catalogueItem.findUnique({ where: { id: input.catalogueItemId } });
+      if (!item || item.tenantId !== tenantId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Article non trouvé." });
+      }
+
+      return db.itemVariant.findMany({
+        where: { catalogueItemId: input.catalogueItemId, tenantId },
+        orderBy: { createdAt: "asc" },
+        select: { id: true, label: true, values: true, quantity: true, availableQty: true, reservedQty: true },
+      });
+    }),
+
+  /**
+   * Remplace atomiquement toutes les variantes d'un article.
+   * Met également à jour `attributes` (dimensions) sur l'article.
+   * Les variantes avec réservations actives sont protégées (throw).
+   */
+  upsertVariants: protectedProcedure
+    .input(upsertVariantsInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const tenantId = ctx.session.user.tenantId;
+      if (!tenantId) throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+
+      const item = await db.catalogueItem.findUnique({ where: { id: input.catalogueItemId } });
+      if (!item || item.tenantId !== tenantId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Article non trouvé." });
+      }
+
+      // Protect variants with active reservations
+      const activeReservations = await db.reservation.count({
+        where: {
+          variant: { catalogueItemId: input.catalogueItemId },
+          status: { in: ["reserved", "address_collected"] },
+        },
+      });
+      if (activeReservations > 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Impossible de modifier les variantes : ${activeReservations} réservation(s) active(s).`,
+        });
+      }
+
+      return db.$transaction(async (tx) => {
+        // 1. Delete existing variants
+        await tx.itemVariant.deleteMany({
+          where: { catalogueItemId: input.catalogueItemId, tenantId },
+        });
+
+        // 2. Create new variants
+        const created = await tx.itemVariant.createMany({
+          data: input.variants.map((v) => ({
+            tenantId,
+            catalogueItemId: input.catalogueItemId,
+            label: v.label,
+            values: v.values,
+            quantity: v.quantity,
+            availableQty: v.quantity,
+            reservedQty: 0,
+          })),
+        });
+
+        // 3. Update item attributes (dimensions) + sync aggregated stock
+        const totalQty = input.variants.reduce((s, v) => s + v.quantity, 0);
+        await tx.catalogueItem.update({
+          where: { id: input.catalogueItemId },
+          data: {
+            attributes: input.dimensions,
+            quantity: totalQty,
+            availableQty: totalQty,
+            reservedQty: 0,
+          },
+        });
+
+        return { count: created.count };
+      });
+    }),
+
+  /** Supprime toutes les variantes d'un article (reset) */
+  deleteVariants: protectedProcedure
+    .input(deleteVariantsInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const tenantId = ctx.session.user.tenantId;
+      if (!tenantId) throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+
+      const item = await db.catalogueItem.findUnique({ where: { id: input.catalogueItemId } });
+      if (!item || item.tenantId !== tenantId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Article non trouvé." });
+      }
+
+      const activeReservations = await db.reservation.count({
+        where: {
+          variant: { catalogueItemId: input.catalogueItemId },
+          status: { in: ["reserved", "address_collected"] },
+        },
+      });
+      if (activeReservations > 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Impossible de supprimer les variantes : réservations actives.",
+        });
+      }
+
+      await db.$transaction(async (tx) => {
+        await tx.itemVariant.deleteMany({ where: { catalogueItemId: input.catalogueItemId, tenantId } });
+        await tx.catalogueItem.update({
+          where: { id: input.catalogueItemId },
+          data: { attributes: Prisma.JsonNull },
+        });
       });
 
       return { success: true };

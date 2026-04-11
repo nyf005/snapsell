@@ -250,5 +250,27 @@ export const botMsg = {
 
     offLiveCreateInstruction: () =>
       `Hors live, utilise *ajout A12* ou *ajout A12 x3* pour créer un article.`,
+
+    /** Confirmation ajout catalogue avec bouton Variantes */
+    catalogueAddedInteractive: (code: string, qty: number): InteractiveMessage => ({
+      body: `✅ *${code}* ajouté au catalogue — ${qty} en stock`,
+      interactive: {
+        type: "buttons",
+        buttons: [
+          { id: `configure_variants:${code}`, title: "⚙️ Configurer Variantes" },
+        ],
+      } satisfies InteractivePayload,
+    }),
+
+    /** Confirmation ajout catalogue avec photo et bouton Variantes */
+    catalogueAddedWithPhotoInteractive: (code: string, qty: number): InteractiveMessage => ({
+      body: `✅ *${code}* ajouté au catalogue — ${qty} en stock 📸`,
+      interactive: {
+        type: "buttons",
+        buttons: [
+          { id: `configure_variants:${code}`, title: "⚙️ Configurer Variantes" },
+        ],
+      } satisfies InteractivePayload,
+    }),
   },
 };

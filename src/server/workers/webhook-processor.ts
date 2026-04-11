@@ -41,6 +41,15 @@ import {
   parseSellerCreateItemIntent,
   parseSellerOffLiveCreateItemIntent,
 } from "~/server/catalogue/sellerCreateIntent";
+import { 
+  startVariantSelection, 
+  handleVariantChoice 
+} from "~/server/conversation/variantSelection";
+import {
+  SELLER_VARIANT_CONFIG_STATE,
+  startSellerVariantConfig,
+  handleSellerVariantConfigReply,
+} from "~/server/conversation/sellerVariantConfig";
 
 export {
   parseSellerCreateItemIntent as parseCreateItemIntent,
@@ -80,9 +89,10 @@ export function isStopMessage(body: string): boolean {
 const CLIENT_CODE_PATTERN = /^[A-Za-z]+\d+$/;
 
 /** Story 4.2 : extrait un candidat code (strict ou typo) depuis le body client */
-const CLIENT_CODE_PREFIX = /^([A-Za-z]+\d+)/i;
+/** Plan Variantes: supporte aussi la quantité (ex: A12 x3) */
+const CLIENT_CODE_INTENT_PATTERN = /^([A-Za-z]+\d+)(?:\s*[x\s]?\s*(\d+))?/i;
 
-export type ClientCodeIntent = { code: string; isTypo: boolean };
+export type ClientCodeIntent = { code: string; quantity: number; isTypo: boolean };
 
 /**
  * Parse le body client en intent « code » : strict (A12) ou typo (A12A → A12).
@@ -91,12 +101,14 @@ export type ClientCodeIntent = { code: string; isTypo: boolean };
 export function parseClientCodeIntent(body: string): ClientCodeIntent | null {
   const trimmed = body.trim();
   if (!trimmed.length) return null;
-  const match = trimmed.match(CLIENT_CODE_PREFIX);
+  const match = trimmed.match(CLIENT_CODE_INTENT_PATTERN);
   if (!match) return null;
   const code = normalizeCode(match[1]!);
   if (!code.length) return null;
-  const isStrict = trimmed === match[1]! || trimmed === code;
-  return { code, isTypo: !isStrict };
+  const quantity = match[2] ? Math.max(1, parseInt(match[2], 10)) : 1;
+  const matchedText = match[0];
+  const isStrict = trimmed.toLowerCase() === matchedText.toLowerCase();
+  return { code, quantity, isTypo: !isStrict };
 }
 
 /** Phase 5.2: Keywords that trigger handoff to human agent. */
@@ -369,16 +381,21 @@ export async function processWebhookJob(
                 });
               } else {
                 const session = await getCurrentSessionReadOnly(tenantId);
-                await createReservation(
-                  tenantId, session?.id ?? null, null, clientPhoneE164, correlationId,
-                  { catalogueItemId: catalogueItem.id, liveSessionId: session?.id ?? null },
-                );
-                await writeToOutbox({
-                  tenantId,
-                  to: clientPhoneE164,
-                  body: botMsg.client.reserved(code),
-                  correlationId,
-                });
+                
+                if (catalogueItem.hasVariants) {
+                  await startVariantSelection(tenantId, clientPhoneE164, catalogueItem, 1, correlationId);
+                } else {
+                  await createReservation(
+                    tenantId, session?.id ?? null, null, clientPhoneE164, correlationId,
+                    { catalogueItemId: catalogueItem.id, liveSessionId: session?.id ?? null },
+                  );
+                  await writeToOutbox({
+                    tenantId,
+                    to: clientPhoneE164,
+                    body: botMsg.client.reserved(code),
+                    correlationId,
+                  });
+                }
               }
             }
           }
@@ -426,6 +443,52 @@ export async function processWebhookJob(
         // send_proof : aucune action côté bot, le client va envoyer une photo
         // On laisse simplement passer sans réponse
         if (interactiveReplyId === "send_proof") {
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
+        // --- Variantes ---
+        if (interactiveReplyId.startsWith("select_val:")) {
+          const val = interactiveReplyId.split(":")[1]!;
+          await handleVariantChoice(tenantId, clientPhoneE164, val, correlationId);
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
+        if (interactiveReplyId.startsWith("configure_variants:")) {
+          // Seller action — start WhatsApp config flow (Option B) AND hint dashboard (Option C)
+          const itemCode = interactiveReplyId.split(":")[1] ?? "";
+          if (itemCode && tenantId) {
+            // Lookup catalogueItemId from the code
+            const catalogueItem = await db.catalogueItem.findFirst({
+              where: { tenantId, code: itemCode.toUpperCase() },
+              select: { id: true, attributes: true },
+            });
+            if (catalogueItem) {
+              const existingDims = Array.isArray(catalogueItem.attributes)
+                ? (catalogueItem.attributes as string[])
+                : [];
+              await startSellerVariantConfig(
+                tenantId,
+                clientPhoneE164,
+                catalogueItem.id,
+                itemCode.toUpperCase(),
+                correlationId,
+                existingDims,
+              );
+            } else {
+              await writeToOutbox({
+                tenantId,
+                to: clientPhoneE164,
+                body: `Article *${itemCode}* introuvable dans le catalogue.`,
+                correlationId,
+              });
+            }
+          }
           return {
             tenantId, providerMessageId, from, body, mediaUrl, correlationId,
             messageType, liveSessionId: null,
@@ -499,8 +562,9 @@ export async function processWebhookJob(
         } else {
           // Code strict et trouvé dans le catalogue → flux réservation (Réservé / File #N / Épuisé)
           const free = catalogueItem.availableQty - catalogueItem.reservedQty;
-          if (free <= 0) {
-            // Story 8.1 + 4.3 + 9.1: file d'attente sur catalogue_items
+          if (free < clientCodeIntent.quantity) {
+            // Pas assez de stock pour la quantité demandée
+            // Story 8.1 + 4.3 + 9.1: file d'attente (position stock global)
             const waitResult = await addToWaitlist(
               tenantId,
               null,
@@ -520,29 +584,35 @@ export async function processWebhookJob(
               correlationId,
             });
           } else {
-            // Story 8.1: createReservation avec catalogueItemId
-            const resResult = await createReservation(
-              tenantId,
-              liveSessionId,
-              null,
-              clientPhoneE164,
-              correlationId,
-              { catalogueItemId: catalogueItem.id, liveSessionId },
-            );
-            if (!resResult.success && resResult.reason === "exhausted") {
-              await writeToOutbox({
-                tenantId,
-                to: clientPhoneE164,
-                body: botMsg.client.exhausted(),
-                correlationId,
-              });
+            // Story 8.1: createReservation avec catalogueItemId et quantity
+            if (catalogueItem.hasVariants) {
+              await startVariantSelection(tenantId, clientPhoneE164, catalogueItem, clientCodeIntent.quantity, correlationId, liveSessionId);
             } else {
-              await writeToOutbox({
+              const resResult = await createReservation(
                 tenantId,
-                to: clientPhoneE164,
-                body: botMsg.client.reserved(clientCodeIntent.code),
+                liveSessionId,
+                null,
+                clientPhoneE164,
                 correlationId,
-              });
+                { catalogueItemId: catalogueItem.id, liveSessionId, quantity: clientCodeIntent.quantity },
+              );
+              if (!resResult.success && resResult.reason === "exhausted") {
+                await writeToOutbox({
+                  tenantId,
+                  to: clientPhoneE164,
+                  body: botMsg.client.exhausted(),
+                  correlationId,
+                });
+              } else {
+                // Confirmation avec mention de la quantité si > 1
+                const qtyLabel = clientCodeIntent.quantity > 1 ? ` (x${clientCodeIntent.quantity})` : "";
+                await writeToOutbox({
+                  tenantId,
+                  to: clientPhoneE164,
+                  body: botMsg.client.reserved(`${clientCodeIntent.code}${qtyLabel}`),
+                  correlationId,
+                });
+              }
             }
           }
         }
@@ -577,16 +647,22 @@ export async function processWebhookJob(
             body,
           );
           if (collectResult.success) {
-            const { code, amount, mediaStorageKey } = collectResult.reservation.item;
+            const { code, amount, quantity, variantLabel, mediaStorageKey } = collectResult.reservation.item;
             const prix =
               amount !== null
                 ? `${Math.round(amount / 100).toLocaleString("fr-FR")} FCFA`
                 : "—";
-            const total =
-              amount !== null
-                ? `${Math.round(amount / 100).toLocaleString("fr-FR")} FCFA`
+            const totalAmount = amount !== null ? amount * quantity : null;
+            const totalDisplay =
+              totalAmount !== null
+                ? `${Math.round(totalAmount / 100).toLocaleString("fr-FR")} FCFA`
                 : "—";
-            const recap = botMsg.client.recapInteractive(code, prix, total, body.trim());
+            
+            const variantSuffix = variantLabel ? ` [${variantLabel}]` : "";
+            const qtyLabel = quantity > 1 ? ` (x${quantity})` : "";
+            const fullCodeLabel = `${code}${variantSuffix}${qtyLabel}`;
+
+            const recap = botMsg.client.recapInteractive(fullCodeLabel, prix, totalDisplay, body.trim());
 
             // Story 9.4: passer storageKey brut (signé à l'envoi par outbox-sender, AC #1, #2, #4, #5)
             await writeToOutbox({
@@ -653,6 +729,25 @@ export async function processWebhookJob(
 
     // Story 3.2 + 8.2 : intent vendeur « créer item » (code ou code x qte) → upsert catalogue (+ LiveItem si session active)
     if (tenantId && messageType === "seller") {
+      // Variantes : si le vendeur est en train de répondre au flow de config, intercepter ici
+      const convState = await db.conversationState.findUnique({
+        where: { tenantId_phone: { tenantId, phone: normalizePhoneNumber(from) } },
+        select: { state: true },
+      }).catch(() => null);
+
+      if (convState?.state === SELLER_VARIANT_CONFIG_STATE) {
+        await handleSellerVariantConfigReply(
+          tenantId,
+          normalizePhoneNumber(from),
+          body,
+          correlationId,
+        );
+        return {
+          tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+          messageType, liveSessionId: null,
+        };
+      }
+
       const activeSession = liveSessionId ? { id: liveSessionId } : null;
       const createItem = activeSession
         ? parseSellerCreateItemIntent(body)
@@ -805,12 +900,12 @@ export async function processWebhookJob(
             });
             const noSessionMsg =
               mediaUrl && r2Available
-                ? botMsg.seller.catalogueAddedWithPhoto(normalizeCode(createItem.code), createItem.quantity)
-                : botMsg.seller.catalogueAdded(normalizeCode(createItem.code), createItem.quantity);
+                ? botMsg.seller.catalogueAddedWithPhotoInteractive(normalizeCode(createItem.code), createItem.quantity)
+                : botMsg.seller.catalogueAddedInteractive(normalizeCode(createItem.code), createItem.quantity);
             await writeToOutbox({
               tenantId,
               to,
-              body: noSessionMsg,
+              ...noSessionMsg,
               correlationId,
             });
           }
