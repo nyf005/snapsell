@@ -188,12 +188,18 @@ export const liveRouter = createTRPCRouter({
       const unsoldItems = items.reduce((sum, i) => sum + (i.availableQty - i.reservedQty), 0);
       const revenue = items.reduce((sum, i) => sum + (i.reservedQty * (i.amount ?? 0)), 0);
       const revenueInFcfa = Math.round(revenue / 100);
+      const liveDateLabel = session.createdAt.toLocaleDateString("fr-FR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
 
       if (sellerPhone) {
         await writeToOutbox({
           tenantId,
           to: sellerPhone.phoneNumber,
           body: botMsg.seller.liveSummary({
+            liveDateLabel,
             orderCount,
             pendingDeposit,
             pendingReservations,

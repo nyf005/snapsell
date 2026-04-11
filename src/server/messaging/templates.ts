@@ -191,6 +191,7 @@ export const botMsg = {
 
   seller: {
     liveSummary: (opts: {
+      liveDateLabel: string;
       orderCount: number;
       pendingReservations: number;
       pendingDeposit: number;
@@ -199,7 +200,7 @@ export const botMsg = {
     }) => {
       const revenueFormatted = opts.revenue.toLocaleString("fr-FR");
       return (
-        `📊 *Résumé de ta session live*\n\n` +
+        `📊 *Résumé du live du ${opts.liveDateLabel}*\n\n` +
         `✅ Commandes confirmées : ${opts.orderCount}\n` +
         (opts.pendingDeposit > 0 ? `💳 En attente d'acompte : ${opts.pendingDeposit}\n` : "") +
         `⏳ Réservations en cours : ${opts.pendingReservations}\n` +

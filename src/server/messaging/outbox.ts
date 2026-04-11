@@ -95,7 +95,7 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
     select: { showBranding: true },
   });
   if (tenant?.showBranding) {
-    normalizedMessage.body = `${normalizedMessage.body}\n\n_Propulsé par SnapSell_`;
+    normalizedMessage.body = `${normalizedMessage.body}\n\n_Via SnapSell_`;
   }
 
   // Valider le message avec Zod
