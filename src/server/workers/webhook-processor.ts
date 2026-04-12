@@ -254,13 +254,16 @@ export async function processWebhookJob(
 
     // Story 11.2: Envoyer l'indicateur de frappe EN DIRECT (sans passer par l'outbox)
     // pour que l'affichage soit instantané (sub-second) côté client.
-    if (tenant?.metaPhoneNumberId && tenant?.metaAccessToken) {
+    const metaPhoneNumberId = tenant?.metaPhoneNumberId;
+    const metaAccessToken = tenant?.metaAccessToken;
+
+    if (metaPhoneNumberId && metaAccessToken) {
       // On lance en arrière-plan sans 'await' pour ne pas ralentir le traitement principal
       (async () => {
         try {
           const adapter = new MetaCloudAdapter(
-            tenant.metaPhoneNumberId,
-            decrypt(tenant.metaAccessToken),
+            metaPhoneNumberId,
+            decrypt(metaAccessToken),
           );
           await adapter.send({
             tenantId,
