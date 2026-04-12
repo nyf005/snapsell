@@ -36,6 +36,8 @@ import { uploadMediaAndLinkToLiveItem } from "~/server/media/uploadMediaToLiveIt
 import { uploadMediaToCatalogueItem } from "~/server/media/uploadMediaToCatalogueItem";
 import { isR2Configured } from "~/server/media/r2-client";
 import { writeToOutbox } from "~/server/messaging/outbox";
+import { MetaCloudAdapter } from "~/server/messaging/providers/meta/adapter";
+import { decrypt } from "~/lib/crypto";
 import { botMsg } from "~/server/messaging/templates";
 import { createOrderFromReservation } from "~/server/order/createOrderFromReservation";
 import { upsertCatalogueItemFromWebhook } from "~/server/catalogue/upsertCatalogueItemFromWebhook";
@@ -221,13 +223,34 @@ export async function processWebhookJob(
     // Déterminer le type de message (vendeur vs client)
     const messageType = await determineMessageType(tenantId, from);
 
+    // Story 11.2: Envoyer l'indicateur de frappe EN DIRECT (sans passer par l'outbox)
+    // pour que l'affichage soit instantané (sub-second) côté client.
     if (tenantId) {
-      await writeToOutbox({
-        tenantId,
-        to: from,
-        isTypingIndicator: true,
-        correlationId: `typing:${correlationId}`, // Story 11.2: Prefixé en DB pour unicité, nettoyé par l'adapter pour Meta
-      }).catch(err => workerLogger.debug("Error sending typing indicator", err));
+      // On lance en arrière-plan sans 'await' pour ne pas ralentir le traitement principal
+      (async () => {
+        try {
+          const tenant = await db.tenant.findUnique({
+            where: { id: tenantId },
+            select: { metaPhoneNumberId: true, metaAccessToken: true },
+          });
+
+          if (tenant?.metaPhoneNumberId && tenant?.metaAccessToken) {
+            const adapter = new MetaCloudAdapter(
+              tenant.metaPhoneNumberId,
+              decrypt(tenant.metaAccessToken),
+            );
+            await adapter.send({
+              tenantId,
+              to: from,
+              isTypingIndicator: true,
+              correlationId: correlationId, // On passe directement le wamid réel
+            });
+            workerLogger.debug("Direct typing indicator sent", { correlationId });
+          }
+        } catch (err) {
+          workerLogger.debug("Non-critical error: direct typing indicator failed", err);
+        }
+      })();
     }
 
     const processingTime = Date.now() - startTime;
