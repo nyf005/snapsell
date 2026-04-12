@@ -47,10 +47,14 @@ const interactiveButtonSchema = z.object({
 const interactivePayloadSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("buttons"),
+    header: z.string().max(60).optional(),
+    footer: z.string().max(60).optional(),
     buttons: z.array(interactiveButtonSchema).min(1).max(3),
   }),
   z.object({
     type: z.literal("list"),
+    header: z.string().max(60).optional(),
+    footer: z.string().max(60).optional(),
     buttonLabel: z.string().min(1).max(20),
     items: z.array(z.object({
       id: z.string().min(1),
@@ -90,13 +94,25 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
   // Pour les réponses WhatsApp, cela évite de réécrire le wa_id reçu du provider.
   const normalizedMessage = { ...message };
 
-  // Branding : plan Free → ajouter signature en pied de message
+  // Injection du Header (Nom de la boutique) et Footer (Branding) globalement
   const tenant = await db.tenant.findUnique({
     where: { id: normalizedMessage.tenantId },
-    select: { showBranding: true },
+    select: { shopName: true, showBranding: true },
   });
-  if (tenant?.showBranding) {
-    normalizedMessage.body = appendBranding(normalizedMessage.body, true);
+
+  if (tenant) {
+    if (normalizedMessage.interactive) {
+      // Injection native UI pour les messages interactifs (mieux rendu)
+      normalizedMessage.interactive.header = tenant.shopName;
+      if (tenant.showBranding) {
+        normalizedMessage.interactive.footer = "Propulsé par SnapSell";
+      }
+    } else {
+      // Injection texte pour les messages simples
+      const header = `*${tenant.shopName}*\n---\n\n`;
+      const footer = tenant.showBranding ? `\n\n_Propulsé par SnapSell_` : "";
+      normalizedMessage.body = `${header}${normalizedMessage.body}${footer}`;
+    }
   }
 
   // Valider le message avec Zod

@@ -262,7 +262,9 @@ export class MetaCloudAdapter implements MessagingProvider {
         type: "interactive",
         interactive: {
           type: "button",
+          ...(message.interactive.header ? { header: { type: "text", text: message.interactive.header } } : {}),
           body: { text: message.body },
+          ...(message.interactive.footer ? { footer: { text: message.interactive.footer } } : {}),
           action: {
             buttons: message.interactive.buttons.map((btn) => ({
               type: "reply",
@@ -280,7 +282,9 @@ export class MetaCloudAdapter implements MessagingProvider {
         type: "interactive",
         interactive: {
           type: "list",
+          ...(message.interactive.header ? { header: { type: "text", text: message.interactive.header } } : {}),
           body: { text: message.body },
+          ...(message.interactive.footer ? { footer: { text: message.interactive.footer } } : {}),
           action: {
             button: message.interactive.buttonLabel,
             sections: [

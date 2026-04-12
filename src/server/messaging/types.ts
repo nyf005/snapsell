@@ -32,6 +32,8 @@ export interface EnrichedInboundMessage extends InboundMessage {
 export type InteractivePayload =
   | {
       type: "buttons";
+      header?: string;
+      footer?: string;
       /** Max 3 boutons */
       buttons: Array<{
         /** ID reçu dans le webhook quand le client clique (max 256 chars) */
@@ -42,6 +44,8 @@ export type InteractivePayload =
     }
   | {
       type: "list";
+      header?: string;
+      footer?: string;
       /** Texte du bouton qui ouvre la liste */
       buttonLabel: string;
       /** Max 10 options */
