@@ -96,21 +96,22 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
   // Injection du Header (Nom de la boutique) et Footer (Branding) globalement
   const tenant = await db.tenant.findUnique({
     where: { id: normalizedMessage.tenantId },
-    select: { shopName: true, showBranding: true },
+    select: { name: true, showBranding: true },
   });
 
   if (tenant) {
+    const shopName = tenant.name;
     if (normalizedMessage.interactive) {
       // Si le message n'a pas déjà de header (l'Action), on peut mettre le nom de la boutique.
       // Mais puisque l'on veut l'Action en header, on ne force plus le nom de la boutique ici,
       // on laisse le template définir le header (ou on le laisse vide pour que l'action soit le texte du body).
       
       // Footer dynamique selon l'abonnement (Premium vs Free)
-      normalizedMessage.interactive.footer = tenant.showBranding ? "Via SnapSell" : tenant.shopName;
+      normalizedMessage.interactive.footer = tenant.showBranding ? "Via SnapSell" : shopName;
     } else {
       // Injection texte pour les messages simples
       // On ne met plus le nom de la boutique en gros en haut, l'action est déjà la première ligne.
-      const footerText = tenant.showBranding ? "_Via SnapSell_" : `_${tenant.shopName}_`;
+      const footerText = tenant.showBranding ? "_Via SnapSell_" : `_${shopName}_`;
       normalizedMessage.body = `${normalizedMessage.body}\n\n${footerText}`;
     }
   }

@@ -190,7 +190,7 @@ export const botMsg = {
       body: `Super ! Ta commande est enregistrée 🎉\n\nPour finaliser, envoie la preuve de paiement dans les ${minutes} min 📸\n\nOn garde ton article de côté en attendant 🔒`,
       interactive: {
         type: "buttons",
-        header: "📸 Action requise",
+        header: "⚡ Action requise",
         buttons: [
           { id: "send_proof", title: "📸 Ma preuve" },
           { id: "contact_agent", title: "👤 Aide agent" },
@@ -302,7 +302,7 @@ export const botMsg = {
       ].join("\n"),
       interactive: {
         type: "buttons",
-        header: "🏷️ Action Requise",
+        header: "⚡ Action Requise",
         buttons: [
           { id: "cancel_variant_config", title: "❌ Annuler config" },
         ],
