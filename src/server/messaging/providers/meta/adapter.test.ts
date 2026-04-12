@@ -197,6 +197,31 @@ describe("MetaCloudAdapter", () => {
       expect(result.body).toBe("");
     });
 
+    it("should parse button message replies with payload as interactiveReplyId", async () => {
+      const payload = makeMetaWebhookPayload([{
+        from: "22509542783",
+        id: "wamid.BUTTON001",
+        timestamp: "1234567890",
+        type: "button",
+        button: {
+          payload: "configure_variants:ROBE1",
+          text: "Variantes",
+        },
+      }]);
+
+      const result = await adapter.parseInbound(makeJsonRequest(payload));
+
+      expect(result).toEqual({
+        tenantId: null,
+        providerMessageId: "wamid.BUTTON001",
+        from: "+22509542783",
+        body: "Variantes",
+        mediaUrl: undefined,
+        correlationId: "wamid.BUTTON001",
+        interactiveReplyId: "configure_variants:ROBE1",
+      });
+    });
+
     it("should return empty InboundMessage for status-only payload", async () => {
       const payload = makeMetaWebhookPayload([], [{
         id: "wamid.STATUS001",

@@ -60,6 +60,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
         id: reservationId,
         tenantId,
         status: "address_collected",
+        quantity: 1,
         liveItemId: "item-1",
         liveItem: { id: "item-1" },
         catalogueItemId: null,
@@ -127,7 +128,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       expect(result.success && result.order.depositStatus).toBe("no_deposit");
 
       // confirmReservation appelé avec tx (même transaction) + table
-      expect(confirmReservation).toHaveBeenCalledWith(tenantId, "item-1", {
+      expect(confirmReservation).toHaveBeenCalledWith(tenantId, "item-1", 1, {
         correlationId,
         tx: mockTx,
         table: "live_items",
@@ -268,7 +269,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       ).rejects.toThrow("Unexpected DB error");
 
       // confirmReservation was called WITH tx (same transaction → rollback annule le décrément)
-      expect(confirmReservation).toHaveBeenCalledWith(tenantId, "item-1", {
+      expect(confirmReservation).toHaveBeenCalledWith(tenantId, "item-1", 1, {
         correlationId,
         tx: mockTx,
         table: "live_items",
@@ -287,7 +288,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       ).rejects.toThrow("reservation update failed");
 
       // confirmReservation was called (in same tx → sera rollback)
-      expect(confirmReservation).toHaveBeenCalledWith(tenantId, "item-1", {
+      expect(confirmReservation).toHaveBeenCalledWith(tenantId, "item-1", 1, {
         correlationId,
         tx: mockTx,
         table: "live_items",
@@ -306,7 +307,8 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
 
       expect(confirmReservation).toHaveBeenCalledTimes(1);
       const callArgs = vi.mocked(confirmReservation).mock.calls[0]!;
-      expect(callArgs[2]).toEqual(expect.objectContaining({ tx: mockTx }));
+      expect(callArgs[2]).toBe(1);
+      expect(callArgs[3]).toEqual(expect.objectContaining({ tx: mockTx }));
     });
 
     it("getNextOrderNumber uses tx.order.count inside the transaction (not db.order.count)", async () => {

@@ -168,6 +168,10 @@ export class MetaCloudAdapter implements MessagingProvider {
               interactiveReplyId = buttonReply?.id ?? listReply?.id;
               // body = titre affiché (pour logs) ; le routing se fait sur interactiveReplyId
               body = buttonReply?.title ?? listReply?.title ?? "";
+            } else if (message.type === "button") {
+              const button = message.button as { payload?: string; text?: string } | undefined;
+              interactiveReplyId = button?.payload;
+              body = button?.text ?? body;
             }
 
             // Media entrant: stocker le MEDIA_ID avec prefixe meta-media://
