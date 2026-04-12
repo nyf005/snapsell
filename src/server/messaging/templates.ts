@@ -75,6 +75,7 @@ export const botMsg = {
       body: `Parfait ! Voici le récap de ta commande 👇\n\n🛍️ Article : *${code}*\n💰 Prix : ${prix}\n📍 Adresse : ${address}\n💳 Total : ${total}`,
       interactive: {
         type: "buttons",
+        header: "🛍️ Récapitulatif",
         buttons: [
           { id: "confirm_order", title: "✅ Confirmer" },
           { id: "cancel_order", title: "❌ Annuler" },
@@ -88,6 +89,7 @@ export const botMsg = {
       body: `Hey ! 👀 Ta réservation expire dans 2 minutes.\n\nEnvoie ton adresse vite pour ne pas la perdre 📍`,
       interactive: {
         type: "buttons",
+        header: "⏳ Expiration proche",
         buttons: [
           { id: "send_proof", title: "📍 Mon adresse" },
           { id: "cancel_order", title: "❌ Annuler" },
@@ -100,6 +102,7 @@ export const botMsg = {
       body: `Ta réservation pour *${code}* a malheureusement expiré ⏰`,
       interactive: {
         type: "buttons",
+        header: "⏰ Réservation expirée",
         buttons: [
           { id: `retry_code:${code}`, title: `🔄 Recommencer` },
           { id: "contact_agent", title: "👤 Aide agent" },
@@ -112,6 +115,7 @@ export const botMsg = {
       body: `Oops, ta preuve d'acompte pour *${orderNumber}* n'a pas pu être validée 😕`,
       interactive: {
         type: "buttons",
+        header: "❌ Preuve rejetée",
         buttons: [
           { id: "send_proof", title: "📸 Ma preuve" },
           { id: "contact_agent", title: "👤 Aide agent" },
@@ -124,6 +128,7 @@ export const botMsg = {
       body: `Je n'ai pas trouvé ce code. Tu voulais dire *${code}* ? 😊`,
       interactive: {
         type: "buttons",
+        header: "🔍 Code introuvable",
         buttons: [
           { id: `retry_code:${code}`, title: `✅ C'est bien ça` },
           { id: "fallback_no", title: "❌ Autre code" },
@@ -136,6 +141,7 @@ export const botMsg = {
       body: `Je n'ai pas bien compris 😅\n\nEnvoie-moi le code de l'article que tu veux (ex : A12)`,
       interactive: {
         type: "buttons",
+        header: "😅 Incompris",
         buttons: [
           { id: "contact_agent", title: "👤 Aide agent" },
         ],
@@ -147,6 +153,7 @@ export const botMsg = {
       body: `Bonne nouvelle ! 🎉 Une place s'est libérée pour l'article *${code}*.\n\nIl est réservé pour toi ! Envoie ton adresse de livraison 📍`,
       interactive: {
         type: "buttons",
+        header: "🎉 Place libérée !",
         buttons: [
           { id: "send_proof", title: "📍 Mon adresse" },
           { id: "cancel_order", title: "❌ Je ne veux plus" },
@@ -159,6 +166,7 @@ export const botMsg = {
       body: `Ton acompte pour la commande *${orderNumber}* a été validé ! ✅\n\nTa commande est confirmée. On te recontacte pour la livraison 💛`,
       interactive: {
         type: "buttons",
+        header: "✅ Acompte validé",
         buttons: [
           { id: "track_order", title: "📦 Suivre commande" },
         ],
@@ -170,6 +178,7 @@ export const botMsg = {
       body: `C'est validé ! 🙌 Ta commande est bien enregistrée.\n\nOn te recontacte très vite pour les détails de livraison. Merci de nous faire confiance 💛`,
       interactive: {
         type: "buttons",
+        header: "✅ Commande confirmée",
         buttons: [
           { id: "track_order", title: "📦 Suivre commande" },
         ],
@@ -181,6 +190,7 @@ export const botMsg = {
       body: `Super ! Ta commande est enregistrée 🎉\n\nPour finaliser, envoie la preuve de paiement dans les ${minutes} min 📸\n\nOn garde ton article de côté en attendant 🔒`,
       interactive: {
         type: "buttons",
+        header: "📸 Action requise",
         buttons: [
           { id: "send_proof", title: "📸 Ma preuve" },
           { id: "contact_agent", title: "👤 Aide agent" },
@@ -256,6 +266,7 @@ export const botMsg = {
       body: `✅ *${code}* ajouté au catalogue — ${qty} en stock`,
       interactive: {
         type: "buttons",
+        header: "✅ Article Ajouté",
         buttons: [
           { id: `configure_variants:${code}`, title: "🏷️ Variantes" },
           { id: "no_variants", title: "⏭️ Sans variantes" },
@@ -268,6 +279,7 @@ export const botMsg = {
       body: `✅ *${code}* ajouté au catalogue — ${qty} en stock 📸`,
       interactive: {
         type: "buttons",
+        header: "✅ Article + Photo",
         buttons: [
           { id: `configure_variants:${code}`, title: "🏷️ Variantes" },
           { id: "no_variants", title: "⏭️ Sans variantes" },
@@ -290,6 +302,7 @@ export const botMsg = {
       ].join("\n"),
       interactive: {
         type: "buttons",
+        header: "🏷️ Action Requise",
         buttons: [
           { id: "cancel_variant_config", title: "❌ Annuler config" },
         ],

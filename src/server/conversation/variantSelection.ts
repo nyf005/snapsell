@@ -114,10 +114,12 @@ export async function sendNextDimensionQuestion(
   const interactivePayload = maxOptions.length <= 3 
     ? {
         type: "buttons" as const,
+        header: "🏷️ Choix variante",
         buttons: maxOptions.map(opt => ({ id: `select_val:${opt}`, title: opt.slice(0, 20) })),
       }
     : {
         type: "list" as const,
+        header: "🏷️ Choix variante",
         buttonLabel: "Choisir",
         items: maxOptions.map(opt => ({ id: `select_val:${opt}`, title: opt.slice(0, 24) })),
       };

@@ -12,7 +12,6 @@ import { workerLogger } from "~/lib/logger";
 import { boss, QUEUE } from "~/server/workers/queues";
 import { env } from "~/env";
 import type { OutboundMessage } from "./types";
-import { appendBranding } from "./render";
 
 /**
  * Enqueue via QStash (production) ou pg-boss (dev/fallback).
@@ -102,16 +101,17 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
 
   if (tenant) {
     if (normalizedMessage.interactive) {
-      // Injection native UI pour les messages interactifs (mieux rendu)
-      normalizedMessage.interactive.header = tenant.shopName;
-      if (tenant.showBranding) {
-        normalizedMessage.interactive.footer = "Via SnapSell";
-      }
+      // Si le message n'a pas déjà de header (l'Action), on peut mettre le nom de la boutique.
+      // Mais puisque l'on veut l'Action en header, on ne force plus le nom de la boutique ici,
+      // on laisse le template définir le header (ou on le laisse vide pour que l'action soit le texte du body).
+      
+      // Footer dynamique selon l'abonnement (Premium vs Free)
+      normalizedMessage.interactive.footer = tenant.showBranding ? "Via SnapSell" : tenant.shopName;
     } else {
       // Injection texte pour les messages simples
-      const header = `*${tenant.shopName}*\n---\n\n`;
-      const footer = tenant.showBranding ? `\n\n_Via SnapSell_` : "";
-      normalizedMessage.body = `${header}${normalizedMessage.body}${footer}`;
+      // On ne met plus le nom de la boutique en gros en haut, l'action est déjà la première ligne.
+      const footerText = tenant.showBranding ? "_Via SnapSell_" : `_${tenant.shopName}_`;
+      normalizedMessage.body = `${normalizedMessage.body}\n\n${footerText}`;
     }
   }
 
