@@ -1,8 +1,5 @@
-/**
- * Story 8.2 Task 2: Schémas Zod pour le router catalogue
- */
-
 import { z } from "zod";
+import { idSchema } from "~/lib/validations/common";
 
 /** Création d'un article catalogue (dashboard) */
 export const createCatalogueItemInputSchema = z.object({
@@ -14,7 +11,7 @@ export const createCatalogueItemInputSchema = z.object({
 
 /** Mise à jour d'un article catalogue (dashboard) */
 export const updateCatalogueItemInputSchema = z.object({
-  id: z.string().cuid("ID invalide"),
+  id: idSchema,
   code: z.string().trim().min(1, "Code requis").optional(),
   quantity: z.number().int().min(0, "Quantité doit être >= 0").optional(),
   amount: z.number().int().nullable().optional(),
@@ -23,7 +20,7 @@ export const updateCatalogueItemInputSchema = z.object({
 
 /** Suppression d'un article catalogue (dashboard) */
 export const deleteCatalogueItemInputSchema = z.object({
-  id: z.string().cuid("ID invalide"),
+  id: idSchema,
 });
 
 /** Output : article catalogue pour le dashboard */
@@ -48,7 +45,7 @@ export type CatalogueItemOutput = z.infer<typeof catalogueItemOutputSchema>;
 
 /** Upsert d'une liste de variantes sur un article catalogue */
 export const upsertVariantsInputSchema = z.object({
-  catalogueItemId: z.string().cuid(),
+  catalogueItemId: idSchema,
   /** Dimensions de l'article (ex: ["Couleur", "Taille"]) — persisté sur `attributes` */
   dimensions: z.array(z.string().trim().min(1)).max(3),
   /** Variantes à créer / remplacer */
@@ -60,11 +57,11 @@ export const upsertVariantsInputSchema = z.object({
 });
 
 export const deleteVariantsInputSchema = z.object({
-  catalogueItemId: z.string().cuid(),
+  catalogueItemId: idSchema,
 });
 
 export const listVariantsInputSchema = z.object({
-  catalogueItemId: z.string().cuid(),
+  catalogueItemId: idSchema,
 });
 
 export const itemVariantOutputSchema = z.object({

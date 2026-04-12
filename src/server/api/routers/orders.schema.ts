@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { idSchema } from "~/lib/validations/common";
 
 const orderStatusSchema = z.enum([
   "confirmed",
@@ -36,11 +37,11 @@ export const listOrdersInputSchema = z
   );
 
 export const getOrderByIdInputSchema = z.object({
-  orderId: z.string().min(1),
+  orderId: idSchema,
 });
 
 export const updateOrderStatusInputSchema = z.object({
-  orderId: z.string().min(1),
+  orderId: idSchema,
   status: orderStatusSchema,
 });
 
@@ -49,7 +50,7 @@ export const exportCsvOrdersInputSchema = listOrdersInputSchema;
 
 /** Phase 4.2: bulk marking statut sur plusieurs commandes */
 export const bulkUpdateStatusInputSchema = z.object({
-  orderIds: z.array(z.string().min(1)).min(1).max(200),
+  orderIds: z.array(idSchema).min(1).max(200),
   status: orderStatusSchema,
 });
 

@@ -5,7 +5,7 @@
 
 import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, managerProcedure } from "~/server/api/trpc";
 import { dashboardSummaryOutputSchema } from "./dashboard.schema";
 import { getCurrentSessionReadOnly } from "~/server/live-session/service";
 
@@ -45,13 +45,10 @@ export function getLast7DaysRanges(now: Date = new Date()): { date: string; from
 }
 
 export const dashboardRouter = createTRPCRouter({
-  getSummary: protectedProcedure
+  getSummary: managerProcedure
     .output(dashboardSummaryOutputSchema)
     .query(async ({ ctx }) => {
-      const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-      }
+      const tenantId = ctx.tenantId;
 
       const now = new Date();
       const today = getTodayUtcRange(now);

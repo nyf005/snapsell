@@ -9,6 +9,7 @@ import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
 import {
   createTRPCRouter,
+  managerProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
 import {
@@ -18,7 +19,12 @@ import {
   listOrdersInputSchema,
   updateOrderStatusInputSchema,
 } from "./orders.schema";
-import { updateOrderStatus } from "~/server/order/service";
+import { 
+  updateOrderStatus, 
+  getOrderById, 
+  mapOrderOutput, 
+  ORDER_QUERY_INCLUDE 
+} from "~/server/order/service";
 import type { OrderStatus, Prisma } from "../../../../generated/prisma";
 
 /** Plafond export CSV (CR 6-5) : évite timeout / OOM. */
@@ -68,27 +74,13 @@ function escapeCsvCell(value: string | number | Date | null | undefined): string
   return s;
 }
 
-/** Unifie le mapping de l'objet de commande pour le dashboard. */
-function mapOrderOutput(o: any) {
-  return {
-    id: o.id,
-    orderNumber: o.orderNumber,
-    status: o.status,
-    depositStatus: o.depositStatus,
-    createdAt: o.createdAt,
-    updatedAt: o.updatedAt,
-    reservationId: o.reservationId,
-    clientPhone: o.reservation.clientPhone,
-    deliveryAddress: o.reservation.address ?? null,
-    liveItemCode: o.reservation.catalogueItem?.code ?? o.reservation.liveItem?.code ?? null,
-  };
-}
+
 
 export const ordersRouter = createTRPCRouter({
-  list: protectedProcedure
+  list: managerProcedure
     .input(listOrdersInputSchema)
     .query(async ({ ctx, input }) => {
-      const tenantId = ctx.session.user.tenantId;
+      const tenantId = ctx.tenantId;
       const where = buildOrdersWhere(tenantId, {
         status: input?.status,
         dateFrom: input?.dateFrom,
@@ -97,37 +89,16 @@ export const ordersRouter = createTRPCRouter({
       const orders = await db.order.findMany({
         where,
         orderBy: { createdAt: "desc" },
-        include: {
-          reservation: {
-            select: {
-              id: true,
-              clientPhone: true,
-              address: true,
-              liveItemId: true,
-              liveItem: { select: { code: true } },
-              catalogueItemId: true,
-              catalogueItem: { select: { code: true } },
-            },
-          },
-        },
+        include: ORDER_QUERY_INCLUDE,
       });
       return orders.map(mapOrderOutput);
     }),
 
   /** Story 6.5: Export CSV commandes. Réservé OWNER/MANAGER. */
-  exportCsv: protectedProcedure
+  exportCsv: managerProcedure
     .input(exportCsvOrdersInputSchema)
     .query(async ({ ctx, input }) => {
-      const role = ctx.session.user.role as string | undefined;
-      // Note: On pourrait utiliser managerProcedure ici si on veut restreindre strictement, 
-      // mais on garde la logique de "hasExportCsv" en plus.
-      if (role !== "OWNER" && role !== "MANAGER") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Seuls les managers ou propriétaires peuvent exporter les commandes en CSV.",
-        });
-      }
-      const tenantId = ctx.session.user.tenantId;
+      const tenantId = ctx.tenantId;
       const tenantFeatures = await db.tenant.findUnique({
         where: { id: tenantId },
         select: { hasExportCsv: true },
@@ -181,33 +152,21 @@ export const ordersRouter = createTRPCRouter({
       return { csv, filename };
     }),
 
-  getById: protectedProcedure
+  getById: managerProcedure
     .input(getOrderByIdInputSchema)
     .query(async ({ ctx, input }) => {
-      const tenantId = ctx.session.user.tenantId;
-      const order = await db.order.findFirst({
-        where: { id: input.orderId, tenantId },
-        include: {
-          reservation: {
-            select: {
-              clientPhone: true,
-              liveItem: { select: { code: true } },
-              catalogueItem: { select: { code: true } },
-            },
-          },
-        },
-      });
+      const order = await getOrderById(ctx.tenantId, input.orderId);
       if (!order) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Commande introuvable." });
       }
-      return mapOrderOutput(order);
+      return order;
     }),
 
-  updateStatus: protectedProcedure
+  updateStatus: managerProcedure
     .input(updateOrderStatusInputSchema)
     .mutation(async ({ ctx, input }) => {
       const result = await updateOrderStatus({
-        tenantId: ctx.session.user.tenantId,
+        tenantId: ctx.tenantId,
         orderId: input.orderId,
         newStatus: input.status as OrderStatus,
       });
@@ -227,10 +186,10 @@ export const ordersRouter = createTRPCRouter({
     }),
 
   /** Phase 4.2: Bulk marking de plusieurs commandes vers un même statut (ex: "delivered"). */
-  bulkUpdateStatus: protectedProcedure
+  bulkUpdateStatus: managerProcedure
     .input(bulkUpdateStatusInputSchema)
     .mutation(async ({ ctx, input }) => {
-      const tenantId = ctx.session.user.tenantId;
+      const tenantId = ctx.tenantId;
 
       const results = await Promise.all(
         input.orderIds.map(async (orderId) => {

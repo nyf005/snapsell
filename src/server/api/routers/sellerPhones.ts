@@ -2,40 +2,25 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { e164PhoneSchema, normalizeIncomingPhone } from "~/lib/validations/phone";
-import { canManageGrid } from "~/lib/rbac";
 import { db } from "~/server/db";
 import {
   createTRPCRouter,
-  protectedProcedure,
+  managerProcedure,
 } from "~/server/api/trpc";
 
+import { idSchema, phoneStringSchema } from "~/lib/validations/common";
+
 const addSellerPhoneInputSchema = z.object({
-  phoneNumber: z
-    .string()
-    .min(1, "Le numéro est requis")
-    .transform((s) => s.trim())
-    .pipe(e164PhoneSchema),
+  phoneNumber: phoneStringSchema.pipe(e164PhoneSchema),
 });
 
 const removeSellerPhoneInputSchema = z.object({
-  id: z.string().min(1, "L’identifiant est requis"),
+  id: idSchema,
 });
 
 export const sellerPhonesRouter = createTRPCRouter({
-  list: protectedProcedure.query(async ({ ctx }) => {
-    if (!canManageGrid(ctx.session.user.role as string)) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Seuls Owner et Manager peuvent gérer les numéros vendeur.",
-      });
-    }
-    const tenantId = ctx.session.user.tenantId;
-    if (tenantId == null || tenantId === "") {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Tenant non identifié.",
-      });
-    }
+  list: managerProcedure.query(async ({ ctx }) => {
+    const tenantId = ctx.tenantId;
     const list = await db.sellerPhone.findMany({
       where: { tenantId },
       orderBy: { createdAt: "asc" },
@@ -44,67 +29,51 @@ export const sellerPhonesRouter = createTRPCRouter({
     return list;
   }),
 
-  add: protectedProcedure
+  add: managerProcedure
     .input(addSellerPhoneInputSchema)
     .mutation(async ({ ctx, input }) => {
-      if (!canManageGrid(ctx.session.user.role as string)) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Seuls Owner et Manager peuvent ajouter un numéro vendeur.",
-        });
-      }
-      const tenantId = ctx.session.user.tenantId;
-      if (tenantId == null || tenantId === "") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Tenant non identifié.",
-        });
-      }
+      const tenantId = ctx.tenantId;
+
       // Migration CI & Normalisation : stocker toujours en format 10 chiffres E.164
       const phoneNumber = normalizeIncomingPhone(input.phoneNumber);
+      
       const existing = await db.sellerPhone.findUnique({
         where: {
           tenantId_phoneNumber: { tenantId, phoneNumber },
         },
       });
+      
       if (existing) {
         throw new TRPCError({
           code: "CONFLICT",
           message: "Ce numéro est déjà enregistré pour ce compte.",
         });
       }
+      
       const created = await db.sellerPhone.create({
         data: { tenantId, phoneNumber },
         select: { id: true, phoneNumber: true, createdAt: true },
       });
+      
       return created;
     }),
 
-  remove: protectedProcedure
+  remove: managerProcedure
     .input(removeSellerPhoneInputSchema)
     .mutation(async ({ ctx, input }) => {
-      if (!canManageGrid(ctx.session.user.role as string)) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Seuls Owner et Manager peuvent retirer un numéro vendeur.",
-        });
-      }
-      const tenantId = ctx.session.user.tenantId;
-      if (tenantId == null || tenantId === "") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Tenant non identifié.",
-        });
-      }
+      const tenantId = ctx.tenantId;
+      
       const deleted = await db.sellerPhone.deleteMany({
         where: { id: input.id, tenantId },
       });
+      
       if (deleted.count === 0) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Numéro vendeur introuvable ou déjà supprimé.",
         });
       }
+      
       return { ok: true };
     }),
 });
