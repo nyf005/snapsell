@@ -3,7 +3,6 @@ import { Prisma } from "../../../../generated/prisma";
 
 import { canManageGrid } from "~/lib/rbac";
 import {
-  normalizeAndValidatePhoneNumber,
   normalizeIncomingPhone,
 } from "~/lib/validations/phone";
 import { workerLogger } from "~/lib/logger";
@@ -24,8 +23,8 @@ import {
   MetaEmbeddedSignupError,
   resolveMetaEmbeddedSignupCredentials,
 } from "~/server/messaging/providers/meta/embedded-signup";
-import { env } from "~/env";
 
+import { env } from "~/env";
 function normalizeMetaBusinessPhoneToE164(metaDisplayPhone: string): string {
   const cleaned = metaDisplayPhone.replace(/[^\d+]/g, "");
   const withPlus = cleaned.startsWith("+") ? cleaned : `+${cleaned}`;
@@ -380,14 +379,9 @@ export const settingsRouter = createTRPCRouter({
           });
         });
       } catch (error) {
-        if (
-          error &&
-          typeof error === "object" &&
-          "code" in error &&
-          error.code === "P2002"
-        ) {
-          const target = Array.isArray((error as any).meta?.target)
-            ? (error as any).meta.target.join(",")
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+          const target = Array.isArray(error.meta?.target)
+            ? error.meta.target.join(",")
             : "";
           if (target === "" || target.includes("meta_phone_number_id")) {
             throw new TRPCError({
