@@ -209,6 +209,18 @@ export function VariantsSection({
   const totalStock = variants.reduce((s, v) => s + v.quantity, 0);
   const isSubmitting = upsertMutation.isPending || deleteMutation.isPending;
 
+  // ── Pagination ────────────────────────────────────────────────────────
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(variants.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const pagedVariants = variants.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset to page 1 if variants length changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [variants.length]);
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* HEADER */}
@@ -321,28 +333,28 @@ export function VariantsSection({
       {/* STEP 3: VARIANT GRID */}
       {variants.length > 0 && (
         <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
-          <div className="flex items-center justify-between px-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
             <Label className="text-xs font-bold text-indigo-500/80 flex items-center gap-2">
               <Zap className="h-3.5 w-3.5 fill-indigo-500" />
               Saisie rapide du stock
             </Label>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-emerald-500/5 p-1 rounded-lg border border-emerald-500/10">
               <Input
                 type="number"
                 placeholder="Qté"
                 value={bulkQty}
                 onChange={(e) => setBulkQty(e.target.value)}
-                className="h-7 w-16 text-xs text-center focus-visible:ring-emerald-500"
+                className="h-7 w-16 text-xs text-center focus-visible:ring-emerald-500 bg-background border-transparent"
               />
               <Button 
                 type="button" 
-                variant="outline" 
+                variant="ghost" 
                 size="sm" 
-                className="h-7 text-[10px] font-bold border-emerald-500/20 hover:bg-emerald-500/10 hover:text-emerald-600 text-emerald-500"
+                className="h-7 text-[10px] font-black uppercase border-emerald-500/20 hover:bg-emerald-500/20 hover:text-emerald-700 text-emerald-600 transition-all px-3"
                 onClick={applyBulkQuantity}
               >
-                APPLIQUER À TOUS
+                Appliquer à tous
               </Button>
             </div>
           </div>
@@ -351,26 +363,30 @@ export function VariantsSection({
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/30 hover:bg-muted/30">
-                  <TableHead className="text-[10px] font-bold uppercase h-9">Variante</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase h-9 text-right w-32">Quantité en stock</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase h-9 px-4">Variante</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase h-9 text-right w-32 px-4">Stock</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {variants.map((v) => (
+                {pagedVariants.map((v) => (
                   <TableRow key={v.key} className="h-11 hover:bg-indigo-500/[0.02] transition-colors group">
-                    <TableCell className="py-2 text-xs font-medium">
+                    <TableCell className="py-2 px-4 text-xs font-medium">
                       <div className="flex items-center gap-2">
                         {v.label.split(" / ").map((part, i) => (
                           <span key={i} className="flex items-center gap-2">
-                            {part}
+                            <span className={cn(
+                              "px-1.5 py-0.5 rounded text-[10px] font-bold",
+                              i === 0 ? "bg-indigo-500/5 text-indigo-600" :
+                              i === 1 ? "bg-emerald-500/5 text-emerald-600" : "bg-amber-500/5 text-amber-600"
+                            )}>{part}</span>
                             {i < v.label.split(" / ").length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground/30" />}
                           </span>
                         ))}
                       </div>
                     </TableCell>
-                    <TableCell className="py-2 text-right">
-                      <div className="flex items-center justify-end gap-2 group-hover:translate-x-[-4px] transition-transform">
-                        {v.quantity > 0 && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
+                    <TableCell className="py-2 px-4 text-right">
+                      <div className="flex items-center justify-end gap-2 transition-transform">
+                        {v.quantity > 0 && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 animate-in zoom-in duration-300" />}
                         <Input
                           type="number"
                           min={0}
@@ -379,7 +395,7 @@ export function VariantsSection({
                             const val = parseInt(e.target.value, 10) || 0;
                             setVariants(prev => prev.map(rv => rv.key === v.key ? { ...rv, quantity: Math.max(0, val) } : rv));
                           }}
-                          className="h-8 w-20 text-right text-xs bg-muted/20 font-mono"
+                          className="h-8 w-20 text-right text-xs bg-muted/20 font-mono focus-visible:bg-background transition-colors"
                         />
                       </div>
                     </TableCell>
@@ -387,11 +403,43 @@ export function VariantsSection({
                 ))}
               </TableBody>
             </Table>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-4 py-2 bg-muted/20 border-t border-border/40">
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
+                  Page <span className="text-foreground font-bold">{currentPage}</span> sur <span className="text-foreground font-bold">{totalPages}</span>
+                </p>
+                <div className="flex gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(prev => prev - 1)}
+                    className="h-7 px-3 text-[10px] font-bold uppercase"
+                  >
+                    Précédent
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(prev => prev + 1)}
+                    className="h-7 px-3 text-[10px] font-bold uppercase"
+                  >
+                    Suivant
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
           
-          <div className="flex justify-end pr-2">
-            <p className="text-[11px] font-bold text-muted-foreground">
-              STOCK TOTAL CALCULÉ : <span className="text-indigo-500 ml-1">{totalStock.toLocaleString()}</span>
+          <div className="flex justify-between items-center px-1">
+            <p className="text-[10px] text-muted-foreground font-medium italic">
+              * La modification de la quantité est sauvegardée automatiquement localement.
+            </p>
+            <p className="text-[11px] font-black text-muted-foreground uppercase tracking-tight">
+              STOCK TOTAL : <span className="text-indigo-600 ml-1 text-sm">{totalStock.toLocaleString()} UNITES</span>
             </p>
           </div>
         </div>
@@ -412,12 +460,12 @@ export function VariantsSection({
             type="button"
             variant="ghost"
             size="sm"
-            className="text-destructive hover:text-destructive hover:bg-destructive/10 text-[10px] font-bold uppercase tracking-wider"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10 text-[10px] font-black uppercase tracking-wider"
             disabled={isSubmitting}
             onClick={() => deleteMutation.mutate({ catalogueItemId })}
           >
             <Trash2 className="h-3.5 w-3.5 mr-2" />
-            Réinitialiser toutes les variantes
+            Réinitialiser l'article
           </Button>
         )}
         
@@ -425,12 +473,12 @@ export function VariantsSection({
           <Button
             type="button"
             size="lg"
-            className="flex-1 sm:flex-none h-10 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-indigo-500/20"
+            className="flex-1 sm:flex-none h-11 px-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-widest shadow-xl shadow-indigo-500/30 transition-all hover:translate-y-[-1px] active:translate-y-[1px]"
             disabled={isSubmitting || variants.length === 0}
             onClick={handleSave}
           >
             {isSubmitting ? <Spinner className="h-4 w-4 mr-2" /> : <Zap className="h-4 w-4 mr-2 fill-current" />}
-            Mettre à jour le stock
+            Enregistrer le stock
           </Button>
         </div>
       </div>

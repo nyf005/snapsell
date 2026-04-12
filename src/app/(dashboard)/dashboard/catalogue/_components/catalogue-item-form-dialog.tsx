@@ -304,7 +304,7 @@ export function CatalogueItemFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-3xl max-h-[95vh] overflow-y-auto overflow-x-hidden custom-scrollbar">
         <DialogHeader>
           <DialogTitle>
             {item ? "Modifier l'article" : "Ajouter un article"}
