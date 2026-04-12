@@ -206,7 +206,21 @@ export async function processWebhookJob(
   job: PgBossJob<InboundMessage>,
 ): Promise<EnrichedInboundMessage> {
   const startTime = Date.now();
-  const { tenantId, providerMessageId, from, body, mediaUrl, correlationId, interactiveReplyId } = job.data;
+  const { tenantId: rawTenantId, providerMessageId, from, body, mediaUrl, correlationId, interactiveReplyId } = job.data;
+
+  // Narrowing de tenantId pour TypeScript : si on n'a pas de tenantId, on s'arrête là
+  if (!rawTenantId) {
+    workerLogger.warn("Webhook processing aborted: tenantId is null", { providerMessageId, from });
+    return {
+      tenantId: null,
+      providerMessageId,
+      from,
+      body,
+      correlationId,
+      messageType: "client",
+    };
+  }
+  const tenantId = rawTenantId;
 
   workerLogger.info("Processing webhook job", {
     correlationId,
@@ -224,26 +238,23 @@ export async function processWebhookJob(
     const messageType = await determineMessageType(tenantId, from);
 
     // Récupération préventive du tenant pour optimiser les appels DB (unification)
-    const currentTenantId = tenantId;
-    const tenant = currentTenantId
-      ? await db.tenant.findUnique({
-        where: { id: currentTenantId },
-        select: {
-          name: true,
-          metaPhoneNumberId: true,
-          metaAccessToken: true,
-          requireDeposit: true,
-          faqDelivery: true,
-          faqPayment: true,
-          faqLocation: true,
-          faqAvailability: true,
-        },
-      })
-      : null;
+    const tenant = await db.tenant.findUnique({
+      where: { id: tenantId },
+      select: {
+        name: true,
+        metaPhoneNumberId: true,
+        metaAccessToken: true,
+        requireDeposit: true,
+        faqDelivery: true,
+        faqPayment: true,
+        faqLocation: true,
+        faqAvailability: true,
+      },
+    });
 
     // Story 11.2: Envoyer l'indicateur de frappe EN DIRECT (sans passer par l'outbox)
     // pour que l'affichage soit instantané (sub-second) côté client.
-    if (currentTenantId && tenant?.metaPhoneNumberId && tenant?.metaAccessToken) {
+    if (tenant?.metaPhoneNumberId && tenant?.metaAccessToken) {
       // On lance en arrière-plan sans 'await' pour ne pas ralentir le traitement principal
       (async () => {
         try {
@@ -252,7 +263,7 @@ export async function processWebhookJob(
             decrypt(tenant.metaAccessToken),
           );
           await adapter.send({
-            tenantId: currentTenantId,
+            tenantId,
             to: from,
             isTypingIndicator: true,
             correlationId: correlationId, // On passe directement le wamid réel
