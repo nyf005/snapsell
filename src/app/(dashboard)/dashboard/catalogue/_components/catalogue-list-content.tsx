@@ -34,6 +34,8 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2, PackageOpen, ImageOff } from "lucide-react";
 import { CatalogueItemFormDialog } from "./catalogue-item-form-dialog";
+import { cn } from "~/lib/utils";
+
 import type { CatalogueItemOutput } from "~/server/api/routers/catalogue.schema";
 import { getCatalogueOriginLabel, isLiveCatalogueOrigin } from "~/server/catalogue/origin";
 
