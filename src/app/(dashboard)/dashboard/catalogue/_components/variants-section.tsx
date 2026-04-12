@@ -15,10 +15,21 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { Plus, Trash2, Layers, X, AlertTriangle } from "lucide-react";
+import { 
+  Plus, 
+  Trash2, 
+  Layers, 
+  X, 
+  AlertTriangle, 
+  Settings2, 
+  ArrowRight,
+  Zap,
+  CheckCircle2
+} from "lucide-react";
+import { cn } from "~/lib/utils";
 
 type VariantRow = {
-  key: string; // local-only, used as React key
+  key: string; 
   label: string;
   values: Record<string, string>;
   quantity: number;
@@ -38,15 +49,13 @@ type VariantsSectionProps = {
   onSaveSuccess?: () => void;
 };
 
-function buildLabel(dims: string[], values: Record<string, string>) {
-  return dims.map((d) => values[d] ?? "").filter(Boolean).join(" / ");
-}
-
 function generateCombinations(dims: string[], options: Record<string, string[]>): VariantRow[] {
   if (dims.length === 0) return [];
   const [first, ...rest] = dims;
   if (!first) return [];
   const firstVals = options[first] ?? [];
+  if (firstVals.length === 0) return rest.length > 0 ? generateCombinations(rest, options) : [];
+  
   if (rest.length === 0) {
     return firstVals.map((v) => ({
       key: v,
@@ -55,7 +64,17 @@ function generateCombinations(dims: string[], options: Record<string, string[]>)
       quantity: 0,
     }));
   }
+  
   const subCombos = generateCombinations(rest, options);
+  if (subCombos.length === 0) {
+    return firstVals.map((v) => ({
+      key: v,
+      label: v,
+      values: { [first]: v },
+      quantity: 0,
+    }));
+  }
+
   return firstVals.flatMap((v) =>
     subCombos.map((sub) => ({
       key: `${v}-${sub.key}`,
@@ -72,28 +91,17 @@ export function VariantsSection({
   initialVariants = [],
   onSaveSuccess,
 }: VariantsSectionProps) {
-  // ── Dimensions ──────────────────────────────────────────────────────────
   const [dimensions, setDimensions] = useState<string[]>(initialDimensions);
   const [dimInput, setDimInput] = useState("");
-
-  // ── Options per dimension ────────────────────────────────────────────────
-  // e.g. { Couleur: ["Rouge", "Bleu"], Taille: ["S", "M", "L"] }
   const [dimOptions, setDimOptions] = useState<Record<string, string[]>>({});
   const [optionInput, setOptionInput] = useState<Record<string, string>>({});
-
-  // ── Variant rows (auto-generated from combinations) ──────────────────────
   const [variants, setVariants] = useState<VariantRow[]>([]);
-
-  // ── Error / status ────────────────────────────────────────────────────────
   const [formError, setFormError] = useState<string | null>(null);
+  const [bulkQty, setBulkQty] = useState<string>("");
 
   const upsertMutation = api.catalogue.upsertVariants.useMutation({
-    onSuccess: () => {
-      onSaveSuccess?.();
-    },
-    onError: (err) => {
-      setFormError(err.message);
-    },
+    onSuccess: () => onSaveSuccess?.(),
+    onError: (err) => setFormError(err.message),
   });
 
   const deleteMutation = api.catalogue.deleteVariants.useMutation({
@@ -106,15 +114,12 @@ export function VariantsSection({
     onError: (err) => setFormError(err.message),
   });
 
-  // Bootstrap from props when opening an existing item
   useEffect(() => {
     if (initialDimensions.length > 0 && initialVariants.length > 0) {
       setDimensions(initialDimensions);
-      // Reconstruct options from existing variants
       const opts: Record<string, string[]> = {};
       for (const dim of initialDimensions) {
-        const vals = [...new Set(initialVariants.map((v) => v.values[dim]).filter(Boolean) as string[])];
-        opts[dim] = vals;
+        opts[dim] = [...new Set(initialVariants.map((v) => v.values[dim]).filter(Boolean) as string[])];
       }
       setDimOptions(opts);
       setVariants(
@@ -122,34 +127,31 @@ export function VariantsSection({
           key: v.id,
           label: v.label,
           values: v.values as Record<string, string>,
-          quantity: v.availableQty, // use availableQty for editing
+          quantity: v.availableQty,
         }))
       );
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialDimensions, initialVariants]);
 
-  // Regenerate combinations whenever dims or options change
   const regenerateCombinations = (dims: string[], opts: Record<string, string[]>) => {
     const combos = generateCombinations(dims, opts);
     setVariants((prev) =>
       combos.map((c) => {
-        // Preserve quantity if this combination already existed
         const existing = prev.find((p) => p.label === c.label);
         return existing ? { ...c, quantity: existing.quantity } : c;
       })
     );
   };
 
-  // ── Dimension management ─────────────────────────────────────────────────
   const addDimension = () => {
     const dim = dimInput.trim();
     if (!dim || dimensions.includes(dim) || dimensions.length >= 3) return;
     const newDims = [...dimensions, dim];
     setDimensions(newDims);
     setDimInput("");
-    setDimOptions((prev) => ({ ...prev, [dim]: [] }));
-    regenerateCombinations(newDims, { ...dimOptions, [dim]: [] });
+    const newOpts = { ...dimOptions, [dim]: [] };
+    setDimOptions(newOpts);
+    regenerateCombinations(newDims, newOpts);
   };
 
   const removeDimension = (dim: string) => {
@@ -161,12 +163,14 @@ export function VariantsSection({
     regenerateCombinations(newDims, newOpts);
   };
 
-  // ── Option management ────────────────────────────────────────────────────
   const addOption = (dim: string) => {
     const val = (optionInput[dim] ?? "").trim();
     if (!val) return;
     const current = dimOptions[dim] ?? [];
-    if (current.includes(val)) return;
+    if (current.includes(val)) {
+      setOptionInput((prev) => ({ ...prev, [dim]: "" }));
+      return;
+    }
     const newOpts = { ...dimOptions, [dim]: [...current, val] };
     setDimOptions(newOpts);
     setOptionInput((prev) => ({ ...prev, [dim]: "" }));
@@ -179,24 +183,18 @@ export function VariantsSection({
     regenerateCombinations(dimensions, newOpts);
   };
 
-  // ── Quantity editing ─────────────────────────────────────────────────────
-  const setQuantity = (key: string, qty: number) => {
-    setVariants((prev) =>
-      prev.map((v) => (v.key === key ? { ...v, quantity: Math.max(0, qty) } : v))
-    );
+  const applyBulkQuantity = () => {
+    const qty = parseInt(bulkQty, 10);
+    if (isNaN(qty)) return;
+    setVariants((prev) => prev.map((v) => ({ ...v, quantity: Math.max(0, qty) })));
+    setBulkQty("");
   };
 
-  // ── Save ─────────────────────────────────────────────────────────────────
   const handleSave = () => {
     setFormError(null);
-    if (dimensions.length === 0) {
-      setFormError("Ajoutez au moins une dimension.");
-      return;
-    }
-    if (variants.length === 0) {
-      setFormError("Aucune variante générée. Ajoutez des valeurs à vos dimensions.");
-      return;
-    }
+    if (dimensions.length === 0) return setFormError("Définissez au moins un attribut (ex: Taille).");
+    if (variants.length === 0) return setFormError("Ajoutez des options pour générer des variantes.");
+    
     upsertMutation.mutate({
       catalogueItemId,
       dimensions,
@@ -212,163 +210,229 @@ export function VariantsSection({
   const isSubmitting = upsertMutation.isPending || deleteMutation.isPending;
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-2">
-        <Layers className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-semibold">Variantes</span>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* HEADER */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-500">
+            <Layers className="h-4 w-4" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold tracking-tight">Configuration des Variantes</h3>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Options & Stock</p>
+          </div>
+        </div>
         {variants.length > 0 && (
-          <Badge variant="secondary" className="text-xs">
-            {variants.length} combinaison{variants.length > 1 ? "s" : ""}
+          <Badge variant="secondary" className="bg-indigo-500/5 text-indigo-600 border-indigo-500/10 px-2.5 py-0.5 text-[10px] font-bold">
+            {variants.length} COMBINAISONS
           </Badge>
         )}
       </div>
 
-      {/* ── Step 1 : Dimensions ──────────────────────────────────────────── */}
-      <div className="space-y-2">
-        <Label className="text-xs text-muted-foreground uppercase tracking-wide">
-          1. Dimensions (max 3)
-        </Label>
+      {/* STEP 1: ATTRIBUTES */}
+      <div className="p-4 rounded-xl border border-border/50 bg-muted/20 space-y-4">
+        <div className="flex items-center gap-2 text-xs font-semibold text-indigo-500/80">
+          <Settings2 className="h-3.5 w-3.5" />
+          1. Définir les attributs (Couleur, Taille...)
+        </div>
+        
         <div className="flex flex-wrap gap-2">
-          {dimensions.map((dim) => (
-            <Badge key={dim} variant="outline" className="gap-1.5 pr-1.5">
-              {dim}
+          {dimensions.map((dim, idx) => (
+            <Badge 
+              key={dim} 
+              variant="secondary" 
+              className={cn(
+                "pl-3 pr-1 py-1 gap-2 border-transparent transition-all hover:border-indigo-500/30",
+                idx === 0 ? "bg-indigo-500/10 text-indigo-600" : 
+                idx === 1 ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"
+              )}
+            >
+              <span className="text-[11px] font-bold uppercase">{dim}</span>
               <button
                 type="button"
                 onClick={() => removeDimension(dim)}
-                className="rounded-full hover:bg-destructive/10 p-0.5 text-muted-foreground hover:text-destructive transition-colors"
+                className="rounded-md hover:bg-black/5 p-0.5 transition-colors"
               >
                 <X className="h-3 w-3" />
               </button>
             </Badge>
           ))}
+          {dimensions.length < 3 && (
+            <div className="relative flex-1 min-w-[150px]">
+              <Input
+                value={dimInput}
+                onChange={(e) => setDimInput(e.target.value)}
+                placeholder={dimensions.length === 0 ? "Ajouter un attribut (ex: Taille)" : "Autre attribut..."}
+                className="h-8 text-xs bg-background/50 border-dashed focus-visible:ring-indigo-500"
+                onKeyDown={(e) => { 
+                  if (e.key === "Enter") { 
+                    e.preventDefault(); 
+                    addDimension(); 
+                  } 
+                }}
+              />
+              <Plus className="absolute right-2 top-2 h-4 w-4 text-muted-foreground/30" />
+            </div>
+          )}
         </div>
-        {dimensions.length < 3 && (
-          <div className="flex gap-2">
-            <Input
-              value={dimInput}
-              onChange={(e) => setDimInput(e.target.value)}
-              placeholder="ex: Taille"
-              className="h-8 text-sm"
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addDimension(); } }}
-            />
-            <Button type="button" size="sm" variant="outline" onClick={addDimension}>
-              <Plus className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        )}
       </div>
 
-      {/* ── Step 2 : Options per dimension ──────────────────────────────── */}
+      {/* STEP 2: OPTIONS */}
       {dimensions.length > 0 && (
-        <div className="space-y-3">
-          <Label className="text-xs text-muted-foreground uppercase tracking-wide">
-            2. Valeurs par dimension
-          </Label>
-          {dimensions.map((dim) => (
-            <div key={dim} className="space-y-1.5">
-              <p className="text-xs font-medium">{dim}</p>
-              <div className="flex flex-wrap gap-1.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {dimensions.map((dim, idx) => (
+            <div key={dim} className="flex flex-col p-4 rounded-xl border border-border/40 bg-background/50 space-y-3">
+              <label className="text-[10px] font-black uppercase text-muted-foreground tracking-tighter flex items-center gap-2">
+                <div className={cn("w-1.5 h-1.5 rounded-full", 
+                  idx === 0 ? "bg-indigo-500" : idx === 1 ? "bg-emerald-500" : "bg-amber-500"
+                )} />
+                Options pour {dim}
+              </label>
+              
+              <div className="flex flex-wrap gap-1.5 min-h-[28px]">
                 {(dimOptions[dim] ?? []).map((val) => (
-                  <Badge key={val} variant="secondary" className="gap-1 pr-1">
+                  <Badge key={val} variant="outline" className="text-[10px] font-medium bg-muted/30 px-2 py-0.5 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all cursor-default group">
                     {val}
-                    <button
-                      type="button"
-                      onClick={() => removeOption(dim, val)}
-                      className="rounded-full p-0.5 hover:text-destructive transition-colors"
-                    >
-                      <X className="h-2.5 w-2.5" />
-                    </button>
+                    <X className="ml-1 h-3 w-3 opacity-30 group-hover:opacity-100 cursor-pointer" onClick={() => removeOption(dim, val)} />
                   </Badge>
                 ))}
               </div>
-              <div className="flex gap-2">
+
+              <div className="relative">
                 <Input
                   value={optionInput[dim] ?? ""}
                   onChange={(e) => setOptionInput((prev) => ({ ...prev, [dim]: e.target.value }))}
-                  placeholder={`ex: S, M, L…`}
-                  className="h-7 text-xs"
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addOption(dim); } }}
+                  placeholder="Valeur + Entrée"
+                  className="h-7 text-[11px] pr-8 focus-visible:ring-indigo-500 border-indigo-500/20"
+                  onKeyDown={(e) => { 
+                    if (e.key === "Enter") { 
+                      e.preventDefault(); 
+                      addOption(dim); 
+                    } 
+                  }}
                 />
-                <Button type="button" size="sm" variant="outline" className="h-7 px-2" onClick={() => addOption(dim)}>
-                  <Plus className="h-3 w-3" />
-                </Button>
+                <ArrowRight className="absolute right-2 top-1.5 h-4 w-4 text-indigo-500/20" />
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* ── Step 3 : Stock per combination ──────────────────────────────── */}
+      {/* STEP 3: VARIANT GRID */}
       {variants.length > 0 && (
-        <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground uppercase tracking-wide">
-            3. Stock par variante
-          </Label>
-          <div className="rounded-lg border border-border overflow-hidden">
+        <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center justify-between px-1">
+            <Label className="text-xs font-bold text-indigo-500/80 flex items-center gap-2">
+              <Zap className="h-3.5 w-3.5 fill-indigo-500" />
+              Saisie rapide du stock
+            </Label>
+            
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                placeholder="Qté"
+                value={bulkQty}
+                onChange={(e) => setBulkQty(e.target.value)}
+                className="h-7 w-16 text-xs text-center focus-visible:ring-emerald-500"
+              />
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm" 
+                className="h-7 text-[10px] font-bold border-emerald-500/20 hover:bg-emerald-500/10 hover:text-emerald-600 text-emerald-500"
+                onClick={applyBulkQuantity}
+              >
+                APPLIQUER À TOUS
+              </Button>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border/60 bg-background overflow-hidden shadow-sm">
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/30">
-                  <TableHead className="text-xs h-8">Variante</TableHead>
-                  <TableHead className="text-xs h-8 text-right w-24">Stock</TableHead>
+                <TableRow className="bg-muted/30 hover:bg-muted/30">
+                  <TableHead className="text-[10px] font-bold uppercase h-9">Variante</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase h-9 text-right w-32">Quantité en stock</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {variants.map((v) => (
-                  <TableRow key={v.key} className="h-9">
-                    <TableCell className="py-1 text-sm">{v.label}</TableCell>
-                    <TableCell className="py-1 text-right">
-                      <Input
-                        type="number"
-                        min={0}
-                        value={v.quantity}
-                        onChange={(e) => setQuantity(v.key, parseInt(e.target.value, 10) || 0)}
-                        className="h-7 w-20 text-right text-xs ml-auto"
-                      />
+                  <TableRow key={v.key} className="h-11 hover:bg-indigo-500/[0.02] transition-colors group">
+                    <TableCell className="py-2 text-xs font-medium">
+                      <div className="flex items-center gap-2">
+                        {v.label.split(" / ").map((part, i) => (
+                          <span key={i} className="flex items-center gap-2">
+                            {part}
+                            {i < v.label.split(" / ").length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground/30" />}
+                          </span>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-2 text-right">
+                      <div className="flex items-center justify-end gap-2 group-hover:translate-x-[-4px] transition-transform">
+                        {v.quantity > 0 && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
+                        <Input
+                          type="number"
+                          min={0}
+                          value={v.quantity}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10) || 0;
+                            setVariants(prev => prev.map(rv => rv.key === v.key ? { ...rv, quantity: Math.max(0, val) } : rv));
+                          }}
+                          className="h-8 w-20 text-right text-xs bg-muted/20 font-mono"
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
-          <p className="text-xs text-muted-foreground text-right">
-            Stock total : <strong>{totalStock}</strong>
-          </p>
+          
+          <div className="flex justify-end pr-2">
+            <p className="text-[11px] font-bold text-muted-foreground">
+              STOCK TOTAL CALCULÉ : <span className="text-indigo-500 ml-1">{totalStock.toLocaleString()}</span>
+            </p>
+          </div>
         </div>
       )}
 
-      {/* ── Errors ──────────────────────────────────────────────────────── */}
+      {/* ERRORS/FEEDBACK */}
       {formError && (
-        <div className="flex items-start gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-          <span>{formError}</span>
+        <div className="flex items-center gap-3 rounded-xl bg-destructive/5 border border-destructive/20 p-4 text-xs text-destructive animate-in shake-in duration-300">
+          <AlertTriangle className="h-5 w-5 shrink-0" />
+          <span className="font-semibold">{formError}</span>
         </div>
       )}
 
-      {/* ── Actions ─────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between pt-1">
+      {/* ACTIONS FOOTER */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border/40">
         {variants.length > 0 && (
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="text-destructive hover:text-destructive hover:bg-destructive/10 text-xs"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10 text-[10px] font-bold uppercase tracking-wider"
             disabled={isSubmitting}
             onClick={() => deleteMutation.mutate({ catalogueItemId })}
           >
-            <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-            Supprimer toutes les variantes
+            <Trash2 className="h-3.5 w-3.5 mr-2" />
+            Réinitialiser toutes les variantes
           </Button>
         )}
-        <Button
-          type="button"
-          size="sm"
-          className="ml-auto"
-          disabled={isSubmitting || variants.length === 0}
-          onClick={handleSave}
-        >
-          {isSubmitting ? <Spinner className="h-4 w-4 mr-2" /> : null}
-          Enregistrer les variantes
-        </Button>
+        
+        <div className="flex gap-3 w-full sm:w-auto">
+          <Button
+            type="button"
+            size="lg"
+            className="flex-1 sm:flex-none h-10 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-indigo-500/20"
+            disabled={isSubmitting || variants.length === 0}
+            onClick={handleSave}
+          >
+            {isSubmitting ? <Spinner className="h-4 w-4 mr-2" /> : <Zap className="h-4 w-4 mr-2 fill-current" />}
+            Mettre à jour le stock
+          </Button>
+        </div>
       </div>
     </div>
   );
