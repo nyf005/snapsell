@@ -257,7 +257,7 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: `configure_variants:${code}`, title: "⚙️ Variantes" },
+          { id: `configure_variants:${code}`, title: "🏷️ Variantes" },
           { id: "no_variants", title: "⏭️ Sans variantes" },
         ],
       } satisfies InteractivePayload,
@@ -269,7 +269,7 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: `configure_variants:${code}`, title: "⚙️ Variantes" },
+          { id: `configure_variants:${code}`, title: "🏷️ Variantes" },
           { id: "no_variants", title: "⏭️ Sans variantes" },
         ],
       } satisfies InteractivePayload,
@@ -278,7 +278,7 @@ export const botMsg = {
     /** Instructions de configuration des variantes par le vendeur (Story 8.2) */
     variantConfigInstructionsInteractive: (code: string, dimExample: string, example: string): InteractiveMessage => ({
       body: [
-        `⚙️ Configuration des variantes pour *${code}* (${dimExample})`,
+        `🏷️ Configuration des variantes pour *${code}* (${dimExample})`,
         ``,
         `Répondez avec vos variantes dans ce format :`,
         `\`Label:stock, Label:stock\``,
