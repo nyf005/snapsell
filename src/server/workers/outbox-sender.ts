@@ -32,9 +32,10 @@ export async function processOutboundMessage(messageOut: {
   id: string;
   tenantId: string;
   to: string;
-  body: string;
+  body?: string | null;
   mediaUrl?: string | null;
   interactivePayload?: unknown;
+  isTypingIndicator?: boolean;
   status: string;
   attempts: number;
   correlationId: string;
@@ -125,8 +126,9 @@ export async function processOutboundMessage(messageOut: {
     const outboundMessage: OutboundMessage = {
       tenantId,
       to,
-      body,
+      body: body ?? undefined,
       correlationId,
+      isTypingIndicator: !!messageOut.isTypingIndicator,
       ...(resolvedMediaUrl ? { mediaUrl: resolvedMediaUrl } : {}),
       ...(messageOut.interactivePayload
         ? { interactive: messageOut.interactivePayload as InteractivePayload }

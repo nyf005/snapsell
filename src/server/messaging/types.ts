@@ -68,6 +68,8 @@ export interface OutboundMessage {
   mediaUrl?: string; // Story 9.4: URL média ou clé R2 storage (signée à l'envoi par outbox-sender)
   /** Payload interactif optionnel (boutons ou liste). Si absent → texte brut. */
   interactive?: InteractivePayload;
+  /** Si vrai, affiche l'indicateur "en train d'écrire..." (typing indicator) Story 11.2 */
+  isTypingIndicator?: boolean;
 }
 
 /**

@@ -221,6 +221,16 @@ export async function processWebhookJob(
     // Déterminer le type de message (vendeur vs client)
     const messageType = await determineMessageType(tenantId, from);
 
+    // Story 11.2: Envoyer systématiquement un indicateur "en train d'écrire..." (typing indicator)
+    if (tenantId) {
+      await writeToOutbox({
+        tenantId,
+        to: from,
+        isTypingIndicator: true,
+        correlationId,
+      }).catch(err => workerLogger.debug("Error sending typing indicator", err));
+    }
+
     const processingTime = Date.now() - startTime;
 
     workerLogger.info("Message type determined", {

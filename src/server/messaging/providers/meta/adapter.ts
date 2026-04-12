@@ -242,6 +242,18 @@ export class MetaCloudAdapter implements MessagingProvider {
   private buildRequestBody(message: OutboundMessage, recipient: string): Record<string, unknown> {
     const toNumber = recipient.replace(/^\+/, "");
 
+    if (message.isTypingIndicator) {
+      return {
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: toNumber,
+        type: "typing_indicator",
+        typing_indicator: {
+          type: "text",
+        },
+      };
+    }
+
     if (message.mediaUrl) {
       const mediaType = isDocumentUrl(message.mediaUrl) ? "document" : "image";
       return {

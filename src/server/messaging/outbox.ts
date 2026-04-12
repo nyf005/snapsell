@@ -66,10 +66,11 @@ const interactivePayloadSchema = z.discriminatedUnion("type", [
 const outboundMessageSchema = z.object({
   tenantId: z.string().min(1),
   to: z.string().min(1), // Format E.164 normalisé
-  body: z.string().min(1),
+  body: z.string().optional(), // Story 11.2: Optionnel pour les typing indicators
   correlationId: z.string().min(1), // UUID ou message_sid pour traçabilité
   mediaUrl: z.string().min(1).optional(), // Story 9.4: clé R2 storage ou URL média
   interactive: interactivePayloadSchema.optional(),
+  isTypingIndicator: z.boolean().optional(),
 });
 
 /**
@@ -83,7 +84,7 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
   id: string;
   tenantId: string;
   to: string;
-  body: string;
+  body?: string | null;
   status: string;
   attempts: number;
   correlationId: string;
@@ -99,7 +100,7 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
     select: { name: true, showBranding: true },
   });
 
-  if (tenant) {
+  if (tenant && !normalizedMessage.isTypingIndicator) {
     const shopName = tenant.name;
     if (normalizedMessage.interactive) {
       // Si le message n'a pas déjà de header (l'Action), on peut mettre le nom de la boutique.
@@ -108,7 +109,7 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
       
       // Footer dynamique selon l'abonnement (Premium vs Free)
       normalizedMessage.interactive.footer = tenant.showBranding ? "Via SnapSell" : shopName;
-    } else {
+    } else if (normalizedMessage.body) {
       // Injection texte pour les messages simples
       // On ne met plus le nom de la boutique en gros en haut, l'action est déjà la première ligne.
       const footerText = tenant.showBranding ? "_Via SnapSell_" : `_${shopName}_`;
@@ -131,9 +132,10 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
       data: {
         tenantId: validatedMessage.tenantId,
         to: validatedMessage.to,
-        body: validatedMessage.body,
+        body: validatedMessage.body ?? null,
         mediaUrl: validatedMessage.mediaUrl ?? null,
         interactivePayload: validatedMessage.interactive ?? undefined,
+        isTypingIndicator: validatedMessage.isTypingIndicator ?? false,
         status: "pending",
         attempts: 0,
         correlationId: validatedMessage.correlationId,
