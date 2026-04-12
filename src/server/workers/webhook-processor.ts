@@ -252,31 +252,8 @@ export async function processWebhookJob(
       },
     });
 
-    // Story 11.2: Envoyer l'indicateur de frappe EN DIRECT (sans passer par l'outbox)
-    // pour que l'affichage soit instantané (sub-second) côté client.
-    const metaPhoneNumberId = tenant?.metaPhoneNumberId;
-    const metaAccessToken = tenant?.metaAccessToken;
-
-    if (metaPhoneNumberId && metaAccessToken) {
-      // On lance en arrière-plan sans 'await' pour ne pas ralentir le traitement principal
-      (async () => {
-        try {
-          const adapter = new MetaCloudAdapter(
-            metaPhoneNumberId,
-            decrypt(metaAccessToken),
-          );
-          await adapter.send({
-            tenantId,
-            to: from,
-            isTypingIndicator: true,
-            correlationId: correlationId, // On passe directement le wamid réel
-          });
-          workerLogger.debug("Direct typing indicator sent", { correlationId });
-        } catch (err) {
-          workerLogger.debug("Non-critical error: direct typing indicator failed", { error: err });
-        }
-      })();
-    }
+    // Story 11.2: L'indicateur de frappe est désormais géré en direct dans la route API Meta
+    // pour garantir une réactivité sub-seconde et contourner la latence de la queue.
 
     const processingTime = Date.now() - startTime;
 

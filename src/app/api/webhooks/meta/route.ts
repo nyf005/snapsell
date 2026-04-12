@@ -262,6 +262,17 @@ export async function POST(request: Request) {
           tenantId: tenant.id,
           correlationId: message.correlationId,
         };
+
+        // Story 11.2: Envoyer l'indicateur de frappe IMMEDIATEMENT (avant la queue)
+        // pour supprimer la latence du polling PG-Boss (env. 5s).
+        // On ne l'attend pas (pas de 'await') pour garder la route API ultra-rapide (< 1s).
+        adapter.send({
+          tenantId: tenant.id,
+          to: message.from,
+          isTypingIndicator: true,
+          correlationId: message.providerMessageId, // Real wamid
+        }).catch(err => webhookLogger.debug("Immediate typing indicator failed", { error: err, correlationId: message.correlationId }));
+
         const validatedPayload = inboundMessageForQueueSchema.parse(normalizedMessage);
 
         await ensureBossReady();
