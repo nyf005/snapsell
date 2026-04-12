@@ -212,6 +212,9 @@ export async function processWebhookJob(
     providerMessageId,
     tenantId,
     from,
+    interactiveReplyId,
+    body: body.slice(0, 50),
+    mediaUrl,
   });
 
   try {

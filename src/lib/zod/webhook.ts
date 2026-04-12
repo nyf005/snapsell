@@ -12,6 +12,7 @@ export const inboundMessageSchema = z.object({
   body: z.string(),
   mediaUrl: z.string().url().optional(),
   correlationId: z.string().min(1),
+  interactiveReplyId: z.string().optional(),
 });
 
 /**
@@ -25,6 +26,7 @@ export const inboundMessageForQueueSchema = z.object({
   body: z.string(),
   mediaUrl: z.string().url().optional(),
   correlationId: z.string().min(1),
+  interactiveReplyId: z.string().optional(),
 });
 
 export type InboundMessageInput = z.infer<typeof inboundMessageSchema>;
@@ -39,9 +41,18 @@ export const metaWebhookMessageSchema = z.object({
   timestamp: z.string(),
   type: z.string(),
   text: z.object({ body: z.string() }).optional(),
-  image: z.object({ mime_type: z.string(), sha256: z.string(), id: z.string() }).optional(),
-  video: z.object({ mime_type: z.string(), sha256: z.string(), id: z.string() }).optional(),
-  document: z.object({ mime_type: z.string(), sha256: z.string(), id: z.string(), filename: z.string().optional() }).optional(),
+  interactive: z.object({
+    type: z.object({
+      button_reply: z.object({ id: z.string(), title: z.string() }).optional(),
+      list_reply: z.object({ id: z.string(), title: z.string(), description: z.string().optional() }).optional(),
+    }).optional(),
+    button_reply: z.object({ id: z.string(), title: z.string() }).optional(),
+    list_reply: z.object({ id: z.string(), title: z.string(), description: z.string().optional() }).optional(),
+  }).passthrough().optional(),
+  button: z.object({ text: z.string().optional(), payload: z.string().optional() }).passthrough().optional(),
+  image: z.object({ mime_type: z.string(), sha256: z.string(), id: z.string(), caption: z.string().optional() }).optional(),
+  video: z.object({ mime_type: z.string(), sha256: z.string(), id: z.string(), caption: z.string().optional() }).optional(),
+  document: z.object({ mime_type: z.string(), sha256: z.string(), id: z.string(), filename: z.string().optional(), caption: z.string().optional() }).optional(),
 });
 
 /**
