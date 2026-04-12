@@ -132,7 +132,7 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
       data: {
         tenantId: validatedMessage.tenantId,
         to: validatedMessage.to,
-        body: validatedMessage.body ?? null,
+        body: validatedMessage.body ?? "",
         mediaUrl: validatedMessage.mediaUrl ?? null,
         interactivePayload: validatedMessage.interactive ?? undefined,
         isTypingIndicator: validatedMessage.isTypingIndicator ?? false,

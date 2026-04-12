@@ -297,29 +297,6 @@ model OptOut {
 // Message sortant via outbox (Story 2.4)
 // Architecture §4.5: Outbound messaging via outbox + retries + DLQ
 // Tout envoi sortant écrit d'abord dans MessageOut (outbox) avec statut pending
-model MessageOut {
-  id                 String    @id @default(cuid())
-  tenantId           String    @map("tenant_id") // NOT NULL: isolation tenant stricte
-  tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  to                 String // destinataire (format E.164 normalisé)
-  body               String    @db.Text
-  mediaUrl           String?   @map("media_url") @db.Text // Story 9.4: URL média (photo article) pour MMS WhatsApp
-  interactivePayload Json?     @map("interactive_payload") // Payload boutons/liste pour messages interactifs WhatsApp
-  status             String // pending | sending | sent | failed | blocked (STOP)
-  attempts           Int       @default(0)
-  nextAttemptAt      DateTime? @map("next_attempt_at")
-  lastError          String?   @map("last_error") @db.Text
-  correlationId      String    @map("correlation_id") // UUID ou message_sid pour traçabilité
-  providerMessageId  String?   @map("provider_message_id") // wamid Meta après envoi réussi
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
-
-  @@unique([tenantId, correlationId, to]) // Anti-doublon : même message pas écrit deux fois (optionnel Story 2.4)
-  @@index([tenantId, status]) // Lookup rapide des messages pending
-  @@index([tenantId, correlationId]) // Traçabilité par correlationId
-  @@index([tenantId])
-  @@map("messages_out")
-}
 
 // Session live par tenant - création/fermeture auto (Story 2.6)
 // Une seule session active par tenant à la fois (contrainte applicative)
@@ -593,6 +570,31 @@ model DeadLetterJob {
   @@index([tenantId, jobType, resolvedAt]) // Filtrage ops
   @@index([tenantId])
   @@map("dead_letter_jobs")
+}
+
+model MessageOut {
+  id                 String    @id @default(cuid())
+  tenantId           String    @map("tenant_id") // NOT NULL: isolation tenant stricte
+  tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  to                 String // destinataire (format E.164 normalisé)
+  body               String?   @db.Text
+  mediaUrl           String?   @map("media_url") @db.Text // Story 9.4: URL média (photo article) pour MMS WhatsApp
+  interactivePayload Json?     @map("interactive_payload") // Payload boutons/liste pour messages interactifs WhatsApp
+  isTypingIndicator  Boolean   @default(false) @map("is_typing_indicator") // Story 11.2
+  status             String // pending | sending | sent | failed | blocked (STOP)
+  attempts           Int       @default(0)
+  nextAttemptAt      DateTime? @map("next_attempt_at")
+  lastError          String?   @map("last_error") @db.Text
+  correlationId      String    @map("correlation_id") // UUID ou message_sid pour traçabilité
+  providerMessageId  String?   @map("provider_message_id") // wamid Meta après envoi réussi
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  @@unique([tenantId, correlationId, to]) // Anti-doublon : même message pas écrit deux fois (optionnel Story 2.4)
+  @@index([tenantId, status]) // Lookup rapide des messages pending
+  @@index([tenantId, correlationId]) // Traçabilité par correlationId
+  @@index([tenantId])
+  @@map("messages_out")
 }
 
 // Story 7A.2: Historique paiements abonnement + overages

@@ -281,23 +281,6 @@ exports.Prisma.OptOutScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.MessageOutScalarFieldEnum = {
-  id: 'id',
-  tenantId: 'tenantId',
-  to: 'to',
-  body: 'body',
-  mediaUrl: 'mediaUrl',
-  interactivePayload: 'interactivePayload',
-  status: 'status',
-  attempts: 'attempts',
-  nextAttemptAt: 'nextAttemptAt',
-  lastError: 'lastError',
-  correlationId: 'correlationId',
-  providerMessageId: 'providerMessageId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.LiveSessionScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -429,6 +412,24 @@ exports.Prisma.DeadLetterJobScalarFieldEnum = {
   resolvedAt: 'resolvedAt'
 };
 
+exports.Prisma.MessageOutScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  to: 'to',
+  body: 'body',
+  mediaUrl: 'mediaUrl',
+  interactivePayload: 'interactivePayload',
+  isTypingIndicator: 'isTypingIndicator',
+  status: 'status',
+  attempts: 'attempts',
+  nextAttemptAt: 'nextAttemptAt',
+  lastError: 'lastError',
+  correlationId: 'correlationId',
+  providerMessageId: 'providerMessageId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SubscriptionPaymentScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -538,7 +539,6 @@ exports.Prisma.ModelName = {
   SellerPhone: 'SellerPhone',
   EventLog: 'EventLog',
   OptOut: 'OptOut',
-  MessageOut: 'MessageOut',
   LiveSession: 'LiveSession',
   LiveItem: 'LiveItem',
   CatalogueItem: 'CatalogueItem',
@@ -549,6 +549,7 @@ exports.Prisma.ModelName = {
   PaymentProof: 'PaymentProof',
   Waitlist: 'Waitlist',
   DeadLetterJob: 'DeadLetterJob',
+  MessageOut: 'MessageOut',
   SubscriptionPayment: 'SubscriptionPayment'
 };
 

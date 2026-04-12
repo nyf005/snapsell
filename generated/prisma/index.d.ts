@@ -84,11 +84,6 @@ export type EventLog = $Result.DefaultSelection<Prisma.$EventLogPayload>
  */
 export type OptOut = $Result.DefaultSelection<Prisma.$OptOutPayload>
 /**
- * Model MessageOut
- * 
- */
-export type MessageOut = $Result.DefaultSelection<Prisma.$MessageOutPayload>
-/**
  * Model LiveSession
  * 
  */
@@ -138,6 +133,11 @@ export type Waitlist = $Result.DefaultSelection<Prisma.$WaitlistPayload>
  * 
  */
 export type DeadLetterJob = $Result.DefaultSelection<Prisma.$DeadLetterJobPayload>
+/**
+ * Model MessageOut
+ * 
+ */
+export type MessageOut = $Result.DefaultSelection<Prisma.$MessageOutPayload>
 /**
  * Model SubscriptionPayment
  * 
@@ -504,16 +504,6 @@ export class PrismaClient<
   get optOut(): Prisma.OptOutDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.messageOut`: Exposes CRUD operations for the **MessageOut** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more MessageOuts
-    * const messageOuts = await prisma.messageOut.findMany()
-    * ```
-    */
-  get messageOut(): Prisma.MessageOutDelegate<ExtArgs, ClientOptions>;
-
-  /**
    * `prisma.liveSession`: Exposes CRUD operations for the **LiveSession** model.
     * Example usage:
     * ```ts
@@ -612,6 +602,16 @@ export class PrismaClient<
     * ```
     */
   get deadLetterJob(): Prisma.DeadLetterJobDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.messageOut`: Exposes CRUD operations for the **MessageOut** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MessageOuts
+    * const messageOuts = await prisma.messageOut.findMany()
+    * ```
+    */
+  get messageOut(): Prisma.MessageOutDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.subscriptionPayment`: Exposes CRUD operations for the **SubscriptionPayment** model.
@@ -1070,7 +1070,6 @@ export namespace Prisma {
     SellerPhone: 'SellerPhone',
     EventLog: 'EventLog',
     OptOut: 'OptOut',
-    MessageOut: 'MessageOut',
     LiveSession: 'LiveSession',
     LiveItem: 'LiveItem',
     CatalogueItem: 'CatalogueItem',
@@ -1081,6 +1080,7 @@ export namespace Prisma {
     PaymentProof: 'PaymentProof',
     Waitlist: 'Waitlist',
     DeadLetterJob: 'DeadLetterJob',
+    MessageOut: 'MessageOut',
     SubscriptionPayment: 'SubscriptionPayment'
   };
 
@@ -1097,7 +1097,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "messageOut" | "liveSession" | "liveItem" | "catalogueItem" | "itemVariant" | "reservation" | "conversationState" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "subscriptionPayment"
+      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "liveSession" | "liveItem" | "catalogueItem" | "itemVariant" | "reservation" | "conversationState" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "messageOut" | "subscriptionPayment"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2137,80 +2137,6 @@ export namespace Prisma {
           }
         }
       }
-      MessageOut: {
-        payload: Prisma.$MessageOutPayload<ExtArgs>
-        fields: Prisma.MessageOutFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.MessageOutFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.MessageOutFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
-          }
-          findFirst: {
-            args: Prisma.MessageOutFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.MessageOutFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
-          }
-          findMany: {
-            args: Prisma.MessageOutFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>[]
-          }
-          create: {
-            args: Prisma.MessageOutCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
-          }
-          createMany: {
-            args: Prisma.MessageOutCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.MessageOutCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>[]
-          }
-          delete: {
-            args: Prisma.MessageOutDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
-          }
-          update: {
-            args: Prisma.MessageOutUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
-          }
-          deleteMany: {
-            args: Prisma.MessageOutDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.MessageOutUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.MessageOutUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>[]
-          }
-          upsert: {
-            args: Prisma.MessageOutUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
-          }
-          aggregate: {
-            args: Prisma.MessageOutAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateMessageOut>
-          }
-          groupBy: {
-            args: Prisma.MessageOutGroupByArgs<ExtArgs>
-            result: $Utils.Optional<MessageOutGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.MessageOutCountArgs<ExtArgs>
-            result: $Utils.Optional<MessageOutCountAggregateOutputType> | number
-          }
-        }
-      }
       LiveSession: {
         payload: Prisma.$LiveSessionPayload<ExtArgs>
         fields: Prisma.LiveSessionFieldRefs
@@ -2951,6 +2877,80 @@ export namespace Prisma {
           }
         }
       }
+      MessageOut: {
+        payload: Prisma.$MessageOutPayload<ExtArgs>
+        fields: Prisma.MessageOutFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MessageOutFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MessageOutFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
+          }
+          findFirst: {
+            args: Prisma.MessageOutFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MessageOutFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
+          }
+          findMany: {
+            args: Prisma.MessageOutFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>[]
+          }
+          create: {
+            args: Prisma.MessageOutCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
+          }
+          createMany: {
+            args: Prisma.MessageOutCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MessageOutCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>[]
+          }
+          delete: {
+            args: Prisma.MessageOutDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
+          }
+          update: {
+            args: Prisma.MessageOutUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
+          }
+          deleteMany: {
+            args: Prisma.MessageOutDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MessageOutUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MessageOutUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>[]
+          }
+          upsert: {
+            args: Prisma.MessageOutUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessageOutPayload>
+          }
+          aggregate: {
+            args: Prisma.MessageOutAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMessageOut>
+          }
+          groupBy: {
+            args: Prisma.MessageOutGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MessageOutGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MessageOutCountArgs<ExtArgs>
+            result: $Utils.Optional<MessageOutCountAggregateOutputType> | number
+          }
+        }
+      }
       SubscriptionPayment: {
         payload: Prisma.$SubscriptionPaymentPayload<ExtArgs>
         fields: Prisma.SubscriptionPaymentFieldRefs
@@ -3147,7 +3147,6 @@ export namespace Prisma {
     sellerPhone?: SellerPhoneOmit
     eventLog?: EventLogOmit
     optOut?: OptOutOmit
-    messageOut?: MessageOutOmit
     liveSession?: LiveSessionOmit
     liveItem?: LiveItemOmit
     catalogueItem?: CatalogueItemOmit
@@ -3158,6 +3157,7 @@ export namespace Prisma {
     paymentProof?: PaymentProofOmit
     waitlist?: WaitlistOmit
     deadLetterJob?: DeadLetterJobOmit
+    messageOut?: MessageOutOmit
     subscriptionPayment?: SubscriptionPaymentOmit
   }
 
@@ -20008,1211 +20008,6 @@ export namespace Prisma {
 
 
   /**
-   * Model MessageOut
-   */
-
-  export type AggregateMessageOut = {
-    _count: MessageOutCountAggregateOutputType | null
-    _avg: MessageOutAvgAggregateOutputType | null
-    _sum: MessageOutSumAggregateOutputType | null
-    _min: MessageOutMinAggregateOutputType | null
-    _max: MessageOutMaxAggregateOutputType | null
-  }
-
-  export type MessageOutAvgAggregateOutputType = {
-    attempts: number | null
-  }
-
-  export type MessageOutSumAggregateOutputType = {
-    attempts: number | null
-  }
-
-  export type MessageOutMinAggregateOutputType = {
-    id: string | null
-    tenantId: string | null
-    to: string | null
-    body: string | null
-    mediaUrl: string | null
-    status: string | null
-    attempts: number | null
-    nextAttemptAt: Date | null
-    lastError: string | null
-    correlationId: string | null
-    providerMessageId: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type MessageOutMaxAggregateOutputType = {
-    id: string | null
-    tenantId: string | null
-    to: string | null
-    body: string | null
-    mediaUrl: string | null
-    status: string | null
-    attempts: number | null
-    nextAttemptAt: Date | null
-    lastError: string | null
-    correlationId: string | null
-    providerMessageId: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type MessageOutCountAggregateOutputType = {
-    id: number
-    tenantId: number
-    to: number
-    body: number
-    mediaUrl: number
-    interactivePayload: number
-    status: number
-    attempts: number
-    nextAttemptAt: number
-    lastError: number
-    correlationId: number
-    providerMessageId: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type MessageOutAvgAggregateInputType = {
-    attempts?: true
-  }
-
-  export type MessageOutSumAggregateInputType = {
-    attempts?: true
-  }
-
-  export type MessageOutMinAggregateInputType = {
-    id?: true
-    tenantId?: true
-    to?: true
-    body?: true
-    mediaUrl?: true
-    status?: true
-    attempts?: true
-    nextAttemptAt?: true
-    lastError?: true
-    correlationId?: true
-    providerMessageId?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type MessageOutMaxAggregateInputType = {
-    id?: true
-    tenantId?: true
-    to?: true
-    body?: true
-    mediaUrl?: true
-    status?: true
-    attempts?: true
-    nextAttemptAt?: true
-    lastError?: true
-    correlationId?: true
-    providerMessageId?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type MessageOutCountAggregateInputType = {
-    id?: true
-    tenantId?: true
-    to?: true
-    body?: true
-    mediaUrl?: true
-    interactivePayload?: true
-    status?: true
-    attempts?: true
-    nextAttemptAt?: true
-    lastError?: true
-    correlationId?: true
-    providerMessageId?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type MessageOutAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which MessageOut to aggregate.
-     */
-    where?: MessageOutWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of MessageOuts to fetch.
-     */
-    orderBy?: MessageOutOrderByWithRelationInput | MessageOutOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: MessageOutWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` MessageOuts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` MessageOuts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned MessageOuts
-    **/
-    _count?: true | MessageOutCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: MessageOutAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: MessageOutSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: MessageOutMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: MessageOutMaxAggregateInputType
-  }
-
-  export type GetMessageOutAggregateType<T extends MessageOutAggregateArgs> = {
-        [P in keyof T & keyof AggregateMessageOut]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateMessageOut[P]>
-      : GetScalarType<T[P], AggregateMessageOut[P]>
-  }
-
-
-
-
-  export type MessageOutGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: MessageOutWhereInput
-    orderBy?: MessageOutOrderByWithAggregationInput | MessageOutOrderByWithAggregationInput[]
-    by: MessageOutScalarFieldEnum[] | MessageOutScalarFieldEnum
-    having?: MessageOutScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: MessageOutCountAggregateInputType | true
-    _avg?: MessageOutAvgAggregateInputType
-    _sum?: MessageOutSumAggregateInputType
-    _min?: MessageOutMinAggregateInputType
-    _max?: MessageOutMaxAggregateInputType
-  }
-
-  export type MessageOutGroupByOutputType = {
-    id: string
-    tenantId: string
-    to: string
-    body: string
-    mediaUrl: string | null
-    interactivePayload: JsonValue | null
-    status: string
-    attempts: number
-    nextAttemptAt: Date | null
-    lastError: string | null
-    correlationId: string
-    providerMessageId: string | null
-    createdAt: Date
-    updatedAt: Date
-    _count: MessageOutCountAggregateOutputType | null
-    _avg: MessageOutAvgAggregateOutputType | null
-    _sum: MessageOutSumAggregateOutputType | null
-    _min: MessageOutMinAggregateOutputType | null
-    _max: MessageOutMaxAggregateOutputType | null
-  }
-
-  type GetMessageOutGroupByPayload<T extends MessageOutGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<MessageOutGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof MessageOutGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], MessageOutGroupByOutputType[P]>
-            : GetScalarType<T[P], MessageOutGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type MessageOutSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenantId?: boolean
-    to?: boolean
-    body?: boolean
-    mediaUrl?: boolean
-    interactivePayload?: boolean
-    status?: boolean
-    attempts?: boolean
-    nextAttemptAt?: boolean
-    lastError?: boolean
-    correlationId?: boolean
-    providerMessageId?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["messageOut"]>
-
-  export type MessageOutSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenantId?: boolean
-    to?: boolean
-    body?: boolean
-    mediaUrl?: boolean
-    interactivePayload?: boolean
-    status?: boolean
-    attempts?: boolean
-    nextAttemptAt?: boolean
-    lastError?: boolean
-    correlationId?: boolean
-    providerMessageId?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["messageOut"]>
-
-  export type MessageOutSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenantId?: boolean
-    to?: boolean
-    body?: boolean
-    mediaUrl?: boolean
-    interactivePayload?: boolean
-    status?: boolean
-    attempts?: boolean
-    nextAttemptAt?: boolean
-    lastError?: boolean
-    correlationId?: boolean
-    providerMessageId?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["messageOut"]>
-
-  export type MessageOutSelectScalar = {
-    id?: boolean
-    tenantId?: boolean
-    to?: boolean
-    body?: boolean
-    mediaUrl?: boolean
-    interactivePayload?: boolean
-    status?: boolean
-    attempts?: boolean
-    nextAttemptAt?: boolean
-    lastError?: boolean
-    correlationId?: boolean
-    providerMessageId?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type MessageOutOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "to" | "body" | "mediaUrl" | "interactivePayload" | "status" | "attempts" | "nextAttemptAt" | "lastError" | "correlationId" | "providerMessageId" | "createdAt" | "updatedAt", ExtArgs["result"]["messageOut"]>
-  export type MessageOutInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }
-  export type MessageOutIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }
-  export type MessageOutIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }
-
-  export type $MessageOutPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "MessageOut"
-    objects: {
-      tenant: Prisma.$TenantPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenantId: string
-      to: string
-      body: string
-      mediaUrl: string | null
-      interactivePayload: Prisma.JsonValue | null
-      status: string
-      attempts: number
-      nextAttemptAt: Date | null
-      lastError: string | null
-      correlationId: string
-      providerMessageId: string | null
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["messageOut"]>
-    composites: {}
-  }
-
-  type MessageOutGetPayload<S extends boolean | null | undefined | MessageOutDefaultArgs> = $Result.GetResult<Prisma.$MessageOutPayload, S>
-
-  type MessageOutCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<MessageOutFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: MessageOutCountAggregateInputType | true
-    }
-
-  export interface MessageOutDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MessageOut'], meta: { name: 'MessageOut' } }
-    /**
-     * Find zero or one MessageOut that matches the filter.
-     * @param {MessageOutFindUniqueArgs} args - Arguments to find a MessageOut
-     * @example
-     * // Get one MessageOut
-     * const messageOut = await prisma.messageOut.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends MessageOutFindUniqueArgs>(args: SelectSubset<T, MessageOutFindUniqueArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one MessageOut that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {MessageOutFindUniqueOrThrowArgs} args - Arguments to find a MessageOut
-     * @example
-     * // Get one MessageOut
-     * const messageOut = await prisma.messageOut.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends MessageOutFindUniqueOrThrowArgs>(args: SelectSubset<T, MessageOutFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first MessageOut that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {MessageOutFindFirstArgs} args - Arguments to find a MessageOut
-     * @example
-     * // Get one MessageOut
-     * const messageOut = await prisma.messageOut.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends MessageOutFindFirstArgs>(args?: SelectSubset<T, MessageOutFindFirstArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first MessageOut that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {MessageOutFindFirstOrThrowArgs} args - Arguments to find a MessageOut
-     * @example
-     * // Get one MessageOut
-     * const messageOut = await prisma.messageOut.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends MessageOutFindFirstOrThrowArgs>(args?: SelectSubset<T, MessageOutFindFirstOrThrowArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more MessageOuts that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {MessageOutFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all MessageOuts
-     * const messageOuts = await prisma.messageOut.findMany()
-     * 
-     * // Get first 10 MessageOuts
-     * const messageOuts = await prisma.messageOut.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const messageOutWithIdOnly = await prisma.messageOut.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends MessageOutFindManyArgs>(args?: SelectSubset<T, MessageOutFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a MessageOut.
-     * @param {MessageOutCreateArgs} args - Arguments to create a MessageOut.
-     * @example
-     * // Create one MessageOut
-     * const MessageOut = await prisma.messageOut.create({
-     *   data: {
-     *     // ... data to create a MessageOut
-     *   }
-     * })
-     * 
-     */
-    create<T extends MessageOutCreateArgs>(args: SelectSubset<T, MessageOutCreateArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many MessageOuts.
-     * @param {MessageOutCreateManyArgs} args - Arguments to create many MessageOuts.
-     * @example
-     * // Create many MessageOuts
-     * const messageOut = await prisma.messageOut.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends MessageOutCreateManyArgs>(args?: SelectSubset<T, MessageOutCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many MessageOuts and returns the data saved in the database.
-     * @param {MessageOutCreateManyAndReturnArgs} args - Arguments to create many MessageOuts.
-     * @example
-     * // Create many MessageOuts
-     * const messageOut = await prisma.messageOut.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many MessageOuts and only return the `id`
-     * const messageOutWithIdOnly = await prisma.messageOut.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends MessageOutCreateManyAndReturnArgs>(args?: SelectSubset<T, MessageOutCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a MessageOut.
-     * @param {MessageOutDeleteArgs} args - Arguments to delete one MessageOut.
-     * @example
-     * // Delete one MessageOut
-     * const MessageOut = await prisma.messageOut.delete({
-     *   where: {
-     *     // ... filter to delete one MessageOut
-     *   }
-     * })
-     * 
-     */
-    delete<T extends MessageOutDeleteArgs>(args: SelectSubset<T, MessageOutDeleteArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one MessageOut.
-     * @param {MessageOutUpdateArgs} args - Arguments to update one MessageOut.
-     * @example
-     * // Update one MessageOut
-     * const messageOut = await prisma.messageOut.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends MessageOutUpdateArgs>(args: SelectSubset<T, MessageOutUpdateArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more MessageOuts.
-     * @param {MessageOutDeleteManyArgs} args - Arguments to filter MessageOuts to delete.
-     * @example
-     * // Delete a few MessageOuts
-     * const { count } = await prisma.messageOut.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends MessageOutDeleteManyArgs>(args?: SelectSubset<T, MessageOutDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more MessageOuts.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {MessageOutUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many MessageOuts
-     * const messageOut = await prisma.messageOut.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends MessageOutUpdateManyArgs>(args: SelectSubset<T, MessageOutUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more MessageOuts and returns the data updated in the database.
-     * @param {MessageOutUpdateManyAndReturnArgs} args - Arguments to update many MessageOuts.
-     * @example
-     * // Update many MessageOuts
-     * const messageOut = await prisma.messageOut.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more MessageOuts and only return the `id`
-     * const messageOutWithIdOnly = await prisma.messageOut.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends MessageOutUpdateManyAndReturnArgs>(args: SelectSubset<T, MessageOutUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one MessageOut.
-     * @param {MessageOutUpsertArgs} args - Arguments to update or create a MessageOut.
-     * @example
-     * // Update or create a MessageOut
-     * const messageOut = await prisma.messageOut.upsert({
-     *   create: {
-     *     // ... data to create a MessageOut
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the MessageOut we want to update
-     *   }
-     * })
-     */
-    upsert<T extends MessageOutUpsertArgs>(args: SelectSubset<T, MessageOutUpsertArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of MessageOuts.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {MessageOutCountArgs} args - Arguments to filter MessageOuts to count.
-     * @example
-     * // Count the number of MessageOuts
-     * const count = await prisma.messageOut.count({
-     *   where: {
-     *     // ... the filter for the MessageOuts we want to count
-     *   }
-     * })
-    **/
-    count<T extends MessageOutCountArgs>(
-      args?: Subset<T, MessageOutCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], MessageOutCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a MessageOut.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {MessageOutAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends MessageOutAggregateArgs>(args: Subset<T, MessageOutAggregateArgs>): Prisma.PrismaPromise<GetMessageOutAggregateType<T>>
-
-    /**
-     * Group by MessageOut.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {MessageOutGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends MessageOutGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: MessageOutGroupByArgs['orderBy'] }
-        : { orderBy?: MessageOutGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, MessageOutGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMessageOutGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the MessageOut model
-   */
-  readonly fields: MessageOutFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for MessageOut.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__MessageOutClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the MessageOut model
-   */
-  interface MessageOutFieldRefs {
-    readonly id: FieldRef<"MessageOut", 'String'>
-    readonly tenantId: FieldRef<"MessageOut", 'String'>
-    readonly to: FieldRef<"MessageOut", 'String'>
-    readonly body: FieldRef<"MessageOut", 'String'>
-    readonly mediaUrl: FieldRef<"MessageOut", 'String'>
-    readonly interactivePayload: FieldRef<"MessageOut", 'Json'>
-    readonly status: FieldRef<"MessageOut", 'String'>
-    readonly attempts: FieldRef<"MessageOut", 'Int'>
-    readonly nextAttemptAt: FieldRef<"MessageOut", 'DateTime'>
-    readonly lastError: FieldRef<"MessageOut", 'String'>
-    readonly correlationId: FieldRef<"MessageOut", 'String'>
-    readonly providerMessageId: FieldRef<"MessageOut", 'String'>
-    readonly createdAt: FieldRef<"MessageOut", 'DateTime'>
-    readonly updatedAt: FieldRef<"MessageOut", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * MessageOut findUnique
-   */
-  export type MessageOutFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutInclude<ExtArgs> | null
-    /**
-     * Filter, which MessageOut to fetch.
-     */
-    where: MessageOutWhereUniqueInput
-  }
-
-  /**
-   * MessageOut findUniqueOrThrow
-   */
-  export type MessageOutFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutInclude<ExtArgs> | null
-    /**
-     * Filter, which MessageOut to fetch.
-     */
-    where: MessageOutWhereUniqueInput
-  }
-
-  /**
-   * MessageOut findFirst
-   */
-  export type MessageOutFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutInclude<ExtArgs> | null
-    /**
-     * Filter, which MessageOut to fetch.
-     */
-    where?: MessageOutWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of MessageOuts to fetch.
-     */
-    orderBy?: MessageOutOrderByWithRelationInput | MessageOutOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for MessageOuts.
-     */
-    cursor?: MessageOutWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` MessageOuts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` MessageOuts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of MessageOuts.
-     */
-    distinct?: MessageOutScalarFieldEnum | MessageOutScalarFieldEnum[]
-  }
-
-  /**
-   * MessageOut findFirstOrThrow
-   */
-  export type MessageOutFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutInclude<ExtArgs> | null
-    /**
-     * Filter, which MessageOut to fetch.
-     */
-    where?: MessageOutWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of MessageOuts to fetch.
-     */
-    orderBy?: MessageOutOrderByWithRelationInput | MessageOutOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for MessageOuts.
-     */
-    cursor?: MessageOutWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` MessageOuts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` MessageOuts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of MessageOuts.
-     */
-    distinct?: MessageOutScalarFieldEnum | MessageOutScalarFieldEnum[]
-  }
-
-  /**
-   * MessageOut findMany
-   */
-  export type MessageOutFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutInclude<ExtArgs> | null
-    /**
-     * Filter, which MessageOuts to fetch.
-     */
-    where?: MessageOutWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of MessageOuts to fetch.
-     */
-    orderBy?: MessageOutOrderByWithRelationInput | MessageOutOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing MessageOuts.
-     */
-    cursor?: MessageOutWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` MessageOuts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` MessageOuts.
-     */
-    skip?: number
-    distinct?: MessageOutScalarFieldEnum | MessageOutScalarFieldEnum[]
-  }
-
-  /**
-   * MessageOut create
-   */
-  export type MessageOutCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutInclude<ExtArgs> | null
-    /**
-     * The data needed to create a MessageOut.
-     */
-    data: XOR<MessageOutCreateInput, MessageOutUncheckedCreateInput>
-  }
-
-  /**
-   * MessageOut createMany
-   */
-  export type MessageOutCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many MessageOuts.
-     */
-    data: MessageOutCreateManyInput | MessageOutCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * MessageOut createManyAndReturn
-   */
-  export type MessageOutCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * The data used to create many MessageOuts.
-     */
-    data: MessageOutCreateManyInput | MessageOutCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * MessageOut update
-   */
-  export type MessageOutUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutInclude<ExtArgs> | null
-    /**
-     * The data needed to update a MessageOut.
-     */
-    data: XOR<MessageOutUpdateInput, MessageOutUncheckedUpdateInput>
-    /**
-     * Choose, which MessageOut to update.
-     */
-    where: MessageOutWhereUniqueInput
-  }
-
-  /**
-   * MessageOut updateMany
-   */
-  export type MessageOutUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update MessageOuts.
-     */
-    data: XOR<MessageOutUpdateManyMutationInput, MessageOutUncheckedUpdateManyInput>
-    /**
-     * Filter which MessageOuts to update
-     */
-    where?: MessageOutWhereInput
-    /**
-     * Limit how many MessageOuts to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * MessageOut updateManyAndReturn
-   */
-  export type MessageOutUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * The data used to update MessageOuts.
-     */
-    data: XOR<MessageOutUpdateManyMutationInput, MessageOutUncheckedUpdateManyInput>
-    /**
-     * Filter which MessageOuts to update
-     */
-    where?: MessageOutWhereInput
-    /**
-     * Limit how many MessageOuts to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * MessageOut upsert
-   */
-  export type MessageOutUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutInclude<ExtArgs> | null
-    /**
-     * The filter to search for the MessageOut to update in case it exists.
-     */
-    where: MessageOutWhereUniqueInput
-    /**
-     * In case the MessageOut found by the `where` argument doesn't exist, create a new MessageOut with this data.
-     */
-    create: XOR<MessageOutCreateInput, MessageOutUncheckedCreateInput>
-    /**
-     * In case the MessageOut was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<MessageOutUpdateInput, MessageOutUncheckedUpdateInput>
-  }
-
-  /**
-   * MessageOut delete
-   */
-  export type MessageOutDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutInclude<ExtArgs> | null
-    /**
-     * Filter which MessageOut to delete.
-     */
-    where: MessageOutWhereUniqueInput
-  }
-
-  /**
-   * MessageOut deleteMany
-   */
-  export type MessageOutDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which MessageOuts to delete
-     */
-    where?: MessageOutWhereInput
-    /**
-     * Limit how many MessageOuts to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * MessageOut without action
-   */
-  export type MessageOutDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MessageOut
-     */
-    select?: MessageOutSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MessageOut
-     */
-    omit?: MessageOutOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MessageOutInclude<ExtArgs> | null
-  }
-
-
-  /**
    * Model LiveSession
    */
 
@@ -33170,6 +31965,1224 @@ export namespace Prisma {
 
 
   /**
+   * Model MessageOut
+   */
+
+  export type AggregateMessageOut = {
+    _count: MessageOutCountAggregateOutputType | null
+    _avg: MessageOutAvgAggregateOutputType | null
+    _sum: MessageOutSumAggregateOutputType | null
+    _min: MessageOutMinAggregateOutputType | null
+    _max: MessageOutMaxAggregateOutputType | null
+  }
+
+  export type MessageOutAvgAggregateOutputType = {
+    attempts: number | null
+  }
+
+  export type MessageOutSumAggregateOutputType = {
+    attempts: number | null
+  }
+
+  export type MessageOutMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    to: string | null
+    body: string | null
+    mediaUrl: string | null
+    isTypingIndicator: boolean | null
+    status: string | null
+    attempts: number | null
+    nextAttemptAt: Date | null
+    lastError: string | null
+    correlationId: string | null
+    providerMessageId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MessageOutMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    to: string | null
+    body: string | null
+    mediaUrl: string | null
+    isTypingIndicator: boolean | null
+    status: string | null
+    attempts: number | null
+    nextAttemptAt: Date | null
+    lastError: string | null
+    correlationId: string | null
+    providerMessageId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MessageOutCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    to: number
+    body: number
+    mediaUrl: number
+    interactivePayload: number
+    isTypingIndicator: number
+    status: number
+    attempts: number
+    nextAttemptAt: number
+    lastError: number
+    correlationId: number
+    providerMessageId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MessageOutAvgAggregateInputType = {
+    attempts?: true
+  }
+
+  export type MessageOutSumAggregateInputType = {
+    attempts?: true
+  }
+
+  export type MessageOutMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    to?: true
+    body?: true
+    mediaUrl?: true
+    isTypingIndicator?: true
+    status?: true
+    attempts?: true
+    nextAttemptAt?: true
+    lastError?: true
+    correlationId?: true
+    providerMessageId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MessageOutMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    to?: true
+    body?: true
+    mediaUrl?: true
+    isTypingIndicator?: true
+    status?: true
+    attempts?: true
+    nextAttemptAt?: true
+    lastError?: true
+    correlationId?: true
+    providerMessageId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MessageOutCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    to?: true
+    body?: true
+    mediaUrl?: true
+    interactivePayload?: true
+    isTypingIndicator?: true
+    status?: true
+    attempts?: true
+    nextAttemptAt?: true
+    lastError?: true
+    correlationId?: true
+    providerMessageId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MessageOutAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MessageOut to aggregate.
+     */
+    where?: MessageOutWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MessageOuts to fetch.
+     */
+    orderBy?: MessageOutOrderByWithRelationInput | MessageOutOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MessageOutWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MessageOuts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MessageOuts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MessageOuts
+    **/
+    _count?: true | MessageOutCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MessageOutAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MessageOutSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MessageOutMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MessageOutMaxAggregateInputType
+  }
+
+  export type GetMessageOutAggregateType<T extends MessageOutAggregateArgs> = {
+        [P in keyof T & keyof AggregateMessageOut]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMessageOut[P]>
+      : GetScalarType<T[P], AggregateMessageOut[P]>
+  }
+
+
+
+
+  export type MessageOutGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MessageOutWhereInput
+    orderBy?: MessageOutOrderByWithAggregationInput | MessageOutOrderByWithAggregationInput[]
+    by: MessageOutScalarFieldEnum[] | MessageOutScalarFieldEnum
+    having?: MessageOutScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MessageOutCountAggregateInputType | true
+    _avg?: MessageOutAvgAggregateInputType
+    _sum?: MessageOutSumAggregateInputType
+    _min?: MessageOutMinAggregateInputType
+    _max?: MessageOutMaxAggregateInputType
+  }
+
+  export type MessageOutGroupByOutputType = {
+    id: string
+    tenantId: string
+    to: string
+    body: string | null
+    mediaUrl: string | null
+    interactivePayload: JsonValue | null
+    isTypingIndicator: boolean
+    status: string
+    attempts: number
+    nextAttemptAt: Date | null
+    lastError: string | null
+    correlationId: string
+    providerMessageId: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: MessageOutCountAggregateOutputType | null
+    _avg: MessageOutAvgAggregateOutputType | null
+    _sum: MessageOutSumAggregateOutputType | null
+    _min: MessageOutMinAggregateOutputType | null
+    _max: MessageOutMaxAggregateOutputType | null
+  }
+
+  type GetMessageOutGroupByPayload<T extends MessageOutGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MessageOutGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MessageOutGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MessageOutGroupByOutputType[P]>
+            : GetScalarType<T[P], MessageOutGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MessageOutSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    to?: boolean
+    body?: boolean
+    mediaUrl?: boolean
+    interactivePayload?: boolean
+    isTypingIndicator?: boolean
+    status?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    lastError?: boolean
+    correlationId?: boolean
+    providerMessageId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["messageOut"]>
+
+  export type MessageOutSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    to?: boolean
+    body?: boolean
+    mediaUrl?: boolean
+    interactivePayload?: boolean
+    isTypingIndicator?: boolean
+    status?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    lastError?: boolean
+    correlationId?: boolean
+    providerMessageId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["messageOut"]>
+
+  export type MessageOutSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    to?: boolean
+    body?: boolean
+    mediaUrl?: boolean
+    interactivePayload?: boolean
+    isTypingIndicator?: boolean
+    status?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    lastError?: boolean
+    correlationId?: boolean
+    providerMessageId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["messageOut"]>
+
+  export type MessageOutSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    to?: boolean
+    body?: boolean
+    mediaUrl?: boolean
+    interactivePayload?: boolean
+    isTypingIndicator?: boolean
+    status?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    lastError?: boolean
+    correlationId?: boolean
+    providerMessageId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MessageOutOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "to" | "body" | "mediaUrl" | "interactivePayload" | "isTypingIndicator" | "status" | "attempts" | "nextAttemptAt" | "lastError" | "correlationId" | "providerMessageId" | "createdAt" | "updatedAt", ExtArgs["result"]["messageOut"]>
+  export type MessageOutInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type MessageOutIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type MessageOutIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+
+  export type $MessageOutPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MessageOut"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      to: string
+      body: string | null
+      mediaUrl: string | null
+      interactivePayload: Prisma.JsonValue | null
+      isTypingIndicator: boolean
+      status: string
+      attempts: number
+      nextAttemptAt: Date | null
+      lastError: string | null
+      correlationId: string
+      providerMessageId: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["messageOut"]>
+    composites: {}
+  }
+
+  type MessageOutGetPayload<S extends boolean | null | undefined | MessageOutDefaultArgs> = $Result.GetResult<Prisma.$MessageOutPayload, S>
+
+  type MessageOutCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MessageOutFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MessageOutCountAggregateInputType | true
+    }
+
+  export interface MessageOutDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MessageOut'], meta: { name: 'MessageOut' } }
+    /**
+     * Find zero or one MessageOut that matches the filter.
+     * @param {MessageOutFindUniqueArgs} args - Arguments to find a MessageOut
+     * @example
+     * // Get one MessageOut
+     * const messageOut = await prisma.messageOut.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MessageOutFindUniqueArgs>(args: SelectSubset<T, MessageOutFindUniqueArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MessageOut that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MessageOutFindUniqueOrThrowArgs} args - Arguments to find a MessageOut
+     * @example
+     * // Get one MessageOut
+     * const messageOut = await prisma.messageOut.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MessageOutFindUniqueOrThrowArgs>(args: SelectSubset<T, MessageOutFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MessageOut that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageOutFindFirstArgs} args - Arguments to find a MessageOut
+     * @example
+     * // Get one MessageOut
+     * const messageOut = await prisma.messageOut.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MessageOutFindFirstArgs>(args?: SelectSubset<T, MessageOutFindFirstArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MessageOut that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageOutFindFirstOrThrowArgs} args - Arguments to find a MessageOut
+     * @example
+     * // Get one MessageOut
+     * const messageOut = await prisma.messageOut.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MessageOutFindFirstOrThrowArgs>(args?: SelectSubset<T, MessageOutFindFirstOrThrowArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MessageOuts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageOutFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MessageOuts
+     * const messageOuts = await prisma.messageOut.findMany()
+     * 
+     * // Get first 10 MessageOuts
+     * const messageOuts = await prisma.messageOut.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const messageOutWithIdOnly = await prisma.messageOut.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MessageOutFindManyArgs>(args?: SelectSubset<T, MessageOutFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MessageOut.
+     * @param {MessageOutCreateArgs} args - Arguments to create a MessageOut.
+     * @example
+     * // Create one MessageOut
+     * const MessageOut = await prisma.messageOut.create({
+     *   data: {
+     *     // ... data to create a MessageOut
+     *   }
+     * })
+     * 
+     */
+    create<T extends MessageOutCreateArgs>(args: SelectSubset<T, MessageOutCreateArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MessageOuts.
+     * @param {MessageOutCreateManyArgs} args - Arguments to create many MessageOuts.
+     * @example
+     * // Create many MessageOuts
+     * const messageOut = await prisma.messageOut.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MessageOutCreateManyArgs>(args?: SelectSubset<T, MessageOutCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MessageOuts and returns the data saved in the database.
+     * @param {MessageOutCreateManyAndReturnArgs} args - Arguments to create many MessageOuts.
+     * @example
+     * // Create many MessageOuts
+     * const messageOut = await prisma.messageOut.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MessageOuts and only return the `id`
+     * const messageOutWithIdOnly = await prisma.messageOut.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MessageOutCreateManyAndReturnArgs>(args?: SelectSubset<T, MessageOutCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MessageOut.
+     * @param {MessageOutDeleteArgs} args - Arguments to delete one MessageOut.
+     * @example
+     * // Delete one MessageOut
+     * const MessageOut = await prisma.messageOut.delete({
+     *   where: {
+     *     // ... filter to delete one MessageOut
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MessageOutDeleteArgs>(args: SelectSubset<T, MessageOutDeleteArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MessageOut.
+     * @param {MessageOutUpdateArgs} args - Arguments to update one MessageOut.
+     * @example
+     * // Update one MessageOut
+     * const messageOut = await prisma.messageOut.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MessageOutUpdateArgs>(args: SelectSubset<T, MessageOutUpdateArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MessageOuts.
+     * @param {MessageOutDeleteManyArgs} args - Arguments to filter MessageOuts to delete.
+     * @example
+     * // Delete a few MessageOuts
+     * const { count } = await prisma.messageOut.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MessageOutDeleteManyArgs>(args?: SelectSubset<T, MessageOutDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MessageOuts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageOutUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MessageOuts
+     * const messageOut = await prisma.messageOut.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MessageOutUpdateManyArgs>(args: SelectSubset<T, MessageOutUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MessageOuts and returns the data updated in the database.
+     * @param {MessageOutUpdateManyAndReturnArgs} args - Arguments to update many MessageOuts.
+     * @example
+     * // Update many MessageOuts
+     * const messageOut = await prisma.messageOut.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MessageOuts and only return the `id`
+     * const messageOutWithIdOnly = await prisma.messageOut.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MessageOutUpdateManyAndReturnArgs>(args: SelectSubset<T, MessageOutUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MessageOut.
+     * @param {MessageOutUpsertArgs} args - Arguments to update or create a MessageOut.
+     * @example
+     * // Update or create a MessageOut
+     * const messageOut = await prisma.messageOut.upsert({
+     *   create: {
+     *     // ... data to create a MessageOut
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MessageOut we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MessageOutUpsertArgs>(args: SelectSubset<T, MessageOutUpsertArgs<ExtArgs>>): Prisma__MessageOutClient<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MessageOuts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageOutCountArgs} args - Arguments to filter MessageOuts to count.
+     * @example
+     * // Count the number of MessageOuts
+     * const count = await prisma.messageOut.count({
+     *   where: {
+     *     // ... the filter for the MessageOuts we want to count
+     *   }
+     * })
+    **/
+    count<T extends MessageOutCountArgs>(
+      args?: Subset<T, MessageOutCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MessageOutCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MessageOut.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageOutAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MessageOutAggregateArgs>(args: Subset<T, MessageOutAggregateArgs>): Prisma.PrismaPromise<GetMessageOutAggregateType<T>>
+
+    /**
+     * Group by MessageOut.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessageOutGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MessageOutGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MessageOutGroupByArgs['orderBy'] }
+        : { orderBy?: MessageOutGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MessageOutGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMessageOutGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MessageOut model
+   */
+  readonly fields: MessageOutFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MessageOut.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MessageOutClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MessageOut model
+   */
+  interface MessageOutFieldRefs {
+    readonly id: FieldRef<"MessageOut", 'String'>
+    readonly tenantId: FieldRef<"MessageOut", 'String'>
+    readonly to: FieldRef<"MessageOut", 'String'>
+    readonly body: FieldRef<"MessageOut", 'String'>
+    readonly mediaUrl: FieldRef<"MessageOut", 'String'>
+    readonly interactivePayload: FieldRef<"MessageOut", 'Json'>
+    readonly isTypingIndicator: FieldRef<"MessageOut", 'Boolean'>
+    readonly status: FieldRef<"MessageOut", 'String'>
+    readonly attempts: FieldRef<"MessageOut", 'Int'>
+    readonly nextAttemptAt: FieldRef<"MessageOut", 'DateTime'>
+    readonly lastError: FieldRef<"MessageOut", 'String'>
+    readonly correlationId: FieldRef<"MessageOut", 'String'>
+    readonly providerMessageId: FieldRef<"MessageOut", 'String'>
+    readonly createdAt: FieldRef<"MessageOut", 'DateTime'>
+    readonly updatedAt: FieldRef<"MessageOut", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MessageOut findUnique
+   */
+  export type MessageOutFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutInclude<ExtArgs> | null
+    /**
+     * Filter, which MessageOut to fetch.
+     */
+    where: MessageOutWhereUniqueInput
+  }
+
+  /**
+   * MessageOut findUniqueOrThrow
+   */
+  export type MessageOutFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutInclude<ExtArgs> | null
+    /**
+     * Filter, which MessageOut to fetch.
+     */
+    where: MessageOutWhereUniqueInput
+  }
+
+  /**
+   * MessageOut findFirst
+   */
+  export type MessageOutFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutInclude<ExtArgs> | null
+    /**
+     * Filter, which MessageOut to fetch.
+     */
+    where?: MessageOutWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MessageOuts to fetch.
+     */
+    orderBy?: MessageOutOrderByWithRelationInput | MessageOutOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MessageOuts.
+     */
+    cursor?: MessageOutWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MessageOuts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MessageOuts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MessageOuts.
+     */
+    distinct?: MessageOutScalarFieldEnum | MessageOutScalarFieldEnum[]
+  }
+
+  /**
+   * MessageOut findFirstOrThrow
+   */
+  export type MessageOutFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutInclude<ExtArgs> | null
+    /**
+     * Filter, which MessageOut to fetch.
+     */
+    where?: MessageOutWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MessageOuts to fetch.
+     */
+    orderBy?: MessageOutOrderByWithRelationInput | MessageOutOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MessageOuts.
+     */
+    cursor?: MessageOutWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MessageOuts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MessageOuts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MessageOuts.
+     */
+    distinct?: MessageOutScalarFieldEnum | MessageOutScalarFieldEnum[]
+  }
+
+  /**
+   * MessageOut findMany
+   */
+  export type MessageOutFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutInclude<ExtArgs> | null
+    /**
+     * Filter, which MessageOuts to fetch.
+     */
+    where?: MessageOutWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MessageOuts to fetch.
+     */
+    orderBy?: MessageOutOrderByWithRelationInput | MessageOutOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MessageOuts.
+     */
+    cursor?: MessageOutWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MessageOuts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MessageOuts.
+     */
+    skip?: number
+    distinct?: MessageOutScalarFieldEnum | MessageOutScalarFieldEnum[]
+  }
+
+  /**
+   * MessageOut create
+   */
+  export type MessageOutCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MessageOut.
+     */
+    data: XOR<MessageOutCreateInput, MessageOutUncheckedCreateInput>
+  }
+
+  /**
+   * MessageOut createMany
+   */
+  export type MessageOutCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MessageOuts.
+     */
+    data: MessageOutCreateManyInput | MessageOutCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MessageOut createManyAndReturn
+   */
+  export type MessageOutCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * The data used to create many MessageOuts.
+     */
+    data: MessageOutCreateManyInput | MessageOutCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MessageOut update
+   */
+  export type MessageOutUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MessageOut.
+     */
+    data: XOR<MessageOutUpdateInput, MessageOutUncheckedUpdateInput>
+    /**
+     * Choose, which MessageOut to update.
+     */
+    where: MessageOutWhereUniqueInput
+  }
+
+  /**
+   * MessageOut updateMany
+   */
+  export type MessageOutUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MessageOuts.
+     */
+    data: XOR<MessageOutUpdateManyMutationInput, MessageOutUncheckedUpdateManyInput>
+    /**
+     * Filter which MessageOuts to update
+     */
+    where?: MessageOutWhereInput
+    /**
+     * Limit how many MessageOuts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MessageOut updateManyAndReturn
+   */
+  export type MessageOutUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * The data used to update MessageOuts.
+     */
+    data: XOR<MessageOutUpdateManyMutationInput, MessageOutUncheckedUpdateManyInput>
+    /**
+     * Filter which MessageOuts to update
+     */
+    where?: MessageOutWhereInput
+    /**
+     * Limit how many MessageOuts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MessageOut upsert
+   */
+  export type MessageOutUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MessageOut to update in case it exists.
+     */
+    where: MessageOutWhereUniqueInput
+    /**
+     * In case the MessageOut found by the `where` argument doesn't exist, create a new MessageOut with this data.
+     */
+    create: XOR<MessageOutCreateInput, MessageOutUncheckedCreateInput>
+    /**
+     * In case the MessageOut was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MessageOutUpdateInput, MessageOutUncheckedUpdateInput>
+  }
+
+  /**
+   * MessageOut delete
+   */
+  export type MessageOutDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutInclude<ExtArgs> | null
+    /**
+     * Filter which MessageOut to delete.
+     */
+    where: MessageOutWhereUniqueInput
+  }
+
+  /**
+   * MessageOut deleteMany
+   */
+  export type MessageOutDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MessageOuts to delete
+     */
+    where?: MessageOutWhereInput
+    /**
+     * Limit how many MessageOuts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MessageOut without action
+   */
+  export type MessageOutDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessageOut
+     */
+    select?: MessageOutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessageOut
+     */
+    omit?: MessageOutOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessageOutInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model SubscriptionPayment
    */
 
@@ -34587,26 +34600,6 @@ export namespace Prisma {
   export type OptOutScalarFieldEnum = (typeof OptOutScalarFieldEnum)[keyof typeof OptOutScalarFieldEnum]
 
 
-  export const MessageOutScalarFieldEnum: {
-    id: 'id',
-    tenantId: 'tenantId',
-    to: 'to',
-    body: 'body',
-    mediaUrl: 'mediaUrl',
-    interactivePayload: 'interactivePayload',
-    status: 'status',
-    attempts: 'attempts',
-    nextAttemptAt: 'nextAttemptAt',
-    lastError: 'lastError',
-    correlationId: 'correlationId',
-    providerMessageId: 'providerMessageId',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type MessageOutScalarFieldEnum = (typeof MessageOutScalarFieldEnum)[keyof typeof MessageOutScalarFieldEnum]
-
-
   export const LiveSessionScalarFieldEnum: {
     id: 'id',
     tenantId: 'tenantId',
@@ -34766,6 +34759,27 @@ export namespace Prisma {
   };
 
   export type DeadLetterJobScalarFieldEnum = (typeof DeadLetterJobScalarFieldEnum)[keyof typeof DeadLetterJobScalarFieldEnum]
+
+
+  export const MessageOutScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    to: 'to',
+    body: 'body',
+    mediaUrl: 'mediaUrl',
+    interactivePayload: 'interactivePayload',
+    isTypingIndicator: 'isTypingIndicator',
+    status: 'status',
+    attempts: 'attempts',
+    nextAttemptAt: 'nextAttemptAt',
+    lastError: 'lastError',
+    correlationId: 'correlationId',
+    providerMessageId: 'providerMessageId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MessageOutScalarFieldEnum = (typeof MessageOutScalarFieldEnum)[keyof typeof MessageOutScalarFieldEnum]
 
 
   export const SubscriptionPaymentScalarFieldEnum: {
@@ -36120,109 +36134,6 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"OptOut"> | Date | string
   }
 
-  export type MessageOutWhereInput = {
-    AND?: MessageOutWhereInput | MessageOutWhereInput[]
-    OR?: MessageOutWhereInput[]
-    NOT?: MessageOutWhereInput | MessageOutWhereInput[]
-    id?: StringFilter<"MessageOut"> | string
-    tenantId?: StringFilter<"MessageOut"> | string
-    to?: StringFilter<"MessageOut"> | string
-    body?: StringFilter<"MessageOut"> | string
-    mediaUrl?: StringNullableFilter<"MessageOut"> | string | null
-    interactivePayload?: JsonNullableFilter<"MessageOut">
-    status?: StringFilter<"MessageOut"> | string
-    attempts?: IntFilter<"MessageOut"> | number
-    nextAttemptAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
-    lastError?: StringNullableFilter<"MessageOut"> | string | null
-    correlationId?: StringFilter<"MessageOut"> | string
-    providerMessageId?: StringNullableFilter<"MessageOut"> | string | null
-    createdAt?: DateTimeFilter<"MessageOut"> | Date | string
-    updatedAt?: DateTimeFilter<"MessageOut"> | Date | string
-    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
-  }
-
-  export type MessageOutOrderByWithRelationInput = {
-    id?: SortOrder
-    tenantId?: SortOrder
-    to?: SortOrder
-    body?: SortOrder
-    mediaUrl?: SortOrderInput | SortOrder
-    interactivePayload?: SortOrderInput | SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    nextAttemptAt?: SortOrderInput | SortOrder
-    lastError?: SortOrderInput | SortOrder
-    correlationId?: SortOrder
-    providerMessageId?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    tenant?: TenantOrderByWithRelationInput
-  }
-
-  export type MessageOutWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    tenantId_correlationId_to?: MessageOutTenantIdCorrelationIdToCompoundUniqueInput
-    AND?: MessageOutWhereInput | MessageOutWhereInput[]
-    OR?: MessageOutWhereInput[]
-    NOT?: MessageOutWhereInput | MessageOutWhereInput[]
-    tenantId?: StringFilter<"MessageOut"> | string
-    to?: StringFilter<"MessageOut"> | string
-    body?: StringFilter<"MessageOut"> | string
-    mediaUrl?: StringNullableFilter<"MessageOut"> | string | null
-    interactivePayload?: JsonNullableFilter<"MessageOut">
-    status?: StringFilter<"MessageOut"> | string
-    attempts?: IntFilter<"MessageOut"> | number
-    nextAttemptAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
-    lastError?: StringNullableFilter<"MessageOut"> | string | null
-    correlationId?: StringFilter<"MessageOut"> | string
-    providerMessageId?: StringNullableFilter<"MessageOut"> | string | null
-    createdAt?: DateTimeFilter<"MessageOut"> | Date | string
-    updatedAt?: DateTimeFilter<"MessageOut"> | Date | string
-    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
-  }, "id" | "tenantId_correlationId_to">
-
-  export type MessageOutOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenantId?: SortOrder
-    to?: SortOrder
-    body?: SortOrder
-    mediaUrl?: SortOrderInput | SortOrder
-    interactivePayload?: SortOrderInput | SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    nextAttemptAt?: SortOrderInput | SortOrder
-    lastError?: SortOrderInput | SortOrder
-    correlationId?: SortOrder
-    providerMessageId?: SortOrderInput | SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: MessageOutCountOrderByAggregateInput
-    _avg?: MessageOutAvgOrderByAggregateInput
-    _max?: MessageOutMaxOrderByAggregateInput
-    _min?: MessageOutMinOrderByAggregateInput
-    _sum?: MessageOutSumOrderByAggregateInput
-  }
-
-  export type MessageOutScalarWhereWithAggregatesInput = {
-    AND?: MessageOutScalarWhereWithAggregatesInput | MessageOutScalarWhereWithAggregatesInput[]
-    OR?: MessageOutScalarWhereWithAggregatesInput[]
-    NOT?: MessageOutScalarWhereWithAggregatesInput | MessageOutScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"MessageOut"> | string
-    tenantId?: StringWithAggregatesFilter<"MessageOut"> | string
-    to?: StringWithAggregatesFilter<"MessageOut"> | string
-    body?: StringWithAggregatesFilter<"MessageOut"> | string
-    mediaUrl?: StringNullableWithAggregatesFilter<"MessageOut"> | string | null
-    interactivePayload?: JsonNullableWithAggregatesFilter<"MessageOut">
-    status?: StringWithAggregatesFilter<"MessageOut"> | string
-    attempts?: IntWithAggregatesFilter<"MessageOut"> | number
-    nextAttemptAt?: DateTimeNullableWithAggregatesFilter<"MessageOut"> | Date | string | null
-    lastError?: StringNullableWithAggregatesFilter<"MessageOut"> | string | null
-    correlationId?: StringWithAggregatesFilter<"MessageOut"> | string
-    providerMessageId?: StringNullableWithAggregatesFilter<"MessageOut"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"MessageOut"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"MessageOut"> | Date | string
-  }
-
   export type LiveSessionWhereInput = {
     AND?: LiveSessionWhereInput | LiveSessionWhereInput[]
     OR?: LiveSessionWhereInput[]
@@ -37102,6 +37013,114 @@ export namespace Prisma {
     attempts?: IntWithAggregatesFilter<"DeadLetterJob"> | number
     createdAt?: DateTimeWithAggregatesFilter<"DeadLetterJob"> | Date | string
     resolvedAt?: DateTimeNullableWithAggregatesFilter<"DeadLetterJob"> | Date | string | null
+  }
+
+  export type MessageOutWhereInput = {
+    AND?: MessageOutWhereInput | MessageOutWhereInput[]
+    OR?: MessageOutWhereInput[]
+    NOT?: MessageOutWhereInput | MessageOutWhereInput[]
+    id?: StringFilter<"MessageOut"> | string
+    tenantId?: StringFilter<"MessageOut"> | string
+    to?: StringFilter<"MessageOut"> | string
+    body?: StringNullableFilter<"MessageOut"> | string | null
+    mediaUrl?: StringNullableFilter<"MessageOut"> | string | null
+    interactivePayload?: JsonNullableFilter<"MessageOut">
+    isTypingIndicator?: BoolFilter<"MessageOut"> | boolean
+    status?: StringFilter<"MessageOut"> | string
+    attempts?: IntFilter<"MessageOut"> | number
+    nextAttemptAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
+    lastError?: StringNullableFilter<"MessageOut"> | string | null
+    correlationId?: StringFilter<"MessageOut"> | string
+    providerMessageId?: StringNullableFilter<"MessageOut"> | string | null
+    createdAt?: DateTimeFilter<"MessageOut"> | Date | string
+    updatedAt?: DateTimeFilter<"MessageOut"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }
+
+  export type MessageOutOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    to?: SortOrder
+    body?: SortOrderInput | SortOrder
+    mediaUrl?: SortOrderInput | SortOrder
+    interactivePayload?: SortOrderInput | SortOrder
+    isTypingIndicator?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrderInput | SortOrder
+    lastError?: SortOrderInput | SortOrder
+    correlationId?: SortOrder
+    providerMessageId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+  }
+
+  export type MessageOutWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenantId_correlationId_to?: MessageOutTenantIdCorrelationIdToCompoundUniqueInput
+    AND?: MessageOutWhereInput | MessageOutWhereInput[]
+    OR?: MessageOutWhereInput[]
+    NOT?: MessageOutWhereInput | MessageOutWhereInput[]
+    tenantId?: StringFilter<"MessageOut"> | string
+    to?: StringFilter<"MessageOut"> | string
+    body?: StringNullableFilter<"MessageOut"> | string | null
+    mediaUrl?: StringNullableFilter<"MessageOut"> | string | null
+    interactivePayload?: JsonNullableFilter<"MessageOut">
+    isTypingIndicator?: BoolFilter<"MessageOut"> | boolean
+    status?: StringFilter<"MessageOut"> | string
+    attempts?: IntFilter<"MessageOut"> | number
+    nextAttemptAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
+    lastError?: StringNullableFilter<"MessageOut"> | string | null
+    correlationId?: StringFilter<"MessageOut"> | string
+    providerMessageId?: StringNullableFilter<"MessageOut"> | string | null
+    createdAt?: DateTimeFilter<"MessageOut"> | Date | string
+    updatedAt?: DateTimeFilter<"MessageOut"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }, "id" | "tenantId_correlationId_to">
+
+  export type MessageOutOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    to?: SortOrder
+    body?: SortOrderInput | SortOrder
+    mediaUrl?: SortOrderInput | SortOrder
+    interactivePayload?: SortOrderInput | SortOrder
+    isTypingIndicator?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrderInput | SortOrder
+    lastError?: SortOrderInput | SortOrder
+    correlationId?: SortOrder
+    providerMessageId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MessageOutCountOrderByAggregateInput
+    _avg?: MessageOutAvgOrderByAggregateInput
+    _max?: MessageOutMaxOrderByAggregateInput
+    _min?: MessageOutMinOrderByAggregateInput
+    _sum?: MessageOutSumOrderByAggregateInput
+  }
+
+  export type MessageOutScalarWhereWithAggregatesInput = {
+    AND?: MessageOutScalarWhereWithAggregatesInput | MessageOutScalarWhereWithAggregatesInput[]
+    OR?: MessageOutScalarWhereWithAggregatesInput[]
+    NOT?: MessageOutScalarWhereWithAggregatesInput | MessageOutScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MessageOut"> | string
+    tenantId?: StringWithAggregatesFilter<"MessageOut"> | string
+    to?: StringWithAggregatesFilter<"MessageOut"> | string
+    body?: StringNullableWithAggregatesFilter<"MessageOut"> | string | null
+    mediaUrl?: StringNullableWithAggregatesFilter<"MessageOut"> | string | null
+    interactivePayload?: JsonNullableWithAggregatesFilter<"MessageOut">
+    isTypingIndicator?: BoolWithAggregatesFilter<"MessageOut"> | boolean
+    status?: StringWithAggregatesFilter<"MessageOut"> | string
+    attempts?: IntWithAggregatesFilter<"MessageOut"> | number
+    nextAttemptAt?: DateTimeNullableWithAggregatesFilter<"MessageOut"> | Date | string | null
+    lastError?: StringNullableWithAggregatesFilter<"MessageOut"> | string | null
+    correlationId?: StringWithAggregatesFilter<"MessageOut"> | string
+    providerMessageId?: StringNullableWithAggregatesFilter<"MessageOut"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"MessageOut"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MessageOut"> | Date | string
   }
 
   export type SubscriptionPaymentWhereInput = {
@@ -38417,124 +38436,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MessageOutCreateInput = {
-    id?: string
-    to: string
-    body: string
-    mediaUrl?: string | null
-    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
-    status: string
-    attempts?: number
-    nextAttemptAt?: Date | string | null
-    lastError?: string | null
-    correlationId: string
-    providerMessageId?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    tenant: TenantCreateNestedOneWithoutMessagesOutInput
-  }
-
-  export type MessageOutUncheckedCreateInput = {
-    id?: string
-    tenantId: string
-    to: string
-    body: string
-    mediaUrl?: string | null
-    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
-    status: string
-    attempts?: number
-    nextAttemptAt?: Date | string | null
-    lastError?: string | null
-    correlationId: string
-    providerMessageId?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type MessageOutUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    to?: StringFieldUpdateOperationsInput | string
-    body?: StringFieldUpdateOperationsInput | string
-    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastError?: NullableStringFieldUpdateOperationsInput | string | null
-    correlationId?: StringFieldUpdateOperationsInput | string
-    providerMessageId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUpdateOneRequiredWithoutMessagesOutNestedInput
-  }
-
-  export type MessageOutUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenantId?: StringFieldUpdateOperationsInput | string
-    to?: StringFieldUpdateOperationsInput | string
-    body?: StringFieldUpdateOperationsInput | string
-    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastError?: NullableStringFieldUpdateOperationsInput | string | null
-    correlationId?: StringFieldUpdateOperationsInput | string
-    providerMessageId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type MessageOutCreateManyInput = {
-    id?: string
-    tenantId: string
-    to: string
-    body: string
-    mediaUrl?: string | null
-    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
-    status: string
-    attempts?: number
-    nextAttemptAt?: Date | string | null
-    lastError?: string | null
-    correlationId: string
-    providerMessageId?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type MessageOutUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    to?: StringFieldUpdateOperationsInput | string
-    body?: StringFieldUpdateOperationsInput | string
-    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastError?: NullableStringFieldUpdateOperationsInput | string | null
-    correlationId?: StringFieldUpdateOperationsInput | string
-    providerMessageId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type MessageOutUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenantId?: StringFieldUpdateOperationsInput | string
-    to?: StringFieldUpdateOperationsInput | string
-    body?: StringFieldUpdateOperationsInput | string
-    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
-    status?: StringFieldUpdateOperationsInput | string
-    attempts?: IntFieldUpdateOperationsInput | number
-    nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    lastError?: NullableStringFieldUpdateOperationsInput | string | null
-    correlationId?: StringFieldUpdateOperationsInput | string
-    providerMessageId?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type LiveSessionCreateInput = {
     id?: string
     status?: $Enums.LiveSessionStatus
@@ -39470,6 +39371,131 @@ export namespace Prisma {
     attempts?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MessageOutCreateInput = {
+    id?: string
+    to: string
+    body?: string | null
+    mediaUrl?: string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: boolean
+    status: string
+    attempts?: number
+    nextAttemptAt?: Date | string | null
+    lastError?: string | null
+    correlationId: string
+    providerMessageId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutMessagesOutInput
+  }
+
+  export type MessageOutUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    to: string
+    body?: string | null
+    mediaUrl?: string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: boolean
+    status: string
+    attempts?: number
+    nextAttemptAt?: Date | string | null
+    lastError?: string | null
+    correlationId: string
+    providerMessageId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MessageOutUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    to?: StringFieldUpdateOperationsInput | string
+    body?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    providerMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutMessagesOutNestedInput
+  }
+
+  export type MessageOutUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    to?: StringFieldUpdateOperationsInput | string
+    body?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    providerMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessageOutCreateManyInput = {
+    id?: string
+    tenantId: string
+    to: string
+    body?: string | null
+    mediaUrl?: string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: boolean
+    status: string
+    attempts?: number
+    nextAttemptAt?: Date | string | null
+    lastError?: string | null
+    correlationId: string
+    providerMessageId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MessageOutUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    to?: StringFieldUpdateOperationsInput | string
+    body?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    providerMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessageOutUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    to?: StringFieldUpdateOperationsInput | string
+    body?: NullableStringFieldUpdateOperationsInput | string | null
+    mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: StringFieldUpdateOperationsInput | string
+    providerMessageId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubscriptionPaymentCreateInput = {
@@ -40678,118 +40704,6 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type MessageOutTenantIdCorrelationIdToCompoundUniqueInput = {
-    tenantId: string
-    correlationId: string
-    to: string
-  }
-
-  export type MessageOutCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenantId?: SortOrder
-    to?: SortOrder
-    body?: SortOrder
-    mediaUrl?: SortOrder
-    interactivePayload?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    nextAttemptAt?: SortOrder
-    lastError?: SortOrder
-    correlationId?: SortOrder
-    providerMessageId?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type MessageOutAvgOrderByAggregateInput = {
-    attempts?: SortOrder
-  }
-
-  export type MessageOutMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenantId?: SortOrder
-    to?: SortOrder
-    body?: SortOrder
-    mediaUrl?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    nextAttemptAt?: SortOrder
-    lastError?: SortOrder
-    correlationId?: SortOrder
-    providerMessageId?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type MessageOutMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenantId?: SortOrder
-    to?: SortOrder
-    body?: SortOrder
-    mediaUrl?: SortOrder
-    status?: SortOrder
-    attempts?: SortOrder
-    nextAttemptAt?: SortOrder
-    lastError?: SortOrder
-    correlationId?: SortOrder
-    providerMessageId?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type MessageOutSumOrderByAggregateInput = {
-    attempts?: SortOrder
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
-  }
 
   export type EnumLiveSessionStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.LiveSessionStatus | EnumLiveSessionStatusFieldRefInput<$PrismaModel>
@@ -40833,6 +40747,29 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumLiveSessionStatusFilter<$PrismaModel>
     _max?: NestedEnumLiveSessionStatusFilter<$PrismaModel>
+  }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type LiveSessionScalarRelationFilter = {
@@ -40901,6 +40838,32 @@ export namespace Prisma {
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type EnumCatalogueItemOriginFilter<$PrismaModel = never> = {
@@ -41398,6 +41361,72 @@ export namespace Prisma {
   }
 
   export type DeadLetterJobSumOrderByAggregateInput = {
+    attempts?: SortOrder
+  }
+
+  export type MessageOutTenantIdCorrelationIdToCompoundUniqueInput = {
+    tenantId: string
+    correlationId: string
+    to: string
+  }
+
+  export type MessageOutCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    to?: SortOrder
+    body?: SortOrder
+    mediaUrl?: SortOrder
+    interactivePayload?: SortOrder
+    isTypingIndicator?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    lastError?: SortOrder
+    correlationId?: SortOrder
+    providerMessageId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MessageOutAvgOrderByAggregateInput = {
+    attempts?: SortOrder
+  }
+
+  export type MessageOutMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    to?: SortOrder
+    body?: SortOrder
+    mediaUrl?: SortOrder
+    isTypingIndicator?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    lastError?: SortOrder
+    correlationId?: SortOrder
+    providerMessageId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MessageOutMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    to?: SortOrder
+    body?: SortOrder
+    mediaUrl?: SortOrder
+    isTypingIndicator?: SortOrder
+    status?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    lastError?: SortOrder
+    correlationId?: SortOrder
+    providerMessageId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MessageOutSumOrderByAggregateInput = {
     attempts?: SortOrder
   }
 
@@ -42676,20 +42705,6 @@ export namespace Prisma {
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutOptOutsInput, TenantUpdateWithoutOptOutsInput>, TenantUncheckedUpdateWithoutOptOutsInput>
   }
 
-  export type TenantCreateNestedOneWithoutMessagesOutInput = {
-    create?: XOR<TenantCreateWithoutMessagesOutInput, TenantUncheckedCreateWithoutMessagesOutInput>
-    connectOrCreate?: TenantCreateOrConnectWithoutMessagesOutInput
-    connect?: TenantWhereUniqueInput
-  }
-
-  export type TenantUpdateOneRequiredWithoutMessagesOutNestedInput = {
-    create?: XOR<TenantCreateWithoutMessagesOutInput, TenantUncheckedCreateWithoutMessagesOutInput>
-    connectOrCreate?: TenantCreateOrConnectWithoutMessagesOutInput
-    upsert?: TenantUpsertWithoutMessagesOutInput
-    connect?: TenantWhereUniqueInput
-    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutMessagesOutInput, TenantUpdateWithoutMessagesOutInput>, TenantUncheckedUpdateWithoutMessagesOutInput>
-  }
-
   export type TenantCreateNestedOneWithoutLiveSessionsInput = {
     create?: XOR<TenantCreateWithoutLiveSessionsInput, TenantUncheckedCreateWithoutLiveSessionsInput>
     connectOrCreate?: TenantCreateOrConnectWithoutLiveSessionsInput
@@ -43418,6 +43433,20 @@ export namespace Prisma {
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutDeadLetterJobsInput, TenantUpdateWithoutDeadLetterJobsInput>, TenantUncheckedUpdateWithoutDeadLetterJobsInput>
   }
 
+  export type TenantCreateNestedOneWithoutMessagesOutInput = {
+    create?: XOR<TenantCreateWithoutMessagesOutInput, TenantUncheckedCreateWithoutMessagesOutInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutMessagesOutInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type TenantUpdateOneRequiredWithoutMessagesOutNestedInput = {
+    create?: XOR<TenantCreateWithoutMessagesOutInput, TenantUncheckedCreateWithoutMessagesOutInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutMessagesOutInput
+    upsert?: TenantUpsertWithoutMessagesOutInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutMessagesOutInput, TenantUpdateWithoutMessagesOutInput>, TenantUncheckedUpdateWithoutMessagesOutInput>
+  }
+
   export type TenantCreateNestedOneWithoutSubscriptionPaymentsInput = {
     create?: XOR<TenantCreateWithoutSubscriptionPaymentsInput, TenantUncheckedCreateWithoutSubscriptionPaymentsInput>
     connectOrCreate?: TenantCreateOrConnectWithoutSubscriptionPaymentsInput
@@ -43672,6 +43701,23 @@ export namespace Prisma {
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
+
+  export type NestedEnumLiveSessionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.LiveSessionStatus | EnumLiveSessionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.LiveSessionStatus[] | ListEnumLiveSessionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LiveSessionStatus[] | ListEnumLiveSessionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumLiveSessionStatusFilter<$PrismaModel> | $Enums.LiveSessionStatus
+  }
+
+  export type NestedEnumLiveSessionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LiveSessionStatus | EnumLiveSessionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.LiveSessionStatus[] | ListEnumLiveSessionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LiveSessionStatus[] | ListEnumLiveSessionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumLiveSessionStatusWithAggregatesFilter<$PrismaModel> | $Enums.LiveSessionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLiveSessionStatusFilter<$PrismaModel>
+    _max?: NestedEnumLiveSessionStatusFilter<$PrismaModel>
+  }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -43694,23 +43740,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type NestedEnumLiveSessionStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.LiveSessionStatus | EnumLiveSessionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.LiveSessionStatus[] | ListEnumLiveSessionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.LiveSessionStatus[] | ListEnumLiveSessionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumLiveSessionStatusFilter<$PrismaModel> | $Enums.LiveSessionStatus
-  }
-
-  export type NestedEnumLiveSessionStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.LiveSessionStatus | EnumLiveSessionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.LiveSessionStatus[] | ListEnumLiveSessionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.LiveSessionStatus[] | ListEnumLiveSessionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumLiveSessionStatusWithAggregatesFilter<$PrismaModel> | $Enums.LiveSessionStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumLiveSessionStatusFilter<$PrismaModel>
-    _max?: NestedEnumLiveSessionStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumCatalogueItemOriginFilter<$PrismaModel = never> = {
@@ -44011,9 +44040,10 @@ export namespace Prisma {
   export type MessageOutCreateWithoutTenantInput = {
     id?: string
     to: string
-    body: string
+    body?: string | null
     mediaUrl?: string | null
     interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: boolean
     status: string
     attempts?: number
     nextAttemptAt?: Date | string | null
@@ -44027,9 +44057,10 @@ export namespace Prisma {
   export type MessageOutUncheckedCreateWithoutTenantInput = {
     id?: string
     to: string
-    body: string
+    body?: string | null
     mediaUrl?: string | null
     interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: boolean
     status: string
     attempts?: number
     nextAttemptAt?: Date | string | null
@@ -44736,9 +44767,10 @@ export namespace Prisma {
     id?: StringFilter<"MessageOut"> | string
     tenantId?: StringFilter<"MessageOut"> | string
     to?: StringFilter<"MessageOut"> | string
-    body?: StringFilter<"MessageOut"> | string
+    body?: StringNullableFilter<"MessageOut"> | string | null
     mediaUrl?: StringNullableFilter<"MessageOut"> | string | null
     interactivePayload?: JsonNullableFilter<"MessageOut">
+    isTypingIndicator?: BoolFilter<"MessageOut"> | boolean
     status?: StringFilter<"MessageOut"> | string
     attempts?: IntFilter<"MessageOut"> | number
     nextAttemptAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
@@ -47644,242 +47676,6 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
-    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
-    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
-    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
-    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
-    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
-    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
-    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
-    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
-    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
-  }
-
-  export type TenantCreateWithoutMessagesOutInput = {
-    id?: string
-    name: string
-    metaPhoneNumberId?: string | null
-    metaWabaId?: string | null
-    metaAccessToken?: string | null
-    requireDeposit?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    subscriptionPlan?: string
-    subscriptionStatus?: string
-    subscriptionExpiresAt?: Date | string | null
-    cycleStartedAt?: Date | string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
-    paystackEmailToken?: string | null
-    paystackAuthorizationCode?: string | null
-    maxConfirmedOrdersPerMonth?: number
-    maxProofsPerMonth?: number
-    maxAgents?: number
-    overagePerOrderCents?: number
-    hasExportCsv?: boolean
-    hasAdvancedExports?: boolean
-    hasNotificationsOutside24h?: boolean
-    hasDepositRecommended?: boolean
-    hasAdvancedFilters?: boolean
-    hasPrioritySupport?: boolean
-    showBranding?: boolean
-    showUpgradeBanner?: boolean
-    faqDelivery?: string | null
-    faqPayment?: string | null
-    faqLocation?: string | null
-    faqAvailability?: string | null
-    users?: UserCreateNestedManyWithoutTenantInput
-    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
-    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
-    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
-    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
-    invitations?: InvitationCreateNestedManyWithoutTenantInput
-    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
-    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
-    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
-    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
-    optOuts?: OptOutCreateNestedManyWithoutTenantInput
-    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
-    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
-    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
-    reservations?: ReservationCreateNestedManyWithoutTenantInput
-    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
-    orders?: OrderCreateNestedManyWithoutTenantInput
-    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
-    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
-    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
-  }
-
-  export type TenantUncheckedCreateWithoutMessagesOutInput = {
-    id?: string
-    name: string
-    metaPhoneNumberId?: string | null
-    metaWabaId?: string | null
-    metaAccessToken?: string | null
-    requireDeposit?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    subscriptionPlan?: string
-    subscriptionStatus?: string
-    subscriptionExpiresAt?: Date | string | null
-    cycleStartedAt?: Date | string | null
-    paystackCustomerCode?: string | null
-    paystackSubscriptionCode?: string | null
-    paystackEmailToken?: string | null
-    paystackAuthorizationCode?: string | null
-    maxConfirmedOrdersPerMonth?: number
-    maxProofsPerMonth?: number
-    maxAgents?: number
-    overagePerOrderCents?: number
-    hasExportCsv?: boolean
-    hasAdvancedExports?: boolean
-    hasNotificationsOutside24h?: boolean
-    hasDepositRecommended?: boolean
-    hasAdvancedFilters?: boolean
-    hasPrioritySupport?: boolean
-    showBranding?: boolean
-    showUpgradeBanner?: boolean
-    faqDelivery?: string | null
-    faqPayment?: string | null
-    faqLocation?: string | null
-    faqAvailability?: string | null
-    users?: UserUncheckedCreateNestedManyWithoutTenantInput
-    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
-    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
-    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
-    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
-    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
-    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
-    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
-    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
-    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
-    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
-    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
-    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
-    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
-    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
-    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
-    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
-    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
-    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
-    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
-  }
-
-  export type TenantCreateOrConnectWithoutMessagesOutInput = {
-    where: TenantWhereUniqueInput
-    create: XOR<TenantCreateWithoutMessagesOutInput, TenantUncheckedCreateWithoutMessagesOutInput>
-  }
-
-  export type TenantUpsertWithoutMessagesOutInput = {
-    update: XOR<TenantUpdateWithoutMessagesOutInput, TenantUncheckedUpdateWithoutMessagesOutInput>
-    create: XOR<TenantCreateWithoutMessagesOutInput, TenantUncheckedCreateWithoutMessagesOutInput>
-    where?: TenantWhereInput
-  }
-
-  export type TenantUpdateToOneWithWhereWithoutMessagesOutInput = {
-    where?: TenantWhereInput
-    data: XOR<TenantUpdateWithoutMessagesOutInput, TenantUncheckedUpdateWithoutMessagesOutInput>
-  }
-
-  export type TenantUpdateWithoutMessagesOutInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
-    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
-    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    subscriptionStatus?: StringFieldUpdateOperationsInput | string
-    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
-    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
-    maxAgents?: IntFieldUpdateOperationsInput | number
-    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
-    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
-    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
-    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
-    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
-    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
-    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
-    showBranding?: BoolFieldUpdateOperationsInput | boolean
-    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
-    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
-    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
-    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
-    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
-    users?: UserUpdateManyWithoutTenantNestedInput
-    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
-    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
-    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
-    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
-    invitations?: InvitationUpdateManyWithoutTenantNestedInput
-    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
-    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
-    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
-    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
-    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
-    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
-    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
-    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
-    reservations?: ReservationUpdateManyWithoutTenantNestedInput
-    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
-    orders?: OrderUpdateManyWithoutTenantNestedInput
-    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
-    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
-    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
-  }
-
-  export type TenantUncheckedUpdateWithoutMessagesOutInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
-    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
-    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    subscriptionPlan?: StringFieldUpdateOperationsInput | string
-    subscriptionStatus?: StringFieldUpdateOperationsInput | string
-    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
-    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
-    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
-    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
-    maxAgents?: IntFieldUpdateOperationsInput | number
-    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
-    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
-    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
-    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
-    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
-    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
-    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
-    showBranding?: BoolFieldUpdateOperationsInput | boolean
-    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
-    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
-    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
-    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
-    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
-    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
-    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
-    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
-    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
-    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
-    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
-    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
-    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
-    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
-    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
-    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
@@ -51587,6 +51383,242 @@ export namespace Prisma {
     itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
+  export type TenantCreateWithoutMessagesOutInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutMessagesOutInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutMessagesOutInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutMessagesOutInput, TenantUncheckedCreateWithoutMessagesOutInput>
+  }
+
+  export type TenantUpsertWithoutMessagesOutInput = {
+    update: XOR<TenantUpdateWithoutMessagesOutInput, TenantUncheckedUpdateWithoutMessagesOutInput>
+    create: XOR<TenantCreateWithoutMessagesOutInput, TenantUncheckedCreateWithoutMessagesOutInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutMessagesOutInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutMessagesOutInput, TenantUncheckedUpdateWithoutMessagesOutInput>
+  }
+
+  export type TenantUpdateWithoutMessagesOutInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutMessagesOutInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
   export type TenantCreateWithoutSubscriptionPaymentsInput = {
     id?: string
     name: string
@@ -51893,9 +51925,10 @@ export namespace Prisma {
   export type MessageOutCreateManyTenantInput = {
     id?: string
     to: string
-    body: string
+    body?: string | null
     mediaUrl?: string | null
     interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: boolean
     status: string
     attempts?: number
     nextAttemptAt?: Date | string | null
@@ -52269,9 +52302,10 @@ export namespace Prisma {
   export type MessageOutUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
-    body?: StringFieldUpdateOperationsInput | string
+    body?: NullableStringFieldUpdateOperationsInput | string | null
     mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52285,9 +52319,10 @@ export namespace Prisma {
   export type MessageOutUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
-    body?: StringFieldUpdateOperationsInput | string
+    body?: NullableStringFieldUpdateOperationsInput | string | null
     mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52301,9 +52336,10 @@ export namespace Prisma {
   export type MessageOutUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
-    body?: StringFieldUpdateOperationsInput | string
+    body?: NullableStringFieldUpdateOperationsInput | string | null
     mediaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     interactivePayload?: NullableJsonNullValueInput | InputJsonValue
+    isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
