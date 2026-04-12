@@ -88,29 +88,7 @@ export function migrateCIPhoneNumber(phoneNumber: string): string {
   return `+225${newPrefix}${localNumber}`;
 }
 
-/**
- * Normalise un numéro de téléphone en enlevant le préfixe "whatsapp:" si présent,
- * applique la migration CI si nécessaire, et valide le format E.164
- * @param phoneNumber - Numéro à normaliser
- * @returns Numéro normalisé (format E.164)
- * @throws Error si le numéro normalisé n'est pas au format E.164
- */
-export function normalizeAndValidatePhoneNumber(phoneNumber: string): string {
-  // Enlever préfixe "whatsapp:" (case-insensitive)
-  let normalized = phoneNumber.replace(/^whatsapp:/i, "");
 
-  // Migration CI : ancien format 8 chiffres → nouveau format 10 chiffres
-  normalized = migrateCIPhoneNumber(normalized);
-
-  // Valider format E.164
-  if (!isValidE164(normalized)) {
-    throw new Error(
-      `Numéro de téléphone invalide: "${phoneNumber}" (normalisé: "${normalized}"). Format attendu: E.164 (ex: +33612345678)`,
-    );
-  }
-
-  return normalized;
-}
 
 /**
  * Fonction MAÎTRE de normalisation pour SnapSell.

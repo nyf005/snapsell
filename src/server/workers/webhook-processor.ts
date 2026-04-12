@@ -4,7 +4,6 @@ import { captureException } from "~/lib/sentry";
 import { boss, QUEUE, type PgBossJob } from "./queues";
 import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types";
 import {
-  normalizeAndValidatePhoneNumber,
   normalizeIncomingPhone,
   migrateCIPhoneNumber,
 } from "~/lib/validations/phone";

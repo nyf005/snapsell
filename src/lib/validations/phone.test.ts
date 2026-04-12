@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 
 import {
   e164PhoneSchema,
-  normalizeAndValidateMessagingPhoneNumber,
+  normalizeIncomingPhone,
 } from "~/lib/validations/phone";
 
 describe("e164PhoneSchema", () => {
@@ -24,8 +24,10 @@ describe("e164PhoneSchema", () => {
     expect(() => e164PhoneSchema.parse("+33abc45678")).toThrow();
   });
 
-  it("preserves provider E.164 numbers without CI migration", () => {
-    expect(normalizeAndValidateMessagingPhoneNumber("+22509542783")).toBe("+22509542783");
-    expect(normalizeAndValidateMessagingPhoneNumber("whatsapp:+22509542783")).toBe("+22509542783");
+  it("normalizes and validates incoming numbers (with/without whatsapp prefix)", () => {
+    // Note: normalizeIncomingPhone also performs CI 8->10 migration if input is 8-digit
+    // But here we test simple normalization + validation
+    expect(normalizeIncomingPhone("+2250709542783")).toBe("+2250709542783");
+    expect(normalizeIncomingPhone("whatsapp:+2250709542783")).toBe("+2250709542783");
   });
 });

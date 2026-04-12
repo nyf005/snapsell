@@ -10,7 +10,6 @@ import { checkWebhookRateLimit, getClientIpFromRequest } from "~/lib/rate-limit"
 import { captureException as sendToSentry } from "~/lib/sentry";
 import { decrypt } from "~/lib/crypto";
 import {
-  normalizeAndValidatePhoneNumber,
   normalizeIncomingPhone,
 } from "~/lib/validations/phone";
 import { getProviderForTenant, sendImmediateTyping } from "~/server/messaging/service";

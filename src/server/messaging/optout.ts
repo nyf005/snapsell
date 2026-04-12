@@ -7,28 +7,10 @@
 
 import { db } from "~/server/db";
 import {
-  migrateCIPhoneNumber,
-  normalizeAndValidateMessagingPhoneNumber,
+  normalizeIncomingPhone,
 } from "~/lib/validations/phone";
 
-/** Enlève le préfixe "whatsapp:" (cohérent avec webhook-processor / MessageOut.to) */
-function stripWhatsAppPrefix(phoneNumber: string): string {
-  return phoneNumber.replace(/^whatsapp:/i, "");
-}
 
-/**
- * Normalise un numéro pour lookup OptOut (format E.164, cohérent avec MessageOut.to).
- * Strip préfixe whatsapp:, puis valide E.164. Si invalide, retourne la chaîne sans préfixe (fallback).
- * Hypothèse : MessageOut.to est toujours stocké en E.164 ; sinon risque de faux négatif (envoi alors qu'opt-out).
- */
-function normalizePhoneForOptOut(phoneNumber: string): string {
-  const withoutPrefix = stripWhatsAppPrefix(phoneNumber);
-  try {
-    return normalizeAndValidateMessagingPhoneNumber(withoutPrefix);
-  } catch {
-    return withoutPrefix;
-  }
-}
 
 /**
  * Vérifie si le numéro a opt-out (STOP) pour ce tenant.
@@ -43,12 +25,11 @@ export async function checkOptOut(
   tenantId: string,
   phoneNumber: string,
 ): Promise<boolean> {
-  const normalized = normalizePhoneForOptOut(phoneNumber);
-  const migrated = migrateCIPhoneNumber(normalized);
+  const normalized = normalizeIncomingPhone(phoneNumber);
   const found = await db.optOut.findFirst({
     where: {
       tenantId,
-      phoneNumber: migrated === normalized ? normalized : { in: [normalized, migrated] },
+      phoneNumber: normalized,
     },
   });
   return found != null;
