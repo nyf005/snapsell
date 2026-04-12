@@ -258,7 +258,7 @@ export const botMsg = {
         type: "buttons",
         buttons: [
           { id: `configure_variants:${code}`, title: "⚙️ Variantes" },
-          { id: "no_variants", title: "⏸️ Sans variantes" },
+          { id: "no_variants", title: "⏭️ Sans variantes" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -270,7 +270,7 @@ export const botMsg = {
         type: "buttons",
         buttons: [
           { id: `configure_variants:${code}`, title: "⚙️ Variantes" },
-          { id: "no_variants", title: "⏸️ Sans variantes" },
+          { id: "no_variants", title: "⏭️ Sans variantes" },
         ],
       } satisfies InteractivePayload,
     }),
