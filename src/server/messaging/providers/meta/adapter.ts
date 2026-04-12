@@ -247,6 +247,7 @@ export class MetaCloudAdapter implements MessagingProvider {
         messaging_product: "whatsapp",
         recipient_type: "individual",
         to: toNumber,
+        type: "typing_indicator",
         typing_indicator: {
           type: "text",
         },
