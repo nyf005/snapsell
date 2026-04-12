@@ -105,12 +105,12 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
       // Injection native UI pour les messages interactifs (mieux rendu)
       normalizedMessage.interactive.header = tenant.shopName;
       if (tenant.showBranding) {
-        normalizedMessage.interactive.footer = "Propulsé par SnapSell";
+        normalizedMessage.interactive.footer = "Via SnapSell";
       }
     } else {
       // Injection texte pour les messages simples
       const header = `*${tenant.shopName}*\n---\n\n`;
-      const footer = tenant.showBranding ? `\n\n_Propulsé par SnapSell_` : "";
+      const footer = tenant.showBranding ? `\n\n_Via SnapSell_` : "";
       normalizedMessage.body = `${header}${normalizedMessage.body}${footer}`;
     }
   }
