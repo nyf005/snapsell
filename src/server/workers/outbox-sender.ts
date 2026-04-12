@@ -18,7 +18,7 @@ import { generateSignedR2Url } from "~/server/media/r2-signed-url";
 import { boss, QUEUE, type PgBossJob } from "./queues";
 
 /** Payload du job outbox-send */
-export interface OutboundSendPayload {
+export interface OutboxSendPayload {
   messageOutId: string;
 }
 
@@ -79,7 +79,7 @@ export async function processOutboundMessage(messageOut: {
     // Story 10.4: Résolution per-tenant du provider Meta
     const tenant = await db.tenant.findUnique({
       where: { id: tenantId },
-      select: { metaPhoneNumberId: true, metaAccessToken: true },
+      select: { id: true, metaPhoneNumberId: true, metaAccessToken: true },
     });
 
     if (!tenant?.metaPhoneNumberId || !tenant?.metaAccessToken) {
