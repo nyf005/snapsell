@@ -2034,11 +2034,17 @@ describe("webhook-processor", () => {
             interactive: expect.objectContaining({
               type: "buttons",
               buttons: expect.arrayContaining([
-                expect.objectContaining({ id: "configure_variants:A12" }),
+                expect.objectContaining({ id: "configure_variants:A12", title: "Variantes" }),
               ]),
             }),
           }),
         );
+
+        const outboxPayload = vi.mocked(writeToOutbox).mock.calls.at(-1)?.[0];
+        const variantButton = outboxPayload?.interactive?.type === "buttons"
+          ? outboxPayload.interactive.buttons.find((btn) => btn.id === "configure_variants:A12")
+          : undefined;
+        expect(variantButton?.title.length).toBeLessThanOrEqual(20);
       });
 
       it("AC#2: vendeur photo + code introuvable (upsert échoue) → message 'Code introuvable'", async () => {

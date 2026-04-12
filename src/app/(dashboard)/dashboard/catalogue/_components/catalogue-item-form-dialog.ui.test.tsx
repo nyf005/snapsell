@@ -1,12 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
 // Mock tRPC
 const mockMutateAsync = vi.fn();
+const mockListInvalidate = vi.fn();
 vi.mock("~/trpc/react", () => ({
   api: {
+    useUtils: () => ({
+      catalogue: {
+        list: {
+          invalidate: mockListInvalidate,
+        },
+      },
+    }),
     catalogue: {
       create: {
         useMutation: () => ({
@@ -17,6 +25,24 @@ vi.mock("~/trpc/react", () => ({
       update: {
         useMutation: () => ({
           mutateAsync: vi.fn(),
+          isPending: false,
+        }),
+      },
+      listVariants: {
+        useQuery: () => ({
+          data: [],
+          isLoading: false,
+        }),
+      },
+      upsertVariants: {
+        useMutation: () => ({
+          mutate: vi.fn(),
+          isPending: false,
+        }),
+      },
+      deleteVariants: {
+        useMutation: () => ({
+          mutate: vi.fn(),
           isPending: false,
         }),
       },
@@ -99,5 +125,32 @@ describe("CatalogueItemFormDialog", () => {
     const quantityInput = screen.getByLabelText("Quantité *") as HTMLInputElement;
     expect(codeInput.value).toBe("A1");
     expect(quantityInput.value).toBe("3");
+  });
+
+  it("opens the variants section in edit mode", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <CatalogueItemFormDialog
+        {...defaultProps}
+        item={{
+          id: "item-1",
+          code: "A1",
+          amount: 5000,
+          quantity: 3,
+          availableQty: 2,
+          reservedQty: 1,
+          mediaStorageKey: null,
+          origin: "dashboard",
+          createdInLive: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /Variantes/i }));
+
+    expect(screen.getByText("1. Dimensions (max 3)")).toBeInTheDocument();
   });
 });
