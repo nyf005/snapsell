@@ -119,3 +119,14 @@ export function normalizeIncomingPhone(phoneNumber: string): string {
   return migrated;
 }
 
+/**
+ * Normalise un numéro provenant de Meta (enlève tout sauf chiffres et +).
+ * @param phone - Numéro brut de Meta (ex: "+33 6 12 34 56 78")
+ * @returns Numéro normalisé via normalizeIncomingPhone
+ */
+export function normalizeMetaPhone(phone: string): string {
+  const cleaned = phone.replace(/[^\d+]/g, "");
+  const withPlus = cleaned.startsWith("+") ? cleaned : `+${cleaned}`;
+  return normalizeIncomingPhone(withPlus);
+}
+

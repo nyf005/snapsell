@@ -5,8 +5,22 @@ import { getInactivityWindowMinutes } from "./config";
 const MAX_RETRY_ON_CONFLICT = 1;
 
 /**
+ * Story 8.3: Retourne les critères de filtrage d'une session active.
+ * Centralise la logique de fenêtre d'inactivité (DRY).
+ */
+function getActiveSessionWhere(tenantId: string): Prisma.LiveSessionWhereInput {
+  const windowMinutes = getInactivityWindowMinutes();
+  const cutoff = new Date(Date.now() - windowMinutes * 60 * 1000);
+
+  return {
+    tenantId,
+    status: LiveSessionStatus.active,
+    lastActivityAt: { gt: cutoff },
+  };
+}
+
+/**
  * Story 6.4: Retourne la session live active du tenant (lecture seule, sans création).
- * Même critère que getOrCreateCurrentSession : status active et last_activity_at > now - INACTIVITY_WINDOW.
  */
 export async function getCurrentSessionReadOnly(tenantId: string): Promise<{
   id: string;
@@ -14,30 +28,17 @@ export async function getCurrentSessionReadOnly(tenantId: string): Promise<{
   lastActivityAt: Date;
   createdAt: Date;
 } | null> {
-  const windowMinutes = getInactivityWindowMinutes();
-  const cutoff = new Date(Date.now() - windowMinutes * 60 * 1000);
-
-  const session = await db.liveSession.findFirst({
-    where: {
-      tenantId,
-      status: LiveSessionStatus.active,
-      lastActivityAt: { gt: cutoff },
-    },
+  return db.liveSession.findFirst({
+    where: getActiveSessionWhere(tenantId),
     orderBy: { lastActivityAt: "desc" },
     select: { id: true, status: true, lastActivityAt: true, createdAt: true },
   });
-
-  return session;
 }
 
 /**
- * Retourne la session active du tenant si last_activity_at > now - INACTIVITY_WINDOW ;
+ * Retourne la session active du tenant si elle respecte la fenêtre d'inactivité ;
  * sinon crée une nouvelle LiveSession (status active) et la retourne.
  * Met à jour last_activity_at à now lors de l'utilisation.
- *
- * Garantie (Story 2.6 durci) : une seule session active par tenant. Contrainte unique
- * partielle en base (live_sessions_tenant_id_active_key) ; en cas de création concurrente,
- * un seul create réussit, l'autre reçoit P2002 et reprend la session créée (retry).
  */
 export async function getOrCreateCurrentSession(
   tenantId: string,
@@ -48,15 +49,8 @@ export async function getOrCreateCurrentSession(
   lastActivityAt: Date;
   created: boolean;
 }> {
-  const windowMinutes = getInactivityWindowMinutes();
-  const cutoff = new Date(Date.now() - windowMinutes * 60 * 1000);
-
   const existing = await db.liveSession.findFirst({
-    where: {
-      tenantId,
-      status: LiveSessionStatus.active,
-      lastActivityAt: { gt: cutoff },
-    },
+    where: getActiveSessionWhere(tenantId),
     orderBy: { lastActivityAt: "desc" },
   });
 
@@ -99,9 +93,6 @@ export async function getOrCreateCurrentSession(
 
 /**
  * Met à jour last_activity_at = now pour la session donnée.
- * Réservé aux appelants qui disposent déjà d'un sessionId (ex. Epic 3).
- * Le webhook-processor utilise getOrCreateCurrentSession, qui met déjà à jour
- * last_activity_at (création ou réutilisation), donc n'appelle pas cette fonction.
  */
 export async function updateLastActivity(sessionId: string): Promise<void> {
   await db.liveSession.update({

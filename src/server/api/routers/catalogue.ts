@@ -27,17 +27,10 @@ export const catalogueRouter = createTRPCRouter({
 
   /** Liste tous les articles catalogue du tenant (dashboard) */
   list: protectedProcedure.query(async ({ ctx }) => {
-    const tenantId = ctx.session.user.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-    }
-
-    const items = await db.catalogueItem.findMany({
-      where: { tenantId },
+    return db.catalogueItem.findMany({
+      where: { tenantId: ctx.session.user.tenantId },
       orderBy: { createdAt: "desc" },
     });
-
-    return items;
   }),
 
   /** Crée un nouvel article catalogue (dashboard) */
@@ -45,11 +38,7 @@ export const catalogueRouter = createTRPCRouter({
     .input(createCatalogueItemInputSchema)
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-      }
 
-      // Normaliser le code (trim + uppercase)
       const code = normalizeCode(input.code);
       if (!code) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Code invalide." });
@@ -69,7 +58,7 @@ export const catalogueRouter = createTRPCRouter({
       }
 
       try {
-        const created = await db.catalogueItem.create({
+        return await db.catalogueItem.create({
           data: {
             tenantId,
             code,
@@ -79,17 +68,11 @@ export const catalogueRouter = createTRPCRouter({
             reservedQty: 0,
             mediaStorageKey: input.mediaStorageKey ?? null,
             origin: "dashboard",
-            createdInLive: false, // Création manuelle via dashboard
+            createdInLive: false,
           },
         });
-
-        return created;
       } catch (error) {
-        // Doublon (tenant_id, code) unique
-        if (
-          error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.code === "P2002"
-        ) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
           throw new TRPCError({
             code: "CONFLICT",
             message: `Le code "${code}" existe déjà dans votre catalogue.`,
@@ -104,68 +87,45 @@ export const catalogueRouter = createTRPCRouter({
     .input(updateCatalogueItemInputSchema)
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-      }
 
-      // Vérifier que l'item appartient au tenant
       const existing = await db.catalogueItem.findUnique({
         where: { id: input.id },
       });
 
       if (!existing || existing.tenantId !== tenantId) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Article non trouvé.",
-        });
+        throw new TRPCError({ code: "NOT_FOUND", message: "Article non trouvé." });
       }
 
-      // Construire les données de mise à jour
       const updateData: Prisma.CatalogueItemUpdateInput = {};
 
       if (input.code !== undefined) {
         const normalized = normalizeCode(input.code);
-        if (!normalized) {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "Code invalide." });
-        }
+        if (!normalized) throw new TRPCError({ code: "BAD_REQUEST", message: "Code invalide." });
         updateData.code = normalized;
       }
 
       if (input.quantity !== undefined) {
-        // Empêcher de réduire la quantité sous les réservations actives
         if (input.quantity < existing.reservedQty) {
           throw new TRPCError({
             code: "BAD_REQUEST",
             message: `Impossible de réduire la quantité à ${input.quantity} : ${existing.reservedQty} réservation(s) active(s).`,
           });
         }
-        // Ajuster availableQty en conséquence (delta par rapport à la quantité actuelle)
         const delta = input.quantity - existing.quantity;
         updateData.quantity = input.quantity;
         updateData.availableQty = Math.max(0, existing.availableQty + delta);
       }
 
-      if (input.amount !== undefined) {
-        updateData.amount = input.amount;
-      }
-
-      if (input.mediaStorageKey !== undefined) {
-        updateData.mediaStorageKey = input.mediaStorageKey;
-      }
+      if (input.amount !== undefined) updateData.amount = input.amount;
+      if (input.mediaStorageKey !== undefined) updateData.mediaStorageKey = input.mediaStorageKey;
 
       try {
-        const updated = await db.catalogueItem.update({
+        return await db.catalogueItem.update({
           where: { id: input.id },
           data: updateData,
         });
-
-        return updated;
       } catch (error) {
-        // Doublon si changement de code
-        if (
-          error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.code === "P2002"
-        ) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
           throw new TRPCError({
             code: "CONFLICT",
             message: `Le code "${updateData.code}" existe déjà dans votre catalogue.`,
@@ -180,23 +140,15 @@ export const catalogueRouter = createTRPCRouter({
     .input(deleteCatalogueItemInputSchema)
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-      }
 
-      // Vérifier que l'item appartient au tenant
       const existing = await db.catalogueItem.findUnique({
         where: { id: input.id },
       });
 
       if (!existing || existing.tenantId !== tenantId) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Article non trouvé.",
-        });
+        throw new TRPCError({ code: "NOT_FOUND", message: "Article non trouvé." });
       }
 
-      // Vérifier qu'il n'y a pas de réservations actives sur cet article
       const activeReservations = await db.reservation.count({
         where: {
           catalogueItemId: input.id,
@@ -211,24 +163,15 @@ export const catalogueRouter = createTRPCRouter({
         });
       }
 
-      await db.catalogueItem.delete({
-        where: { id: input.id },
-      });
-
+      await db.catalogueItem.delete({ where: { id: input.id } });
       return { success: true };
     }),
-
-  // ─────────────────────────────────────────────────────────────────────
-  // Variantes
-  // ─────────────────────────────────────────────────────────────────────
 
   /** Liste les variantes d'un article catalogue */
   listVariants: protectedProcedure
     .input(listVariantsInputSchema)
     .query(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-
       const item = await db.catalogueItem.findUnique({ where: { id: input.catalogueItemId } });
       if (!item || item.tenantId !== tenantId) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Article non trouvé." });
@@ -241,23 +184,16 @@ export const catalogueRouter = createTRPCRouter({
       });
     }),
 
-  /**
-   * Remplace atomiquement toutes les variantes d'un article.
-   * Met également à jour `attributes` (dimensions) sur l'article.
-   * Les variantes avec réservations actives sont protégées (throw).
-   */
+  /** Remplace atomiquement toutes les variantes d'un article. */
   upsertVariants: protectedProcedure
     .input(upsertVariantsInputSchema)
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-
       const item = await db.catalogueItem.findUnique({ where: { id: input.catalogueItemId } });
       if (!item || item.tenantId !== tenantId) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Article non trouvé." });
       }
 
-      // Protect variants with active reservations
       const activeReservations = await db.reservation.count({
         where: {
           variant: { catalogueItemId: input.catalogueItemId },
@@ -272,12 +208,10 @@ export const catalogueRouter = createTRPCRouter({
       }
 
       return db.$transaction(async (tx) => {
-        // 1. Delete existing variants
         await tx.itemVariant.deleteMany({
           where: { catalogueItemId: input.catalogueItemId, tenantId },
         });
 
-        // 2. Create new variants
         const created = await tx.itemVariant.createMany({
           data: input.variants.map((v) => ({
             tenantId,
@@ -290,7 +224,6 @@ export const catalogueRouter = createTRPCRouter({
           })),
         });
 
-        // 3. Update item attributes (dimensions) + sync aggregated stock
         const totalQty = input.variants.reduce((s, v) => s + v.quantity, 0);
         await tx.catalogueItem.update({
           where: { id: input.catalogueItemId },
@@ -311,8 +244,6 @@ export const catalogueRouter = createTRPCRouter({
     .input(deleteVariantsInputSchema)
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-
       const item = await db.catalogueItem.findUnique({ where: { id: input.catalogueItemId } });
       if (!item || item.tenantId !== tenantId) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Article non trouvé." });

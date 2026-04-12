@@ -1,9 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { Prisma } from "../../../../generated/prisma";
 
-import { canManageGrid } from "~/lib/rbac";
 import {
-  normalizeIncomingPhone,
+  normalizeMetaPhone,
 } from "~/lib/validations/phone";
 import { workerLogger } from "~/lib/logger";
 import { encrypt } from "~/lib/crypto";
@@ -11,7 +10,7 @@ import { getProviderForTenant } from "~/server/messaging/service";
 import { db } from "~/server/db";
 import {
   createTRPCRouter,
-  protectedProcedure,
+  managerProcedure,
 } from "~/server/api/trpc";
 import {
   connectWhatsAppEmbeddedInputSchema,
@@ -25,23 +24,67 @@ import {
 } from "~/server/messaging/providers/meta/embedded-signup";
 
 import { env } from "~/env";
-function normalizeMetaBusinessPhoneToE164(metaDisplayPhone: string): string {
-  const cleaned = metaDisplayPhone.replace(/[^\d+]/g, "");
-  const withPlus = cleaned.startsWith("+") ? cleaned : `+${cleaned}`;
-  return normalizeIncomingPhone(withPlus);
+
+/**
+ * Valide les identifiants Meta auprès de l'API Graph.
+ * Centralise la logique utilisée par setWhatsAppConfig et testWhatsAppConnection.
+ */
+async function validateMetaCredentials(opts: {
+  phoneId: string;
+  wabaId: string | null;
+  accessToken: string;
+}): Promise<void> {
+  const { phoneId, wabaId, accessToken } = opts;
+  try {
+    if (wabaId) {
+      // Validation stricte : le phoneId doit figurer dans la liste des numéros du WABA
+      const metaRes = await fetch(
+        `https://graph.facebook.com/v20.0/${encodeURIComponent(wabaId)}/phone_numbers?limit=100`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      );
+      if (!metaRes.ok) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Credentials WhatsApp invalides. Vérifie ton WABA ID et ton Access Token Meta.",
+        });
+      }
+      const body = (await metaRes.json()) as { data?: Array<{ id: string }> };
+      if (!(body.data ?? []).some((p) => p.id === phoneId)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Le Phone Number ID ne correspond pas à ce compte WABA. Vérifie tes identifiants Meta.",
+        });
+      }
+    } else {
+      // Fallback si wabaId absent : valide juste token + phoneId
+      const metaRes = await fetch(
+        `https://graph.facebook.com/v20.0/${encodeURIComponent(phoneId)}`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      );
+      if (!metaRes.ok) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Credentials WhatsApp invalides. Vérifie ton Phone Number ID et ton Access Token Meta.",
+        });
+      }
+    }
+  } catch (err) {
+    if (err instanceof TRPCError) throw err;
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Impossible de contacter l'API Meta. Réessaie dans quelques instants.",
+    });
+  }
 }
 
 export const settingsRouter = createTRPCRouter({
-  getCategoryPrices: protectedProcedure.query(async ({ ctx }) => {
-    if (!canManageGrid(ctx.session.user.role as string)) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Seuls Owner et Manager peuvent consulter la grille de prix.",
-      });
-    }
-    const tenantId = ctx.session.user.tenantId;
+  getCategoryPrices: managerProcedure.query(async ({ ctx }) => {
     const rows = await db.categoryPrice.findMany({
-      where: { tenantId },
+      where: { tenantId: ctx.session.user.tenantId },
       orderBy: { categoryLetter: "asc" },
     });
     return rows.map((r) => ({
@@ -53,23 +96,10 @@ export const settingsRouter = createTRPCRouter({
     }));
   }),
 
-  setCategoryPrices: protectedProcedure
+  setCategoryPrices: managerProcedure
     .input(setCategoryPricesInputSchema)
     .mutation(async ({ ctx, input }) => {
-      if (!canManageGrid(ctx.session.user.role as string)) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Seuls Owner et Manager peuvent modifier la grille.",
-        });
-      }
       const tenantId = ctx.session.user.tenantId;
-      if (tenantId == null || tenantId === "") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Tenant non identifié.",
-        });
-      }
-
       const codesToKeep = input.items.map((i) => i.categoryLetter);
 
       await db.$transaction(async (tx) => {
@@ -105,20 +135,8 @@ export const settingsRouter = createTRPCRouter({
       return { ok: true };
     }),
 
-  getWhatsAppConfig: protectedProcedure.query(async ({ ctx }) => {
-    if (!canManageGrid(ctx.session.user.role as string)) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Seuls Owner et Manager peuvent consulter la config WhatsApp.",
-      });
-    }
+  getWhatsAppConfig: managerProcedure.query(async ({ ctx }) => {
     const tenantId = ctx.session.user.tenantId;
-    if (tenantId == null || tenantId === "") {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Tenant non identifié.",
-      });
-    }
     const [tenant, primarySellerPhone] = await Promise.all([
       db.tenant.findUnique({
         where: { id: tenantId },
@@ -142,23 +160,12 @@ export const settingsRouter = createTRPCRouter({
     };
   }),
 
-  setWhatsAppConfig: protectedProcedure
+  setWhatsAppConfig: managerProcedure
     .input(setMetaConfigInputSchema)
     .mutation(async ({ ctx, input }) => {
-      if (!canManageGrid(ctx.session.user.role as string)) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Seuls Owner et Manager peuvent modifier la config WhatsApp.",
-        });
-      }
       const tenantId = ctx.session.user.tenantId;
-      if (tenantId == null || tenantId === "") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Tenant non identifié.",
-        });
-      }
       const phoneId = input.metaPhoneNumberId;
+
       if (phoneId != null) {
         const existing = await db.tenant.findFirst({
           where: {
@@ -173,8 +180,8 @@ export const settingsRouter = createTRPCRouter({
           });
         }
       }
+
       // Valider les credentials auprès de l'API Meta avant toute sauvegarde.
-      // Si l'utilisateur ne fournit pas token ou wabaId, on récupère les valeurs stockées.
       let tokenToValidate = input.metaAccessToken;
       let wabaIdToValidate = input.metaWabaId;
 
@@ -189,55 +196,13 @@ export const settingsRouter = createTRPCRouter({
       }
 
       if (phoneId != null && tokenToValidate != null) {
-        try {
-          if (wabaIdToValidate != null) {
-            // Validation stricte : le phoneId doit figurer dans la liste des numéros du WABA
-            const metaRes = await fetch(
-              `https://graph.facebook.com/v20.0/${encodeURIComponent(wabaIdToValidate)}/phone_numbers?limit=100`,
-              {
-                headers: {
-                  Authorization: `Bearer ${tokenToValidate}`,
-                },
-              },
-            );
-            if (!metaRes.ok) {
-              throw new TRPCError({
-                code: "BAD_REQUEST",
-                message: "Credentials WhatsApp invalides. Vérifie ton WABA ID et ton Access Token Meta.",
-              });
-            }
-            const body = (await metaRes.json()) as { data?: Array<{ id: string }> };
-            if (!(body.data ?? []).some((p) => p.id === phoneId)) {
-              throw new TRPCError({
-                code: "BAD_REQUEST",
-                message: "Le Phone Number ID ne correspond pas à ce compte WABA. Vérifie tes identifiants Meta.",
-              });
-            }
-          } else {
-            // Fallback si wabaId absent : valide juste token + phoneId
-            const metaRes = await fetch(
-              `https://graph.facebook.com/v20.0/${encodeURIComponent(phoneId)}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${tokenToValidate}`,
-                },
-              },
-            );
-            if (!metaRes.ok) {
-              throw new TRPCError({
-                code: "BAD_REQUEST",
-                message: "Credentials WhatsApp invalides. Vérifie ton Phone Number ID et ton Access Token Meta.",
-              });
-            }
-          }
-        } catch (err) {
-          if (err instanceof TRPCError) throw err;
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Impossible de contacter l'API Meta. Réessaie dans quelques instants.",
-          });
-        }
+        await validateMetaCredentials({
+          phoneId,
+          wabaId: wabaIdToValidate,
+          accessToken: tokenToValidate,
+        });
       }
+
       // H1-fix: ne pas écraser le token existant si l'utilisateur n'en a pas saisi un nouveau
       const data: Record<string, string | null> = {
         metaPhoneNumberId: phoneId,
@@ -263,17 +228,8 @@ export const settingsRouter = createTRPCRouter({
       return { ok: true };
     }),
 
-  testWhatsAppConnection: protectedProcedure.mutation(async ({ ctx }) => {
-    if (!canManageGrid(ctx.session.user.role as string)) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Seuls Owner et Manager peuvent tester la connexion WhatsApp.",
-      });
-    }
+  testWhatsAppConnection: managerProcedure.mutation(async ({ ctx }) => {
     const tenantId = ctx.session.user.tenantId;
-    if (tenantId == null || tenantId === "") {
-      throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-    }
     const tenant = await db.tenant.findUnique({
       where: { id: tenantId },
       select: { id: true, metaPhoneNumberId: true, metaWabaId: true, metaAccessToken: true },
@@ -285,56 +241,20 @@ export const settingsRouter = createTRPCRouter({
         message: "Configuration incomplète ou invalide. Enregistrez vos identifiants Meta d'abord.",
       });
     }
-    const accessToken = adapter.getAccessToken();
-    try {
-      const metaRes = await fetch(
-        `https://graph.facebook.com/v20.0/${encodeURIComponent(tenant.metaWabaId)}/phone_numbers?limit=100`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      );
-      if (!metaRes.ok) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Credentials WhatsApp invalides. Vérifie ton Phone Number ID et ton Access Token Meta.",
-        });
-      }
-      const body = (await metaRes.json()) as { data?: Array<{ id: string }> };
-      if (!(body.data ?? []).some((p) => p.id === tenant.metaPhoneNumberId)) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Le Phone Number ID ne correspond pas à ce compte WABA.",
-        });
-      }
-    } catch (err) {
-      if (err instanceof TRPCError) throw err;
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Impossible de contacter l'API Meta. Réessaie dans quelques instants.",
-      });
-    }
+    
+    await validateMetaCredentials({
+      phoneId: tenant.metaPhoneNumberId,
+      wabaId: tenant.metaWabaId,
+      accessToken: adapter.getAccessToken(),
+    });
+
     return { ok: true };
   }),
 
-  connectWhatsAppEmbedded: protectedProcedure
+  connectWhatsAppEmbedded: managerProcedure
     .input(connectWhatsAppEmbeddedInputSchema)
     .mutation(async ({ ctx, input }) => {
-      if (!canManageGrid(ctx.session.user.role as string)) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Seuls Owner et Manager peuvent connecter WhatsApp via Meta.",
-        });
-      }
       const tenantId = ctx.session.user.tenantId;
-      if (tenantId == null || tenantId === "") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Tenant non identifié.",
-        });
-      }
-
       const appId = env.META_APP_ID ?? process.env.META_APP_ID;
       const appSecret = env.META_APP_SECRET ?? process.env.META_APP_SECRET;
 
@@ -346,7 +266,7 @@ export const settingsRouter = createTRPCRouter({
           appSecret: appSecret ?? "",
         });
 
-        const normalizedBusinessPhone = normalizeMetaBusinessPhoneToE164(
+        const normalizedBusinessPhone = normalizeMetaPhone(
           credentials.businessPhoneNumber,
         );
 
@@ -419,21 +339,12 @@ export const settingsRouter = createTRPCRouter({
         });
       }
 
-      return {
-        ok: true,
-      };
+      return { ok: true };
     }),
 
-  /** Phase 5.3: Get FAQ answers configured for this tenant. */
-  getFaqSettings: protectedProcedure.query(async ({ ctx }) => {
-    if (!canManageGrid(ctx.session.user.role as string)) {
-      throw new TRPCError({ code: "FORBIDDEN", message: "Seuls Owner et Manager peuvent consulter les FAQ." });
-    }
-    const tenantId = ctx.session.user.tenantId;
-    if (!tenantId) throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-
+  getFaqSettings: managerProcedure.query(async ({ ctx }) => {
     const tenant = await db.tenant.findUnique({
-      where: { id: tenantId },
+      where: { id: ctx.session.user.tenantId },
       select: { faqDelivery: true, faqPayment: true, faqLocation: true, faqAvailability: true },
     });
 
@@ -445,18 +356,11 @@ export const settingsRouter = createTRPCRouter({
     };
   }),
 
-  /** Phase 5.3: Save FAQ answers for this tenant. */
-  setFaqSettings: protectedProcedure
+  setFaqSettings: managerProcedure
     .input(setFaqSettingsInputSchema)
     .mutation(async ({ ctx, input }) => {
-      if (!canManageGrid(ctx.session.user.role as string)) {
-        throw new TRPCError({ code: "FORBIDDEN", message: "Seuls Owner et Manager peuvent modifier les FAQ." });
-      }
-      const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-
       await db.tenant.update({
-        where: { id: tenantId },
+        where: { id: ctx.session.user.tenantId },
         data: {
           faqDelivery: input.faqDelivery ?? null,
           faqPayment: input.faqPayment ?? null,

@@ -13,7 +13,7 @@ import { ZodError } from "zod";
 
 import type { Session } from "next-auth";
 import { db } from "~/server/db";
-import { isOpsUser } from "~/lib/rbac";
+import { isOpsUser, canManageGrid } from "~/lib/rbac";
 import { checkTrpcRateLimit } from "~/lib/trpc-rate-limit";
 
 /**
@@ -157,6 +157,20 @@ const enforceTenant = t.middleware(({ ctx, next }) => {
 });
 
 /**
+ * Manager middleware — requires role OWNER or MANAGER.
+ * Used for administrative settings and pricing grids.
+ */
+const enforceManager = t.middleware(({ ctx, next }) => {
+  if (!canManageGrid(ctx.session?.user?.role as string)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Accès réservé aux administrateurs (Owner/Manager).",
+    });
+  }
+  return next();
+});
+
+/**
  * Rate limiting middleware — 20 mutations/min par userId via Upstash Redis.
  * Désactivé silencieusement si UPSTASH_REDIS_REST_URL n'est pas configuré.
  */
@@ -185,6 +199,11 @@ export const protectedProcedure = t.procedure
   .use(enforceSession)
   .use(enforceTenant)
   .use(rateLimitMiddleware);
+
+/**
+ * Manager procedure — requires session + tenantId + role OWNER/MANAGER.
+ */
+export const managerProcedure = protectedProcedure.use(enforceManager);
 
 /**
  * Ops procedure — requires role OPS (tenantId null).

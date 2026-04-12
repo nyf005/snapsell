@@ -2,7 +2,7 @@
  * Story 5.2: Gestion des statuts de commande (list, getById, updateStatus).
  * Story 5.4: Notification cliente par WhatsApp sur delivered/cancelled.
  * Story 6.5: Export CSV commandes (manager/owner), même filtres que list.
- * Isolation tenant: tenantId toujours depuis ctx.session.user.tenantId.
+ * Isolation tenant: tenantId toujours depuis ctx.session.user.tenantId (protectedProcedure).
  */
 
 import { TRPCError } from "@trpc/server";
@@ -18,11 +18,7 @@ import {
   listOrdersInputSchema,
   updateOrderStatusInputSchema,
 } from "./orders.schema";
-import { logOrderStatusChanged } from "~/server/events/eventLog";
-import { writeToOutbox } from "~/server/messaging/outbox";
-import { botMsg } from "~/server/messaging/templates";
-import { workerLogger } from "~/lib/logger";
-import { canTransitionFrom } from "~/lib/order-status-transitions";
+import { updateOrderStatus } from "~/server/order/service";
 import type { OrderStatus, Prisma } from "../../../../generated/prisma";
 
 /** Plafond export CSV (CR 6-5) : évite timeout / OOM. */
@@ -72,14 +68,27 @@ function escapeCsvCell(value: string | number | Date | null | undefined): string
   return s;
 }
 
+/** Unifie le mapping de l'objet de commande pour le dashboard. */
+function mapOrderOutput(o: any) {
+  return {
+    id: o.id,
+    orderNumber: o.orderNumber,
+    status: o.status,
+    depositStatus: o.depositStatus,
+    createdAt: o.createdAt,
+    updatedAt: o.updatedAt,
+    reservationId: o.reservationId,
+    clientPhone: o.reservation.clientPhone,
+    deliveryAddress: o.reservation.address ?? null,
+    liveItemCode: o.reservation.catalogueItem?.code ?? o.reservation.liveItem?.code ?? null,
+  };
+}
+
 export const ordersRouter = createTRPCRouter({
   list: protectedProcedure
     .input(listOrdersInputSchema)
     .query(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-      }
       const where = buildOrdersWhere(tenantId, {
         status: input?.status,
         dateFrom: input?.dateFrom,
@@ -102,25 +111,16 @@ export const ordersRouter = createTRPCRouter({
           },
         },
       });
-      return orders.map((o) => ({
-        id: o.id,
-        orderNumber: o.orderNumber,
-        status: o.status,
-        depositStatus: o.depositStatus,
-        createdAt: o.createdAt,
-        updatedAt: o.updatedAt,
-        reservationId: o.reservationId,
-        clientPhone: o.reservation.clientPhone,
-        deliveryAddress: o.reservation.address ?? null,
-        liveItemCode: o.reservation.catalogueItem?.code ?? o.reservation.liveItem?.code ?? null,
-      }));
+      return orders.map(mapOrderOutput);
     }),
 
-  /** Story 6.5: Export CSV commandes. Réservé OWNER/MANAGER. Mêmes filtres que list. */
+  /** Story 6.5: Export CSV commandes. Réservé OWNER/MANAGER. */
   exportCsv: protectedProcedure
     .input(exportCsvOrdersInputSchema)
     .query(async ({ ctx, input }) => {
       const role = ctx.session.user.role as string | undefined;
+      // Note: On pourrait utiliser managerProcedure ici si on veut restreindre strictement, 
+      // mais on garde la logique de "hasExportCsv" en plus.
       if (role !== "OWNER" && role !== "MANAGER") {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -128,9 +128,6 @@ export const ordersRouter = createTRPCRouter({
         });
       }
       const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-      }
       const tenantFeatures = await db.tenant.findUnique({
         where: { id: tenantId },
         select: { hasExportCsv: true },
@@ -188,9 +185,6 @@ export const ordersRouter = createTRPCRouter({
     .input(getOrderByIdInputSchema)
     .query(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-      }
       const order = await db.order.findFirst({
         where: { id: input.orderId, tenantId },
         include: {
@@ -206,87 +200,29 @@ export const ordersRouter = createTRPCRouter({
       if (!order) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Commande introuvable." });
       }
-      return {
-        id: order.id,
-        orderNumber: order.orderNumber,
-        status: order.status,
-        depositStatus: order.depositStatus,
-        createdAt: order.createdAt,
-        updatedAt: order.updatedAt,
-        reservationId: order.reservationId,
-        clientPhone: order.reservation.clientPhone,
-        liveItemCode: order.reservation.catalogueItem?.code ?? order.reservation.liveItem?.code ?? null,
-      };
+      return mapOrderOutput(order);
     }),
 
   updateStatus: protectedProcedure
     .input(updateOrderStatusInputSchema)
     .mutation(async ({ ctx, input }) => {
-      const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-      }
-      const order = await db.order.findFirst({
-        where: { id: input.orderId, tenantId },
-        include: {
-          reservation: { select: { clientPhone: true } },
-        },
-      });
-      if (!order) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Commande introuvable." });
-      }
-      const from = order.status as OrderStatus;
-      const to = input.status as OrderStatus;
-      if (!canTransitionFrom(from as Parameters<typeof canTransitionFrom>[0], to as Parameters<typeof canTransitionFrom>[1])) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `Transition non autorisée: ${from} → ${to}. Transitions autorisées: confirmed/confirmed_pending_deposit → preparing → in_delivery → delivered ; cancelled depuis confirmed, confirmed_pending_deposit, preparing ou in_delivery.`,
-        });
-      }
-      const correlationId = `order-${order.id}-${Date.now()}`;
-      const updated = await db.$transaction(async (tx) => {
-        const o = await tx.order.update({
-          where: { id: input.orderId },
-          data: { status: to },
-        });
-        await logOrderStatusChanged(tenantId, order.id, correlationId, {
-          from,
-          to,
-        });
-        return o;
+      const result = await updateOrderStatus({
+        tenantId: ctx.session.user.tenantId,
+        orderId: input.orderId,
+        newStatus: input.status as OrderStatus,
       });
 
-      if (to === "delivered" || to === "cancelled" || to === "in_delivery") {
-        const clientPhone = order.reservation.clientPhone;
-        const body =
-          to === "delivered"
-            ? botMsg.client.orderDelivered(updated.orderNumber)
-            : to === "cancelled"
-              ? botMsg.client.orderCancelled(updated.orderNumber)
-              : botMsg.client.orderInDelivery(updated.orderNumber);
-        try {
-          await writeToOutbox({
-            tenantId,
-            to: clientPhone,
-            body,
-            correlationId,
-          });
-        } catch (err) {
-          workerLogger.error("Outbox write failed after order status change", {
-            orderId: updated.id,
-            orderNumber: updated.orderNumber,
-            to: clientPhone,
-            newStatus: to,
-            err,
-          });
-        }
+      if (!result.ok) {
+        throw new TRPCError({
+          code: result.error?.includes("introuvable") ? "NOT_FOUND" : "BAD_REQUEST",
+          message: result.error,
+        });
       }
 
       return {
-        id: updated.id,
-        orderNumber: updated.orderNumber,
-        status: updated.status,
-        updatedAt: updated.updatedAt,
+        id: input.orderId,
+        orderNumber: result.orderNumber!,
+        status: input.status,
       };
     }),
 
@@ -295,59 +231,28 @@ export const ordersRouter = createTRPCRouter({
     .input(bulkUpdateStatusInputSchema)
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
-      }
 
-      const orders = await db.order.findMany({
-        where: { id: { in: input.orderIds }, tenantId },
-        include: { reservation: { select: { clientPhone: true } } },
-      });
-
-      if (orders.length === 0) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Aucune commande trouvée." });
-      }
-
-      const to = input.status as OrderStatus;
-      const results: { orderId: string; ok: boolean; orderNumber?: string }[] = [];
-
-      await db.$transaction(async (tx) => {
-        for (const order of orders) {
-          const from = order.status as OrderStatus;
-          if (!canTransitionFrom(from as Parameters<typeof canTransitionFrom>[0], to as Parameters<typeof canTransitionFrom>[1])) {
-            results.push({ orderId: order.id, ok: false });
-            continue;
-          }
-          await tx.order.update({ where: { id: order.id }, data: { status: to } });
-          results.push({ orderId: order.id, ok: true, orderNumber: order.orderNumber });
-        }
-      });
-
-      // Notifications WhatsApp pour les commandes réussies
-      if (to === "delivered" || to === "cancelled" || to === "in_delivery") {
-        for (const r of results.filter((r) => r.ok && r.orderNumber)) {
-          const order = orders.find((o) => o.id === r.orderId);
-          if (!order) continue;
-          const body =
-            to === "delivered"
-              ? botMsg.client.orderDelivered(r.orderNumber!)
-              : to === "cancelled"
-                ? botMsg.client.orderCancelled(r.orderNumber!)
-                : botMsg.client.orderInDelivery(r.orderNumber!);
-          await writeToOutbox({
+      const results = await Promise.all(
+        input.orderIds.map(async (orderId) => {
+          return updateOrderStatus({
             tenantId,
-            to: order.reservation.clientPhone,
-            body,
-            correlationId: `bulk-${order.id}-${Date.now()}`,
-          }).catch((err) => {
-            workerLogger.error("Outbox write failed after bulk status change", { orderId: order.id, err });
+            orderId,
+            newStatus: input.status as OrderStatus,
+            correlationIdPrefix: "bulk",
           });
-        }
+        })
+      );
+
+      const updated = results.filter((r) => r.ok).length;
+      const skipped = results.filter((r) => !r.ok).length;
+
+      if (updated === 0 && skipped > 0) {
+        throw new TRPCError({ 
+          code: "NOT_FOUND", 
+          message: skipped === 1 ? results[0]?.error : "Aucune commande mise à jour." 
+        });
       }
 
-      return {
-        updated: results.filter((r) => r.ok).length,
-        skipped: results.filter((r) => !r.ok).length,
-      };
+      return { updated, skipped };
     }),
 });
