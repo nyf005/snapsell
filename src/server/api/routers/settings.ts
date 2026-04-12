@@ -277,10 +277,10 @@ export const settingsRouter = createTRPCRouter({
     }
     const tenant = await db.tenant.findUnique({
       where: { id: tenantId },
-      select: { metaPhoneNumberId: true, metaWabaId: true, metaAccessToken: true },
+      select: { id: true, metaPhoneNumberId: true, metaWabaId: true, metaAccessToken: true },
     });
     const adapter = await getProviderForTenant(tenant);
-    if (!adapter) {
+    if (!tenant || !adapter) {
       throw new TRPCError({
         code: "BAD_REQUEST",
         message: "Configuration incomplète ou invalide. Enregistrez vos identifiants Meta d'abord.",
