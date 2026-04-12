@@ -65,21 +65,20 @@ export const botMsg = {
 
     // --- Messages interactifs (boutons) ---
 
-    /** Récap commande avec boutons Confirmer / Annuler / Ajouter un article */
     recapInteractive: (
       code: string,
       prix: string,
       total: string,
       address: string,
     ): InteractiveMessage => ({
-      body: `Parfait ! Voici le récap de ta commande 👇\n\n🛍️ Article : *${code}*\n💰 Prix : ${prix}\n📍 Adresse : ${address}\n💳 Total : ${total}`,
+      body: `Parfait ! Voici le récap de ta commande 👇\n\nArticle : *${code}*\n💰 Prix : ${prix}\n📍 Adresse : ${address}\n💳 Total : ${total}`,
       interactive: {
         type: "buttons",
         header: "🛍️ Récapitulatif",
         buttons: [
-          { id: "confirm_order", title: "✅ Confirmer" },
-          { id: "cancel_order", title: "❌ Annuler" },
-          { id: "add_item", title: "➕ Ajouter" },
+          { id: "confirm_order", title: "Confirmer ✅" },
+          { id: "cancel_order", title: "Annuler ❌" },
+          { id: "add_item", title: "Ajouter ➕" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -91,8 +90,8 @@ export const botMsg = {
         type: "buttons",
         header: "⏳ Expiration proche",
         buttons: [
-          { id: "send_proof", title: "📍 Mon adresse" },
-          { id: "cancel_order", title: "❌ Annuler" },
+          { id: "send_proof", title: "Mon adresse 📍" },
+          { id: "cancel_order", title: "Annuler ❌" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -104,8 +103,8 @@ export const botMsg = {
         type: "buttons",
         header: "⏰ Réservation expirée",
         buttons: [
-          { id: `retry_code:${code}`, title: `🔄 Recommencer` },
-          { id: "contact_agent", title: "👤 Aide agent" },
+          { id: `retry_code:${code}`, title: `Recommencer 🔄` },
+          { id: "contact_agent", title: "Aide agent 👤" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -117,8 +116,8 @@ export const botMsg = {
         type: "buttons",
         header: "❌ Preuve rejetée",
         buttons: [
-          { id: "send_proof", title: "📸 Ma preuve" },
-          { id: "contact_agent", title: "👤 Aide agent" },
+          { id: "send_proof", title: "Ma preuve 📸" },
+          { id: "contact_agent", title: "Aide agent 👤" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -130,8 +129,8 @@ export const botMsg = {
         type: "buttons",
         header: "🔍 Code introuvable",
         buttons: [
-          { id: `retry_code:${code}`, title: `✅ C'est bien ça` },
-          { id: "fallback_no", title: "❌ Autre code" },
+          { id: `retry_code:${code}`, title: `C'est bien ça ✅` },
+          { id: "fallback_no", title: "Autre code ❌" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -143,7 +142,7 @@ export const botMsg = {
         type: "buttons",
         header: "😅 Incompris",
         buttons: [
-          { id: "contact_agent", title: "👤 Aide agent" },
+          { id: "contact_agent", title: "Aide agent 👤" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -155,8 +154,8 @@ export const botMsg = {
         type: "buttons",
         header: "🎉 Place libérée !",
         buttons: [
-          { id: "send_proof", title: "📍 Mon adresse" },
-          { id: "cancel_order", title: "❌ Je ne veux plus" },
+          { id: "send_proof", title: "Mon adresse 📍" },
+          { id: "cancel_order", title: "Je ne veux plus ❌" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -168,7 +167,7 @@ export const botMsg = {
         type: "buttons",
         header: "✅ Acompte validé",
         buttons: [
-          { id: "track_order", title: "📦 Suivre commande" },
+          { id: "track_order", title: "Suivre commande 📦" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -180,7 +179,7 @@ export const botMsg = {
         type: "buttons",
         header: "✅ Commande confirmée",
         buttons: [
-          { id: "track_order", title: "📦 Suivre commande" },
+          { id: "track_order", title: "Suivre commande 📦" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -192,8 +191,8 @@ export const botMsg = {
         type: "buttons",
         header: "⚡ Action requise",
         buttons: [
-          { id: "send_proof", title: "📸 Ma preuve" },
-          { id: "contact_agent", title: "👤 Aide agent" },
+          { id: "send_proof", title: "Ma preuve 📸" },
+          { id: "contact_agent", title: "Aide agent 👤" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -263,26 +262,26 @@ export const botMsg = {
 
     /** Confirmation ajout catalogue avec bouton Variantes */
     catalogueAddedInteractive: (code: string, qty: number): InteractiveMessage => ({
-      body: `✅ *${code}* ajouté au catalogue — ${qty} en stock`,
+      body: `*${code}* ajouté au catalogue — ${qty} en stock`,
       interactive: {
         type: "buttons",
         header: "✅ Article Ajouté",
         buttons: [
-          { id: `configure_variants:${code}`, title: "🏷️ Variantes" },
-          { id: "no_variants", title: "⏭️ Sans variantes" },
+          { id: `configure_variants:${code}`, title: "Variantes 🏷️" },
+          { id: "no_variants", title: "Sans variantes ⏭️" },
         ],
       } satisfies InteractivePayload,
     }),
 
     /** Confirmation ajout catalogue avec photo et bouton Variantes */
     catalogueAddedWithPhotoInteractive: (code: string, qty: number): InteractiveMessage => ({
-      body: `✅ *${code}* ajouté au catalogue — ${qty} en stock 📸`,
+      body: `*${code}* ajouté au catalogue — ${qty} en stock`,
       interactive: {
         type: "buttons",
-        header: "✅ Article + Photo",
+        header: "✅ Article + Photo 📸",
         buttons: [
-          { id: `configure_variants:${code}`, title: "🏷️ Variantes" },
-          { id: "no_variants", title: "⏭️ Sans variantes" },
+          { id: `configure_variants:${code}`, title: "Variantes 🏷️" },
+          { id: "no_variants", title: "Sans variantes ⏭️" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -304,7 +303,7 @@ export const botMsg = {
         type: "buttons",
         header: "⚡ Action Requise",
         buttons: [
-          { id: "cancel_variant_config", title: "❌ Annuler config" },
+          { id: "cancel_variant_config", title: "Annuler config ❌" },
         ],
       } satisfies InteractivePayload,
     }),
