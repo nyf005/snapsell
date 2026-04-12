@@ -521,7 +521,7 @@ export async function processWebhookJob(
         // Le vendeur annule le workflow de config variante via le bouton interactif
         if (interactiveReplyId === "cancel_variant_config") {
           await db.conversationState.deleteMany({
-            where: { tenantId_phone: { tenantId, phone: clientPhoneE164 } },
+            where: { tenantId, phone: clientPhoneE164 },
           });
           await writeToOutbox({
             tenantId,
