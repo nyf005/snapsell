@@ -223,30 +223,40 @@ export async function processWebhookJob(
     // Déterminer le type de message (vendeur vs client)
     const messageType = await determineMessageType(tenantId, from);
 
+    // Récupération préventive du tenant pour optimiser les appels DB (unification)
+    const tenant = tenantId
+      ? await db.tenant.findUnique({
+        where: { id: tenantId },
+        select: {
+          name: true,
+          metaPhoneNumberId: true,
+          metaAccessToken: true,
+          requireDeposit: true,
+          faqDelivery: true,
+          faqPayment: true,
+          faqLocation: true,
+          faqAvailability: true,
+        },
+      })
+      : null;
+
     // Story 11.2: Envoyer l'indicateur de frappe EN DIRECT (sans passer par l'outbox)
     // pour que l'affichage soit instantané (sub-second) côté client.
-    if (tenantId) {
+    if (tenantId && tenant?.metaPhoneNumberId && tenant?.metaAccessToken) {
       // On lance en arrière-plan sans 'await' pour ne pas ralentir le traitement principal
       (async () => {
         try {
-          const tenant = await db.tenant.findUnique({
-            where: { id: tenantId },
-            select: { metaPhoneNumberId: true, metaAccessToken: true },
+          const adapter = new MetaCloudAdapter(
+            tenant.metaPhoneNumberId,
+            decrypt(tenant.metaAccessToken),
+          );
+          await adapter.send({
+            tenantId,
+            to: from,
+            isTypingIndicator: true,
+            correlationId: correlationId, // On passe directement le wamid réel
           });
-
-          if (tenant?.metaPhoneNumberId && tenant?.metaAccessToken) {
-            const adapter = new MetaCloudAdapter(
-              tenant.metaPhoneNumberId,
-              decrypt(tenant.metaAccessToken),
-            );
-            await adapter.send({
-              tenantId,
-              to: from,
-              isTypingIndicator: true,
-              correlationId: correlationId, // On passe directement le wamid réel
-            });
-            workerLogger.debug("Direct typing indicator sent", { correlationId });
-          }
+          workerLogger.debug("Direct typing indicator sent", { correlationId });
         } catch (err) {
           workerLogger.debug("Non-critical error: direct typing indicator failed", { error: err });
         }
@@ -381,10 +391,6 @@ export async function processWebhookJob(
         if (interactiveReplyId === "confirm_order") {
           const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
           if (active?.status === "address_collected") {
-            const tenant = await db.tenant.findUnique({
-              where: { id: tenantId },
-              select: { requireDeposit: true },
-            });
             const requireDeposit = tenant?.requireDeposit ?? false;
             const orderResult = await createOrderFromReservation(
               tenantId, active.id, requireDeposit, clientPhoneE164, correlationId,
@@ -833,10 +839,6 @@ export async function processWebhookJob(
           clientPhoneE164,
         );
         if (active?.status === "address_collected") {
-          const tenant = await db.tenant.findUnique({
-            where: { id: tenantId },
-            select: { requireDeposit: true },
-          });
           const requireDeposit = tenant?.requireDeposit ?? false;
           const orderResult = await createOrderFromReservation(
             tenantId,
@@ -1112,10 +1114,7 @@ export async function processWebhookJob(
         const faqIntent = detectFaqIntent(body);
 
         if (faqIntent) {
-          const tenant = await db.tenant.findUnique({
-            where: { id: tenantId },
-            select: { faqDelivery: true, faqPayment: true, faqLocation: true, faqAvailability: true },
-          });
+
 
           const faqAnswer =
             faqIntent === "delivery" ? tenant?.faqDelivery :
@@ -1157,7 +1156,6 @@ export async function processWebhookJob(
 
           if (msgCount <= 1) {
             // Phase 2.1: First contact — send welcome (list si live actif avec articles, texte sinon)
-            const tenant = await db.tenant.findUnique({ where: { id: tenantId }, select: { name: true } });
             const shopName = tenant?.name ?? "la boutique";
 
             // Si live actif, charger les articles disponibles pour un list message
