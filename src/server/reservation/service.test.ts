@@ -116,6 +116,7 @@ describe("reservation/service (Story 4.1)", () => {
       );
 
       expect(result).toEqual({
+        success: true,
         reservation: { id: "res-1", status: "reserved" },
       });
       expect(reserveUnits).toHaveBeenCalledWith(tenantId, liveItemId, 1, {
@@ -140,7 +141,7 @@ describe("reservation/service (Story 4.1)", () => {
         tenantId,
         "res-1",
         correlationId,
-        { live_item_id: liveItemId, live_session_id: liveSessionId, quantity: 1, variant_id: null },
+        { live_item_id: liveItemId, live_session_id: liveSessionId },
       );
     });
 
@@ -273,6 +274,7 @@ describe("reservation/service (Story 4.1)", () => {
   describe("collectAddress", () => {
     beforeEach(() => {
       vi.mocked(db.reservation.findFirst).mockResolvedValue({
+        id: "res-1",
         status: "reserved",
         liveItem: { code: "A12", amount: 5000 },
         catalogueItem: null,

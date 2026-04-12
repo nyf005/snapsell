@@ -387,7 +387,7 @@ describe("orders router", () => {
 
       await expect(caller.orders.exportCsv({})).rejects.toMatchObject({
         code: "FORBIDDEN",
-        message: expect.stringContaining("managers ou propriétaires"),
+        message: expect.stringContaining("administrateurs (Owner/Manager)"),
       });
       expect(mockOrderFindMany).not.toHaveBeenCalled();
     });

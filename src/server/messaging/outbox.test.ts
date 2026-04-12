@@ -41,7 +41,7 @@ vi.mock("~/env", () => ({
 describe("writeToOutbox", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(db.tenant.findUnique).mockResolvedValue({ showBranding: false } as never);
+    vi.mocked(db.tenant.findUnique).mockResolvedValue({ name: "La Boutique", showBranding: false } as never);
   });
 
   it("should write MessageOut with status pending", async () => {
@@ -71,9 +71,10 @@ describe("writeToOutbox", () => {
       data: {
         tenantId: message.tenantId,
         to: message.to,
-        body: message.body,
+        body: "Hello World\n\n_La Boutique_",
         mediaUrl: null,
         interactivePayload: undefined,
+        isTypingIndicator: false,
         status: "pending",
         attempts: 0,
         correlationId: message.correlationId,
@@ -136,9 +137,10 @@ describe("writeToOutbox", () => {
       data: {
         tenantId: message.tenantId,
         to: message.to,
-        body: message.body,
+        body: "Récap\n\n_La Boutique_",
         mediaUrl: "tenants/t1/catalogue-items/ci1/photo",
         interactivePayload: undefined,
+        isTypingIndicator: false,
         status: "pending",
         attempts: 0,
         correlationId: message.correlationId,

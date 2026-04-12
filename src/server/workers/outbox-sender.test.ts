@@ -143,7 +143,7 @@ describe("outbox-sender worker", () => {
       // Verify tenant lookup (AC #1)
       expect(mockTenantFindUnique).toHaveBeenCalledWith({
         where: { id: messageOut.tenantId },
-        select: { metaPhoneNumberId: true, metaAccessToken: true },
+        select: { id: true, metaPhoneNumberId: true, metaAccessToken: true },
       });
       expect(mockCheckOptOut).toHaveBeenCalledWith(messageOut.tenantId, messageOut.to);
       expect(mockSend).toHaveBeenCalledWith({
@@ -151,6 +151,7 @@ describe("outbox-sender worker", () => {
         to: messageOut.to,
         body: messageOut.body,
         correlationId: messageOut.correlationId,
+        isTypingIndicator: false,
       });
       expect(mockMessageOutUpdate).toHaveBeenCalledWith({
         where: { id: messageOut.id },

@@ -73,6 +73,10 @@ export const env = createEnv({
     META_APP_ID: z.string().min(1).optional(),
     META_APP_SECRET: z.string().min(1).optional(),
     META_VERIFY_TOKEN: z.string().min(1).optional(),
+    // AI Configuration (Gemma 4 integration)
+    AI_API_KEY: z.string().min(1).optional(),
+    AI_BASE_URL: z.string().url().default("https://api.groq.com/openai/v1"),
+    AI_MODEL_NAME: z.string().default("llama-3.1-8b-instant"),
   },
 
   /**
@@ -129,6 +133,9 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID,
     NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED:
       process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED,
+    AI_API_KEY: process.env.AI_API_KEY,
+    AI_BASE_URL: process.env.AI_BASE_URL,
+    AI_MODEL_NAME: process.env.AI_MODEL_NAME,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

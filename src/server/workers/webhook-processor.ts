@@ -47,6 +47,7 @@ import {
   startSellerVariantConfig,
   handleSellerVariantConfigReply,
 } from "~/server/conversation/sellerVariantConfig";
+import { analyzeInboundIntent } from "../messaging/ai-service";
 
 /** Mots-clés STOP (case-insensitive, trim) pour détection opt-out. */
 const STOP_KEYWORDS = ["stop", "arrêt", "arret", "unsubscribe", "optout", "opt-out"];
@@ -133,7 +134,17 @@ export async function processWebhookJob(
     return { ...job.data, tenantId: null, messageType: "client" };
   }
 
-  const clientPhoneE164 = normalizeIncomingPhone(from);
+  let clientPhoneE164: string;
+  try {
+    clientPhoneE164 = normalizeIncomingPhone(from);
+  } catch (err) {
+    workerLogger.warn("Webhook processing aborted: invalid phone format", { 
+      from, 
+      tenantId, 
+      providerMessageId 
+    });
+    return { ...job.data, tenantId, messageType: "client" };
+  }
 
   try {
     // 1. Déterminer le type de message (vendeur vs client)
@@ -175,9 +186,16 @@ export async function processWebhookJob(
       }
     }
 
-    // 3. Handoff management
+    // 3. AI Intent Analysis (Story 12.1)
+    let aiAnalysis = null;
+    if (!isStopMessage(body) && body.trim().length > 0) {
+      aiAnalysis = await analyzeInboundIntent(body);
+      workerLogger.info("AI Analysis result", { tenantId, from: clientPhoneE164, aiAnalysis });
+    }
+
+    // 4. Handoff management
     if (messageType === "client" && !isStopMessage(body) && body.trim().length > 0) {
-      if (isHandoffRequest(body)) {
+      if (isHandoffRequest(body) || aiAnalysis?.intent === "HUMAN_AGENT") {
         await setHandedOff(tenantId, clientPhoneE164, true);
         await writeToOutbox({
           tenantId,
@@ -316,6 +334,13 @@ export async function processWebhookJob(
             correlationId,
             Array.isArray(item.attributes) ? (item.attributes as string[]) : [],
           );
+        } else {
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: `Article *${code}* introuvable dans le catalogue.`,
+            correlationId,
+          });
         }
       } else if (interactiveReplyId.startsWith("select_val:")) {
         await handleVariantChoice(
@@ -333,13 +358,22 @@ export async function processWebhookJob(
     const isClient = messageType === "client";
     const shouldRead =
       trimmedBody.length > 0 &&
-      !isStopMessage(body) &&
-      (isSeller || (isClient && CLIENT_CODE_PATTERN.test(trimmedBody)));
+      !isStopMessage(body);
     const liveSessionId = shouldRead ? (await getCurrentSessionReadOnly(tenantId))?.id : null;
 
     // 6. Client intent
     if (isClient) {
-      const clientCodeIntent = parseClientCodeIntent(body);
+      let clientCodeIntent = parseClientCodeIntent(body);
+
+      // Story 12.1: AI Fallback for buying intent
+      if (!clientCodeIntent && aiAnalysis?.intent === "BUY" && aiAnalysis.entities.productCode) {
+        clientCodeIntent = {
+          code: aiAnalysis.entities.productCode,
+          quantity: aiAnalysis.entities.quantity ?? 1,
+          isTypo: false,
+        };
+      }
+
       if (clientCodeIntent) {
         const item = liveSessionId
           ? await findOrCreateOrderableItemByCode(tenantId, clientCodeIntent.code)
@@ -457,7 +491,7 @@ export async function processWebhookJob(
         }
 
         const faq = detectFaqIntent(body);
-        const faqAnswer = faq
+        let faqAnswer = faq
           ? faq === "delivery"
             ? tenant?.faqDelivery
             : faq === "payment"
@@ -466,6 +500,12 @@ export async function processWebhookJob(
                 ? tenant?.faqLocation
                 : tenant?.faqAvailability
           : null;
+
+        // Story 12.1: Use AI suggested reply for FAQ if high confidence
+        if (!faqAnswer && aiAnalysis?.intent === "FAQ" && aiAnalysis.suggestedReply) {
+          faqAnswer = aiAnalysis.suggestedReply;
+        }
+
         if (faqAnswer) {
           await writeToOutbox({ tenantId, to: clientPhoneE164, body: faqAnswer, correlationId });
         } else {
@@ -509,9 +549,18 @@ export async function processWebhookJob(
       if (convState?.state === SELLER_VARIANT_CONFIG_STATE) {
         await handleSellerVariantConfigReply(tenantId, clientPhoneE164, body, correlationId);
       } else {
-        const intent = liveSessionId
+        let intent = liveSessionId
           ? parseSellerCreateItemIntent(body)
           : parseSellerOffLiveCreateItemIntent(body);
+
+        // Story 12.1: AI Fallback for seller creation
+        if (!intent && aiAnalysis?.intent === "SELLER_CREATE" && aiAnalysis.entities.productCode) {
+          intent = {
+            code: aiAnalysis.entities.productCode,
+            quantity: aiAnalysis.entities.quantity ?? 1,
+          };
+        }
+
         if (intent) {
           const catRes = await upsertCatalogueItemFromWebhook(tenantId, intent.code, intent.quantity, {
             createdInLive: !!liveSessionId,

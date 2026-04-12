@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("~/server/db", () => ({
   db: {
     optOut: {
-      findUnique: mocks.mockOptOutFindUnique,
+      findFirst: mocks.mockOptOutFindUnique,
     },
   },
 }));
@@ -34,7 +34,7 @@ describe("optout", () => {
       expect(result).toBe(true);
       expect(mocks.mockOptOutFindUnique).toHaveBeenCalledWith({
         where: {
-          tenantId_phoneNumber: { tenantId: "tenant-123", phoneNumber: "+33612345678" },
+          tenantId: "tenant-123", phoneNumber: "+33612345678"
         },
       });
     });
@@ -47,7 +47,7 @@ describe("optout", () => {
       expect(result).toBe(false);
       expect(mocks.mockOptOutFindUnique).toHaveBeenCalledWith({
         where: {
-          tenantId_phoneNumber: { tenantId: "tenant-123", phoneNumber: "+33698765432" },
+          tenantId: "tenant-123", phoneNumber: "+33698765432"
         },
       });
     });
@@ -59,7 +59,19 @@ describe("optout", () => {
 
       expect(mocks.mockOptOutFindUnique).toHaveBeenCalledWith({
         where: {
-          tenantId_phoneNumber: { tenantId: "tenant-123", phoneNumber: "+33612345678" },
+          tenantId: "tenant-123", phoneNumber: "+33612345678"
+        },
+      });
+    });
+
+    it("should migrate CI numbers from 8 to 10 digits before lookup", async () => {
+      mocks.mockOptOutFindUnique.mockResolvedValue(null);
+
+      await checkOptOut("tenant-123", "whatsapp:+22509542783");
+
+      expect(mocks.mockOptOutFindUnique).toHaveBeenCalledWith({
+        where: {
+          tenantId: "tenant-123", phoneNumber: "+2250709542783"
         },
       });
     });

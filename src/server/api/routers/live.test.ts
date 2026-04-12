@@ -656,6 +656,7 @@ describe("live router", () => {
         liveSessionId: "session-1",
         correlationId: "c1",
         status: "reserved",
+        quantity: 1,
         liveItem: { code: "A" },
         catalogueItem: null,
       });
@@ -676,7 +677,7 @@ describe("live router", () => {
         where: { id: VALID_RESERVATION_ID },
         data: { status: "expired" },
       });
-      expect(mockReleaseReservation).toHaveBeenCalledWith("tenant-1", "item-1", { correlationId: "c1", table: "live_items" });
+      expect(mockReleaseReservation).toHaveBeenCalledWith("tenant-1", "item-1", 1, { correlationId: "c1", table: "live_items" });
       expect(mockLogEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           eventType: "reservation_expired",
@@ -715,9 +716,9 @@ describe("live router", () => {
         correlationId: "c-wl",
         position: 1,
       });
-      mockCreateReservation.mockResolvedValue({
-        success: true,
-        reservation: { id: "res-new", status: "reserved" },
+      mockCreateReservation.mockResolvedValue({ 
+        success: true, 
+        reservation: { id: "res-1", status: "reserved" } 
       });
       mockWaitlistDelete.mockResolvedValue({});
 
@@ -758,6 +759,7 @@ describe("live router", () => {
         liveSessionId: null,
         correlationId: "c-cat",
         status: "reserved",
+        quantity: 1,
         liveItem: null,
         catalogueItem: { code: "D9" },
       });
@@ -777,6 +779,7 @@ describe("live router", () => {
       expect(mockReleaseReservation).toHaveBeenCalledWith(
         "tenant-1",
         "cat-item-1",
+        1,
         { correlationId: "c-cat", table: "catalogue_items" },
       );
       expect(mockLogEvent).toHaveBeenCalledWith(
@@ -801,8 +804,9 @@ describe("live router", () => {
         liveSessionId: null,
         correlationId: "c-cat-2",
         status: "reserved",
+        quantity: 1,
         liveItem: null,
-        catalogueItem: { code: "E1" },
+        catalogueItem: { code: "A12" },
       });
       mockReservationUpdate.mockResolvedValue({});
       mockReleaseReservation.mockResolvedValue({ success: true });
@@ -844,7 +848,7 @@ describe("live router", () => {
         expect.objectContaining({
           tenantId: "tenant-1",
           to: "+33688888888",
-          body: expect.stringContaining("E1"),
+          body: expect.stringContaining("A12"),
         }),
       );
     });

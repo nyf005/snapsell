@@ -34,6 +34,7 @@ const CATALOGUE_ITEM = {
   mediaStorageKey: null,
   origin: "live",
   createdInLive: true,
+  variants: [],
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -78,6 +79,7 @@ describe("findOrCreateOrderableItemByCode", () => {
         origin: "live",
         createdInLive: true,
       },
+      include: { variants: { select: { id: true } } },
     });
   });
 
@@ -127,6 +129,7 @@ describe("findOrCreateOrderableItemByCode", () => {
     expect(mockGetPrice).toHaveBeenCalledWith(TENANT, "A12");
     expect(mockFindUnique).toHaveBeenCalledWith({
       where: { tenantId_code: { tenantId: TENANT, code: "A12" } },
+      include: { variants: { select: { id: true } } },
     });
   });
 

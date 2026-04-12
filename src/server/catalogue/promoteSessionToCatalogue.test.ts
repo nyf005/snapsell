@@ -70,6 +70,7 @@ describe("promoteSessionToCatalogue", () => {
         availableQty: 3,
         reservedQty: 0,
         mediaStorageKey: null,
+        origin: "live",
         createdInLive: true,
       },
     });
@@ -216,6 +217,7 @@ describe("promoteSessionToCatalogue", () => {
         availableQty: 2,
         reservedQty: 0,
         mediaStorageKey: "test-image-key.jpg",
+        origin: "live",
         createdInLive: true,
       },
     });

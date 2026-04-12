@@ -185,11 +185,11 @@ export const settingsRouter = createTRPCRouter({
       let tokenToValidate = input.metaAccessToken;
       let wabaIdToValidate = input.metaWabaId;
 
-      if ((tokenToValidate === null || wabaIdToValidate === null) && phoneId != null) {
+      if ((tokenToValidate == null || wabaIdToValidate == null) && phoneId != null) {
         const adapter = await getProviderForTenant(tenantId);
         tokenToValidate ??= adapter?.getAccessToken() ?? null;
         
-        if (wabaIdToValidate === null) {
+        if (wabaIdToValidate == null) {
           const t = await db.tenant.findUnique({ where: { id: tenantId }, select: { metaWabaId: true } });
           wabaIdToValidate = t?.metaWabaId ?? null;
         }
@@ -311,19 +311,24 @@ export const settingsRouter = createTRPCRouter({
           }
         }
 
-        if (error instanceof MetaEmbeddedSignupError) {
-          if (error.kind === "BAD_REQUEST") {
+        const isMetaError = 
+          error instanceof MetaEmbeddedSignupError || 
+          (error && typeof error === 'object' && 'name' in error && error.name === 'MetaEmbeddedSignupError');
+
+        if (isMetaError) {
+          const metaErr = error as MetaEmbeddedSignupError;
+          if (metaErr.kind === "BAD_REQUEST") {
             throw new TRPCError({
               code: "BAD_REQUEST",
-              message: error.message,
+              message: metaErr.message,
             });
           }
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message:
-              error.kind === "CONFIG_ERROR"
+              metaErr.kind === "CONFIG_ERROR"
                 ? "Configuration Meta incomplète côté serveur."
-                : error.message,
+                : metaErr.message,
           });
         }
 

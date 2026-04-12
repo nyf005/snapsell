@@ -1,3 +1,4 @@
+import { Prisma } from "../../../../generated/prisma";
 import { TRPCError } from "@trpc/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -11,6 +12,7 @@ const mockSellerPhoneFindFirst = vi.hoisted(() => vi.fn());
 const mockSellerPhoneUpsert = vi.hoisted(() => vi.fn());
 const mockDbTransaction = vi.hoisted(() => vi.fn());
 const mockFetch = vi.hoisted(() => vi.fn());
+const mockGetProviderForTenant = vi.hoisted(() => vi.fn());
 
 vi.stubGlobal("fetch", mockFetch);
 
@@ -38,6 +40,10 @@ vi.mock("~/lib/trpc-rate-limit", () => ({
   checkTrpcRateLimit: vi.fn().mockResolvedValue(true),
 }));
 
+vi.mock("~/server/messaging/service", () => ({
+  getProviderForTenant: mockGetProviderForTenant,
+}));
+
 function setupTransactionMock() {
   mockDbTransaction.mockImplementation(async (fn: any) =>
     fn({
@@ -51,9 +57,14 @@ function setupTransactionMock() {
 
 describe("settings router — setWhatsAppConfig (Meta)", () => {
   beforeEach(() => {
+    mockFetch.mockReset();
+    mockGetProviderForTenant.mockReset();
     vi.clearAllMocks();
     setupTransactionMock();
     mockSellerPhoneFindFirst.mockResolvedValue(null);
+    mockGetProviderForTenant.mockResolvedValue({
+      getAccessToken: () => "mocked-token",
+    });
   });
 
   const ownerSession = {
@@ -187,7 +198,7 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
       expect.stringContaining("graph.facebook.com/v20.0/789/phone_numbers"),
       expect.objectContaining({
         headers: expect.objectContaining({
-          Authorization: "Bearer stored-token",
+          Authorization: "Bearer mocked-token",
         }),
       }),
     );
@@ -219,6 +230,7 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     mockTenantFindFirst.mockResolvedValue(null);
     mockTenantFindUnique.mockResolvedValue({ metaAccessToken: null, metaWabaId: null });
     mockTenantUpdate.mockResolvedValue({});
+    mockGetProviderForTenant.mockResolvedValue(null);
 
     const caller = await makeCaller(ownerSession);
     await caller.settings.setWhatsAppConfig({
@@ -386,9 +398,9 @@ describe("settings router — testWhatsAppConnection", () => {
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining("graph.facebook.com/v20.0/456/phone_numbers"),
       expect.objectContaining({
-        headers: expect.objectContaining({
-          Authorization: "Bearer valid-token",
-        }),
+        headers: {
+          Authorization: "Bearer mocked-token",
+        },
       }),
     );
   });
@@ -647,7 +659,13 @@ describe("settings router — connectWhatsAppEmbedded", () => {
 
   it("rejette conflit unicite metaPhoneNumberId avec CONFLICT", async () => {
     mockMetaExchangeSuccess();
-    mockTenantUpdate.mockRejectedValue({ code: "P2002" });
+    // Simulate a Prisma unique constraint violation on meta_phone_number_id
+    const prismaError = new Prisma.PrismaClientKnownRequestError("Unique constraint fail", {
+      code: "P2002",
+      clientVersion: "mock",
+      meta: { target: ["meta_phone_number_id"] },
+    });
+    mockTenantUpdate.mockRejectedValue(prismaError);
 
     const caller = await makeCaller(ownerSession);
     await expect(
