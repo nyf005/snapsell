@@ -280,7 +280,7 @@ export const settingsRouter = createTRPCRouter({
       select: { id: true, metaPhoneNumberId: true, metaWabaId: true, metaAccessToken: true },
     });
     const adapter = await getProviderForTenant(tenant);
-    if (!tenant || !adapter) {
+    if (!tenant || !adapter || !tenant.metaWabaId || !tenant.metaPhoneNumberId) {
       throw new TRPCError({
         code: "BAD_REQUEST",
         message: "Configuration incomplète ou invalide. Enregistrez vos identifiants Meta d'abord.",
