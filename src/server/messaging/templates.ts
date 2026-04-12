@@ -243,13 +243,13 @@ export const botMsg = {
       `⚠️ *${code}* a encore *${availableQty}* unité${availableQty > 1 ? "s" : ""} en stock.\n\nÉpuise d'abord ce stock ou choisis un autre code.`,
 
     liveCreateInstruction: () =>
-      `En live, pas besoin d'écrire "ajout" ! Envoie juste le code (ex: *A12*) ou avec quantité (ex: *A12 x3*).`,
+      `ℹ️ En live, pas besoin d'écrire "ajout" ! Envoie juste le code (ex: *A12*) ou avec quantité (ex: *A12 x3*).`,
 
     sellerFallback: () =>
       `Je n'ai pas compris ce code 😅\n\nEnvoie juste le code (ex: *A12*) ou avec quantité (ex: *A12 x3*) pour créer l'article dans ce live.`,
 
     offLiveCreateInstruction: () =>
-      `Hors live, utilise *ajout A12* ou *ajout A12 x3* pour créer un article.`,
+      `ℹ️ Hors live, utilise *ajout A12* ou *ajout A12 x3* pour créer un article.`,
 
     /** Confirmation ajout catalogue avec bouton Variantes */
     catalogueAddedInteractive: (code: string, qty: number): InteractiveMessage => ({
