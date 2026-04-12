@@ -224,9 +224,10 @@ export async function processWebhookJob(
     const messageType = await determineMessageType(tenantId, from);
 
     // Récupération préventive du tenant pour optimiser les appels DB (unification)
-    const tenant = tenantId
+    const currentTenantId = tenantId;
+    const tenant = currentTenantId
       ? await db.tenant.findUnique({
-        where: { id: tenantId },
+        where: { id: currentTenantId },
         select: {
           name: true,
           metaPhoneNumberId: true,
@@ -242,7 +243,7 @@ export async function processWebhookJob(
 
     // Story 11.2: Envoyer l'indicateur de frappe EN DIRECT (sans passer par l'outbox)
     // pour que l'affichage soit instantané (sub-second) côté client.
-    if (tenantId && tenant?.metaPhoneNumberId && tenant?.metaAccessToken) {
+    if (currentTenantId && tenant?.metaPhoneNumberId && tenant?.metaAccessToken) {
       // On lance en arrière-plan sans 'await' pour ne pas ralentir le traitement principal
       (async () => {
         try {
@@ -251,7 +252,7 @@ export async function processWebhookJob(
             decrypt(tenant.metaAccessToken),
           );
           await adapter.send({
-            tenantId,
+            tenantId: currentTenantId,
             to: from,
             isTypingIndicator: true,
             correlationId: correlationId, // On passe directement le wamid réel
