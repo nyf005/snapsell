@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
 
-import { e164PhoneSchema } from "~/lib/validations/phone";
+import {
+  e164PhoneSchema,
+  normalizeAndValidateMessagingPhoneNumber,
+} from "~/lib/validations/phone";
 
 describe("e164PhoneSchema", () => {
   it("accepts valid E.164 numbers", () => {
@@ -19,5 +22,10 @@ describe("e164PhoneSchema", () => {
 
   it("rejects invalid format (letters)", () => {
     expect(() => e164PhoneSchema.parse("+33abc45678")).toThrow();
+  });
+
+  it("preserves provider E.164 numbers without CI migration", () => {
+    expect(normalizeAndValidateMessagingPhoneNumber("+22509542783")).toBe("+22509542783");
+    expect(normalizeAndValidateMessagingPhoneNumber("whatsapp:+22509542783")).toBe("+22509542783");
   });
 });

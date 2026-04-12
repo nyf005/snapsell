@@ -3,7 +3,11 @@ import { workerLogger } from "~/lib/logger";
 import { captureException } from "~/lib/sentry";
 import { boss, QUEUE, type PgBossJob } from "./queues";
 import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types";
-import { normalizeAndValidatePhoneNumber, migrateCIPhoneNumber } from "~/lib/validations/phone";
+import {
+  normalizeAndValidateMessagingPhoneNumber,
+  normalizeAndValidatePhoneNumber,
+  migrateCIPhoneNumber,
+} from "~/lib/validations/phone";
 import {
   logOptOutRecorded,
   logLiveItemCreated,
@@ -65,6 +69,10 @@ export {
  */
 export function normalizePhoneNumber(phoneNumber: string): string {
   return phoneNumber.replace(/^whatsapp:/i, "");
+}
+
+function normalizeInboundMessagingPhone(phoneNumber: string): string {
+  return normalizeAndValidateMessagingPhoneNumber(normalizePhoneNumber(phoneNumber));
 }
 
 /** Mots-clés STOP (case-insensitive, trim) pour détection opt-out (Story 2.5, 7B.3 FR46). Scope = tenant. Voir docs/stop-policy.md. */
@@ -224,8 +232,7 @@ export async function processWebhookJob(
     // Story 2.5 : Détection STOP (scope tenant) — enregistrer OptOut si client envoie STOP
     if (tenantId && messageType === "client" && isStopMessage(body)) {
       try {
-        const normalizedFrom = normalizePhoneNumber(from);
-        const phoneE164 = normalizeAndValidatePhoneNumber(normalizedFrom);
+        const phoneE164 = normalizeInboundMessagingPhone(from);
         const existing = await db.optOut.findUnique({
           where: { tenantId_phoneNumber: { tenantId, phoneNumber: phoneE164 } },
         });
@@ -265,8 +272,7 @@ export async function processWebhookJob(
     let isHandedOff = false;
     if (tenantId && messageType === "client" && !isStopMessage(body) && body.trim().length > 0) {
       try {
-        const to = normalizePhoneNumber(from);
-        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const clientPhoneE164 = normalizeInboundMessagingPhone(from);
 
         if (isHandoffRequest(body)) {
           await setHandedOff(tenantId, clientPhoneE164, true);
@@ -307,8 +313,7 @@ export async function processWebhookJob(
     // Réponses interactives (boutons/liste) : mapper l'ID vers le comportement équivalent
     if (tenantId && (messageType === "client" || messageType === "seller") && interactiveReplyId) {
       try {
-        const to = normalizePhoneNumber(from);
-        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const clientPhoneE164 = normalizeInboundMessagingPhone(from);
 
         // Annulation : libérer la réservation active
         if (interactiveReplyId === "cancel_order") {
@@ -559,8 +564,7 @@ export async function processWebhookJob(
     const clientCodeIntent = parseClientCodeIntent(body);
     if (tenantId && messageType === "client" && clientCodeIntent) {
       try {
-        const to = normalizePhoneNumber(from);
-        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const clientPhoneE164 = normalizeInboundMessagingPhone(from);
 
         const catalogueItem = liveSessionId
           ? await findOrCreateOrderableItemByCode(tenantId, clientCodeIntent.code)
@@ -658,8 +662,7 @@ export async function processWebhookJob(
       body.trim().length > 0
     ) {
       try {
-        const to = normalizePhoneNumber(from);
-        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const clientPhoneE164 = normalizeInboundMessagingPhone(from);
         const active = await getActiveReservationForClient(
           tenantId,
           clientPhoneE164,
@@ -715,8 +718,7 @@ export async function processWebhookJob(
       isConfirmOui(body)
     ) {
       try {
-        const to = normalizePhoneNumber(from);
-        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const clientPhoneE164 = normalizeInboundMessagingPhone(from);
         const active = await getActiveReservationForClient(
           tenantId,
           clientPhoneE164,
@@ -755,14 +757,14 @@ export async function processWebhookJob(
     if (tenantId && messageType === "seller") {
       // Variantes : si le vendeur est en train de répondre au flow de config, intercepter ici
       const convState = await db.conversationState.findUnique({
-        where: { tenantId_phone: { tenantId, phone: normalizePhoneNumber(from) } },
+        where: { tenantId_phone: { tenantId, phone: normalizeInboundMessagingPhone(from) } },
         select: { state: true },
       }).catch(() => null);
 
       if (convState?.state === SELLER_VARIANT_CONFIG_STATE) {
         await handleSellerVariantConfigReply(
           tenantId,
-          normalizePhoneNumber(from),
+          normalizeInboundMessagingPhone(from),
           body,
           correlationId,
         );
@@ -778,7 +780,7 @@ export async function processWebhookJob(
         : parseSellerOffLiveCreateItemIntent(body);
       if (createItem) {
         try {
-          const to = normalizePhoneNumber(from);
+          const to = normalizeInboundMessagingPhone(from);
 
           // Story 8.2: Upsert catalogue (toujours, session active ou non)
           const catalogueResult = await upsertCatalogueItemFromWebhook(
@@ -943,7 +945,7 @@ export async function processWebhookJob(
         }
       } else if (!activeSession && looksLikeImplicitSellerCreateItem(body)) {
         try {
-          const to = normalizePhoneNumber(from);
+          const to = normalizeInboundMessagingPhone(from);
           await writeToOutbox({
             tenantId,
             to,
@@ -959,7 +961,7 @@ export async function processWebhookJob(
       } else if (mediaUrl) {
         // Photo sans caption — demander au vendeur d'utiliser le caption pour lier l'article
         try {
-          const to = normalizePhoneNumber(from);
+          const to = normalizeInboundMessagingPhone(from);
           await writeToOutbox({
             tenantId,
             to,
@@ -997,8 +999,7 @@ export async function processWebhookJob(
     // Phase 5.3: FAQ auto-reply — detect FAQ keywords and respond with tenant-configured answers.
     if (tenantId && messageType === "client" && !clientCodeIntent && !isStopMessage(body) && body.trim().length > 0) {
       try {
-        const to = normalizePhoneNumber(from);
-        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const clientPhoneE164 = normalizeInboundMessagingPhone(from);
         const faqIntent = detectFaqIntent(body);
 
         if (faqIntent) {
@@ -1038,8 +1039,7 @@ export async function processWebhookJob(
     // Fires for client messages that did not match any intent above (no code, no active reservation).
     if (tenantId && messageType === "client" && !clientCodeIntent && !isStopMessage(body) && body.trim().length > 0) {
       try {
-        const to = normalizePhoneNumber(from);
-        const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
+        const clientPhoneE164 = normalizeInboundMessagingPhone(from);
         const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
         const alreadyHandled = active && (active.status === "reserved" || active.status === "address_collected");
 

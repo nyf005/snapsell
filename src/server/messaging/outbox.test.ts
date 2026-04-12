@@ -211,4 +211,36 @@ describe("writeToOutbox", () => {
 
     await expect(writeToOutbox(message)).rejects.toThrow("DB error");
   });
+
+  it("preserves CI WhatsApp recipient without implicit migration", async () => {
+    const message = {
+      tenantId: "tenant-123",
+      to: "+22509542783",
+      body: "Hello CI",
+      correlationId: "corr-ci",
+    };
+
+    const mockMessageOut = {
+      id: "msg-out-ci",
+      tenantId: message.tenantId,
+      to: message.to,
+      body: message.body,
+      status: "pending",
+      attempts: 0,
+      correlationId: message.correlationId,
+      createdAt: new Date(),
+    };
+
+    vi.mocked(db.messageOut.create).mockResolvedValue(mockMessageOut as never);
+
+    await writeToOutbox(message);
+
+    expect(db.messageOut.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          to: "+22509542783",
+        }),
+      }),
+    );
+  });
 });

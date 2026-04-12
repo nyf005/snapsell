@@ -111,3 +111,20 @@ export function normalizeAndValidatePhoneNumber(phoneNumber: string): string {
 
   return normalized;
 }
+
+/**
+ * Normalise un numéro provenant déjà d'un transport de messagerie (ex: WhatsApp provider),
+ * sans appliquer de migration CI. On préserve exactement l'identifiant E.164 reçu afin
+ * de répondre au même numéro et de garder des clés de conversation cohérentes.
+ */
+export function normalizeAndValidateMessagingPhoneNumber(phoneNumber: string): string {
+  const normalized = phoneNumber.replace(/^whatsapp:/i, "");
+
+  if (!isValidE164(normalized)) {
+    throw new Error(
+      `Numéro de messagerie invalide: "${phoneNumber}" (normalisé: "${normalized}"). Format attendu: E.164 (ex: +33612345678)`,
+    );
+  }
+
+  return normalized;
+}

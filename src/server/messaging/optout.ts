@@ -6,7 +6,10 @@
  */
 
 import { db } from "~/server/db";
-import { normalizeAndValidatePhoneNumber } from "~/lib/validations/phone";
+import {
+  migrateCIPhoneNumber,
+  normalizeAndValidateMessagingPhoneNumber,
+} from "~/lib/validations/phone";
 
 /** Enlève le préfixe "whatsapp:" (cohérent avec webhook-processor / MessageOut.to) */
 function stripWhatsAppPrefix(phoneNumber: string): string {
@@ -21,7 +24,7 @@ function stripWhatsAppPrefix(phoneNumber: string): string {
 function normalizePhoneForOptOut(phoneNumber: string): string {
   const withoutPrefix = stripWhatsAppPrefix(phoneNumber);
   try {
-    return normalizeAndValidatePhoneNumber(withoutPrefix);
+    return normalizeAndValidateMessagingPhoneNumber(withoutPrefix);
   } catch {
     return withoutPrefix;
   }
@@ -41,9 +44,11 @@ export async function checkOptOut(
   phoneNumber: string,
 ): Promise<boolean> {
   const normalized = normalizePhoneForOptOut(phoneNumber);
-  const found = await db.optOut.findUnique({
+  const migrated = migrateCIPhoneNumber(normalized);
+  const found = await db.optOut.findFirst({
     where: {
-      tenantId_phoneNumber: { tenantId, phoneNumber: normalized },
+      tenantId,
+      phoneNumber: migrated === normalized ? normalized : { in: [normalized, migrated] },
     },
   });
   return found != null;

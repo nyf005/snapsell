@@ -11,7 +11,6 @@ import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { boss, QUEUE } from "~/server/workers/queues";
 import { env } from "~/env";
-import { migrateCIPhoneNumber } from "~/lib/validations/phone";
 import type { OutboundMessage } from "./types";
 import { appendBranding } from "./render";
 
@@ -87,8 +86,9 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
   correlationId: string;
   createdAt: Date;
 }> {
-  // Migration CI : normaliser le numéro destinataire (ancien format 8 chiffres → nouveau 10 chiffres)
-  const normalizedMessage = { ...message, to: migrateCIPhoneNumber(message.to) };
+  // Préserver le destinataire tel qu'il a été fourni par le flux métier.
+  // Pour les réponses WhatsApp, cela évite de réécrire le wa_id reçu du provider.
+  const normalizedMessage = { ...message };
 
   // Branding : plan Free → ajouter signature en pied de message
   const tenant = await db.tenant.findUnique({
