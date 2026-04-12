@@ -48,7 +48,7 @@ export const dashboardRouter = createTRPCRouter({
   getSummary: managerProcedure
     .output(dashboardSummaryOutputSchema)
     .query(async ({ ctx }) => {
-      const tenantId = ctx.tenantId;
+      const tenantId = ctx.session.user.tenantId;
 
       const now = new Date();
       const today = getTodayUtcRange(now);

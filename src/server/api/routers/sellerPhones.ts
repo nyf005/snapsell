@@ -20,7 +20,7 @@ const removeSellerPhoneInputSchema = z.object({
 
 export const sellerPhonesRouter = createTRPCRouter({
   list: managerProcedure.query(async ({ ctx }) => {
-    const tenantId = ctx.tenantId;
+    const tenantId = ctx.session.user.tenantId;
     const list = await db.sellerPhone.findMany({
       where: { tenantId },
       orderBy: { createdAt: "asc" },
@@ -32,7 +32,7 @@ export const sellerPhonesRouter = createTRPCRouter({
   add: managerProcedure
     .input(addSellerPhoneInputSchema)
     .mutation(async ({ ctx, input }) => {
-      const tenantId = ctx.tenantId;
+      const tenantId = ctx.session.user.tenantId;
 
       // Migration CI & Normalisation : stocker toujours en format 10 chiffres E.164
       const phoneNumber = normalizeIncomingPhone(input.phoneNumber);
@@ -61,7 +61,7 @@ export const sellerPhonesRouter = createTRPCRouter({
   remove: managerProcedure
     .input(removeSellerPhoneInputSchema)
     .mutation(async ({ ctx, input }) => {
-      const tenantId = ctx.tenantId;
+      const tenantId = ctx.session.user.tenantId;
       
       const deleted = await db.sellerPhone.deleteMany({
         where: { id: input.id, tenantId },

@@ -80,7 +80,7 @@ export const ordersRouter = createTRPCRouter({
   list: managerProcedure
     .input(listOrdersInputSchema)
     .query(async ({ ctx, input }) => {
-      const tenantId = ctx.tenantId;
+      const tenantId = ctx.session.user.tenantId;
       const where = buildOrdersWhere(tenantId, {
         status: input?.status,
         dateFrom: input?.dateFrom,
@@ -98,7 +98,7 @@ export const ordersRouter = createTRPCRouter({
   exportCsv: managerProcedure
     .input(exportCsvOrdersInputSchema)
     .query(async ({ ctx, input }) => {
-      const tenantId = ctx.tenantId;
+      const tenantId = ctx.session.user.tenantId;
       const tenantFeatures = await db.tenant.findUnique({
         where: { id: tenantId },
         select: { hasExportCsv: true },
@@ -155,7 +155,7 @@ export const ordersRouter = createTRPCRouter({
   getById: managerProcedure
     .input(getOrderByIdInputSchema)
     .query(async ({ ctx, input }) => {
-      const order = await getOrderById(ctx.tenantId, input.orderId);
+      const order = await getOrderById(ctx.session.user.tenantId, input.orderId);
       if (!order) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Commande introuvable." });
       }
@@ -166,7 +166,7 @@ export const ordersRouter = createTRPCRouter({
     .input(updateOrderStatusInputSchema)
     .mutation(async ({ ctx, input }) => {
       const result = await updateOrderStatus({
-        tenantId: ctx.tenantId,
+        tenantId: ctx.session.user.tenantId,
         orderId: input.orderId,
         newStatus: input.status as OrderStatus,
       });
@@ -189,7 +189,7 @@ export const ordersRouter = createTRPCRouter({
   bulkUpdateStatus: managerProcedure
     .input(bulkUpdateStatusInputSchema)
     .mutation(async ({ ctx, input }) => {
-      const tenantId = ctx.tenantId;
+      const tenantId = ctx.session.user.tenantId;
 
       const results = await Promise.all(
         input.orderIds.map(async (orderId) => {

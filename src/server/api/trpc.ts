@@ -145,29 +145,16 @@ const enforceTenant = t.middleware(({ ctx, next }) => {
   return next({
     ctx: {
       ...ctx,
+      tenantId: ctx.session.user.tenantId,
       session: {
         ...ctx.session,
         user: {
           ...ctx.session.user,
-          tenantId: ctx.session.user.tenantId, // narrowed to string by guard
+          tenantId: ctx.session.user.tenantId,
         },
       },
     },
   });
-});
-
-/**
- * Manager middleware — requires role OWNER or MANAGER.
- * Used for administrative settings and pricing grids.
- */
-const enforceManager = t.middleware(({ ctx, next }) => {
-  if (!canManageGrid(ctx.session?.user?.role as string)) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "Accès réservé aux administrateurs (Owner/Manager).",
-    });
-  }
-  return next();
 });
 
 /**
@@ -191,8 +178,6 @@ const rateLimitMiddleware = t.middleware(async ({ ctx, next }) => {
 /**
  * Protected (authenticated) procedure — requires a valid session + tenantId.
  * Use for all dashboard/tenant data.
- * Isolation tenant: never trust client for tenantId; always use ctx.session.user.tenantId in where/data.
- * No dashboard data without valid session; no protected tRPC procedure without tenant_id filter.
  */
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
@@ -202,8 +187,21 @@ export const protectedProcedure = t.procedure
 
 /**
  * Manager procedure — requires session + tenantId + role OWNER/MANAGER.
+ * Note: .use() overrides the type and merges the context.
  */
-export const managerProcedure = protectedProcedure.use(enforceManager);
+export const managerProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!canManageGrid(ctx.session.user.role as string)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Accès réservé aux administrateurs (Owner/Manager).",
+    });
+  }
+  return next({
+    ctx: {
+      tenantId: ctx.session.user.tenantId,
+    },
+  });
+});
 
 /**
  * Ops procedure — requires role OPS (tenantId null).
