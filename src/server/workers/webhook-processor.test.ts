@@ -13,6 +13,8 @@ import {
 import type { InboundMessage } from "../messaging/types";
 import { db } from "~/server/db";
 import type { PgBossJob } from "./queues";
+import { writeToOutbox } from "~/server/messaging/outbox";
+import { startSellerVariantConfig } from "~/server/conversation/sellerVariantConfig";
 
 // Mock Prisma client
 vi.mock("~/server/db", () => ({
@@ -461,6 +463,82 @@ describe("webhook-processor", () => {
   });
 
   describe("processWebhookJob", () => {
+    it("starts seller variant config when WhatsApp button payload targets configure_variants", async () => {
+      const tenantId = "tenant-123";
+      const from = "+22509542783";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+        { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+      ] as never);
+      vi.mocked(db.catalogueItem.findUnique).mockResolvedValue({
+        id: "cat-robe-2",
+        attributes: ["Taille", "Couleur"],
+      } as never);
+
+      const job = {
+        id: "job-seller-configure-variants",
+        data: {
+          tenantId,
+          providerMessageId: "SM-variants",
+          from,
+          body: "Variantes",
+          correlationId: "corr-variants",
+          interactiveReplyId: "configure_variants:robe2",
+        } as InboundMessage,
+      } as PgBossJob<InboundMessage>;
+
+      const result = await processWebhookJob(job);
+
+      expect(result.messageType).toBe("seller");
+      expect(db.catalogueItem.findUnique).toHaveBeenCalledWith({
+        where: { tenantId_code: { tenantId, code: "ROBE2" } },
+        select: { id: true, attributes: true },
+      });
+      expect(startSellerVariantConfig).toHaveBeenCalledWith(
+        tenantId,
+        from,
+        "cat-robe-2",
+        "ROBE2",
+        "corr-variants",
+        ["Taille", "Couleur"],
+      );
+      expect(writeToOutbox).not.toHaveBeenCalled();
+    });
+
+    it("replies explicitly when seller variant button targets an unknown catalogue item", async () => {
+      const tenantId = "tenant-123";
+      const from = "+22509542783";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+        { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+      ] as never);
+      vi.mocked(db.catalogueItem.findUnique).mockResolvedValue(null);
+
+      const job = {
+        id: "job-seller-configure-variants-missing",
+        data: {
+          tenantId,
+          providerMessageId: "SM-variants-missing",
+          from,
+          body: "Variantes",
+          correlationId: "corr-variants-missing",
+          interactiveReplyId: "configure_variants:robe2",
+        } as InboundMessage,
+      } as PgBossJob<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      expect(startSellerVariantConfig).not.toHaveBeenCalled();
+      expect(writeToOutbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenantId,
+          to: from,
+          body: "Article *ROBE2* introuvable dans le catalogue.",
+          correlationId: "corr-variants-missing",
+        }),
+      );
+    });
+
     it("should enrich message with messageType and preserve all original fields", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";

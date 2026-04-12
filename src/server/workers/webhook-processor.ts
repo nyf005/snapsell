@@ -456,22 +456,45 @@ export async function processWebhookJob(
 
         // Story 8.2: Configuration des variantes par le vendeur
         if (interactiveReplyId.startsWith("configure_variants:")) {
-          const code = interactiveReplyId.slice("configure_variants:".length);
-          const catalogueItem = await db.catalogueItem.findUnique({
-            where: { tenantId_code: { tenantId, code } },
-            select: { id: true, attributes: true },
+          const rawCode = interactiveReplyId.slice("configure_variants:".length);
+          const code = normalizeCode(rawCode);
+
+          workerLogger.info("Seller requested variant configuration", {
+            correlationId,
+            tenantId,
+            from: clientPhoneE164,
+            rawCode,
+            normalizedCode: code,
           });
 
-          if (catalogueItem) {
-            await startSellerVariantConfig(
+          const catalogueItem = code
+            ? await db.catalogueItem.findUnique({
+                where: { tenantId_code: { tenantId, code } },
+                select: { id: true, attributes: true },
+              })
+            : null;
+
+          if (!catalogueItem) {
+            await writeToOutbox({
               tenantId,
-              clientPhoneE164,
-              catalogueItem.id,
-              code,
+              to: clientPhoneE164,
+              body: `Article *${code || rawCode || "inconnu"}* introuvable dans le catalogue.`,
               correlationId,
-              catalogueItem.attributes as string[] || [],
-            );
+            });
+            return {
+              tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+              messageType, liveSessionId: null,
+            };
           }
+
+          await startSellerVariantConfig(
+            tenantId,
+            clientPhoneE164,
+            catalogueItem.id,
+            code,
+            correlationId,
+            Array.isArray(catalogueItem.attributes) ? (catalogueItem.attributes as string[]) : [],
+          );
           return {
             tenantId, providerMessageId, from, body, mediaUrl, correlationId,
             messageType, liveSessionId: null,
@@ -488,41 +511,6 @@ export async function processWebhookJob(
           };
         }
 
-        if (interactiveReplyId.startsWith("configure_variants:")) {
-          // Seller action — start WhatsApp config flow (Option B) AND hint dashboard (Option C)
-          const itemCode = interactiveReplyId.split(":")[1] ?? "";
-          if (itemCode && tenantId) {
-            // Lookup catalogueItemId from the code
-            const catalogueItem = await db.catalogueItem.findFirst({
-              where: { tenantId, code: itemCode.toUpperCase() },
-              select: { id: true, attributes: true },
-            });
-            if (catalogueItem) {
-              const existingDims = Array.isArray(catalogueItem.attributes)
-                ? (catalogueItem.attributes as string[])
-                : [];
-              await startSellerVariantConfig(
-                tenantId,
-                clientPhoneE164,
-                catalogueItem.id,
-                itemCode.toUpperCase(),
-                correlationId,
-                existingDims,
-              );
-            } else {
-              await writeToOutbox({
-                tenantId,
-                to: clientPhoneE164,
-                body: `Article *${itemCode}* introuvable dans le catalogue.`,
-                correlationId,
-              });
-            }
-          }
-          return {
-            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
-            messageType, liveSessionId: null,
-          };
-        }
       } catch (error) {
         workerLogger.error("Error handling interactive reply", error, {
           correlationId, tenantId, interactiveReplyId,
