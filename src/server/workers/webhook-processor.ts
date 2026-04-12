@@ -47,9 +47,9 @@ import {
   parseSellerCreateItemIntent,
   parseSellerOffLiveCreateItemIntent,
 } from "~/server/catalogue/sellerCreateIntent";
-import { 
-  startVariantSelection, 
-  handleVariantChoice 
+import {
+  startVariantSelection,
+  handleVariantChoice
 } from "~/server/conversation/variantSelection";
 import {
   SELLER_VARIANT_CONFIG_STATE,
@@ -226,12 +226,11 @@ export async function processWebhookJob(
     // Story 11.2: Envoyer l'indicateur de frappe EN DIRECT (sans passer par l'outbox)
     // pour que l'affichage soit instantané (sub-second) côté client.
     if (tenantId) {
-      const currentTenantId = tenantId; // Capture pour le narrowing TS
       // On lance en arrière-plan sans 'await' pour ne pas ralentir le traitement principal
       (async () => {
         try {
           const tenant = await db.tenant.findUnique({
-            where: { id: currentTenantId },
+            where: { id: tenantId },
             select: { metaPhoneNumberId: true, metaAccessToken: true },
           });
 
@@ -241,7 +240,7 @@ export async function processWebhookJob(
               decrypt(tenant.metaAccessToken),
             );
             await adapter.send({
-              tenantId: currentTenantId,
+              tenantId,
               to: from,
               isTypingIndicator: true,
               correlationId: correlationId, // On passe directement le wamid réel
@@ -249,7 +248,7 @@ export async function processWebhookJob(
             workerLogger.debug("Direct typing indicator sent", { correlationId });
           }
         } catch (err) {
-          workerLogger.debug("Non-critical error: direct typing indicator failed", err);
+          workerLogger.debug("Non-critical error: direct typing indicator failed", { error: err });
         }
       })();
     }
@@ -439,7 +438,7 @@ export async function processWebhookJob(
                 });
               } else {
                 const session = await getCurrentSessionReadOnly(tenantId);
-                
+
                 if (catalogueItem.hasVariants) {
                   await startVariantSelection(tenantId, clientPhoneE164, catalogueItem, 1, correlationId);
                 } else {
@@ -556,9 +555,9 @@ export async function processWebhookJob(
 
           const catalogueItem = code
             ? await db.catalogueItem.findUnique({
-                where: { tenantId_code: { tenantId, code } },
-                select: { id: true, attributes: true },
-              })
+              where: { tenantId_code: { tenantId, code } },
+              select: { id: true, attributes: true },
+            })
             : null;
 
           if (!catalogueItem) {
@@ -794,7 +793,7 @@ export async function processWebhookJob(
               totalAmount !== null
                 ? `${Math.round(totalAmount / 100).toLocaleString("fr-FR")} FCFA`
                 : "—";
-            
+
             const variantSuffix = variantLabel ? ` [${variantLabel}]` : "";
             const qtyLabel = quantity > 1 ? ` (x${quantity})` : "";
             const fullCodeLabel = `${code}${variantSuffix}${qtyLabel}`;
@@ -1120,9 +1119,9 @@ export async function processWebhookJob(
 
           const faqAnswer =
             faqIntent === "delivery" ? tenant?.faqDelivery :
-            faqIntent === "payment" ? tenant?.faqPayment :
-            faqIntent === "location" ? tenant?.faqLocation :
-            tenant?.faqAvailability;
+              faqIntent === "payment" ? tenant?.faqPayment :
+                faqIntent === "location" ? tenant?.faqLocation :
+                  tenant?.faqAvailability;
 
           if (faqAnswer) {
             await writeToOutbox({ tenantId, to: clientPhoneE164, body: faqAnswer, correlationId });
