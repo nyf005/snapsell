@@ -28,8 +28,8 @@ type SellerVariantConfigMetadata = {
 const STATE_KEY = SELLER_VARIANT_CONFIG_STATE;
 
 // ─── Pattern de parsing ────────────────────────────────────────────────────
-// Accepte : "Rouge/S:3" ou "S:3" ou "  rouge / s : 3  "
-const VARIANT_ENTRY_PATTERN = /^(.+?)\s*:\s*(\d+)$/;
+// Accepte : "Rouge/S:3", "S:3", "rouge / s 3", "Rouge/M - 3"
+const VARIANT_ENTRY_PATTERN = /^(.+?)(?:[:\-=\s]+)(\d+)$/;
 
 export type ParsedVariantEntry = {
   label: string;  // ex: "Rouge / S"

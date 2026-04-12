@@ -109,16 +109,17 @@ export async function sendNextDimensionQuestion(
   // Generate interactive message (List or Buttons)
   const options = Array.from(availableOptions);
   
-  // Use buttons if 3 or less, else List
-  const interactivePayload = options.length <= 3 
+  const maxOptions = options.slice(0, 10);
+  // Use buttons if 3 or less, else List (meta limits list to max 10 items in total)
+  const interactivePayload = maxOptions.length <= 3 
     ? {
         type: "buttons" as const,
-        buttons: options.map(opt => ({ id: `select_val:${opt}`, title: opt.slice(0, 20) })),
+        buttons: maxOptions.map(opt => ({ id: `select_val:${opt}`, title: opt.slice(0, 20) })),
       }
     : {
         type: "list" as const,
         buttonLabel: "Choisir",
-        items: options.map(opt => ({ id: `select_val:${opt}`, title: opt.slice(0, 24) })),
+        items: maxOptions.map(opt => ({ id: `select_val:${opt}`, title: opt.slice(0, 24) })),
       };
 
   await writeToOutbox({
