@@ -226,11 +226,12 @@ export async function processWebhookJob(
     // Story 11.2: Envoyer l'indicateur de frappe EN DIRECT (sans passer par l'outbox)
     // pour que l'affichage soit instantané (sub-second) côté client.
     if (tenantId) {
+      const currentTenantId = tenantId; // Capture pour le narrowing TS
       // On lance en arrière-plan sans 'await' pour ne pas ralentir le traitement principal
       (async () => {
         try {
           const tenant = await db.tenant.findUnique({
-            where: { id: tenantId },
+            where: { id: currentTenantId },
             select: { metaPhoneNumberId: true, metaAccessToken: true },
           });
 
@@ -240,7 +241,7 @@ export async function processWebhookJob(
               decrypt(tenant.metaAccessToken),
             );
             await adapter.send({
-              tenantId,
+              tenantId: currentTenantId,
               to: from,
               isTypingIndicator: true,
               correlationId: correlationId, // On passe directement le wamid réel
