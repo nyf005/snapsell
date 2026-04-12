@@ -504,6 +504,37 @@ export async function processWebhookJob(
           };
         }
 
+        // Le vendeur indique que l'article n'a pas de variante
+        if (interactiveReplyId === "no_variants") {
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: `✅ D'accord, l'article reste sans variantes. Prêt pour la vente !`,
+            correlationId,
+          });
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
+        // Le vendeur annule le workflow de config variante via le bouton interactif
+        if (interactiveReplyId === "cancel_variant_config") {
+          await db.conversationState.deleteMany({
+            where: { tenantId_phone: { tenantId, phone: clientPhoneE164 } },
+          });
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: `❌ Configuration des variantes annulée.`,
+            correlationId,
+          });
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
         // --- Variantes ---
         if (interactiveReplyId.startsWith("select_val:")) {
           const val = interactiveReplyId.split(":")[1]!;

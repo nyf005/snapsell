@@ -14,6 +14,7 @@
 import { db } from "~/server/db";
 import { Prisma } from "../../../generated/prisma";
 import { writeToOutbox } from "~/server/messaging/outbox";
+import { botMsg } from "~/server/messaging/templates";
 import { workerLogger } from "~/lib/logger";
 
 export const SELLER_VARIANT_CONFIG_STATE = "seller_config_variants" as const;
@@ -124,18 +125,7 @@ export async function startSellerVariantConfig(
   await writeToOutbox({
     tenantId,
     to: sellerPhone,
-    body: [
-      `⚙️ Configuration des variantes pour *${code}* (${dimExample})`,
-      ``,
-      `Répondez avec vos variantes dans ce format :`,
-      `\`Label:stock, Label:stock\``,
-      ``,
-      `📝 Exemple :`,
-      `\`${example}\``,
-      ``,
-      `Les stocks à 0 seront créés mais marqués épuisés.`,
-      `Répondez *annuler* pour abandonner.`,
-    ].join("\n"),
+    ...botMsg.seller.variantConfigInstructionsInteractive(code, dimExample, example),
     correlationId,
   });
 }
