@@ -20,8 +20,10 @@ export interface MetaTenantAccess {
  * @returns Instance de l'adaptateur ou null si credentials manquants
  */
 export async function getProviderForTenant(
-  tenantOrId: string | MetaTenantAccess
+  tenantOrId: string | MetaTenantAccess | null
 ): Promise<MetaCloudAdapter | null> {
+  if (!tenantOrId) return null;
+
   const tenant = typeof tenantOrId === "string"
     ? await db.tenant.findUnique({
         where: { id: tenantOrId },
@@ -58,10 +60,11 @@ export async function getProviderForTenant(
  * @param correlationId - ID du message de référence (wamid)
  */
 export async function sendImmediateTyping(
-  tenantOrId: string | MetaTenantAccess,
+  tenantOrId: string | MetaTenantAccess | null,
   to: string,
   correlationId: string
 ): Promise<void> {
+  if (!tenantOrId) return;
   try {
     const adapter = await getProviderForTenant(tenantOrId);
     if (!adapter) return;
