@@ -2,9 +2,13 @@ import { TRPCError } from "@trpc/server";
 import { Prisma } from "../../../../generated/prisma";
 
 import { canManageGrid } from "~/lib/rbac";
-import { normalizeAndValidatePhoneNumber } from "~/lib/validations/phone";
+import {
+  normalizeAndValidatePhoneNumber,
+  normalizeIncomingPhone,
+} from "~/lib/validations/phone";
 import { workerLogger } from "~/lib/logger";
-import { encrypt, decrypt } from "~/lib/crypto";
+import { encrypt } from "~/lib/crypto";
+import { getProviderForTenant } from "~/server/messaging/service";
 import { db } from "~/server/db";
 import {
   createTRPCRouter,
@@ -25,7 +29,7 @@ import { env } from "~/env";
 function normalizeMetaBusinessPhoneToE164(metaDisplayPhone: string): string {
   const cleaned = metaDisplayPhone.replace(/[^\d+]/g, "");
   const withPlus = cleaned.startsWith("+") ? cleaned : `+${cleaned}`;
-  return normalizeAndValidatePhoneNumber(withPlus);
+  return normalizeIncomingPhone(withPlus);
 }
 
 export const settingsRouter = createTRPCRouter({
@@ -176,14 +180,13 @@ export const settingsRouter = createTRPCRouter({
       let wabaIdToValidate = input.metaWabaId;
 
       if ((tokenToValidate === null || wabaIdToValidate === null) && phoneId != null) {
-        const currentTenant = await db.tenant.findUnique({
-          where: { id: tenantId },
-          select: { metaAccessToken: true, metaWabaId: true },
-        });
-        tokenToValidate ??= currentTenant?.metaAccessToken
-          ? decrypt(currentTenant.metaAccessToken)
-          : null;
-        wabaIdToValidate ??= currentTenant?.metaWabaId ?? null;
+        const adapter = await getProviderForTenant(tenantId);
+        tokenToValidate ??= adapter?.getAccessToken() ?? null;
+        
+        if (wabaIdToValidate === null) {
+          const t = await db.tenant.findUnique({ where: { id: tenantId }, select: { metaWabaId: true } });
+          wabaIdToValidate = t?.metaWabaId ?? null;
+        }
       }
 
       if (phoneId != null && tokenToValidate != null) {
@@ -276,13 +279,14 @@ export const settingsRouter = createTRPCRouter({
       where: { id: tenantId },
       select: { metaPhoneNumberId: true, metaWabaId: true, metaAccessToken: true },
     });
-    if (!tenant?.metaPhoneNumberId || !tenant?.metaWabaId || !tenant?.metaAccessToken) {
+    const adapter = await getProviderForTenant(tenant);
+    if (!adapter) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: "Configuration incomplète. Enregistrez vos identifiants Meta d'abord.",
+        message: "Configuration incomplète ou invalide. Enregistrez vos identifiants Meta d'abord.",
       });
     }
-    const accessToken = decrypt(tenant.metaAccessToken);
+    const accessToken = adapter.getAccessToken();
     try {
       const metaRes = await fetch(
         `https://graph.facebook.com/v20.0/${encodeURIComponent(tenant.metaWabaId)}/phone_numbers?limit=100`,

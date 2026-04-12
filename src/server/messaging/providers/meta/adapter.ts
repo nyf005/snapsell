@@ -212,6 +212,46 @@ export class MetaCloudAdapter implements MessagingProvider {
    * Envoie un message sortant via Meta WhatsApp Business API
    * Support text + media (image avec URL publique)
    */
+  /**
+   * Story 9.3: Résolution d'un media ID Meta (préfixe meta-media://) en URL HTTPS téléchargeable.
+   * L'API Graph Meta retourne une URL temporaire valide ~5 minutes.
+   * 
+   * @param mediaUrl - URL brute (meta-media://<id> ou https://...)
+   * @param correlationId - Pour la traçabilité des logs
+   * @returns URL HTTPS téléchargeable, ou null en cas d'échec
+   */
+  async resolveMediaUrl(mediaUrl: string, correlationId?: string): Promise<string | null> {
+    if (!mediaUrl.startsWith("meta-media://")) {
+      return mediaUrl;
+    }
+
+    const mediaId = mediaUrl.slice("meta-media://".length);
+    if (!mediaId) return null;
+
+    try {
+      const res = await fetch(
+        `https://graph.facebook.com/${API_VERSION}/${mediaId}`,
+        { headers: { Authorization: `Bearer ${this.accessToken}` } },
+      );
+
+      if (!res.ok) {
+        return null;
+      }
+
+      const data = await res.json() as { url?: string };
+      return data.url ?? null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  /**
+   * Retourne le token d'accès brute (utilisé pour les téléchargements de fichiers Direct Fetch)
+   */
+  getAccessToken(): string {
+    return this.accessToken;
+  }
+
   async send(message: OutboundMessage): Promise<ProviderSendResult> {
     try {
       const recipientForMeta = migrateCIPhoneNumber(message.to);

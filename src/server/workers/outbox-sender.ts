@@ -12,14 +12,13 @@ import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { logMessageSent, logMessageBlockedOptOut } from "~/server/events/eventLog";
 import { checkOptOut } from "~/server/messaging/optout";
-import { MetaCloudAdapter } from "~/server/messaging/providers/meta/adapter";
-import { decrypt } from "~/lib/crypto";
+import { getProviderForTenant } from "~/server/messaging/service";
 import type { OutboundMessage, ProviderSendResult, InteractivePayload } from "~/server/messaging/types";
 import { generateSignedR2Url } from "~/server/media/r2-signed-url";
 import { boss, QUEUE, type PgBossJob } from "./queues";
 
 /** Payload du job outbox-send */
-export interface OutboxSendPayload {
+export interface OutboundSendPayload {
   messageOutId: string;
 }
 
@@ -107,10 +106,20 @@ export async function processOutboundMessage(messageOut: {
       return { success: false, error: errorMsg };
     }
 
-    const adapter = new MetaCloudAdapter(
-      tenant.metaPhoneNumberId,
-      decrypt(tenant.metaAccessToken),
-    );
+    const adapter = await getProviderForTenant(tenant);
+    if (!adapter) {
+      const errorMsg = "Failed to instanciate messaging provider";
+      await db.messageOut.update({
+        where: { id },
+        data: {
+          status: "failed",
+          attempts: messageOut.attempts + 1,
+          lastError: errorMsg,
+          updatedAt: new Date(),
+        },
+      });
+      return { success: false, error: errorMsg };
+    }
 
     // Story 9.4: si mediaUrl est une clé R2 (pas une URL), signer juste avant l'envoi
     let resolvedMediaUrl: string | undefined;

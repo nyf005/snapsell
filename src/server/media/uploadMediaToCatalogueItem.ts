@@ -9,8 +9,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { isR2Configured, createR2Client, getR2BucketName } from "~/server/media/r2-client";
-import { resolveMetaMediaUrl } from "~/server/media/resolve-meta-media";
-import { decrypt } from "~/lib/crypto";
+import { getProviderForTenant } from "~/server/messaging/service";
 
 /**
  * Télécharge le média depuis mediaUrl, upload vers R2,
@@ -34,22 +33,18 @@ export async function uploadMediaToCatalogueItem(
   let resolvedUrl = mediaUrl;
   let metaAccessToken: string | undefined;
   if (mediaUrl.startsWith("meta-media://")) {
-    const tenant = await db.tenant.findUnique({
-      where: { id: tenantId },
-      select: { metaAccessToken: true },
-    });
-    if (!tenant?.metaAccessToken) {
-      workerLogger.warn("No Meta access token, skipping catalogue media upload", { correlationId, catalogueItemId });
+    const adapter = await getProviderForTenant(tenantId);
+    if (!adapter) {
+      workerLogger.warn("No Meta adapter, skipping catalogue media upload", { correlationId, catalogueItemId });
       return;
     }
-    const decryptedToken = decrypt(tenant.metaAccessToken);
-    const resolved = await resolveMetaMediaUrl(mediaUrl, decryptedToken, correlationId);
+    const resolved = await adapter.resolveMediaUrl(mediaUrl, correlationId);
     if (!resolved) {
       workerLogger.warn("Could not resolve meta-media URL, skipping catalogue upload", { correlationId, catalogueItemId });
       return;
     }
     resolvedUrl = resolved;
-    metaAccessToken = decryptedToken;
+    metaAccessToken = adapter.getAccessToken();
   }
 
   // Valider que l'URL résolue est bien une URL HTTP(S) valide

@@ -10,6 +10,11 @@ import { checkWebhookRateLimit, getClientIpFromRequest } from "~/lib/rate-limit"
 import { captureException as sendToSentry } from "~/lib/sentry";
 import { decrypt } from "~/lib/crypto";
 import {
+  normalizeAndValidatePhoneNumber,
+  normalizeIncomingPhone,
+} from "~/lib/validations/phone";
+import { getProviderForTenant, sendImmediateTyping } from "~/server/messaging/service";
+import {
   logWebhookReceived,
   logIdempotentIgnored,
 } from "~/server/events/eventLog";
@@ -172,11 +177,12 @@ export async function POST(request: Request) {
       body: bodyText,
     });
 
-    // 9. Instancier adapter + parser batch
-    const adapter = new MetaCloudAdapter(
-      tenant.metaPhoneNumberId!,
-      decrypt(tenant.metaAccessToken!),
-    );
+    // 9. Instancier adapter via le service (DRY)
+    const adapter = await getProviderForTenant(tenant);
+    if (!adapter) {
+      webhookLogger.error("Failed to get messaging provider for tenant", undefined, { correlationId, tenantId: tenant.id });
+      return new NextResponse("OK", { status: 200 });
+    }
     const messages = await adapter.parseInboundBatch(requestClone);
 
     // 10. Si tableau vide (status-only) → return 200
@@ -259,19 +265,14 @@ export async function POST(request: Request) {
         // Validate + enqueue
         const normalizedMessage = {
           ...message,
+          from: normalizeIncomingPhone(message.from),
           tenantId: tenant.id,
           correlationId: message.correlationId,
         };
 
         // Story 11.2: Envoyer l'indicateur de frappe IMMEDIATEMENT (avant la queue)
-        // pour supprimer la latence du polling PG-Boss (env. 5s).
-        // On ne l'attend pas (pas de 'await') pour garder la route API ultra-rapide (< 1s).
-        adapter.send({
-          tenantId: tenant.id,
-          to: message.from,
-          isTypingIndicator: true,
-          correlationId: message.providerMessageId, // Real wamid
-        }).catch(err => webhookLogger.debug("Immediate typing indicator failed", { error: err, correlationId: message.correlationId }));
+        // via le service centralisé (latence sub-seconde).
+        sendImmediateTyping(tenant, message.from, message.providerMessageId);
 
         const validatedPayload = inboundMessageForQueueSchema.parse(normalizedMessage);
 

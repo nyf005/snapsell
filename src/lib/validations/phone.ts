@@ -113,18 +113,31 @@ export function normalizeAndValidatePhoneNumber(phoneNumber: string): string {
 }
 
 /**
- * Normalise un numéro provenant déjà d'un transport de messagerie (ex: WhatsApp provider),
- * sans appliquer de migration CI. On préserve exactement l'identifiant E.164 reçu afin
- * de répondre au même numéro et de garder des clés de conversation cohérentes.
+ * Fonction MAÎTRE de normalisation pour SnapSell.
+ * À utiliser pour TOUT numéro entrant (webhook, saisie manuelle, etc).
+ * 
+ * Actions :
+ * 1. Nettoyage du préfixe "whatsapp:"
+ * 2. Migration Côte d'Ivoire (8 -> 10 chiffres) pour garantir l'uniformité en DB
+ * 3. Validation stricte du format E.164
+ * 
+ * @param phoneNumber - Numéro brut (ex: "whatsapp:+22509542783")
+ * @returns Numéro normalisé et migré (ex: "+2250709542783")
  */
-export function normalizeAndValidateMessagingPhoneNumber(phoneNumber: string): string {
-  const normalized = phoneNumber.replace(/^whatsapp:/i, "");
+export function normalizeIncomingPhone(phoneNumber: string): string {
+  // 1. Nettoyage préfixe
+  const clean = phoneNumber.replace(/^whatsapp:/i, "");
 
-  if (!isValidE164(normalized)) {
+  // 2. Migration CI (8 -> 10 chiffres)
+  const migrated = migrateCIPhoneNumber(clean);
+
+  // 3. Validation
+  if (!isValidE164(migrated)) {
     throw new Error(
-      `Numéro de messagerie invalide: "${phoneNumber}" (normalisé: "${normalized}"). Format attendu: E.164 (ex: +33612345678)`,
+      `Format de téléphone invalide: "${phoneNumber}" (normalisé: "${migrated}"). E.164 attendu (+...)`,
     );
   }
 
-  return normalized;
+  return migrated;
 }
+
