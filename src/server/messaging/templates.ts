@@ -257,7 +257,7 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: `configure_variants:${code}`, title: "Config. Variantes" },
+          { id: `configure_variants:${code}`, title: "⚙️ Config. Variantes" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -268,7 +268,7 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: `configure_variants:${code}`, title: "Config. Variantes" },
+          { id: `configure_variants:${code}`, title: "⚙️ Config. Variantes" },
         ],
       } satisfies InteractivePayload,
     }),
