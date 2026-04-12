@@ -474,6 +474,31 @@ describe("MetaCloudAdapter", () => {
       });
     });
 
+    it("sends migrated CI recipient directly for Meta delivery", async () => {
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({
+          messaging_product: "whatsapp",
+          messages: [{ id: "wamid.CI001" }],
+        }), { status: 200 }),
+      );
+
+      const result = await adapter.send({
+        tenantId: "tenant-1",
+        to: "+22509542783",
+        body: "Test CI",
+        correlationId: "corr-ci-fallback",
+      });
+
+      expect(result).toEqual({
+        success: true,
+        providerMessageId: "wamid.CI001",
+      });
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+
+      const callBody = JSON.parse(mockFetch.mock.calls[0]![1]!.body as string);
+      expect(callBody.to).toBe("2250709542783");
+    });
+
     it("should return error when no messageId in response", async () => {
       mockFetch.mockResolvedValueOnce(
         new Response(JSON.stringify({

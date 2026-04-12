@@ -9,6 +9,7 @@
 import type { MessagingProvider, InboundMessage, OutboundMessage, ProviderSendResult } from "../../types";
 import { webhookLogger, workerLogger } from "~/lib/logger";
 import crypto from "node:crypto";
+import { migrateCIPhoneNumber } from "~/lib/validations/phone";
 
 const API_VERSION = "v21.0";
 
@@ -209,135 +210,15 @@ export class MetaCloudAdapter implements MessagingProvider {
    */
   async send(message: OutboundMessage): Promise<ProviderSendResult> {
     try {
+      const recipientForMeta = migrateCIPhoneNumber(message.to);
+
       workerLogger.debug("Sending outbound message via Meta", {
         tenantId: message.tenantId,
-        to: message.to,
+        to: recipientForMeta,
         correlationId: message.correlationId,
       });
 
-      const toNumber = message.to.replace(/^\+/, "");
-      const apiUrl = `https://graph.facebook.com/${API_VERSION}/${this.phoneNumberId}/messages`;
-
-      // Construction du body selon le type de message
-      let requestBody: Record<string, unknown>;
-
-      if (message.mediaUrl) {
-        // Media (image ou document)
-        const mediaType = isDocumentUrl(message.mediaUrl) ? "document" : "image";
-        requestBody = {
-          messaging_product: "whatsapp",
-          to: toNumber,
-          type: mediaType,
-          [mediaType]: {
-            link: message.mediaUrl,
-            caption: message.body,
-          },
-        };
-      } else if (message.interactive?.type === "buttons") {
-        // Reply buttons (max 3)
-        requestBody = {
-          messaging_product: "whatsapp",
-          to: toNumber,
-          type: "interactive",
-          interactive: {
-            type: "button",
-            body: { text: message.body },
-            action: {
-              buttons: message.interactive.buttons.map((btn) => ({
-                type: "reply",
-                reply: { id: btn.id, title: btn.title },
-              })),
-            },
-          },
-        };
-      } else if (message.interactive?.type === "list") {
-        // List message (max 10 options)
-        requestBody = {
-          messaging_product: "whatsapp",
-          to: toNumber,
-          type: "interactive",
-          interactive: {
-            type: "list",
-            body: { text: message.body },
-            action: {
-              button: message.interactive.buttonLabel,
-              sections: [
-                {
-                  rows: message.interactive.items.map((item) => ({
-                    id: item.id,
-                    title: item.title,
-                    ...(item.description ? { description: item.description } : {}),
-                  })),
-                },
-              ],
-            },
-          },
-        };
-      } else {
-        // Texte brut
-        requestBody = {
-          messaging_product: "whatsapp",
-          to: toNumber,
-          type: "text",
-          text: {
-            body: message.body,
-          },
-        };
-      }
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${this.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } };
-        const errorMessage = errorData.error?.message ?? `HTTP ${response.status}`;
-
-        workerLogger.error("Error sending message via Meta", new Error(errorMessage), {
-          tenantId: message.tenantId,
-          to: message.to,
-          correlationId: message.correlationId,
-          status: response.status,
-        });
-
-        return {
-          success: false,
-          error: errorMessage,
-        };
-      }
-
-      const result = await response.json() as { messages?: Array<{ id?: string }> };
-      const messageId = result.messages?.[0]?.id;
-
-      if (!messageId) {
-        workerLogger.warn("No message ID in Meta response", {
-          tenantId: message.tenantId,
-          to: message.to,
-          correlationId: message.correlationId,
-        });
-
-        return {
-          success: false,
-          error: "No message ID in Meta response",
-        };
-      }
-
-      workerLogger.info("Message sent successfully via Meta", {
-        tenantId: message.tenantId,
-        to: message.to,
-        correlationId: message.correlationId,
-        providerMessageId: messageId,
-      });
-
-      return {
-        success: true,
-        providerMessageId: messageId,
-      };
+      return await this.sendToRecipient(message, recipientForMeta);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
 
@@ -352,6 +233,136 @@ export class MetaCloudAdapter implements MessagingProvider {
         error: errorMessage,
       };
     }
+  }
+
+  private buildRequestBody(message: OutboundMessage, recipient: string): Record<string, unknown> {
+    const toNumber = recipient.replace(/^\+/, "");
+
+    if (message.mediaUrl) {
+      const mediaType = isDocumentUrl(message.mediaUrl) ? "document" : "image";
+      return {
+        messaging_product: "whatsapp",
+        to: toNumber,
+        type: mediaType,
+        [mediaType]: {
+          link: message.mediaUrl,
+          caption: message.body,
+        },
+      };
+    }
+
+    if (message.interactive?.type === "buttons") {
+      return {
+        messaging_product: "whatsapp",
+        to: toNumber,
+        type: "interactive",
+        interactive: {
+          type: "button",
+          body: { text: message.body },
+          action: {
+            buttons: message.interactive.buttons.map((btn) => ({
+              type: "reply",
+              reply: { id: btn.id, title: btn.title },
+            })),
+          },
+        },
+      };
+    }
+
+    if (message.interactive?.type === "list") {
+      return {
+        messaging_product: "whatsapp",
+        to: toNumber,
+        type: "interactive",
+        interactive: {
+          type: "list",
+          body: { text: message.body },
+          action: {
+            button: message.interactive.buttonLabel,
+            sections: [
+              {
+                rows: message.interactive.items.map((item) => ({
+                  id: item.id,
+                  title: item.title,
+                  ...(item.description ? { description: item.description } : {}),
+                })),
+              },
+            ],
+          },
+        },
+      };
+    }
+
+    return {
+      messaging_product: "whatsapp",
+      to: toNumber,
+      type: "text",
+      text: {
+        body: message.body,
+      },
+    };
+  }
+
+  private async sendToRecipient(
+    message: OutboundMessage,
+    recipient: string,
+  ): Promise<ProviderSendResult> {
+    const apiUrl = `https://graph.facebook.com/${API_VERSION}/${this.phoneNumberId}/messages`;
+    const requestBody = this.buildRequestBody(message, recipient);
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${this.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } };
+      const errorMessage = errorData.error?.message ?? `HTTP ${response.status}`;
+
+      workerLogger.error("Error sending message via Meta", new Error(errorMessage), {
+        tenantId: message.tenantId,
+        to: recipient,
+        correlationId: message.correlationId,
+        status: response.status,
+      });
+
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+
+    const result = await response.json() as { messages?: Array<{ id?: string }> };
+    const messageId = result.messages?.[0]?.id;
+
+    if (!messageId) {
+      workerLogger.warn("No message ID in Meta response", {
+        tenantId: message.tenantId,
+        to: recipient,
+        correlationId: message.correlationId,
+      });
+
+      return {
+        success: false,
+        error: "No message ID in Meta response",
+      };
+    }
+
+    workerLogger.info("Message sent successfully via Meta", {
+      tenantId: message.tenantId,
+      to: recipient,
+      correlationId: message.correlationId,
+      providerMessageId: messageId,
+    });
+
+    return {
+      success: true,
+      providerMessageId: messageId,
+    };
   }
 
   /**
