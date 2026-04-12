@@ -47,7 +47,12 @@ import {
   startSellerVariantConfig,
   handleSellerVariantConfigReply,
 } from "~/server/conversation/sellerVariantConfig";
-import { analyzeInboundIntent } from "../messaging/ai-service";
+import {
+  analyzeInboundIntent,
+  getTrustedAIFaqCategory,
+  getTrustedAIProductIntent,
+  hasTrustedAIIntent,
+} from "../messaging/ai-service";
 
 /** Mots-clés STOP (case-insensitive, trim) pour détection opt-out. */
 const STOP_KEYWORDS = ["stop", "arrêt", "arret", "unsubscribe", "optout", "opt-out"];
@@ -195,7 +200,7 @@ export async function processWebhookJob(
 
     // 4. Handoff management
     if (messageType === "client" && !isStopMessage(body) && body.trim().length > 0) {
-      if (isHandoffRequest(body) || aiAnalysis?.intent === "HUMAN_AGENT") {
+      if (isHandoffRequest(body) || hasTrustedAIIntent(aiAnalysis, "HUMAN_AGENT")) {
         await setHandedOff(tenantId, clientPhoneE164, true);
         await writeToOutbox({
           tenantId,
@@ -366,10 +371,11 @@ export async function processWebhookJob(
       let clientCodeIntent = parseClientCodeIntent(body);
 
       // Story 12.1: AI Fallback for buying intent
-      if (!clientCodeIntent && aiAnalysis?.intent === "BUY" && aiAnalysis.entities?.productCode) {
+      const aiBuyIntent = getTrustedAIProductIntent(aiAnalysis, "BUY");
+      if (!clientCodeIntent && aiBuyIntent) {
         clientCodeIntent = {
-          code: aiAnalysis.entities.productCode,
-          quantity: aiAnalysis.entities.quantity ?? 1,
+          code: normalizeCode(aiBuyIntent.code),
+          quantity: aiBuyIntent.quantity,
           isTypo: false,
         };
       }
@@ -490,21 +496,16 @@ export async function processWebhookJob(
           }
         }
 
-        const faq = detectFaqIntent(body);
-        let faqAnswer = faq
-          ? faq === "delivery"
+        const faqCategory = detectFaqIntent(body) ?? getTrustedAIFaqCategory(aiAnalysis);
+        const faqAnswer = faqCategory
+          ? faqCategory === "delivery"
             ? tenant?.faqDelivery
-            : faq === "payment"
+            : faqCategory === "payment"
               ? tenant?.faqPayment
-              : faq === "location"
+              : faqCategory === "location"
                 ? tenant?.faqLocation
                 : tenant?.faqAvailability
           : null;
-
-        // Story 12.1: Use AI suggested reply for FAQ if high confidence
-        if (!faqAnswer && aiAnalysis?.intent === "FAQ" && aiAnalysis.suggestedReply) {
-          faqAnswer = aiAnalysis.suggestedReply;
-        }
 
         if (faqAnswer) {
           await writeToOutbox({ tenantId, to: clientPhoneE164, body: faqAnswer, correlationId });
@@ -554,10 +555,11 @@ export async function processWebhookJob(
           : parseSellerOffLiveCreateItemIntent(body);
 
         // Story 12.1: AI Fallback for seller creation
-        if (!intent && aiAnalysis?.intent === "SELLER_CREATE" && aiAnalysis.entities?.productCode) {
+        const aiSellerIntent = getTrustedAIProductIntent(aiAnalysis, "SELLER_CREATE");
+        if (!intent && aiSellerIntent) {
           intent = {
-            code: aiAnalysis.entities.productCode,
-            quantity: aiAnalysis.entities.quantity ?? 1,
+            code: normalizeCode(aiSellerIntent.code),
+            quantity: aiSellerIntent.quantity,
           };
         }
 

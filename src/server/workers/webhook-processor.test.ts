@@ -154,9 +154,15 @@ vi.mock("~/server/pricing/getPriceFromCode", () => ({
   getPriceFromCode: vi.fn().mockResolvedValue(5000),
 }));
 
-vi.mock("../messaging/ai-service", () => ({
-  analyzeInboundIntent: vi.fn().mockResolvedValue({ intent: "OTHER", confidence: 0, entities: {} }),
-}));
+vi.mock("../messaging/ai-service", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../messaging/ai-service")>();
+  return {
+    ...actual,
+    analyzeInboundIntent: vi
+      .fn()
+      .mockResolvedValue({ intent: "OTHER", confidence: 0, entities: {} }),
+  };
+});
 
 describe("webhook-processor", () => {
   beforeEach(() => {
@@ -2613,6 +2619,171 @@ describe("webhook-processor", () => {
       );
       expect(confirmCall).toBeDefined();
       expect(confirmCall?.[0]).not.toHaveProperty("mediaUrl");
+    });
+
+    it("uses trusted AI BUY fallback only above confidence threshold", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      const { analyzeInboundIntent } = await import("../messaging/ai-service");
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      const { findOrderableItemByCode } = await import("~/server/catalogue/findOrderableItemByCode");
+      const { createReservation } = await import("~/server/reservation/service");
+
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+      vi.mocked(findOrderableItemByCode).mockResolvedValue({
+        id: "cat-1",
+        code: "A12",
+        hasVariants: false,
+        availableQty: 5,
+        reservedQty: 0,
+      } as never);
+      vi.mocked(analyzeInboundIntent).mockResolvedValue({
+        intent: "BUY",
+        confidence: 0.92,
+        entities: { productCode: "a12", quantity: 2 },
+      });
+
+      const job = {
+        id: "job-ai-buy",
+        data: {
+          tenantId,
+          providerMessageId: "SM-ai-buy",
+          from,
+          body: "je veux l'article a12",
+          correlationId: "corr-ai-buy",
+        } as InboundMessage,
+      } as PgBossJob<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      expect(findOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
+      expect(createReservation).toHaveBeenCalledWith(
+        tenantId,
+        null,
+        null,
+        "+33612345678",
+        "corr-ai-buy",
+        expect.objectContaining({
+          catalogueItemId: "cat-1",
+          quantity: 2,
+        }),
+      );
+    });
+
+    it("ignores low-confidence AI BUY fallback", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      const { analyzeInboundIntent } = await import("../messaging/ai-service");
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      const { findOrderableItemByCode } = await import("~/server/catalogue/findOrderableItemByCode");
+      const { createReservation } = await import("~/server/reservation/service");
+
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+      vi.mocked(analyzeInboundIntent).mockResolvedValue({
+        intent: "BUY",
+        confidence: 0.42,
+        entities: { productCode: "A12", quantity: 2 },
+      });
+
+      const job = {
+        id: "job-ai-buy-low",
+        data: {
+          tenantId,
+          providerMessageId: "SM-ai-buy-low",
+          from,
+          body: "je veux l'article a12",
+          correlationId: "corr-ai-buy-low",
+        } as InboundMessage,
+      } as PgBossJob<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      expect(findOrderableItemByCode).not.toHaveBeenCalled();
+      expect(createReservation).not.toHaveBeenCalled();
+    });
+
+    it("maps trusted AI FAQ category to tenant FAQ content instead of using model prose", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      vi.mocked(db.tenant.findUnique).mockResolvedValue({
+        name: "Boutique Test",
+        requireDeposit: false,
+        faqDelivery: "Livraison sous 24h.",
+        faqPayment: "Paiement Wave accepté.",
+        faqLocation: null,
+        faqAvailability: null,
+      } as never);
+
+      const { analyzeInboundIntent } = await import("../messaging/ai-service");
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+      vi.mocked(analyzeInboundIntent).mockResolvedValue({
+        intent: "FAQ",
+        confidence: 0.91,
+        entities: { faqCategory: "payment" },
+      });
+
+      const job = {
+        id: "job-ai-faq",
+        data: {
+          tenantId,
+          providerMessageId: "SM-ai-faq",
+          from,
+          body: "Comment je peux régler ?",
+          correlationId: "corr-ai-faq",
+        } as InboundMessage,
+      } as PgBossJob<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      expect(writeToOutbox).toHaveBeenCalledWith({
+        tenantId,
+        to: "+33612345678",
+        body: "Paiement Wave accepté.",
+        correlationId: "corr-ai-faq",
+      });
+    });
+
+    it("ignores low-confidence AI seller-create fallback", async () => {
+      const tenantId = "tenant-123";
+      const from = "+22509542783";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+        { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+      ] as never);
+
+      const { analyzeInboundIntent } = await import("../messaging/ai-service");
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      const { upsertCatalogueItemFromWebhook } = await import("~/server/catalogue/upsertCatalogueItemFromWebhook");
+
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+      vi.mocked(analyzeInboundIntent).mockResolvedValue({
+        intent: "SELLER_CREATE",
+        confidence: 0.55,
+        entities: { productCode: "B12", quantity: 3 },
+      });
+
+      const job = {
+        id: "job-ai-seller-low",
+        data: {
+          tenantId,
+          providerMessageId: "SM-ai-seller-low",
+          from,
+          body: "mets peut-être b12 en stock",
+          correlationId: "corr-ai-seller-low",
+        } as InboundMessage,
+      } as PgBossJob<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      expect(upsertCatalogueItemFromWebhook).not.toHaveBeenCalled();
     });
   });
 });

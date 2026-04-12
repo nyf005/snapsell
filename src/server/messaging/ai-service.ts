@@ -1,14 +1,99 @@
+import { z } from "zod";
 import { env } from "~/env";
 
-export interface AIAnalysis {
-  intent: "BUY" | "FAQ" | "HUMAN_AGENT" | "SELLER_CREATE" | "OTHER";
-  confidence: number;
-  entities: {
-    productCode?: string;
-    quantity?: number;
-    question?: string;
+const aiIntentSchema = z.enum(["BUY", "FAQ", "HUMAN_AGENT", "SELLER_CREATE", "OTHER"]);
+const faqCategorySchema = z.enum(["delivery", "payment", "location", "availability"]);
+
+const aiAnalysisSchema = z.object({
+  intent: aiIntentSchema,
+  confidence: z.coerce.number().min(0).max(1),
+  entities: z
+    .object({
+      productCode: z.string().trim().min(1).optional(),
+      quantity: z.coerce.number().int().positive().optional(),
+      question: z.string().trim().min(1).optional(),
+      faqCategory: faqCategorySchema.optional(),
+    })
+    .default({}),
+});
+
+export type AIIntent = z.infer<typeof aiIntentSchema>;
+export type AIFaqCategory = z.infer<typeof faqCategorySchema>;
+export type AIAnalysis = z.infer<typeof aiAnalysisSchema>;
+
+const AI_FALLBACK_ANALYSIS: AIAnalysis = { intent: "OTHER", confidence: 0, entities: {} };
+
+export const AI_CONFIDENCE_THRESHOLD: Record<AIIntent, number> = {
+  BUY: 0.85,
+  FAQ: 0.8,
+  HUMAN_AGENT: 0.75,
+  SELLER_CREATE: 0.9,
+  OTHER: 1,
+};
+
+const AI_PRODUCT_CODE_PATTERN = /^[A-Za-z]+\d+$/;
+
+export function parseAIAnalysisPayload(payload: unknown): AIAnalysis {
+  const parsed = aiAnalysisSchema.safeParse(payload);
+  if (!parsed.success) {
+    return AI_FALLBACK_ANALYSIS;
+  }
+
+  const { productCode, ...restEntities } = parsed.data.entities;
+  const normalizedCode = productCode?.toUpperCase().replace(/\s+/g, "");
+
+  if (normalizedCode && !AI_PRODUCT_CODE_PATTERN.test(normalizedCode)) {
+    return {
+      ...parsed.data,
+      entities: restEntities,
+    };
+  }
+
+  return {
+    ...parsed.data,
+    entities: normalizedCode
+      ? { ...restEntities, productCode: normalizedCode }
+      : restEntities,
   };
-  suggestedReply?: string;
+}
+
+export function hasTrustedAIIntent(
+  analysis: AIAnalysis | null | undefined,
+  intent: AIIntent,
+): analysis is AIAnalysis {
+  return (
+    analysis?.intent === intent &&
+    analysis.confidence >= AI_CONFIDENCE_THRESHOLD[intent]
+  );
+}
+
+export function getTrustedAIProductIntent(
+  analysis: AIAnalysis | null | undefined,
+  intent: "BUY" | "SELLER_CREATE",
+): { code: string; quantity: number } | null {
+  if (!hasTrustedAIIntent(analysis, intent)) {
+    return null;
+  }
+
+  const code = analysis.entities.productCode;
+  if (!code || !AI_PRODUCT_CODE_PATTERN.test(code)) {
+    return null;
+  }
+
+  return {
+    code,
+    quantity: analysis.entities.quantity ?? 1,
+  };
+}
+
+export function getTrustedAIFaqCategory(
+  analysis: AIAnalysis | null | undefined,
+): AIFaqCategory | null {
+  if (!hasTrustedAIIntent(analysis, "FAQ")) {
+    return null;
+  }
+
+  return analysis.entities.faqCategory ?? null;
 }
 
 /**
@@ -19,7 +104,7 @@ export async function analyzeInboundIntent(body: string): Promise<AIAnalysis> {
 
   if (!AI_API_KEY) {
     // Fallback silencieux si pas d'API Key (évite de casser le webhook)
-    return { intent: "OTHER", confidence: 0, entities: {} };
+    return AI_FALLBACK_ANALYSIS;
   }
 
   const systemPrompt = `
@@ -32,6 +117,9 @@ export async function analyzeInboundIntent(body: string): Promise<AIAnalysis> {
     - OTHER.
     Réponds EXCLUSIVEMENT en JSON avec la structure {"intent": "...", "confidence": 0.9, "entities": {}}.
     L'objet "entities" doit TOUJOURS être présent.
+    Si intent = BUY ou SELLER_CREATE, fournis si possible entities.productCode et entities.quantity.
+    Si intent = FAQ, fournis entities.faqCategory parmi: delivery, payment, location, availability.
+    Ne rédige jamais de réponse finale destinée à l'utilisateur.
   `;
 
   try {
@@ -61,14 +149,11 @@ export async function analyzeInboundIntent(body: string): Promise<AIAnalysis> {
     };
     const content = data.choices[0]?.message.content;
 
-    if (!content) return { intent: "OTHER", confidence: 0, entities: {} };
+    if (!content) return AI_FALLBACK_ANALYSIS;
 
-    const parsed = JSON.parse(content) as AIAnalysis;
-    // Sécurité: s'assurer que entities existe toujours
-    if (!parsed.entities) parsed.entities = {};
-    return parsed;
+    return parseAIAnalysisPayload(JSON.parse(content));
   } catch (error) {
     console.error("AI Analysis failed:", error);
-    return { intent: "OTHER", confidence: 0, entities: {} };
+    return AI_FALLBACK_ANALYSIS;
   }
 }
