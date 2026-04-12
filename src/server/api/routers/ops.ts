@@ -283,7 +283,7 @@ export const opsRouter = createTRPCRouter({
           to: row.to.startsWith("+") && /^\+\d{7,15}$/.test(row.to)
             ? `${row.to.slice(0, 2)}****${row.to.slice(-2)}`
             : row.to,
-          body: row.body.length > 200 ? `${row.body.slice(0, 200)}…` : row.body,
+          body: row.body ? (row.body.length > 200 ? `${row.body.slice(0, 200)}…` : row.body) : "(indicateur typing)",
           lastError: row.lastError,
           attempts: row.attempts,
           correlationId: row.correlationId,
