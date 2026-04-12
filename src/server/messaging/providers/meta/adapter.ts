@@ -243,14 +243,13 @@ export class MetaCloudAdapter implements MessagingProvider {
     const toNumber = recipient.replace(/^\+/, "");
 
     if (message.isTypingIndicator) {
+      // Story 11.2: Meta Cloud API v19/20 does NOT support native typing_indicator for WhatsApp
+      // Falling back to nothing for now to avoid 400 errors.
       return {
         messaging_product: "whatsapp",
-        recipient_type: "individual",
         to: toNumber,
-        type: "typing_indicator",
-        typing_indicator: {
-          type: "text",
-        },
+        type: "text",
+        text: { body: " " }, // Fallback invisible or simple dot? Space is safest.
       };
     }
 
