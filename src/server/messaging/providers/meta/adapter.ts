@@ -9,7 +9,7 @@
 import type { MessagingProvider, InboundMessage, OutboundMessage, ProviderSendResult } from "../../types";
 import { webhookLogger, workerLogger } from "~/lib/logger";
 import crypto from "node:crypto";
-import { migrateCIPhoneNumber } from "~/lib/validations/phone";
+import { normalizeIncomingPhone } from "~/lib/validations/phone";
 
 const API_VERSION = "v21.0";
 
@@ -254,7 +254,7 @@ export class MetaCloudAdapter implements MessagingProvider {
 
   async send(message: OutboundMessage): Promise<ProviderSendResult> {
     try {
-      const recipientForMeta = migrateCIPhoneNumber(message.to);
+      const recipientForMeta = normalizeIncomingPhone(message.to);
       const rawCorrelationId = message.correlationId.replace(/^typing:/, "");
 
       workerLogger.debug("Sending outbound message via Meta", {

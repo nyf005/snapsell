@@ -5,7 +5,6 @@ import { boss, QUEUE, type PgBossJob } from "./queues";
 import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types";
 import {
   normalizeIncomingPhone,
-  migrateCIPhoneNumber,
 } from "~/lib/validations/phone";
 import {
   logOptOutRecorded,
@@ -59,8 +58,11 @@ export {
   parseSellerOffLiveCreateItemIntent as parseOffLiveCreateItemIntent,
 };
 
+/**
+ * Normalise un numéro de téléphone (E.164, migration CI, pas de préfixe).
+ */
 export function normalizePhoneNumber(phoneNumber: string): string {
-  return phoneNumber.replace(/^whatsapp:/i, "");
+  return normalizeIncomingPhone(phoneNumber);
 }
 
 
@@ -158,7 +160,7 @@ export async function determineMessageType(
   }
 
   // Normaliser le numéro expéditeur : enlever "whatsapp:" + migration CI 8→10 chiffres
-  const normalizedFrom = migrateCIPhoneNumber(normalizePhoneNumber(from));
+  const normalizedFrom = normalizePhoneNumber(from);
 
   // Lookup seller_phone(s) pour le tenant
   const sellerPhones = await db.sellerPhone.findMany({
@@ -168,7 +170,7 @@ export async function determineMessageType(
   // Comparer avec migration CI des deux côtés : fonctionne que le numéro stocké
   // soit en ancien format (8 chiffres) ou nouveau format (10 chiffres)
   const sellerPhone = sellerPhones.find((sp) => {
-    const normalizedStored = migrateCIPhoneNumber(normalizePhoneNumber(sp.phoneNumber));
+    const normalizedStored = normalizePhoneNumber(sp.phoneNumber);
     return normalizedStored === normalizedFrom;
   });
 

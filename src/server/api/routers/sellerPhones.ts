@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { e164PhoneSchema, migrateCIPhoneNumber } from "~/lib/validations/phone";
+import { e164PhoneSchema, normalizeIncomingPhone } from "~/lib/validations/phone";
 import { canManageGrid } from "~/lib/rbac";
 import { db } from "~/server/db";
 import {
@@ -60,8 +60,8 @@ export const sellerPhonesRouter = createTRPCRouter({
           message: "Tenant non identifié.",
         });
       }
-      // Migration CI : stocker toujours en format 10 chiffres
-      const phoneNumber = migrateCIPhoneNumber(input.phoneNumber);
+      // Migration CI & Normalisation : stocker toujours en format 10 chiffres E.164
+      const phoneNumber = normalizeIncomingPhone(input.phoneNumber);
       const existing = await db.sellerPhone.findUnique({
         where: {
           tenantId_phoneNumber: { tenantId, phoneNumber },
