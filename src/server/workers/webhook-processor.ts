@@ -449,6 +449,30 @@ export async function processWebhookJob(
           };
         }
 
+        // Story 8.2: Configuration des variantes par le vendeur
+        if (interactiveReplyId.startsWith("configure_variants:")) {
+          const code = interactiveReplyId.slice("configure_variants:".length);
+          const catalogueItem = await db.catalogueItem.findUnique({
+            where: { tenantId_code: { tenantId, code } },
+            select: { id: true, attributes: true },
+          });
+
+          if (catalogueItem) {
+            await startSellerVariantConfig(
+              tenantId,
+              clientPhoneE164,
+              catalogueItem.id,
+              code,
+              correlationId,
+              catalogueItem.attributes as string[] || [],
+            );
+          }
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
         // --- Variantes ---
         if (interactiveReplyId.startsWith("select_val:")) {
           const val = interactiveReplyId.split(":")[1]!;
