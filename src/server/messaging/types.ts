@@ -63,7 +63,7 @@ export type InteractivePayload =
 export interface OutboundMessage {
   tenantId: string;
   to: string; // destinataire (format E.164 normalisé)
-  body: string;
+  body?: string;
   correlationId: string; // UUID ou message_sid pour traçabilité
   mediaUrl?: string; // Story 9.4: URL média ou clé R2 storage (signée à l'envoi par outbox-sender)
   /** Payload interactif optionnel (boutons ou liste). Si absent → texte brut. */
