@@ -240,6 +240,27 @@ describe("catalogueRouter", () => {
       });
     });
 
+    it("should reject manual quantity updates when variants are active", async () => {
+      const validCuid = "clxyz1234567890abcdefgh";
+      const input = {
+        id: validCuid,
+        quantity: 8,
+      };
+
+      vi.mocked(db.catalogueItem.findUnique).mockResolvedValue({
+        ...existing,
+        id: validCuid,
+        attributes: ["Couleur", "Taille"],
+      } as never);
+
+      const caller = createCaller(mockCtx("tenant-1"));
+
+      await expect(caller.update(input)).rejects.toMatchObject({
+        code: "BAD_REQUEST",
+      });
+      expect(db.catalogueItem.update).not.toHaveBeenCalled();
+    });
+
     it("should update code", async () => {
       const validCuid = "clxyz1234567890abcdefgh";
       const input = {

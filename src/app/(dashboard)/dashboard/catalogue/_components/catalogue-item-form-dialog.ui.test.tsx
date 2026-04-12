@@ -36,13 +36,13 @@ vi.mock("~/trpc/react", () => ({
       },
       upsertVariants: {
         useMutation: () => ({
-          mutate: vi.fn(),
+          mutateAsync: vi.fn(),
           isPending: false,
         }),
       },
       deleteVariants: {
         useMutation: () => ({
-          mutate: vi.fn(),
+          mutateAsync: vi.fn(),
           isPending: false,
         }),
       },
@@ -69,6 +69,7 @@ describe("CatalogueItemFormDialog", () => {
   it("renders create mode title when item is null", () => {
     render(<CatalogueItemFormDialog {...defaultProps} />);
     expect(screen.getByText("Ajouter un article")).toBeInTheDocument();
+    expect(screen.getByText("Variantes du produit")).toBeInTheDocument();
   });
 
   it("renders edit mode title when item is provided", () => {
@@ -83,6 +84,7 @@ describe("CatalogueItemFormDialog", () => {
           availableQty: 2,
           reservedQty: 1,
           mediaStorageKey: null,
+          attributes: null,
           origin: "dashboard",
           createdInLive: false,
           createdAt: new Date(),
@@ -114,6 +116,7 @@ describe("CatalogueItemFormDialog", () => {
           availableQty: 2,
           reservedQty: 1,
           mediaStorageKey: null,
+          attributes: null,
           origin: "dashboard",
           createdInLive: false,
           createdAt: new Date(),
@@ -125,6 +128,33 @@ describe("CatalogueItemFormDialog", () => {
     const quantityInput = screen.getByLabelText("Quantité *") as HTMLInputElement;
     expect(codeInput.value).toBe("A1");
     expect(quantityInput.value).toBe("3");
+  });
+
+  it("locks total quantity when variants are already active", () => {
+    render(
+      <CatalogueItemFormDialog
+        {...defaultProps}
+        item={{
+          id: "item-1",
+          code: "A1",
+          amount: 5000,
+          quantity: 3,
+          availableQty: 2,
+          reservedQty: 1,
+          mediaStorageKey: null,
+          attributes: ["Couleur", "Taille"],
+          origin: "dashboard",
+          createdInLive: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }}
+      />,
+    );
+
+    expect(screen.getByLabelText("Quantité *")).toBeDisabled();
+    expect(
+      screen.getByText(/La quantité totale est calculée automatiquement depuis les variantes/),
+    ).toBeInTheDocument();
   });
 
   it("opens the variants section in edit mode", async () => {
@@ -141,6 +171,7 @@ describe("CatalogueItemFormDialog", () => {
           availableQty: 2,
           reservedQty: 1,
           mediaStorageKey: null,
+          attributes: null,
           origin: "dashboard",
           createdInLive: false,
           createdAt: new Date(),
@@ -151,6 +182,7 @@ describe("CatalogueItemFormDialog", () => {
 
     await user.click(screen.getByRole("button", { name: /Variantes/i }));
 
-    expect(screen.getByText("1. Dimensions (max 3)")).toBeInTheDocument();
+    expect(screen.getByText("Variantes du produit")).toBeInTheDocument();
+    expect(screen.getByText("Stock par variante")).toBeInTheDocument();
   });
 });

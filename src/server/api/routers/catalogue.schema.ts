@@ -32,6 +32,7 @@ export const catalogueItemOutputSchema = z.object({
   availableQty: z.number(),
   reservedQty: z.number(),
   mediaStorageKey: z.string().nullable(),
+  attributes: z.array(z.string()).nullable().optional(),
   origin: z.enum(["live", "seller_whatsapp", "dashboard"]),
   createdInLive: z.boolean(),
   createdAt: z.date(),

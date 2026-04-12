@@ -105,6 +105,14 @@ export const catalogueRouter = createTRPCRouter({
       }
 
       if (input.quantity !== undefined) {
+        const hasVariants =
+          Array.isArray(existing.attributes) && existing.attributes.length > 0;
+        if (hasVariants) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "La quantité totale est dérivée des variantes tant que celles-ci sont actives.",
+          });
+        }
         if (input.quantity < existing.reservedQty) {
           throw new TRPCError({
             code: "BAD_REQUEST",

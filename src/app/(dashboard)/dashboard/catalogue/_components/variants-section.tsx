@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { api } from "~/trpc/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { CheckCircle2, Plus, Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { DataPagination } from "~/components/ui/data-pagination";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Badge } from "~/components/ui/badge";
-import { Spinner } from "~/components/ui/spinner";
 import {
   Table,
   TableBody,
@@ -15,28 +14,14 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { 
-  Plus, 
-  Trash2, 
-  Layers, 
-  X, 
-  AlertTriangle, 
-  Settings2, 
-  ArrowRight,
-  Zap,
-  CheckCircle2
-} from "lucide-react";
-import { cn } from "~/lib/utils";
 
 type VariantRow = {
-  key: string; 
+  key: string;
   label: string;
-  values: Record<string, string>;
   quantity: number;
 };
 
 type VariantsSectionProps = {
-  catalogueItemId: string;
   initialDimensions?: string[];
   initialVariants?: Array<{
     id: string;
@@ -46,394 +31,342 @@ type VariantsSectionProps = {
     availableQty: number;
     reservedQty: number;
   }>;
-  onSaveSuccess?: () => void;
+  onChange?: (payload: {
+    dimensions: string[];
+    variants: Array<{
+      label: string;
+      values: Record<string, string>;
+      quantity: number;
+    }>;
+    isValid: boolean;
+  }) => void;
 };
 
-function generateCombinations(dims: string[], options: Record<string, string[]>): VariantRow[] {
-  if (dims.length === 0) return [];
-  const [first, ...rest] = dims;
-  if (!first) return [];
-  const firstVals = options[first] ?? [];
-  if (firstVals.length === 0) return rest.length > 0 ? generateCombinations(rest, options) : [];
-  
-  if (rest.length === 0) {
-    return firstVals.map((v) => ({
-      key: v,
-      label: v,
-      values: { [first]: v },
-      quantity: 0,
-    }));
-  }
-  
-  const subCombos = generateCombinations(rest, options);
-  if (subCombos.length === 0) {
-    return firstVals.map((v) => ({
-      key: v,
-      label: v,
-      values: { [first]: v },
-      quantity: 0,
-    }));
+const PLACEHOLDER_DIMENSION_PATTERN = /^Dim\d+$/i;
+
+function normalizeVariantLabel(label: string) {
+  return label
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(" / ");
+}
+
+function buildValuesFromLabel(label: string, dimensions: string[]) {
+  const parts = normalizeVariantLabel(label).split(" / ").filter(Boolean);
+  return Object.fromEntries(parts.map((part, index) => [dimensions[index] ?? `Option ${index + 1}`, part]));
+}
+
+function inferDimensions(labels: string[], initialDimensions: string[]) {
+  const normalized = initialDimensions.filter(Boolean);
+  const maxParts = labels.reduce((max, label) => {
+    const partCount = normalizeVariantLabel(label).split(" / ").filter(Boolean).length;
+    return Math.max(max, partCount);
+  }, 0);
+
+  if (maxParts === 0) {
+    return normalized.length > 0 ? normalized : [];
   }
 
-  return firstVals.flatMap((v) =>
-    subCombos.map((sub) => ({
-      key: `${v}-${sub.key}`,
-      label: `${v} / ${sub.label}`,
-      values: { [first]: v, ...sub.values },
-      quantity: sub.quantity,
-    }))
-  );
+  return Array.from({ length: maxParts }, (_, index) => {
+    const existing = normalized[index];
+    if (!existing || PLACEHOLDER_DIMENSION_PATTERN.test(existing)) {
+      return `Option ${index + 1}`;
+    }
+    return existing;
+  });
 }
 
 export function VariantsSection({
-  catalogueItemId,
   initialDimensions = [],
   initialVariants = [],
-  onSaveSuccess,
+  onChange,
 }: VariantsSectionProps) {
-  const [dimensions, setDimensions] = useState<string[]>(initialDimensions);
-  const [dimInput, setDimInput] = useState("");
-  const [dimOptions, setDimOptions] = useState<Record<string, string[]>>({});
-  const [optionInput, setOptionInput] = useState<Record<string, string>>({});
   const [variants, setVariants] = useState<VariantRow[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
-  const [bulkQty, setBulkQty] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const lastEmittedPayloadRef = useRef<string | null>(null);
 
-  const upsertMutation = api.catalogue.upsertVariants.useMutation({
-    onSuccess: () => onSaveSuccess?.(),
-    onError: (err) => setFormError(err.message),
-  });
+  const initialSnapshot = useMemo(
+    () =>
+      JSON.stringify({
+        dimensions: initialDimensions,
+        variants: initialVariants.map((variant) => ({
+          id: variant.id,
+          label: variant.label,
+          availableQty: variant.availableQty,
+        })),
+      }),
+    [initialDimensions, initialVariants],
+  );
 
-  const deleteMutation = api.catalogue.deleteVariants.useMutation({
-    onSuccess: () => {
-      setDimensions([]);
-      setDimOptions({});
-      setVariants([]);
-      onSaveSuccess?.();
-    },
-    onError: (err) => setFormError(err.message),
-  });
+  const itemsPerPage = 10;
+  const totalPages = Math.max(1, Math.ceil(variants.length / itemsPerPage));
+  const pagedVariants = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return variants.slice(startIndex, startIndex + itemsPerPage);
+  }, [currentPage, variants]);
+
+  const effectiveDimensions = useMemo(
+    () => inferDimensions(variants.map((variant) => variant.label), initialDimensions),
+    [initialDimensions, variants],
+  );
+
+  const dimensionHint =
+    effectiveDimensions.length > 0 ? effectiveDimensions.join(" / ") : "Rouge / S";
 
   useEffect(() => {
-    if (initialDimensions.length > 0 && initialVariants.length > 0) {
-      setDimensions(initialDimensions);
-      const opts: Record<string, string[]> = {};
-      for (const dim of initialDimensions) {
-        opts[dim] = [...new Set(initialVariants.map((v) => v.values[dim]).filter(Boolean) as string[])];
-      }
-      setDimOptions(opts);
-      setVariants(
-        initialVariants.map((v) => ({
-          key: v.id,
-          label: v.label,
-          values: v.values as Record<string, string>,
-          quantity: v.availableQty,
-        }))
-      );
-    }
-  }, [initialDimensions, initialVariants]);
-
-  const regenerateCombinations = (dims: string[], opts: Record<string, string[]>) => {
-    const combos = generateCombinations(dims, opts);
-    setVariants((prev) =>
-      combos.map((c) => {
-        const existing = prev.find((p) => p.label === c.label);
-        return existing ? { ...c, quantity: existing.quantity } : c;
-      })
+    setVariants(
+      initialVariants.map((variant, index) => ({
+        key: variant.id ?? `${variant.label}-${index}`,
+        label: normalizeVariantLabel(variant.label),
+        quantity: variant.availableQty,
+      })),
     );
+  }, [initialSnapshot, initialVariants]);
+
+  useEffect(() => {
+    setCurrentPage((prev) => Math.min(prev, totalPages));
+  }, [totalPages]);
+
+  const addVariant = () => {
+    setVariants((previous) => [
+      ...previous,
+      {
+        key: `draft-${crypto.randomUUID()}`,
+        label: "",
+        quantity: 0,
+      },
+    ]);
+    setFormError(null);
   };
 
-  const addDimension = () => {
-    const dim = dimInput.trim();
-    if (!dim || dimensions.includes(dim) || dimensions.length >= 3) return;
-    const newDims = [...dimensions, dim];
-    setDimensions(newDims);
-    setDimInput("");
-    const newOpts = { ...dimOptions, [dim]: [] };
-    setDimOptions(newOpts);
-    regenerateCombinations(newDims, newOpts);
-  };
+  const totalStock = variants.reduce((sum, variant) => sum + variant.quantity, 0);
+  
+  useEffect(() => {
+    const cleanedVariants = variants
+      .map((variant) => ({
+        ...variant,
+        label: normalizeVariantLabel(variant.label),
+      }))
+      .filter((variant) => variant.label.length > 0);
 
-  const removeDimension = (dim: string) => {
-    const newDims = dimensions.filter((d) => d !== dim);
-    const newOpts = { ...dimOptions };
-    delete newOpts[dim];
-    setDimensions(newDims);
-    setDimOptions(newOpts);
-    regenerateCombinations(newDims, newOpts);
-  };
-
-  const addOption = (dim: string) => {
-    const val = (optionInput[dim] ?? "").trim();
-    if (!val) return;
-    const current = dimOptions[dim] ?? [];
-    if (current.includes(val)) {
-      setOptionInput((prev) => ({ ...prev, [dim]: "" }));
+    if (cleanedVariants.length === 0) {
+      setFormError(null);
+      const payload = {
+        dimensions: [],
+        variants: [],
+        isValid: true,
+      };
+      const nextSignature = JSON.stringify(payload);
+      if (lastEmittedPayloadRef.current !== nextSignature) {
+        lastEmittedPayloadRef.current = nextSignature;
+        onChange?.(payload);
+      }
       return;
     }
-    const newOpts = { ...dimOptions, [dim]: [...current, val] };
-    setDimOptions(newOpts);
-    setOptionInput((prev) => ({ ...prev, [dim]: "" }));
-    regenerateCombinations(dimensions, newOpts);
-  };
 
-  const removeOption = (dim: string, val: string) => {
-    const newOpts = { ...dimOptions, [dim]: (dimOptions[dim] ?? []).filter((v) => v !== val) };
-    setDimOptions(newOpts);
-    regenerateCombinations(dimensions, newOpts);
-  };
+    const segmentCounts = cleanedVariants.map(
+      (variant) => variant.label.split(" / ").filter(Boolean).length,
+    );
+    const uniqueSegmentCounts = new Set(segmentCounts);
 
-  const applyBulkQuantity = () => {
-    const qty = parseInt(bulkQty, 10);
-    if (isNaN(qty)) return;
-    setVariants((prev) => prev.map((v) => ({ ...v, quantity: Math.max(0, qty) })));
-    setBulkQty("");
-  };
+    if (uniqueSegmentCounts.size > 1) {
+      setFormError("Toutes les variantes doivent suivre le meme format de libelle.");
+      const payload = {
+        dimensions: [],
+        variants: [],
+        isValid: false,
+      };
+      const nextSignature = JSON.stringify(payload);
+      if (lastEmittedPayloadRef.current !== nextSignature) {
+        lastEmittedPayloadRef.current = nextSignature;
+        onChange?.(payload);
+      }
+      return;
+    }
 
-  const handleSave = () => {
+    const duplicateLabels = new Set<string>();
+    const seenLabels = new Set<string>();
+    for (const variant of cleanedVariants) {
+      const key = variant.label.toLowerCase();
+      if (seenLabels.has(key)) {
+        duplicateLabels.add(variant.label);
+      }
+      seenLabels.add(key);
+    }
+
+    if (duplicateLabels.size > 0) {
+      setFormError("Chaque variante doit avoir un libelle unique.");
+      const payload = {
+        dimensions: [],
+        variants: [],
+        isValid: false,
+      };
+      const nextSignature = JSON.stringify(payload);
+      if (lastEmittedPayloadRef.current !== nextSignature) {
+        lastEmittedPayloadRef.current = nextSignature;
+        onChange?.(payload);
+      }
+      return;
+    }
+
+    const dimensions = inferDimensions(
+      cleanedVariants.map((variant) => variant.label),
+      initialDimensions,
+    );
+
     setFormError(null);
-    if (dimensions.length === 0) return setFormError("Définissez au moins un attribut (ex: Taille).");
-    if (variants.length === 0) return setFormError("Ajoutez des options pour générer des variantes.");
-    
-    upsertMutation.mutate({
-      catalogueItemId,
+    const payload = {
       dimensions,
-      variants: variants.map((v) => ({
-        label: v.label,
-        values: v.values,
-        quantity: v.quantity,
+      variants: cleanedVariants.map((variant) => ({
+        label: variant.label,
+        values: buildValuesFromLabel(variant.label, dimensions),
+        quantity: variant.quantity,
       })),
-    });
-  };
+      isValid: true,
+    };
+    const nextSignature = JSON.stringify(payload);
+    if (lastEmittedPayloadRef.current !== nextSignature) {
+      lastEmittedPayloadRef.current = nextSignature;
+      onChange?.(payload);
+    }
+  }, [initialDimensions, onChange, variants]);
 
   return (
-    <div className="space-y-6">
-      {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Layers className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-bold">Variantes</h3>
-        </div>
-        {variants.length > 0 && (
-          <Badge variant="secondary">
-            {variants.length} combinaisons
-          </Badge>
-        )}
-      </div>
-
-      {/* STEP 1: ATTRIBUTES */}
-      <div className="space-y-4">
-        <Label className="text-xs font-semibold">1. Définir les attributs (Couleur, Taille...)</Label>
-        <div className="flex flex-wrap gap-2">
-          {dimensions.map((dim) => (
-            <Badge 
-              key={dim} 
-              variant="default"
-              className="gap-2 pr-1"
-            >
-              {dim}
-              <button
-                type="button"
-                onClick={() => removeDimension(dim)}
-                className="rounded-full hover:bg-black/10 p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-          {dimensions.length < 3 && (
-            <div className="flex-1 min-w-[200px]">
-              <Input
-                value={dimInput}
-                onChange={(e) => setDimInput(e.target.value)}
-                placeholder="Ajouter un attribut..."
-                className="h-8 text-xs"
-                onKeyDown={(e) => { 
-                  if (e.key === "Enter") { 
-                    e.preventDefault(); 
-                    addDimension(); 
-                  } 
-                }}
-              />
+    <div className="space-y-4">
+      <Card className="gap-0 overflow-hidden rounded-2xl border-border py-0 shadow-sm">
+        <CardHeader className="py-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-base">Stock par variante</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Une ligne = un libelle vendeur + sa quantite.
+              </p>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* STEP 2: OPTIONS */}
-      {dimensions.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {dimensions.map((dim) => (
-            <div key={dim} className="space-y-2">
-              <Label className="text-[10px] uppercase text-muted-foreground">{dim}</Label>
-              <div className="flex flex-wrap gap-1.5 min-h-[24px]">
-                {(dimOptions[dim] ?? []).map((val) => (
-                  <Badge key={val} variant="secondary" className="text-[10px] gap-1">
-                    {val}
-                    <X className="h-3 w-3 cursor-pointer opacity-50 hover:opacity-100" onClick={() => removeOption(dim, val)} />
-                  </Badge>
-                ))}
-              </div>
-              <Input
-                value={optionInput[dim] ?? ""}
-                onChange={(e) => setOptionInput((prev) => ({ ...prev, [dim]: e.target.value }))}
-                placeholder="Valeur + Entrée"
-                className="h-8 text-xs"
-                onKeyDown={(e) => { 
-                  if (e.key === "Enter") { 
-                    e.preventDefault(); 
-                    addOption(dim); 
-                  } 
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* STEP 3: VARIANT GRID */}
-      {variants.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <Label className="text-xs font-semibold">2. Gérer le stock des variantes</Label>
-            
-            <div className="flex items-center gap-2 bg-muted p-1 rounded-md">
-              <Input
-                type="number"
-                placeholder="Qté"
-                value={bulkQty}
-                onChange={(e) => setBulkQty(e.target.value)}
-                className="h-7 w-16 text-xs text-center border-none bg-background shadow-none"
-              />
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="sm" 
-                className="h-7 text-[10px] font-bold uppercase transition-all"
-                onClick={applyBulkQuantity}
-              >
-                Appliquer à tous
-              </Button>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Stock total</span>
+              <span className="text-base font-semibold">{totalStock}</span>
             </div>
           </div>
-
-          <div className="rounded-lg border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="h-9">Variante</TableHead>
-                  <TableHead className="h-9 text-right w-32">Stock</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pagedVariants.map((v) => (
-                  <TableRow key={v.key} className="group">
-                    <TableCell className="py-2 text-xs font-medium">
-                      <div className="flex items-center gap-1.5">
-                        {v.label.split(" / ").map((part, i) => (
-                          <span key={i} className="flex items-center gap-1.5">
-                            <span className="font-semibold">{part}</span>
-                            {i < v.label.split(" / ").length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground/50" />}
-                          </span>
-                        ))}
-                      </div>
+        </CardHeader>
+        <CardContent className="px-0 py-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Variante</TableHead>
+                <TableHead className="w-36 text-right">Stock</TableHead>
+                <TableHead className="w-16 text-right">Suppr.</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pagedVariants.length > 0 ? (
+                pagedVariants.map((variant) => (
+                  <TableRow key={variant.key}>
+                    <TableCell className="py-3">
+                      <Input
+                        value={variant.label}
+                        onChange={(event) => {
+                          const nextLabel = event.target.value;
+                          setVariants((previous) =>
+                            previous.map((row) =>
+                              row.key === variant.key ? { ...row, label: nextLabel } : row,
+                            ),
+                          );
+                        }}
+                        className="h-10"
+                        placeholder={dimensionHint}
+                      />
                     </TableCell>
-                    <TableCell className="py-2 text-right">
+                    <TableCell className="py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        {v.quantity > 0 && <CheckCircle2 className="h-3.5 w-3.5 text-success" />}
+                        {variant.quantity > 0 ? (
+                          <CheckCircle2 className="size-4 text-success" />
+                        ) : null}
                         <Input
                           type="number"
                           min={0}
-                          value={v.quantity}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value, 10) || 0;
-                            setVariants(prev => prev.map(rv => rv.key === v.key ? { ...rv, quantity: Math.max(0, val) } : rv));
+                          value={variant.quantity}
+                          onChange={(event) => {
+                            const value = Number.parseInt(event.target.value, 10);
+                            setVariants((previous) =>
+                              previous.map((row) =>
+                                row.key === variant.key
+                                  ? { ...row, quantity: Number.isNaN(value) ? 0 : Math.max(0, value) }
+                                  : row,
+                              ),
+                            );
                           }}
-                          className="h-8 w-20 text-right text-xs"
+                          className="h-10 w-24 text-right"
                         />
                       </div>
                     </TableCell>
+                    <TableCell className="py-3 text-right">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => {
+                          setVariants((previous) =>
+                            previous.filter((row) => row.key !== variant.key),
+                          );
+                          setFormError(null);
+                        }}
+                        aria-label={`Supprimer ${variant.label || "la variante"}`}
+                      >
+                        <Trash2 className="size-3.5" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="py-8 text-center text-sm text-muted-foreground">
+                    Aucune variante pour le moment.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
 
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-2 bg-muted/30 border-t border-border">
-                <p className="text-[10px] text-muted-foreground">
-                  Page {currentPage} sur {totalPages}
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(prev => prev - 1)}
-                    className="h-7 px-2 text-[10px]"
-                  >
-                    Précédent
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(prev => prev + 1)}
-                    className="h-7 px-2 text-[10px]"
-                  >
-                    Suivant
-                  </Button>
-                </div>
-              </div>
-            )}
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <Button type="button" variant="outline" size="sm" onClick={addVariant}>
+              <Plus className="size-4" />
+              Ajouter une variante
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              disabled={variants.length === 0}
+              onClick={() => {
+                setVariants([]);
+                setCurrentPage(1);
+                setFormError(null);
+              }}
+            >
+              Réinitialiser les variantes
+            </Button>
           </div>
-          
-          <div className="flex justify-between items-center px-1">
-            <p className="text-[10px] text-muted-foreground italic">
-              * Sauvegardé automatiquement dans le formulaire
-            </p>
-            <p className="text-xs font-bold uppercase">
-              Stock Total : <span className="text-primary">{totalStock.toLocaleString()}</span>
-            </p>
-          </div>
-        </div>
-      )}
 
-      {/* ERRORS/FEEDBACK */}
-      {formError && (
-        <div className="rounded-md bg-destructive/10 p-3 text-xs text-destructive">
+          <DataPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={variants.length}
+            pageSize={itemsPerPage}
+            itemLabel={`variante${variants.length > 1 ? "s" : ""}`}
+            onPageChange={setCurrentPage}
+          />
+        </CardContent>
+      </Card>
+
+      {formError ? (
+        <div className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
           {formError}
         </div>
-      )}
-
-      {/* ACTIONS FOOTER */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border">
-        {variants.length > 0 && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-destructive hover:text-destructive hover:bg-destructive/10 text-[10px] font-bold uppercase"
-            disabled={isSubmitting}
-            onClick={() => deleteMutation.mutate({ catalogueItemId })}
-          >
-            Réinitialiser les variantes
-          </Button>
-        )}
-        
-        <div className="flex gap-3 w-full sm:w-auto">
-          <Button
-            type="button"
-            size="lg"
-            className="flex-1 sm:flex-none h-10 px-8"
-            disabled={isSubmitting || variants.length === 0}
-            onClick={handleSave}
-          >
-            {isSubmitting ? <Spinner className="h-4 w-4 mr-2" /> : <Zap className="h-4 w-4 mr-2 fill-current" />}
-            Enregistrer le stock
-          </Button>
-        </div>
-      </div>
+      ) : null}
     </div>
   );
 }

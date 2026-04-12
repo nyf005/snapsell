@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "~/trpc/react";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { Badge } from "~/components/ui/badge";
@@ -22,6 +22,7 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { Spinner } from "~/components/ui/spinner";
+import { DataPagination } from "~/components/ui/data-pagination";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,17 +54,31 @@ export function CatalogueListContent() {
   const [editingItem, setEditingItem] = useState<CatalogueItemOutput | null>(null);
   const [deletingItem, setDeletingItem] = useState<CatalogueItemOutput | null>(null);
 
-  const { data: items, isLoading, refetch } = api.catalogue.list.useQuery();
+  const { data: rawItems, isLoading, refetch } = api.catalogue.list.useQuery();
   const { data: r2Status } = api.catalogue.r2Status.useQuery();
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const items = useMemo(
+    () =>
+      (rawItems ?? []).map((item) => ({
+        ...item,
+        attributes: Array.isArray(item.attributes)
+          ? item.attributes.filter((value): value is string => typeof value === "string")
+          : null,
+      })),
+    [rawItems],
+  );
   
   // ── Pagination ────────────────────────────────────────────────────────
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   const totalItems = items?.length ?? 0;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
   const startIndex = (currentPage - 1) * itemsPerPage;
   const pagedItems = items?.slice(startIndex, startIndex + itemsPerPage) ?? [];
+
+  useEffect(() => {
+    setCurrentPage((prev) => Math.min(prev, totalPages));
+  }, [totalPages]);
 
   const deleteMutation = api.catalogue.delete.useMutation({
     onSuccess: () => {
@@ -219,31 +234,14 @@ export function CatalogueListContent() {
               </Card>
 
               {/* Pagination Controls */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between px-2 py-2">
-                  <p className="text-xs text-muted-foreground">
-                    Page {currentPage} sur {totalPages}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={currentPage === 1}
-                      onClick={() => setCurrentPage(prev => prev - 1)}
-                    >
-                      Précédent
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={currentPage === totalPages}
-                      onClick={() => setCurrentPage(prev => prev + 1)}
-                    >
-                      Suivant
-                    </Button>
-                  </div>
-                </div>
-              )}
+              <DataPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                pageSize={itemsPerPage}
+                itemLabel={`article${totalItems > 1 ? "s" : ""}`}
+                onPageChange={setCurrentPage}
+              />
             </div>
           ) : (
             <Empty>

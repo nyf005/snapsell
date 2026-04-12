@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import React from "react";
 
 // Mock next/navigation
@@ -21,34 +22,20 @@ vi.mock("~/trpc/react", () => ({
     catalogue: {
       list: {
         useQuery: () => ({
-          data: [
-            {
-              id: "cat-1",
-              code: "A1",
-              amount: 5000,
-              quantity: 3,
-              availableQty: 2,
-              reservedQty: 1,
-              mediaStorageKey: null,
-              origin: "dashboard",
-              createdInLive: false,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            },
-            {
-              id: "cat-2",
-              code: "B2",
-              amount: null,
-              quantity: 1,
-              availableQty: 1,
-              reservedQty: 0,
-              mediaStorageKey: "photos/b2.jpg",
-              origin: "live",
-              createdInLive: true,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            },
-          ],
+          data: Array.from({ length: 21 }, (_, index) => ({
+            id: `cat-${index + 1}`,
+            code: index === 0 ? "A1" : index === 1 ? "B2" : `C${index + 1}`,
+            amount: index === 1 ? null : 5000,
+            quantity: index + 1,
+            availableQty: Math.max(index, 0),
+            reservedQty: index === 0 ? 1 : 0,
+            mediaStorageKey: index === 1 ? "photos/b2.jpg" : null,
+            attributes: null,
+            origin: index === 1 ? "live" : "dashboard",
+            createdInLive: index === 1,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })),
           isLoading: false,
           refetch: mockRefetch,
         }),
@@ -107,5 +94,19 @@ describe("CatalogueListContent", () => {
     render(<CatalogueListContent />);
     expect(screen.getByText("Live")).toBeInTheDocument();
     expect(screen.getByText("Manuel")).toBeInTheDocument();
+  });
+
+  it("paginates the catalogue table", async () => {
+    const user = userEvent.setup();
+
+    render(<CatalogueListContent />);
+
+    expect(screen.getByText("A1")).toBeInTheDocument();
+    expect(screen.queryByText("C21")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Suivant" }));
+
+    expect(screen.getByText("C21")).toBeInTheDocument();
+    expect(screen.queryByText("A1")).not.toBeInTheDocument();
   });
 });

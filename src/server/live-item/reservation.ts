@@ -67,10 +67,10 @@ export async function reserveUnits(
 
   const result = await db.$transaction(async (tx) => {
     const rows = await tx.$queryRaw<
-      { id: string; available_qty: number; reserved_qty: number }[]
+      { id: string; available_qty: number; reserved_qty: number; catalogue_item_id?: string }[]
     >(
       Prisma.sql`
-        SELECT id, available_qty, reserved_qty
+        SELECT id, available_qty, reserved_qty ${options?.table === "item_variants" ? Prisma.sql`, catalogue_item_id` : Prisma.empty}
         FROM ${Prisma.raw(tableName)}
         WHERE id = ${itemId} AND tenant_id = ${tenantId}
         FOR UPDATE
@@ -81,6 +81,7 @@ export async function reserveUnits(
     const free = row.available_qty - row.reserved_qty;
     if (free < quantity) return { success: false as const, reason: "exhausted" as const };
 
+    // 1. Update the target table (Variant or Item)
     await tx.$executeRaw(
       Prisma.sql`
         UPDATE ${Prisma.raw(tableName)}
@@ -88,6 +89,18 @@ export async function reserveUnits(
         WHERE id = ${itemId} AND tenant_id = ${tenantId}
       `,
     );
+
+    // 2. Cascade to CatalogueItem parent if it's a variant
+    if (options?.table === "item_variants" && row.catalogue_item_id) {
+      await tx.$executeRaw(
+        Prisma.sql`
+          UPDATE catalogue_items
+          SET reserved_qty = reserved_qty + ${quantity}, updated_at = NOW()
+          WHERE id = ${row.catalogue_item_id} AND tenant_id = ${tenantId}
+        `,
+      );
+    }
+
     return { success: true as const };
   });
 
@@ -134,18 +147,20 @@ export async function releaseReservation(
 
   const result = await db.$transaction(async (tx) => {
     const rows = await tx.$queryRaw<
-      { id: string; reserved_qty: number }[]
+      { id: string; reserved_qty: number; catalogue_item_id?: string }[]
     >(
       Prisma.sql`
-        SELECT id, reserved_qty
+        SELECT id, reserved_qty ${options?.table === "item_variants" ? Prisma.sql`, catalogue_item_id` : Prisma.empty}
         FROM ${Prisma.raw(tableName)}
         WHERE id = ${itemId} AND tenant_id = ${tenantId}
         FOR UPDATE
       `,
     );
     if (rows.length === 0) return { success: false as const, reason: "not_found" as const };
-    if (rows[0]!.reserved_qty < quantity) return { success: false as const, reason: "no_reservation" as const };
+    const row = rows[0]!;
+    if (row.reserved_qty < quantity) return { success: false as const, reason: "no_reservation" as const };
 
+    // 1. Update target table
     await tx.$executeRaw(
       Prisma.sql`
         UPDATE ${Prisma.raw(tableName)}
@@ -153,6 +168,18 @@ export async function releaseReservation(
         WHERE id = ${itemId} AND tenant_id = ${tenantId}
       `,
     );
+
+    // 2. Cascade to CatalogueItem parent
+    if (options?.table === "item_variants" && row.catalogue_item_id) {
+      await tx.$executeRaw(
+        Prisma.sql`
+          UPDATE catalogue_items
+          SET reserved_qty = reserved_qty - ${quantity}, updated_at = NOW()
+          WHERE id = ${row.catalogue_item_id} AND tenant_id = ${tenantId}
+        `,
+      );
+    }
+
     return { success: true as const };
   });
 
@@ -189,18 +216,20 @@ async function executeConfirmation(
   quantity: number = 1,
 ): Promise<ConfirmReservationResult> {
   const rows = await tx.$queryRaw<
-    { id: string; available_qty: number; reserved_qty: number }[]
+    { id: string; available_qty: number; reserved_qty: number; catalogue_item_id?: string }[]
   >(
     Prisma.sql`
-      SELECT id, available_qty, reserved_qty
+      SELECT id, available_qty, reserved_qty ${tableName === "item_variants" ? Prisma.sql`, catalogue_item_id` : Prisma.empty}
       FROM ${Prisma.raw(tableName)}
       WHERE id = ${itemId} AND tenant_id = ${tenantId}
       FOR UPDATE
     `,
   );
   if (rows.length === 0) return { success: false as const, reason: "not_found" as const };
-  if (rows[0]!.reserved_qty < quantity) return { success: false as const, reason: "no_reservation" as const };
+  const row = rows[0]!;
+  if (row.reserved_qty < quantity) return { success: false as const, reason: "no_reservation" as const };
 
+  // 1. Update target table
   await tx.$executeRaw(
     Prisma.sql`
       UPDATE ${Prisma.raw(tableName)}
@@ -208,6 +237,21 @@ async function executeConfirmation(
       WHERE id = ${itemId} AND tenant_id = ${tenantId}
     `,
   );
+
+  // 2. Cascade to CatalogueItem parent
+  if (tableName === "item_variants" && row.catalogue_item_id) {
+    await tx.$executeRaw(
+      Prisma.sql`
+        UPDATE catalogue_items
+        SET 
+          reserved_qty = reserved_qty - ${quantity}, 
+          available_qty = available_qty - ${quantity},
+          quantity = quantity - ${quantity},
+          updated_at = NOW()
+        WHERE id = ${row.catalogue_item_id} AND tenant_id = ${tenantId}
+      `,
+    );
+  }
 
   const after = await tx.$queryRaw<{ available_qty: number }[]>(
     Prisma.sql`
@@ -265,7 +309,7 @@ export async function confirmReservation(
       entityId: itemId,
       correlationId,
       actorType: "system",
-      payload: { [`${entityType}_id`]: itemId },
+      payload: { [`${entityType}_id`]: itemId, quantity },
     }).catch((err) => {
       workerLogger.warn("Event log failed (reservation_confirmed)", {
         itemId,
