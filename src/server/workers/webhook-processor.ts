@@ -318,7 +318,7 @@ export async function processWebhookJob(
       try {
         const clientPhoneE164 = normalizeInboundMessagingPhone(from);
 
-        // Annulation : libérer la réservation active
+        // Annulation : libérer la réservation active et nettoyer l'état
         if (interactiveReplyId === "cancel_order") {
           const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
           if (active) {
@@ -327,6 +327,18 @@ export async function processWebhookJob(
               data: { status: "expired" },
             });
           }
+          // Nettoyage état conversation (ex: sélection variante en cours)
+          await db.conversationState.deleteMany({
+            where: { tenantId, phone: clientPhoneE164 },
+          });
+
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: "❌ Réservation annulée. N'hésite pas si tu changes d'avis !",
+            correlationId,
+          });
+
           return {
             tenantId, providerMessageId, from, body, mediaUrl, correlationId,
             messageType, liveSessionId: null,
@@ -346,6 +358,11 @@ export async function processWebhookJob(
               tenantId, active.id, requireDeposit, clientPhoneE164, correlationId,
             );
             if (orderResult.success) {
+              // Nettoyage état conversation APRÈS succès commande
+              await db.conversationState.deleteMany({
+                where: { tenantId, phone: clientPhoneE164 },
+              });
+
               await writeToOutbox({
                 tenantId,
                 to: clientPhoneE164,
@@ -448,6 +465,40 @@ export async function processWebhookJob(
           };
         }
 
+        // Ajouter un article (après un récap)
+        if (interactiveReplyId === "add_item") {
+          await db.conversationState.deleteMany({
+            where: { tenantId, phone: clientPhoneE164 },
+          });
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: "D'accord ! Envoie-moi simplement le code de l'article suivant 😊",
+            correlationId,
+          });
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
+        // Refus suggestion de code
+        if (interactiveReplyId === "fallback_no") {
+          await db.conversationState.deleteMany({
+            where: { tenantId, phone: clientPhoneE164 },
+          });
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: "Oups, pas de souci ! Renvoie-moi bien le code tel que tu l'as vu 📝",
+            correlationId,
+          });
+          return {
+            tenantId, providerMessageId, from, body, mediaUrl, correlationId,
+            messageType, liveSessionId: null,
+          };
+        }
+
         // send_proof : aucune action côté bot, le client va envoyer une photo
         // On laisse simplement passer sans réponse
         if (interactiveReplyId === "send_proof") {
@@ -506,6 +557,10 @@ export async function processWebhookJob(
 
         // Le vendeur indique que l'article n'a pas de variante
         if (interactiveReplyId === "no_variants") {
+          // Nettoyage état conversation (au cas où il aurait entamé la config puis cliqué sur ce bouton)
+          await db.conversationState.deleteMany({
+            where: { tenantId, phone: clientPhoneE164 },
+          });
           await writeToOutbox({
             tenantId,
             to: clientPhoneE164,
