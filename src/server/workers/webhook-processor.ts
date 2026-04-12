@@ -227,7 +227,7 @@ export async function processWebhookJob(
         tenantId,
         to: from,
         isTypingIndicator: true,
-        correlationId,
+        correlationId: `typing:${correlationId}`, // Story 11.2: Préfixe unique pour éviter conflit de contrainte unique avec la réponse réelle
       }).catch(err => workerLogger.debug("Error sending typing indicator", err));
     }
 
