@@ -78,7 +78,7 @@ export const botMsg = {
         buttons: [
           { id: "confirm_order", title: "✅ Confirmer" },
           { id: "cancel_order", title: "❌ Annuler" },
-          { id: "add_item", title: "➕ Ajouter article" },
+          { id: "add_item", title: "➕ Ajouter" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -89,7 +89,7 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: "send_proof", title: "📍 J'envoie mon adresse" },
+          { id: "send_proof", title: "📍 Mon adresse" },
           { id: "cancel_order", title: "❌ Annuler" },
         ],
       } satisfies InteractivePayload,
@@ -102,7 +102,7 @@ export const botMsg = {
         type: "buttons",
         buttons: [
           { id: `retry_code:${code}`, title: `🔄 Recommencer` },
-          { id: "contact_agent", title: "👤 Parler à un agent" },
+          { id: "contact_agent", title: "👤 Aide agent" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -113,8 +113,8 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: "send_proof", title: "📸 Renvoyer ma preuve" },
-          { id: "contact_agent", title: "👤 Parler à un agent" },
+          { id: "send_proof", title: "📸 Ma preuve" },
+          { id: "contact_agent", title: "👤 Aide agent" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -125,8 +125,8 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: `retry_code:${code}`, title: `✅ Oui, c'est ${code}` },
-          { id: "fallback_no", title: "❌ Non, autre code" },
+          { id: `retry_code:${code}`, title: `✅ C'est bien ça` },
+          { id: "fallback_no", title: "❌ Autre code" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -137,7 +137,7 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: "contact_agent", title: "👤 Parler à un agent" },
+          { id: "contact_agent", title: "👤 Aide agent" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -148,7 +148,7 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: "send_proof", title: "📍 Envoyer adresse" },
+          { id: "send_proof", title: "📍 Mon adresse" },
           { id: "cancel_order", title: "❌ Je ne veux plus" },
         ],
       } satisfies InteractivePayload,
@@ -182,8 +182,8 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: "send_proof", title: "📸 Envoyer ma preuve" },
-          { id: "contact_agent", title: "👤 Parler à un agent" },
+          { id: "send_proof", title: "📸 Ma preuve" },
+          { id: "contact_agent", title: "👤 Aide agent" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -257,7 +257,7 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: `configure_variants:${code}`, title: "Variantes" },
+          { id: `configure_variants:${code}`, title: "⚙️ Variantes" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -268,7 +268,7 @@ export const botMsg = {
       interactive: {
         type: "buttons",
         buttons: [
-          { id: `configure_variants:${code}`, title: "Variantes" },
+          { id: `configure_variants:${code}`, title: "⚙️ Variantes" },
         ],
       } satisfies InteractivePayload,
     }),
