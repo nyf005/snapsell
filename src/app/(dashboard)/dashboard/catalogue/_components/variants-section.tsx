@@ -206,76 +206,48 @@ export function VariantsSection({
     });
   };
 
-  const totalStock = variants.reduce((s, v) => s + v.quantity, 0);
-  const isSubmitting = upsertMutation.isPending || deleteMutation.isPending;
-
-  // ── Pagination ────────────────────────────────────────────────────────
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const totalPages = Math.ceil(variants.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const pagedVariants = variants.slice(startIndex, startIndex + itemsPerPage);
-
-  // Reset to page 1 if variants length changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [variants.length]);
-
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6">
       {/* HEADER */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-500">
-            <Layers className="h-4 w-4" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold tracking-tight">Configuration des Variantes</h3>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Options & Stock</p>
-          </div>
+        <div className="flex items-center gap-2">
+          <Layers className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-bold">Variantes</h3>
         </div>
         {variants.length > 0 && (
-          <Badge variant="secondary" className="bg-indigo-500/5 text-indigo-600 border-indigo-500/10 px-2.5 py-0.5 text-[10px] font-bold">
-            {variants.length} COMBINAISONS
+          <Badge variant="secondary">
+            {variants.length} combinaisons
           </Badge>
         )}
       </div>
 
       {/* STEP 1: ATTRIBUTES */}
-      <div className="p-4 rounded-xl border border-border/50 bg-muted/20 space-y-4">
-        <div className="flex items-center gap-2 text-xs font-semibold text-indigo-500/80">
-          <Settings2 className="h-3.5 w-3.5" />
-          1. Définir les attributs (Couleur, Taille...)
-        </div>
-        
+      <div className="space-y-4">
+        <Label className="text-xs font-semibold">1. Définir les attributs (Couleur, Taille...)</Label>
         <div className="flex flex-wrap gap-2">
-          {dimensions.map((dim, idx) => (
+          {dimensions.map((dim) => (
             <Badge 
               key={dim} 
-              variant="secondary" 
-              className={cn(
-                "pl-3 pr-1 py-1 gap-2 border-transparent transition-all hover:border-indigo-500/30",
-                idx === 0 ? "bg-indigo-500/10 text-indigo-600" : 
-                idx === 1 ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"
-              )}
+              variant="default"
+              className="gap-2 pr-1"
             >
-              <span className="text-[11px] font-bold uppercase">{dim}</span>
+              {dim}
               <button
                 type="button"
                 onClick={() => removeDimension(dim)}
-                className="rounded-md hover:bg-black/5 p-0.5 transition-colors"
+                className="rounded-full hover:bg-black/10 p-0.5"
               >
                 <X className="h-3 w-3" />
               </button>
             </Badge>
           ))}
           {dimensions.length < 3 && (
-            <div className="relative flex-1 min-w-[150px]">
+            <div className="flex-1 min-w-[200px]">
               <Input
                 value={dimInput}
                 onChange={(e) => setDimInput(e.target.value)}
-                placeholder={dimensions.length === 0 ? "Ajouter un attribut (ex: Taille)" : "Autre attribut..."}
-                className="h-8 text-xs bg-background/50 border-dashed focus-visible:ring-indigo-500"
+                placeholder="Ajouter un attribut..."
+                className="h-8 text-xs"
                 onKeyDown={(e) => { 
                   if (e.key === "Enter") { 
                     e.preventDefault(); 
@@ -283,7 +255,6 @@ export function VariantsSection({
                   } 
                 }}
               />
-              <Plus className="absolute right-2 top-2 h-4 w-4 text-muted-foreground/30" />
             </div>
           )}
         </div>
@@ -291,40 +262,30 @@ export function VariantsSection({
 
       {/* STEP 2: OPTIONS */}
       {dimensions.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {dimensions.map((dim, idx) => (
-            <div key={dim} className="flex flex-col p-4 rounded-xl border border-border/40 bg-background/50 space-y-3">
-              <label className="text-[10px] font-black uppercase text-muted-foreground tracking-tighter flex items-center gap-2">
-                <div className={cn("w-1.5 h-1.5 rounded-full", 
-                  idx === 0 ? "bg-indigo-500" : idx === 1 ? "bg-emerald-500" : "bg-amber-500"
-                )} />
-                Options pour {dim}
-              </label>
-              
-              <div className="flex flex-wrap gap-1.5 min-h-[28px]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {dimensions.map((dim) => (
+            <div key={dim} className="space-y-2">
+              <Label className="text-[10px] uppercase text-muted-foreground">{dim}</Label>
+              <div className="flex flex-wrap gap-1.5 min-h-[24px]">
                 {(dimOptions[dim] ?? []).map((val) => (
-                  <Badge key={val} variant="outline" className="text-[10px] font-medium bg-muted/30 px-2 py-0.5 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all cursor-default group">
+                  <Badge key={val} variant="secondary" className="text-[10px] gap-1">
                     {val}
-                    <X className="ml-1 h-3 w-3 opacity-30 group-hover:opacity-100 cursor-pointer" onClick={() => removeOption(dim, val)} />
+                    <X className="h-3 w-3 cursor-pointer opacity-50 hover:opacity-100" onClick={() => removeOption(dim, val)} />
                   </Badge>
                 ))}
               </div>
-
-              <div className="relative">
-                <Input
-                  value={optionInput[dim] ?? ""}
-                  onChange={(e) => setOptionInput((prev) => ({ ...prev, [dim]: e.target.value }))}
-                  placeholder="Valeur + Entrée"
-                  className="h-7 text-[11px] pr-8 focus-visible:ring-indigo-500 border-indigo-500/20"
-                  onKeyDown={(e) => { 
-                    if (e.key === "Enter") { 
-                      e.preventDefault(); 
-                      addOption(dim); 
-                    } 
-                  }}
-                />
-                <ArrowRight className="absolute right-2 top-1.5 h-4 w-4 text-indigo-500/20" />
-              </div>
+              <Input
+                value={optionInput[dim] ?? ""}
+                onChange={(e) => setOptionInput((prev) => ({ ...prev, [dim]: e.target.value }))}
+                placeholder="Valeur + Entrée"
+                className="h-8 text-xs"
+                onKeyDown={(e) => { 
+                  if (e.key === "Enter") { 
+                    e.preventDefault(); 
+                    addOption(dim); 
+                  } 
+                }}
+              />
             </div>
           ))}
         </div>
@@ -332,26 +293,23 @@ export function VariantsSection({
 
       {/* STEP 3: VARIANT GRID */}
       {variants.length > 0 && (
-        <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
-            <Label className="text-xs font-bold text-indigo-500/80 flex items-center gap-2">
-              <Zap className="h-3.5 w-3.5 fill-indigo-500" />
-              Saisie rapide du stock
-            </Label>
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <Label className="text-xs font-semibold">2. Gérer le stock des variantes</Label>
             
-            <div className="flex items-center gap-2 bg-emerald-500/5 p-1 rounded-lg border border-emerald-500/10">
+            <div className="flex items-center gap-2 bg-muted p-1 rounded-md">
               <Input
                 type="number"
                 placeholder="Qté"
                 value={bulkQty}
                 onChange={(e) => setBulkQty(e.target.value)}
-                className="h-7 w-16 text-xs text-center focus-visible:ring-emerald-500 bg-background border-transparent"
+                className="h-7 w-16 text-xs text-center border-none bg-background shadow-none"
               />
               <Button 
                 type="button" 
                 variant="ghost" 
                 size="sm" 
-                className="h-7 text-[10px] font-black uppercase border-emerald-500/20 hover:bg-emerald-500/20 hover:text-emerald-700 text-emerald-600 transition-all px-3"
+                className="h-7 text-[10px] font-bold uppercase transition-all"
                 onClick={applyBulkQuantity}
               >
                 Appliquer à tous
@@ -359,34 +317,30 @@ export function VariantsSection({
             </div>
           </div>
 
-          <div className="rounded-xl border border-border/60 bg-background overflow-hidden shadow-sm">
+          <div className="rounded-lg border border-border">
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/30 hover:bg-muted/30">
-                  <TableHead className="text-[10px] font-bold uppercase h-9 px-4">Variante</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase h-9 text-right w-32 px-4">Stock</TableHead>
+                <TableRow>
+                  <TableHead className="h-9">Variante</TableHead>
+                  <TableHead className="h-9 text-right w-32">Stock</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {pagedVariants.map((v) => (
-                  <TableRow key={v.key} className="h-11 hover:bg-indigo-500/[0.02] transition-colors group">
-                    <TableCell className="py-2 px-4 text-xs font-medium">
-                      <div className="flex items-center gap-2">
+                  <TableRow key={v.key} className="group">
+                    <TableCell className="py-2 text-xs font-medium">
+                      <div className="flex items-center gap-1.5">
                         {v.label.split(" / ").map((part, i) => (
-                          <span key={i} className="flex items-center gap-2">
-                            <span className={cn(
-                              "px-1.5 py-0.5 rounded text-[10px] font-bold",
-                              i === 0 ? "bg-indigo-500/5 text-indigo-600" :
-                              i === 1 ? "bg-emerald-500/5 text-emerald-600" : "bg-amber-500/5 text-amber-600"
-                            )}>{part}</span>
-                            {i < v.label.split(" / ").length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground/30" />}
+                          <span key={i} className="flex items-center gap-1.5">
+                            <span className="font-semibold">{part}</span>
+                            {i < v.label.split(" / ").length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground/50" />}
                           </span>
                         ))}
                       </div>
                     </TableCell>
-                    <TableCell className="py-2 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2 transition-transform">
-                        {v.quantity > 0 && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 animate-in zoom-in duration-300" />}
+                    <TableCell className="py-2 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {v.quantity > 0 && <CheckCircle2 className="h-3.5 w-3.5 text-success" />}
                         <Input
                           type="number"
                           min={0}
@@ -395,7 +349,7 @@ export function VariantsSection({
                             const val = parseInt(e.target.value, 10) || 0;
                             setVariants(prev => prev.map(rv => rv.key === v.key ? { ...rv, quantity: Math.max(0, val) } : rv));
                           }}
-                          className="h-8 w-20 text-right text-xs bg-muted/20 font-mono focus-visible:bg-background transition-colors"
+                          className="h-8 w-20 text-right text-xs"
                         />
                       </div>
                     </TableCell>
@@ -406,17 +360,17 @@ export function VariantsSection({
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-2 bg-muted/20 border-t border-border/40">
-                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
-                  Page <span className="text-foreground font-bold">{currentPage}</span> sur <span className="text-foreground font-bold">{totalPages}</span>
+              <div className="flex items-center justify-between px-4 py-2 bg-muted/30 border-t border-border">
+                <p className="text-[10px] text-muted-foreground">
+                  Page {currentPage} sur {totalPages}
                 </p>
-                <div className="flex gap-1">
+                <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage(prev => prev - 1)}
-                    className="h-7 px-3 text-[10px] font-bold uppercase"
+                    className="h-7 px-2 text-[10px]"
                   >
                     Précédent
                   </Button>
@@ -425,7 +379,7 @@ export function VariantsSection({
                     size="sm"
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage(prev => prev + 1)}
-                    className="h-7 px-3 text-[10px] font-bold uppercase"
+                    className="h-7 px-2 text-[10px]"
                   >
                     Suivant
                   </Button>
@@ -435,11 +389,11 @@ export function VariantsSection({
           </div>
           
           <div className="flex justify-between items-center px-1">
-            <p className="text-[10px] text-muted-foreground font-medium italic">
-              * La modification de la quantité est sauvegardée automatiquement localement.
+            <p className="text-[10px] text-muted-foreground italic">
+              * Sauvegardé automatiquement dans le formulaire
             </p>
-            <p className="text-[11px] font-black text-muted-foreground uppercase tracking-tight">
-              STOCK TOTAL : <span className="text-indigo-600 ml-1 text-sm">{totalStock.toLocaleString()} UNITES</span>
+            <p className="text-xs font-bold uppercase">
+              Stock Total : <span className="text-primary">{totalStock.toLocaleString()}</span>
             </p>
           </div>
         </div>
@@ -447,25 +401,23 @@ export function VariantsSection({
 
       {/* ERRORS/FEEDBACK */}
       {formError && (
-        <div className="flex items-center gap-3 rounded-xl bg-destructive/5 border border-destructive/20 p-4 text-xs text-destructive animate-in shake-in duration-300">
-          <AlertTriangle className="h-5 w-5 shrink-0" />
-          <span className="font-semibold">{formError}</span>
+        <div className="rounded-md bg-destructive/10 p-3 text-xs text-destructive">
+          {formError}
         </div>
       )}
 
       {/* ACTIONS FOOTER */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border/40">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border">
         {variants.length > 0 && (
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="text-destructive hover:text-destructive hover:bg-destructive/10 text-[10px] font-black uppercase tracking-wider"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10 text-[10px] font-bold uppercase"
             disabled={isSubmitting}
             onClick={() => deleteMutation.mutate({ catalogueItemId })}
           >
-            <Trash2 className="h-3.5 w-3.5 mr-2" />
-            Réinitialiser l'article
+            Réinitialiser les variantes
           </Button>
         )}
         
@@ -473,7 +425,7 @@ export function VariantsSection({
           <Button
             type="button"
             size="lg"
-            className="flex-1 sm:flex-none h-11 px-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-widest shadow-xl shadow-indigo-500/30 transition-all hover:translate-y-[-1px] active:translate-y-[1px]"
+            className="flex-1 sm:flex-none h-10 px-8"
             disabled={isSubmitting || variants.length === 0}
             onClick={handleSave}
           >
