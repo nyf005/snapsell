@@ -305,7 +305,7 @@ export async function processWebhookJob(
     }
 
     // Réponses interactives (boutons/liste) : mapper l'ID vers le comportement équivalent
-    if (tenantId && messageType === "client" && interactiveReplyId) {
+    if (tenantId && (messageType === "client" || messageType === "seller") && interactiveReplyId) {
       try {
         const to = normalizePhoneNumber(from);
         const clientPhoneE164 = normalizeAndValidatePhoneNumber(to);
