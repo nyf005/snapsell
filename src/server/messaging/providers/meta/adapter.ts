@@ -215,14 +215,18 @@ export class MetaCloudAdapter implements MessagingProvider {
   async send(message: OutboundMessage): Promise<ProviderSendResult> {
     try {
       const recipientForMeta = migrateCIPhoneNumber(message.to);
+      const rawCorrelationId = message.correlationId.replace(/^typing:/, "");
 
       workerLogger.debug("Sending outbound message via Meta", {
         tenantId: message.tenantId,
         to: recipientForMeta,
-        correlationId: message.correlationId,
+        correlationId: rawCorrelationId,
       });
 
-      return await this.sendToRecipient(message, recipientForMeta);
+      // Update message correlationId to raw version for payload building
+      const messageToShip = { ...message, correlationId: rawCorrelationId };
+
+      return await this.sendToRecipient(messageToShip, recipientForMeta);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
 
@@ -243,13 +247,16 @@ export class MetaCloudAdapter implements MessagingProvider {
     const toNumber = recipient.replace(/^\+/, "");
 
     if (message.isTypingIndicator) {
-      // Story 11.2: Meta Cloud API v19/20 does NOT support native typing_indicator for WhatsApp
-      // Falling back to nothing for now to avoid 400 errors.
+      // Story 11.2: Format spécifique pour WhatsApp Cloud API
+      // Note: L'indicateur est une mise à jour de statut d'un message reçu.
+      // On utilise le correlationId (wamid) comme message_id.
       return {
         messaging_product: "whatsapp",
-        to: toNumber,
-        type: "text",
-        text: { body: " " }, // Fallback invisible or simple dot? Space is safest.
+        status: "read",
+        message_id: message.correlationId,
+        typing_indicator: {
+          type: "text",
+        },
       };
     }
 

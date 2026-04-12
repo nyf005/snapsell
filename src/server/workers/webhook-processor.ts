@@ -221,18 +221,14 @@ export async function processWebhookJob(
     // Déterminer le type de message (vendeur vs client)
     const messageType = await determineMessageType(tenantId, from);
 
-    // Story 11.2: L'indicateur de frappe n'est pas encore supporté par WhatsApp Cloud API v19.0
-    // (cause des erreurs 400 #100). On le désactive en attendant une version compatible.
-    /*
     if (tenantId) {
       await writeToOutbox({
         tenantId,
         to: from,
         isTypingIndicator: true,
-        correlationId: `typing:${correlationId}`,
+        correlationId: `typing:${correlationId}`, // Story 11.2: Prefixé en DB pour unicité, nettoyé par l'adapter pour Meta
       }).catch(err => workerLogger.debug("Error sending typing indicator", err));
     }
-    */
 
     const processingTime = Date.now() - startTime;
 
