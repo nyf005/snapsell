@@ -1,0 +1,274 @@
+
+ RUN  v4.0.18 /Users/fabricendri/Developer/SnapSell
+
+ ❯ src/server/workers/webhook-processor.test.ts (60 tests | 5 failed) 33ms
+       ✓ should return true for 'stop' (case-insensitive) 1ms
+       ✓ should return true for 'arrêt' and 'arret' 0ms
+       ✓ should return true for unsubscribe / optout 0ms
+       ✓ should return false for non-STOP text 0ms
+       ✓ should accept trailing punctuation (stop., STOP!) 0ms
+       ✓ retourne { code, isTypo: false, quantity: 1 } pour code strict (A12, B7) 0ms
+       ✓ retourne { code, isTypo: true, quantity: 1 } pour typo (A12A, B7x) 0ms
+       ✓ retourne null pour non-code 0ms
+       ✓ utilise la vraie normalisation (trim + uppercase) sans mock normalizeCode 3ms
+       ✓ returns true for 'oui' (case-insensitive, trim) 0ms
+       ✓ returns false for non-OUI text 0ms
+       ✓ should remove 'whatsapp:' prefix 0ms
+       ✓ should handle phone number without prefix 0ms
+       ✓ should migrate CI numbers from 8 to 10 digits 0ms
+       ✓ starts seller variant config when WhatsApp button payload targets configure_variants 1ms
+       × replies explicitly when seller variant button targets an unknown catalogue item 5ms
+       ✓ should enrich message with messageType and preserve all original fields 1ms
+       ✓ should re-throw errors for pg-boss retry handling 1ms
+       ✓ should create OptOut when client sends STOP (Story 2.5) 0ms
+       ✓ should not create duplicate OptOut when client sends STOP twice (idempotence) 0ms
+       ✓ should not create OptOut when client sends STOP but from is invalid E.164 (catch, job succeeds) 0ms
+       ✓ Story 8.3: should read session (not create) when seller sends message 0ms
+       ✓ Story 8.3: should NOT create session when seller sends message without active session 0ms
+       ✓ Story 8.1: when client sends non-code body, uses getCurrentSessionReadOnly (for address/recap flow) 0ms
+       ✓ Story 8.1: should call getCurrentSessionReadOnly when client sends code-like body (A12) 0ms
+       ✓ Story 8.1: when client sends code A12 and catalogue item exists (session active), findOrCreateOrderableItemByCode then createReservation, sends Réservé 0ms
+       ✓ Story 8.1: when client sends code and catalogue item already exists, findOrCreateOrderableItemByCode then createReservation 0ms
+       ✓ Story 8.1: when client sends code and catalogue item is exhausted (free <= 0), adds to waitlist and sends File #N 0ms
+       ✓ Story 8.1: when client sends code and createReservation returns exhausted, sends Épuisé 0ms
+       ✓ Story 8.1: client sends valid code A12 but catalogue item not found → Code inconnu, no create 0ms
+       ✓ Story 8.1: client sends typo A12A, catalogue item A12 not found → Code inconnu (ex: A12) 0ms
+       ✓ Story 8.1: client sends typo A12A, catalogue item A12 exists → suggestion Tu voulais dire A12 ? 0ms
+       ✓ Story 8.1: never reply Épuisé when code does not exist in catalogue 0ms
+       ✓ Story 8.1: when client sends address and has reserved reservation, collects address and sends récap + OUI 8ms
+         ✓ Story 4.5: when client sends OUI and has address_collected reservation without acompte, creates Order confirmed and sends ack 0ms
+         ✓ Story 4.5: when client sends OUI with acompte enabled, creates Order confirmed_pending_deposit and sends deposit message + ack 0ms
+         ✓ Story 4.5: idempotence — double OUI for same reservation; createOrderFromReservation called twice, returns existing order on second call 0ms
+       ✓ should create live item and write confirmation to outbox when seller sends code (Story 3.2) 0ms
+       ✓ should write FR40 duplicate message to outbox when seller re-sends same code (Story 3.2) 0ms
+       ✓ Story 3.4: when seller sends A12 x5 with mediaUrl, creates item and calls uploadMediaAndLinkToLiveItem 0ms
+       ✓ Story 3.4: vendeur renvoie A12 x3 alors que A12 existe déjà → pas de mise à jour, message FR40 0ms
+       ✓ Story 3.5: vendeur envoie photo seule → demande d'ajouter le code en légende 0ms
+       ✓ Story 3.5: vendeur envoie photo seule sans code → même guidage caption/code 0ms
+       ✓ Story 3.5: vendeur envoie photo seule, même avec ancien contexte → guidage caption/code 0ms
+       ✓ Story 3.4 unchanged: message A12 x5 + mediaUrl → item créé et photo liée (pas branche 3.5) 3ms
+       × Story 8.2 AC#5: seller sends explicit ajout command without active session → catalogue upsert only, no LiveItem, sends 'Ajouté au catalogue' 1ms
+       × seller sends code without active session → no creation, sends off-live instruction 0ms
+         × AC#1: vendeur photo + code existant → uploadMediaToCatalogueItem fire-and-forget + confirmation 'Photo ajoutée' 1ms
+         ✓ AC#2: vendeur photo + code introuvable (upsert échoue) → message 'Code introuvable' 0ms
+         ✓ AC#3: vendeur photo SANS code (body vide) + session active → guidage caption/code, pas d'upload direct 0ms
+         ✓ AC#4: vendeur photo + code + session live active → photo vers CatalogueItem + message consolidé unique 0ms
+         ✓ AC#5: vendeur renvoie photo + même code → nouvelle photo remplace l'ancienne (même clé R2 déterministe) 0ms
+         ✓ AC#6+7: vendeur code sans photo → pas d'upload catalogue photo (flux normal préservé) 0ms
+         × H1 fix: vendeur photo + code mais R2 non configuré → pas d'upload ni de confirmation photo 0ms
+         ✓ M3 fix: vendeur photo + code avec prix non configuré → message 'pas de prix' au lieu de 'code introuvable' 0ms
+       ✓ AC #1: récap avec photo catalogue (mediaStorageKey non null) → writeToOutbox avec mediaUrl 0ms
+       ✓ AC #2: récap sans photo (mediaStorageKey null) → writeToOutbox sans mediaUrl 0ms
+       ✓ AC #4: mediaStorageKey présent → storageKey passé à writeToOutbox (fallback signé dans outbox-sender) 0ms
+       ✓ AC #5: récap LiveItem (pas de catalogueItemId) → texte uniquement, pas de photo 0ms
+       ✓ AC #3: confirmation OUI pour article avec photo → texte uniquement, pas de mediaUrl 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > replies explicitly when seller variant button targets an unknown catalogue item
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
++   {
+      "body": "Article *ROBE2* introuvable dans le catalogue.",
+      "correlationId": "corr-variants-missing",
+      "tenantId": "tenant-123",
+-     "to": "+22509542783",
++     "to": "+2250709542783",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/server/workers/webhook-processor.test.ts:328:29
+    326| 
+    327|       expect(startSellerVariantConfig).not.toHaveBeenCalled();
+    328|       expect(writeToOutbox).toHaveBeenCalledWith(
+       |                             ^
+    329|         expect.objectContaining({
+    330|           tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > Story 8.2 AC#5: seller sends explicit ajout command without active session → catalogue upsert only, no LiveItem, sends 'Ajouté au catalogue'
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
+-     "body": "✅ *B7* ajouté au catalogue — 3 en stock",
++   {
++     "body": "*B7* ajouté au catalogue — 3 en stock",
+      "correlationId": "corr-nosession",
++     "interactive": {
++       "buttons": [
++         {
++           "id": "configure_variants:B7",
++           "title": "Variantes 🏷️",
++         },
++         {
++           "id": "no_variants",
++           "title": "Sans variantes ⏭️",
++         },
++       ],
++       "header": "✅ Article Ajouté",
++       "type": "buttons",
++     },
+      "tenantId": "tenant-123",
+      "to": "+33612345678",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/server/workers/webhook-processor.test.ts:1799:29
+    1797|       });
+    1798|       expect(createLiveItem).not.toHaveBeenCalled();
+    1799|       expect(writeToOutbox).toHaveBeenCalledWith(
+       |                             ^
+    1800|         expect.objectContaining({
+    1801|           tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > seller sends code without active session → no creation, sends off-live instruction
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
+-     "body": "Hors live, utilise *ajout A12* ou *ajout A12 x3* pour créer un article.",
++   {
++     "body": "ℹ️ Hors live, utilise *ajout A12* ou *ajout A12 x3* pour créer un article.",
+      "correlationId": "corr-nosession-implicit",
+      "tenantId": "tenant-123",
+      "to": "+33612345678",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/server/workers/webhook-processor.test.ts:1838:29
+    1836|       expect(result.liveSessionId).toBeFalsy();
+    1837|       expect(upsertCatalogueItemFromWebhook).not.toHaveBeenCalled();
+    1838|       expect(writeToOutbox).toHaveBeenCalledWith(
+       |                             ^
+    1839|         expect.objectContaining({
+    1840|           tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > Story 9.3: vendeur photo + code → upload catalogue > AC#1: vendeur photo + code existant → uploadMediaToCatalogueItem fire-and-forget + confirmation 'Photo ajoutée'
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received: 
+
+  1st vi.fn() call:
+
+@@ -1,15 +1,21 @@
+  [
+-   ObjectContaining {
+-     "body": StringContaining "✅ *A12* ajouté au catalogue",
+-     "interactive": ObjectContaining {
+-       "buttons": ArrayContaining [
+-         ObjectContaining {
++   {
++     "body": "*A12* ajouté au catalogue — 1 en stock",
++     "correlationId": "corr-photocat",
++     "interactive": {
++       "buttons": [
++         {
+            "id": "configure_variants:A12",
+-           "title": "Variantes",
++           "title": "Variantes 🏷️",
++         },
++         {
++           "id": "no_variants",
++           "title": "Sans variantes ⏭️",
+          },
+        ],
++       "header": "✅ Article + Photo 📸",
+        "type": "buttons",
+      },
+      "tenantId": "tenant-123",
+      "to": "+33612345678",
+    },
+
+
+Number of calls: 1
+
+ ❯ src/server/workers/webhook-processor.test.ts:1901:31
+    1899|           "corr-photocat",
+    1900|         );
+    1901|         expect(writeToOutbox).toHaveBeenCalledWith(
+       |                               ^
+    1902|           expect.objectContaining({
+    1903|             tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > Story 9.3: vendeur photo + code → upload catalogue > H1 fix: vendeur photo + code mais R2 non configuré → pas d'upload ni de confirmation photo
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
+-     "body": "✅ *A12* ajouté au catalogue — 1 en stock",
++   {
++     "body": "*A12* ajouté au catalogue — 1 en stock",
++     "correlationId": "corr-photonor2",
++     "interactive": {
++       "buttons": [
++         {
++           "id": "configure_variants:A12",
++           "title": "Variantes 🏷️",
++         },
++         {
++           "id": "no_variants",
++           "title": "Sans variantes ⏭️",
++         },
++       ],
++       "header": "✅ Article Ajouté",
++       "type": "buttons",
++     },
++     "tenantId": "tenant-123",
++     "to": "+33612345678",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/server/workers/webhook-processor.test.ts:2244:31
+    2242|         expect(logCatalogueItemPhotoLinked).not.toHaveBeenCalled();
+    2243|         // Message catalogue standard (sans mention photo)
+    2244|         expect(writeToOutbox).toHaveBeenCalledWith(
+       |                               ^
+    2245|           expect.objectContaining({
+    2246|             body: "✅ *A12* ajouté au catalogue — 1 en stock",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 55 passed (60)
+   Start at  08:36:54
+   Duration  282ms (transform 159ms, setup 16ms, import 179ms, tests 33ms, environment 0ms)
+

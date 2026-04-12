@@ -30,7 +30,8 @@ export async function analyzeInboundIntent(body: string): Promise<AIAnalysis> {
     - HUMAN_AGENT (demande parler humain)
     - SELLER_CREATE (le vendeur veut créer/ajouter un article, ex: "Ajoute 10 de B12")
     - OTHER.
-    Réponds EXCLUSIVEMENT en JSON.
+    Réponds EXCLUSIVEMENT en JSON avec la structure {"intent": "...", "confidence": 0.9, "entities": {}}.
+    L'objet "entities" doit TOUJOURS être présent.
   `;
 
   try {
@@ -62,7 +63,10 @@ export async function analyzeInboundIntent(body: string): Promise<AIAnalysis> {
 
     if (!content) return { intent: "OTHER", confidence: 0, entities: {} };
 
-    return JSON.parse(content) as AIAnalysis;
+    const parsed = JSON.parse(content) as AIAnalysis;
+    // Sécurité: s'assurer que entities existe toujours
+    if (!parsed.entities) parsed.entities = {};
+    return parsed;
   } catch (error) {
     console.error("AI Analysis failed:", error);
     return { intent: "OTHER", confidence: 0, entities: {} };

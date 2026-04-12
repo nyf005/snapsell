@@ -366,7 +366,7 @@ export async function processWebhookJob(
       let clientCodeIntent = parseClientCodeIntent(body);
 
       // Story 12.1: AI Fallback for buying intent
-      if (!clientCodeIntent && aiAnalysis?.intent === "BUY" && aiAnalysis.entities.productCode) {
+      if (!clientCodeIntent && aiAnalysis?.intent === "BUY" && aiAnalysis.entities?.productCode) {
         clientCodeIntent = {
           code: aiAnalysis.entities.productCode,
           quantity: aiAnalysis.entities.quantity ?? 1,
@@ -554,7 +554,7 @@ export async function processWebhookJob(
           : parseSellerOffLiveCreateItemIntent(body);
 
         // Story 12.1: AI Fallback for seller creation
-        if (!intent && aiAnalysis?.intent === "SELLER_CREATE" && aiAnalysis.entities.productCode) {
+        if (!intent && aiAnalysis?.intent === "SELLER_CREATE" && aiAnalysis.entities?.productCode) {
           intent = {
             code: aiAnalysis.entities.productCode,
             quantity: aiAnalysis.entities.quantity ?? 1,

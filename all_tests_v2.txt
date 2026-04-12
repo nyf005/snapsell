@@ -1,0 +1,1879 @@
+
+> snapsell@0.1.0 test
+> vitest run
+
+
+ RUN  v4.0.18 /Users/fabricendri/Developer/SnapSell
+
+ ❯ src/server/messaging/optout.test.ts (3 tests | 3 failed) 6ms
+       × should return true when OptOut exists for (tenantId, phoneNumber) 3ms
+       × should return false when OptOut does not exist 1ms
+       × should normalize phone with whatsapp: prefix before lookup 1ms
+ ❯ src/server/catalogue/promoteSessionToCatalogue.test.ts (6 tests | 2 failed) 8ms
+     × should create catalogue item from LiveItem with remaining stock 5ms
+     ✓ should update catalogue item if code already exists (add quantities) 1ms
+     ✓ should skip LiveItem with no remaining stock 0ms
+     ✓ should process multiple LiveItems (mix of create/update/skip) 0ms
+     × should handle items with media storage key 1ms
+     ✓ should handle P2002 race condition (create fails, retry update succeeds) 0ms
+ ❯ src/server/reservation/service.test.ts (13 tests | 2 failed) 10ms
+       ✓ returns already_reserved when active reservation exists for same client+item+session 2ms
+       ✓ returns exhausted when reserveUnits returns exhausted 0ms
+       × creates reservation and logs reservation_started on success 4ms
+       ✓ Story 4.5: when tenant requireDeposit is false, expiresAt = now + TTL soft (5 min) 1ms
+       ✓ Story 4.5: when tenant requireDeposit is true, expiresAt = now + TTL locked (12 min) 0ms
+       ✓ on P2002 (race), calls releaseReservation and returns already_reserved 1ms
+       ✓ returns first active reservation (reserved or address_collected) for client 0ms
+       ✓ filters by liveItemId when provided 0ms
+       ✓ returns no_reservation when no reserved reservation for client 0ms
+       ✓ returns no_reservation when address text is empty after trim 0ms
+       × updates reservation with address and status address_collected, returns item for récap 1ms
+       ✓ returns address_too_long when address exceeds max length 0ms
+       ✓ returns already_collected when reservation status is not reserved 0ms
+ ❯ src/server/catalogue/findOrCreateOrderableItemByCode.test.ts (7 tests | 1 failed) 6ms
+     ✓ returns existing item without creating 1ms
+     × creates item when code absent with qty 1, prix grille, createdInLive true 3ms
+     ✓ returns null for invalid code (empty) 0ms
+     ✓ returns null for code with no price in grid (letter not configured) 0ms
+     ✓ handles race condition (P2002) by retrying lookup 0ms
+     ✓ normalizes code before processing 0ms
+     ✓ propagates non-P2002 errors 1ms
+ ❯ src/server/messaging/outbox.test.ts (6 tests | 2 failed) 9ms
+     × should write MessageOut with status pending 5ms
+     × Story 9.4: should persist mediaUrl when provided 1ms
+     ✓ should validate message with Zod 1ms
+     ✓ AC6: should succeed even if boss.send() fails (MessageOut remains pending) 0ms
+     ✓ should throw error if DB create fails 0ms
+     ✓ preserves CI WhatsApp recipient without implicit migration 0ms
+ ❯ src/server/catalogue/findOrderableItemByCode.test.ts (5 tests | 2 failed) 6ms
+     × returns item when code exists in catalogue 4ms
+     ✓ returns null when code is absent from catalogue 0ms
+     ✓ returns null for empty code 0ms
+     ✓ returns null for whitespace-only code 0ms
+     × normalizes code (trim + uppercase) before lookup 1ms
+ ❯ src/server/workers/outbox-sender.test.ts (11 tests | 1 failed) 8ms
+       ✓ should block message when OptOut exists (Story 2.5) 2ms
+       × should send message via MetaCloudAdapter when tenant config valid (AC #1) 3ms
+       ✓ should handle send failure and update status to failed with retry 0ms
+       ✓ AC #3: should fail gracefully when tenant has no Meta config (meta_config_missing) 0ms
+       ✓ AC #4: should fail gracefully when tenant not found (tenant_not_found) 0ms
+       ✓ AC #3: should fail gracefully when tenant has partial Meta config 0ms
+       ✓ should handle DB error during tenant lookup gracefully 0ms
+       ✓ Story 9.4: should sign storageKey and pass mediaUrl to provider (AC #6) 0ms
+       ✓ Story 9.4: should pass through http mediaUrl without signing 0ms
+       ✓ Story 9.4: should skip mediaUrl when signing fails (AC #4 fallback) 0ms
+       ✓ Story 9.4: should NOT include mediaUrl when null (AC #7 regression) 0ms
+ ❯ src/server/workers/webhook-processor.test.ts (60 tests | 10 failed) 48ms
+       ✓ should return true for 'stop' (case-insensitive) 1ms
+       ✓ should return true for 'arrêt' and 'arret' 0ms
+       ✓ should return true for unsubscribe / optout 0ms
+       ✓ should return false for non-STOP text 0ms
+       ✓ should accept trailing punctuation (stop., STOP!) 0ms
+       ✓ retourne { code, isTypo: false, quantity: 1 } pour code strict (A12, B7) 1ms
+       ✓ retourne { code, isTypo: true, quantity: 1 } pour typo (A12A, B7x) 0ms
+       ✓ retourne null pour non-code 0ms
+       ✓ utilise la vraie normalisation (trim + uppercase) sans mock normalizeCode 2ms
+       ✓ returns true for 'oui' (case-insensitive, trim) 0ms
+       ✓ returns false for non-OUI text 0ms
+       ✓ should remove 'whatsapp:' prefix 0ms
+       ✓ should handle phone number without prefix 0ms
+       ✓ should migrate CI numbers from 8 to 10 digits 0ms
+       ✓ starts seller variant config when WhatsApp button payload targets configure_variants 3ms
+       × replies explicitly when seller variant button targets an unknown catalogue item 7ms
+       ✓ should enrich message with messageType and preserve all original fields 1ms
+       ✓ should re-throw errors for pg-boss retry handling 1ms
+       ✓ should create OptOut when client sends STOP (Story 2.5) 0ms
+       ✓ should not create duplicate OptOut when client sends STOP twice (idempotence) 0ms
+       × should not create OptOut when client sends STOP but from is invalid E.164 (catch, job succeeds) 1ms
+       ✓ Story 8.3: should read session (not create) when seller sends message 0ms
+       ✓ Story 8.3: should NOT create session when seller sends message without active session 0ms
+       × Story 8.1: when client sends non-code body, uses getCurrentSessionReadOnly (for address/recap flow) 1ms
+       ✓ Story 8.1: should call getCurrentSessionReadOnly when client sends code-like body (A12) 0ms
+       ✓ Story 8.1: when client sends code A12 and catalogue item exists (session active), findOrCreateOrderableItemByCode then createReservation, sends Réservé 0ms
+       ✓ Story 8.1: when client sends code and catalogue item already exists, findOrCreateOrderableItemByCode then createReservation 0ms
+       ✓ Story 8.1: when client sends code and catalogue item is exhausted (free <= 0), adds to waitlist and sends File #N 0ms
+       ✓ Story 8.1: when client sends code and createReservation returns exhausted, sends Épuisé 0ms
+       ✓ Story 8.1: client sends valid code A12 but catalogue item not found → Code inconnu, no create 0ms
+       × Story 8.1: client sends typo A12A, catalogue item A12 not found → Code inconnu (ex: A12) 0ms
+       × Story 8.1: client sends typo A12A, catalogue item A12 exists → suggestion Tu voulais dire A12 ? 0ms
+       ✓ Story 8.1: never reply Épuisé when code does not exist in catalogue 0ms
+       × Story 8.1: when client sends address and has reserved reservation, collects address and sends récap + OUI 9ms
+         ✓ Story 4.5: when client sends OUI and has address_collected reservation without acompte, creates Order confirmed and sends ack 0ms
+         ✓ Story 4.5: when client sends OUI with acompte enabled, creates Order confirmed_pending_deposit and sends deposit message + ack 0ms
+         ✓ Story 4.5: idempotence — double OUI for same reservation; createOrderFromReservation called twice, returns existing order on second call 0ms
+       ✓ should create live item and write confirmation to outbox when seller sends code (Story 3.2) 0ms
+       ✓ should write FR40 duplicate message to outbox when seller re-sends same code (Story 3.2) 0ms
+       ✓ Story 3.4: when seller sends A12 x5 with mediaUrl, creates item and calls uploadMediaAndLinkToLiveItem 0ms
+       ✓ Story 3.4: vendeur renvoie A12 x3 alors que A12 existe déjà → pas de mise à jour, message FR40 0ms
+       ✓ Story 3.5: vendeur envoie photo seule → demande d'ajouter le code en légende 0ms
+       ✓ Story 3.5: vendeur envoie photo seule sans code → même guidage caption/code 0ms
+       ✓ Story 3.5: vendeur envoie photo seule, même avec ancien contexte → guidage caption/code 0ms
+       ✓ Story 3.4 unchanged: message A12 x5 + mediaUrl → item créé et photo liée (pas branche 3.5) 7ms
+       × Story 8.2 AC#5: seller sends explicit ajout command without active session → catalogue upsert only, no LiveItem, sends 'Ajouté au catalogue' 4ms
+       × seller sends code without active session → no creation, sends off-live instruction 1ms
+         × AC#1: vendeur photo + code existant → uploadMediaToCatalogueItem fire-and-forget + confirmation 'Photo ajoutée' 1ms
+         ✓ AC#2: vendeur photo + code introuvable (upsert échoue) → message 'Code introuvable' 0ms
+         ✓ AC#3: vendeur photo SANS code (body vide) + session active → guidage caption/code, pas d'upload direct 0ms
+         ✓ AC#4: vendeur photo + code + session live active → photo vers CatalogueItem + message consolidé unique 0ms
+         ✓ AC#5: vendeur renvoie photo + même code → nouvelle photo remplace l'ancienne (même clé R2 déterministe) 0ms
+         ✓ AC#6+7: vendeur code sans photo → pas d'upload catalogue photo (flux normal préservé) 0ms
+         × H1 fix: vendeur photo + code mais R2 non configuré → pas d'upload ni de confirmation photo 0ms
+         ✓ M3 fix: vendeur photo + code avec prix non configuré → message 'pas de prix' au lieu de 'code introuvable' 0ms
+       ✓ AC #1: récap avec photo catalogue (mediaStorageKey non null) → writeToOutbox avec mediaUrl 0ms
+       ✓ AC #2: récap sans photo (mediaStorageKey null) → writeToOutbox sans mediaUrl 0ms
+       ✓ AC #4: mediaStorageKey présent → storageKey passé à writeToOutbox (fallback signé dans outbox-sender) 0ms
+       ✓ AC #5: récap LiveItem (pas de catalogueItemId) → texte uniquement, pas de photo 0ms
+       ✓ AC #3: confirmation OUI pour article avec photo → texte uniquement, pas de mediaUrl 0ms
+ ✓ src/app/api/webhooks/meta/route.test.ts (23 tests) 84ms
+ ✓ src/server/messaging/providers/meta/adapter.test.ts (25 tests) 18ms
+ ✓ src/server/payment/paystack.test.ts (11 tests) 16ms
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > list > should return all catalogue items for tenant
+[TRPC] list took 356ms to execute
+
+ ✓ src/app/api/catalogue/[itemId]/photo/route.test.ts (17 tests) 14ms
+ ✓ src/lib/subscription-plans.test.ts (24 tests) 12ms
+stderr | src/app/api/webhooks/paystack/route.test.ts > Story 7A.2: Paystack Webhook > always returns 200 OK
+[2026-04-12T08:30:23.305Z] [WARN] [Worker] Paystack webhook: unhandled event {"event":"unknown_event"}
+
+stderr | src/app/api/webhooks/paystack/route.test.ts > Story 7A.2: Paystack Webhook > returns 200 even with invalid signature
+[2026-04-12T08:30:23.307Z] [WARN] [Worker] Paystack webhook: invalid signature
+
+stderr | src/app/api/webhooks/paystack/route.test.ts > Story 7A.2: Paystack Webhook > charge.success > does nothing if no tenantId in metadata
+[2026-04-12T08:30:23.311Z] [WARN] [Worker] Paystack charge.success: no tenantId in metadata or existing payment {"reference":"ref-123"}
+
+ ✓ src/app/api/webhooks/paystack/route.test.ts (11 tests) 10ms
+stdout | src/server/api/routers/orders.test.ts > orders router > list > returns orders for tenant only (no filters)
+[TRPC] orders.list took 185ms to execute
+
+stdout | src/server/api/routers/sellerPhones.test.ts > sellerPhones router > list > returns seller phones for tenant when Owner/Manager
+[TRPC] sellerPhones.list took 213ms to execute
+
+ ✓ src/server/media/uploadMediaToCatalogueItem.test.ts (9 tests) 10ms
+stdout | src/server/api/routers/live.test.ts > live router > getLiveOpsData > returns session null and empty arrays when no active session
+[TRPC] live.getLiveOpsData took 217ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > saves Meta fields for Owner when Meta API validates OK
+[TRPC] settings.setWhatsAppConfig took 228ms to execute
+
+ ✓ src/server/pricing/getPriceFromCode.test.ts (11 tests) 9ms
+stdout | src/server/api/routers/ops.test.ts > ops router > tenants.list > returns tenants list for ops user
+[TRPC] ops.tenants.list took 306ms to execute
+
+stdout | src/server/api/routers/eventLog.test.ts > eventLog router > list > returns events for tenant only (no filters)
+[TRPC] eventLog.list took 318ms to execute
+
+stderr | src/app/api/payment/subscribe/route.test.ts > Story 7A.2: POST /api/payment/subscribe > returns 500 when Paystack fails
+[2026-04-12T08:30:23.478Z] [WARN] [Worker] Paystack initializeTransaction error {"message":"Network error","stack":"Error: Network error\n    at /Users/fabricendri/Developer/SnapSell/src/app/api/payment/subscribe/route.test.ts:141:56\n    at file:///Users/fabricendri/Developer/SnapSell/node_modules/@vitest/runner/dist/index.js:145:11\n    at file:///Users/fabricendri/Developer/SnapSell/node_modules/@vitest/runner/dist/index.js:915:26\n    at file:///Users/fabricendri/Developer/SnapSell/node_modules/@vitest/runner/dist/index.js:1243:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///Users/fabricend","planId":"starter","tenantId":"tenant-1"}
+
+ ✓ src/app/api/payment/subscribe/route.test.ts (7 tests) 9ms
+stdout | src/server/workers/reservation-ttl.test.ts > reservation-ttl (Story 4.3 + 9.1) > expires reservation and logs reservation_expired when no one in waitlist
+[2026-04-12T08:30:23.486Z] [INFO] [Worker] Reservation TTL run completed {"expiredCount":1,"promotedCount":0,"candidates":1}
+
+stdout | src/server/workers/reservation-ttl.test.ts > reservation-ttl (Story 4.3 + 9.1) > expires reservation, promotes first in waitlist, logs and sends message
+[2026-04-12T08:30:23.488Z] [INFO] [Worker] Reservation TTL run completed {"expiredCount":1,"promotedCount":1,"candidates":1}
+
+stdout | src/server/workers/reservation-ttl.test.ts > reservation-ttl (Story 4.3 + 9.1) > Story 9.1: expires catalogue reservation, decrements catalogue_items, logs catalogue_item_id
+[2026-04-12T08:30:23.489Z] [INFO] [Worker] Reservation TTL run completed {"expiredCount":1,"promotedCount":0,"candidates":1}
+
+stdout | src/server/workers/reservation-ttl.test.ts > reservation-ttl (Story 4.3 + 9.1) > Story 9.1: expires catalogue reservation, promotes waitlist with catalogueItemId directly (no sentinel)
+[2026-04-12T08:30:23.489Z] [INFO] [Worker] Reservation TTL run completed {"expiredCount":1,"promotedCount":1,"candidates":1}
+
+stdout | src/server/workers/reservation-ttl.test.ts > reservation-ttl (Story 4.3 + 9.1) > Story 8.1: skips reservation with no associated item (neither liveItemId nor catalogueItemId)
+[2026-04-12T08:30:23.490Z] [INFO] [Worker] Reservation TTL run completed {"expiredCount":0,"promotedCount":0,"candidates":1}
+
+stderr | src/server/workers/reservation-ttl.test.ts > reservation-ttl (Story 4.3 + 9.1) > Story 8.1: skips reservation with no associated item (neither liveItemId nor catalogueItemId)
+[2026-04-12T08:30:23.489Z] [WARN] [Worker] Reservation has no associated item (neither liveItemId nor catalogueItemId), skipping {"reservationId":"res-broken"}
+
+stdout | src/server/workers/reservation-ttl.test.ts > reservation-ttl (Story 4.3 + 9.1) > when createReservation fails (exhausted), does not delete waitlist entry so client keeps place
+[2026-04-12T08:30:23.490Z] [INFO] [Worker] Reservation TTL run completed {"expiredCount":1,"promotedCount":0,"candidates":1}
+
+stderr | src/server/workers/reservation-ttl.test.ts > reservation-ttl (Story 4.3 + 9.1) > when createReservation fails (exhausted), does not delete waitlist entry so client keeps place
+[2026-04-12T08:30:23.490Z] [WARN] [Worker] Promotion createReservation failed (exhausted or race) {"tenantId":"t2","itemId":"item-2","reason":"exhausted"}
+
+stdout | src/server/workers/reservation-ttl.test.ts > runReservationReminderJob (Story 4.4) > sends reminder when reservation expiresAt is in T-2 window (now+2min to now+3min)
+[2026-04-12T08:30:23.490Z] [INFO] [Worker] Reservation reminder run completed {"reminderSentCount":1,"candidates":1}
+
+stdout | src/server/workers/reservation-ttl.test.ts > runReservationReminderJob (Story 4.4) > does not send second reminder when updateMany returns 0 (already sent)
+[2026-04-12T08:30:23.491Z] [INFO] [Worker] Reservation reminder run completed {"reminderSentCount":0,"candidates":1}
+
+stdout | src/server/workers/reservation-ttl.test.ts > runReservationReminderJob (Story 4.4) > Story 8.1: sends reminder for catalogue reservation with catalogue_item_id in payload
+[2026-04-12T08:30:23.491Z] [INFO] [Worker] Reservation reminder run completed {"reminderSentCount":1,"candidates":1}
+
+stderr | src/server/workers/reservation-ttl.test.ts > runReservationReminderJob (Story 4.4) > on writeToOutbox failure, rolls back reminder_sent_at and continues (no batch abort)
+[2026-04-12T08:30:23.491Z] [ERROR] [Worker] Reminder writeToOutbox failed, rolling back reminder_sent_at for retry {"error":"[object Object]"}
+
+stdout | src/server/workers/reservation-ttl.test.ts > runReservationReminderJob (Story 4.4) > on writeToOutbox failure, rolls back reminder_sent_at and continues (no batch abort)
+[2026-04-12T08:30:23.491Z] [INFO] [Worker] Reservation reminder run completed {"reminderSentCount":0,"candidates":1}
+
+ ✓ src/server/workers/reservation-ttl.test.ts (12 tests) 7ms
+ ✓ src/server/events/eventLog.test.ts (21 tests) 6ms
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > creates invitation successfully for Owner
+[2026-04-12T08:30:23.583Z] [INFO] [Invitation] Invitation create {"tenantId":"tenant-1","email":"agent@example.com","invitationId":"inv-1"}
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > creates invitation successfully for Owner
+[TRPC] invitations.createInvitation took 432ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > getLiveOpsData > returns session, items and reservations in one call when session exists
+[TRPC] live.getLiveOpsData took 238ms to execute
+
+stdout | src/server/api/routers/dashboard.test.ts > dashboard router > getSummary > returns correct counts with no data
+[TRPC] dashboard.getSummary took 462ms to execute
+
+stdout | src/server/api/routers/auth.mutation.test.ts > auth.signup mutation > creates tenant and user when email is free
+[TRPC] auth.signup took 494ms to execute
+
+ ✓ src/server/order/createOrderFromReservation.test.ts (13 tests) 7ms
+stdout | src/server/api/routers/proofs.test.ts > proofs router > listPending > returns pending proofs for tenant only
+[TRPC] proofs.listPending took 489ms to execute
+
+ ✓ src/server/subscription/usage.test.ts (19 tests) 6ms
+stdout | src/server/api/routers/ops.test.ts > ops router > tenants.list > rejects non-ops user
+[TRPC] ops.tenants.list took 191ms to execute
+
+stdout | src/server/api/routers/sellerPhones.test.ts > sellerPhones router > list > throws FORBIDDEN for non-Owner/Manager role
+[TRPC] sellerPhones.list took 308ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > list > should throw if no tenantId
+[TRPC] list took 469ms to execute
+
+ ✓ src/server/live-item/createLiveItem.test.ts (8 tests) 3ms
+stderr | src/app/api/qstash/outbox-send/route.test.ts > POST /api/qstash/outbox-send > returns 503 in production when signing keys are missing
+[2026-04-12T08:30:23.737Z] [ERROR] [Worker] QStash outbox-send: signature config missing in production {"route":"/api/qstash/outbox-send","hasCurrentSigningKey":true,"hasNextSigningKey":true,"error":"undefined"}
+
+stderr | src/app/api/qstash/outbox-send/route.test.ts > POST /api/qstash/outbox-send > returns 401 when signature is invalid
+[2026-04-12T08:30:23.738Z] [WARN] [Worker] QStash outbox-send: signature invalide {}
+
+ ✓ src/app/api/qstash/outbox-send/route.test.ts (4 tests) 6ms
+stdout | src/server/api/routers/orders.test.ts > orders router > list > filters by status when status is provided
+[TRPC] orders.list took 405ms to execute
+
+stdout | src/server/api/routers/sellerPhones.test.ts > sellerPhones router > list > throws FORBIDDEN for non-Owner/Manager role
+[TRPC] sellerPhones.list took 131ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > getLiveOpsData > tenant isolation: tenant2 receives only tenant2 session and data
+[TRPC] live.getLiveOpsData took 197ms to execute
+
+ ✓ src/server/live-item/reservation.test.ts (11 tests) 4ms
+ ✓ src/server/workers/close-inactive-live-sessions.test.ts (4 tests) 4ms
+stdout | src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > rejects when WABA ID or token is invalid (Meta API returns non-OK)
+[TRPC] settings.setWhatsAppConfig took 448ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > eventLogs.list > returns events for specified tenant (ops user)
+[TRPC] ops.eventLogs.list took 231ms to execute
+
+ ✓ src/server/api/routers/invitations.schema.test.ts (11 tests) 4ms
+ ✓ src/server/live-item/resolveOrCreateLiveItem.test.ts (5 tests) 3ms
+stdout | src/server/api/routers/eventLog.test.ts > eventLog router > list > filters by eventType when provided
+[TRPC] eventLog.list took 441ms to execute
+
+stdout | src/server/api/routers/sellerPhones.test.ts > sellerPhones router > add > creates seller phone with E.164 and returns it
+[TRPC] sellerPhones.add took 135ms to execute
+
+ ✓ src/server/live-session/service.test.ts (4 tests) 3ms
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > creates invitation successfully for Manager
+[2026-04-12T08:30:23.980Z] [INFO] [Invitation] Invitation create {"tenantId":"tenant-1","email":"agent@example.com","invitationId":"inv-1"}
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > creates invitation successfully for Manager
+[TRPC] invitations.createInvitation took 394ms to execute
+
+stdout | src/server/api/routers/auth.mutation.test.ts > auth.signup mutation > throws CONFLICT when email already exists
+[TRPC] auth.signup took 347ms to execute
+
+ ✓ src/server/waitlist/addToWaitlist.test.ts (7 tests) 3ms
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > create > should create catalogue item with provided price
+[TRPC] create took 339ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > eventLogs.list > filters by correlationId
+[TRPC] ops.eventLogs.list took 140ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > list > filters by dateFrom and dateTo on createdAt
+[TRPC] orders.list took 283ms to execute
+
+stdout | src/server/api/routers/dashboard.test.ts > dashboard router > getSummary > returns correct counts and revenue with data
+[TRPC] dashboard.getSummary took 413ms to execute
+
+ ✓ src/server/api/routers/settings.schema.test.ts (7 tests) 3ms
+stdout | src/server/api/routers/proofs.test.ts > proofs router > listPending > returns only pending proofs (status=pending) for tenant
+[TRPC] proofs.listPending took 403ms to execute
+
+ ✓ src/server/catalogue/upsertCatalogueItemFromWebhook.test.ts (7 tests) 3ms
+ ✓ src/server/proof/createPaymentProof.test.ts (7 tests) 3ms
+stdout | src/server/api/routers/live.test.ts > live router > getCurrentSession > returns null when no active session for tenant
+[TRPC] live.getCurrentSession took 325ms to execute
+
+ ✓ src/server/live-item/findLiveItemByCode.test.ts (5 tests) 3ms
+ ✓ src/lib/validations/login.test.ts (5 tests) 3ms
+stdout | src/server/api/routers/eventLog.test.ts > eventLog router > list > filters by dateFrom and dateTo
+[TRPC] eventLog.list took 275ms to execute
+
+stdout | src/server/api/routers/auth.mutation.test.ts > auth.signup mutation > throws CONFLICT when email already exists
+[TRPC] auth.signup took 210ms to execute
+
+ ✓ src/server/api/routers/auth.mutation.test.ts (2 tests) 1055ms
+     ✓ creates tenant and user when email is free  496ms
+     ✓ throws CONFLICT when email already exists  558ms
+stdout | src/server/api/routers/proofs.test.ts > proofs router > listPending > requests results ordered by createdAt desc
+[TRPC] proofs.listPending took 158ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > throws FORBIDDEN for non-Owner/Manager role
+[TRPC] invitations.createInvitation took 245ms to execute
+
+ ✓ src/server/api/routers/live.schema.test.ts (5 tests) 2ms
+ ✓ src/server/media/r2-signed-url.test.ts (3 tests) 3ms
+ ✓ src/server/api/routers/auth.test.ts (5 tests) 3ms
+stdout | src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > rejects when phone ID not found in WABA phone_numbers list
+[TRPC] settings.setWhatsAppConfig took 478ms to execute
+
+ ✓ src/lib/validations/phone.test.ts (5 tests) 2ms
+stdout | src/server/api/routers/dashboard.test.ts > dashboard router > getSummary > handles null amount gracefully (uses 0)
+[TRPC] dashboard.getSummary took 274ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > getCurrentSession > returns session when active session exists
+[TRPC] live.getCurrentSession took 180ms to execute
+
+ ✓ src/server/api/routers/subscription.test.ts (4 tests) 2ms
+ ✓ src/server/live-item/getLastEditedLiveItemInWindow.test.ts (2 tests) 2ms
+ ✓ src/server/conversation/sellerVariantConfig.test.ts (4 tests) 3ms
+stdout | src/server/api/routers/sellerPhones.test.ts > sellerPhones router > add > throws CONFLICT when number already exists for tenant
+[TRPC] sellerPhones.add took 466ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > create > should derive price from grid if not provided
+[TRPC] create took 396ms to execute
+
+ ↓ src/server/workers/outbox-sender.integration.test.ts (2 tests | 2 skipped)
+stdout | src/server/api/routers/proofs.test.ts > proofs router > listPending > does not return proofs from another tenant
+[TRPC] proofs.listPending took 240ms to execute
+
+stdout | src/server/api/routers/dashboard.test.ts > dashboard router > getSummary > returns hasLiveSession true when session exists
+[TRPC] dashboard.getSummary took 146ms to execute
+
+ ✓ src/server/media/uploadMediaToLiveItem.test.ts (2 tests) 1ms
+stdout | src/server/api/routers/ops.test.ts > ops router > eventLogs.list > masks sensitive data in payload (phone numbers)
+[TRPC] ops.eventLogs.list took 442ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > list > tenant isolation: list for tenant2 uses only tenant2
+[TRPC] orders.list took 459ms to execute
+
+stdout | src/server/api/routers/eventLog.test.ts > eventLog router > list > filters by correlationId when provided
+[TRPC] eventLog.list took 305ms to execute
+
+ ↓ src/server/workers/webhook-processor.integration.test.ts (2 tests | 2 skipped)
+ ↓ src/server/workers/__tests__/stop-optout-blocked.integration.test.ts (1 test | 1 skipped)
+stdout | src/server/api/routers/proofs.test.ts > proofs router > pendingCount > returns count of pending proofs for tenant only
+[TRPC] proofs.pendingCount took 115ms to execute
+
+ ↓ src/server/messaging/providers/meta/__tests__/meta-e2e.integration.test.ts (6 tests | 6 skipped)
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > create > should throw CONFLICT if code already exists
+[TRPC] create took 170ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > startLive (Story 8.3) > creates new session and logs event when no active session exists
+[TRPC] live.startLive took 272ms to execute
+
+stdout | src/server/api/routers/sellerPhones.test.ts > sellerPhones router > add > throws FORBIDDEN for non-Owner/Manager
+[TRPC] sellerPhones.add took 245ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > throws FORBIDDEN for non-Owner/Manager role
+[TRPC] invitations.createInvitation took 436ms to execute
+
+ ↓ src/server/messaging/providers/meta/__tests__/embedded-signup.integration.test.ts (4 tests | 4 skipped)
+stdout | src/server/api/routers/dashboard.test.ts > dashboard router > getSummary > returns hasLiveSession false when no session
+[TRPC] dashboard.getSummary took 215ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > rejects when Meta API is unreachable with INTERNAL_SERVER_ERROR
+[TRPC] settings.setWhatsAppConfig took 477ms to execute
+
+stdout | src/server/api/routers/eventLog.test.ts > eventLog router > list > tenant isolation: tenant2 gets only tenant2 events
+[TRPC] eventLog.list took 314ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > startLive (Story 8.3) > returns existing session without logging when session already active
+[TRPC] live.startLive took 234ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > eventLogs.list > does NOT mask 'from' field when value is not a phone number (CR 7B-1 M2)
+[TRPC] ops.eventLogs.list took 362ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > create > should throw CONFLICT if code already exists
+[TRPC] create took 252ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > pendingCount > uses same tenant isolation as listPending
+[TRPC] proofs.pendingCount took 319ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > eventLogs.list > masks sensitive data in payload (addresses)
+[TRPC] ops.eventLogs.list took 135ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > list > filters by status preparing (Story 6.3: new statuses)
+[TRPC] orders.list took 496ms to execute
+
+stdout | src/server/api/routers/dashboard.test.ts > dashboard router > getSummary > passes tenantId to all queries (isolation)
+[TRPC] dashboard.getSummary took 327ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > valide le phoneId avec le token et wabaId stockés quand aucun n'est fourni
+[TRPC] settings.setWhatsAppConfig took 256ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > throws FORBIDDEN when agents quota exceeded
+[TRPC] invitations.createInvitation took 400ms to execute
+
+stdout | src/server/api/routers/eventLog.test.ts > eventLog router > list > uses cursor for pagination when provided
+[TRPC] eventLog.list took 306ms to execute
+
+stdout | src/server/api/routers/sellerPhones.test.ts > sellerPhones router > add > rejects invalid E.164 (validation)
+[TRPC] sellerPhones.add took 466ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > create > should throw if price not configured for category
+[TRPC] create took 311ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > approve > updates proof and order, logs event, writes outbox message
+[TRPC] proofs.approve took 342ms to execute
+
+stdout | src/server/api/routers/dashboard.test.ts > dashboard router > getSummary > tenant 2 calls pass tenant-2 id (cross-tenant isolation)
+[TRPC] dashboard.getSummary took 230ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > create > should throw if price not configured for category
+[TRPC] create took 102ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > throws CONFLICT when invitation already pending
+[2026-04-12T08:30:25.285Z] [INFO] [Invitation] Invitation create {"tenantId":"tenant-1","email":"agent@example.com","error":"Invitation déjà en attente"}
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > throws CONFLICT when invitation already pending
+[TRPC] invitations.createInvitation took 221ms to execute
+
+stdout | src/server/api/routers/eventLog.test.ts > eventLog router > list > rejects dateFrom after dateTo
+[TRPC] eventLog.list took 170ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > list > rejects dateFrom after dateTo with clear message
+[TRPC] orders.list took 299ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > startLive (Story 8.3) > tenant isolation: tenant2 creates its own session
+[TRPC] live.startLive took 469ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > rejette un faux phoneId même sans nouveau token (utilise le token stocké)
+[TRPC] settings.setWhatsAppConfig took 269ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > eventLogs.list > rejects if tenant not found
+[TRPC] ops.eventLogs.list took 460ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > approve > returns NOT_FOUND when proof belongs to another tenant
+[TRPC] proofs.approve took 284ms to execute
+
+stdout | src/server/api/routers/sellerPhones.test.ts > sellerPhones router > remove > deletes seller phone when id belongs to tenant
+[TRPC] sellerPhones.remove took 410ms to execute
+
+stdout | src/server/api/routers/dashboard.test.ts > dashboard router > getSummary > revenueByDay has 7 entries with correct structure
+[TRPC] dashboard.getSummary took 322ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > eventLogs.list > rejects non-ops user
+[TRPC] ops.eventLogs.list took 149ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > skips Meta API validation when metaAccessToken is null AND aucun token stocké
+[TRPC] settings.setWhatsAppConfig took 297ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > throws CONFLICT when invitation already pending
+[2026-04-12T08:30:25.644Z] [INFO] [Invitation] Invitation create {"tenantId":"tenant-1","email":"agent@example.com","error":"Invitation déjà en attente"}
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > throws CONFLICT when invitation already pending
+[TRPC] invitations.createInvitation took 358ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > eventLogs.list > requires tenantId or correlationId
+[TRPC] ops.eventLogs.list took 136ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > exportCsv (Story 6.5) > returns csv and filename for OWNER with tenant isolation
+[TRPC] orders.exportCsv took 420ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > update > should update quantity and adjust availableQty
+[TRPC] update took 465ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > startLive (Story 8.3) > throws FORBIDDEN when tenantId is missing
+[TRPC] live.startLive took 441ms to execute
+
+stdout | src/server/api/routers/dashboard.test.ts > dashboard router > getSummary > throws FORBIDDEN when tenantId missing (enforceTenant middleware)
+[TRPC] dashboard.getSummary took 188ms to execute
+
+stdout | src/server/api/routers/eventLog.test.ts > eventLog router > exportCsv > returns csv and filename with tenant isolation
+[TRPC] eventLog.exportCsv took 467ms to execute
+
+stdout | src/server/api/routers/sellerPhones.test.ts > sellerPhones router > remove > throws NOT_FOUND when no row deleted
+[TRPC] sellerPhones.remove took 259ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > approve > returns BAD_REQUEST when proof already approved
+[TRPC] proofs.approve took 287ms to execute
+
+stdout | src/server/api/routers/eventLog.test.ts > eventLog router > exportCsv > throws BAD_REQUEST when more than 10k events would be exported
+[TRPC] eventLog.exportCsv took 151ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > eventLogs.list > searches cross-tenant by correlationId without tenantId (CR 7B-1 M1)
+[TRPC] ops.eventLogs.list took 216ms to execute
+
+stdout | src/server/api/routers/dashboard.test.ts > dashboard router > getSummary > throws FORBIDDEN when tenantId missing (enforceTenant middleware)
+[TRPC] dashboard.getSummary took 241ms to execute
+
+ ✓ src/server/api/routers/dashboard.test.ts (16 tests) 2840ms
+       ✓ returns correct counts with no data  463ms
+       ✓ returns correct counts and revenue with data  413ms
+       ✓ passes tenantId to all queries (isolation)  331ms
+       ✓ revenueByDay has 7 entries with correct structure  323ms
+       ✓ throws FORBIDDEN when tenantId missing (enforceTenant middleware)  431ms
+stdout | src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > rejects AGENT role with FORBIDDEN
+[TRPC] settings.setWhatsAppConfig took 390ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > throws TOO_MANY_REQUESTS when rate limit exceeded
+[2026-04-12T08:30:26.028Z] [INFO] [Invitation] Invitation create {"tenantId":"tenant-1","email":"agent@example.com","error":"Rate limit exceeded"}
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > throws TOO_MANY_REQUESTS when rate limit exceeded
+[TRPC] invitations.createInvitation took 384ms to execute
+
+stdout | src/server/api/routers/eventLog.test.ts > eventLog router > exportCsv > applies same filters as list for export
+[TRPC] eventLog.exportCsv took 147ms to execute
+
+ ✓ src/server/api/routers/eventLog.test.ts (10 tests) 2908ms
+       ✓ returns events for tenant only (no filters)  321ms
+       ✓ filters by eventType when provided  441ms
+       ✓ filters by correlationId when provided  306ms
+       ✓ tenant isolation: tenant2 gets only tenant2 events  314ms
+       ✓ uses cursor for pagination when provided  307ms
+       ✓ returns csv and filename with tenant isolation  468ms
+stdout | src/server/api/routers/sellerPhones.test.ts > sellerPhones router > remove > throws FORBIDDEN for non-Owner/Manager
+[TRPC] sellerPhones.remove took 335ms to execute
+
+ ✓ src/server/api/routers/sellerPhones.test.ts (9 tests) 2977ms
+       ✓ throws FORBIDDEN for non-Owner/Manager role  440ms
+       ✓ throws CONFLICT when number already exists for tenant  467ms
+       ✓ rejects invalid E.164 (validation)  468ms
+       ✓ deletes seller phone when id belongs to tenant  410ms
+       ✓ throws FORBIDDEN for non-Owner/Manager  336ms
+stdout | src/server/api/routers/live.test.ts > live router > startLive (Story 8.3) > propagates error when getOrCreateCurrentSession fails
+[TRPC] live.startLive took 401ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > exportCsv (Story 6.5) > throws BAD_REQUEST when more than 10k orders would be exported
+[TRPC] orders.exportCsv took 446ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > update > should reject manual quantity updates when variants are active
+[TRPC] update took 487ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.list (Story 7B.2) > returns DLQ entries for ops user with tenant filter
+[TRPC] ops.dlq.list took 275ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > rejects AGENT role with FORBIDDEN
+[TRPC] settings.setWhatsAppConfig took 212ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > approve > returns BAD_REQUEST when order is not in confirmed_pending_deposit
+[TRPC] proofs.approve took 479ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > getSessionItems > returns empty array when no current session
+[TRPC] live.getSessionItems took 222ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > update > should update code
+[TRPC] update took 176ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > throws TOO_MANY_REQUESTS when rate limit exceeded
+[2026-04-12T08:30:26.411Z] [INFO] [Invitation] Invitation create {"tenantId":"tenant-1","email":"agent@example.com","error":"Rate limit exceeded"}
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > createInvitation > throws TOO_MANY_REQUESTS when rate limit exceeded
+[TRPC] invitations.createInvitation took 384ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > rejects duplicate metaPhoneNumberId with CONFLICT
+[TRPC] settings.setWhatsAppConfig took 203ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > exportCsv (Story 6.5) > returns csv for MANAGER role
+[TRPC] orders.exportCsv took 271ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > reject > updates proof and order deposit_rejected, logs event, writes outbox message
+[TRPC] proofs.reject took 229ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > listInvitations > lists invitations for Owner
+[TRPC] invitations.listInvitations took 126ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.list (Story 7B.2) > rejects non-ops user for dlq.list
+[TRPC] ops.dlq.list took 467ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > getSessionItems > returns items for current session filtered by tenant
+[TRPC] live.getSessionItems took 320ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > update > should throw NOT_FOUND if item doesn't exist
+[TRPC] update took 336ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > listInvitations > throws FORBIDDEN for non-Owner/Manager role
+[TRPC] invitations.listInvitations took 201ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > exportCsv (Story 6.5) > throws FORBIDDEN for AGENT role
+[TRPC] orders.exportCsv took 344ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > skips uniqueness check and Meta API validation when metaPhoneNumberId is null
+[TRPC] settings.setWhatsAppConfig took 355ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > reject > returns NOT_FOUND when proof belongs to another tenant
+[TRPC] proofs.reject took 320ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > exportCsv (Story 6.5) > applies same filters as list (status, dateFrom, dateTo)
+[TRPC] orders.exportCsv took 140ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.list (Story 7B.2) > filters by resolved=false when requested
+[TRPC] ops.dlq.list took 347ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > getSessionReservations > returns empty array when no current session
+[TRPC] live.getSessionReservations took 342ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > listInvitations > throws FORBIDDEN for non-Owner/Manager role
+[TRPC] invitations.listInvitations took 287ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — getWhatsAppConfig (Meta) > returns Meta fields with hasAccessToken=true when token exists
+[TRPC] settings.getWhatsAppConfig took 278ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > update > should throw NOT_FOUND if item doesn't exist
+[TRPC] update took 389ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.list (Story 7B.2) > rejects if tenant not found for dlq.list
+[TRPC] ops.dlq.list took 131ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > reject > returns BAD_REQUEST when proof already rejected
+[TRPC] proofs.reject took 330ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > update > should throw NOT_FOUND if item belongs to different tenant
+[TRPC] update took 147ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — getWhatsAppConfig (Meta) > returns hasAccessToken=false when token is null
+[TRPC] settings.getWhatsAppConfig took 222ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > getById > returns order when it belongs to tenant
+[TRPC] orders.getById took 466ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > getSessionReservations > returns reservations with masked client phone
+[TRPC] live.getSessionReservations took 379ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > bulkApprove > approves multiple proofs and returns results per proof
+[TRPC] proofs.bulkApprove took 303ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > rejects invalid reservationId (non-CUID) with validation error
+[TRPC] live.releaseReservation took 107ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > getInvitationByToken > returns invitation details for valid token
+[TRPC] invitations.getInvitationByToken took 489ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.list (Story 7B.2) > filters by resolved=true (CR 7B-2 L1)
+[TRPC] ops.dlq.list took 468ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — getWhatsAppConfig (Meta) > never exposes the raw access token
+[TRPC] settings.getWhatsAppConfig took 336ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > rejects invalid reservationId (non-CUID) with validation error
+[TRPC] live.releaseReservation took 128ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > update > should throw CONFLICT if new code already exists
+[TRPC] update took 430ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — testWhatsAppConnection > returns ok:true when phone ID found in WABA phone_numbers
+[TRPC] settings.testWhatsAppConnection took 127ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > getById > throws NOT_FOUND when order does not belong to tenant
+[TRPC] orders.getById took 404ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > update > should throw CONFLICT if new code already exists
+[TRPC] update took 159ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > returns 404 when reservation not found
+[TRPC] live.releaseReservation took 283ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > bulkApprove > returns ok: false for proof not found without throwing
+[TRPC] proofs.bulkApprove took 497ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.list (Story 7B.2) > returns nextCursor when more rows exist (CR 7B-2 L2)
+[TRPC] ops.dlq.list took 358ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > getInvitationByToken > throws NOT_FOUND for expired invitation
+[TRPC] invitations.getInvitationByToken took 493ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > returns 404 when reservation not found
+[TRPC] live.releaseReservation took 109ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > bulkApprove > uses tenant from session for each proof
+[TRPC] proofs.bulkApprove took 133ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > getInvitationByToken > throws NOT_FOUND for expired invitation
+[TRPC] invitations.getInvitationByToken took 133ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > getById > throws NOT_FOUND when order does not belong to tenant
+[TRPC] orders.getById took 341ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > returns 404 when reservation belongs to another tenant
+[TRPC] live.releaseReservation took 129ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > delete > should delete catalogue item if no active reservations
+[TRPC] delete took 351ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — testWhatsAppConnection > throws BAD_REQUEST when Meta API returns error
+[TRPC] settings.testWhatsAppConnection took 466ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > bulkReject > rejects multiple proofs and returns results per proof
+[TRPC] proofs.bulkReject took 119ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > getInvitationByToken > throws NOT_FOUND for consumed invitation
+[TRPC] invitations.getInvitationByToken took 143ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > returns 400 when reservation already confirmed
+[TRPC] live.releaseReservation took 162ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.list (Story 7B.2) > filters by jobType when provided (CR 7B-2 M1)
+[TRPC] ops.dlq.list took 368ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — testWhatsAppConnection > throws BAD_REQUEST when phone ID not found in WABA phone_numbers list
+[TRPC] settings.testWhatsAppConnection took 162ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > getById > returns order with status preparing (Story 6.3: new statuses)
+[TRPC] orders.getById took 284ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — testWhatsAppConnection > throws BAD_REQUEST when config is incomplete (missing wabaId)
+[TRPC] settings.testWhatsAppConnection took 120ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.list (Story 7B.2) > truncates errorStack to 10 lines max (CR 7B-2 M2)
+[TRPC] ops.dlq.list took 165ms to execute
+
+stdout | src/server/api/routers/proofs.test.ts > proofs router > bulkReject > returns ok: false for proof already rejected without throwing
+[TRPC] proofs.bulkReject took 385ms to execute
+
+ ✓ src/server/api/routers/proofs.test.ts (18 tests) 5464ms
+       ✓ returns pending proofs for tenant only  497ms
+       ✓ returns only pending proofs (status=pending) for tenant  404ms
+       ✓ uses same tenant isolation as listPending  320ms
+       ✓ updates proof and order, logs event, writes outbox message  343ms
+       ✓ returns BAD_REQUEST when order is not in confirmed_pending_deposit  480ms
+       ✓ returns NOT_FOUND when proof belongs to another tenant  321ms
+       ✓ returns BAD_REQUEST when proof already rejected  332ms
+       ✓ approves multiple proofs and returns results per proof  305ms
+       ✓ returns ok: false for proof not found without throwing  499ms
+       ✓ returns ok: false for proof already rejected without throwing  386ms
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > delete > should throw BAD_REQUEST if item has active reservations
+[TRPC] delete took 472ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > getInvitationByToken > throws NOT_FOUND for consumed invitation
+[TRPC] invitations.getInvitationByToken took 404ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — testWhatsAppConnection > throws INTERNAL_SERVER_ERROR when Meta API is unreachable
+[TRPC] settings.testWhatsAppConnection took 205ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > allows valid transition in_delivery → delivered and logs order.status_changed
+[TRPC] orders.updateStatus took 334ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > returns 400 when reservation already confirmed
+[TRPC] live.releaseReservation took 494ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > delete > should throw BAD_REQUEST if item has active reservations
+[TRPC] delete took 196ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.list (Story 7B.2) > sanitizes body > 200 chars in DLQ payload (CR 7B-2 M5)
+[TRPC] ops.dlq.list took 457ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > updateStatus → delivered: outbox message contains orderNumber and livrée
+[TRPC] orders.updateStatus took 237ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > delete > should throw NOT_FOUND if item doesn't exist
+[TRPC] delete took 170ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — testWhatsAppConnection > throws FORBIDDEN for AGENT role
+[TRPC] settings.testWhatsAppConnection took 341ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > getInvitationByToken > throws NOT_FOUND for non-existent token
+[TRPC] invitations.getInvitationByToken took 382ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.failedMessages (Story 7B.2) > returns failed MessageOut for ops user
+[TRPC] ops.dlq.failedMessages took 270ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > getInvitationByToken > throws NOT_FOUND for non-existent token
+[TRPC] invitations.getInvitationByToken took 190ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > returns 400 when reservation already expired
+[TRPC] live.releaseReservation took 492ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.failedMessages (Story 7B.2) > rejects non-ops user for failedMessages
+[TRPC] ops.dlq.failedMessages took 101ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > updateStatus → cancelled: outbox message contains orderNumber and annulée
+[TRPC] orders.updateStatus took 392ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > connecte WhatsApp Embedded pour OWNER et persiste les credentials resolves
+[2026-04-12T08:30:29.514Z] [INFO] [Worker] Embedded signup seller phone ensured {"tenantId":"tenant-1","phoneNumber":"+33612345678"}
+
+stdout | src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > connecte WhatsApp Embedded pour OWNER et persiste les credentials resolves
+[TRPC] settings.connectWhatsAppEmbedded took 458ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > delete > should throw NOT_FOUND if item doesn't exist
+[TRPC] delete took 492ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > acceptInvitation > throws FORBIDDEN when agents quota exceeded on accept
+[TRPC] invitations.acceptInvitation took 339ms to execute
+
+stdout | src/server/api/routers/ops.test.ts > ops router > dlq.failedMessages (Story 7B.2) > truncates body > 200 chars in failedMessages (CR 7B-2 L2)
+[TRPC] ops.dlq.failedMessages took 272ms to execute
+
+ ✓ src/server/api/routers/ops.test.ts (25 tests) 6478ms
+       ✓ returns tenants list for ops user  309ms
+       ✓ masks sensitive data in payload (phone numbers)  442ms
+       ✓ does NOT mask 'from' field when value is not a phone number (CR 7B-1 M2)  363ms
+       ✓ rejects if tenant not found  461ms
+       ✓ rejects non-ops user for dlq.list  467ms
+       ✓ filters by resolved=false when requested  349ms
+       ✓ filters by resolved=true (CR 7B-2 L1)  470ms
+       ✓ returns nextCursor when more rows exist (CR 7B-2 L2)  360ms
+       ✓ filters by jobType when provided (CR 7B-2 M1)  370ms
+       ✓ sanitizes body > 200 chars in DLQ payload (CR 7B-2 M5)  459ms
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > throws CONFLICT and rolls back reservation status when releaseReservation fails
+[TRPC] live.releaseReservation took 333ms to execute
+
+stderr | src/server/api/routers/orders.test.ts > orders router > updateStatus > when writeToOutbox fails, updateStatus still succeeds and status is persisted
+[2026-04-12T08:30:29.707Z] [ERROR] [Worker] Outbox write failed after order status change {"error":"[object Object]"}
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > when writeToOutbox fails, updateStatus still succeeds and status is persisted
+[TRPC] orders.updateStatus took 297ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > rejette un code OAuth invalide/expire avec BAD_REQUEST
+[TRPC] settings.connectWhatsAppEmbedded took 251ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > rejects invalid transition delivered → confirmed
+[TRPC] orders.updateStatus took 174ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > succeeds: marks reservation expired, calls releaseReservation, logs event with actorType seller
+[TRPC] live.releaseReservation took 221ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > acceptInvitation > creates new user and consumes invitation
+[2026-04-12T08:30:29.962Z] [INFO] [Invitation] Invitation accept {"tenantId":"tenant-1","email":"agent@example.com","invitationId":"inv-1"}
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > acceptInvitation > creates new user and consumes invitation
+[TRPC] invitations.acceptInvitation took 347ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > r2Status > should return configured: true when R2 is configured
+[TRPC] r2Status took 464ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > acceptInvitation > throws CONFLICT when user already member of same tenant
+[2026-04-12T08:30:30.156Z] [INFO] [Invitation] Invitation accept {"tenantId":"tenant-1","email":"agent@example.com","invitationId":"inv-1","error":"Utilisateur déjà membre du tenant"}
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > acceptInvitation > throws CONFLICT when user already member of same tenant
+[TRPC] invitations.acceptInvitation took 192ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > rejette permissions manquantes avec BAD_REQUEST
+[TRPC] settings.connectWhatsAppEmbedded took 388ms to execute
+
+stdout | src/server/api/routers/catalogue.test.ts > catalogueRouter > r2Status > should return configured: false when R2 is not configured
+[TRPC] r2Status took 188ms to execute
+
+ ✓ src/server/api/routers/catalogue.test.ts (17 tests) 7344ms
+       ✓ should return all catalogue items for tenant  358ms
+       ✓ should throw if no tenantId  470ms
+       ✓ should create catalogue item with provided price  340ms
+       ✓ should derive price from grid if not provided  397ms
+       ✓ should throw CONFLICT if code already exists  424ms
+       ✓ should throw if price not configured for category  414ms
+       ✓ should update quantity and adjust availableQty  466ms
+       ✓ should reject manual quantity updates when variants are active  489ms
+       ✓ should throw NOT_FOUND if item doesn't exist  726ms
+       ✓ should throw CONFLICT if new code already exists  591ms
+       ✓ should delete catalogue item if no active reservations  352ms
+       ✓ should throw BAD_REQUEST if item has active reservations  670ms
+       ✓ should throw NOT_FOUND if item doesn't exist  664ms
+       ✓ should return configured: true when R2 is configured  466ms
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > rejects invalid transition delivered → confirmed
+[TRPC] orders.updateStatus took 317ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > promotes first waitlist when present after release
+[TRPC] live.releaseReservation took 370ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > acceptInvitation > throws CONFLICT when user already member of same tenant
+[2026-04-12T08:30:30.390Z] [INFO] [Invitation] Invitation accept {"tenantId":"tenant-1","email":"agent@example.com","invitationId":"inv-1","error":"Utilisateur déjà membre du tenant"}
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > acceptInvitation > throws CONFLICT when user already member of same tenant
+[TRPC] invitations.acceptInvitation took 235ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > Story 8.1: releases catalogue reservation (catalogueItemId set, liveItemId null)
+[TRPC] live.releaseReservation took 295ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > acceptInvitation > throws CONFLICT when user exists in different tenant
+[2026-04-12T08:30:30.575Z] [INFO] [Invitation] Invitation accept {"tenantId":"tenant-1","email":"agent@example.com","invitationId":"inv-1","error":"Utilisateur existe dans autre tenant"}
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > acceptInvitation > throws CONFLICT when user exists in different tenant
+[TRPC] invitations.acceptInvitation took 184ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > tenant isolation: cannot update order belonging to another tenant
+[TRPC] orders.updateStatus took 392ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > n ajoute pas de doublon seller phone si le numero existe deja
+[2026-04-12T08:30:30.642Z] [INFO] [Worker] Embedded signup seller phone ensured {"tenantId":"tenant-1","phoneNumber":"+33612345678"}
+
+stdout | src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > n ajoute pas de doublon seller phone si le numero existe deja
+[TRPC] settings.connectWhatsAppEmbedded took 483ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > echoue avec INTERNAL_SERVER_ERROR si numero business non normalisable
+[2026-04-12T08:30:30.844Z] [INFO] [Worker] Embedded signup seller phone ensured {"tenantId":"tenant-1","phoneNumber":"+33612345678"}
+
+stdout | src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > echoue avec INTERNAL_SERVER_ERROR si numero business non normalisable
+[TRPC] settings.connectWhatsAppEmbedded took 200ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > tenant isolation: cannot update order belonging to another tenant
+[TRPC] orders.updateStatus took 286ms to execute
+
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > Story 9.1: releases catalogue reservation and promotes catalogue waitlist entry (no sentinel)
+[TRPC] live.releaseReservation took 419ms to execute
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > acceptInvitation > throws CONFLICT when user exists in different tenant
+[2026-04-12T08:30:31.012Z] [INFO] [Invitation] Invitation accept {"tenantId":"tenant-1","email":"agent@example.com","invitationId":"inv-1","error":"Utilisateur existe dans autre tenant"}
+
+stdout | src/server/api/routers/invitations.test.ts > invitations router > acceptInvitation > throws CONFLICT when user exists in different tenant
+[TRPC] invitations.acceptInvitation took 436ms to execute
+
+ ✓ src/server/api/routers/invitations.test.ts (16 tests) 7863ms
+       ✓ creates invitation successfully for Owner  435ms
+       ✓ creates invitation successfully for Manager  394ms
+       ✓ throws FORBIDDEN for non-Owner/Manager role  682ms
+       ✓ throws FORBIDDEN when agents quota exceeded  401ms
+       ✓ throws CONFLICT when invitation already pending  581ms
+       ✓ throws TOO_MANY_REQUESTS when rate limit exceeded  769ms
+       ✓ throws FORBIDDEN for non-Owner/Manager role  490ms
+       ✓ returns invitation details for valid token  491ms
+       ✓ throws NOT_FOUND for expired invitation  627ms
+       ✓ throws NOT_FOUND for consumed invitation  548ms
+       ✓ throws NOT_FOUND for non-existent token  574ms
+       ✓ throws FORBIDDEN when agents quota exceeded on accept  340ms
+       ✓ creates new user and consumes invitation  348ms
+       ✓ throws CONFLICT when user already member of same tenant  428ms
+       ✓ throws CONFLICT when user exists in different tenant  621ms
+stdout | src/server/api/routers/live.test.ts > live router > releaseReservation > Story 8.1: throws BAD_REQUEST when neither catalogueItemId nor liveItemId is set
+[TRPC] live.releaseReservation took 249ms to execute
+
+ ❯ src/server/api/routers/live.test.ts (25 tests | 2 failed) 8077ms
+       ✓ returns session null and empty arrays when no active session 224ms
+       ✓ returns session, items and reservations in one call when session exists 240ms
+       ✓ tenant isolation: tenant2 receives only tenant2 session and data 198ms
+       ✓ returns null when no active session for tenant  325ms
+       ✓ returns session when active session exists 180ms
+       ✓ creates new session and logs event when no active session exists 273ms
+       ✓ returns existing session without logging when session already active 235ms
+       ✓ tenant isolation: tenant2 creates its own session  469ms
+       ✓ throws FORBIDDEN when tenantId is missing  443ms
+       ✓ propagates error when getOrCreateCurrentSession fails  402ms
+       ✓ returns empty array when no current session 223ms
+       ✓ returns items for current session filtered by tenant  322ms
+       ✓ returns empty array when no current session  342ms
+       ✓ returns reservations with masked client phone  381ms
+       ✓ rejects invalid reservationId (non-CUID) with validation error 237ms
+       ✓ returns 404 when reservation not found  394ms
+       ✓ returns 404 when reservation belongs to another tenant 131ms
+       ✓ returns 400 when reservation already confirmed  660ms
+       ✓ returns 400 when reservation already expired  493ms
+       ✓ throws CONFLICT and rolls back reservation status when releaseReservation fails  334ms
+       × succeeds: marks reservation expired, calls releaseReservation, logs event with actorType seller 226ms
+       ✓ promotes first waitlist when present after release  371ms
+       × Story 8.1: releases catalogue reservation (catalogueItemId set, liveItemId null) 298ms
+       ✓ Story 9.1: releases catalogue reservation and promotes catalogue waitlist entry (no sentinel)  421ms
+       ✓ Story 8.1: throws BAD_REQUEST when neither catalogueItemId nor liveItemId is set 251ms
+stderr | src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > rejette reutilisation du meme code OAuth pour le meme tenant
+[2026-04-12T08:30:31.255Z] [ERROR] [Worker] Failed to auto-add seller phone after embedded signup {"tenantId":"tenant-1","error":"Format de téléphone invalide: \"+\" (normalisé: \"+\"). E.164 attendu (+...)","stack":"Error: Format de téléphone invalide: \"+\" (normalisé: \"+\"). E.164 attendu (+...)\n    at normalizeIncomingPhone (/Users/fabricendri/Developer/SnapSell/src/lib/validations/phone.ts:114:11)\n    at normalizeMetaPhone (/Users/fabricendri/Developer/SnapSell/src/lib/validations/phone.ts:130:10)\n    at /Users/fabricendri/Developer/SnapSell/src/server/api/routers/settings.ts:269:41\n    at resolveMiddleware (file:///Users/fabricendri/Developer/SnapSell/node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:221:17)\n    at callRecursive (file:///Users/fabricendri/Developer/SnapSell/node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18)\n    at callRecursive (file:///Users/fabricendri/Developer/SnapSell/node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18)\n    at callRecursive (file:///Users/fabricendri/Developer/SnapSell/node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18)\n    at callRecursive (file:///Users/fabricendri/Developer/SnapSell/node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18)\n    at callRecursive (file:///Users/fabricendri/Developer/SnapSell/node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18)\n    at callRecursive (file:///Users/fabricendri/Developer/SnapSell/node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18)"}
+
+stdout | src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > rejette reutilisation du meme code OAuth pour le meme tenant
+[TRPC] settings.connectWhatsAppEmbedded took 409ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > allows transition confirmed → preparing and logs order.status_changed
+[TRPC] orders.updateStatus took 474ms to execute
+
+stdout | src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > rejects AGENT role with FORBIDDEN
+[TRPC] settings.connectWhatsAppEmbedded took 354ms to execute
+
+ ❯ src/server/api/routers/settings.test.ts (27 tests | 5 failed) 8462ms
+     ✓ saves Meta fields for Owner when Meta API validates OK 230ms
+     ✓ rejects when WABA ID or token is invalid (Meta API returns non-OK)  448ms
+     ✓ rejects when phone ID not found in WABA phone_numbers list  479ms
+     ✓ rejects when Meta API is unreachable with INTERNAL_SERVER_ERROR  478ms
+     × valide le phoneId avec le token et wabaId stockés quand aucun n'est fourni 264ms
+     × rejette un faux phoneId même sans nouveau token (utilise le token stocké) 272ms
+     ✓ skips Meta API validation when metaAccessToken is null AND aucun token stocké 298ms
+     ✓ rejects AGENT role with FORBIDDEN  602ms
+     ✓ rejects duplicate metaPhoneNumberId with CONFLICT 205ms
+     ✓ skips uniqueness check and Meta API validation when metaPhoneNumberId is null  357ms
+     ✓ returns Meta fields with hasAccessToken=true when token exists 279ms
+     ✓ returns hasAccessToken=false when token is null 224ms
+     ✓ never exposes the raw access token  337ms
+     ✓ returns ok:true when phone ID found in WABA phone_numbers 129ms
+     ✓ throws BAD_REQUEST when Meta API returns error  467ms
+     ✓ throws BAD_REQUEST when phone ID not found in WABA phone_numbers list 164ms
+     ✓ throws BAD_REQUEST when config is incomplete (missing wabaId) 121ms
+     ✓ throws INTERNAL_SERVER_ERROR when Meta API is unreachable 206ms
+     ✓ throws FORBIDDEN for AGENT role  343ms
+     ✓ connecte WhatsApp Embedded pour OWNER et persiste les credentials resolves  460ms
+     ✓ rejette un code OAuth invalide/expire avec BAD_REQUEST 253ms
+     ✓ rejette permissions manquantes avec BAD_REQUEST  389ms
+     × rejette conflit unicite metaPhoneNumberId avec CONFLICT 1ms
+     ✓ n ajoute pas de doublon seller phone si le numero existe deja  483ms
+     × echoue avec INTERNAL_SERVER_ERROR si numero business non normalisable 203ms
+     × rejette reutilisation du meme code OAuth pour le meme tenant 410ms
+     ✓ rejects AGENT role with FORBIDDEN  355ms
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > allows transition preparing → in_delivery and writes in_delivery outbox message
+[TRPC] orders.updateStatus took 303ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > allows transition in_delivery → delivered with event_log and outbox
+[TRPC] orders.updateStatus took 208ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > allows cancelled from preparing and writes cancelled outbox
+[TRPC] orders.updateStatus took 292ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > allows cancelled from confirmed and writes cancelled outbox
+[TRPC] orders.updateStatus took 305ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > allows cancelled from confirmed_pending_deposit and writes cancelled outbox
+[TRPC] orders.updateStatus took 402ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > allows cancelled from in_delivery and writes cancelled outbox
+[TRPC] orders.updateStatus took 414ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > rejects invalid transition confirmed → delivered with BAD_REQUEST
+[TRPC] orders.updateStatus took 410ms to execute
+
+stdout | src/server/api/routers/orders.test.ts > orders router > updateStatus > rejects invalid transition in_delivery → preparing with BAD_REQUEST
+[TRPC] orders.updateStatus took 202ms to execute
+
+ ❯ src/server/api/routers/orders.test.ts (29 tests | 1 failed) 10755ms
+       ✓ returns orders for tenant only (no filters) 193ms
+       ✓ filters by status when status is provided  406ms
+       ✓ filters by dateFrom and dateTo on createdAt 285ms
+       ✓ tenant isolation: list for tenant2 uses only tenant2  459ms
+       ✓ filters by status preparing (Story 6.3: new statuses)  498ms
+       ✓ rejects dateFrom after dateTo with clear message  300ms
+       ✓ returns csv and filename for OWNER with tenant isolation  421ms
+       ✓ throws BAD_REQUEST when more than 10k orders would be exported  450ms
+       ✓ returns csv for MANAGER role 272ms
+       × throws FORBIDDEN for AGENT role 359ms
+       ✓ applies same filters as list (status, dateFrom, dateTo) 142ms
+       ✓ returns order when it belongs to tenant  469ms
+       ✓ throws NOT_FOUND when order does not belong to tenant  747ms
+       ✓ returns order with status preparing (Story 6.3: new statuses) 285ms
+       ✓ allows valid transition in_delivery → delivered and logs order.status_changed  337ms
+       ✓ updateStatus → delivered: outbox message contains orderNumber and livrée 239ms
+       ✓ updateStatus → cancelled: outbox message contains orderNumber and annulée  393ms
+       ✓ when writeToOutbox fails, updateStatus still succeeds and status is persisted 298ms
+       ✓ rejects invalid transition delivered → confirmed  493ms
+       ✓ tenant isolation: cannot update order belonging to another tenant  679ms
+       ✓ allows transition confirmed → preparing and logs order.status_changed  475ms
+       ✓ allows transition preparing → in_delivery and writes in_delivery outbox message  305ms
+       ✓ allows transition in_delivery → delivered with event_log and outbox 210ms
+       ✓ allows cancelled from preparing and writes cancelled outbox 294ms
+       ✓ allows cancelled from confirmed and writes cancelled outbox  306ms
+       ✓ allows cancelled from confirmed_pending_deposit and writes cancelled outbox  404ms
+       ✓ allows cancelled from in_delivery and writes cancelled outbox  416ms
+       ✓ rejects invalid transition confirmed → delivered with BAD_REQUEST  411ms
+       ✓ rejects invalid transition in_delivery → preparing with BAD_REQUEST 203ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 31 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/server/catalogue/findOrCreateOrderableItemByCode.test.ts > findOrCreateOrderableItemByCode > creates item when code absent with qty 1, prix grille, createdInLive true
+AssertionError: expected "vi.fn()" to be called with arguments: [ { data: { …(8) } } ]
+
+Received: 
+
+  1st vi.fn() call:
+
+@@ -8,7 +8,14 @@
+        "origin": "live",
+        "quantity": 1,
+        "reservedQty": 0,
+        "tenantId": "tenant-1",
+      },
++     "include": {
++       "variants": {
++         "select": {
++           "id": true,
++         },
++       },
++     },
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/server/catalogue/findOrCreateOrderableItemByCode.test.ts:70:24
+     68|     expect(result!.origin).toBe("live");
+     69|     expect(result!.createdInLive).toBe(true);
+     70|     expect(mockCreate).toHaveBeenCalledWith({
+       |                        ^
+     71|       data: {
+     72|         tenantId: TENANT,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/31]⎯
+
+ FAIL  src/server/catalogue/findOrderableItemByCode.test.ts > findOrderableItemByCode > returns item when code exists in catalogue
+AssertionError: expected "vi.fn()" to be called with arguments: [ { where: { …(1) } } ]
+
+Received: 
+
+  1st vi.fn() call:
+
+@@ -1,7 +1,14 @@
+  [
+    {
++     "include": {
++       "variants": {
++         "select": {
++           "id": true,
++         },
++       },
++     },
+      "where": {
+        "tenantId_code": {
+          "code": "A12",
+          "tenantId": "tenant-1",
+        },
+
+
+Number of calls: 1
+
+ ❯ src/server/catalogue/findOrderableItemByCode.test.ts:52:28
+     50|     expect(result!.createdInLive).toBe(false);
+     51| 
+     52|     expect(mockFindUnique).toHaveBeenCalledWith({
+       |                            ^
+     53|       where: { tenantId_code: { tenantId: TENANT, code: "A12" } },
+     54|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/31]⎯
+
+ FAIL  src/server/catalogue/findOrderableItemByCode.test.ts > findOrderableItemByCode > normalizes code (trim + uppercase) before lookup
+AssertionError: expected "vi.fn()" to be called with arguments: [ { where: { …(1) } } ]
+
+Received: 
+
+  1st vi.fn() call:
+
+@@ -1,7 +1,14 @@
+  [
+    {
++     "include": {
++       "variants": {
++         "select": {
++           "id": true,
++         },
++       },
++     },
+      "where": {
+        "tenantId_code": {
+          "code": "A12",
+          "tenantId": "tenant-1",
+        },
+
+
+Number of calls: 1
+
+ ❯ src/server/catalogue/findOrderableItemByCode.test.ts:84:28
+     82|     await findOrderableItemByCode(TENANT, "  a12  ");
+     83| 
+     84|     expect(mockFindUnique).toHaveBeenCalledWith({
+       |                            ^
+     85|       where: { tenantId_code: { tenantId: TENANT, code: "A12" } },
+     86|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/31]⎯
+
+ FAIL  src/server/catalogue/promoteSessionToCatalogue.test.ts > promoteSessionToCatalogue > should create catalogue item from LiveItem with remaining stock
+AssertionError: expected "vi.fn()" to be called with arguments: [ { data: { …(8) } } ]
+
+Received: 
+
+  1st vi.fn() call:
+
+@@ -4,10 +4,11 @@
+        "amount": 1000,
+        "availableQty": 3,
+        "code": "A1",
+        "createdInLive": true,
+        "mediaStorageKey": null,
++       "origin": "live",
+        "quantity": 3,
+        "reservedQty": 0,
+        "tenantId": "test-tenant-promote",
+      },
+    },
+
+
+Number of calls: 1
+
+ ❯ src/server/catalogue/promoteSessionToCatalogue.test.ts:64:37
+     62|     expect(result.itemsSkipped).toBe(0);
+     63| 
+     64|     expect(db.catalogueItem.create).toHaveBeenCalledWith({
+       |                                     ^
+     65|       data: {
+     66|         tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/31]⎯
+
+ FAIL  src/server/catalogue/promoteSessionToCatalogue.test.ts > promoteSessionToCatalogue > should handle items with media storage key
+AssertionError: expected "vi.fn()" to be called with arguments: [ { data: { …(8) } } ]
+
+Received: 
+
+  1st vi.fn() call:
+
+@@ -4,10 +4,11 @@
+        "amount": 3000,
+        "availableQty": 2,
+        "code": "F1",
+        "createdInLive": true,
+        "mediaStorageKey": "test-image-key.jpg",
++       "origin": "live",
+        "quantity": 2,
+        "reservedQty": 0,
+        "tenantId": "test-tenant-promote",
+      },
+    },
+
+
+Number of calls: 1
+
+ ❯ src/server/catalogue/promoteSessionToCatalogue.test.ts:210:37
+    208|     await promoteSessionToCatalogue(tenantId, liveSessionId);
+    209| 
+    210|     expect(db.catalogueItem.create).toHaveBeenCalledWith({
+       |                                     ^
+    211|       data: {
+    212|         tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/31]⎯
+
+ FAIL  src/server/messaging/optout.test.ts > optout > checkOptOut > should return true when OptOut exists for (tenantId, phoneNumber)
+TypeError: __vite_ssr_import_0__.db.optOut.findFirst is not a function
+ ❯ Module.checkOptOut src/server/messaging/optout.ts:29:33
+     27| ): Promise<boolean> {
+     28|   const normalized = normalizeIncomingPhone(phoneNumber);
+     29|   const found = await db.optOut.findFirst({
+       |                                 ^
+     30|     where: {
+     31|       tenantId,
+ ❯ src/server/messaging/optout.test.ts:32:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/31]⎯
+
+ FAIL  src/server/messaging/optout.test.ts > optout > checkOptOut > should return false when OptOut does not exist
+TypeError: __vite_ssr_import_0__.db.optOut.findFirst is not a function
+ ❯ Module.checkOptOut src/server/messaging/optout.ts:29:33
+     27| ): Promise<boolean> {
+     28|   const normalized = normalizeIncomingPhone(phoneNumber);
+     29|   const found = await db.optOut.findFirst({
+       |                                 ^
+     30|     where: {
+     31|       tenantId,
+ ❯ src/server/messaging/optout.test.ts:45:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/31]⎯
+
+ FAIL  src/server/messaging/optout.test.ts > optout > checkOptOut > should normalize phone with whatsapp: prefix before lookup
+TypeError: __vite_ssr_import_0__.db.optOut.findFirst is not a function
+ ❯ Module.checkOptOut src/server/messaging/optout.ts:29:33
+     27| ): Promise<boolean> {
+     28|   const normalized = normalizeIncomingPhone(phoneNumber);
+     29|   const found = await db.optOut.findFirst({
+       |                                 ^
+     30|     where: {
+     31|       tenantId,
+ ❯ src/server/messaging/optout.test.ts:58:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/31]⎯
+
+ FAIL  src/server/messaging/outbox.test.ts > writeToOutbox > should write MessageOut with status pending
+AssertionError: expected "vi.fn()" to be called with arguments: [ Array(1) ]
+
+Received: 
+
+  1st vi.fn() call:
+
+@@ -1,12 +1,15 @@
+  [
+    {
+      "data": {
+        "attempts": 0,
+-       "body": "Hello World",
++       "body": "Hello World
++
++ _undefined_",
+        "correlationId": "corr-123",
+        "interactivePayload": undefined,
++       "isTypingIndicator": false,
+        "mediaUrl": null,
+        "status": "pending",
+        "tenantId": "tenant-123",
+        "to": "+33612345678",
+      },
+
+
+Number of calls: 1
+
+ ❯ src/server/messaging/outbox.test.ts:70:34
+     68|     const result = await writeToOutbox(message);
+     69| 
+     70|     expect(db.messageOut.create).toHaveBeenCalledWith({
+       |                                  ^
+     71|       data: {
+     72|         tenantId: message.tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/31]⎯
+
+ FAIL  src/server/messaging/outbox.test.ts > writeToOutbox > Story 9.4: should persist mediaUrl when provided
+AssertionError: expected "vi.fn()" to be called with arguments: [ Array(1) ]
+
+Received: 
+
+  1st vi.fn() call:
+
+@@ -1,12 +1,15 @@
+  [
+    {
+      "data": {
+        "attempts": 0,
+-       "body": "Récap",
++       "body": "Récap
++
++ _undefined_",
+        "correlationId": "corr-media",
+        "interactivePayload": undefined,
++       "isTypingIndicator": false,
+        "mediaUrl": "tenants/t1/catalogue-items/ci1/photo",
+        "status": "pending",
+        "tenantId": "tenant-123",
+        "to": "+33612345678",
+      },
+
+
+Number of calls: 1
+
+ ❯ src/server/messaging/outbox.test.ts:135:34
+    133|     await writeToOutbox(message);
+    134| 
+    135|     expect(db.messageOut.create).toHaveBeenCalledWith({
+       |                                  ^
+    136|       data: {
+    137|         tenantId: message.tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/31]⎯
+
+ FAIL  src/server/reservation/service.test.ts > reservation/service (Story 4.1) > createReservation > creates reservation and logs reservation_started on success
+AssertionError: expected { Object (success, reservation) } to deeply equal { reservation: { id: 'res-1', …(1) } }
+
+- Expected
++ Received
+
+  {
+    "reservation": {
+      "id": "res-1",
+      "status": "reserved",
+    },
++   "success": true,
+  }
+
+ ❯ src/server/reservation/service.test.ts:118:22
+    116|       );
+    117| 
+    118|       expect(result).toEqual({
+       |                      ^
+    119|         reservation: { id: "res-1", status: "reserved" },
+    120|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/31]⎯
+
+ FAIL  src/server/reservation/service.test.ts > reservation/service (Story 4.1) > collectAddress > updates reservation with address and status address_collected, returns item for récap
+AssertionError: expected { Object (success, reservation) } to deeply equal { Object (success, reservation) }
+
+- Expected
++ Received
+
+@@ -1,13 +1,11 @@
+  {
+    "reservation": {
+-     "id": "res-1",
++     "id": undefined,
+      "item": {
+        "amount": 5000,
+-       "catalogueItemId": undefined,
+        "code": "A12",
+-       "mediaStorageKey": undefined,
+        "quantity": 1,
+        "variantLabel": null,
+      },
+    },
+    "success": true,
+
+ ❯ src/server/reservation/service.test.ts:321:22
+    319|       );
+    320| 
+    321|       expect(result).toEqual({
+       |                      ^
+    322|         success: true,
+    323|         reservation: {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/31]⎯
+
+ FAIL  src/server/workers/outbox-sender.test.ts > outbox-sender worker > processOutboundMessage > should send message via MetaCloudAdapter when tenant config valid (AC #1)
+AssertionError: expected "vi.fn()" to be called with arguments: [ { …(2) } ]
+
+Received: 
+
+  1st vi.fn() call:
+
+@@ -1,8 +1,9 @@
+  [
+    {
+      "select": {
++       "id": true,
+        "metaAccessToken": true,
+        "metaPhoneNumberId": true,
+      },
+      "where": {
+        "id": "tenant-123",
+
+
+Number of calls: 1
+
+ ❯ src/server/workers/outbox-sender.test.ts:144:36
+    142|       expect(result.providerMessageId).toBe("wamid.abc123");
+    143|       // Verify tenant lookup (AC #1)
+    144|       expect(mockTenantFindUnique).toHaveBeenCalledWith({
+       |                                    ^
+    145|         where: { id: messageOut.tenantId },
+    146|         select: { metaPhoneNumberId: true, metaAccessToken: true },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/31]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > replies explicitly when seller variant button targets an unknown catalogue item
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Number of calls: 0
+
+ ❯ src/server/workers/webhook-processor.test.ts:328:29
+    326| 
+    327|       expect(startSellerVariantConfig).not.toHaveBeenCalled();
+    328|       expect(writeToOutbox).toHaveBeenCalledWith(
+       |                             ^
+    329|         expect.objectContaining({
+    330|           tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/31]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > should not create OptOut when client sends STOP but from is invalid E.164 (catch, job succeeds)
+Error: Format de téléphone invalide: "not-valid-e164" (normalisé: "not-valid-e164"). E.164 attendu (+...)
+ ❯ normalizeIncomingPhone src/lib/validations/phone.ts:114:11
+    112|   // 3. Validation
+    113|   if (!isValidE164(migrated)) {
+    114|     throw new Error(
+       |           ^
+    115|       `Format de téléphone invalide: "${phoneNumber}" (normalisé: "${m…
+    116|     );
+ ❯ Module.processWebhookJob src/server/workers/webhook-processor.ts:136:27
+ ❯ src/server/workers/webhook-processor.test.ts:488:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/31]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > Story 8.1: when client sends non-code body, uses getCurrentSessionReadOnly (for address/recap flow)
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'tenant-123' ]
+
+Number of calls: 0
+
+ ❯ src/server/workers/webhook-processor.test.ts:582:41
+    580| 
+    581|       expect(result.messageType).toBe("client");
+    582|       expect(getCurrentSessionReadOnly).toHaveBeenCalledWith(tenantId);
+       |                                         ^
+    583|       expect(result.liveSessionId).toBe("live-session-hello");
+    584|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/31]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > Story 8.1: client sends typo A12A, catalogue item A12 not found → Code inconnu (ex: A12)
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'tenant-123', 'A12' ]
+
+Number of calls: 0
+
+ ❯ src/server/workers/webhook-processor.test.ts:916:47
+    914|       await processWebhookJob(job);
+    915| 
+    916|       expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(ten…
+       |                                               ^
+    917|       const { writeToOutbox } = await import("~/server/messaging/outbo…
+    918|       expect(writeToOutbox).toHaveBeenCalledWith(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/31]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > Story 8.1: client sends typo A12A, catalogue item A12 exists → suggestion Tu voulais dire A12 ?
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'tenant-123', 'A12' ]
+
+Number of calls: 0
+
+ ❯ src/server/workers/webhook-processor.test.ts:966:47
+    964|       await processWebhookJob(job);
+    965| 
+    966|       expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(ten…
+       |                                               ^
+    967|       expect(createReservation).not.toHaveBeenCalled();
+    968|       const { writeToOutbox } = await import("~/server/messaging/outbo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/31]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > Story 8.1: when client sends address and has reserved reservation, collects address and sends récap + OUI
+AssertionError: expected null to be 'live-session-1' // Object.is equality
+
+- Expected: 
+"live-session-1"
+
++ Received: 
+null
+
+ ❯ src/server/workers/webhook-processor.test.ts:1068:36
+    1066| 
+    1067|       expect(result.messageType).toBe("client");
+    1068|       expect(result.liveSessionId).toBe("live-session-1");
+       |                                    ^
+    1069|       expect(getActiveReservationForClient).toHaveBeenCalledWith(
+    1070|         tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/31]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > Story 8.2 AC#5: seller sends explicit ajout command without active session → catalogue upsert only, no LiveItem, sends 'Ajouté au catalogue'
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
+-     "body": "✅ *B7* ajouté au catalogue — 3 en stock",
++   {
++     "body": "*B7* ajouté au catalogue — 3 en stock",
+      "correlationId": "corr-nosession",
++     "interactive": {
++       "buttons": [
++         {
++           "id": "configure_variants:B7",
++           "title": "Variantes 🏷️",
++         },
++         {
++           "id": "no_variants",
++           "title": "Sans variantes ⏭️",
++         },
++       ],
++       "header": "✅ Article Ajouté",
++       "type": "buttons",
++     },
+      "tenantId": "tenant-123",
+      "to": "+33612345678",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/server/workers/webhook-processor.test.ts:1799:29
+    1797|       });
+    1798|       expect(createLiveItem).not.toHaveBeenCalled();
+    1799|       expect(writeToOutbox).toHaveBeenCalledWith(
+       |                             ^
+    1800|         expect.objectContaining({
+    1801|           tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/31]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > seller sends code without active session → no creation, sends off-live instruction
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
+-     "body": "Hors live, utilise *ajout A12* ou *ajout A12 x3* pour créer un article.",
++   {
++     "body": "ℹ️ Hors live, utilise *ajout A12* ou *ajout A12 x3* pour créer un article.",
+      "correlationId": "corr-nosession-implicit",
+      "tenantId": "tenant-123",
+      "to": "+33612345678",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/server/workers/webhook-processor.test.ts:1838:29
+    1836|       expect(result.liveSessionId).toBeFalsy();
+    1837|       expect(upsertCatalogueItemFromWebhook).not.toHaveBeenCalled();
+    1838|       expect(writeToOutbox).toHaveBeenCalledWith(
+       |                             ^
+    1839|         expect.objectContaining({
+    1840|           tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/31]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > Story 9.3: vendeur photo + code → upload catalogue > AC#1: vendeur photo + code existant → uploadMediaToCatalogueItem fire-and-forget + confirmation 'Photo ajoutée'
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received: 
+
+  1st vi.fn() call:
+
+@@ -1,15 +1,21 @@
+  [
+-   ObjectContaining {
+-     "body": StringContaining "✅ *A12* ajouté au catalogue",
+-     "interactive": ObjectContaining {
+-       "buttons": ArrayContaining [
+-         ObjectContaining {
++   {
++     "body": "*A12* ajouté au catalogue — 1 en stock",
++     "correlationId": "corr-photocat",
++     "interactive": {
++       "buttons": [
++         {
+            "id": "configure_variants:A12",
+-           "title": "Variantes",
++           "title": "Variantes 🏷️",
++         },
++         {
++           "id": "no_variants",
++           "title": "Sans variantes ⏭️",
+          },
+        ],
++       "header": "✅ Article + Photo 📸",
+        "type": "buttons",
+      },
+      "tenantId": "tenant-123",
+      "to": "+33612345678",
+    },
+
+
+Number of calls: 1
+
+ ❯ src/server/workers/webhook-processor.test.ts:1901:31
+    1899|           "corr-photocat",
+    1900|         );
+    1901|         expect(writeToOutbox).toHaveBeenCalledWith(
+       |                               ^
+    1902|           expect.objectContaining({
+    1903|             tenantId,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/31]⎯
+
+ FAIL  src/server/workers/webhook-processor.test.ts > webhook-processor > processWebhookJob > Story 9.3: vendeur photo + code → upload catalogue > H1 fix: vendeur photo + code mais R2 non configuré → pas d'upload ni de confirmation photo
+AssertionError: expected "vi.fn()" to be called with arguments: [ ObjectContaining{…} ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+-   ObjectContaining {
+-     "body": "✅ *A12* ajouté au catalogue — 1 en stock",
++   {
++     "body": "*A12* ajouté au catalogue — 1 en stock",
++     "correlationId": "corr-photonor2",
++     "interactive": {
++       "buttons": [
++         {
++           "id": "configure_variants:A12",
++           "title": "Variantes 🏷️",
++         },
++         {
++           "id": "no_variants",
++           "title": "Sans variantes ⏭️",
++         },
++       ],
++       "header": "✅ Article Ajouté",
++       "type": "buttons",
++     },
++     "tenantId": "tenant-123",
++     "to": "+33612345678",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/server/workers/webhook-processor.test.ts:2244:31
+    2242|         expect(logCatalogueItemPhotoLinked).not.toHaveBeenCalled();
+    2243|         // Message catalogue standard (sans mention photo)
+    2244|         expect(writeToOutbox).toHaveBeenCalledWith(
+       |                               ^
+    2245|           expect.objectContaining({
+    2246|             body: "✅ *A12* ajouté au catalogue — 1 en stock",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/31]⎯
+
+ FAIL  src/server/api/routers/live.test.ts > live router > releaseReservation > succeeds: marks reservation expired, calls releaseReservation, logs event with actorType seller
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'tenant-1', 'item-1', { …(2) } ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+    "tenant-1",
+    "item-1",
++   undefined,
+    {
+      "correlationId": "c1",
+      "table": "live_items",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/server/api/routers/live.test.ts:679:38
+    677|         data: { status: "expired" },
+    678|       });
+    679|       expect(mockReleaseReservation).toHaveBeenCalledWith("tenant-1", …
+       |                                      ^
+    680|       expect(mockLogEvent).toHaveBeenCalledWith(
+    681|         expect.objectContaining({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/31]⎯
+
+ FAIL  src/server/api/routers/live.test.ts > live router > releaseReservation > Story 8.1: releases catalogue reservation (catalogueItemId set, liveItemId null)
+AssertionError: expected "vi.fn()" to be called with arguments: [ 'tenant-1', 'cat-item-1', { …(2) } ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+    "tenant-1",
+    "cat-item-1",
++   undefined,
+    {
+      "correlationId": "c-cat",
+      "table": "catalogue_items",
+    },
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/server/api/routers/live.test.ts:777:38
+    775| 
+    776|       expect(result).toEqual({ success: true });
+    777|       expect(mockReleaseReservation).toHaveBeenCalledWith(
+       |                                      ^
+    778|         "tenant-1",
+    779|         "cat-item-1",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/31]⎯
+
+ FAIL  src/server/api/routers/orders.test.ts > orders router > exportCsv (Story 6.5) > throws FORBIDDEN for AGENT role
+AssertionError: expected TRPCError: Accès réservé aux administrate… { code: '…' } to match object { code: 'FORBIDDEN', …(1) }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
++ TRPCError {
+    "code": "FORBIDDEN",
+-   "message": StringContaining "managers ou propriétaires",
+  }
+
+ ❯ src/server/api/routers/orders.test.ts:388:7
+    386|       const caller = createCaller(ctx);
+    387| 
+    388|       await expect(caller.orders.exportCsv({})).rejects.toMatchObject({
+       |       ^
+    389|         code: "FORBIDDEN",
+    390|         message: expect.stringContaining("managers ou propriétaires"),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/31]⎯
+
+ FAIL  src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > valide le phoneId avec le token et wabaId stockés quand aucun n'est fourni
+AssertionError: expected "vi.fn()" to be called with arguments: [ StringContaining{…}, …(1) ]
+
+Number of calls: 0
+
+ ❯ src/server/api/routers/settings.test.ts:187:23
+    185|     });
+    186| 
+    187|     expect(mockFetch).toHaveBeenCalledWith(
+       |                       ^
+    188|       expect.stringContaining("graph.facebook.com/v20.0/789/phone_numb…
+    189|       expect.objectContaining({
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/31]⎯
+
+ FAIL  src/server/api/routers/settings.test.ts > settings router — setWhatsAppConfig (Meta) > rejette un faux phoneId même sans nouveau token (utilise le token stocké)
+AssertionError: promise resolved "{ ok: true }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "ok": true,
+  }
+
+ ❯ src/server/api/routers/settings.test.ts:214:5
+    212|         metaAccessToken: null,
+    213|       }),
+    214|     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+       |     ^
+    215| 
+    216|     expect(mockTenantUpdate).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/31]⎯
+
+ FAIL  src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > rejette conflit unicite metaPhoneNumberId avec CONFLICT
+TypeError: __vi_import_0__.Prisma.PrismaClientKnownRequestError is not a constructor
+ ❯ src/server/api/routers/settings.test.ts:652:25
+    650|     mockMetaExchangeSuccess();
+    651|     // Simulate a Prisma unique constraint violation on meta_phone_num…
+    652|     const prismaError = new Prisma.PrismaClientKnownRequestError("Uniq…
+       |                         ^
+    653|       code: "P2002",
+    654|       clientVersion: "mock",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/31]⎯
+
+ FAIL  src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > echoue avec INTERNAL_SERVER_ERROR si numero business non normalisable
+AssertionError: promise resolved "{ ok: true }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "ok": true,
+  }
+
+ ❯ src/server/api/routers/settings.test.ts:740:5
+    738|     await expect(
+    739|       caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-inva…
+    740|     ).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR" });
+       |     ^
+    741| 
+    742|     expect(mockTenantUpdate).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/31]⎯
+
+ FAIL  src/server/api/routers/settings.test.ts > settings router — connectWhatsAppEmbedded > rejette reutilisation du meme code OAuth pour le meme tenant
+TRPCError: Impossible de finaliser la connexion WhatsApp via Meta.
+ ❯ src/server/api/routers/settings.ts:336:15
+    334|         }
+    335| 
+    336|         throw new TRPCError({
+       |               ^
+    337|           code: "INTERNAL_SERVER_ERROR",
+    338|           message: "Impossible de finaliser la connexion WhatsApp via …
+ ❯ resolveMiddleware node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:221:17
+ ❯ callRecursive node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18
+ ❯ callRecursive node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18
+ ❯ callRecursive node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18
+ ❯ callRecursive node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18
+ ❯ callRecursive node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18
+ ❯ callRecursive node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18
+ ❯ src/server/api/trpc.ts:99:18
+ ❯ callRecursive node_modules/@trpc/server/dist/initTRPC-T5bbc89W.mjs:256:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/31]⎯
+
+
+ Test Files  11 failed | 42 passed | 5 skipped (58)
+      Tests  31 failed | 592 passed | 15 skipped (638)
+   Start at  08:30:22
+   Duration  11.47s (transform 3.19s, setup 590ms, import 7.38s, tests 64.60s, environment 6ms)
+
