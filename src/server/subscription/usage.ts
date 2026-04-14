@@ -67,6 +67,28 @@ async function countConfirmedOrdersThisCycle(
 }
 
 /**
+ * Count credits used this cycle.
+ * Credits are consumed when a new ConversationWindow is created (new session).
+ * Uses ConversationWindow count as proxy for credits used.
+ */
+async function countCreditsUsedThisCycle(
+  tenantId: string,
+  cycleStart: Date,
+  totalMonthly: number,
+  currentBalance: number,
+): Promise<number> {
+  const windowsCreated = await db.conversationWindow.count({
+    where: {
+      tenantId,
+      createdAt: { gte: cycleStart },
+    },
+  });
+
+  const used = totalMonthly - currentBalance;
+  return Math.max(used, windowsCreated);
+}
+
+/**
  * Count proofs submitted this cycle.
  */
 async function countProofsThisCycle(
@@ -94,10 +116,10 @@ async function countActiveAgents(tenantId: string): Promise<number> {
 }
 
 export interface UsageThisCycle {
+  balance: number;
+  totalMonthly: number;
+  used: number;
   confirmedOrders: number;
-  maxConfirmedOrders: number;
-  proofs: number;
-  maxProofs: number;
   agents: number;
   maxAgents: number;
   overageCount: number;
@@ -115,7 +137,8 @@ export async function getUsageThisCycle(tenantId: string): Promise<UsageThisCycl
     select: {
       subscriptionPlan: true,
       cycleStartedAt: true,
-      maxConfirmedOrdersPerMonth: true,
+      creditsBalance: true,
+      creditsTotalMonthly: true,
       maxProofsPerMonth: true,
       maxAgents: true,
       overagePerOrderCents: true,
@@ -124,23 +147,23 @@ export async function getUsageThisCycle(tenantId: string): Promise<UsageThisCycl
 
   const cycleStart = getCycleStart(tenant);
 
-  const [confirmedOrders, proofs, agents] = await Promise.all([
+  const [used, confirmedOrders, agents] = await Promise.all([
+    countCreditsUsedThisCycle(tenantId, cycleStart, tenant.creditsTotalMonthly, tenant.creditsBalance),
     countConfirmedOrdersThisCycle(tenantId, cycleStart),
-    countProofsThisCycle(tenantId, cycleStart),
     countActiveAgents(tenantId),
   ]);
 
-  const overageCount = Math.max(0, confirmedOrders - tenant.maxConfirmedOrdersPerMonth);
+  const overageCount = Math.max(0, used - tenant.creditsTotalMonthly);
   const overageAmountFCFA =
     tenant.overagePerOrderCents > 0
       ? Math.round((overageCount * tenant.overagePerOrderCents) / 100)
       : 0;
 
   return {
+    balance: tenant.creditsBalance,
+    totalMonthly: tenant.creditsTotalMonthly,
+    used,
     confirmedOrders,
-    maxConfirmedOrders: tenant.maxConfirmedOrdersPerMonth,
-    proofs,
-    maxProofs: tenant.maxProofsPerMonth,
     agents,
     maxAgents: tenant.maxAgents,
     overageCount,

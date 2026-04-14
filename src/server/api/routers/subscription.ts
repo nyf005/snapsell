@@ -58,6 +58,8 @@ export const subscriptionRouter = createTRPCRouter({
         hasPrioritySupport: true,
         showBranding: true,
         showUpgradeBanner: true,
+        creditsBalance: true,
+        creditsTotalMonthly: true,
       },
     });
 
@@ -85,6 +87,10 @@ export const subscriptionRouter = createTRPCRouter({
         showBranding: tenant.showBranding,
         showUpgradeBanner: tenant.showUpgradeBanner,
       },
+      credits: {
+        balance: tenant.creditsBalance,
+        totalMonthly: tenant.creditsTotalMonthly,
+      },
     };
   }),
 
@@ -98,16 +104,71 @@ export const subscriptionRouter = createTRPCRouter({
     const usage = await getUsageThisCycle(tenantId);
 
     return {
+      balance: usage.balance,
+      totalMonthly: usage.totalMonthly,
+      used: usage.used,
       confirmedOrders: usage.confirmedOrders,
-      maxConfirmedOrders: usage.maxConfirmedOrders,
-      proofs: usage.proofs,
-      maxProofs: usage.maxProofs,
       agents: usage.agents,
       maxAgents: usage.maxAgents,
       overageCount: usage.overageCount,
       overageAmountFCFA: usage.overageAmountFCFA,
       cycleStart: usage.cycleStart,
       plan: usage.plan,
+    };
+  }),
+
+  /**
+   * Get credits usage stats for the tenant.
+   */
+  getCreditsUsage: protectedProcedure.query(async ({ ctx }) => {
+    assertCanManageSubscription(ctx.session.user.role as string);
+    const tenantId = ctx.session.user.tenantId;
+
+    const tenant = await db.tenant.findUniqueOrThrow({
+      where: { id: tenantId },
+      select: {
+        creditsBalance: true,
+        creditsTotalMonthly: true,
+        usageResetDate: true,
+        subscriptionPlan: true,
+        cycleStartedAt: true,
+      },
+    });
+
+    // Compter les sessions actives (ConversationWindow)
+    const activeWindows = await db.conversationWindow.count({
+      where: {
+        tenantId,
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    // Compter les sessions ce mois-ci
+    const cycleStart = tenant.cycleStartedAt ?? new Date();
+    const sessionsThisMonth = await db.conversationWindow.count({
+      where: {
+        tenantId,
+        createdAt: { gte: cycleStart },
+      },
+    });
+
+    const creditsUsed = tenant.creditsTotalMonthly - tenant.creditsBalance;
+    const usagePercent = tenant.creditsTotalMonthly > 0 
+      ? Math.round((creditsUsed / tenant.creditsTotalMonthly) * 100) 
+      : 0;
+    
+    const isLowCredits = usagePercent >= 80;
+
+    return {
+      balance: tenant.creditsBalance,
+      totalMonthly: tenant.creditsTotalMonthly,
+      used: creditsUsed,
+      usagePercent,
+      activeWindows,
+      sessionsThisMonth,
+      resetDate: tenant.usageResetDate,
+      isLowCredits,
+      plan: tenant.subscriptionPlan,
     };
   }),
 

@@ -23,6 +23,7 @@ import {
 import { SnapSellLogo } from "~/components/auth/snapsel-logo";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { SignOutButton } from "./sign-out-button";
+import { CreditsAlert } from "./credits-alert";
 import {
   Sidebar,
   SidebarContent,
@@ -42,6 +43,7 @@ type MenuItem = {
   label: string;
   icon: typeof LayoutDashboard;
   requiresGridRole?: boolean;
+  prefetch?: boolean;
 };
 
 type MenuGroup = {
@@ -49,7 +51,8 @@ type MenuGroup = {
   section: "Opérations" | "Ventes" | "Pilotage" | "Configuration";
   items: MenuItem[];
   requiresGridRole?: boolean;
-  mainItem?: MenuItem; // Item principal du groupe (si différent du premier item)
+  mainItem?: MenuItem;
+  prefetch?: boolean;
 };
 
 type VisibleMenuGroup = Omit<MenuGroup, "items"> & {
@@ -60,91 +63,103 @@ const menuGroups: MenuGroup[] = [
   {
     label: "Principal",
     section: "Opérations",
+    prefetch: true,
     items: [
-      { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+      { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard, prefetch: true },
     ],
   },
   {
     label: "Catalogue",
     section: "Opérations",
+    prefetch: true,
     items: [
-      { href: "/dashboard/catalogue", label: "Catalogue", icon: PackageOpen },
+      { href: "/dashboard/catalogue", label: "Catalogue", icon: PackageOpen, prefetch: true },
     ],
   },
   {
     label: "Sessions Live",
     section: "Opérations",
+    prefetch: true,
     items: [
-      { href: "/dashboard/live", label: "Sessions Live", icon: Radio },
+      { href: "/dashboard/live", label: "Sessions Live", icon: Radio, prefetch: true },
     ],
   },
   {
     label: "Liste des commandes",
     section: "Ventes",
+    prefetch: true,
     items: [
-      { href: "/dashboard/orders", label: "Liste des commandes", icon: ShoppingCart },
+      { href: "/dashboard/orders", label: "Liste des commandes", icon: ShoppingCart, prefetch: true },
     ],
   },
   {
     label: "Preuves",
     section: "Ventes",
+    prefetch: true,
     items: [
-      { href: "/dashboard/proofs", label: "Preuves", icon: CheckCircle2 },
+      { href: "/dashboard/proofs", label: "Preuves", icon: CheckCircle2, prefetch: true },
     ],
   },
   {
     label: "Journal d'événements",
     section: "Pilotage",
+    prefetch: false,
     items: [
-      { href: "/dashboard/audit", label: "Journal d'événements", icon: ScrollText },
+      { href: "/dashboard/audit", label: "Journal d'événements", icon: ScrollText, prefetch: false },
     ],
   },
   {
     label: "Grille de prix",
     section: "Configuration",
     requiresGridRole: true,
+    prefetch: false,
     items: [
-      { href: "/parametres", label: "Grille de prix", icon: Grid3X3, requiresGridRole: true },
+      { href: "/parametres", label: "Grille de prix", icon: Grid3X3, requiresGridRole: true, prefetch: false },
     ],
   },
   {
     label: "Frais de livraison",
     section: "Configuration",
     requiresGridRole: true,
+    prefetch: false,
     items: [
-      { href: "/parametres/livraison", label: "Frais de livraison", icon: Package, requiresGridRole: true },
+      { href: "/parametres/livraison", label: "Frais de livraison", icon: Package, requiresGridRole: true, prefetch: false },
     ],
   },
   {
     label: "Connexion WhatsApp",
     section: "Configuration",
     requiresGridRole: true,
+    prefetch: false,
     items: [
-      { href: "/parametres/whatsapp", label: "Connexion WhatsApp", icon: MessageCircle, requiresGridRole: true },
+      { href: "/parametres/whatsapp", label: "Connexion WhatsApp", icon: MessageCircle, requiresGridRole: true, prefetch: false },
     ],
   },
   {
     label: "Équipe",
     section: "Configuration",
     requiresGridRole: true,
+    prefetch: false,
     items: [
-      { href: "/parametres/team", label: "Équipe", icon: Users, requiresGridRole: true },
+      { href: "/parametres/team", label: "Équipe", icon: Users, requiresGridRole: true, prefetch: false },
     ],
   },
   {
     label: "Réponses FAQ",
     section: "Configuration",
     requiresGridRole: true,
+    prefetch: false,
     items: [
-      { href: "/parametres/faq", label: "Réponses FAQ", icon: HelpCircle, requiresGridRole: true },
+      { href: "/parametres/faq", label: "Réponses FAQ", icon: HelpCircle, requiresGridRole: true, prefetch: false },
     ],
   },
   {
     label: "Abonnement",
     section: "Configuration",
     requiresGridRole: true,
+    prefetch: false,
     items: [
-      { href: "/parametres/abonnement", label: "Abonnement", icon: CreditCard, requiresGridRole: true },
+      { href: "/parametres/abonnement", label: "Abonnement", icon: CreditCard, requiresGridRole: true, prefetch: false },
     ],
   },
 ];
@@ -214,7 +229,7 @@ export function AppSidebar({
                   tooltip={item.label}
                   className="h-10 rounded-md"
                 >
-                  <Link href={item.href}>
+                  <Link href={item.href} prefetch={item.prefetch ?? true}>
                     <Icon className="size-4" />
                     <span>{item.label}</span>
                   </Link>
@@ -249,7 +264,7 @@ export function AppSidebar({
                     tooltip={mainItem.label}
                     className="h-10 flex-1 rounded-md"
                   >
-                    <Link href={mainItem.href}>
+                    <Link href={mainItem.href} prefetch={mainItem.prefetch ?? true}>
                       <MainIcon className="size-4" />
                       <span>{mainItem.label}</span>
                     </Link>
@@ -264,6 +279,7 @@ export function AppSidebar({
                         <Link
                           key={item.href}
                           href={item.href}
+                          prefetch={item.prefetch ?? true}
                           className={cn(
                             "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
                             "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
@@ -292,7 +308,7 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild className="h-auto rounded-md p-3">
-              <Link href="/dashboard" className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
+              <Link href="/dashboard" prefetch className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
                 <SnapSellLogo className="!size-8 shrink-0" />
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-bold">
@@ -355,6 +371,7 @@ export function AppSidebar({
                   {tenantName}
                 </p>
               </div>
+              <CreditsAlert />
               <SignOutButton className="shrink-0 text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
             </div>
           </SidebarMenuItem>

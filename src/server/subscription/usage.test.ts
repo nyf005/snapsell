@@ -8,6 +8,7 @@ vi.mock("~/server/db", () => ({
     order: { count: vi.fn() },
     paymentProof: { count: vi.fn() },
     user: { count: vi.fn() },
+    conversationWindow: { count: vi.fn() },
     subscriptionPayment: { create: vi.fn() },
   },
 }));
@@ -39,6 +40,7 @@ describe("Story 7A.2: Usage service", () => {
     vi.mocked(db.order.count).mockResolvedValue(0);
     vi.mocked(db.paymentProof.count).mockResolvedValue(0);
     vi.mocked(db.user.count).mockResolvedValue(0);
+    vi.mocked(db.conversationWindow.count).mockResolvedValue(0);
   });
 
   describe("getUsageThisCycle", () => {
@@ -46,21 +48,22 @@ describe("Story 7A.2: Usage service", () => {
       vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
         subscriptionPlan: "free",
         cycleStartedAt: null,
-        maxConfirmedOrdersPerMonth: 50,
-        maxProofsPerMonth: 20,
+        creditsBalance: 50,
+        creditsTotalMonthly: 70,
+        maxProofsPerMonth: -1,
         maxAgents: 0,
         overagePerOrderCents: 0,
       } as never);
       vi.mocked(db.order.count).mockResolvedValue(10);
-      vi.mocked(db.paymentProof.count).mockResolvedValue(5);
+      vi.mocked(db.conversationWindow.count).mockResolvedValue(20);
       vi.mocked(db.user.count).mockResolvedValue(0);
 
       const usage = await getUsageThisCycle("tenant-1");
 
+      expect(usage.balance).toBe(50);
+      expect(usage.totalMonthly).toBe(70);
+      expect(usage.used).toBe(20);
       expect(usage.confirmedOrders).toBe(10);
-      expect(usage.maxConfirmedOrders).toBe(50);
-      expect(usage.proofs).toBe(5);
-      expect(usage.maxProofs).toBe(20);
       expect(usage.agents).toBe(0);
       expect(usage.overageCount).toBe(0);
       expect(usage.overageAmountFCFA).toBe(0);
@@ -71,25 +74,46 @@ describe("Story 7A.2: Usage service", () => {
       vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
         subscriptionPlan: "starter",
         cycleStartedAt: new Date("2026-02-01"),
-        maxConfirmedOrdersPerMonth: 300,
+        creditsBalance: 450,
+        creditsTotalMonthly: 500,
         maxProofsPerMonth: -1,
         maxAgents: 1,
-        overagePerOrderCents: 7500,
+        overagePerOrderCents: 2500,
       } as never);
-      vi.mocked(db.order.count).mockResolvedValue(320);
+      vi.mocked(db.conversationWindow.count).mockResolvedValue(50);
 
       const usage = await getUsageThisCycle("tenant-1");
 
-      expect(usage.confirmedOrders).toBe(320);
-      expect(usage.overageCount).toBe(20);
-      expect(usage.overageAmountFCFA).toBe(1500); // 20 * 75 FCFA
+      expect(usage.used).toBe(50);
+      expect(usage.overageCount).toBe(0);
+      expect(usage.overageAmountFCFA).toBe(0);
     });
   });
 
-  describe("checkProofsQuota", () => {
-    it("allows when under quota", async () => {
+    it("calculates overage for Starter plan", async () => {
       vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
-        maxProofsPerMonth: 20,
+        subscriptionPlan: "starter",
+        cycleStartedAt: new Date("2026-02-01"),
+        creditsBalance: 450,
+        creditsTotalMonthly: 500,
+        maxProofsPerMonth: -1,
+        maxAgents: 1,
+        overagePerOrderCents: 2500,
+      } as never);
+      vi.mocked(db.conversationWindow.count).mockResolvedValue(50);
+
+      const usage = await getUsageThisCycle("tenant-1");
+
+      expect(usage.used).toBe(50);
+      expect(usage.overageCount).toBe(0);
+      expect(usage.overageAmountFCFA).toBe(0);
+    });
+  });
+
+describe("checkProofsQuota", () => {
+    it("allows unlimited for Free plan (-1)", async () => {
+      vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
+        maxProofsPerMonth: -1,
         cycleStartedAt: null,
         subscriptionPlan: "free",
       } as never);
@@ -99,8 +123,38 @@ describe("Story 7A.2: Usage service", () => {
 
       expect(result.allowed).toBe(true);
       expect(result.currentUsage).toBe(10);
-      expect(result.quota).toBe(20);
+      expect(result.quota).toBe(-1);
     });
+
+    it("allows unlimited for Starter plan (-1)", async () => {
+      vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
+        maxProofsPerMonth: -1,
+        cycleStartedAt: new Date("2026-02-01"),
+        subscriptionPlan: "starter",
+      } as never);
+      vi.mocked(db.paymentProof.count).mockResolvedValue(100);
+
+      const result = await checkProofsQuota("tenant-1");
+
+      expect(result.allowed).toBe(true);
+      expect(result.quota).toBe(-1);
+    });
+
+    it("blocks when at or over quota", async () => {
+      vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
+        maxProofsPerMonth: 10,
+        cycleStartedAt: null,
+        subscriptionPlan: "free",
+      } as never);
+      vi.mocked(db.paymentProof.count).mockResolvedValue(10);
+
+      const result = await checkProofsQuota("tenant-1");
+
+      expect(result.allowed).toBe(false);
+      expect(result.currentUsage).toBe(10);
+      expect(result.quota).toBe(10);
+    });
+  });
 
     it("allows when quota is unlimited (-1)", async () => {
       vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
@@ -118,11 +172,11 @@ describe("Story 7A.2: Usage service", () => {
 
     it("blocks when at or over quota", async () => {
       vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
-        maxProofsPerMonth: 20,
+        maxProofsPerMonth: 10,
         cycleStartedAt: null,
         subscriptionPlan: "free",
       } as never);
-      vi.mocked(db.paymentProof.count).mockResolvedValue(20);
+      vi.mocked(db.paymentProof.count).mockResolvedValue(10);
 
       const result = await checkProofsQuota("tenant-1");
 
@@ -334,11 +388,13 @@ describe("Story 7A.2: Usage service", () => {
         paystackAuthorizationCode: "AUTH_xxx",
         subscriptionPlan: "starter",
         cycleStartedAt: new Date("2026-02-01"),
-        maxConfirmedOrdersPerMonth: 300,
-        overagePerOrderCents: 7500,
+        creditsBalance: 450,
+        creditsTotalMonthly: 500,
+        maxConfirmedOrdersPerMonth: 999_999,
+        overagePerOrderCents: 2500,
         users: [{ email: "owner@test.com" }],
       } as never);
-      vi.mocked(db.order.count).mockResolvedValue(200);
+      vi.mocked(db.conversationWindow.count).mockResolvedValue(200);
 
       const success = await chargeOverage("tenant-1");
 
@@ -377,5 +433,5 @@ describe("Story 7A.2: Usage service", () => {
       expect(error.tenantId).toBe("t1");
       expect(error.message).toContain("50/50");
     });
-  });
 });
+

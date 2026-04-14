@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   Bell,
@@ -49,6 +49,8 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { Spinner } from "~/components/ui/spinner";
+import { DataPagination } from "~/components/ui/data-pagination";
+import { PricingGridSkeleton } from "./pricing-grid-skeletons";
 import {
   Table,
   TableBody,
@@ -59,6 +61,9 @@ import {
 } from "~/components/ui/table";
 import { api } from "~/trpc/react";
 import { cn } from "~/lib/utils";
+import type { RouterOutputs } from "~/trpc/react";
+
+type PriceRowOutput = RouterOutputs["settings"]["getCategoryPrices"]["items"][number];
 
 const CATEGORY_DOT_COLORS = [
   "bg-emerald-500",
@@ -97,25 +102,54 @@ const emptyAddForm = {
 function rowToItem(r: {
   categoryLetter: string;
   amount: number;
-  description?: string;
+  description?: string | null;
 }) {
   return {
     categoryLetter: r.categoryLetter.trim(),
     amount: r.amount,
-    description: r.description,
+    description: r.description ?? undefined,
   };
 }
 
 export function PricingGridContent() {
-  const [page, setPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [accumulatedRows, setAccumulatedRows] = useState<PriceRowOutput[]>([]);
   const [openAddModal, setOpenAddModal] = useState(false);
   const [addForm, setAddForm] = useState(emptyAddForm);
   const [rowToDelete, setRowToDelete] = useState<string | null>(null);
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState(emptyAddForm);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [addFormError, setAddFormError] = useState<string | null>(null);
 
-  const { data: serverRows = [], isLoading } = api.settings.getCategoryPrices.useQuery();
+  const queryInput = useMemo(() => ({ limit: PAGE_SIZE, cursor }), [cursor]);
+
+  const { data: data, isLoading } = api.settings.getCategoryPrices.useQuery(queryInput);
+
+  useEffect(() => {
+    if (!data?.items) return;
+    const items = data.items as PriceRowOutput[];
+    if (!cursor) {
+      setAccumulatedRows(items);
+    } else {
+      setAccumulatedRows((prev) => [...prev, ...items]);
+    }
+  }, [data?.items, cursor]);
+
+  const serverRows = accumulatedRows;
+  const nextCursor = data?.nextCursor;
+  const hasMore = Boolean(nextCursor);
+
+  const loadMore = () => {
+    if (nextCursor) setCursor(nextCursor);
+  };
+
+  const resetPagination = () => {
+    setCursor(undefined);
+    setAccumulatedRows([]);
+  };
+
   const utils = api.useUtils();
   const setCategoryPrices = api.settings.setCategoryPrices.useMutation({
     onSuccess: () => {
@@ -142,6 +176,16 @@ export function PricingGridContent() {
   const addRowFromModal = useCallback(() => {
     const code = addForm.categoryLetter.trim();
     if (!code) return;
+
+    const duplicate = serverRows.some(
+      (r) => r.categoryLetter.trim().toLowerCase() === code.toLowerCase(),
+    );
+    if (duplicate) {
+      setAddFormError(`La catégorie « ${code} » existe déjà.`);
+      return;
+    }
+    setAddFormError(null);
+
     const currentItems = serverRows
       .filter((r) => r.categoryLetter.trim() !== "")
       .map(rowToItem);
@@ -156,6 +200,7 @@ export function PricingGridContent() {
         onSuccess: () => {
           setOpenAddModal(false);
           setAddForm(emptyAddForm);
+          setAddFormError(null);
         },
       }
     );
@@ -225,11 +270,20 @@ export function PricingGridContent() {
         )
       : null;
 
-  const paginated = useMemo(() => {
-    const start = page * PAGE_SIZE;
-    return displayRows.slice(start, start + PAGE_SIZE);
-  }, [displayRows, page]);
   const totalPages = Math.ceil(displayRows.length / PAGE_SIZE) || 1;
+  const currentPageClamped = Math.min(Math.max(currentPage, 1), totalPages);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginated = useMemo(() => {
+    const start = (currentPageClamped - 1) * PAGE_SIZE;
+    return displayRows.slice(start, start + PAGE_SIZE);
+  }, [displayRows, currentPageClamped]);
+
   const isPending = setCategoryPrices.isPending;
 
   return (
@@ -278,7 +332,10 @@ export function PricingGridContent() {
           open={openAddModal}
           onOpenChange={(open) => {
             setOpenAddModal(open);
-            if (!open) setAddForm(emptyAddForm);
+            if (!open) {
+              setAddForm(emptyAddForm);
+              setAddFormError(null);
+            }
           }}
         >
           <DialogContent className="sm:max-w-md">
@@ -296,10 +353,15 @@ export function PricingGridContent() {
                   placeholder="ex. A, Premium, AB"
                   value={addForm.categoryLetter}
                   maxLength={50}
-                  onChange={(e) =>
-                    setAddForm((f) => ({ ...f, categoryLetter: e.target.value }))
-                  }
+                  className={addFormError ? "border-destructive focus-visible:ring-destructive" : ""}
+                  onChange={(e) => {
+                    setAddFormError(null);
+                    setAddForm((f) => ({ ...f, categoryLetter: e.target.value }));
+                  }}
                 />
+                {addFormError && (
+                  <p className="text-xs text-destructive">{addFormError}</p>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="add-price">Prix (FCFA)</Label>
@@ -493,9 +555,8 @@ export function PricingGridContent() {
         {/* Table */}
         <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
-              <Spinner className="size-8" />
-              <span className="text-sm">Chargement…</span>
+            <div className="p-6">
+              <PricingGridSkeleton />
             </div>
           ) : (
             <>
@@ -601,33 +662,14 @@ export function PricingGridContent() {
               </TableBody>
             </Table>
             </div>
-            <div className="flex shrink-0 items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
-              <p className="text-xs text-muted-foreground">
-                {displayRows.length > PAGE_SIZE
-                  ? `${(page * PAGE_SIZE) + 1}-${Math.min((page + 1) * PAGE_SIZE, displayRows.length)} sur ${displayRows.length} catégories`
-                  : `${displayRows.length} sur ${displayRows.length} catégorie${displayRows.length > 1 ? "s" : ""}`}
-              </p>
-              <span className="flex gap-2" aria-label="Pagination">
-                <Button
-                  variant="outline"
-                  size="xs"
-                  disabled={page === 0}
-                  onClick={() => page > 0 && setPage((p) => p - 1)}
-                  title="Page précédente"
-                >
-                  Précédent
-                </Button>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  disabled={page >= totalPages - 1}
-                  onClick={() => page < totalPages - 1 && setPage((p) => p + 1)}
-                  title="Page suivante"
-                >
-                  Suivant
-                </Button>
-              </span>
-            </div>
+            <DataPagination
+              totalItems={displayRows.length}
+              pageSize={PAGE_SIZE}
+              itemLabel={`catégorie${displayRows.length > 1 ? "s" : ""}`}
+              onNext={loadMore}
+              hasNext={hasMore}
+              isLoading={isLoading}
+            />
             </>
           )}
         </Card>

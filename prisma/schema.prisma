@@ -39,6 +39,16 @@ model Tenant {
   cycleStartedAt             DateTime? @map("cycle_started_at")
     // Début du cycle courant (pour compter l'usage). null = Free
 
+  // Credits système (Story Credits)
+  creditsBalance       Int       @default(70) @map("credits_balance")
+    // Credits disponibles. Default 70 pour Free (plan gratuit).
+  creditsTotalMonthly  Int       @default(70) @map("credits_total_monthly")
+    // Credits inclus par mois selon le plan.
+  usageResetDate       DateTime? @map("usage_reset_date")
+    // Date de reset mensuel des credits.
+  lowCreditsAlerted    Boolean   @default(false) @map("low_credits_alerted")
+    // Flag pour éviter les alertes multiples.
+
   // Paystack references
   paystackCustomerCode       String?   @unique @map("paystack_customer_code")
   paystackSubscriptionCode   String?   @unique @map("paystack_subscription_code")
@@ -67,14 +77,14 @@ model Tenant {
   faqLocation     String?   @map("faq_location") @db.Text
   faqAvailability String?   @map("faq_availability") @db.Text
 
-  // Meta Commerce / Catalogue sync (Phase WB)
-  metaCatalogId      String?  @map("meta_catalog_id")
-  hasMetaCatalogSync Boolean  @default(false) @map("has_meta_catalog_sync")
+  // WhatsApp Business — catalogue Meta Commerce Manager
+  metaCatalogId         String?  @map("meta_catalog_id")
+  hasMetaCatalogSync    Boolean  @default(false) @map("has_meta_catalog_sync") // Entitlement Starter/Pro
 
-  // Away message / Business hours (Phase WB)
-  businessHoursStart String?  @map("business_hours_start")
-  businessHoursEnd   String?  @map("business_hours_end")
-  businessTimezone   String?  @map("business_timezone")
+  // Away message — réponse automatique hors horaires d'ouverture
+  businessHoursStart String?  @map("business_hours_start") // ex: "08:00"
+  businessHoursEnd   String?  @map("business_hours_end")   // ex: "20:00"
+  businessTimezone   String?  @map("business_timezone")    // ex: "Africa/Abidjan"
   awayMessage        String?  @map("away_message") @db.Text
 
   users                 User[]
@@ -92,6 +102,7 @@ model Tenant {
   liveSessions          LiveSession[]
   liveItems             LiveItem[]
   catalogueItems        CatalogueItem[]
+  conversationWindows   ConversationWindow[]
   reservations          Reservation[]
   waitlists             Waitlist[]
   orders                Order[]
@@ -364,19 +375,20 @@ model CatalogueItem {
   id              String   @id @default(cuid())
   tenantId        String   @map("tenant_id")
   tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  code            String // normalisé trim + uppercase
+  code            String   // normalisé trim + uppercase
+  name            String?  // Nom lisible (requis pour synchro Meta)
   amount          Int?     @map("amount_cents")
   quantity        Int      @default(1)
   availableQty    Int      @default(1) @map("available_qty")
   reservedQty     Int      @default(0) @map("reserved_qty")
   mediaStorageKey String?  @map("media_storage_key")
-  name            String?  // Nom affiché (sync Meta Commerce)
-  metaProductId   String?  @map("meta_product_id")
-  syncedToMeta    Boolean  @default(false) @map("synced_to_meta")
-  metaSyncedAt    DateTime? @map("meta_synced_at")
   attributes      Json?    // Noms des dimensions (ex: ["Taille", "Couleur"])
   origin          CatalogueItemOrigin @default(dashboard)
   createdInLive   Boolean  @default(false) @map("created_in_live")
+  // Synchro WhatsApp Business catalogue Meta
+  metaProductId   String?  @map("meta_product_id")   // ID retourné par Meta après synchro
+  syncedToMeta    Boolean  @default(false) @map("synced_to_meta")
+  metaSyncedAt    DateTime? @map("meta_synced_at")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
@@ -450,6 +462,11 @@ model Reservation {
   variant         ItemVariant?      @relation(fields: [variantId], references: [id], onDelete: SetNull)
   status          ReservationStatus @default(reserved)
   address         String?           @db.Text
+  addressCity     String?           @map("address_city")
+  addressCommune  String?           @map("address_commune")
+  addressZone     String?           @map("address_zone")
+  addressDetails  String?           @map("address_details") // Indications supplémentaires
+  addressRaw      String?           @map("address_raw") // Texte original pour compatibilité
   expiresAt       DateTime?         @map("expires_at")
   reminderSentAt  DateTime?         @map("reminder_sent_at") // Story 4.4: rappel T-2 min envoyé une seule fois
   correlationId   String            @map("correlation_id")
@@ -479,6 +496,20 @@ model ConversationState {
   @@unique([tenantId, phone])
   @@index([tenantId])
   @@map("conversation_states")
+}
+
+// Session de conversation 24h (Story Credits) — 1 credit = 1 fenêtre client
+model ConversationWindow {
+  id            String   @id @default(cuid())
+  tenantId      String   @map("tenant_id")
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerPhone String   @map("customer_phone")
+  expiresAt     DateTime @map("expires_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, customerPhone])
+  @@index([tenantId, expiresAt])
+  @@map("conversation_windows")
 }
 
 // Commande créée à la confirmation (OUI) — Story 4.5

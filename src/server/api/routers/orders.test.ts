@@ -102,8 +102,8 @@ describe("orders router", () => {
 
       const result = await caller.orders.list();
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toMatchObject({
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0]).toMatchObject({
         id: "order-1",
         orderNumber: "SS-0001",
         status: "confirmed",
@@ -146,8 +146,8 @@ describe("orders router", () => {
 
       const result = await caller.orders.list({ status: "delivered" });
 
-      expect(result).toHaveLength(1);
-      expect(result[0]!.status).toBe("delivered");
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0]!.status).toBe("delivered");
       expect(mockOrderFindMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { tenantId: "tenant-1", status: "delivered" },
@@ -251,8 +251,8 @@ describe("orders router", () => {
 
       const result = await caller.orders.list({ status: "preparing" });
 
-      expect(result).toHaveLength(1);
-      expect(result[0]!.status).toBe("preparing");
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0]!.status).toBe("preparing");
       expect(mockOrderFindMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { tenantId: "tenant-1", status: "preparing" },

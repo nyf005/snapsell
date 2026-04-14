@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   Bell,
@@ -13,10 +13,7 @@ import {
 } from "lucide-react";
 
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
-import {
-  Alert,
-  AlertDescription,
-} from "~/components/ui/alert";
+import { Alert, AlertDescription } from "~/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,15 +24,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-import { Button } from "~/components/ui/button";
-import { Card, CardDescription } from "~/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/ui/dialog";
 import {
   Empty,
   EmptyDescription,
@@ -43,9 +31,22 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
+import { Button } from "~/components/ui/button";
+import { Card, CardDescription } from "~/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Spinner } from "~/components/ui/spinner";
 import { Label } from "~/components/ui/label";
+import { DataPagination } from "~/components/ui/data-pagination";
+import { DeliveryFeesSkeleton } from "./delivery-fees-skeletons";
 import {
   Table,
   TableBody,
@@ -56,6 +57,10 @@ import {
 } from "~/components/ui/table";
 import { api } from "~/trpc/react";
 import { cn } from "~/lib/utils";
+import type { RouterOutputs } from "~/trpc/react";
+
+type ZoneOutput = RouterOutputs["delivery"]["getDeliveryZones"]["items"][number];
+type CommuneOutput = RouterOutputs["delivery"]["getDeliveryFeeCommunes"]["items"][number];
 
 type ZoneRow = {
   id: string;
@@ -72,12 +77,18 @@ type CommuneRow = {
   updatedAt: Date;
 };
 
+const PAGE_SIZE = 10;
+
 const emptyZoneForm = { name: "", amount: 0, communeNamesText: "" };
 const emptyCommuneForm = { communeName: "", amount: 0 };
 
 export function DeliveryFeesContent() {
   const [zoneError, setZoneError] = useState<string | null>(null);
   const [communeError, setCommuneError] = useState<string | null>(null);
+  const [zoneCursor, setZoneCursor] = useState<string | undefined>(undefined);
+  const [communeCursor, setCommuneCursor] = useState<string | undefined>(undefined);
+  const [accumulatedZones, setAccumulatedZones] = useState<ZoneOutput[]>([]);
+  const [accumulatedCommunes, setAccumulatedCommunes] = useState<CommuneOutput[]>([]);
   const [openZoneModal, setOpenZoneModal] = useState(false);
   const [editingZoneId, setEditingZoneId] = useState<string | null>(null);
   const [zoneForm, setZoneForm] = useState(emptyZoneForm);
@@ -88,9 +99,57 @@ export function DeliveryFeesContent() {
   const [communeToDelete, setCommuneToDelete] = useState<string | null>(null);
 
   const utils = api.useUtils();
-  const { data: zones = [], isLoading: zonesLoading } = api.delivery.getDeliveryZones.useQuery();
-  const { data: communes = [], isLoading: communesLoading } =
-    api.delivery.getDeliveryFeeCommunes.useQuery();
+
+  const zonesQuery = useMemo(() => ({ limit: PAGE_SIZE, cursor: zoneCursor }), [zoneCursor]);
+  const communesQuery = useMemo(() => ({ limit: PAGE_SIZE, cursor: communeCursor }), [communeCursor]);
+
+  const { data: zonesData, isLoading: zonesLoading } = api.delivery.getDeliveryZones.useQuery(zonesQuery);
+  const { data: communesData, isLoading: communesLoading } = api.delivery.getDeliveryFeeCommunes.useQuery(communesQuery);
+
+  useEffect(() => {
+    if (!zonesData?.items) return;
+    const items = zonesData.items as ZoneOutput[];
+    if (!zoneCursor) {
+      setAccumulatedZones(items);
+    } else {
+      setAccumulatedZones((prev) => [...prev, ...items]);
+    }
+  }, [zonesData?.items, zoneCursor]);
+
+  useEffect(() => {
+    if (!communesData?.items) return;
+    const items = communesData.items as CommuneOutput[];
+    if (!communeCursor) {
+      setAccumulatedCommunes(items);
+    } else {
+      setAccumulatedCommunes((prev) => [...prev, ...items]);
+    }
+  }, [communesData?.items, communeCursor]);
+
+  const zones = accumulatedZones;
+  const communes = accumulatedCommunes;
+  const zonesNextCursor = zonesData?.nextCursor;
+  const communesNextCursor = communesData?.nextCursor;
+  const hasMoreZones = Boolean(zonesNextCursor);
+  const hasMoreCommunes = Boolean(communesNextCursor);
+
+  const loadMoreZones = () => {
+    if (zonesNextCursor) setZoneCursor(zonesNextCursor);
+  };
+
+  const loadMoreCommunes = () => {
+    if (communesNextCursor) setCommuneCursor(communesNextCursor);
+  };
+
+  const resetZones = () => {
+    setZoneCursor(undefined);
+    setAccumulatedZones([]);
+  };
+
+  const resetCommunes = () => {
+    setCommuneCursor(undefined);
+    setAccumulatedCommunes([]);
+  };
 
   const upsertZone = api.delivery.upsertDeliveryZone.useMutation({
     onSuccess: () => {
@@ -231,9 +290,8 @@ export function DeliveryFeesContent() {
           )}
           <Card className="overflow-hidden rounded-2xl border-border pb-0 pt-0 shadow-sm">
             {zonesLoading ? (
-              <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
-                <Spinner className="size-8" />
-                <span className="text-sm">Chargement…</span>
+              <div className="p-6">
+                <DeliveryFeesSkeleton />
               </div>
             ) : (
               <>
@@ -312,19 +370,14 @@ export function DeliveryFeesContent() {
                   </Table>
                 </div>
                 {zones.length > 0 && (
-                  <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
-                    <p className="text-xs text-muted-foreground">
-                      {zones.length} sur {zones.length} zone{zones.length > 1 ? "s" : ""}
-                    </p>
-                    <span className="flex gap-2" aria-label="Pagination (sera activée avec les données serveur)">
-                      <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                        Précédent
-                      </Button>
-                      <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                        Suivant
-                      </Button>
-                    </span>
-                  </div>
+                  <DataPagination
+                    totalItems={zones.length}
+                    pageSize={PAGE_SIZE}
+                    itemLabel={`zone${zones.length > 1 ? "s" : ""}`}
+                    onNext={loadMoreZones}
+                    hasNext={hasMoreZones}
+                    isLoading={zonesLoading}
+                  />
                 )}
               </>
             )}
@@ -355,9 +408,8 @@ export function DeliveryFeesContent() {
           )}
           <Card className="overflow-hidden rounded-2xl border-border pb-0 pt-0 shadow-sm">
             {communesLoading ? (
-              <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
-                <Spinner className="size-8" />
-                <span className="text-sm">Chargement…</span>
+              <div className="p-6">
+                <DeliveryFeesSkeleton />
               </div>
             ) : (
               <>
@@ -427,19 +479,14 @@ export function DeliveryFeesContent() {
                   </Table>
                 </div>
                 {communes.length > 0 && (
-                  <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
-                    <p className="text-xs text-muted-foreground">
-                      {communes.length} sur {communes.length} commune{communes.length > 1 ? "s" : ""}
-                    </p>
-                    <span className="flex gap-2" aria-label="Pagination (sera activée avec les données serveur)">
-                      <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                        Précédent
-                      </Button>
-                      <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                        Suivant
-                      </Button>
-                    </span>
-                  </div>
+                  <DataPagination
+                    totalItems={communes.length}
+                    pageSize={PAGE_SIZE}
+                    itemLabel={`commune${communes.length > 1 ? "s" : ""}`}
+                    onNext={loadMoreCommunes}
+                    hasNext={hasMoreCommunes}
+                    isLoading={communesLoading}
+                  />
                 )}
               </>
             )}

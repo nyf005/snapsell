@@ -14,7 +14,10 @@ import {
   upsertVariantsInputSchema,
   deleteVariantsInputSchema,
   listVariantsInputSchema,
+  listCatalogueInputSchema,
+  syncToMetaInputSchema,
 } from "./catalogue.schema";
+import { syncCatalogueItemToMeta } from "~/server/catalogue/syncCatalogueItemToMeta";
 import { normalizeCode } from "~/server/live-item/createLiveItem";
 import { getPriceFromCode } from "~/server/pricing/getPriceFromCode";
 import { isR2Configured } from "~/server/media/r2-client";
@@ -25,13 +28,26 @@ export const catalogueRouter = createTRPCRouter({
     return { configured: isR2Configured() };
   }),
 
-  /** Liste tous les articles catalogue du tenant (dashboard) */
-  list: protectedProcedure.query(async ({ ctx }) => {
-    return db.catalogueItem.findMany({
-      where: { tenantId: ctx.session.user.tenantId },
-      orderBy: { createdAt: "desc" },
-    });
-  }),
+  /** Liste paginée des articles catalogue du tenant (dashboard) */
+  list: protectedProcedure
+    .input(listCatalogueInputSchema)
+    .query(async ({ ctx, input }) => {
+      const tenantId = ctx.session.user.tenantId;
+      const limit = input.limit ?? 20;
+
+      const rows = await db.catalogueItem.findMany({
+        where: { tenantId },
+        orderBy: { createdAt: "desc" },
+        take: limit + 1,
+        skip: input.cursor ? 1 : 0,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+      });
+
+      const items = rows.slice(0, limit);
+      const nextCursor = rows.length > limit ? rows[limit - 1]?.id : undefined;
+
+      return { items, nextCursor };
+    }),
 
   /** Crée un nouvel article catalogue (dashboard) */
   create: protectedProcedure
@@ -173,6 +189,37 @@ export const catalogueRouter = createTRPCRouter({
 
       await db.catalogueItem.delete({ where: { id: input.id } });
       return { success: true };
+    }),
+
+  /** Synchronise un article vers le catalogue Meta (Starter/Pro) */
+  syncToMeta: protectedProcedure
+    .input(syncToMetaInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const tenantId = ctx.session.user.tenantId;
+
+      const result = await syncCatalogueItemToMeta(tenantId, input.id);
+
+      if (!result.success) {
+        const messages: Record<string, string> = {
+          sync_disabled:        "La synchro catalogue Meta est désactivée.",
+          no_entitlement:       "La synchro Meta est disponible à partir du plan Starter.",
+          no_catalog_configured:"Aucun catalogue Meta configuré pour ce compte.",
+          missing_name:         "L'article doit avoir un nom pour être synchronisé.",
+          missing_image:        "L'article doit avoir une image pour être synchronisé.",
+          no_access_token:      "Token Meta manquant. Vérifiez la configuration WhatsApp.",
+          rate_limited:         "Limite de l'API Meta atteinte. Réessayez dans quelques instants.",
+          unauthorized:         "Token Meta invalide ou expiré.",
+          catalog_not_found:    "Catalogue Meta introuvable. Vérifiez l'ID catalogue.",
+          image_url_failed:     "Impossible de générer l'URL de l'image. Vérifiez la configuration R2.",
+          meta_error:           "Erreur lors de la synchronisation avec Meta.",
+        };
+        throw new TRPCError({
+          code: result.reason === "no_entitlement" ? "FORBIDDEN" : "BAD_REQUEST",
+          message: messages[result.reason] ?? "Erreur inconnue.",
+        });
+      }
+
+      return { metaProductId: result.metaProductId, created: result.created };
     }),
 
   /** Liste les variantes d'un article catalogue */

@@ -13,3 +13,7 @@ if (fs.existsSync(envLocalPath)) {
 if (fs.existsSync(envPath)) {
   config({ path: envPath, override: false });
 }
+
+process.env.DATABASE_URL = process.env.DATABASE_URL || "postgresql://test:test@localhost:5432/test";
+process.env.ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || "a".repeat(64);
+process.env.AUTH_SECRET = process.env.AUTH_SECRET || "b".repeat(32);

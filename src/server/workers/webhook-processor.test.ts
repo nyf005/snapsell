@@ -4,6 +4,7 @@ import {
   isStopMessage,
   parseClientCodeIntent,
   isConfirmOui,
+  isOutsideBusinessHours,
 } from "./webhook-processor";
 import { normalizeIncomingPhone } from "~/lib/validations/phone";
 import type { InboundMessage } from "../messaging/types";
@@ -15,11 +16,17 @@ import { startSellerVariantConfig } from "~/server/conversation/sellerVariantCon
 // Mock Prisma client
 vi.mock("~/server/db", () => ({
   db: {
+    $transaction: vi.fn((ops) => Promise.all(ops)),
     sellerPhone: {
       findMany: vi.fn().mockResolvedValue([]),
     },
     tenant: {
       findUnique: vi.fn().mockResolvedValue(null),
+      update: vi.fn().mockResolvedValue({}),
+    },
+    conversationWindow: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      create: vi.fn().mockResolvedValue({}),
     },
     optOut: {
       findUnique: vi.fn().mockResolvedValue(null),
@@ -38,6 +45,9 @@ vi.mock("~/server/db", () => ({
       count: vi.fn().mockResolvedValue(0),
     },
     order: {
+      findFirst: vi.fn().mockResolvedValue(null),
+    },
+    reservation: {
       findFirst: vi.fn().mockResolvedValue(null),
     },
   },
@@ -64,6 +74,24 @@ vi.mock("./queues", () => ({
   boss: { send: vi.fn() },
   QUEUE: { WEBHOOK_PROCESSING: "webhook-processing", OUTBOX_SEND: "outbox-send", OUTBOX_DLQ: "outbox-dlq" },
 }));
+
+// Helper to set up common client message mocks
+function setupClientMocks(plan = "starter") {
+  vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+  vi.mocked(db.conversationWindow.findFirst).mockResolvedValue(null);
+  vi.mocked(db.tenant.findUnique).mockResolvedValue({
+    id: "tenant-123",
+    name: "Test Vendor",
+    subscriptionPlan: plan,
+    requireDeposit: false,
+    faqDelivery: "Livraison zone",
+    faqPayment: "Espèces",
+    faqLocation: "Paris",
+    faqAvailability: "En stock",
+  });
+  vi.mocked(db.tenant.update).mockResolvedValue({});
+  vi.mocked(db.conversationWindow.create).mockResolvedValue({ id: "window-new" } as never);
+}
 
 vi.mock("~/server/events/eventLog", () => ({
   logOptOutRecorded: vi.fn().mockResolvedValue(undefined),
@@ -401,6 +429,19 @@ describe("webhook-processor", () => {
       const from = "+33698765432";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]); // client
+      vi.mocked(db.conversationWindow.findFirst).mockResolvedValue(null); // no active window
+      vi.mocked(db.tenant.findUnique).mockResolvedValue({
+        id: tenantId,
+        name: "Test Vendor",
+        subscriptionPlan: "starter",
+        requireDeposit: false,
+        faqDelivery: "Livraison zone",
+        faqPayment: "Espèces",
+        faqLocation: "Paris",
+        faqAvailability: "En stock",
+      }); // Tenant with credits
+      vi.mocked(db.tenant.update).mockResolvedValue({});
+      vi.mocked(db.conversationWindow.create).mockResolvedValue({});
       vi.mocked(db.optOut.findUnique).mockResolvedValue(null); // pas encore d'opt-out
       vi.mocked(db.optOut.create).mockResolvedValue({
         id: "optout-1",
@@ -445,6 +486,17 @@ describe("webhook-processor", () => {
       const from = "+33698765432";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      vi.mocked(db.conversationWindow.findFirst).mockResolvedValue(null);
+      vi.mocked(db.tenant.findUnique).mockResolvedValue({
+        id: tenantId,
+        name: "Test Vendor",
+        subscriptionPlan: "free",
+        requireDeposit: false,
+        faqDelivery: "Livraison zone",
+        faqPayment: "Espèces",
+        faqLocation: "Paris",
+        faqAvailability: "En stock",
+      });
       vi.mocked(db.optOut.findUnique).mockResolvedValue({
         id: "optout-existing",
         tenantId,
@@ -564,6 +616,14 @@ describe("webhook-processor", () => {
       const from = "+33612345678";
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]); // client
+      vi.mocked(db.conversationWindow.findFirst).mockResolvedValue({ id: "window-1" } as never); // active session, no credit consumed
+      vi.mocked(db.tenant.findUnique).mockResolvedValue({
+        id: tenantId,
+        name: "Test",
+        subscriptionPlan: "starter",
+        requireDeposit: false,
+        faqDelivery: "", faqPayment: "", faqLocation: "", faqAvailability: "",
+      });
       const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
       vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-hello",
@@ -594,7 +654,7 @@ describe("webhook-processor", () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
-      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]); // client
+      setupClientMocks();
       const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
       vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-client",
@@ -2785,5 +2845,32 @@ describe("webhook-processor", () => {
 
       expect(upsertCatalogueItemFromWebhook).not.toHaveBeenCalled();
     });
+  });
+});
+
+// ─── isOutsideBusinessHours ───────────────────────────────────────────────────
+
+describe("isOutsideBusinessHours", () => {
+  // Utilise Africa/Abidjan (UTC+0 toute l'année, pas de DST)
+  const TZ = "Africa/Abidjan";
+
+  it("retourne false si l'heure locale est dans la plage (10:30)", () => {
+    // 2024-01-15 10:30 UTC = 10:30 Abidjan (UTC+0)
+    const now = new Date("2024-01-15T10:30:00Z");
+    expect(isOutsideBusinessHours("08:00", "20:00", TZ, now)).toBe(false);
+  });
+
+  it("retourne true si l'heure locale est avant l'ouverture (06:00)", () => {
+    const now = new Date("2024-01-15T06:00:00Z");
+    expect(isOutsideBusinessHours("08:00", "20:00", TZ, now)).toBe(true);
+  });
+
+  it("retourne true si l'heure locale est après la fermeture (21:15)", () => {
+    const now = new Date("2024-01-15T21:15:00Z");
+    expect(isOutsideBusinessHours("08:00", "20:00", TZ, now)).toBe(true);
+  });
+
+  it("retourne false si timezone invalide (pas de crash)", () => {
+    expect(isOutsideBusinessHours("08:00", "20:00", "Invalid/Timezone")).toBe(false);
   });
 });

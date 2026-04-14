@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "~/trpc/react";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { Badge } from "~/components/ui/badge";
@@ -14,6 +14,7 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { Spinner } from "~/components/ui/spinner";
+import { ProofsListSkeleton } from "./proofs-skeletons";
 import {
   Table,
   TableBody,
@@ -22,8 +23,12 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { DataPagination } from "~/components/ui/data-pagination";
 import { Check, FileCheck, Phone, X } from "lucide-react";
 import { cn } from "~/lib/utils";
+import type { RouterOutputs } from "~/trpc/react";
+
+type ProofOutput = RouterOutputs["proofs"]["listPending"]["items"][number];
 
 function formatProofDate(date: Date) {
   return new Intl.DateTimeFormat("fr-FR", {
@@ -37,7 +42,37 @@ function formatProofDate(date: Date) {
 
 export function ProofsListContent() {
   const utils = api.useUtils();
-  const { data: proofs = [], isLoading } = api.proofs.listPending.useQuery();
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [accumulatedProofs, setAccumulatedProofs] = useState<ProofOutput[]>([]);
+  const itemsPerPage = 20;
+
+  const queryInput = useMemo(() => ({ limit: itemsPerPage, cursor }), [cursor]);
+
+  const { data, isLoading } = api.proofs.listPending.useQuery(queryInput);
+
+  useEffect(() => {
+    if (!data?.items) return;
+    const items = data.items as ProofOutput[];
+    if (!cursor) {
+      setAccumulatedProofs(items);
+    } else {
+      setAccumulatedProofs((prev) => [...prev, ...items]);
+    }
+  }, [data?.items, cursor]);
+
+  const proofs = accumulatedProofs;
+  const nextCursor = data?.nextCursor;
+  const hasMore = Boolean(nextCursor);
+
+  const loadMore = () => {
+    if (nextCursor) setCursor(nextCursor);
+  };
+
+  const resetPagination = () => {
+    setCursor(undefined);
+    setAccumulatedProofs([]);
+  };
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const approve = api.proofs.approve.useMutation({
@@ -116,9 +151,8 @@ export function ProofsListContent() {
 
           <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
-                <Spinner className="size-8" />
-                <span className="text-sm">Chargement…</span>
+              <div className="p-6">
+                <ProofsListSkeleton />
               </div>
             ) : (
               <>
@@ -306,19 +340,14 @@ export function ProofsListContent() {
                 </TableBody>
               </Table>
               </div>
-              <div className="flex shrink-0 items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
-                <p className="text-xs text-muted-foreground">
-                  {proofs.length} sur {proofs.length} résultat{proofs.length > 1 ? "s" : ""}
-                </p>
-                <span className="flex gap-2" aria-label="Pagination (sera activée avec les données serveur)">
-                  <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                    Précédent
-                  </Button>
-                  <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                    Suivant
-                  </Button>
-                </span>
-              </div>
+              <DataPagination
+                totalItems={proofs.length}
+                pageSize={itemsPerPage}
+                itemLabel={`preuve${proofs.length > 1 ? "s" : ""}`}
+                onNext={loadMore}
+                hasNext={hasMore}
+                isLoading={isLoading}
+              />
               </>
             )}
           </Card>

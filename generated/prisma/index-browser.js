@@ -133,6 +133,10 @@ exports.Prisma.TenantScalarFieldEnum = {
   subscriptionStatus: 'subscriptionStatus',
   subscriptionExpiresAt: 'subscriptionExpiresAt',
   cycleStartedAt: 'cycleStartedAt',
+  creditsBalance: 'creditsBalance',
+  creditsTotalMonthly: 'creditsTotalMonthly',
+  usageResetDate: 'usageResetDate',
+  lowCreditsAlerted: 'lowCreditsAlerted',
   paystackCustomerCode: 'paystackCustomerCode',
   paystackSubscriptionCode: 'paystackSubscriptionCode',
   paystackEmailToken: 'paystackEmailToken',
@@ -315,6 +319,7 @@ exports.Prisma.CatalogueItemScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
   code: 'code',
+  name: 'name',
   amount: 'amount',
   quantity: 'quantity',
   availableQty: 'availableQty',
@@ -327,6 +332,9 @@ exports.Prisma.CatalogueItemScalarFieldEnum = {
   attributes: 'attributes',
   origin: 'origin',
   createdInLive: 'createdInLive',
+  metaProductId: 'metaProductId',
+  syncedToMeta: 'syncedToMeta',
+  metaSyncedAt: 'metaSyncedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -356,6 +364,11 @@ exports.Prisma.ReservationScalarFieldEnum = {
   variantId: 'variantId',
   status: 'status',
   address: 'address',
+  addressCity: 'addressCity',
+  addressCommune: 'addressCommune',
+  addressZone: 'addressZone',
+  addressDetails: 'addressDetails',
+  addressRaw: 'addressRaw',
   expiresAt: 'expiresAt',
   reminderSentAt: 'reminderSentAt',
   correlationId: 'correlationId',
@@ -371,6 +384,14 @@ exports.Prisma.ConversationStateScalarFieldEnum = {
   state: 'state',
   metadata: 'metadata',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ConversationWindowScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  customerPhone: 'customerPhone',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.OrderScalarFieldEnum = {
@@ -555,6 +576,7 @@ exports.Prisma.ModelName = {
   ItemVariant: 'ItemVariant',
   Reservation: 'Reservation',
   ConversationState: 'ConversationState',
+  ConversationWindow: 'ConversationWindow',
   Order: 'Order',
   PaymentProof: 'PaymentProof',
   Waitlist: 'Waitlist',

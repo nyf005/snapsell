@@ -2,16 +2,19 @@
  * Story 7A.2: Configuration complète des 3 plans (Free, Starter, Pro)
  * avec entitlements, prix, overages, feature flags, plan codes Paystack.
  *
- * Métrique de facturation = commandes confirmées.
+ * Métrique de facturation = commandes confirmées + sessions client (credits)
  */
 
 export type PlanId = "free" | "starter" | "pro";
 
 export interface PlanEntitlements {
+  // Legacy: commandes limitées (deprecated - maintenant illimité, remplacé par credits)
   maxConfirmedOrdersPerMonth: number;
   maxProofsPerMonth: number; // -1 = illimité
   maxAgents: number;
   overagePerOrderCents: number; // 0 = blocage (Free)
+  creditsTotalMonthly: number; // Credits d'automatisation (sessions 24h)
+  hasAI: boolean; // AI Analysis pour les messages entrants
   hasExportCsv: boolean;
   hasAdvancedExports: boolean;
   hasNotificationsOutside24h: boolean;
@@ -25,7 +28,7 @@ export interface PlanEntitlements {
 export interface PlanConfig {
   id: PlanId;
   name: string;
-  price: number; // FCFA / mois
+  price: number; // FCA / mois
   currency: string;
   interval: "monthly";
   description: string;
@@ -34,7 +37,7 @@ export interface PlanConfig {
   paystackPlanCodeEnv: string | null;
   entitlements: PlanEntitlements;
   features: string[]; // Pour affichage page Tarifs
-  overageLabel?: string; // Ex: "75 FCFA / commande supplémentaire"
+  overageLabel?: string; // Ex: "2 500 FCA / 100 sessions"
 }
 
 export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
@@ -47,10 +50,12 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
     description: "Testez votre premier live propre",
     paystackPlanCodeEnv: null,
     entitlements: {
-      maxConfirmedOrdersPerMonth: 50,
-      maxProofsPerMonth: 20,
+      maxConfirmedOrdersPerMonth: 999_999, // Illimité (remplacé par credits)
+      maxProofsPerMonth: -1,
       maxAgents: 0,
-      overagePerOrderCents: 0, // Blocage, pas d'overage
+      overagePerOrderCents: 0, // Blocage, pas de nouvelle session
+      creditsTotalMonthly: 70,
+      hasAI: false, // Free: pas d'IA
       hasExportCsv: false,
       hasAdvancedExports: false,
       hasNotificationsOutside24h: false,
@@ -61,12 +66,12 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       showUpgradeBanner: true,
     },
     features: [
-      "50 commandes confirmées / mois",
+      "70 sessions client / mois",
       "1 vendeur (pas d'agents)",
       "Grille catégories → prix",
       "Réservation + file + TTL",
       "Dashboard commandes basique",
-      "20 preuves / mois",
+      "Preuves de paiement illimitées",
     ],
   },
   starter: {
@@ -78,10 +83,12 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
     description: "Monétisez votre live sans stress",
     paystackPlanCodeEnv: "PAYSTACK_PLAN_STARTER",
     entitlements: {
-      maxConfirmedOrdersPerMonth: 300,
+      maxConfirmedOrdersPerMonth: 999_999, // Illimité (remplacé par credits)
       maxProofsPerMonth: -1,
       maxAgents: 1,
-      overagePerOrderCents: 7_500, // 75 FCFA (en centimes Paystack = kobo)
+      overagePerOrderCents: 2_500, // 2500 FCA
+      creditsTotalMonthly: 500,
+      hasAI: true, // Starter: IA activée
       hasExportCsv: true,
       hasAdvancedExports: false,
       hasNotificationsOutside24h: true,
@@ -92,14 +99,14 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       showUpgradeBanner: false,
     },
     features: [
-      "300 commandes confirmées / mois",
+      "500 sessions client / mois",
       "1 vendeur + 1 agent",
       "Proofs inbox complet",
       "Export CSV basique",
       "Notifications statut",
       "Acompte recommandé (défaut ON)",
     ],
-    overageLabel: "75 FCFA / commande au-delà",
+    overageLabel: "2 500 FCA / 100 sessions",
   },
   pro: {
     id: "pro",
@@ -111,10 +118,12 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
     popular: true,
     paystackPlanCodeEnv: "PAYSTACK_PLAN_PRO",
     entitlements: {
-      maxConfirmedOrdersPerMonth: 700,
+      maxConfirmedOrdersPerMonth: 999_999, // Illimité (remplacé par credits)
       maxProofsPerMonth: -1,
       maxAgents: 5,
-      overagePerOrderCents: 10_000, // 100 FCFA
+      overagePerOrderCents: 20_000, // 2000 FCA per 100 sessions
+      creditsTotalMonthly: 1500,
+      hasAI: true, // Pro: IA activée
       hasExportCsv: true,
       hasAdvancedExports: true,
       hasNotificationsOutside24h: true,
@@ -125,7 +134,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       showUpgradeBanner: false,
     },
     features: [
-      "700 commandes confirmées / mois",
+      "1500 sessions client / mois",
       "Jusqu'à 5 agents",
       "Filtres avancés + audit renforcé",
       "Export CSV avancé (multi-filtres)",
@@ -133,7 +142,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       "Acompte recommandé",
       "Support prioritaire",
     ],
-    overageLabel: "100 FCFA / commande au-delà",
+    overageLabel: "2 000 FCA / 100 sessions",
   },
 };
 
@@ -157,16 +166,14 @@ export function getPlanConfig(planId: string): PlanConfig {
 
 /** Get plan config by Paystack plan code (resolved from env at runtime) */
 export function getPlanByPaystackCode(planCode: string): PlanConfig | undefined {
-  return Object.values(SUBSCRIPTION_PLANS).find(
-    (p) => {
-      const code = getPaystackPlanCode(p);
-      return code != null && code === planCode;
-    },
-  );
+  return Object.values(SUBSCRIPTION_PLANS).find((p) => {
+    const code = getPaystackPlanCode(p);
+    return code != null && code === planCode;
+  });
 }
 
-/** Format price in FCFA */
+/** Format price in FCA */
 export function formatPriceFCFA(amount: number): string {
   if (amount === 0) return "Gratuit";
-  return new Intl.NumberFormat("fr-FR").format(amount) + " FCFA";
+  return new Intl.NumberFormat("fr-FR").format(amount) + " FCA";
 }

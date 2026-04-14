@@ -81,6 +81,7 @@ export const ordersRouter = createTRPCRouter({
     .input(listOrdersInputSchema)
     .query(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
+      const limit = input?.limit ?? 20;
       const where = buildOrdersWhere(tenantId, {
         status: input?.status,
         dateFrom: input?.dateFrom,
@@ -89,9 +90,14 @@ export const ordersRouter = createTRPCRouter({
       const orders = await db.order.findMany({
         where,
         orderBy: { createdAt: "desc" },
+        take: limit + 1,
+        skip: input?.cursor ? 1 : 0,
+        cursor: input?.cursor ? { id: input.cursor } : undefined,
         include: ORDER_QUERY_INCLUDE,
       });
-      return orders.map(mapOrderOutput);
+      const items = orders.slice(0, limit).map(mapOrderOutput);
+      const nextCursor = orders.length > limit ? orders[limit - 1]?.id : undefined;
+      return { items, nextCursor };
     }),
 
   /** Story 6.5: Export CSV commandes. Réservé OWNER/MANAGER. */

@@ -17,9 +17,17 @@ const aiAnalysisSchema = z.object({
     .default({}),
 });
 
+const addressExtractionSchema = z.object({
+  city: z.string().optional(),
+  commune: z.string().optional(),
+  zone: z.string().optional(),
+  details: z.string().optional(),
+});
+
 export type AIIntent = z.infer<typeof aiIntentSchema>;
 export type AIFaqCategory = z.infer<typeof faqCategorySchema>;
 export type AIAnalysis = z.infer<typeof aiAnalysisSchema>;
+export type AddressExtraction = z.infer<typeof addressExtractionSchema>;
 
 const AI_FALLBACK_ANALYSIS: AIAnalysis = { intent: "OTHER", confidence: 0, entities: {} };
 
@@ -155,5 +163,74 @@ export async function analyzeInboundIntent(body: string): Promise<AIAnalysis> {
   } catch (error) {
     console.error("AI Analysis failed:", error);
     return AI_FALLBACK_ANALYSIS;
+  }
+}
+
+const ADDRESS_EXTRACTION_FALLBACK: AddressExtraction = {};
+
+/**
+ * Extrait les composantes d'adresse depuis un texte libre.
+ * Utilise le même modèle LLM mais avec un prompt spécialisé pour les adresses.
+ */
+export async function extractAddressComponents(addressText: string): Promise<AddressExtraction> {
+  const { AI_API_KEY, AI_BASE_URL, AI_MODEL_NAME } = env;
+
+  if (!AI_API_KEY || !addressText.trim()) {
+    return ADDRESS_EXTRACTION_FALLBACK;
+  }
+
+  const systemPrompt = `
+Tu es un assistant d'extraction d'adresses pour SnapSell.
+Analyse le texte suivant et extrais les composants d'adresse disponibles.
+
+Règles:
+- city: La ville. SI le quartier est mentionné mais pas la ville, INFÈRE la ville la plus probable (ex: "Plateau" à Dakar → "Dakar", "Marcory" à Abidjan → "Abidjan"). Si vraiment incertain, laisser vide.
+- commune: La commune ou arrondissement (ex: Plateau, Yoff, Marcory, Bonoua)
+- zone: Le quartier ou zone spécifique (ex: Point E, Almadies, Bonoumin)
+- details: Indications supplémentaires (ex: "près de la pharmacie", "en face du marché", "au 3e étage", "près du terminus")
+
+Renvoie UNIQUEMENT un JSON avec les champs trouvés. Ne rien écrire d'autre.
+Exemples:
+- "Dakar plateau quartier point e" → {"city": "Dakar", "commune": "Plateau", "zone": "Point E", "details": ""}
+- "Je suis au quartier Bonoua près du terminus" → {"city": "Abidjan", "commune": "Bonoua", "zone": "Bonoua", "details": "près du terminus"}
+- "Point E" → {"city": "Dakar", "commune": "HLM", "zone": "Point E", "details": ""}
+  `.trim();
+
+  try {
+    const response = await fetch(`${AI_BASE_URL}/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${AI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: AI_MODEL_NAME,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: addressText },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.1,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`AI API error: ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+    const content = data.choices[0]?.message.content;
+
+    if (!content) return ADDRESS_EXTRACTION_FALLBACK;
+
+    const parsed = addressExtractionSchema.safeParse(JSON.parse(content));
+    if (!parsed.success) return ADDRESS_EXTRACTION_FALLBACK;
+
+    return parsed.data;
+  } catch (error) {
+    console.error("Address extraction failed:", error);
+    return ADDRESS_EXTRACTION_FALLBACK;
   }
 }

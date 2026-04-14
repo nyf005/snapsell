@@ -16,7 +16,6 @@ import { botMsg } from "~/server/messaging/templates";
 import { logEvent, logOrderCreated, logDepositRequested } from "~/server/events/eventLog";
 import { workerLogger } from "~/lib/logger";
 import { env } from "~/env";
-import { checkQuota, QuotaExceededError } from "~/server/subscription/usage";
 
 const DEPOSIT_TTL_MINUTES = env.DEPOSIT_TTL_MINUTES ?? 15;
 
@@ -83,41 +82,9 @@ export async function createOrderFromReservation(
     return { success: false, reason: "reservation_not_found" };
   }
 
-  // 2b. Story 7A.2: Check quota BEFORE transaction
-  //     Free: blocked at quota. Starter/Pro: allowed with overage.
-  try {
-    const quota = await checkQuota(tenantId);
-    if (!quota.allowed) {
-      workerLogger.warn("Quota exceeded — order blocked (Free plan)", {
-        tenantId,
-        reservationId,
-        currentUsage: quota.currentUsage,
-        quota: quota.quota,
-        plan: quota.plan,
-        correlationId,
-      });
-      return { success: false, reason: "quota_exceeded" };
-    }
-    if (quota.isOverage) {
-      workerLogger.warn("Order in overage territory", {
-        tenantId,
-        reservationId,
-        currentUsage: quota.currentUsage,
-        quota: quota.quota,
-        overageCount: quota.overageCount,
-        plan: quota.plan,
-        correlationId,
-      });
-    }
-  } catch (err) {
-    // If quota check fails (e.g. DB error), log and continue — don't block the order
-    workerLogger.warn("Quota check failed, proceeding with order", {
-      tenantId,
-      reservationId,
-      correlationId,
-      err,
-    });
-  }
+  // Note: Le système de quota commandes a été remplacé par le système de credits (sessions client).
+  // Les commandes ne bloquent plus l'activité. Les métriques sont toujours sauvegardées pour stats.
+  // Le check des credits se fait dans le webhook processor lors de l'ouverture d'une nouvelle session.
 
   const depositExpiresAt = requireDeposit
     ? new Date(Date.now() + DEPOSIT_TTL_MINUTES * 60 * 1000)

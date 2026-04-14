@@ -192,12 +192,12 @@ export function SubscriptionCard({ data }: SubscriptionCardProps) {
         )}
 
         {/* Actions */}
-        <div className="flex flex-wrap items-center gap-3 border-t border-border/60 pt-5">
+        <div className="flex flex-wrap items-center gap-2 border-t border-border/60 pt-5">
           {isFree && (
             <>
               <Button asChild size="sm">
                 <Link href="/api/payment/subscribe?plan=starter">
-                  <Zap className="mr-2 size-4" />
+                  <Zap className="mr-1.5 size-4" />
                   Passer au plan Starter
                 </Link>
               </Button>
@@ -209,7 +209,7 @@ export function SubscriptionCard({ data }: SubscriptionCardProps) {
           {data.plan === "starter" && data.status === "active" && (
             <Button variant="outline" size="sm" asChild>
               <Link href="/api/payment/subscribe?plan=pro">
-                <Zap className="mr-2 size-4" />
+                <Zap className="mr-1.5 size-4" />
                 Passer au plan Pro
               </Link>
             </Button>
@@ -221,10 +221,8 @@ export function SubscriptionCard({ data }: SubscriptionCardProps) {
               onClick={handleManageCard}
               disabled={manageCardQuery.isFetching}
             >
-              <CreditCard className="mr-2 size-4" />
-              {data.status === "attention"
-                ? "Mettre à jour ma carte"
-                : "Gérer ma carte"}
+              <CreditCard className="mr-1.5 size-4" />
+              {data.status === "attention" ? "Mettre à jour" : "Gérer carte"}
             </Button>
           )}
           {canCancel && (
@@ -232,8 +230,8 @@ export function SubscriptionCard({ data }: SubscriptionCardProps) {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="ghost" size="sm" className="text-destructive">
-                    <X className="mr-2 size-4" />
-                    Annuler l&apos;abonnement
+                    <X className="mr-1.5 size-4" />
+                    Annuler
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -248,7 +246,7 @@ export function SubscriptionCard({ data }: SubscriptionCardProps) {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Garder mon abonnement</AlertDialogCancel>
+                    <AlertDialogCancel>Garder</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => cancelMutation.mutate()}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -256,7 +254,7 @@ export function SubscriptionCard({ data }: SubscriptionCardProps) {
                     >
                       {cancelMutation.isPending
                         ? "Annulation..."
-                        : "Confirmer l'annulation"}
+                        : "Confirmer"}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

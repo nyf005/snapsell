@@ -30,7 +30,7 @@ import {
 export const metadata: Metadata = {
   title: "Tarifs — SnapSell",
   description:
-    "Choisissez le plan SnapSell adapté à votre activité : Free, Starter ou Pro. Commencez gratuitement, passez à la vitesse supérieure quand vous êtes prêt.",
+    "Choisissez le plan SnapSell adapte a votre activite : Free, Starter ou Pro. Commencez gratuitement, passez a la vitesse superieure quand vous etes pret.",
 };
 
 const planIcons: Record<PlanId, typeof Zap> = {
@@ -39,7 +39,7 @@ const planIcons: Record<PlanId, typeof Zap> = {
   pro: Crown,
 };
 
-/* ── C : Tableau de comparaison avec catégories ─────────────────────────── */
+/* ── C : Tableau de comparaison avec categories ─────────────────────────── */
 
 type ComparisonItem =
   | { kind: "group"; label: string }
@@ -53,21 +53,22 @@ type ComparisonItem =
 
 const comparisonItems: ComparisonItem[] = [
   { kind: "group", label: "Volume & limites" },
-  { kind: "row", label: "Commandes confirmées / mois", free: "50", starter: "300", pro: "700" },
-  { kind: "row", label: "Overage", free: "Bloqué", starter: "75 FCFA / cmd", pro: "100 FCFA / cmd" },
-  { kind: "row", label: "Preuves / mois", free: "20", starter: "Illimité", pro: "Illimité" },
+  { kind: "row", label: "Sessions client / mois", free: "70", starter: "500", pro: "1500" },
+  { kind: "row", label: "Commandes", free: "Illimité", starter: "Illimité", pro: "Illimité" },
+  { kind: "row", label: "Sessions supplémentaires", free: "Non disponible", starter: "2 500 FCA / 100", pro: "2 000 FCA / 100" },
+  { kind: "row", label: "IA (analyse des intentions)", free: false, starter: true, pro: true },
+  { kind: "row", label: "Preuves / mois", free: "Illimité", starter: "Illimité", pro: "Illimité" },
   { kind: "row", label: "Agents", free: "0", starter: "1", pro: "5" },
-  { kind: "group", label: "Fonctionnalités core" },
-  { kind: "row", label: "Grille catégories → prix", free: true, starter: true, pro: true },
-  { kind: "row", label: "Live session auto", free: true, starter: true, pro: true },
-  { kind: "row", label: "Réservation + file + TTL", free: true, starter: true, pro: true },
+  { kind: "group", label: "Fonctionnalités principales" },
+  { kind: "row", label: "Grille catégories prix", free: true, starter: true, pro: true },
+  { kind: "row", label: "File de réservation TTL", free: true, starter: true, pro: true },
   { kind: "row", label: "Dashboard commandes", free: true, starter: true, pro: true },
-  { kind: "row", label: "Proofs inbox", free: "Limité", starter: "Complet", pro: "Complet" },
+  { kind: "row", label: "Preuves de paiement", free: "Illimité", starter: "Illimité", pro: "Illimité" },
   { kind: "group", label: "Outils avancés" },
   { kind: "row", label: "Export CSV", free: false, starter: "Basique", pro: "Avancé" },
   { kind: "row", label: "Notifications hors 24h", free: false, starter: true, pro: true },
   { kind: "row", label: "Acompte recommandé", free: false, starter: true, pro: true },
-  { kind: "row", label: "Filtres avancés + audit", free: false, starter: "Basique", pro: "Avancé" },
+  { kind: "row", label: "Filtres avancés audit", free: false, starter: "Basique", pro: "Avancé" },
   { kind: "group", label: "Support" },
   { kind: "row", label: "Support prioritaire", free: false, starter: false, pro: true },
   { kind: "row", label: "Branding SnapSell", free: "Oui", starter: "Non", pro: "Non" },
@@ -77,16 +78,16 @@ const comparisonItems: ComparisonItem[] = [
 
 const faqItems = [
   {
-    q: "Qu'est-ce qu'une commande confirmée ?",
-    a: "Une commande confirmée est une réservation WhatsApp validée et payée par votre client. Les réservations annulées ou expirées (TTL) ne sont pas comptabilisées dans votre quota.",
+    q: "Qu'est-ce qu'une session client ?",
+    a: "Une session client correspond à une fenêtre de conversation WhatsApp de 24h avec un client unique. Chaque nouveau client initie une session. Pendant 24h, tous vos échanges avec ce client utilisent le même crédit, peu importe le nombre de messages.",
   },
   {
-    q: "Que se passe-t-il si je dépasse ma limite mensuelle ?",
-    a: "En Free, les nouvelles commandes sont bloquées jusqu'à la fin du mois. En Starter et Pro, chaque commande supplémentaire est facturée à l'overage (75 ou 100 FCFA). Vous ne perdez jamais de ventes.",
+    q: "Que se passe-t-il si je depasse ma limite de sessions ?",
+    a: "En Free, les nouvelles sessions sont bloquées jusqu'au prochain mois. En Starter et Pro, chaque tranche de 100 sessions supplémentaires est facturée (2500 FCA ou 2000 FCA). Vous ne perdez jamais de ventes.",
   },
   {
-    q: "Puis-je changer de plan à tout moment ?",
-    a: "Oui. Vous pouvez passer à un plan supérieur immédiatement depuis Paramètres → Abonnement. L'accès au nouveau plan est instantané.",
+    q: "Puis-je changer de plan a tout moment ?",
+    a: "Oui. Vous pouvez passer à un plan supérieur immédiatement depuis Paramètres - Abonnement. L'accès au nouveau plan est instantané.",
   },
   {
     q: "Y a-t-il un engagement minimum ?",
@@ -94,7 +95,7 @@ const faqItems = [
   },
   {
     q: "Comment fonctionne le paiement ?",
-    a: "Via Paystack — Visa, Mastercard, Wave et Mobile Money acceptés. Facturation automatique chaque mois, reçu envoyé par email.",
+    a: "Via Paystack - Visa, Mastercard, Wave et Mobile Money acceptés. Facturation automatique chaque mois, reçu envoyé par email.",
   },
 ] as const;
 
@@ -115,10 +116,7 @@ function CellValue({
     );
   if (val === false)
     return (
-      <X
-        className="mx-auto size-4 text-muted-foreground/30"
-        aria-label="Non inclus"
-      />
+      <span className="text-muted-foreground/40">-</span>
     );
   return (
     <span className={isPro ? "font-medium text-primary" : "text-muted-foreground"}>
@@ -156,7 +154,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
             <Alert variant="destructive" className="rounded-xl">
               <AlertCircle className="size-4" />
               <AlertDescription>
-                Impossible d&apos;ouvrir la page de paiement. Vérifiez que les
+                Impossible d'ouvrir la page de paiement. Vérifiez que les
                 clés Paystack et les plan codes sont correctement configurés, ou
                 réessayez plus tard.
               </AlertDescription>
@@ -164,7 +162,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
           </div>
         )}
 
-        {/* ── A : Hero cinématique ───────────────────────────────────────── */}
+        {/* ── A : Hero cinematique ───────────────────────────────────────── */}
         <section className="relative overflow-hidden px-6 pb-24 pt-24 text-center">
           <div
             aria-hidden="true"
@@ -184,7 +182,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
             <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
               Commencez gratuitement, passez à la vitesse supérieure quand vos
               ventes décollent. Facturation sur les{" "}
-              <strong className="text-foreground">commandes confirmées</strong>{" "}
+              <strong className="text-foreground">sessions client</strong>{" "}
               uniquement.
             </p>
 
@@ -291,7 +289,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
                       <span
                         className={`ml-1 text-sm font-medium ${isPopular ? "text-white/70" : "text-muted-foreground"}`}
                       >
-                        {plan.price === 0 ? "FCFA" : "FCFA / mois"}
+                        {plan.price === 0 ? "FCA" : "FCA / mois"}
                       </span>
                     </div>
 
@@ -371,7 +369,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
           </div>
         </section>
 
-        {/* ── C : Tableau de comparaison avec catégories ─────────────────── */}
+        {/* ── C : Tableau de comparaison avec categories ─────────────────── */}
         <section className="mx-auto max-w-5xl px-6 pb-24">
           <h2 className="mb-2 text-center text-2xl font-bold">
             Comparaison détaillée
@@ -441,7 +439,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
           </div>
         </section>
 
-        {/* ── D : FAQ ────────────────────────────────────────────────────── */}
+        {/* ── D : FAQ ─────────────────────────────────────────────────────── */}
         <section className="mx-auto max-w-3xl px-6 pb-24">
           <h2 className="mb-2 text-center text-2xl font-bold">
             Questions fréquentes
@@ -472,7 +470,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
               {
                 icon: Lock,
                 title: "Paiement sécurisé",
-                text: "Via Paystack — Visa, Mastercard, Wave, Mobile Money",
+                text: "Via Paystack - Visa, Mastercard, Wave, Mobile Money",
               },
               {
                 icon: Shield,

@@ -329,10 +329,10 @@ describe("reservation/service (Story 4.1)", () => {
       });
       expect(db.reservation.update).toHaveBeenCalledWith({
         where: { id: "res-1" },
-        data: {
+        data: expect.objectContaining({
           address: "12 rue de la Paix, Cocody",
           status: "address_collected",
-        },
+        }),
       });
     });
 

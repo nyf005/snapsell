@@ -14,7 +14,7 @@
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { verifyWebhookSignature } from "~/server/payment/paystack";
-import { getPlanConfig, type PlanId } from "~/lib/subscription-plans";
+import { getPlanConfig, SUBSCRIPTION_PLANS, type PlanId } from "~/lib/subscription-plans";
 import { chargeOverage } from "~/server/subscription/usage";
 import { workerLogger } from "~/lib/logger";
 
@@ -236,6 +236,9 @@ async function handleChargeSuccess(data: PaystackWebhookData) {
         subscriptionStatus: "active",
         subscriptionExpiresAt: expiresAt,
         cycleStartedAt: now, // Reset cycle → usage counters reset (dynamic COUNT from this date)
+        // Reset credits on upgrade/renewal
+        creditsTotalMonthly: planConfig.entitlements.creditsTotalMonthly,
+        creditsBalance: planConfig.entitlements.creditsTotalMonthly,
         // Store authorization for future charges
         paystackAuthorizationCode: data.authorization?.authorization_code ?? undefined,
         // Entitlements from plan config
@@ -249,6 +252,7 @@ async function handleChargeSuccess(data: PaystackWebhookData) {
         hasDepositRecommended: planConfig.entitlements.hasDepositRecommended,
         hasAdvancedFilters: planConfig.entitlements.hasAdvancedFilters,
         hasPrioritySupport: planConfig.entitlements.hasPrioritySupport,
+        hasAI: planConfig.entitlements.hasAI,
         showBranding: planConfig.entitlements.showBranding,
         showUpgradeBanner: planConfig.entitlements.showUpgradeBanner,
         // On first subscription (not renewal), auto-enable deposit if plan recommends it
@@ -313,7 +317,7 @@ async function handlePaymentFailed(data: PaystackWebhookData) {
 }
 
 /**
- * subscription.disable: Subscription cancelled completely.
+ * subscription.disable: Subscription cancelled completely — downgrade to Free.
  */
 async function handleSubscriptionDisable(data: PaystackWebhookData) {
   const subCode = data.subscription_code ?? data.subscription?.subscription_code;
@@ -325,10 +329,30 @@ async function handleSubscriptionDisable(data: PaystackWebhookData) {
   });
 
   if (tenant) {
+    const freePlan = SUBSCRIPTION_PLANS.free;
     await db.tenant.update({
       where: { id: tenant.id },
-      data: { subscriptionStatus: "cancelled" },
+      data: {
+        subscriptionStatus: "cancelled",
+        subscriptionPlan: "free",
+        // Reset to Free entitlements
+        creditsBalance: freePlan.entitlements.creditsTotalMonthly,
+        creditsTotalMonthly: freePlan.entitlements.creditsTotalMonthly,
+        maxAgents: freePlan.entitlements.maxAgents,
+        maxProofsPerMonth: freePlan.entitlements.maxProofsPerMonth,
+        overagePerOrderCents: freePlan.entitlements.overagePerOrderCents,
+        hasExportCsv: freePlan.entitlements.hasExportCsv,
+        hasAdvancedExports: freePlan.entitlements.hasAdvancedExports,
+        hasNotificationsOutside24h: freePlan.entitlements.hasNotificationsOutside24h,
+        hasDepositRecommended: false,
+        hasAdvancedFilters: freePlan.entitlements.hasAdvancedFilters,
+        hasPrioritySupport: freePlan.entitlements.hasPrioritySupport,
+        hasAI: freePlan.entitlements.hasAI,
+        showBranding: freePlan.entitlements.showBranding,
+        showUpgradeBanner: true,
+      },
     });
+    workerLogger.info("Subscription disabled — downgraded to Free", { tenantId: tenant.id });
   }
 }
 

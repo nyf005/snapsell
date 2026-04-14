@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { fr } from "react-day-picker/locale";
 import { api } from "~/trpc/react";
@@ -14,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import { DashboardEmptyState } from "~/app/(dashboard)/_components/dashboard-empty-state";
 import {
   Table,
   TableBody,
@@ -24,15 +25,9 @@ import {
 } from "~/components/ui/table";
 import { Card, CardContent } from "~/components/ui/card";
 import { KpiCard } from "~/components/ui/kpi-card";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
 import { Input } from "~/components/ui/input";
 import { Spinner } from "~/components/ui/spinner";
+import { OrdersListSkeleton } from "./orders-skeletons";
 import {
   Select,
   SelectContent,
@@ -46,6 +41,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { DataPagination } from "~/components/ui/data-pagination";
 import {
   Package,
   ListOrdered,
@@ -61,6 +57,9 @@ import {
   Download,
 } from "lucide-react";
 import { getAllowedNextStatuses } from "~/lib/order-status-transitions";
+import type { RouterOutputs } from "~/trpc/react";
+
+type OrderOutput = RouterOutputs["orders"]["list"]["items"][number];
 function formatOrderDate(date: Date) {
   return new Intl.DateTimeFormat("fr-FR", {
     day: "numeric",
@@ -158,21 +157,27 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [search, setSearch] = useState("");
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [accumulatedOrders, setAccumulatedOrders] = useState<OrderOutput[]>([]);
+  const itemsPerPage = 20;
 
   const queryInput = useMemo(
     () => ({
       status: statusFilter || undefined,
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
+      limit: itemsPerPage,
+      cursor,
     }),
-    [statusFilter, dateFrom, dateTo],
+    [statusFilter, dateFrom, dateTo, cursor],
   );
 
   const utils = api.useUtils();
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
-  const { data: orders = [], isLoading } = api.orders.list.useQuery(queryInput);
+  const { data, isLoading } = api.orders.list.useQuery(queryInput);
   const { data: pendingProofCount = 0 } = api.proofs.pendingCount.useQuery();
+
   const updateStatus = api.orders.updateStatus.useMutation({
     onSuccess: () => {
       void utils.orders.list.invalidate();
@@ -187,7 +192,11 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
     setIsExporting(true);
     setExportError(null);
     try {
-      const data = await utils.orders.exportCsv.fetch(queryInput);
+      const data = await utils.orders.exportCsv.fetch({
+        status: statusFilter || undefined,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+      });
       const blob = new Blob([data.csv], {
         type: "text/csv;charset=utf-8",
       });
@@ -205,6 +214,28 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
     }
   };
 
+  useEffect(() => {
+    if (!data?.items) return;
+    if (!cursor) {
+      setAccumulatedOrders(data.items);
+    } else {
+      setAccumulatedOrders((prev) => [...prev, ...data.items]);
+    }
+  }, [data?.items, cursor]);
+
+  const orders = accumulatedOrders;
+  const nextCursor = data?.nextCursor;
+  const hasMore = Boolean(nextCursor);
+
+  const loadMore = () => {
+    if (nextCursor) setCursor(nextCursor);
+  };
+
+  const resetPagination = () => {
+    setCursor(undefined);
+    setAccumulatedOrders([]);
+  };
+
   const filteredBySearch = useMemo(() => {
     if (!search.trim()) return orders;
     const q = search.trim().toLowerCase();
@@ -215,6 +246,10 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
         o.clientPhone.toLowerCase().includes(q),
     );
   }, [orders, search]);
+
+  useEffect(() => {
+    resetPagination();
+  }, [statusFilter, dateFrom, dateTo, search]);
 
   const kpis = useMemo(() => {
     return {
@@ -252,6 +287,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                 {pendingProofCount > 0 && (
                   <Link
                     href="/dashboard/proofs"
+                    prefetch
                     className="inline-flex items-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
                     aria-label={`${pendingProofCount} preuve(s) à valider`}
                   >
@@ -461,9 +497,8 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
             {/* Table */}
             <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
               {isLoading ? (
-                <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
-                  <Spinner className="size-8" />
-                  <span className="text-sm">Chargement…</span>
+                <div className="p-6">
+                  <OrdersListSkeleton />
                 </div>
               ) : (
                 <>
@@ -494,18 +529,12 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                       <TableBody>
                         {filteredBySearch.length === 0 ? (
                           <TableRow className="hover:bg-transparent">
-                            <TableCell colSpan={6} className="px-6 py-16 text-center">
-                              <Empty className="mx-auto max-w-sm border-0 p-0">
-                                <EmptyHeader>
-                                  <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
-                                    <Package />
-                                  </EmptyMedia>
-                                  <EmptyTitle>Aucune commande</EmptyTitle>
-                                  <EmptyDescription>
-                                    Aucune commande ne correspond aux critères. Modifiez les filtres ou la recherche.
-                                  </EmptyDescription>
-                                </EmptyHeader>
-                              </Empty>
+                            <TableCell colSpan={6} className="px-6 py-16">
+                              <DashboardEmptyState
+                                icon={Package}
+                                title="Aucune commande"
+                                description="Aucune commande ne correspond aux critères. Modifiez les filtres ou la recherche."
+                              />
                             </TableCell>
                           </TableRow>
                         ) : (
@@ -616,22 +645,17 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                       </TableBody>
                     </Table>
                 </div>
-                <div className="flex shrink-0 items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
-                  <p className="text-xs text-muted-foreground">
-                    {filteredBySearch.length} sur {filteredBySearch.length} résultat{filteredBySearch.length > 1 ? "s" : ""}
-                  </p>
-                  <span className="flex gap-2" aria-label="Pagination (sera activée avec les données serveur)">
-                    <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                      Précédent
-                    </Button>
-                    <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                      Suivant
-                    </Button>
-                  </span>
-                </div>
-                </>
-              )}
-            </Card>
+                <DataPagination
+                  totalItems={filteredBySearch.length}
+                  pageSize={itemsPerPage}
+                  itemLabel={`commande${filteredBySearch.length > 1 ? "s" : ""}`}
+                  onNext={loadMore}
+                  hasNext={hasMore}
+                  isLoading={isLoading}
+                />
+              </>
+            )}
+          </Card>
 
             {updateStatus.isError && (
               <p

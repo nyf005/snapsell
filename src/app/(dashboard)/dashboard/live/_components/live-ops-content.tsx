@@ -8,14 +8,8 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { KpiCard } from "~/components/ui/kpi-card";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
 import { Spinner } from "~/components/ui/spinner";
+import { LiveOpsSkeleton } from "./live-ops-skeletons";
 import {
   Table,
   TableBody,
@@ -34,6 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
+import { DashboardEmptyState } from "~/app/(dashboard)/_components/dashboard-empty-state";
 import {
   Radio,
   Package,
@@ -50,8 +45,9 @@ import {
   Play,
 } from "lucide-react";
 
-const POLL_INTERVAL_LIVE_MS = 5_000;  // live actif : rafraîchissement toutes les 5s
-const POLL_INTERVAL_IDLE_MS = 45_000; // pas de live : rafraîchissement toutes les 45s
+const POLL_INTERVAL_LIVE_MS = 5_000;  // live actif avec réservations: rafraîchissement toutes les 5s
+const POLL_INTERVAL_ACTIVE_MS = 15_000; // live actif sans réservation récente: toutes les 15s
+const POLL_INTERVAL_IDLE_MS = 60_000; // pas de live : rafraîchissement toutes les 60s
 const EXPIRING_SOON_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
 
 function formatPrice(amount: number | null): string {
@@ -113,7 +109,12 @@ export function LiveOpsContent() {
   const { data: liveOpsData, isLoading } = api.live.getLiveOpsData.useQuery(undefined, {
     refetchInterval: (query) => {
       const hasLive = query.state.data?.session != null;
-      return hasLive ? POLL_INTERVAL_LIVE_MS : POLL_INTERVAL_IDLE_MS;
+      const hasRecentReservations = query.state.data?.reservations.some(
+        (r) => r.status === "reserved" && r.expiresAt && new Date(r.expiresAt).getTime() - Date.now() > 0
+      );
+      if (!hasLive) return POLL_INTERVAL_IDLE_MS;
+      if (hasRecentReservations) return POLL_INTERVAL_LIVE_MS;
+      return POLL_INTERVAL_ACTIVE_MS;
     },
   });
 
@@ -252,52 +253,28 @@ export function LiveOpsContent() {
                 <CardContent className="flex min-h-0 flex-1 flex-col overflow-auto p-0">
                   {isLoading ? (
                     <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
-                      <Spinner className="size-8" />
-                      <span className="text-sm">Chargement…</span>
+                      <LiveOpsSkeleton />
                     </div>
                   ) : !hasSession || items.length === 0 ? (
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-border text-muted-foreground">
-                            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
-                              Code
-                            </TableHead>
-                            <TableHead className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">
-                              Prix
-                            </TableHead>
-                            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
-                              Stock
-                            </TableHead>
-                            <TableHead className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider">
-                              Réservées
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          <TableRow className="hover:bg-transparent">
-                            <TableCell colSpan={4} className="px-6 py-16 text-center">
-                              <Empty className="mx-auto max-w-sm border-0 p-0">
-                                <EmptyHeader>
-                                  <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
-                                    <Radio />
-                                  </EmptyMedia>
-                                  <EmptyTitle>
-                                    {hasSession
-                                      ? "Aucun article enregistré pour cette session"
-                                      : "Aucune session live en cours"}
-                                  </EmptyTitle>
-                                  <EmptyDescription>
-                                    {hasSession
-                                      ? "Les articles apparaîtront ici lorsqu&apos;ils seront ajoutés à la session."
-                                      : "Une session live s&apos;affichera ici lorsqu&apos;il y a eu de l&apos;activité récente (messages, codes, réservations)."}
-                                  </EmptyDescription>
-                                </EmptyHeader>
-                              </Empty>
-                            </TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
+                    <div className="p-6">
+                      <DashboardEmptyState
+                        icon={Radio}
+                        title={hasSession ? "Aucun article enregistré pour cette session" : "Aucune session live en cours"}
+                        description={
+                          hasSession
+                            ? "Les articles apparaîtront ici lorsqu'ils seront ajoutés à la session."
+                            : "Commencez par lancer une session live pour voir l'inventaire en temps réel."
+                        }
+                        action={!hasSession ? (
+                          <Button
+                            size="sm"
+                            onClick={() => startLiveMutation.mutate()}
+                            disabled={startLiveMutation.isPending}
+                          >
+                            {startLiveMutation.isPending ? "Démarrage..." : "Lancer le live"}
+                          </Button>
+                        ) : null}
+                      />
                     </div>
                   ) : (
                     <>
@@ -406,17 +383,28 @@ export function LiveOpsContent() {
                 <CardContent className="flex flex-1 flex-col p-0">
                   {isLoading ? (
                     <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
-                      <Spinner className="size-8" />
-                      <span className="text-sm">Chargement…</span>
+                      <LiveOpsSkeleton />
                     </div>
                   ) : reservations.length === 0 ? (
-                    <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
-                      <Clock className="size-10" />
-                      <span className="text-sm">
-                        {hasSession
-                          ? "Aucune réservation en cours."
-                          : "Aucune session live."}
-                      </span>
+                    <div className="flex flex-1 flex-col justify-center p-6">
+                      <DashboardEmptyState
+                        icon={Clock}
+                        title={hasSession ? "Aucune réservation en cours." : "Aucune session live."}
+                        description={
+                          hasSession
+                            ? "Aucune réservation n'est active pour le moment."
+                            : "Une session live doit être lancée pour commencer à recevoir des réservations."
+                        }
+                        action={!hasSession ? (
+                          <Button
+                            size="sm"
+                            onClick={() => startLiveMutation.mutate()}
+                            disabled={startLiveMutation.isPending}
+                          >
+                            {startLiveMutation.isPending ? "Démarrage..." : "Lancer le live"}
+                          </Button>
+                        ) : null}
+                      />
                     </div>
                   ) : (
                     <>

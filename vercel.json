@@ -1,1 +1,20 @@
-{}
+{
+  "crons": [
+    {
+      "path": "/api/cron/reservation-ttl",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/close-sessions",
+      "schedule": "0,10,20,30,40,50 * * * *"
+    },
+    {
+      "path": "/api/cron/deposit-expiry",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/meta-catalogue-sync",
+      "schedule": "0 * * * *"
+    }
+  ]
+}

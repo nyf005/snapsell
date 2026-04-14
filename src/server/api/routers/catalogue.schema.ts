@@ -39,6 +39,12 @@ export const catalogueItemOutputSchema = z.object({
   updatedAt: z.date(),
 });
 
+/** Input pour list paginée */
+export const listCatalogueInputSchema = z.object({
+  limit: z.number().min(1).max(100).default(20),
+  cursor: z.string().cuid().optional(),
+});
+
 export type CreateCatalogueItemInput = z.infer<typeof createCatalogueItemInputSchema>;
 export type UpdateCatalogueItemInput = z.infer<typeof updateCatalogueItemInputSchema>;
 export type DeleteCatalogueItemInput = z.infer<typeof deleteCatalogueItemInputSchema>;
@@ -76,3 +82,10 @@ export const itemVariantOutputSchema = z.object({
 
 export type UpsertVariantsInput = z.infer<typeof upsertVariantsInputSchema>;
 export type ItemVariantOutput = z.infer<typeof itemVariantOutputSchema>;
+
+/** Synchro d'un article vers le catalogue Meta */
+export const syncToMetaInputSchema = z.object({
+  id: idSchema,
+});
+
+export type SyncToMetaInput = z.infer<typeof syncToMetaInputSchema>;

@@ -38,6 +38,10 @@ export function mapOrderOutput(o: any) {
     reservationId: o.reservationId,
     clientPhone: o.reservation.clientPhone,
     deliveryAddress: o.reservation.address ?? null,
+    deliveryAddressCity: o.reservation.addressCity ?? null,
+    deliveryAddressCommune: o.reservation.addressCommune ?? null,
+    deliveryAddressZone: o.reservation.addressZone ?? null,
+    deliveryAddressDetails: o.reservation.addressDetails ?? null,
     liveItemCode: o.reservation.catalogueItem?.code ?? o.reservation.liveItem?.code ?? null,
   };
 }

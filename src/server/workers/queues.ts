@@ -43,6 +43,7 @@ export const QUEUE = {
   // Crons pg-boss (schedule names)
   CRON_RESERVATION_TTL: "cron-reservation-ttl",
   CRON_CLOSE_SESSIONS: "cron-close-sessions",
+  CRON_META_CATALOGUE_SYNC: "cron-meta-catalogue-sync",
 } as const;
 
 /**
@@ -71,6 +72,10 @@ export async function ensureQueues(): Promise<void> {
     deleteAfterSeconds: 3600,
   });
   await boss.createQueue(QUEUE.CRON_CLOSE_SESSIONS, {
+    deleteAfterSeconds: 3600,
+  });
+
+  await boss.createQueue(QUEUE.CRON_META_CATALOGUE_SYNC, {
     deleteAfterSeconds: 3600,
   });
 }

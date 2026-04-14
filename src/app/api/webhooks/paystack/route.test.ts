@@ -120,18 +120,8 @@ describe("Story 7A.2: Paystack Webhook", () => {
         where: { id: "tenant-1" },
         data: expect.objectContaining({
           subscriptionPlan: "starter",
-          subscriptionStatus: "active",
-          subscriptionExpiresAt: expect.any(Date),
-          cycleStartedAt: expect.any(Date),
-          maxConfirmedOrdersPerMonth: 300,
-          maxProofsPerMonth: -1,
-          maxAgents: 1,
-          overagePerOrderCents: 7500,
-          hasExportCsv: true,
-          hasAdvancedExports: false,
-          showBranding: false,
-          showUpgradeBanner: false,
-          paystackAuthorizationCode: "AUTH_xxx",
+          creditsBalance: 500,
+          hasAI: true,
         }),
       });
     });
@@ -246,7 +236,7 @@ describe("Story 7A.2: Paystack Webhook", () => {
   });
 
   describe("subscription.disable", () => {
-    it("sets status to cancelled", async () => {
+    it("downgrades to Free plan", async () => {
       vi.mocked(db.tenant.findUnique).mockResolvedValue({ id: "tenant-1" } as never);
 
       const event = {
@@ -258,13 +248,19 @@ describe("Story 7A.2: Paystack Webhook", () => {
       expect(res.status).toBe(200);
       expect(db.tenant.update).toHaveBeenCalledWith({
         where: { id: "tenant-1" },
-        data: { subscriptionStatus: "cancelled" },
+        data: expect.objectContaining({
+          subscriptionStatus: "cancelled",
+          subscriptionPlan: "free",
+          creditsBalance: 70,
+          creditsTotalMonthly: 70,
+          maxAgents: 0,
+        }),
       });
     });
   });
 
   describe("subscription.not_renew", () => {
-    it("sets status to non_renewing", async () => {
+    it("sets status to non_renewing (access until expiry)", async () => {
       vi.mocked(db.tenant.findUnique).mockResolvedValue({ id: "tenant-1" } as never);
 
       const event = {

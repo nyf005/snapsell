@@ -23,5 +23,5 @@ export default async function AuditPage() {
     canExportCsv = tenant?.hasExportCsv ?? false;
   }
 
-  return <AuditTrailContent canExportCsv={canExportCsv} />;
+  return <AuditTrailContent tenantId={tenantId} canExportCsv={canExportCsv} />;
 }

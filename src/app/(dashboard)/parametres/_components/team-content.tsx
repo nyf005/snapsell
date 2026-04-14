@@ -33,6 +33,7 @@ import {
 } from "~/components/ui/empty";
 import { Input } from "~/components/ui/input";
 import { Spinner } from "~/components/ui/spinner";
+import { TeamContentSkeleton } from "./team-content-skeletons";
 import { Label } from "~/components/ui/label";
 import { cn } from "~/lib/utils";
 import {
@@ -321,9 +322,8 @@ export function TeamContent() {
 
         <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
           {loadingMembers || loadingInvitations ? (
-            <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
-              <Spinner className="size-8" />
-              <span className="text-sm">Chargement…</span>
+            <div className="p-6">
+              <TeamContentSkeleton />
             </div>
           ) : (
             <>

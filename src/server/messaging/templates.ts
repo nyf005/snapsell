@@ -31,7 +31,7 @@ export const botMsg = {
     // --- Code lookup ---
 
     codeUnknown: (code: string) =>
-      `Je n'ai pas trouvé l'article *${code}* 🔍\n\nVérifie le code vu lors du live et renvoie-le moi.`,
+      `Je n'ai pas trouvé l'article *${code}* 🔍\n\nVérifie le code et renvoie-le moi.`,
 
     codeSuggestion: (code: string) =>
       `Je n'ai pas trouvé ce code. Tu voulais dire *${code}* ? Renvoie-le moi 😊`,
@@ -39,7 +39,7 @@ export const botMsg = {
     // --- Phase 2: new automation messages ---
 
     welcome: (shopName: string) =>
-      `Bonjour ! 👋 Bienvenue chez *${shopName}*.\n\nTu as vu un article qui t'intéresse lors du live ? Envoie-moi son code (ex : A12) et je m'occupe de toi 😊`,
+      `Bonjour ! 👋 Bienvenue chez *${shopName}*.\n\nTu as le code d'un article qui t'intéresse ? Envoie-le moi (ex : A12) et je m'occupe de toi 😊`,
 
     fallback: () =>
       `Je n'ai pas bien compris 😅\n\nEnvoie-moi le code de l'article que tu veux (ex : A12) et je m'occupe du reste !`,
@@ -57,6 +57,17 @@ export const botMsg = {
 
     orderInDelivery: (orderNumber: string) =>
       `Bonne nouvelle ! 🚚 Ta commande *${orderNumber}* est en cours de livraison.\n\nTu la reçois très bientôt !`,
+
+    // --- Deposit proof ---
+
+    proofReceived: (orderNumber: string) =>
+      `Preuve reçue pour la commande *${orderNumber}* ✅\n\nLe vendeur va la vérifier et te confirme très vite 🔔`,
+
+    sendProofNow: () =>
+      `Envoie ta photo de preuve de paiement maintenant 📸\n\n_(Capture d'écran, photo du reçu, etc.)_`,
+
+    depositExpired: (orderNumber: string) =>
+      `Ta commande *${orderNumber}* a été annulée car aucune preuve d'acompte n'a été reçue dans le délai imparti 😔\n\nN'hésite pas à repasser une commande !`,
 
     // --- Handoff ---
 
@@ -193,6 +204,73 @@ export const botMsg = {
         buttons: [
           { id: "send_proof", title: "Ma preuve 📸" },
           { id: "contact_agent", title: "Aide agent 👤" },
+        ],
+      } satisfies InteractivePayload,
+    }),
+
+    // --- WhatsApp Business catalogue natif ---
+
+    /** Fiche produit cliquable depuis le catalogue Meta (P3) */
+    productCard: (
+      catalogId: string,
+      productRetailerId: string,
+      body = "Voici l'article que tu as demandé 👇",
+    ): InteractiveMessage => ({
+      body,
+      interactive: {
+        type: "product",
+        catalogId,
+        productRetailerId,
+      } satisfies InteractivePayload,
+    }),
+
+    /** Liste multi-produits depuis le catalogue Meta (P3) */
+    productList: (
+      catalogId: string,
+      header: string,
+      sections: Array<{ title: string; items: Array<{ productRetailerId: string }> }>,
+      body = "Voici les articles disponibles 👇",
+    ): InteractiveMessage => ({
+      body,
+      interactive: {
+        type: "product_list",
+        header,
+        catalogId,
+        sections,
+      } satisfies InteractivePayload,
+    }),
+
+    /** Récap multi-articles après commande via panier natif (P1) */
+    orderSummaryInteractive: (
+      lines: Array<{ code: string; qty: number; prix: string }>,
+      address: string,
+      total: string,
+    ): InteractiveMessage => {
+      const itemsText = lines
+        .map((l) => `• *${l.code}* x${l.qty} — ${l.prix}`)
+        .join("\n");
+      return {
+        body: `Récap de ta commande 👇\n\n${itemsText}\n\n📍 Adresse : ${address}\n💳 Total : ${total}`,
+        interactive: {
+          type: "buttons",
+          header: "🛍️ Récapitulatif",
+          buttons: [
+            { id: "confirm_order", title: "Confirmer ✅" },
+            { id: "cancel_order", title: "Annuler ❌" },
+          ],
+        } satisfies InteractivePayload,
+      };
+    },
+
+    /** Away message hors horaires avec boutons (Phase 4) */
+    awayMessageInteractive: (awayText: string, shopName: string): InteractiveMessage => ({
+      body: awayText || `Bonjour ! 👋 *${shopName}* est actuellement fermé.\n\nRevenez pendant nos heures d'ouverture ou laissez-nous un message, on vous répond dès que possible 🙏`,
+      interactive: {
+        type: "buttons",
+        header: "🕐 Boutique fermée",
+        buttons: [
+          { id: "view_catalogue", title: "Voir les articles 🛍️" },
+          { id: "leave_message", title: "Laisser un message 📝" },
         ],
       } satisfies InteractivePayload,
     }),

@@ -184,9 +184,27 @@ export async function POST(request: Request) {
     }
     const messages = await adapter.parseInboundBatch(requestClone);
 
-    // 10. Si tableau vide (status-only) → return 200
+    // 10. Si tableau vide (status-only) → traiter les statuts delivered/read puis return 200
     if (messages.length === 0) {
-      webhookLogger.debug("Meta webhook status-only — no messages", { correlationId });
+      webhookLogger.debug("Meta webhook status-only — processing statuses", { correlationId });
+      const metaAdapter = adapter as MetaCloudAdapter;
+      if (typeof metaAdapter.parseStatusUpdates === "function") {
+        const statusUpdates = metaAdapter.parseStatusUpdates(JSON.parse(bodyText));
+        if (statusUpdates.length > 0) {
+          await Promise.allSettled(
+            statusUpdates.map(({ providerMessageId: wamid, status }) =>
+              db.messageOut.updateMany({
+                where: { tenantId: tenant.id, providerMessageId: wamid },
+                data: { status },
+              }),
+            ),
+          );
+          webhookLogger.debug("MessageOut statuses updated", {
+            correlationId,
+            count: statusUpdates.length,
+          });
+        }
+      }
       return new NextResponse("OK", { status: 200 });
     }
 

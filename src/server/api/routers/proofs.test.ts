@@ -123,10 +123,10 @@ describe("proofs router", () => {
         orderBy: { createdAt: "desc" },
         include: expect.any(Object),
       });
-      expect(result).toHaveLength(1);
-      expect(result[0]!.orderNumber).toBe("SS-0001");
-      expect(result[0]!.clientPhone).toBe("+33612345678");
-      expect(result[0]!.status).toBe("pending");
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0]!.orderNumber).toBe("SS-0001");
+      expect(result.items[0]!.clientPhone).toBe("+33612345678");
+      expect(result.items[0]!.status).toBe("pending");
     });
 
     it("returns only pending proofs (status=pending) for tenant", async () => {
@@ -182,7 +182,7 @@ describe("proofs router", () => {
           where: expect.objectContaining({ tenantId: "tenant-1" }),
         }),
       );
-      expect(result).toHaveLength(0);
+      expect(result.items).toHaveLength(0);
     });
   });
 

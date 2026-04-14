@@ -14,15 +14,9 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { Card, CardContent } from "~/components/ui/card";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "~/components/ui/empty";
 import { Spinner } from "~/components/ui/spinner";
 import { DataPagination } from "~/components/ui/data-pagination";
+import { CatalogueListSkeleton } from "./catalogue-skeletons";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,6 +29,7 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2, PackageOpen, ImageOff } from "lucide-react";
 import { CatalogueItemFormDialog } from "./catalogue-item-form-dialog";
+import { DashboardEmptyState } from "~/app/(dashboard)/_components/dashboard-empty-state";
 import { cn } from "~/lib/utils";
 
 import type { CatalogueItemOutput } from "~/server/api/routers/catalogue.schema";
@@ -53,32 +48,49 @@ export function CatalogueListContent() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<CatalogueItemOutput | null>(null);
   const [deletingItem, setDeletingItem] = useState<CatalogueItemOutput | null>(null);
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [accumulatedItems, setAccumulatedItems] = useState<CatalogueItemOutput[]>([]);
+  const itemsPerPage = 20;
 
-  const { data: rawItems, isLoading, refetch } = api.catalogue.list.useQuery();
-  const { data: r2Status } = api.catalogue.r2Status.useQuery();
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const queryInput = useMemo(() => ({ limit: itemsPerPage, cursor }), [cursor]);
+
+  const { data, isLoading, refetch } = api.catalogue.list.useQuery(queryInput);
+
+  useEffect(() => {
+    if (!data?.items) return;
+    const items = data.items as CatalogueItemOutput[];
+    if (!cursor) {
+      setAccumulatedItems(items);
+    } else {
+      setAccumulatedItems((prev) => [...prev, ...items]);
+    }
+  }, [data?.items, cursor]);
+
   const items = useMemo(
     () =>
-      (rawItems ?? []).map((item) => ({
+      (accumulatedItems ?? []).map((item) => ({
         ...item,
         attributes: Array.isArray(item.attributes)
           ? item.attributes.filter((value): value is string => typeof value === "string")
           : null,
       })),
-    [rawItems],
+    [accumulatedItems],
   );
-  
-  // ── Pagination ────────────────────────────────────────────────────────
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
-  const totalItems = items?.length ?? 0;
-  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const pagedItems = items?.slice(startIndex, startIndex + itemsPerPage) ?? [];
 
-  useEffect(() => {
-    setCurrentPage((prev) => Math.min(prev, totalPages));
-  }, [totalPages]);
+  const nextCursor = data?.nextCursor;
+  const hasMore = Boolean(nextCursor);
+
+  const loadMore = () => {
+    if (nextCursor) setCursor(nextCursor);
+  };
+
+  const resetPagination = () => {
+    setCursor(undefined);
+    setAccumulatedItems([]);
+  };
+
+  const { data: r2Status } = api.catalogue.r2Status.useQuery();
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const deleteMutation = api.catalogue.delete.useMutation({
     onSuccess: () => {
@@ -143,9 +155,7 @@ export function CatalogueListContent() {
           </div>
 
           {isLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <Spinner />
-            </div>
+            <CatalogueListSkeleton />
           ) : items && items.length > 0 ? (
             <div className="space-y-4">
               <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
@@ -164,7 +174,7 @@ export function CatalogueListContent() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {pagedItems.map((item) => (
+                      {items.map((item) => (
                         <TableRow key={item.id} className="group">
                           <TableCell className="px-3 py-2">
                             {item.mediaStorageKey ? (
@@ -231,31 +241,27 @@ export function CatalogueListContent() {
                     </TableBody>
                   </Table>
                 </CardContent>
+                <DataPagination
+                  totalItems={items.length}
+                  pageSize={itemsPerPage}
+                  itemLabel={`article${items.length > 1 ? "s" : ""}`}
+                  onNext={loadMore}
+                  hasNext={hasMore}
+                  isLoading={isLoading}
+                />
               </Card>
-
-              {/* Pagination Controls */}
-              <DataPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={totalItems}
-                pageSize={itemsPerPage}
-                itemLabel={`article${totalItems > 1 ? "s" : ""}`}
-                onPageChange={setCurrentPage}
-              />
             </div>
           ) : (
-            <Empty>
-              <EmptyMedia>
-                <PackageOpen className="h-16 w-16 text-muted-foreground/50" />
-              </EmptyMedia>
-              <EmptyHeader>
-                <EmptyTitle>Aucun article dans le catalogue</EmptyTitle>
-                <EmptyDescription>
-                  Ajoutez votre premier article pour commencer à gérer votre catalogue.
-                  Les articles créés en live ou ajoutés manuellement apparaîtront ici.
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
+            <DashboardEmptyState
+              icon={PackageOpen}
+              title="Aucun article dans le catalogue"
+              description="Ajoutez votre premier article pour commencer à gérer votre inventaire et vos ventes."
+              action={
+                <Button onClick={handleAddItem} className="font-semibold">
+                  Ajouter un article
+                </Button>
+              }
+            />
           )}
         </div>
       </main>

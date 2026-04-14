@@ -45,6 +45,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
+import { DataPagination } from "~/components/ui/data-pagination";
 import { ScrollText, CalendarIcon, Info, Shield } from "lucide-react";
 
 type EventLogItem = RouterOutputs["ops"]["eventLogs"]["list"]["items"][number];
@@ -464,23 +465,14 @@ export function OpsEventLogsContent() {
                         </TableBody>
                       </Table>
                     </div>
-                    <div className="flex shrink-0 items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
-                      <p className="text-xs text-muted-foreground">
-                        {items.length} événement{items.length > 1 ? "s" : ""}
-                      </p>
-                      {nextCursor ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={loadMore}
-                          disabled={isLoading}
-                        >
-                          Charger la suite
-                        </Button>
-                      ) : (
-                        <span />
-                      )}
-                    </div>
+                    <DataPagination
+                      totalItems={items.length}
+                      pageSize={1}
+                      summary={`${items.length} événement${items.length > 1 ? "s" : ""}`}
+                      onNext={loadMore}
+                      hasNext={Boolean(nextCursor)}
+                      isLoading={isLoading}
+                    />
                   </>
                 )}
               </Card>

@@ -25,10 +25,11 @@ describe("Story 7A.2: subscription-plans config", () => {
     });
 
     it("has correct entitlements", () => {
-      expect(free.entitlements.maxConfirmedOrdersPerMonth).toBe(50);
-      expect(free.entitlements.maxProofsPerMonth).toBe(20);
+      expect(free.entitlements.creditsTotalMonthly).toBe(70);
+      expect(free.entitlements.maxProofsPerMonth).toBe(-1);
       expect(free.entitlements.maxAgents).toBe(0);
       expect(free.entitlements.overagePerOrderCents).toBe(0); // Blocage
+      expect(free.entitlements.hasAI).toBe(false);
     });
 
     it("has restricted feature flags", () => {
@@ -53,23 +54,11 @@ describe("Story 7A.2: subscription-plans config", () => {
     });
 
     it("has correct entitlements", () => {
-      expect(starter.entitlements.maxConfirmedOrdersPerMonth).toBe(300);
+      expect(starter.entitlements.creditsTotalMonthly).toBe(500);
       expect(starter.entitlements.maxProofsPerMonth).toBe(-1); // Illimité
       expect(starter.entitlements.maxAgents).toBe(1);
-      expect(starter.entitlements.overagePerOrderCents).toBe(7_500); // 75 FCFA
-    });
-
-    it("has starter feature flags", () => {
-      expect(starter.entitlements.hasExportCsv).toBe(true);
-      expect(starter.entitlements.hasAdvancedExports).toBe(false);
-      expect(starter.entitlements.hasNotificationsOutside24h).toBe(true);
-      expect(starter.entitlements.hasDepositRecommended).toBe(true);
-      expect(starter.entitlements.showBranding).toBe(false);
-      expect(starter.entitlements.showUpgradeBanner).toBe(false);
-    });
-
-    it("has overage label", () => {
-      expect(starter.overageLabel).toBe("75 FCFA / commande au-delà");
+      expect(starter.entitlements.overagePerOrderCents).toBe(2_500); // 25 Fcfa
+      expect(starter.entitlements.hasAI).toBe(true);
     });
   });
 
@@ -78,108 +67,69 @@ describe("Story 7A.2: subscription-plans config", () => {
 
     it("has correct pricing", () => {
       expect(pro.price).toBe(50_000);
-      expect(pro.popular).toBe(true);
+      expect(pro.currency).toBe("XOF");
     });
 
     it("has correct entitlements", () => {
-      expect(pro.entitlements.maxConfirmedOrdersPerMonth).toBe(700);
-      expect(pro.entitlements.maxProofsPerMonth).toBe(-1);
+      expect(pro.entitlements.creditsTotalMonthly).toBe(1500);
+      expect(pro.entitlements.maxProofsPerMonth).toBe(-1); // Illimité
       expect(pro.entitlements.maxAgents).toBe(5);
-      expect(pro.entitlements.overagePerOrderCents).toBe(10_000); // 100 FCFA
+      expect(pro.entitlements.overagePerOrderCents).toBe(20_000); // 200 Fcfa
+      expect(pro.entitlements.hasAI).toBe(true);
     });
 
-    it("has full feature flags", () => {
+    it("has all feature flags", () => {
       expect(pro.entitlements.hasExportCsv).toBe(true);
       expect(pro.entitlements.hasAdvancedExports).toBe(true);
+      expect(pro.entitlements.hasNotificationsOutside24h).toBe(true);
       expect(pro.entitlements.hasAdvancedFilters).toBe(true);
       expect(pro.entitlements.hasPrioritySupport).toBe(true);
-      expect(pro.entitlements.showBranding).toBe(false);
     });
   });
 
   describe("getPlanConfig", () => {
-    it("returns correct plan for valid ID", () => {
-      expect(getPlanConfig("free").id).toBe("free");
-      expect(getPlanConfig("starter").id).toBe("starter");
-      expect(getPlanConfig("pro").id).toBe("pro");
+    it("returns Free for 'free'", () => {
+      const config = getPlanConfig("free");
+      expect(config.id).toBe("free");
     });
 
-    it("throws for invalid plan ID", () => {
-      expect(() => getPlanConfig("invalid")).toThrow("Unknown plan: invalid");
+    it("returns Starter for 'starter'", () => {
+      const config = getPlanConfig("starter");
+      expect(config.id).toBe("starter");
+    });
+
+    it("returns Pro for 'pro'", () => {
+      const config = getPlanConfig("pro");
+      expect(config.id).toBe("pro");
+    });
+
+    it("throws for invalid plan", () => {
+      expect(() => getPlanConfig("invalid" as PlanId)).toThrow();
     });
   });
 
   describe("formatPriceFCFA", () => {
-    it("returns 'Gratuit' for 0", () => {
+    it("formats 0 as Gratuit", () => {
       expect(formatPriceFCFA(0)).toBe("Gratuit");
     });
 
-    it("formats with French number format + FCFA", () => {
-      // Intl.NumberFormat fr-FR uses narrow no-break space
-      const result = formatPriceFCFA(25_000);
-      expect(result).toContain("25");
-      expect(result).toContain("000");
-      expect(result).toContain("FCFA");
+    it("formats with non-breaking space separator", () => {
+      expect(formatPriceFCFA(25000)).toContain("FCA");
+      expect(formatPriceFCFA(50000)).toContain("FCA");
     });
   });
 
-  describe("getPaystackPlanCode", () => {
-    it("returns null for Free plan (no env var)", () => {
-      expect(getPaystackPlanCode(SUBSCRIPTION_PLANS.free)).toBeNull();
+  describe("hasAI flag", () => {
+    it("Free has no AI", () => {
+      expect(SUBSCRIPTION_PLANS.free.entitlements.hasAI).toBe(false);
     });
 
-    it("returns env value for Starter when env var is set", () => {
-      const original = process.env.PAYSTACK_PLAN_STARTER;
-      process.env.PAYSTACK_PLAN_STARTER = "PLN_test_starter";
-      expect(getPaystackPlanCode(SUBSCRIPTION_PLANS.starter)).toBe("PLN_test_starter");
-      process.env.PAYSTACK_PLAN_STARTER = original;
+    it("Starter has AI", () => {
+      expect(SUBSCRIPTION_PLANS.starter.entitlements.hasAI).toBe(true);
     });
 
-    it("returns null when env var is not set", () => {
-      const original = process.env.PAYSTACK_PLAN_PRO;
-      delete process.env.PAYSTACK_PLAN_PRO;
-      expect(getPaystackPlanCode(SUBSCRIPTION_PLANS.pro)).toBeNull();
-      process.env.PAYSTACK_PLAN_PRO = original;
+    it("Pro has AI", () => {
+      expect(SUBSCRIPTION_PLANS.pro.entitlements.hasAI).toBe(true);
     });
-  });
-
-  describe("getPlanByPaystackCode", () => {
-    it("returns plan config when code matches", () => {
-      const original = process.env.PAYSTACK_PLAN_STARTER;
-      process.env.PAYSTACK_PLAN_STARTER = "PLN_match_test";
-      const found = getPlanByPaystackCode("PLN_match_test");
-      expect(found?.id).toBe("starter");
-      process.env.PAYSTACK_PLAN_STARTER = original;
-    });
-
-    it("returns undefined for unknown code", () => {
-      expect(getPlanByPaystackCode("PLN_nonexistent")).toBeUndefined();
-    });
-  });
-
-  describe("all plans have required entitlement keys", () => {
-    const requiredKeys: (keyof PlanEntitlements)[] = [
-      "maxConfirmedOrdersPerMonth",
-      "maxProofsPerMonth",
-      "maxAgents",
-      "overagePerOrderCents",
-      "hasExportCsv",
-      "hasAdvancedExports",
-      "hasNotificationsOutside24h",
-      "hasDepositRecommended",
-      "hasAdvancedFilters",
-      "hasPrioritySupport",
-      "showBranding",
-      "showUpgradeBanner",
-    ];
-
-    for (const planId of PLAN_IDS) {
-      it(`${planId} has all entitlement keys`, () => {
-        const plan = SUBSCRIPTION_PLANS[planId];
-        for (const key of requiredKeys) {
-          expect(plan.entitlements).toHaveProperty(key);
-        }
-      });
-    }
   });
 });

@@ -10,6 +10,7 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { KpiCard } from "~/components/ui/kpi-card";
 import { Spinner } from "~/components/ui/spinner";
+import { DashboardLoadingState } from "./dashboard-skeletons";
 import {
   ChartContainer,
   ChartTooltip,
@@ -28,6 +29,7 @@ import {
   Wallet,
   Zap,
 } from "lucide-react";
+import { DashboardStartGuide } from "~/app/(dashboard)/_components/dashboard-start-guide";
 import { cn } from "~/lib/utils";
 
 const revenueChartConfig = {
@@ -107,11 +109,7 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
   });
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[320px] items-center justify-center">
-        <Spinner className="size-8 text-primary" />
-      </div>
-    );
+    return <DashboardLoadingState />;
   }
 
   if (!summary) {
@@ -144,6 +142,9 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
           </a>
         </div>
       )}
+      <section aria-labelledby="demarrer-heading">
+        <DashboardStartGuide hasLiveSession={summary.hasLiveSession} />
+      </section>
       {/* Section: À traiter */}
       <section aria-labelledby="a-traiter-heading">
         <h2
@@ -181,6 +182,7 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
               <p className="text-xs text-muted-foreground">{lastProofLabel}</p>
               <Link
                 href="/dashboard/proofs"
+                prefetch
                 className="text-xs font-extrabold text-primary flex items-center gap-1 mt-4 group-hover:gap-2 transition-all"
               >
                 Voir les preuves
@@ -208,6 +210,7 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
               </p>
               <Link
                 href="/dashboard/orders"
+                prefetch
                 className="text-xs font-extrabold text-primary flex items-center gap-1 mt-4 group-hover:gap-2 transition-all"
               >
                 Voir les commandes
@@ -254,7 +257,7 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
               </p>
               {summary.hasLiveSession ? (
                 <Button asChild size="sm" className="mt-2">
-                  <Link href="/dashboard/live">Voir le live</Link>
+                  <Link href="/dashboard/live" prefetch>Voir le live</Link>
                 </Button>
               ) : (
                 <>
@@ -440,6 +443,7 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
             <div className="px-6 pb-6">
               <Link
                 href="/dashboard/orders"
+                prefetch
                 className="text-xs font-extrabold text-muted-foreground hover:text-primary transition-colors tracking-wide text-center block"
               >
                 Voir les commandes

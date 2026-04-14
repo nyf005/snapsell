@@ -174,6 +174,38 @@ export class MetaCloudAdapter implements MessagingProvider {
               body = button?.text ?? body;
             }
 
+            // Commande via panier WA natif (P1 — message type "order")
+            if (message.type === "order" && message.order) {
+              const order = message.order as {
+                catalog_id?: string;
+                product_items?: Array<{
+                  product_retailer_id: string;
+                  quantity: number;
+                  item_price: number;
+                  currency: string;
+                }>;
+              };
+              if (order.product_items?.length) {
+                results.push({
+                  tenantId: null,
+                  providerMessageId: messageId,
+                  from,
+                  body: "",
+                  correlationId: messageId,
+                  orderPayload: {
+                    catalogId: order.catalog_id ?? "",
+                    items: order.product_items.map((i) => ({
+                      productRetailerId: i.product_retailer_id,
+                      quantity: i.quantity,
+                      itemPrice: i.item_price,
+                      currency: i.currency,
+                    })),
+                  },
+                });
+              }
+              continue;
+            }
+
             // Media entrant: stocker le MEDIA_ID avec prefixe meta-media://
             // Caption (texte accompagnant la photo) → utilisé comme body si présent
             let mediaUrl: string | undefined;
@@ -242,6 +274,44 @@ export class MetaCloudAdapter implements MessagingProvider {
       return data.url ?? null;
     } catch (error) {
       return null;
+    }
+  }
+
+  /**
+   * Extrait les mises à jour de statut (delivered/read/failed) depuis un payload webhook.
+   * Retourne [] si aucun statut présent ou payload inattendu.
+   * À appeler en parallèle de parseInboundBatch() dans le webhook handler.
+   */
+  parseStatusUpdates(payload: unknown): Array<{
+    providerMessageId: string;
+    status: "delivered" | "read" | "failed";
+    recipientPhone: string;
+  }> {
+    const TRACKED = new Set(["delivered", "read", "failed"]);
+    try {
+      const p = payload as {
+        entry?: Array<{ changes?: Array<{ value?: { statuses?: unknown[] } }> }>;
+      };
+      if (!Array.isArray(p.entry)) return [];
+
+      const results: Array<{ providerMessageId: string; status: "delivered" | "read" | "failed"; recipientPhone: string }> = [];
+      for (const entry of p.entry) {
+        for (const change of entry.changes ?? []) {
+          for (const s of change.value?.statuses ?? []) {
+            const status = s as { id?: string; status?: string; recipient_id?: string };
+            if (status.id && status.status && TRACKED.has(status.status)) {
+              results.push({
+                providerMessageId: status.id,
+                status: status.status as "delivered" | "read" | "failed",
+                recipientPhone: status.recipient_id ? `+${status.recipient_id}` : "",
+              });
+            }
+          }
+        }
+      }
+      return results;
+    } catch {
+      return [];
     }
   }
 
@@ -354,6 +424,44 @@ export class MetaCloudAdapter implements MessagingProvider {
                 })),
               },
             ],
+          },
+        },
+      };
+    }
+
+    if (message.interactive?.type === "product") {
+      return {
+        messaging_product: "whatsapp",
+        to: toNumber,
+        type: "interactive",
+        interactive: {
+          type: "product",
+          body: { text: message.body ?? "" },
+          action: {
+            catalog_id: message.interactive.catalogId,
+            product_retailer_id: message.interactive.productRetailerId,
+          },
+        },
+      };
+    }
+
+    if (message.interactive?.type === "product_list") {
+      return {
+        messaging_product: "whatsapp",
+        to: toNumber,
+        type: "interactive",
+        interactive: {
+          type: "product_list",
+          header: { type: "text", text: message.interactive.header },
+          body: { text: message.body ?? "" },
+          action: {
+            catalog_id: message.interactive.catalogId,
+            sections: message.interactive.sections.map((s) => ({
+              title: s.title,
+              product_items: s.items.map((i) => ({
+                product_retailer_id: i.productRetailerId,
+              })),
+            })),
           },
         },
       };

@@ -4,6 +4,7 @@ import { captureException } from "~/lib/sentry";
 import { boss, QUEUE, type PgBossJob } from "./queues";
 import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types";
 import { normalizeIncomingPhone } from "~/lib/validations/phone";
+import { checkAndConsumeCredit } from "~/server/credits/service";
 import {
   logOptOutRecorded,
   logLiveItemCreated,
@@ -28,7 +29,9 @@ import { findOrderableItemByCode } from "~/server/catalogue/findOrderableItemByC
 import { findOrCreateOrderableItemByCode } from "~/server/catalogue/findOrCreateOrderableItemByCode";
 import { uploadMediaAndLinkToLiveItem } from "~/server/media/uploadMediaToLiveItem";
 import { uploadMediaToCatalogueItem } from "~/server/media/uploadMediaToCatalogueItem";
+import { uploadProofMedia } from "~/server/media/uploadProofMedia";
 import { isR2Configured } from "~/server/media/r2-client";
+import { createPaymentProof } from "~/server/proof/createPaymentProof";
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { botMsg } from "~/server/messaging/templates";
 import { createOrderFromReservation } from "~/server/order/createOrderFromReservation";
@@ -127,11 +130,37 @@ export function detectFaqIntent(
   return null;
 }
 
+/**
+ * Vérifie si l'heure actuelle est en dehors des heures d'ouverture.
+ * @param start - Heure d'ouverture "HH:MM"
+ * @param end   - Heure de fermeture "HH:MM"
+ * @param tz    - Timezone IANA (ex: "Africa/Abidjan")
+ */
+export function isOutsideBusinessHours(
+  start: string,
+  end: string,
+  tz: string,
+  now: Date = new Date(),
+): boolean {
+  try {
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      timeZone: tz,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    const localTime = formatter.format(now); // "HH:MM"
+    return localTime < start || localTime >= end;
+  } catch {
+    return false; // En cas de timezone invalide, on ne bloque pas
+  }
+}
+
 /** Traite un job webhook : détermine le type de message et enrichit le payload. */
 export async function processWebhookJob(
   job: PgBossJob<InboundMessage>,
 ): Promise<EnrichedInboundMessage> {
-  const { tenantId, from, body, providerMessageId, mediaUrl, correlationId, interactiveReplyId } =
+  const { tenantId, from, body, providerMessageId, mediaUrl, correlationId, interactiveReplyId, orderPayload } =
     job.data;
 
   if (!tenantId) {
@@ -159,15 +188,35 @@ export async function processWebhookJob(
     );
     const messageType = isSeller ? "seller" : "client";
 
+    // 1b. Pour les clients: vérifier les credits (Story Credits)
+    if (messageType === "client") {
+      const creditCheck = await checkAndConsumeCredit(tenantId, clientPhoneE164);
+      if (!creditCheck.allowed) {
+        // Crédits épuisés : on abandonne silencieusement — le client ne doit pas
+        // savoir que le vendeur a atteint sa limite. Aucun message envoyé.
+        workerLogger.info("Credits exhausted, message silently dropped", {
+          tenantId,
+          correlationId,
+        });
+        return { ...job.data, tenantId, messageType, liveSessionId: null };
+      }
+    }
+
     const tenant = await db.tenant.findUnique({
       where: { id: tenantId },
       select: {
         name: true,
+        subscriptionPlan: true,
         requireDeposit: true,
         faqDelivery: true,
         faqPayment: true,
         faqLocation: true,
         faqAvailability: true,
+        // Away message
+        businessHoursStart: true,
+        businessHoursEnd: true,
+        businessTimezone: true,
+        awayMessage: true,
       },
     });
 
@@ -178,7 +227,40 @@ export async function processWebhookJob(
       liveSessionId: liveSessionId ?? null,
     });
 
-    // 2. Détection STOP (Opt-out)
+    // 2. Away message — réponse automatique hors horaires (Phase 4)
+    // Envoyé uniquement aux clients, une seule fois par heure
+    if (
+      messageType === "client" &&
+      tenant?.businessHoursStart &&
+      tenant.businessHoursEnd &&
+      isOutsideBusinessHours(tenant.businessHoursStart, tenant.businessHoursEnd, tenant.businessTimezone ?? "UTC")
+    ) {
+      const recentAwayMessage = await db.messageOut.findFirst({
+        where: {
+          tenantId,
+          to: clientPhoneE164,
+          createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
+          // Identifier les away messages via correlationId préfixé
+          correlationId: { startsWith: "away:" },
+        },
+        select: { id: true },
+      });
+
+      if (!recentAwayMessage) {
+        await writeToOutbox({
+          tenantId,
+          to: clientPhoneE164,
+          ...botMsg.client.awayMessageInteractive(
+            tenant.awayMessage ?? "",
+            tenant.name ?? "",
+          ),
+          correlationId: `away:${correlationId}`,
+        });
+      }
+      // On continue le traitement normal — le bot répond quand même si possible
+    }
+
+    // 3. Détection STOP (Opt-out)
     if (messageType === "client" && isStopMessage(body)) {
       const existing = await db.optOut.findUnique({
         where: { tenantId_phoneNumber: { tenantId, phoneNumber: clientPhoneE164 } },
@@ -191,11 +273,14 @@ export async function processWebhookJob(
       }
     }
 
-    // 3. AI Intent Analysis (Story 12.1)
+    // 3. AI Intent Analysis - only for paid plans (Starter/Pro)
     let aiAnalysis = null;
-    if (!isStopMessage(body) && body.trim().length > 0) {
+    const hasAI = tenant?.subscriptionPlan !== "free";
+    if (hasAI && !isStopMessage(body) && body.trim().length > 0) {
       aiAnalysis = await analyzeInboundIntent(body);
-      workerLogger.info("AI Analysis result", { tenantId, from: clientPhoneE164, aiAnalysis });
+      workerLogger.info("AI Analysis result", { tenantId, intent: aiAnalysis?.intent, confidence: aiAnalysis?.confidence });
+    } else if (!hasAI && !isStopMessage(body) && body.trim().length > 0) {
+      workerLogger.debug("AI skipped for FREE plan", { tenantId, body: body.substring(0, 50) });
     }
 
     // 4. Handoff management
@@ -214,7 +299,57 @@ export async function processWebhookJob(
       if (state?.handedOff) return buildEnrichedMessage();
     }
 
-    // 4. Interactive Replies Handler
+    // 4. Commande via panier WA natif (P1 — message type "order")
+    if (orderPayload?.items.length) {
+      const reserved: Array<{ code: string; qty: number; prix: string }> = [];
+      const failed: string[] = [];
+
+      for (const item of orderPayload.items) {
+        const code = item.productRetailerId.toUpperCase();
+        const result = await findOrCreateOrderableItemByCode(tenantId, code);
+        if (!result) {
+          failed.push(code);
+          continue;
+        }
+        const reservation = await createReservation(tenantId, clientPhoneE164, result.id, item.quantity);
+        if (reservation.success) {
+          reserved.push({
+            code,
+            qty: item.quantity,
+            prix: `${((result.amount ?? 0) * item.quantity).toLocaleString("fr-FR")} FCFA`,
+          });
+        } else {
+          failed.push(code);
+        }
+      }
+
+      if (reserved.length > 0) {
+        // Demander l'adresse de livraison après confirmation
+        await writeToOutbox({
+          tenantId,
+          to: clientPhoneE164,
+          ...botMsg.client.orderSummaryInteractive(
+            reserved,
+            "À renseigner",
+            reserved.map((r) => r.prix).join(" + "),
+          ),
+          correlationId,
+        });
+      }
+
+      if (failed.length > 0) {
+        await writeToOutbox({
+          tenantId,
+          to: clientPhoneE164,
+          body: `Désolé, ${failed.length === 1 ? `l'article *${failed[0]}* n'est` : `les articles *${failed.join(", ")}* ne sont`} plus disponible${failed.length > 1 ? "s" : ""} 😔`,
+          correlationId: `${correlationId}:order_partial`,
+        });
+      }
+
+      return buildEnrichedMessage();
+    }
+
+    // 5. Interactive Replies Handler
     if (interactiveReplyId) {
       if (interactiveReplyId === "cancel_order") {
         const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
@@ -293,6 +428,13 @@ export async function processWebhookJob(
           tenantId,
           to: clientPhoneE164,
           body: botMsg.client.handedOff(),
+          correlationId,
+        });
+      } else if (interactiveReplyId === "send_proof") {
+        await writeToOutbox({
+          tenantId,
+          to: clientPhoneE164,
+          body: botMsg.client.sendProofNow(),
           correlationId,
         });
       } else if (interactiveReplyId === "track_order") {
@@ -450,6 +592,37 @@ export async function processWebhookJob(
         return buildEnrichedMessage(liveSessionId);
       }
 
+      // 6b. Deposit proof — image sans texte (body vide, mediaUrl présent)
+      if (mediaUrl && !trimmedBody) {
+        const pendingDepositOrder = await db.order.findFirst({
+          where: {
+            tenantId,
+            depositStatus: "deposit_pending",
+            reservation: { clientPhone: clientPhoneE164 },
+          },
+          select: { id: true, orderNumber: true },
+          orderBy: { createdAt: "desc" },
+        });
+        if (pendingDepositOrder) {
+          const key = await uploadProofMedia(tenantId, pendingDepositOrder.id, mediaUrl, correlationId).catch(() => null);
+          await createPaymentProof(
+            tenantId,
+            pendingDepositOrder.id,
+            key ? { mediaStorageKey: key } : { textPayload: "[image reçue]" },
+            correlationId,
+          ).catch((err) => {
+            workerLogger.warn("createPaymentProof (image-only) failed", { orderId: pendingDepositOrder.id, err });
+          });
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: botMsg.client.proofReceived(pendingDepositOrder.orderNumber),
+            correlationId,
+          });
+          return buildEnrichedMessage(liveSessionId);
+        }
+      }
+
       if (trimmedBody.length > 0 && !isStopMessage(body)) {
         const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
         if (active?.status === "reserved") {
@@ -484,16 +657,39 @@ export async function processWebhookJob(
             correlationId,
           );
           if (order.success) {
-            await writeToOutbox({
-              tenantId,
-              to: clientPhoneE164,
-              body: tenant?.requireDeposit
-                ? botMsg.client.orderWithDeposit(15)
-                : botMsg.client.orderConfirmed(),
-              correlationId,
-            });
             return buildEnrichedMessage(liveSessionId);
           }
+        }
+
+        // 6c. Deposit proof — texte (référence paiement) ou image + texte (caption)
+        const pendingDepositOrder = await db.order.findFirst({
+          where: {
+            tenantId,
+            depositStatus: "deposit_pending",
+            reservation: { clientPhone: clientPhoneE164 },
+          },
+          select: { id: true, orderNumber: true },
+          orderBy: { createdAt: "desc" },
+        });
+        if (pendingDepositOrder) {
+          const key = mediaUrl
+            ? await uploadProofMedia(tenantId, pendingDepositOrder.id, mediaUrl, correlationId).catch(() => null)
+            : null;
+          await createPaymentProof(
+            tenantId,
+            pendingDepositOrder.id,
+            key ? { mediaStorageKey: key } : { textPayload: trimmedBody },
+            correlationId,
+          ).catch((err) => {
+            workerLogger.warn("createPaymentProof (text) failed", { orderId: pendingDepositOrder.id, err });
+          });
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: botMsg.client.proofReceived(pendingDepositOrder.orderNumber),
+            correlationId,
+          });
+          return buildEnrichedMessage(liveSessionId);
         }
 
         const faqCategory = detectFaqIntent(body) ?? getTrustedAIFaqCategory(aiAnalysis);

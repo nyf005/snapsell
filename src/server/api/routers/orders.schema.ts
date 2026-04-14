@@ -24,6 +24,8 @@ export const listOrdersInputSchema = z
     status: orderStatusSchema.optional(),
     dateFrom: dateOptionalSchema,
     dateTo: dateOptionalSchema,
+    limit: z.number().min(1).max(100).default(20),
+    cursor: z.string().cuid().optional(),
   })
   .optional()
   .refine(
@@ -59,3 +61,28 @@ export type GetOrderByIdInput = z.infer<typeof getOrderByIdInputSchema>;
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusInputSchema>;
 export type ExportCsvOrdersInput = z.infer<typeof exportCsvOrdersInputSchema>;
 export type BulkUpdateStatusInput = z.infer<typeof bulkUpdateStatusInputSchema>;
+
+/** Output pour list paginée */
+export const orderOutputSchema = z.object({
+  id: z.string(),
+  orderNumber: z.string(),
+  status: z.string(),
+  depositStatus: z.string().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  reservationId: z.string(),
+  clientPhone: z.string(),
+  deliveryAddress: z.string().nullable(),
+  deliveryAddressCity: z.string().nullable(),
+  deliveryAddressCommune: z.string().nullable(),
+  deliveryAddressZone: z.string().nullable(),
+  deliveryAddressDetails: z.string().nullable(),
+  liveItemCode: z.string().nullable(),
+});
+
+export type OrderOutput = z.infer<typeof orderOutputSchema>;
+
+export const listOrdersOutputSchema = z.object({
+  items: z.array(orderOutputSchema),
+  nextCursor: z.string().cuid().optional(),
+});

@@ -14,6 +14,19 @@ export interface InboundMessage {
   correlationId: string; // UUID ou message_sid pour traçabilité
   /** ID du bouton ou de l'option liste cliqué (messages interactifs) */
   interactiveReplyId?: string;
+  /**
+   * Payload d'une commande passée via le panier WA natif (P1 — message type "order").
+   * Présent uniquement pour les messages de type "order".
+   */
+  orderPayload?: {
+    catalogId: string;
+    items: Array<{
+      productRetailerId: string;
+      quantity: number;
+      itemPrice: number;
+      currency: string;
+    }>;
+  };
 }
 
 /**
@@ -53,6 +66,24 @@ export type InteractivePayload =
         id: string;
         title: string;
         description?: string;
+      }>;
+    }
+  | {
+      /** Fiche produit unique depuis le catalogue Meta */
+      type: "product";
+      body?: string;
+      catalogId: string;
+      productRetailerId: string;
+    }
+  | {
+      /** Liste multi-produits depuis le catalogue Meta (max 30 articles en sections) */
+      type: "product_list";
+      header: string;
+      body?: string;
+      catalogId: string;
+      sections: Array<{
+        title: string;
+        items: Array<{ productRetailerId: string }>;
       }>;
     };
 

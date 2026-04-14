@@ -8,6 +8,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
 import { Spinner } from "~/components/ui/spinner";
+import { FaqSettingsSkeleton } from "./faq-settings-skeletons";
 import { api } from "~/trpc/react";
 
 const FAQ_FIELDS = [
@@ -95,9 +96,7 @@ export function FaqSettingsContent() {
 
       <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Spinner />
-          </div>
+          <FaqSettingsSkeleton />
         ) : (
           <Card>
             <CardHeader className="pb-2 text-sm font-medium text-muted-foreground">

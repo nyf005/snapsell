@@ -114,6 +114,11 @@ export type Reservation = $Result.DefaultSelection<Prisma.$ReservationPayload>
  */
 export type ConversationState = $Result.DefaultSelection<Prisma.$ConversationStatePayload>
 /**
+ * Model ConversationWindow
+ * 
+ */
+export type ConversationWindow = $Result.DefaultSelection<Prisma.$ConversationWindowPayload>
+/**
  * Model Order
  * 
  */
@@ -562,6 +567,16 @@ export class PrismaClient<
     * ```
     */
   get conversationState(): Prisma.ConversationStateDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.conversationWindow`: Exposes CRUD operations for the **ConversationWindow** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ConversationWindows
+    * const conversationWindows = await prisma.conversationWindow.findMany()
+    * ```
+    */
+  get conversationWindow(): Prisma.ConversationWindowDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.order`: Exposes CRUD operations for the **Order** model.
@@ -1076,6 +1091,7 @@ export namespace Prisma {
     ItemVariant: 'ItemVariant',
     Reservation: 'Reservation',
     ConversationState: 'ConversationState',
+    ConversationWindow: 'ConversationWindow',
     Order: 'Order',
     PaymentProof: 'PaymentProof',
     Waitlist: 'Waitlist',
@@ -1097,7 +1113,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "liveSession" | "liveItem" | "catalogueItem" | "itemVariant" | "reservation" | "conversationState" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "messageOut" | "subscriptionPayment"
+      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "sellerPhone" | "eventLog" | "optOut" | "liveSession" | "liveItem" | "catalogueItem" | "itemVariant" | "reservation" | "conversationState" | "conversationWindow" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "messageOut" | "subscriptionPayment"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2581,6 +2597,80 @@ export namespace Prisma {
           }
         }
       }
+      ConversationWindow: {
+        payload: Prisma.$ConversationWindowPayload<ExtArgs>
+        fields: Prisma.ConversationWindowFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ConversationWindowFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationWindowPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ConversationWindowFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationWindowPayload>
+          }
+          findFirst: {
+            args: Prisma.ConversationWindowFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationWindowPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ConversationWindowFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationWindowPayload>
+          }
+          findMany: {
+            args: Prisma.ConversationWindowFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationWindowPayload>[]
+          }
+          create: {
+            args: Prisma.ConversationWindowCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationWindowPayload>
+          }
+          createMany: {
+            args: Prisma.ConversationWindowCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ConversationWindowCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationWindowPayload>[]
+          }
+          delete: {
+            args: Prisma.ConversationWindowDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationWindowPayload>
+          }
+          update: {
+            args: Prisma.ConversationWindowUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationWindowPayload>
+          }
+          deleteMany: {
+            args: Prisma.ConversationWindowDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ConversationWindowUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ConversationWindowUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationWindowPayload>[]
+          }
+          upsert: {
+            args: Prisma.ConversationWindowUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationWindowPayload>
+          }
+          aggregate: {
+            args: Prisma.ConversationWindowAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConversationWindow>
+          }
+          groupBy: {
+            args: Prisma.ConversationWindowGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConversationWindowGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ConversationWindowCountArgs<ExtArgs>
+            result: $Utils.Optional<ConversationWindowCountAggregateOutputType> | number
+          }
+        }
+      }
       Order: {
         payload: Prisma.$OrderPayload<ExtArgs>
         fields: Prisma.OrderFieldRefs
@@ -3153,6 +3243,7 @@ export namespace Prisma {
     itemVariant?: ItemVariantOmit
     reservation?: ReservationOmit
     conversationState?: ConversationStateOmit
+    conversationWindow?: ConversationWindowOmit
     order?: OrderOmit
     paymentProof?: PaymentProofOmit
     waitlist?: WaitlistOmit
@@ -3254,6 +3345,7 @@ export namespace Prisma {
     liveSessions: number
     liveItems: number
     catalogueItems: number
+    conversationWindows: number
     reservations: number
     waitlists: number
     orders: number
@@ -3278,6 +3370,7 @@ export namespace Prisma {
     liveSessions?: boolean | TenantCountOutputTypeCountLiveSessionsArgs
     liveItems?: boolean | TenantCountOutputTypeCountLiveItemsArgs
     catalogueItems?: boolean | TenantCountOutputTypeCountCatalogueItemsArgs
+    conversationWindows?: boolean | TenantCountOutputTypeCountConversationWindowsArgs
     reservations?: boolean | TenantCountOutputTypeCountReservationsArgs
     waitlists?: boolean | TenantCountOutputTypeCountWaitlistsArgs
     orders?: boolean | TenantCountOutputTypeCountOrdersArgs
@@ -3400,6 +3493,13 @@ export namespace Prisma {
    */
   export type TenantCountOutputTypeCountCatalogueItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CatalogueItemWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountConversationWindowsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConversationWindowWhereInput
   }
 
   /**
@@ -3724,6 +3824,8 @@ export namespace Prisma {
   }
 
   export type TenantAvgAggregateOutputType = {
+    creditsBalance: number | null
+    creditsTotalMonthly: number | null
     maxConfirmedOrdersPerMonth: number | null
     maxProofsPerMonth: number | null
     maxAgents: number | null
@@ -3731,6 +3833,8 @@ export namespace Prisma {
   }
 
   export type TenantSumAggregateOutputType = {
+    creditsBalance: number | null
+    creditsTotalMonthly: number | null
     maxConfirmedOrdersPerMonth: number | null
     maxProofsPerMonth: number | null
     maxAgents: number | null
@@ -3750,6 +3854,10 @@ export namespace Prisma {
     subscriptionStatus: string | null
     subscriptionExpiresAt: Date | null
     cycleStartedAt: Date | null
+    creditsBalance: number | null
+    creditsTotalMonthly: number | null
+    usageResetDate: Date | null
+    lowCreditsAlerted: boolean | null
     paystackCustomerCode: string | null
     paystackSubscriptionCode: string | null
     paystackEmailToken: string | null
@@ -3791,6 +3899,10 @@ export namespace Prisma {
     subscriptionStatus: string | null
     subscriptionExpiresAt: Date | null
     cycleStartedAt: Date | null
+    creditsBalance: number | null
+    creditsTotalMonthly: number | null
+    usageResetDate: Date | null
+    lowCreditsAlerted: boolean | null
     paystackCustomerCode: string | null
     paystackSubscriptionCode: string | null
     paystackEmailToken: string | null
@@ -3832,6 +3944,10 @@ export namespace Prisma {
     subscriptionStatus: number
     subscriptionExpiresAt: number
     cycleStartedAt: number
+    creditsBalance: number
+    creditsTotalMonthly: number
+    usageResetDate: number
+    lowCreditsAlerted: number
     paystackCustomerCode: number
     paystackSubscriptionCode: number
     paystackEmailToken: number
@@ -3863,6 +3979,8 @@ export namespace Prisma {
 
 
   export type TenantAvgAggregateInputType = {
+    creditsBalance?: true
+    creditsTotalMonthly?: true
     maxConfirmedOrdersPerMonth?: true
     maxProofsPerMonth?: true
     maxAgents?: true
@@ -3870,6 +3988,8 @@ export namespace Prisma {
   }
 
   export type TenantSumAggregateInputType = {
+    creditsBalance?: true
+    creditsTotalMonthly?: true
     maxConfirmedOrdersPerMonth?: true
     maxProofsPerMonth?: true
     maxAgents?: true
@@ -3889,6 +4009,10 @@ export namespace Prisma {
     subscriptionStatus?: true
     subscriptionExpiresAt?: true
     cycleStartedAt?: true
+    creditsBalance?: true
+    creditsTotalMonthly?: true
+    usageResetDate?: true
+    lowCreditsAlerted?: true
     paystackCustomerCode?: true
     paystackSubscriptionCode?: true
     paystackEmailToken?: true
@@ -3930,6 +4054,10 @@ export namespace Prisma {
     subscriptionStatus?: true
     subscriptionExpiresAt?: true
     cycleStartedAt?: true
+    creditsBalance?: true
+    creditsTotalMonthly?: true
+    usageResetDate?: true
+    lowCreditsAlerted?: true
     paystackCustomerCode?: true
     paystackSubscriptionCode?: true
     paystackEmailToken?: true
@@ -3971,6 +4099,10 @@ export namespace Prisma {
     subscriptionStatus?: true
     subscriptionExpiresAt?: true
     cycleStartedAt?: true
+    creditsBalance?: true
+    creditsTotalMonthly?: true
+    usageResetDate?: true
+    lowCreditsAlerted?: true
     paystackCustomerCode?: true
     paystackSubscriptionCode?: true
     paystackEmailToken?: true
@@ -4099,6 +4231,10 @@ export namespace Prisma {
     subscriptionStatus: string
     subscriptionExpiresAt: Date | null
     cycleStartedAt: Date | null
+    creditsBalance: number
+    creditsTotalMonthly: number
+    usageResetDate: Date | null
+    lowCreditsAlerted: boolean
     paystackCustomerCode: string | null
     paystackSubscriptionCode: string | null
     paystackEmailToken: string | null
@@ -4159,6 +4295,10 @@ export namespace Prisma {
     subscriptionStatus?: boolean
     subscriptionExpiresAt?: boolean
     cycleStartedAt?: boolean
+    creditsBalance?: boolean
+    creditsTotalMonthly?: boolean
+    usageResetDate?: boolean
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: boolean
     paystackSubscriptionCode?: boolean
     paystackEmailToken?: boolean
@@ -4200,6 +4340,7 @@ export namespace Prisma {
     liveSessions?: boolean | Tenant$liveSessionsArgs<ExtArgs>
     liveItems?: boolean | Tenant$liveItemsArgs<ExtArgs>
     catalogueItems?: boolean | Tenant$catalogueItemsArgs<ExtArgs>
+    conversationWindows?: boolean | Tenant$conversationWindowsArgs<ExtArgs>
     reservations?: boolean | Tenant$reservationsArgs<ExtArgs>
     waitlists?: boolean | Tenant$waitlistsArgs<ExtArgs>
     orders?: boolean | Tenant$ordersArgs<ExtArgs>
@@ -4222,6 +4363,10 @@ export namespace Prisma {
     subscriptionStatus?: boolean
     subscriptionExpiresAt?: boolean
     cycleStartedAt?: boolean
+    creditsBalance?: boolean
+    creditsTotalMonthly?: boolean
+    usageResetDate?: boolean
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: boolean
     paystackSubscriptionCode?: boolean
     paystackEmailToken?: boolean
@@ -4263,6 +4408,10 @@ export namespace Prisma {
     subscriptionStatus?: boolean
     subscriptionExpiresAt?: boolean
     cycleStartedAt?: boolean
+    creditsBalance?: boolean
+    creditsTotalMonthly?: boolean
+    usageResetDate?: boolean
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: boolean
     paystackSubscriptionCode?: boolean
     paystackEmailToken?: boolean
@@ -4304,6 +4453,10 @@ export namespace Prisma {
     subscriptionStatus?: boolean
     subscriptionExpiresAt?: boolean
     cycleStartedAt?: boolean
+    creditsBalance?: boolean
+    creditsTotalMonthly?: boolean
+    usageResetDate?: boolean
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: boolean
     paystackSubscriptionCode?: boolean
     paystackEmailToken?: boolean
@@ -4332,7 +4485,7 @@ export namespace Prisma {
     awayMessage?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     conversationStates?: boolean | Tenant$conversationStatesArgs<ExtArgs>
@@ -4349,6 +4502,7 @@ export namespace Prisma {
     liveSessions?: boolean | Tenant$liveSessionsArgs<ExtArgs>
     liveItems?: boolean | Tenant$liveItemsArgs<ExtArgs>
     catalogueItems?: boolean | Tenant$catalogueItemsArgs<ExtArgs>
+    conversationWindows?: boolean | Tenant$conversationWindowsArgs<ExtArgs>
     reservations?: boolean | Tenant$reservationsArgs<ExtArgs>
     waitlists?: boolean | Tenant$waitlistsArgs<ExtArgs>
     orders?: boolean | Tenant$ordersArgs<ExtArgs>
@@ -4378,6 +4532,7 @@ export namespace Prisma {
       liveSessions: Prisma.$LiveSessionPayload<ExtArgs>[]
       liveItems: Prisma.$LiveItemPayload<ExtArgs>[]
       catalogueItems: Prisma.$CatalogueItemPayload<ExtArgs>[]
+      conversationWindows: Prisma.$ConversationWindowPayload<ExtArgs>[]
       reservations: Prisma.$ReservationPayload<ExtArgs>[]
       waitlists: Prisma.$WaitlistPayload<ExtArgs>[]
       orders: Prisma.$OrderPayload<ExtArgs>[]
@@ -4398,6 +4553,10 @@ export namespace Prisma {
       subscriptionStatus: string
       subscriptionExpiresAt: Date | null
       cycleStartedAt: Date | null
+      creditsBalance: number
+      creditsTotalMonthly: number
+      usageResetDate: Date | null
+      lowCreditsAlerted: boolean
       paystackCustomerCode: string | null
       paystackSubscriptionCode: string | null
       paystackEmailToken: string | null
@@ -4833,6 +4992,7 @@ export namespace Prisma {
     liveSessions<T extends Tenant$liveSessionsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$liveSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiveSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     liveItems<T extends Tenant$liveItemsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$liveItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     catalogueItems<T extends Tenant$catalogueItemsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$catalogueItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    conversationWindows<T extends Tenant$conversationWindowsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$conversationWindowsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reservations<T extends Tenant$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     waitlists<T extends Tenant$waitlistsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$waitlistsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orders<T extends Tenant$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4880,6 +5040,10 @@ export namespace Prisma {
     readonly subscriptionStatus: FieldRef<"Tenant", 'String'>
     readonly subscriptionExpiresAt: FieldRef<"Tenant", 'DateTime'>
     readonly cycleStartedAt: FieldRef<"Tenant", 'DateTime'>
+    readonly creditsBalance: FieldRef<"Tenant", 'Int'>
+    readonly creditsTotalMonthly: FieldRef<"Tenant", 'Int'>
+    readonly usageResetDate: FieldRef<"Tenant", 'DateTime'>
+    readonly lowCreditsAlerted: FieldRef<"Tenant", 'Boolean'>
     readonly paystackCustomerCode: FieldRef<"Tenant", 'String'>
     readonly paystackSubscriptionCode: FieldRef<"Tenant", 'String'>
     readonly paystackEmailToken: FieldRef<"Tenant", 'String'>
@@ -5651,6 +5815,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CatalogueItemScalarFieldEnum | CatalogueItemScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.conversationWindows
+   */
+  export type Tenant$conversationWindowsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowInclude<ExtArgs> | null
+    where?: ConversationWindowWhereInput
+    orderBy?: ConversationWindowOrderByWithRelationInput | ConversationWindowOrderByWithRelationInput[]
+    cursor?: ConversationWindowWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ConversationWindowScalarFieldEnum | ConversationWindowScalarFieldEnum[]
   }
 
   /**
@@ -22501,17 +22689,17 @@ export namespace Prisma {
     id: string | null
     tenantId: string | null
     code: string | null
+    name: string | null
     amount: number | null
     quantity: number | null
     availableQty: number | null
     reservedQty: number | null
     mediaStorageKey: string | null
-    name: string | null
+    origin: $Enums.CatalogueItemOrigin | null
+    createdInLive: boolean | null
     metaProductId: string | null
     syncedToMeta: boolean | null
     metaSyncedAt: Date | null
-    origin: $Enums.CatalogueItemOrigin | null
-    createdInLive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -22520,17 +22708,17 @@ export namespace Prisma {
     id: string | null
     tenantId: string | null
     code: string | null
+    name: string | null
     amount: number | null
     quantity: number | null
     availableQty: number | null
     reservedQty: number | null
     mediaStorageKey: string | null
-    name: string | null
+    origin: $Enums.CatalogueItemOrigin | null
+    createdInLive: boolean | null
     metaProductId: string | null
     syncedToMeta: boolean | null
     metaSyncedAt: Date | null
-    origin: $Enums.CatalogueItemOrigin | null
-    createdInLive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -22539,18 +22727,18 @@ export namespace Prisma {
     id: number
     tenantId: number
     code: number
+    name: number
     amount: number
     quantity: number
     availableQty: number
     reservedQty: number
     mediaStorageKey: number
-    name: number
-    metaProductId: number
-    syncedToMeta: number
-    metaSyncedAt: number
     attributes: number
     origin: number
     createdInLive: number
+    metaProductId: number
+    syncedToMeta: number
+    metaSyncedAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -22575,17 +22763,17 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     code?: true
+    name?: true
     amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
     mediaStorageKey?: true
-    name?: true
+    origin?: true
+    createdInLive?: true
     metaProductId?: true
     syncedToMeta?: true
     metaSyncedAt?: true
-    origin?: true
-    createdInLive?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -22594,17 +22782,17 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     code?: true
+    name?: true
     amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
     mediaStorageKey?: true
-    name?: true
+    origin?: true
+    createdInLive?: true
     metaProductId?: true
     syncedToMeta?: true
     metaSyncedAt?: true
-    origin?: true
-    createdInLive?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -22613,18 +22801,18 @@ export namespace Prisma {
     id?: true
     tenantId?: true
     code?: true
+    name?: true
     amount?: true
     quantity?: true
     availableQty?: true
     reservedQty?: true
     mediaStorageKey?: true
-    name?: true
-    metaProductId?: true
-    syncedToMeta?: true
-    metaSyncedAt?: true
     attributes?: true
     origin?: true
     createdInLive?: true
+    metaProductId?: true
+    syncedToMeta?: true
+    metaSyncedAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -22720,18 +22908,18 @@ export namespace Prisma {
     id: string
     tenantId: string
     code: string
+    name: string | null
     amount: number | null
     quantity: number
     availableQty: number
     reservedQty: number
     mediaStorageKey: string | null
-    name: string | null
-    metaProductId: string | null
-    syncedToMeta: boolean
-    metaSyncedAt: Date | null
     attributes: JsonValue | null
     origin: $Enums.CatalogueItemOrigin
     createdInLive: boolean
+    metaProductId: string | null
+    syncedToMeta: boolean
+    metaSyncedAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: CatalogueItemCountAggregateOutputType | null
@@ -22759,18 +22947,18 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     code?: boolean
+    name?: boolean
     amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
-    name?: boolean
-    metaProductId?: boolean
-    syncedToMeta?: boolean
-    metaSyncedAt?: boolean
     attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
+    metaProductId?: boolean
+    syncedToMeta?: boolean
+    metaSyncedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -22784,18 +22972,18 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     code?: boolean
+    name?: boolean
     amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
-    name?: boolean
-    metaProductId?: boolean
-    syncedToMeta?: boolean
-    metaSyncedAt?: boolean
     attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
+    metaProductId?: boolean
+    syncedToMeta?: boolean
+    metaSyncedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -22805,18 +22993,18 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     code?: boolean
+    name?: boolean
     amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
-    name?: boolean
-    metaProductId?: boolean
-    syncedToMeta?: boolean
-    metaSyncedAt?: boolean
     attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
+    metaProductId?: boolean
+    syncedToMeta?: boolean
+    metaSyncedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -22826,23 +23014,23 @@ export namespace Prisma {
     id?: boolean
     tenantId?: boolean
     code?: boolean
+    name?: boolean
     amount?: boolean
     quantity?: boolean
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
-    name?: boolean
-    metaProductId?: boolean
-    syncedToMeta?: boolean
-    metaSyncedAt?: boolean
     attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
+    metaProductId?: boolean
+    syncedToMeta?: boolean
+    metaSyncedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CatalogueItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "code" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "name" | "metaProductId" | "syncedToMeta" | "metaSyncedAt" | "attributes" | "origin" | "createdInLive" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogueItem"]>
+  export type CatalogueItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "code" | "name" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "attributes" | "origin" | "createdInLive" | "metaProductId" | "syncedToMeta" | "metaSyncedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogueItem"]>
   export type CatalogueItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     reservations?: boolean | CatalogueItem$reservationsArgs<ExtArgs>
@@ -22869,18 +23057,18 @@ export namespace Prisma {
       id: string
       tenantId: string
       code: string
+      name: string | null
       amount: number | null
       quantity: number
       availableQty: number
       reservedQty: number
       mediaStorageKey: string | null
-      name: string | null
-      metaProductId: string | null
-      syncedToMeta: boolean
-      metaSyncedAt: Date | null
       attributes: Prisma.JsonValue | null
       origin: $Enums.CatalogueItemOrigin
       createdInLive: boolean
+      metaProductId: string | null
+      syncedToMeta: boolean
+      metaSyncedAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["catalogueItem"]>
@@ -23313,18 +23501,18 @@ export namespace Prisma {
     readonly id: FieldRef<"CatalogueItem", 'String'>
     readonly tenantId: FieldRef<"CatalogueItem", 'String'>
     readonly code: FieldRef<"CatalogueItem", 'String'>
+    readonly name: FieldRef<"CatalogueItem", 'String'>
     readonly amount: FieldRef<"CatalogueItem", 'Int'>
     readonly quantity: FieldRef<"CatalogueItem", 'Int'>
     readonly availableQty: FieldRef<"CatalogueItem", 'Int'>
     readonly reservedQty: FieldRef<"CatalogueItem", 'Int'>
     readonly mediaStorageKey: FieldRef<"CatalogueItem", 'String'>
-    readonly name: FieldRef<"CatalogueItem", 'String'>
-    readonly metaProductId: FieldRef<"CatalogueItem", 'String'>
-    readonly syncedToMeta: FieldRef<"CatalogueItem", 'Boolean'>
-    readonly metaSyncedAt: FieldRef<"CatalogueItem", 'DateTime'>
     readonly attributes: FieldRef<"CatalogueItem", 'Json'>
     readonly origin: FieldRef<"CatalogueItem", 'CatalogueItemOrigin'>
     readonly createdInLive: FieldRef<"CatalogueItem", 'Boolean'>
+    readonly metaProductId: FieldRef<"CatalogueItem", 'String'>
+    readonly syncedToMeta: FieldRef<"CatalogueItem", 'Boolean'>
+    readonly metaSyncedAt: FieldRef<"CatalogueItem", 'DateTime'>
     readonly createdAt: FieldRef<"CatalogueItem", 'DateTime'>
     readonly updatedAt: FieldRef<"CatalogueItem", 'DateTime'>
   }
@@ -25102,6 +25290,11 @@ export namespace Prisma {
     variantId: string | null
     status: $Enums.ReservationStatus | null
     address: string | null
+    addressCity: string | null
+    addressCommune: string | null
+    addressZone: string | null
+    addressDetails: string | null
+    addressRaw: string | null
     expiresAt: Date | null
     reminderSentAt: Date | null
     correlationId: string | null
@@ -25120,6 +25313,11 @@ export namespace Prisma {
     variantId: string | null
     status: $Enums.ReservationStatus | null
     address: string | null
+    addressCity: string | null
+    addressCommune: string | null
+    addressZone: string | null
+    addressDetails: string | null
+    addressRaw: string | null
     expiresAt: Date | null
     reminderSentAt: Date | null
     correlationId: string | null
@@ -25138,6 +25336,11 @@ export namespace Prisma {
     variantId: number
     status: number
     address: number
+    addressCity: number
+    addressCommune: number
+    addressZone: number
+    addressDetails: number
+    addressRaw: number
     expiresAt: number
     reminderSentAt: number
     correlationId: number
@@ -25166,6 +25369,11 @@ export namespace Prisma {
     variantId?: true
     status?: true
     address?: true
+    addressCity?: true
+    addressCommune?: true
+    addressZone?: true
+    addressDetails?: true
+    addressRaw?: true
     expiresAt?: true
     reminderSentAt?: true
     correlationId?: true
@@ -25184,6 +25392,11 @@ export namespace Prisma {
     variantId?: true
     status?: true
     address?: true
+    addressCity?: true
+    addressCommune?: true
+    addressZone?: true
+    addressDetails?: true
+    addressRaw?: true
     expiresAt?: true
     reminderSentAt?: true
     correlationId?: true
@@ -25202,6 +25415,11 @@ export namespace Prisma {
     variantId?: true
     status?: true
     address?: true
+    addressCity?: true
+    addressCommune?: true
+    addressZone?: true
+    addressDetails?: true
+    addressRaw?: true
     expiresAt?: true
     reminderSentAt?: true
     correlationId?: true
@@ -25307,6 +25525,11 @@ export namespace Prisma {
     variantId: string | null
     status: $Enums.ReservationStatus
     address: string | null
+    addressCity: string | null
+    addressCommune: string | null
+    addressZone: string | null
+    addressDetails: string | null
+    addressRaw: string | null
     expiresAt: Date | null
     reminderSentAt: Date | null
     correlationId: string
@@ -25344,6 +25567,11 @@ export namespace Prisma {
     variantId?: boolean
     status?: boolean
     address?: boolean
+    addressCity?: boolean
+    addressCommune?: boolean
+    addressZone?: boolean
+    addressDetails?: boolean
+    addressRaw?: boolean
     expiresAt?: boolean
     reminderSentAt?: boolean
     correlationId?: boolean
@@ -25368,6 +25596,11 @@ export namespace Prisma {
     variantId?: boolean
     status?: boolean
     address?: boolean
+    addressCity?: boolean
+    addressCommune?: boolean
+    addressZone?: boolean
+    addressDetails?: boolean
+    addressRaw?: boolean
     expiresAt?: boolean
     reminderSentAt?: boolean
     correlationId?: boolean
@@ -25391,6 +25624,11 @@ export namespace Prisma {
     variantId?: boolean
     status?: boolean
     address?: boolean
+    addressCity?: boolean
+    addressCommune?: boolean
+    addressZone?: boolean
+    addressDetails?: boolean
+    addressRaw?: boolean
     expiresAt?: boolean
     reminderSentAt?: boolean
     correlationId?: boolean
@@ -25414,6 +25652,11 @@ export namespace Prisma {
     variantId?: boolean
     status?: boolean
     address?: boolean
+    addressCity?: boolean
+    addressCommune?: boolean
+    addressZone?: boolean
+    addressDetails?: boolean
+    addressRaw?: boolean
     expiresAt?: boolean
     reminderSentAt?: boolean
     correlationId?: boolean
@@ -25421,7 +25664,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ReservationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "liveItemId" | "catalogueItemId" | "clientPhone" | "quantity" | "variantId" | "status" | "address" | "expiresAt" | "reminderSentAt" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["reservation"]>
+  export type ReservationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "liveSessionId" | "liveItemId" | "catalogueItemId" | "clientPhone" | "quantity" | "variantId" | "status" | "address" | "addressCity" | "addressCommune" | "addressZone" | "addressDetails" | "addressRaw" | "expiresAt" | "reminderSentAt" | "correlationId" | "createdAt" | "updatedAt", ExtArgs["result"]["reservation"]>
   export type ReservationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     liveSession?: boolean | Reservation$liveSessionArgs<ExtArgs>
@@ -25466,6 +25709,11 @@ export namespace Prisma {
       variantId: string | null
       status: $Enums.ReservationStatus
       address: string | null
+      addressCity: string | null
+      addressCommune: string | null
+      addressZone: string | null
+      addressDetails: string | null
+      addressRaw: string | null
       expiresAt: Date | null
       reminderSentAt: Date | null
       correlationId: string
@@ -25910,6 +26158,11 @@ export namespace Prisma {
     readonly variantId: FieldRef<"Reservation", 'String'>
     readonly status: FieldRef<"Reservation", 'ReservationStatus'>
     readonly address: FieldRef<"Reservation", 'String'>
+    readonly addressCity: FieldRef<"Reservation", 'String'>
+    readonly addressCommune: FieldRef<"Reservation", 'String'>
+    readonly addressZone: FieldRef<"Reservation", 'String'>
+    readonly addressDetails: FieldRef<"Reservation", 'String'>
+    readonly addressRaw: FieldRef<"Reservation", 'String'>
     readonly expiresAt: FieldRef<"Reservation", 'DateTime'>
     readonly reminderSentAt: FieldRef<"Reservation", 'DateTime'>
     readonly correlationId: FieldRef<"Reservation", 'String'>
@@ -27501,6 +27754,1064 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ConversationStateInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ConversationWindow
+   */
+
+  export type AggregateConversationWindow = {
+    _count: ConversationWindowCountAggregateOutputType | null
+    _min: ConversationWindowMinAggregateOutputType | null
+    _max: ConversationWindowMaxAggregateOutputType | null
+  }
+
+  export type ConversationWindowMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    customerPhone: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ConversationWindowMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    customerPhone: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ConversationWindowCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    customerPhone: number
+    expiresAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ConversationWindowMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    customerPhone?: true
+    expiresAt?: true
+    createdAt?: true
+  }
+
+  export type ConversationWindowMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    customerPhone?: true
+    expiresAt?: true
+    createdAt?: true
+  }
+
+  export type ConversationWindowCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    customerPhone?: true
+    expiresAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ConversationWindowAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversationWindow to aggregate.
+     */
+    where?: ConversationWindowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationWindows to fetch.
+     */
+    orderBy?: ConversationWindowOrderByWithRelationInput | ConversationWindowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ConversationWindowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationWindows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationWindows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ConversationWindows
+    **/
+    _count?: true | ConversationWindowCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ConversationWindowMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ConversationWindowMaxAggregateInputType
+  }
+
+  export type GetConversationWindowAggregateType<T extends ConversationWindowAggregateArgs> = {
+        [P in keyof T & keyof AggregateConversationWindow]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateConversationWindow[P]>
+      : GetScalarType<T[P], AggregateConversationWindow[P]>
+  }
+
+
+
+
+  export type ConversationWindowGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConversationWindowWhereInput
+    orderBy?: ConversationWindowOrderByWithAggregationInput | ConversationWindowOrderByWithAggregationInput[]
+    by: ConversationWindowScalarFieldEnum[] | ConversationWindowScalarFieldEnum
+    having?: ConversationWindowScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ConversationWindowCountAggregateInputType | true
+    _min?: ConversationWindowMinAggregateInputType
+    _max?: ConversationWindowMaxAggregateInputType
+  }
+
+  export type ConversationWindowGroupByOutputType = {
+    id: string
+    tenantId: string
+    customerPhone: string
+    expiresAt: Date
+    createdAt: Date
+    _count: ConversationWindowCountAggregateOutputType | null
+    _min: ConversationWindowMinAggregateOutputType | null
+    _max: ConversationWindowMaxAggregateOutputType | null
+  }
+
+  type GetConversationWindowGroupByPayload<T extends ConversationWindowGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ConversationWindowGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ConversationWindowGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ConversationWindowGroupByOutputType[P]>
+            : GetScalarType<T[P], ConversationWindowGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ConversationWindowSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    customerPhone?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationWindow"]>
+
+  export type ConversationWindowSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    customerPhone?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationWindow"]>
+
+  export type ConversationWindowSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    customerPhone?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationWindow"]>
+
+  export type ConversationWindowSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    customerPhone?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type ConversationWindowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "customerPhone" | "expiresAt" | "createdAt", ExtArgs["result"]["conversationWindow"]>
+  export type ConversationWindowInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type ConversationWindowIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type ConversationWindowIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+
+  export type $ConversationWindowPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConversationWindow"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      customerPhone: string
+      expiresAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["conversationWindow"]>
+    composites: {}
+  }
+
+  type ConversationWindowGetPayload<S extends boolean | null | undefined | ConversationWindowDefaultArgs> = $Result.GetResult<Prisma.$ConversationWindowPayload, S>
+
+  type ConversationWindowCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ConversationWindowFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ConversationWindowCountAggregateInputType | true
+    }
+
+  export interface ConversationWindowDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConversationWindow'], meta: { name: 'ConversationWindow' } }
+    /**
+     * Find zero or one ConversationWindow that matches the filter.
+     * @param {ConversationWindowFindUniqueArgs} args - Arguments to find a ConversationWindow
+     * @example
+     * // Get one ConversationWindow
+     * const conversationWindow = await prisma.conversationWindow.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ConversationWindowFindUniqueArgs>(args: SelectSubset<T, ConversationWindowFindUniqueArgs<ExtArgs>>): Prisma__ConversationWindowClient<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ConversationWindow that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ConversationWindowFindUniqueOrThrowArgs} args - Arguments to find a ConversationWindow
+     * @example
+     * // Get one ConversationWindow
+     * const conversationWindow = await prisma.conversationWindow.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ConversationWindowFindUniqueOrThrowArgs>(args: SelectSubset<T, ConversationWindowFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConversationWindowClient<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversationWindow that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationWindowFindFirstArgs} args - Arguments to find a ConversationWindow
+     * @example
+     * // Get one ConversationWindow
+     * const conversationWindow = await prisma.conversationWindow.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ConversationWindowFindFirstArgs>(args?: SelectSubset<T, ConversationWindowFindFirstArgs<ExtArgs>>): Prisma__ConversationWindowClient<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversationWindow that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationWindowFindFirstOrThrowArgs} args - Arguments to find a ConversationWindow
+     * @example
+     * // Get one ConversationWindow
+     * const conversationWindow = await prisma.conversationWindow.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ConversationWindowFindFirstOrThrowArgs>(args?: SelectSubset<T, ConversationWindowFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConversationWindowClient<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ConversationWindows that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationWindowFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ConversationWindows
+     * const conversationWindows = await prisma.conversationWindow.findMany()
+     * 
+     * // Get first 10 ConversationWindows
+     * const conversationWindows = await prisma.conversationWindow.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const conversationWindowWithIdOnly = await prisma.conversationWindow.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ConversationWindowFindManyArgs>(args?: SelectSubset<T, ConversationWindowFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ConversationWindow.
+     * @param {ConversationWindowCreateArgs} args - Arguments to create a ConversationWindow.
+     * @example
+     * // Create one ConversationWindow
+     * const ConversationWindow = await prisma.conversationWindow.create({
+     *   data: {
+     *     // ... data to create a ConversationWindow
+     *   }
+     * })
+     * 
+     */
+    create<T extends ConversationWindowCreateArgs>(args: SelectSubset<T, ConversationWindowCreateArgs<ExtArgs>>): Prisma__ConversationWindowClient<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ConversationWindows.
+     * @param {ConversationWindowCreateManyArgs} args - Arguments to create many ConversationWindows.
+     * @example
+     * // Create many ConversationWindows
+     * const conversationWindow = await prisma.conversationWindow.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ConversationWindowCreateManyArgs>(args?: SelectSubset<T, ConversationWindowCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ConversationWindows and returns the data saved in the database.
+     * @param {ConversationWindowCreateManyAndReturnArgs} args - Arguments to create many ConversationWindows.
+     * @example
+     * // Create many ConversationWindows
+     * const conversationWindow = await prisma.conversationWindow.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ConversationWindows and only return the `id`
+     * const conversationWindowWithIdOnly = await prisma.conversationWindow.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ConversationWindowCreateManyAndReturnArgs>(args?: SelectSubset<T, ConversationWindowCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ConversationWindow.
+     * @param {ConversationWindowDeleteArgs} args - Arguments to delete one ConversationWindow.
+     * @example
+     * // Delete one ConversationWindow
+     * const ConversationWindow = await prisma.conversationWindow.delete({
+     *   where: {
+     *     // ... filter to delete one ConversationWindow
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ConversationWindowDeleteArgs>(args: SelectSubset<T, ConversationWindowDeleteArgs<ExtArgs>>): Prisma__ConversationWindowClient<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ConversationWindow.
+     * @param {ConversationWindowUpdateArgs} args - Arguments to update one ConversationWindow.
+     * @example
+     * // Update one ConversationWindow
+     * const conversationWindow = await prisma.conversationWindow.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ConversationWindowUpdateArgs>(args: SelectSubset<T, ConversationWindowUpdateArgs<ExtArgs>>): Prisma__ConversationWindowClient<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ConversationWindows.
+     * @param {ConversationWindowDeleteManyArgs} args - Arguments to filter ConversationWindows to delete.
+     * @example
+     * // Delete a few ConversationWindows
+     * const { count } = await prisma.conversationWindow.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ConversationWindowDeleteManyArgs>(args?: SelectSubset<T, ConversationWindowDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversationWindows.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationWindowUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ConversationWindows
+     * const conversationWindow = await prisma.conversationWindow.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ConversationWindowUpdateManyArgs>(args: SelectSubset<T, ConversationWindowUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversationWindows and returns the data updated in the database.
+     * @param {ConversationWindowUpdateManyAndReturnArgs} args - Arguments to update many ConversationWindows.
+     * @example
+     * // Update many ConversationWindows
+     * const conversationWindow = await prisma.conversationWindow.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ConversationWindows and only return the `id`
+     * const conversationWindowWithIdOnly = await prisma.conversationWindow.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ConversationWindowUpdateManyAndReturnArgs>(args: SelectSubset<T, ConversationWindowUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ConversationWindow.
+     * @param {ConversationWindowUpsertArgs} args - Arguments to update or create a ConversationWindow.
+     * @example
+     * // Update or create a ConversationWindow
+     * const conversationWindow = await prisma.conversationWindow.upsert({
+     *   create: {
+     *     // ... data to create a ConversationWindow
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ConversationWindow we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ConversationWindowUpsertArgs>(args: SelectSubset<T, ConversationWindowUpsertArgs<ExtArgs>>): Prisma__ConversationWindowClient<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ConversationWindows.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationWindowCountArgs} args - Arguments to filter ConversationWindows to count.
+     * @example
+     * // Count the number of ConversationWindows
+     * const count = await prisma.conversationWindow.count({
+     *   where: {
+     *     // ... the filter for the ConversationWindows we want to count
+     *   }
+     * })
+    **/
+    count<T extends ConversationWindowCountArgs>(
+      args?: Subset<T, ConversationWindowCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ConversationWindowCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ConversationWindow.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationWindowAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ConversationWindowAggregateArgs>(args: Subset<T, ConversationWindowAggregateArgs>): Prisma.PrismaPromise<GetConversationWindowAggregateType<T>>
+
+    /**
+     * Group by ConversationWindow.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationWindowGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ConversationWindowGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ConversationWindowGroupByArgs['orderBy'] }
+        : { orderBy?: ConversationWindowGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ConversationWindowGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConversationWindowGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ConversationWindow model
+   */
+  readonly fields: ConversationWindowFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ConversationWindow.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ConversationWindowClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ConversationWindow model
+   */
+  interface ConversationWindowFieldRefs {
+    readonly id: FieldRef<"ConversationWindow", 'String'>
+    readonly tenantId: FieldRef<"ConversationWindow", 'String'>
+    readonly customerPhone: FieldRef<"ConversationWindow", 'String'>
+    readonly expiresAt: FieldRef<"ConversationWindow", 'DateTime'>
+    readonly createdAt: FieldRef<"ConversationWindow", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ConversationWindow findUnique
+   */
+  export type ConversationWindowFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationWindow to fetch.
+     */
+    where: ConversationWindowWhereUniqueInput
+  }
+
+  /**
+   * ConversationWindow findUniqueOrThrow
+   */
+  export type ConversationWindowFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationWindow to fetch.
+     */
+    where: ConversationWindowWhereUniqueInput
+  }
+
+  /**
+   * ConversationWindow findFirst
+   */
+  export type ConversationWindowFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationWindow to fetch.
+     */
+    where?: ConversationWindowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationWindows to fetch.
+     */
+    orderBy?: ConversationWindowOrderByWithRelationInput | ConversationWindowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversationWindows.
+     */
+    cursor?: ConversationWindowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationWindows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationWindows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversationWindows.
+     */
+    distinct?: ConversationWindowScalarFieldEnum | ConversationWindowScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationWindow findFirstOrThrow
+   */
+  export type ConversationWindowFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationWindow to fetch.
+     */
+    where?: ConversationWindowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationWindows to fetch.
+     */
+    orderBy?: ConversationWindowOrderByWithRelationInput | ConversationWindowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversationWindows.
+     */
+    cursor?: ConversationWindowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationWindows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationWindows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversationWindows.
+     */
+    distinct?: ConversationWindowScalarFieldEnum | ConversationWindowScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationWindow findMany
+   */
+  export type ConversationWindowFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationWindows to fetch.
+     */
+    where?: ConversationWindowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationWindows to fetch.
+     */
+    orderBy?: ConversationWindowOrderByWithRelationInput | ConversationWindowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ConversationWindows.
+     */
+    cursor?: ConversationWindowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationWindows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationWindows.
+     */
+    skip?: number
+    distinct?: ConversationWindowScalarFieldEnum | ConversationWindowScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationWindow create
+   */
+  export type ConversationWindowCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ConversationWindow.
+     */
+    data: XOR<ConversationWindowCreateInput, ConversationWindowUncheckedCreateInput>
+  }
+
+  /**
+   * ConversationWindow createMany
+   */
+  export type ConversationWindowCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ConversationWindows.
+     */
+    data: ConversationWindowCreateManyInput | ConversationWindowCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ConversationWindow createManyAndReturn
+   */
+  export type ConversationWindowCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * The data used to create many ConversationWindows.
+     */
+    data: ConversationWindowCreateManyInput | ConversationWindowCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ConversationWindow update
+   */
+  export type ConversationWindowUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ConversationWindow.
+     */
+    data: XOR<ConversationWindowUpdateInput, ConversationWindowUncheckedUpdateInput>
+    /**
+     * Choose, which ConversationWindow to update.
+     */
+    where: ConversationWindowWhereUniqueInput
+  }
+
+  /**
+   * ConversationWindow updateMany
+   */
+  export type ConversationWindowUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ConversationWindows.
+     */
+    data: XOR<ConversationWindowUpdateManyMutationInput, ConversationWindowUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversationWindows to update
+     */
+    where?: ConversationWindowWhereInput
+    /**
+     * Limit how many ConversationWindows to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversationWindow updateManyAndReturn
+   */
+  export type ConversationWindowUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * The data used to update ConversationWindows.
+     */
+    data: XOR<ConversationWindowUpdateManyMutationInput, ConversationWindowUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversationWindows to update
+     */
+    where?: ConversationWindowWhereInput
+    /**
+     * Limit how many ConversationWindows to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ConversationWindow upsert
+   */
+  export type ConversationWindowUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ConversationWindow to update in case it exists.
+     */
+    where: ConversationWindowWhereUniqueInput
+    /**
+     * In case the ConversationWindow found by the `where` argument doesn't exist, create a new ConversationWindow with this data.
+     */
+    create: XOR<ConversationWindowCreateInput, ConversationWindowUncheckedCreateInput>
+    /**
+     * In case the ConversationWindow was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ConversationWindowUpdateInput, ConversationWindowUncheckedUpdateInput>
+  }
+
+  /**
+   * ConversationWindow delete
+   */
+  export type ConversationWindowDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowInclude<ExtArgs> | null
+    /**
+     * Filter which ConversationWindow to delete.
+     */
+    where: ConversationWindowWhereUniqueInput
+  }
+
+  /**
+   * ConversationWindow deleteMany
+   */
+  export type ConversationWindowDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversationWindows to delete
+     */
+    where?: ConversationWindowWhereInput
+    /**
+     * Limit how many ConversationWindows to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversationWindow without action
+   */
+  export type ConversationWindowDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationWindow
+     */
+    select?: ConversationWindowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationWindow
+     */
+    omit?: ConversationWindowOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationWindowInclude<ExtArgs> | null
   }
 
 
@@ -34540,6 +35851,10 @@ export namespace Prisma {
     subscriptionStatus: 'subscriptionStatus',
     subscriptionExpiresAt: 'subscriptionExpiresAt',
     cycleStartedAt: 'cycleStartedAt',
+    creditsBalance: 'creditsBalance',
+    creditsTotalMonthly: 'creditsTotalMonthly',
+    usageResetDate: 'usageResetDate',
+    lowCreditsAlerted: 'lowCreditsAlerted',
     paystackCustomerCode: 'paystackCustomerCode',
     paystackSubscriptionCode: 'paystackSubscriptionCode',
     paystackEmailToken: 'paystackEmailToken',
@@ -34770,18 +36085,18 @@ export namespace Prisma {
     id: 'id',
     tenantId: 'tenantId',
     code: 'code',
+    name: 'name',
     amount: 'amount',
     quantity: 'quantity',
     availableQty: 'availableQty',
     reservedQty: 'reservedQty',
     mediaStorageKey: 'mediaStorageKey',
-    name: 'name',
-    metaProductId: 'metaProductId',
-    syncedToMeta: 'syncedToMeta',
-    metaSyncedAt: 'metaSyncedAt',
     attributes: 'attributes',
     origin: 'origin',
     createdInLive: 'createdInLive',
+    metaProductId: 'metaProductId',
+    syncedToMeta: 'syncedToMeta',
+    metaSyncedAt: 'metaSyncedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -34817,6 +36132,11 @@ export namespace Prisma {
     variantId: 'variantId',
     status: 'status',
     address: 'address',
+    addressCity: 'addressCity',
+    addressCommune: 'addressCommune',
+    addressZone: 'addressZone',
+    addressDetails: 'addressDetails',
+    addressRaw: 'addressRaw',
     expiresAt: 'expiresAt',
     reminderSentAt: 'reminderSentAt',
     correlationId: 'correlationId',
@@ -34838,6 +36158,17 @@ export namespace Prisma {
   };
 
   export type ConversationStateScalarFieldEnum = (typeof ConversationStateScalarFieldEnum)[keyof typeof ConversationStateScalarFieldEnum]
+
+
+  export const ConversationWindowScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    customerPhone: 'customerPhone',
+    expiresAt: 'expiresAt',
+    createdAt: 'createdAt'
+  };
+
+  export type ConversationWindowScalarFieldEnum = (typeof ConversationWindowScalarFieldEnum)[keyof typeof ConversationWindowScalarFieldEnum]
 
 
   export const OrderScalarFieldEnum: {
@@ -35189,6 +36520,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFilter<"Tenant"> | string
     subscriptionExpiresAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     cycleStartedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    creditsBalance?: IntFilter<"Tenant"> | number
+    creditsTotalMonthly?: IntFilter<"Tenant"> | number
+    usageResetDate?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    lowCreditsAlerted?: BoolFilter<"Tenant"> | boolean
     paystackCustomerCode?: StringNullableFilter<"Tenant"> | string | null
     paystackSubscriptionCode?: StringNullableFilter<"Tenant"> | string | null
     paystackEmailToken?: StringNullableFilter<"Tenant"> | string | null
@@ -35230,6 +36565,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionListRelationFilter
     liveItems?: LiveItemListRelationFilter
     catalogueItems?: CatalogueItemListRelationFilter
+    conversationWindows?: ConversationWindowListRelationFilter
     reservations?: ReservationListRelationFilter
     waitlists?: WaitlistListRelationFilter
     orders?: OrderListRelationFilter
@@ -35251,6 +36587,10 @@ export namespace Prisma {
     subscriptionStatus?: SortOrder
     subscriptionExpiresAt?: SortOrderInput | SortOrder
     cycleStartedAt?: SortOrderInput | SortOrder
+    creditsBalance?: SortOrder
+    creditsTotalMonthly?: SortOrder
+    usageResetDate?: SortOrderInput | SortOrder
+    lowCreditsAlerted?: SortOrder
     paystackCustomerCode?: SortOrderInput | SortOrder
     paystackSubscriptionCode?: SortOrderInput | SortOrder
     paystackEmailToken?: SortOrderInput | SortOrder
@@ -35292,6 +36632,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionOrderByRelationAggregateInput
     liveItems?: LiveItemOrderByRelationAggregateInput
     catalogueItems?: CatalogueItemOrderByRelationAggregateInput
+    conversationWindows?: ConversationWindowOrderByRelationAggregateInput
     reservations?: ReservationOrderByRelationAggregateInput
     waitlists?: WaitlistOrderByRelationAggregateInput
     orders?: OrderOrderByRelationAggregateInput
@@ -35318,6 +36659,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFilter<"Tenant"> | string
     subscriptionExpiresAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     cycleStartedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    creditsBalance?: IntFilter<"Tenant"> | number
+    creditsTotalMonthly?: IntFilter<"Tenant"> | number
+    usageResetDate?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    lowCreditsAlerted?: BoolFilter<"Tenant"> | boolean
     paystackEmailToken?: StringNullableFilter<"Tenant"> | string | null
     paystackAuthorizationCode?: StringNullableFilter<"Tenant"> | string | null
     maxConfirmedOrdersPerMonth?: IntFilter<"Tenant"> | number
@@ -35357,6 +36702,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionListRelationFilter
     liveItems?: LiveItemListRelationFilter
     catalogueItems?: CatalogueItemListRelationFilter
+    conversationWindows?: ConversationWindowListRelationFilter
     reservations?: ReservationListRelationFilter
     waitlists?: WaitlistListRelationFilter
     orders?: OrderListRelationFilter
@@ -35378,6 +36724,10 @@ export namespace Prisma {
     subscriptionStatus?: SortOrder
     subscriptionExpiresAt?: SortOrderInput | SortOrder
     cycleStartedAt?: SortOrderInput | SortOrder
+    creditsBalance?: SortOrder
+    creditsTotalMonthly?: SortOrder
+    usageResetDate?: SortOrderInput | SortOrder
+    lowCreditsAlerted?: SortOrder
     paystackCustomerCode?: SortOrderInput | SortOrder
     paystackSubscriptionCode?: SortOrderInput | SortOrder
     paystackEmailToken?: SortOrderInput | SortOrder
@@ -35427,6 +36777,10 @@ export namespace Prisma {
     subscriptionStatus?: StringWithAggregatesFilter<"Tenant"> | string
     subscriptionExpiresAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
     cycleStartedAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+    creditsBalance?: IntWithAggregatesFilter<"Tenant"> | number
+    creditsTotalMonthly?: IntWithAggregatesFilter<"Tenant"> | number
+    usageResetDate?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+    lowCreditsAlerted?: BoolWithAggregatesFilter<"Tenant"> | boolean
     paystackCustomerCode?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     paystackSubscriptionCode?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     paystackEmailToken?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
@@ -36479,18 +37833,18 @@ export namespace Prisma {
     id?: StringFilter<"CatalogueItem"> | string
     tenantId?: StringFilter<"CatalogueItem"> | string
     code?: StringFilter<"CatalogueItem"> | string
+    name?: StringNullableFilter<"CatalogueItem"> | string | null
     amount?: IntNullableFilter<"CatalogueItem"> | number | null
     quantity?: IntFilter<"CatalogueItem"> | number
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
-    name?: StringNullableFilter<"CatalogueItem"> | string | null
-    metaProductId?: StringNullableFilter<"CatalogueItem"> | string | null
-    syncedToMeta?: BoolFilter<"CatalogueItem"> | boolean
-    metaSyncedAt?: DateTimeNullableFilter<"CatalogueItem"> | Date | string | null
     attributes?: JsonNullableFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
+    metaProductId?: StringNullableFilter<"CatalogueItem"> | string | null
+    syncedToMeta?: BoolFilter<"CatalogueItem"> | boolean
+    metaSyncedAt?: DateTimeNullableFilter<"CatalogueItem"> | Date | string | null
     createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
     updatedAt?: DateTimeFilter<"CatalogueItem"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
@@ -36503,18 +37857,18 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     code?: SortOrder
+    name?: SortOrderInput | SortOrder
     amount?: SortOrderInput | SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrderInput | SortOrder
-    name?: SortOrderInput | SortOrder
-    metaProductId?: SortOrderInput | SortOrder
-    syncedToMeta?: SortOrder
-    metaSyncedAt?: SortOrderInput | SortOrder
     attributes?: SortOrderInput | SortOrder
     origin?: SortOrder
     createdInLive?: SortOrder
+    metaProductId?: SortOrderInput | SortOrder
+    syncedToMeta?: SortOrder
+    metaSyncedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tenant?: TenantOrderByWithRelationInput
@@ -36531,18 +37885,18 @@ export namespace Prisma {
     NOT?: CatalogueItemWhereInput | CatalogueItemWhereInput[]
     tenantId?: StringFilter<"CatalogueItem"> | string
     code?: StringFilter<"CatalogueItem"> | string
+    name?: StringNullableFilter<"CatalogueItem"> | string | null
     amount?: IntNullableFilter<"CatalogueItem"> | number | null
     quantity?: IntFilter<"CatalogueItem"> | number
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
-    name?: StringNullableFilter<"CatalogueItem"> | string | null
-    metaProductId?: StringNullableFilter<"CatalogueItem"> | string | null
-    syncedToMeta?: BoolFilter<"CatalogueItem"> | boolean
-    metaSyncedAt?: DateTimeNullableFilter<"CatalogueItem"> | Date | string | null
     attributes?: JsonNullableFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
+    metaProductId?: StringNullableFilter<"CatalogueItem"> | string | null
+    syncedToMeta?: BoolFilter<"CatalogueItem"> | boolean
+    metaSyncedAt?: DateTimeNullableFilter<"CatalogueItem"> | Date | string | null
     createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
     updatedAt?: DateTimeFilter<"CatalogueItem"> | Date | string
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
@@ -36555,18 +37909,18 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     code?: SortOrder
+    name?: SortOrderInput | SortOrder
     amount?: SortOrderInput | SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrderInput | SortOrder
-    name?: SortOrderInput | SortOrder
-    metaProductId?: SortOrderInput | SortOrder
-    syncedToMeta?: SortOrder
-    metaSyncedAt?: SortOrderInput | SortOrder
     attributes?: SortOrderInput | SortOrder
     origin?: SortOrder
     createdInLive?: SortOrder
+    metaProductId?: SortOrderInput | SortOrder
+    syncedToMeta?: SortOrder
+    metaSyncedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CatalogueItemCountOrderByAggregateInput
@@ -36583,18 +37937,18 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"CatalogueItem"> | string
     tenantId?: StringWithAggregatesFilter<"CatalogueItem"> | string
     code?: StringWithAggregatesFilter<"CatalogueItem"> | string
+    name?: StringNullableWithAggregatesFilter<"CatalogueItem"> | string | null
     amount?: IntNullableWithAggregatesFilter<"CatalogueItem"> | number | null
     quantity?: IntWithAggregatesFilter<"CatalogueItem"> | number
     availableQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
     reservedQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableWithAggregatesFilter<"CatalogueItem"> | string | null
-    name?: StringNullableWithAggregatesFilter<"CatalogueItem"> | string | null
-    metaProductId?: StringNullableWithAggregatesFilter<"CatalogueItem"> | string | null
-    syncedToMeta?: BoolWithAggregatesFilter<"CatalogueItem"> | boolean
-    metaSyncedAt?: DateTimeNullableWithAggregatesFilter<"CatalogueItem"> | Date | string | null
     attributes?: JsonNullableWithAggregatesFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginWithAggregatesFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolWithAggregatesFilter<"CatalogueItem"> | boolean
+    metaProductId?: StringNullableWithAggregatesFilter<"CatalogueItem"> | string | null
+    syncedToMeta?: BoolWithAggregatesFilter<"CatalogueItem"> | boolean
+    metaSyncedAt?: DateTimeNullableWithAggregatesFilter<"CatalogueItem"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"CatalogueItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CatalogueItem"> | Date | string
   }
@@ -36709,6 +38063,11 @@ export namespace Prisma {
     variantId?: StringNullableFilter<"Reservation"> | string | null
     status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableFilter<"Reservation"> | string | null
+    addressCity?: StringNullableFilter<"Reservation"> | string | null
+    addressCommune?: StringNullableFilter<"Reservation"> | string | null
+    addressZone?: StringNullableFilter<"Reservation"> | string | null
+    addressDetails?: StringNullableFilter<"Reservation"> | string | null
+    addressRaw?: StringNullableFilter<"Reservation"> | string | null
     expiresAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
     reminderSentAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
     correlationId?: StringFilter<"Reservation"> | string
@@ -36733,6 +38092,11 @@ export namespace Prisma {
     variantId?: SortOrderInput | SortOrder
     status?: SortOrder
     address?: SortOrderInput | SortOrder
+    addressCity?: SortOrderInput | SortOrder
+    addressCommune?: SortOrderInput | SortOrder
+    addressZone?: SortOrderInput | SortOrder
+    addressDetails?: SortOrderInput | SortOrder
+    addressRaw?: SortOrderInput | SortOrder
     expiresAt?: SortOrderInput | SortOrder
     reminderSentAt?: SortOrderInput | SortOrder
     correlationId?: SortOrder
@@ -36760,6 +38124,11 @@ export namespace Prisma {
     variantId?: StringNullableFilter<"Reservation"> | string | null
     status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableFilter<"Reservation"> | string | null
+    addressCity?: StringNullableFilter<"Reservation"> | string | null
+    addressCommune?: StringNullableFilter<"Reservation"> | string | null
+    addressZone?: StringNullableFilter<"Reservation"> | string | null
+    addressDetails?: StringNullableFilter<"Reservation"> | string | null
+    addressRaw?: StringNullableFilter<"Reservation"> | string | null
     expiresAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
     reminderSentAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
     correlationId?: StringFilter<"Reservation"> | string
@@ -36784,6 +38153,11 @@ export namespace Prisma {
     variantId?: SortOrderInput | SortOrder
     status?: SortOrder
     address?: SortOrderInput | SortOrder
+    addressCity?: SortOrderInput | SortOrder
+    addressCommune?: SortOrderInput | SortOrder
+    addressZone?: SortOrderInput | SortOrder
+    addressDetails?: SortOrderInput | SortOrder
+    addressRaw?: SortOrderInput | SortOrder
     expiresAt?: SortOrderInput | SortOrder
     reminderSentAt?: SortOrderInput | SortOrder
     correlationId?: SortOrder
@@ -36810,6 +38184,11 @@ export namespace Prisma {
     variantId?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
     status?: EnumReservationStatusWithAggregatesFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
+    addressCity?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
+    addressCommune?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
+    addressZone?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
+    addressDetails?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
+    addressRaw?: StringNullableWithAggregatesFilter<"Reservation"> | string | null
     expiresAt?: DateTimeNullableWithAggregatesFilter<"Reservation"> | Date | string | null
     reminderSentAt?: DateTimeNullableWithAggregatesFilter<"Reservation"> | Date | string | null
     correlationId?: StringWithAggregatesFilter<"Reservation"> | string
@@ -36881,6 +38260,61 @@ export namespace Prisma {
     state?: StringNullableWithAggregatesFilter<"ConversationState"> | string | null
     metadata?: JsonNullableWithAggregatesFilter<"ConversationState">
     updatedAt?: DateTimeWithAggregatesFilter<"ConversationState"> | Date | string
+  }
+
+  export type ConversationWindowWhereInput = {
+    AND?: ConversationWindowWhereInput | ConversationWindowWhereInput[]
+    OR?: ConversationWindowWhereInput[]
+    NOT?: ConversationWindowWhereInput | ConversationWindowWhereInput[]
+    id?: StringFilter<"ConversationWindow"> | string
+    tenantId?: StringFilter<"ConversationWindow"> | string
+    customerPhone?: StringFilter<"ConversationWindow"> | string
+    expiresAt?: DateTimeFilter<"ConversationWindow"> | Date | string
+    createdAt?: DateTimeFilter<"ConversationWindow"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }
+
+  export type ConversationWindowOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    customerPhone?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+  }
+
+  export type ConversationWindowWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ConversationWindowWhereInput | ConversationWindowWhereInput[]
+    OR?: ConversationWindowWhereInput[]
+    NOT?: ConversationWindowWhereInput | ConversationWindowWhereInput[]
+    tenantId?: StringFilter<"ConversationWindow"> | string
+    customerPhone?: StringFilter<"ConversationWindow"> | string
+    expiresAt?: DateTimeFilter<"ConversationWindow"> | Date | string
+    createdAt?: DateTimeFilter<"ConversationWindow"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }, "id">
+
+  export type ConversationWindowOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    customerPhone?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: ConversationWindowCountOrderByAggregateInput
+    _max?: ConversationWindowMaxOrderByAggregateInput
+    _min?: ConversationWindowMinOrderByAggregateInput
+  }
+
+  export type ConversationWindowScalarWhereWithAggregatesInput = {
+    AND?: ConversationWindowScalarWhereWithAggregatesInput | ConversationWindowScalarWhereWithAggregatesInput[]
+    OR?: ConversationWindowScalarWhereWithAggregatesInput[]
+    NOT?: ConversationWindowScalarWhereWithAggregatesInput | ConversationWindowScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ConversationWindow"> | string
+    tenantId?: StringWithAggregatesFilter<"ConversationWindow"> | string
+    customerPhone?: StringWithAggregatesFilter<"ConversationWindow"> | string
+    expiresAt?: DateTimeWithAggregatesFilter<"ConversationWindow"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"ConversationWindow"> | Date | string
   }
 
   export type OrderWhereInput = {
@@ -37428,6 +38862,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -37469,6 +38907,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -37490,6 +38929,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -37531,6 +38974,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -37552,6 +38996,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37593,6 +39041,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -37614,6 +39063,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37655,6 +39108,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -37676,6 +39130,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -37717,6 +39175,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37758,6 +39220,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38852,18 +40318,18 @@ export namespace Prisma {
   export type CatalogueItemCreateInput = {
     id?: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutCatalogueItemsInput
@@ -38876,18 +40342,18 @@ export namespace Prisma {
     id?: string
     tenantId: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput
@@ -38898,18 +40364,18 @@ export namespace Prisma {
   export type CatalogueItemUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput
@@ -38922,18 +40388,18 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput
@@ -38945,18 +40411,18 @@ export namespace Prisma {
     id?: string
     tenantId: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -38964,18 +40430,18 @@ export namespace Prisma {
   export type CatalogueItemUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -38984,18 +40450,18 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -39105,6 +40571,11 @@ export namespace Prisma {
     quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -39129,6 +40600,11 @@ export namespace Prisma {
     variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -39143,6 +40619,11 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -39167,6 +40648,11 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -39186,6 +40672,11 @@ export namespace Prisma {
     variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -39199,6 +40690,11 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -39217,6 +40713,11 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -39291,6 +40792,61 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: NullableJsonNullValueInput | InputJsonValue
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationWindowCreateInput = {
+    id?: string
+    customerPhone: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutConversationWindowsInput
+  }
+
+  export type ConversationWindowUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    customerPhone: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ConversationWindowUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutConversationWindowsNestedInput
+  }
+
+  export type ConversationWindowUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationWindowCreateManyInput = {
+    id?: string
+    tenantId: string
+    customerPhone: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ConversationWindowUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationWindowUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OrderCreateInput = {
@@ -40034,6 +41590,12 @@ export namespace Prisma {
     none?: CatalogueItemWhereInput
   }
 
+  export type ConversationWindowListRelationFilter = {
+    every?: ConversationWindowWhereInput
+    some?: ConversationWindowWhereInput
+    none?: ConversationWindowWhereInput
+  }
+
   export type ReservationListRelationFilter = {
     every?: ReservationWhereInput
     some?: ReservationWhereInput
@@ -40135,6 +41697,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type ConversationWindowOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type ReservationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -40172,6 +41738,10 @@ export namespace Prisma {
     subscriptionStatus?: SortOrder
     subscriptionExpiresAt?: SortOrder
     cycleStartedAt?: SortOrder
+    creditsBalance?: SortOrder
+    creditsTotalMonthly?: SortOrder
+    usageResetDate?: SortOrder
+    lowCreditsAlerted?: SortOrder
     paystackCustomerCode?: SortOrder
     paystackSubscriptionCode?: SortOrder
     paystackEmailToken?: SortOrder
@@ -40201,6 +41771,8 @@ export namespace Prisma {
   }
 
   export type TenantAvgOrderByAggregateInput = {
+    creditsBalance?: SortOrder
+    creditsTotalMonthly?: SortOrder
     maxConfirmedOrdersPerMonth?: SortOrder
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
@@ -40220,6 +41792,10 @@ export namespace Prisma {
     subscriptionStatus?: SortOrder
     subscriptionExpiresAt?: SortOrder
     cycleStartedAt?: SortOrder
+    creditsBalance?: SortOrder
+    creditsTotalMonthly?: SortOrder
+    usageResetDate?: SortOrder
+    lowCreditsAlerted?: SortOrder
     paystackCustomerCode?: SortOrder
     paystackSubscriptionCode?: SortOrder
     paystackEmailToken?: SortOrder
@@ -40261,6 +41837,10 @@ export namespace Prisma {
     subscriptionStatus?: SortOrder
     subscriptionExpiresAt?: SortOrder
     cycleStartedAt?: SortOrder
+    creditsBalance?: SortOrder
+    creditsTotalMonthly?: SortOrder
+    usageResetDate?: SortOrder
+    lowCreditsAlerted?: SortOrder
     paystackCustomerCode?: SortOrder
     paystackSubscriptionCode?: SortOrder
     paystackEmailToken?: SortOrder
@@ -40290,6 +41870,8 @@ export namespace Prisma {
   }
 
   export type TenantSumOrderByAggregateInput = {
+    creditsBalance?: SortOrder
+    creditsTotalMonthly?: SortOrder
     maxConfirmedOrdersPerMonth?: SortOrder
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
@@ -41160,18 +42742,18 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     code?: SortOrder
+    name?: SortOrder
     amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrder
-    name?: SortOrder
-    metaProductId?: SortOrder
-    syncedToMeta?: SortOrder
-    metaSyncedAt?: SortOrder
     attributes?: SortOrder
     origin?: SortOrder
     createdInLive?: SortOrder
+    metaProductId?: SortOrder
+    syncedToMeta?: SortOrder
+    metaSyncedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -41187,17 +42769,17 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     code?: SortOrder
+    name?: SortOrder
     amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrder
-    name?: SortOrder
+    origin?: SortOrder
+    createdInLive?: SortOrder
     metaProductId?: SortOrder
     syncedToMeta?: SortOrder
     metaSyncedAt?: SortOrder
-    origin?: SortOrder
-    createdInLive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -41206,17 +42788,17 @@ export namespace Prisma {
     id?: SortOrder
     tenantId?: SortOrder
     code?: SortOrder
+    name?: SortOrder
     amount?: SortOrder
     quantity?: SortOrder
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrder
-    name?: SortOrder
+    origin?: SortOrder
+    createdInLive?: SortOrder
     metaProductId?: SortOrder
     syncedToMeta?: SortOrder
     metaSyncedAt?: SortOrder
-    origin?: SortOrder
-    createdInLive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -41333,6 +42915,11 @@ export namespace Prisma {
     variantId?: SortOrder
     status?: SortOrder
     address?: SortOrder
+    addressCity?: SortOrder
+    addressCommune?: SortOrder
+    addressZone?: SortOrder
+    addressDetails?: SortOrder
+    addressRaw?: SortOrder
     expiresAt?: SortOrder
     reminderSentAt?: SortOrder
     correlationId?: SortOrder
@@ -41355,6 +42942,11 @@ export namespace Prisma {
     variantId?: SortOrder
     status?: SortOrder
     address?: SortOrder
+    addressCity?: SortOrder
+    addressCommune?: SortOrder
+    addressZone?: SortOrder
+    addressDetails?: SortOrder
+    addressRaw?: SortOrder
     expiresAt?: SortOrder
     reminderSentAt?: SortOrder
     correlationId?: SortOrder
@@ -41373,6 +42965,11 @@ export namespace Prisma {
     variantId?: SortOrder
     status?: SortOrder
     address?: SortOrder
+    addressCity?: SortOrder
+    addressCommune?: SortOrder
+    addressZone?: SortOrder
+    addressDetails?: SortOrder
+    addressRaw?: SortOrder
     expiresAt?: SortOrder
     reminderSentAt?: SortOrder
     correlationId?: SortOrder
@@ -41425,6 +43022,30 @@ export namespace Prisma {
     handedOff?: SortOrder
     state?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type ConversationWindowCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    customerPhone?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ConversationWindowMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    customerPhone?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ConversationWindowMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    customerPhone?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type EnumOrderStatusFilter<$PrismaModel = never> = {
@@ -41880,6 +43501,13 @@ export namespace Prisma {
     connect?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
   }
 
+  export type ConversationWindowCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ConversationWindowCreateWithoutTenantInput, ConversationWindowUncheckedCreateWithoutTenantInput> | ConversationWindowCreateWithoutTenantInput[] | ConversationWindowUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationWindowCreateOrConnectWithoutTenantInput | ConversationWindowCreateOrConnectWithoutTenantInput[]
+    createMany?: ConversationWindowCreateManyTenantInputEnvelope
+    connect?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
+  }
+
   export type ReservationCreateNestedManyWithoutTenantInput = {
     create?: XOR<ReservationCreateWithoutTenantInput, ReservationUncheckedCreateWithoutTenantInput> | ReservationCreateWithoutTenantInput[] | ReservationUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: ReservationCreateOrConnectWithoutTenantInput | ReservationCreateOrConnectWithoutTenantInput[]
@@ -42025,6 +43653,13 @@ export namespace Prisma {
     connectOrCreate?: CatalogueItemCreateOrConnectWithoutTenantInput | CatalogueItemCreateOrConnectWithoutTenantInput[]
     createMany?: CatalogueItemCreateManyTenantInputEnvelope
     connect?: CatalogueItemWhereUniqueInput | CatalogueItemWhereUniqueInput[]
+  }
+
+  export type ConversationWindowUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ConversationWindowCreateWithoutTenantInput, ConversationWindowUncheckedCreateWithoutTenantInput> | ConversationWindowCreateWithoutTenantInput[] | ConversationWindowUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationWindowCreateOrConnectWithoutTenantInput | ConversationWindowCreateOrConnectWithoutTenantInput[]
+    createMany?: ConversationWindowCreateManyTenantInputEnvelope
+    connect?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
   }
 
   export type ReservationUncheckedCreateNestedManyWithoutTenantInput = {
@@ -42305,6 +43940,20 @@ export namespace Prisma {
     update?: CatalogueItemUpdateWithWhereUniqueWithoutTenantInput | CatalogueItemUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: CatalogueItemUpdateManyWithWhereWithoutTenantInput | CatalogueItemUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: CatalogueItemScalarWhereInput | CatalogueItemScalarWhereInput[]
+  }
+
+  export type ConversationWindowUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ConversationWindowCreateWithoutTenantInput, ConversationWindowUncheckedCreateWithoutTenantInput> | ConversationWindowCreateWithoutTenantInput[] | ConversationWindowUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationWindowCreateOrConnectWithoutTenantInput | ConversationWindowCreateOrConnectWithoutTenantInput[]
+    upsert?: ConversationWindowUpsertWithWhereUniqueWithoutTenantInput | ConversationWindowUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ConversationWindowCreateManyTenantInputEnvelope
+    set?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
+    disconnect?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
+    delete?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
+    connect?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
+    update?: ConversationWindowUpdateWithWhereUniqueWithoutTenantInput | ConversationWindowUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ConversationWindowUpdateManyWithWhereWithoutTenantInput | ConversationWindowUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ConversationWindowScalarWhereInput | ConversationWindowScalarWhereInput[]
   }
 
   export type ReservationUpdateManyWithoutTenantNestedInput = {
@@ -42599,6 +44248,20 @@ export namespace Prisma {
     update?: CatalogueItemUpdateWithWhereUniqueWithoutTenantInput | CatalogueItemUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: CatalogueItemUpdateManyWithWhereWithoutTenantInput | CatalogueItemUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: CatalogueItemScalarWhereInput | CatalogueItemScalarWhereInput[]
+  }
+
+  export type ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ConversationWindowCreateWithoutTenantInput, ConversationWindowUncheckedCreateWithoutTenantInput> | ConversationWindowCreateWithoutTenantInput[] | ConversationWindowUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationWindowCreateOrConnectWithoutTenantInput | ConversationWindowCreateOrConnectWithoutTenantInput[]
+    upsert?: ConversationWindowUpsertWithWhereUniqueWithoutTenantInput | ConversationWindowUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ConversationWindowCreateManyTenantInputEnvelope
+    set?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
+    disconnect?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
+    delete?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
+    connect?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
+    update?: ConversationWindowUpdateWithWhereUniqueWithoutTenantInput | ConversationWindowUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ConversationWindowUpdateManyWithWhereWithoutTenantInput | ConversationWindowUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ConversationWindowScalarWhereInput | ConversationWindowScalarWhereInput[]
   }
 
   export type ReservationUncheckedUpdateManyWithoutTenantNestedInput = {
@@ -43567,6 +45230,20 @@ export namespace Prisma {
     upsert?: TenantUpsertWithoutConversationStatesInput
     connect?: TenantWhereUniqueInput
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutConversationStatesInput, TenantUpdateWithoutConversationStatesInput>, TenantUncheckedUpdateWithoutConversationStatesInput>
+  }
+
+  export type TenantCreateNestedOneWithoutConversationWindowsInput = {
+    create?: XOR<TenantCreateWithoutConversationWindowsInput, TenantUncheckedCreateWithoutConversationWindowsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutConversationWindowsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type TenantUpdateOneRequiredWithoutConversationWindowsNestedInput = {
+    create?: XOR<TenantCreateWithoutConversationWindowsInput, TenantUncheckedCreateWithoutConversationWindowsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutConversationWindowsInput
+    upsert?: TenantUpsertWithoutConversationWindowsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutConversationWindowsInput, TenantUpdateWithoutConversationWindowsInput>, TenantUncheckedUpdateWithoutConversationWindowsInput>
   }
 
   export type TenantCreateNestedOneWithoutOrdersInput = {
@@ -44558,18 +46235,18 @@ export namespace Prisma {
   export type CatalogueItemCreateWithoutTenantInput = {
     id?: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationCreateNestedManyWithoutCatalogueItemInput
@@ -44580,18 +46257,18 @@ export namespace Prisma {
   export type CatalogueItemUncheckedCreateWithoutTenantInput = {
     id?: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput
@@ -44609,12 +46286,41 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ConversationWindowCreateWithoutTenantInput = {
+    id?: string
+    customerPhone: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ConversationWindowUncheckedCreateWithoutTenantInput = {
+    id?: string
+    customerPhone: string
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ConversationWindowCreateOrConnectWithoutTenantInput = {
+    where: ConversationWindowWhereUniqueInput
+    create: XOR<ConversationWindowCreateWithoutTenantInput, ConversationWindowUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ConversationWindowCreateManyTenantInputEnvelope = {
+    data: ConversationWindowCreateManyTenantInput | ConversationWindowCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ReservationCreateWithoutTenantInput = {
     id?: string
     clientPhone: string
     quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -44637,6 +46343,11 @@ export namespace Prisma {
     variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -45280,20 +46991,47 @@ export namespace Prisma {
     id?: StringFilter<"CatalogueItem"> | string
     tenantId?: StringFilter<"CatalogueItem"> | string
     code?: StringFilter<"CatalogueItem"> | string
+    name?: StringNullableFilter<"CatalogueItem"> | string | null
     amount?: IntNullableFilter<"CatalogueItem"> | number | null
     quantity?: IntFilter<"CatalogueItem"> | number
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
-    name?: StringNullableFilter<"CatalogueItem"> | string | null
-    metaProductId?: StringNullableFilter<"CatalogueItem"> | string | null
-    syncedToMeta?: BoolFilter<"CatalogueItem"> | boolean
-    metaSyncedAt?: DateTimeNullableFilter<"CatalogueItem"> | Date | string | null
     attributes?: JsonNullableFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
+    metaProductId?: StringNullableFilter<"CatalogueItem"> | string | null
+    syncedToMeta?: BoolFilter<"CatalogueItem"> | boolean
+    metaSyncedAt?: DateTimeNullableFilter<"CatalogueItem"> | Date | string | null
     createdAt?: DateTimeFilter<"CatalogueItem"> | Date | string
     updatedAt?: DateTimeFilter<"CatalogueItem"> | Date | string
+  }
+
+  export type ConversationWindowUpsertWithWhereUniqueWithoutTenantInput = {
+    where: ConversationWindowWhereUniqueInput
+    update: XOR<ConversationWindowUpdateWithoutTenantInput, ConversationWindowUncheckedUpdateWithoutTenantInput>
+    create: XOR<ConversationWindowCreateWithoutTenantInput, ConversationWindowUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ConversationWindowUpdateWithWhereUniqueWithoutTenantInput = {
+    where: ConversationWindowWhereUniqueInput
+    data: XOR<ConversationWindowUpdateWithoutTenantInput, ConversationWindowUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type ConversationWindowUpdateManyWithWhereWithoutTenantInput = {
+    where: ConversationWindowScalarWhereInput
+    data: XOR<ConversationWindowUpdateManyMutationInput, ConversationWindowUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type ConversationWindowScalarWhereInput = {
+    AND?: ConversationWindowScalarWhereInput | ConversationWindowScalarWhereInput[]
+    OR?: ConversationWindowScalarWhereInput[]
+    NOT?: ConversationWindowScalarWhereInput | ConversationWindowScalarWhereInput[]
+    id?: StringFilter<"ConversationWindow"> | string
+    tenantId?: StringFilter<"ConversationWindow"> | string
+    customerPhone?: StringFilter<"ConversationWindow"> | string
+    expiresAt?: DateTimeFilter<"ConversationWindow"> | Date | string
+    createdAt?: DateTimeFilter<"ConversationWindow"> | Date | string
   }
 
   export type ReservationUpsertWithWhereUniqueWithoutTenantInput = {
@@ -45326,6 +47064,11 @@ export namespace Prisma {
     variantId?: StringNullableFilter<"Reservation"> | string | null
     status?: EnumReservationStatusFilter<"Reservation"> | $Enums.ReservationStatus
     address?: StringNullableFilter<"Reservation"> | string | null
+    addressCity?: StringNullableFilter<"Reservation"> | string | null
+    addressCommune?: StringNullableFilter<"Reservation"> | string | null
+    addressZone?: StringNullableFilter<"Reservation"> | string | null
+    addressDetails?: StringNullableFilter<"Reservation"> | string | null
+    addressRaw?: StringNullableFilter<"Reservation"> | string | null
     expiresAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
     reminderSentAt?: DateTimeNullableFilter<"Reservation"> | Date | string | null
     correlationId?: StringFilter<"Reservation"> | string
@@ -45509,6 +47252,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -45549,6 +47296,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -45570,6 +47318,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -45610,6 +47362,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -45647,6 +47400,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45687,6 +47444,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -45708,6 +47466,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45748,6 +47510,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -45769,6 +47532,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -45809,6 +47576,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -45830,6 +47598,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -45870,6 +47642,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -45927,6 +47700,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45967,6 +47744,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -45988,6 +47766,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46028,6 +47810,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -46126,6 +47909,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -46166,6 +47953,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -46187,6 +47975,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -46227,6 +48019,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -46264,6 +48057,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46304,6 +48101,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -46325,6 +48123,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46365,6 +48167,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -46386,6 +48189,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -46426,6 +48233,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -46447,6 +48255,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -46487,6 +48299,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -46584,6 +48397,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46624,6 +48441,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -46645,6 +48463,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46685,6 +48507,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -46918,6 +48741,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -46958,6 +48785,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -46979,6 +48807,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -47019,6 +48851,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -47056,6 +48889,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47096,6 +48933,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -47117,6 +48955,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47157,6 +48999,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -47178,6 +49021,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -47218,6 +49065,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -47239,6 +49087,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -47279,6 +49131,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -47316,6 +49169,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47356,6 +49213,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -47377,6 +49235,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47417,6 +49279,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -47438,6 +49301,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -47478,6 +49345,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -47499,6 +49367,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -47539,6 +49411,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -47576,6 +49449,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47616,6 +49493,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -47637,6 +49515,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47677,6 +49559,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -47698,6 +49581,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -47738,6 +49625,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -47759,6 +49647,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -47799,6 +49691,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -47836,6 +49729,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47876,6 +49773,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -47897,6 +49795,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47937,6 +49839,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -47958,6 +49861,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -47998,6 +49905,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -48019,6 +49927,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -48059,6 +49971,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -48096,6 +50009,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48136,6 +50053,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -48157,6 +50075,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48197,6 +50119,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -48218,6 +50141,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -48258,6 +50185,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -48279,6 +50207,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -48319,6 +50251,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -48380,6 +50313,11 @@ export namespace Prisma {
     quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -48402,6 +50340,11 @@ export namespace Prisma {
     variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -48444,6 +50387,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48484,6 +50431,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -48505,6 +50453,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48545,6 +50497,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -48598,6 +50551,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -48638,6 +50595,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -48659,6 +50617,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -48699,6 +50661,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -48743,6 +50706,11 @@ export namespace Prisma {
     quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -48765,6 +50733,11 @@ export namespace Prisma {
     variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -48845,6 +50818,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48885,6 +50862,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -48906,6 +50884,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48946,6 +50928,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -49030,6 +51013,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -49070,6 +51057,7 @@ export namespace Prisma {
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -49091,6 +51079,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -49131,6 +51123,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -49150,6 +51143,11 @@ export namespace Prisma {
     quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -49172,6 +51170,11 @@ export namespace Prisma {
     variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -49284,6 +51287,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49324,6 +51331,7 @@ export namespace Prisma {
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -49345,6 +51353,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49385,6 +51397,7 @@ export namespace Prisma {
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -49454,6 +51467,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -49495,6 +51512,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -49515,6 +51533,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -49556,6 +51578,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -49571,18 +51594,18 @@ export namespace Prisma {
   export type CatalogueItemCreateWithoutVariantsInput = {
     id?: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutCatalogueItemsInput
@@ -49594,18 +51617,18 @@ export namespace Prisma {
     id?: string
     tenantId: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput
@@ -49660,6 +51683,11 @@ export namespace Prisma {
     quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -49682,6 +51710,11 @@ export namespace Prisma {
     quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -49724,6 +51757,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49765,6 +51802,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -49785,6 +51823,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49826,6 +51868,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -49847,18 +51890,18 @@ export namespace Prisma {
   export type CatalogueItemUpdateWithoutVariantsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput
@@ -49870,18 +51913,18 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput
@@ -49960,6 +52003,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -50001,6 +52048,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
@@ -50021,6 +52069,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -50062,6 +52114,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
@@ -50139,18 +52192,18 @@ export namespace Prisma {
   export type CatalogueItemCreateWithoutReservationsInput = {
     id?: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutCatalogueItemsInput
@@ -50162,18 +52215,18 @@ export namespace Prisma {
     id?: string
     tenantId: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     waitlist?: WaitlistUncheckedCreateNestedManyWithoutCatalogueItemInput
@@ -50271,6 +52324,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50312,6 +52369,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
@@ -50332,6 +52390,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50373,6 +52435,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
@@ -50468,18 +52531,18 @@ export namespace Prisma {
   export type CatalogueItemUpdateWithoutReservationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput
@@ -50491,18 +52554,18 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     waitlist?: WaitlistUncheckedUpdateManyWithoutCatalogueItemNestedInput
@@ -50596,6 +52659,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -50636,6 +52703,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -50657,6 +52725,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -50697,6 +52769,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -50734,6 +52807,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50774,6 +52851,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -50795,6 +52873,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50835,6 +52917,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -50843,7 +52926,7 @@ export namespace Prisma {
     itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
-  export type TenantCreateWithoutOrdersInput = {
+  export type TenantCreateWithoutConversationWindowsInput = {
     id?: string
     name: string
     metaPhoneNumberId?: string | null
@@ -50856,6 +52939,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -50899,12 +52986,13 @@ export namespace Prisma {
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
     itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
   }
 
-  export type TenantUncheckedCreateWithoutOrdersInput = {
+  export type TenantUncheckedCreateWithoutConversationWindowsInput = {
     id?: string
     name: string
     metaPhoneNumberId?: string | null
@@ -50917,6 +53005,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -50960,6 +53052,287 @@ export namespace Prisma {
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutConversationWindowsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutConversationWindowsInput, TenantUncheckedCreateWithoutConversationWindowsInput>
+  }
+
+  export type TenantUpsertWithoutConversationWindowsInput = {
+    update: XOR<TenantUpdateWithoutConversationWindowsInput, TenantUncheckedUpdateWithoutConversationWindowsInput>
+    create: XOR<TenantCreateWithoutConversationWindowsInput, TenantUncheckedCreateWithoutConversationWindowsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutConversationWindowsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutConversationWindowsInput, TenantUncheckedUpdateWithoutConversationWindowsInput>
+  }
+
+  export type TenantUpdateWithoutConversationWindowsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutConversationWindowsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantCreateWithoutOrdersInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
+    users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutOrdersInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
     subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
     itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
@@ -50976,6 +53349,11 @@ export namespace Prisma {
     quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -50999,6 +53377,11 @@ export namespace Prisma {
     variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -51069,6 +53452,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51110,6 +53497,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
@@ -51130,6 +53518,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51171,6 +53563,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
@@ -51195,6 +53588,11 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -51218,6 +53616,11 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -51283,6 +53686,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -51324,6 +53731,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -51344,6 +53752,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -51385,6 +53797,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -51456,6 +53869,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51497,6 +53914,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -51517,6 +53935,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51558,6 +53980,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -51578,6 +54001,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -51619,6 +54046,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
@@ -51639,6 +54067,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -51680,6 +54112,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
@@ -51695,18 +54128,18 @@ export namespace Prisma {
   export type CatalogueItemCreateWithoutWaitlistInput = {
     id?: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     tenant: TenantCreateNestedOneWithoutCatalogueItemsInput
@@ -51718,18 +54151,18 @@ export namespace Prisma {
     id?: string
     tenantId: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     reservations?: ReservationUncheckedCreateNestedManyWithoutCatalogueItemInput
@@ -51765,6 +54198,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51806,6 +54243,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
@@ -51826,6 +54264,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51867,6 +54309,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
@@ -51888,18 +54331,18 @@ export namespace Prisma {
   export type CatalogueItemUpdateWithoutWaitlistInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutCatalogueItemsNestedInput
@@ -51911,18 +54354,18 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput
@@ -51942,6 +54385,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -51982,6 +54429,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -52003,6 +54451,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -52043,6 +54495,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -52080,6 +54533,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52120,6 +54577,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -52141,6 +54599,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52181,6 +54643,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -52202,6 +54665,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -52242,6 +54709,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -52263,6 +54731,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -52303,6 +54775,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -52340,6 +54813,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52380,6 +54857,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -52401,6 +54879,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52441,6 +54923,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -52462,6 +54945,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -52503,6 +54990,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -52523,6 +55011,10 @@ export namespace Prisma {
     subscriptionStatus?: string
     subscriptionExpiresAt?: Date | string | null
     cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
     paystackSubscriptionCode?: string | null
     paystackEmailToken?: string | null
@@ -52564,6 +55056,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -52600,6 +55093,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52641,6 +55138,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -52661,6 +55159,10 @@ export namespace Prisma {
     subscriptionStatus?: StringFieldUpdateOperationsInput | string
     subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
     paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52702,6 +55204,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -52854,20 +55357,27 @@ export namespace Prisma {
   export type CatalogueItemCreateManyTenantInput = {
     id?: string
     code: string
+    name?: string | null
     amount?: number | null
     quantity?: number
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
-    name?: string | null
-    metaProductId?: string | null
-    syncedToMeta?: boolean
-    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type ConversationWindowCreateManyTenantInput = {
+    id?: string
+    customerPhone: string
+    expiresAt: Date | string
+    createdAt?: Date | string
   }
 
   export type ReservationCreateManyTenantInput = {
@@ -52880,6 +55390,11 @@ export namespace Prisma {
     variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -53393,18 +55908,18 @@ export namespace Prisma {
   export type CatalogueItemUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUpdateManyWithoutCatalogueItemNestedInput
@@ -53415,18 +55930,18 @@ export namespace Prisma {
   export type CatalogueItemUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reservations?: ReservationUncheckedUpdateManyWithoutCatalogueItemNestedInput
@@ -53437,20 +55952,41 @@ export namespace Prisma {
   export type CatalogueItemUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     code?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: NullableIntFieldUpdateOperationsInput | number | null
     quantity?: IntFieldUpdateOperationsInput | number
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
-    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
-    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationWindowUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationWindowUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationWindowUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerPhone?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ReservationUpdateWithoutTenantInput = {
@@ -53459,6 +55995,11 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -53481,6 +56022,11 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -53499,6 +56045,11 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -53823,6 +56374,11 @@ export namespace Prisma {
     variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -53882,6 +56438,11 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -53904,6 +56465,11 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -53922,6 +56488,11 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -53939,6 +56510,11 @@ export namespace Prisma {
     variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -53965,6 +56541,11 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -53987,6 +56568,11 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -54005,6 +56591,11 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -54063,6 +56654,11 @@ export namespace Prisma {
     variantId?: string | null
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -54100,6 +56696,11 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -54122,6 +56723,11 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -54140,6 +56746,11 @@ export namespace Prisma {
     variantId?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -54231,6 +56842,11 @@ export namespace Prisma {
     quantity?: number
     status?: $Enums.ReservationStatus
     address?: string | null
+    addressCity?: string | null
+    addressCommune?: string | null
+    addressZone?: string | null
+    addressDetails?: string | null
+    addressRaw?: string | null
     expiresAt?: Date | string | null
     reminderSentAt?: Date | string | null
     correlationId: string
@@ -54244,6 +56860,11 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -54266,6 +56887,11 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -54284,6 +56910,11 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumReservationStatusFieldUpdateOperationsInput | $Enums.ReservationStatus
     address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCity?: NullableStringFieldUpdateOperationsInput | string | null
+    addressCommune?: NullableStringFieldUpdateOperationsInput | string | null
+    addressZone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    addressRaw?: NullableStringFieldUpdateOperationsInput | string | null
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     correlationId?: StringFieldUpdateOperationsInput | string

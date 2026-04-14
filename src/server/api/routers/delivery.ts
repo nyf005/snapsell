@@ -12,6 +12,8 @@ import {
   setInteriorDeliveryFeeInputSchema,
   upsertDeliveryFeeCommuneInputSchema,
   upsertDeliveryZoneInputSchema,
+  listDeliveryZonesInputSchema,
+  listDeliveryCommunesInputSchema,
 } from "./delivery.schema";
 
 const INTERIOR_ZONE_NAME = "Intérieur du pays";
@@ -26,22 +28,30 @@ function checkDeliveryAccess(role: string) {
 }
 
 export const deliveryRouter = createTRPCRouter({
-  getDeliveryZones: protectedProcedure.query(async ({ ctx }) => {
-    checkDeliveryAccess(ctx.session.user.role as string);
-    const tenantId = ctx.session.user.tenantId!;
-    const zones = await db.deliveryZone.findMany({
-      where: { tenantId },
-      include: { communes: true },
-      orderBy: { name: "asc" },
-    });
-    return zones.map((z) => ({
-      id: z.id,
-      name: z.name,
-      amount: z.amount,
-      communeNames: z.communes.map((c) => c.communeName),
-      updatedAt: z.updatedAt,
-    }));
-  }),
+  getDeliveryZones: protectedProcedure
+    .input(listDeliveryZonesInputSchema)
+    .query(async ({ ctx, input }) => {
+      checkDeliveryAccess(ctx.session.user.role as string);
+      const tenantId = ctx.session.user.tenantId!;
+      const limit = input.limit ?? 20;
+      const zones = await db.deliveryZone.findMany({
+        where: { tenantId },
+        include: { communes: true },
+        orderBy: { name: "asc" },
+        take: limit + 1,
+        skip: input.cursor ? 1 : 0,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+      });
+      const items = zones.slice(0, limit).map((z) => ({
+        id: z.id,
+        name: z.name,
+        amount: z.amount,
+        communeNames: z.communes.map((c) => c.communeName),
+        updatedAt: z.updatedAt,
+      }));
+      const nextCursor = zones.length > limit ? zones[limit - 1]?.id : undefined;
+      return { items, nextCursor };
+    }),
 
   upsertDeliveryZone: protectedProcedure
     .input(upsertDeliveryZoneInputSchema)
@@ -135,20 +145,28 @@ export const deliveryRouter = createTRPCRouter({
       return { ok: true };
     }),
 
-  getDeliveryFeeCommunes: protectedProcedure.query(async ({ ctx }) => {
-    checkDeliveryAccess(ctx.session.user.role as string);
-    const tenantId = ctx.session.user.tenantId!;
-    const rows = await db.deliveryFeeCommune.findMany({
-      where: { tenantId },
-      orderBy: { communeName: "asc" },
-    });
-    return rows.map((r) => ({
-      id: r.id,
-      communeName: r.communeName,
-      amount: r.amount,
-      updatedAt: r.updatedAt,
-    }));
-  }),
+  getDeliveryFeeCommunes: protectedProcedure
+    .input(listDeliveryCommunesInputSchema)
+    .query(async ({ ctx, input }) => {
+      checkDeliveryAccess(ctx.session.user.role as string);
+      const tenantId = ctx.session.user.tenantId!;
+      const limit = input.limit ?? 20;
+      const rows = await db.deliveryFeeCommune.findMany({
+        where: { tenantId },
+        orderBy: { communeName: "asc" },
+        take: limit + 1,
+        skip: input.cursor ? 1 : 0,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+      });
+      const items = rows.slice(0, limit).map((r) => ({
+        id: r.id,
+        communeName: r.communeName,
+        amount: r.amount,
+        updatedAt: r.updatedAt,
+      }));
+      const nextCursor = rows.length > limit ? rows[limit - 1]?.id : undefined;
+      return { items, nextCursor };
+    }),
 
   upsertDeliveryFeeCommune: protectedProcedure
     .input(upsertDeliveryFeeCommuneInputSchema)

@@ -13,11 +13,11 @@ import {
   managerProcedure,
 } from "~/server/api/trpc";
 import {
-  connectWhatsAppEmbeddedInputSchema,
-  selectMetaCatalogInputSchema,
   setCategoryPricesInputSchema,
-  setFaqSettingsInputSchema,
   setMetaConfigInputSchema,
+  connectWhatsAppEmbeddedInputSchema,
+  setFaqSettingsInputSchema,
+  listCategoryPricesInputSchema,
 } from "./settings.schema";
 import {
   MetaEmbeddedSignupError,
@@ -83,19 +83,27 @@ async function validateMetaCredentials(opts: {
 }
 
 export const settingsRouter = createTRPCRouter({
-  getCategoryPrices: managerProcedure.query(async ({ ctx }) => {
-    const rows = await db.categoryPrice.findMany({
-      where: { tenantId: ctx.session.user.tenantId },
-      orderBy: { categoryLetter: "asc" },
-    });
-    return rows.map((r) => ({
-      id: r.id,
-      categoryLetter: r.categoryLetter,
-      amount: r.amount,
-      description: r.description ?? undefined,
-      updatedAt: r.updatedAt,
-    }));
-  }),
+  getCategoryPrices: managerProcedure
+    .input(listCategoryPricesInputSchema)
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 20;
+      const rows = await db.categoryPrice.findMany({
+        where: { tenantId: ctx.session.user.tenantId },
+        orderBy: { categoryLetter: "asc" },
+        take: limit + 1,
+        skip: input.cursor ? 1 : 0,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
+      });
+      const items = rows.slice(0, limit).map((r) => ({
+        id: r.id,
+        categoryLetter: r.categoryLetter,
+        amount: r.amount,
+        description: r.description ?? undefined,
+        updatedAt: r.updatedAt,
+      }));
+      const nextCursor = rows.length > limit ? rows[limit - 1]?.id : undefined;
+      return { items, nextCursor };
+    }),
 
   setCategoryPrices: managerProcedure
     .input(setCategoryPricesInputSchema)
@@ -145,8 +153,6 @@ export const settingsRouter = createTRPCRouter({
           metaPhoneNumberId: true,
           metaWabaId: true,
           metaAccessToken: true,
-          metaCatalogId: true,
-          hasMetaCatalogSync: true,
         },
       }),
       db.sellerPhone.findFirst({
@@ -160,8 +166,6 @@ export const settingsRouter = createTRPCRouter({
       metaWabaId: tenant?.metaWabaId ?? null,
       metaBusinessPhoneNumber: primarySellerPhone?.phoneNumber ?? null,
       hasAccessToken: !!(tenant?.metaAccessToken),
-      metaCatalogId: tenant?.metaCatalogId ?? null,
-      hasMetaCatalogSync: tenant?.hasMetaCatalogSync ?? false,
     };
   }),
 
@@ -349,47 +353,6 @@ export const settingsRouter = createTRPCRouter({
         });
       }
 
-      return { ok: true };
-    }),
-
-  fetchMetaCatalogs: managerProcedure.query(async ({ ctx }) => {
-    const tenantId = ctx.session.user.tenantId;
-    const tenant = await db.tenant.findUnique({
-      where: { id: tenantId },
-      select: { metaWabaId: true, metaAccessToken: true },
-    });
-    if (!tenant?.metaWabaId || !tenant.metaAccessToken) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Connectez d'abord votre compte WhatsApp Business avant de récupérer les catalogues.",
-      });
-    }
-    const { decrypt } = await import("~/lib/crypto");
-    const accessToken = decrypt(tenant.metaAccessToken);
-    const res = await fetch(
-      `https://graph.facebook.com/v21.0/${encodeURIComponent(tenant.metaWabaId)}/product_catalogs?fields=id,name&limit=25`,
-      { headers: { Authorization: `Bearer ${accessToken}` } },
-    );
-    if (!res.ok) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Impossible de récupérer les catalogues Meta. Vérifiez vos permissions Commerce Manager.",
-      });
-    }
-    const body = (await res.json()) as { data?: Array<{ id: string; name?: string }> };
-    return (body.data ?? []).map((c) => ({ id: c.id, name: c.name ?? c.id }));
-  }),
-
-  selectMetaCatalog: managerProcedure
-    .input(selectMetaCatalogInputSchema)
-    .mutation(async ({ ctx, input }) => {
-      await db.tenant.update({
-        where: { id: ctx.session.user.tenantId },
-        data: {
-          metaCatalogId: input.catalogId,
-          hasMetaCatalogSync: true,
-        },
-      });
       return { ok: true };
     }),
 

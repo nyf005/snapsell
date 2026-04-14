@@ -32,5 +32,19 @@ export const setInteriorDeliveryFeeInputSchema = z.object({
   amount: z.number().int().min(0, "Le montant ne peut pas être négatif"),
 });
 
+/** Input pour list paginée zones */
+export const listDeliveryZonesInputSchema = z.object({
+  limit: z.number().min(1).max(100).default(20),
+  cursor: z.string().cuid().optional(),
+});
+
+/** Input pour list paginée communes */
+export const listDeliveryCommunesInputSchema = z.object({
+  limit: z.number().min(1).max(100).default(20),
+  cursor: z.string().cuid().optional(),
+});
+
 export type UpsertDeliveryZoneInput = z.infer<typeof upsertDeliveryZoneInputSchema>;
 export type UpsertDeliveryFeeCommuneInput = z.infer<typeof upsertDeliveryFeeCommuneInputSchema>;
+export type ListDeliveryZonesInput = z.infer<typeof listDeliveryZonesInputSchema>;
+export type ListDeliveryCommunesInput = z.infer<typeof listDeliveryCommunesInputSchema>;

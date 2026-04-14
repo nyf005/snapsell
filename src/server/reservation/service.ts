@@ -4,6 +4,7 @@
  * Story 8.1: Support réservation sur CatalogueItem (catalogueItemId, liveSessionId optionnel).
  * Idempotence catalogue : (tenant_id, client_phone, catalogue_item_id) unique (actif).
  * Idempotence legacy : (tenant_id, live_session_id, client_phone, live_item_id) unique.
+ * Story 12.x: Extraction d'adresse via IA.
  */
 
 import { Prisma } from "../../../generated/prisma";
@@ -12,6 +13,7 @@ import { reserveUnits, releaseReservation } from "~/server/live-item/reservation
 import { logReservationStarted } from "~/server/events/eventLog";
 import { workerLogger } from "~/lib/logger";
 import { env } from "~/env";
+import { extractAddressComponents } from "~/server/messaging/ai-service";
 
 const ACTIVE_STATUSES = ["reserved", "address_collected"] as const;
 
@@ -267,9 +269,20 @@ export async function collectAddress(
   if (!trimmed.length) return { success: false, reason: "no_reservation" };
   if (trimmed.length > ADDRESS_MAX_LENGTH) return { success: false, reason: "address_too_long" };
 
+  // Story 12.x: Extraire les composantes d'adresse via IA
+  const extracted = await extractAddressComponents(trimmed);
+
   const updated = await db.reservation.update({
     where: { id: reservation.id },
-    data: { address: trimmed, status: "address_collected" },
+    data: {
+      address: trimmed,
+      addressRaw: trimmed,
+      addressCity: extracted.city ?? null,
+      addressCommune: extracted.commune ?? null,
+      addressZone: extracted.zone ?? null,
+      addressDetails: extracted.details ?? null,
+      status: "address_collected",
+    },
   });
 
   // Story 8.1: item info depuis catalogueItem ou liveItem
