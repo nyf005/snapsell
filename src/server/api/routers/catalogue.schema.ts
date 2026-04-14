@@ -4,6 +4,7 @@ import { idSchema } from "~/lib/validations/common";
 /** Création d'un article catalogue (dashboard) */
 export const createCatalogueItemInputSchema = z.object({
   code: z.string().trim().min(1, "Code requis"),
+  name: z.string().trim().max(200).nullable().optional(),
   quantity: z.number().int().min(1, "Quantité doit être >= 1"),
   amount: z.number().int().nullable().optional(),
   mediaStorageKey: z.string().nullable().optional(),
@@ -13,6 +14,7 @@ export const createCatalogueItemInputSchema = z.object({
 export const updateCatalogueItemInputSchema = z.object({
   id: idSchema,
   code: z.string().trim().min(1, "Code requis").optional(),
+  name: z.string().trim().max(200).nullable().optional(),
   quantity: z.number().int().min(0, "Quantité doit être >= 0").optional(),
   amount: z.number().int().nullable().optional(),
   mediaStorageKey: z.string().nullable().optional(),
@@ -27,11 +29,14 @@ export const deleteCatalogueItemInputSchema = z.object({
 export const catalogueItemOutputSchema = z.object({
   id: z.string(),
   code: z.string(),
+  name: z.string().nullable(),
   amount: z.number().nullable(),
   quantity: z.number(),
   availableQty: z.number(),
   reservedQty: z.number(),
   mediaStorageKey: z.string().nullable(),
+  metaProductId: z.string().nullable(),
+  syncedToMeta: z.boolean(),
   attributes: z.array(z.string()).nullable().optional(),
   origin: z.enum(["live", "seller_whatsapp", "dashboard"]),
   createdInLive: z.boolean(),

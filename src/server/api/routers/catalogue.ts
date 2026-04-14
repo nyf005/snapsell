@@ -78,6 +78,7 @@ export const catalogueRouter = createTRPCRouter({
           data: {
             tenantId,
             code,
+            name: input.name ?? null,
             amount,
             quantity: input.quantity,
             availableQty: input.quantity,
@@ -140,6 +141,7 @@ export const catalogueRouter = createTRPCRouter({
         updateData.availableQty = Math.max(0, existing.availableQty + delta);
       }
 
+      if (input.name !== undefined) updateData.name = input.name;
       if (input.amount !== undefined) updateData.amount = input.amount;
       if (input.mediaStorageKey !== undefined) updateData.mediaStorageKey = input.mediaStorageKey;
 

@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   MessageCircle,
   Package,
+  ShoppingBag,
   ShoppingCart,
   Users,
   Radio,
@@ -133,6 +134,7 @@ const menuGroups: MenuGroup[] = [
     prefetch: false,
     items: [
       { href: "/parametres/whatsapp", label: "Connexion WhatsApp", icon: MessageCircle, requiresGridRole: true, prefetch: false },
+      { href: "/parametres/whatsapp-business", label: "WhatsApp Business", icon: ShoppingBag, requiresGridRole: true, prefetch: false },
     ],
   },
   {

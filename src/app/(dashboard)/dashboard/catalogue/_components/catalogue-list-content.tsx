@@ -164,7 +164,7 @@ export function CatalogueListContent() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-16">Photo</TableHead>
-                        <TableHead>Code</TableHead>
+                        <TableHead>Article</TableHead>
                         <TableHead>Prix</TableHead>
                         <TableHead className="text-right">Quantité totale</TableHead>
                         <TableHead className="text-right">Disponible</TableHead>
@@ -197,7 +197,19 @@ export function CatalogueListContent() {
                               </div>
                             )}
                           </TableCell>
-                          <TableCell className="font-medium">{item.code}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-col gap-0.5">
+                              <span className="font-medium">{item.code}</span>
+                              {item.name && (
+                                <span className="text-xs text-muted-foreground">{item.name}</span>
+                              )}
+                              {item.syncedToMeta && (
+                                <Badge variant="success" className="w-fit text-[10px] px-1.5 py-0">
+                                  Meta ✓
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
                           <TableCell>{formatPrice(item.amount)}</TableCell>
                           <TableCell className="text-right">{item.quantity}</TableCell>
                           <TableCell className="text-right">

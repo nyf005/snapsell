@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, ImagePlus, Trash2, Upload } from "lucide-react";
+import { ChevronDown, ChevronUp, ImagePlus, RefreshCw, Trash2, Upload } from "lucide-react";
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import {
@@ -16,6 +16,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Spinner } from "~/components/ui/spinner";
 import { cn } from "~/lib/utils";
+import { Badge } from "~/components/ui/badge";
 import type { CatalogueItemOutput } from "~/server/api/routers/catalogue.schema";
 import { VariantsSection } from "./variants-section";
 
@@ -115,8 +116,11 @@ export function CatalogueItemFormDialog({
   r2Configured = true,
 }: CatalogueItemFormDialogProps) {
   const [code, setCode] = useState("");
+  const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [amount, setAmountCents] = useState("");
+  const [syncSuccess, setSyncSuccess] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [showVariants, setShowVariants] = useState(true);
   const [variantDraft, setVariantDraft] = useState<VariantDraftPayload | null>(null);
@@ -126,6 +130,16 @@ export function CatalogueItemFormDialog({
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const syncToMeta = api.catalogue.syncToMeta.useMutation({
+    onSuccess: () => {
+      setSyncError(null);
+      setSyncSuccess(true);
+      onSuccess();
+      setTimeout(() => setSyncSuccess(false), 3000);
+    },
+    onError: (e) => setSyncError(e.message),
+  });
 
   const createMutation = api.catalogue.create.useMutation({
     onError: (err) => setError(err.message),
@@ -143,6 +157,7 @@ export function CatalogueItemFormDialog({
   useEffect(() => {
     if (item) {
       setCode(item.code);
+      setName(item.name ?? "");
       setQuantity(item.quantity.toString());
       setAmountCents(item.amount !== null ? (item.amount / 100).toString() : "");
       setShowVariants(false);
@@ -155,6 +170,8 @@ export function CatalogueItemFormDialog({
     setPreviewUrl(null);
     setRemoveExistingPhoto(false);
     setError("");
+    setSyncError(null);
+    setSyncSuccess(false);
     setVariantDraft(null);
   }, [item, open]);
 
@@ -166,9 +183,12 @@ export function CatalogueItemFormDialog({
 
   const resetForm = () => {
     setCode("");
+    setName("");
     setQuantity("1");
     setAmountCents("");
     setError("");
+    setSyncError(null);
+    setSyncSuccess(false);
     setSelectedFile(null);
     setPreviewUrl(null);
     setRemoveExistingPhoto(false);
@@ -252,6 +272,8 @@ export function CatalogueItemFormDialog({
 
         const updates: Record<string, unknown> = { id: item.id };
         if (code.trim() !== item.code) updates.code = code.trim();
+        const nameVal = name.trim() || null;
+        if (nameVal !== (item.name ?? null)) updates.name = nameVal;
         if (!hasActiveVariants && qty !== item.quantity) updates.quantity = qty;
         if (amountValue !== undefined) updates.amount = amountValue;
 
@@ -273,6 +295,7 @@ export function CatalogueItemFormDialog({
       } else {
         const created = await createMutation.mutateAsync({
           code: code.trim(),
+          name: name.trim() || null,
           quantity: qty,
           amount: amountValue,
         });
@@ -312,6 +335,8 @@ export function CatalogueItemFormDialog({
     deleteVariantsMutation.isPending ||
     isUploading;
 
+  const canSyncToMeta = !!item && !!item.name && !!item.mediaStorageKey;
+
   const variantDerivedTotal =
     variantDraft?.variants.reduce((sum, variant) => sum + variant.quantity, 0) ?? 0;
   const hasInitialVariants = Boolean(item?.attributes && item.attributes.length > 0);
@@ -342,6 +367,20 @@ export function CatalogueItemFormDialog({
           <div className="space-y-6 py-4">
             <div className="grid gap-6 lg:grid-cols-[minmax(320px,1fr)_minmax(420px,520px)] lg:items-start">
               <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="item-name">Nom de l&apos;article</Label>
+                  <Input
+                    id="item-name"
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="ex: Robe fleurie bleue"
+                    disabled={isSubmitting}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Nom affiché dans le catalogue Meta Commerce (requis pour la synchro)
+                  </p>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="code">Code *</Label>
                   <Input
@@ -548,6 +587,45 @@ export function CatalogueItemFormDialog({
                 {error}
               </div>
             ) : null}
+
+            {item && (
+              <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Catalogue Meta Commerce</p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.syncedToMeta
+                        ? "Article synchronisé avec Meta."
+                        : canSyncToMeta
+                          ? "Prêt à synchroniser (nom + photo présents)."
+                          : "Ajoutez un nom et une photo pour synchroniser."}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {item.syncedToMeta && (
+                      <Badge variant="success" className="text-xs">Synchronisé</Badge>
+                    )}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      disabled={!canSyncToMeta || syncToMeta.isPending}
+                      onClick={() => syncToMeta.mutate({ id: item.id })}
+                      className="gap-1.5"
+                    >
+                      <RefreshCw className={cn("size-3.5", syncToMeta.isPending && "animate-spin")} />
+                      {syncToMeta.isPending ? "Synchro…" : item.syncedToMeta ? "Re-synchroniser" : "Synchroniser avec Meta"}
+                    </Button>
+                  </div>
+                </div>
+                {syncSuccess && (
+                  <p className="text-xs text-success">Article synchronisé avec succès.</p>
+                )}
+                {syncError && (
+                  <p className="text-xs text-destructive">{syncError}</p>
+                )}
+              </div>
+            )}
           </div>
 
           <DialogFooter>

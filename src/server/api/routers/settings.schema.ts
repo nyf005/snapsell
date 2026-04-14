@@ -64,3 +64,23 @@ export const listCategoryPricesInputSchema = z.object({
 });
 
 export type ListCategoryPricesInput = z.infer<typeof listCategoryPricesInputSchema>;
+
+const timeHHMM = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Format HH:MM requis (ex: 08:00)")
+  .nullable()
+  .optional();
+
+export const setBusinessConfigInputSchema = z.object({
+  businessHoursStart: timeHHMM,
+  businessHoursEnd: timeHHMM,
+  businessTimezone: z.string().max(64).nullable().optional(),
+  awayMessage: z.string().max(2000).nullable().optional(),
+});
+
+export type SetBusinessConfigInput = z.infer<typeof setBusinessConfigInputSchema>;
+
+export const selectMetaCatalogInputSchema = z.object({
+  catalogId: z.string().trim().min(1, "L'identifiant du catalogue est requis").max(64),
+  catalogName: z.string().trim().max(255).optional(),
+});

@@ -18,6 +18,8 @@ import {
   connectWhatsAppEmbeddedInputSchema,
   setFaqSettingsInputSchema,
   listCategoryPricesInputSchema,
+  setBusinessConfigInputSchema,
+  selectMetaCatalogInputSchema,
 } from "./settings.schema";
 import {
   MetaEmbeddedSignupError,
@@ -383,6 +385,80 @@ export const settingsRouter = createTRPCRouter({
         },
       });
 
+      return { ok: true };
+    }),
+
+  getBusinessConfig: managerProcedure.query(async ({ ctx }) => {
+    const tenant = await db.tenant.findUnique({
+      where: { id: ctx.session.user.tenantId },
+      select: {
+        businessHoursStart: true,
+        businessHoursEnd: true,
+        businessTimezone: true,
+        awayMessage: true,
+        metaCatalogId: true,
+        hasMetaCatalogSync: true,
+      },
+    });
+    return {
+      businessHoursStart: tenant?.businessHoursStart ?? null,
+      businessHoursEnd: tenant?.businessHoursEnd ?? null,
+      businessTimezone: tenant?.businessTimezone ?? "Africa/Abidjan",
+      awayMessage: tenant?.awayMessage ?? null,
+      metaCatalogId: tenant?.metaCatalogId ?? null,
+      hasMetaCatalogSync: tenant?.hasMetaCatalogSync ?? false,
+    };
+  }),
+
+  setBusinessConfig: managerProcedure
+    .input(setBusinessConfigInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      await db.tenant.update({
+        where: { id: ctx.session.user.tenantId },
+        data: {
+          businessHoursStart: input.businessHoursStart ?? null,
+          businessHoursEnd: input.businessHoursEnd ?? null,
+          businessTimezone: input.businessTimezone ?? null,
+          awayMessage: input.awayMessage ?? null,
+        },
+      });
+      return { ok: true };
+    }),
+
+  fetchMetaCatalogs: managerProcedure.query(async ({ ctx }) => {
+    const tenant = await db.tenant.findUnique({
+      where: { id: ctx.session.user.tenantId },
+      select: { metaWabaId: true, metaAccessToken: true },
+    });
+    if (!tenant?.metaWabaId || !tenant.metaAccessToken) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Connectez d'abord votre compte WhatsApp Business avant de récupérer les catalogues.",
+      });
+    }
+    const { decrypt } = await import("~/lib/crypto");
+    const accessToken = decrypt(tenant.metaAccessToken);
+    const res = await fetch(
+      `https://graph.facebook.com/v21.0/${encodeURIComponent(tenant.metaWabaId)}/product_catalogs?fields=id,name&limit=25`,
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    );
+    if (!res.ok) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Impossible de récupérer les catalogues Meta. Vérifiez vos permissions Commerce Manager.",
+      });
+    }
+    const body = (await res.json()) as { data?: Array<{ id: string; name?: string }> };
+    return (body.data ?? []).map((c) => ({ id: c.id, name: c.name ?? c.id }));
+  }),
+
+  selectMetaCatalog: managerProcedure
+    .input(selectMetaCatalogInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      await db.tenant.update({
+        where: { id: ctx.session.user.tenantId },
+        data: { metaCatalogId: input.catalogId, hasMetaCatalogSync: true },
+      });
       return { ok: true };
     }),
 });
