@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { Bell, Check, Eye, EyeOff, Info, KeyRound, Phone, Plus, Trash2, Zap } from "lucide-react";
+import { Bell, Check, ChevronDown, Eye, EyeOff, Info, KeyRound, Phone, Plus, RefreshCw, ShoppingBag, Trash2, Zap } from "lucide-react";
 
 import { cn } from "~/lib/utils";
 
@@ -47,6 +47,11 @@ export function WhatsAppConfigContent() {
   >("idle");
   const [embeddedSignupError, setEmbeddedSignupError] = useState<string | null>(null);
 
+  const [selectedCatalogId, setSelectedCatalogId] = useState<string>("");
+  const [catalogFetchEnabled, setCatalogFetchEnabled] = useState(false);
+  const [catalogSaveSuccess, setCatalogSaveSuccess] = useState(false);
+  const [catalogSaveError, setCatalogSaveError] = useState<string | null>(null);
+
   const utils = api.useUtils();
   const { data, isLoading } = api.settings.getWhatsAppConfig.useQuery();
   const { data: sellerPhones = [], isLoading: sellerPhonesLoading } =
@@ -86,6 +91,19 @@ export function WhatsAppConfigContent() {
     onSuccess: () => {
       void utils.settings.getWhatsAppConfig.invalidate();
     },
+  });
+
+  const { data: catalogs = [], isLoading: catalogsLoading, refetch: refetchCatalogs } =
+    api.settings.fetchMetaCatalogs.useQuery(undefined, { enabled: catalogFetchEnabled });
+
+  const selectCatalog = api.settings.selectMetaCatalog.useMutation({
+    onSuccess: () => {
+      setCatalogSaveError(null);
+      setCatalogSaveSuccess(true);
+      void utils.settings.getWhatsAppConfig.invalidate();
+      setTimeout(() => setCatalogSaveSuccess(false), 3000);
+    },
+    onError: (e) => setCatalogSaveError(e.message),
   });
 
   const serverPhoneNumberId = data?.metaPhoneNumberId ?? null;
@@ -636,6 +654,118 @@ export function WhatsAppConfigContent() {
                 )}
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Catalogue Meta Commerce */}
+        <Card className="border-border shadow-sm">
+          <CardHeader className="border-b border-border pb-6">
+            <CardTitle className="text-xl flex items-center gap-2">
+              <ShoppingBag className="size-5 text-muted-foreground" />
+              Catalogue Meta Commerce
+            </CardTitle>
+            <CardDescription className="text-sm">
+              Associez un catalogue Meta Commerce Manager pour synchroniser vos articles
+              et permettre aux clients de commander directement via WhatsApp.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 space-y-4">
+            {data?.metaCatalogId && (
+              <div className="rounded-md border border-success/30 bg-success/5 p-3 text-sm">
+                <p className="font-semibold text-foreground">Catalogue actif</p>
+                <p className="mt-0.5 font-mono text-xs text-muted-foreground">{data.metaCatalogId}</p>
+              </div>
+            )}
+
+            {!isConnected ? (
+              <Alert className="border-dashed bg-muted/50">
+                <Info className="size-4 text-primary" />
+                <AlertDescription className="text-xs">
+                  Connectez d&apos;abord votre compte WhatsApp Business pour accéder aux catalogues Meta.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="gap-2"
+                    disabled={catalogsLoading}
+                    onClick={() => {
+                      if (!catalogFetchEnabled) {
+                        setCatalogFetchEnabled(true);
+                      } else {
+                        void refetchCatalogs();
+                      }
+                    }}
+                  >
+                    <RefreshCw className={cn("size-4", catalogsLoading && "animate-spin")} />
+                    {catalogsLoading ? "Chargement…" : "Récupérer mes catalogues"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Les catalogues associés à votre compte WABA seront listés ici.
+                  </p>
+                </div>
+
+                {catalogs.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="catalog-select" className="text-sm font-semibold text-foreground">
+                        Sélectionner un catalogue
+                      </Label>
+                      <div className="relative">
+                        <select
+                          id="catalog-select"
+                          value={selectedCatalogId}
+                          onChange={(e) => setSelectedCatalogId(e.target.value)}
+                          className="w-full appearance-none rounded-md border border-input bg-background px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="">— Choisir un catalogue —</option>
+                          {catalogs.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name} ({c.id})
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        type="button"
+                        disabled={!selectedCatalogId || selectCatalog.isPending}
+                        onClick={() => {
+                          const found = catalogs.find((c) => c.id === selectedCatalogId);
+                          selectCatalog.mutate({ catalogId: selectedCatalogId, catalogName: found?.name });
+                        }}
+                        className="font-semibold shadow-lg shadow-primary/20"
+                      >
+                        {selectCatalog.isPending ? "Enregistrement…" : "Utiliser ce catalogue"}
+                      </Button>
+                      {catalogSaveSuccess && (
+                        <span className="flex items-center gap-1 text-xs text-success">
+                          <Check className="size-3.5" /> Catalogue enregistré
+                        </span>
+                      )}
+                    </div>
+                    {catalogSaveError && (
+                      <Alert variant="destructive">
+                        <AlertDescription>{catalogSaveError}</AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                )}
+
+                {catalogFetchEnabled && !catalogsLoading && catalogs.length === 0 && (
+                  <Alert className="border-dashed bg-muted/50">
+                    <AlertDescription className="text-xs">
+                      Aucun catalogue trouvé pour ce compte WABA. Créez d&apos;abord un catalogue dans Meta Commerce Manager, puis revenez ici.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 

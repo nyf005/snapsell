@@ -56,3 +56,8 @@ export const setFaqSettingsInputSchema = z.object({
 });
 
 export type SetFaqSettingsInput = z.infer<typeof setFaqSettingsInputSchema>;
+
+export const selectMetaCatalogInputSchema = z.object({
+  catalogId: z.string().trim().min(1, "L'identifiant du catalogue est requis").max(64),
+  catalogName: z.string().trim().max(255).optional(),
+});

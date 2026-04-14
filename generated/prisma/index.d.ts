@@ -3770,6 +3770,12 @@ export namespace Prisma {
     faqPayment: string | null
     faqLocation: string | null
     faqAvailability: string | null
+    metaCatalogId: string | null
+    hasMetaCatalogSync: boolean | null
+    businessHoursStart: string | null
+    businessHoursEnd: string | null
+    businessTimezone: string | null
+    awayMessage: string | null
   }
 
   export type TenantMaxAggregateOutputType = {
@@ -3805,6 +3811,12 @@ export namespace Prisma {
     faqPayment: string | null
     faqLocation: string | null
     faqAvailability: string | null
+    metaCatalogId: string | null
+    hasMetaCatalogSync: boolean | null
+    businessHoursStart: string | null
+    businessHoursEnd: string | null
+    businessTimezone: string | null
+    awayMessage: string | null
   }
 
   export type TenantCountAggregateOutputType = {
@@ -3840,6 +3852,12 @@ export namespace Prisma {
     faqPayment: number
     faqLocation: number
     faqAvailability: number
+    metaCatalogId: number
+    hasMetaCatalogSync: number
+    businessHoursStart: number
+    businessHoursEnd: number
+    businessTimezone: number
+    awayMessage: number
     _all: number
   }
 
@@ -3891,6 +3909,12 @@ export namespace Prisma {
     faqPayment?: true
     faqLocation?: true
     faqAvailability?: true
+    metaCatalogId?: true
+    hasMetaCatalogSync?: true
+    businessHoursStart?: true
+    businessHoursEnd?: true
+    businessTimezone?: true
+    awayMessage?: true
   }
 
   export type TenantMaxAggregateInputType = {
@@ -3926,6 +3950,12 @@ export namespace Prisma {
     faqPayment?: true
     faqLocation?: true
     faqAvailability?: true
+    metaCatalogId?: true
+    hasMetaCatalogSync?: true
+    businessHoursStart?: true
+    businessHoursEnd?: true
+    businessTimezone?: true
+    awayMessage?: true
   }
 
   export type TenantCountAggregateInputType = {
@@ -3961,6 +3991,12 @@ export namespace Prisma {
     faqPayment?: true
     faqLocation?: true
     faqAvailability?: true
+    metaCatalogId?: true
+    hasMetaCatalogSync?: true
+    businessHoursStart?: true
+    businessHoursEnd?: true
+    businessTimezone?: true
+    awayMessage?: true
     _all?: true
   }
 
@@ -4083,6 +4119,12 @@ export namespace Prisma {
     faqPayment: string | null
     faqLocation: string | null
     faqAvailability: string | null
+    metaCatalogId: string | null
+    hasMetaCatalogSync: boolean
+    businessHoursStart: string | null
+    businessHoursEnd: string | null
+    businessTimezone: string | null
+    awayMessage: string | null
     _count: TenantCountAggregateOutputType | null
     _avg: TenantAvgAggregateOutputType | null
     _sum: TenantSumAggregateOutputType | null
@@ -4137,6 +4179,12 @@ export namespace Prisma {
     faqPayment?: boolean
     faqLocation?: boolean
     faqAvailability?: boolean
+    metaCatalogId?: boolean
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: boolean
+    businessHoursEnd?: boolean
+    businessTimezone?: boolean
+    awayMessage?: boolean
     users?: boolean | Tenant$usersArgs<ExtArgs>
     conversationStates?: boolean | Tenant$conversationStatesArgs<ExtArgs>
     categoryPrices?: boolean | Tenant$categoryPricesArgs<ExtArgs>
@@ -4194,6 +4242,12 @@ export namespace Prisma {
     faqPayment?: boolean
     faqLocation?: boolean
     faqAvailability?: boolean
+    metaCatalogId?: boolean
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: boolean
+    businessHoursEnd?: boolean
+    businessTimezone?: boolean
+    awayMessage?: boolean
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4229,6 +4283,12 @@ export namespace Prisma {
     faqPayment?: boolean
     faqLocation?: boolean
     faqAvailability?: boolean
+    metaCatalogId?: boolean
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: boolean
+    businessHoursEnd?: boolean
+    businessTimezone?: boolean
+    awayMessage?: boolean
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectScalar = {
@@ -4264,9 +4324,15 @@ export namespace Prisma {
     faqPayment?: boolean
     faqLocation?: boolean
     faqAvailability?: boolean
+    metaCatalogId?: boolean
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: boolean
+    businessHoursEnd?: boolean
+    businessTimezone?: boolean
+    awayMessage?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     conversationStates?: boolean | Tenant$conversationStatesArgs<ExtArgs>
@@ -4352,6 +4418,12 @@ export namespace Prisma {
       faqPayment: string | null
       faqLocation: string | null
       faqAvailability: string | null
+      metaCatalogId: string | null
+      hasMetaCatalogSync: boolean
+      businessHoursStart: string | null
+      businessHoursEnd: string | null
+      businessTimezone: string | null
+      awayMessage: string | null
     }, ExtArgs["result"]["tenant"]>
     composites: {}
   }
@@ -4828,6 +4900,12 @@ export namespace Prisma {
     readonly faqPayment: FieldRef<"Tenant", 'String'>
     readonly faqLocation: FieldRef<"Tenant", 'String'>
     readonly faqAvailability: FieldRef<"Tenant", 'String'>
+    readonly metaCatalogId: FieldRef<"Tenant", 'String'>
+    readonly hasMetaCatalogSync: FieldRef<"Tenant", 'Boolean'>
+    readonly businessHoursStart: FieldRef<"Tenant", 'String'>
+    readonly businessHoursEnd: FieldRef<"Tenant", 'String'>
+    readonly businessTimezone: FieldRef<"Tenant", 'String'>
+    readonly awayMessage: FieldRef<"Tenant", 'String'>
   }
     
 
@@ -22428,6 +22506,10 @@ export namespace Prisma {
     availableQty: number | null
     reservedQty: number | null
     mediaStorageKey: string | null
+    name: string | null
+    metaProductId: string | null
+    syncedToMeta: boolean | null
+    metaSyncedAt: Date | null
     origin: $Enums.CatalogueItemOrigin | null
     createdInLive: boolean | null
     createdAt: Date | null
@@ -22443,6 +22525,10 @@ export namespace Prisma {
     availableQty: number | null
     reservedQty: number | null
     mediaStorageKey: string | null
+    name: string | null
+    metaProductId: string | null
+    syncedToMeta: boolean | null
+    metaSyncedAt: Date | null
     origin: $Enums.CatalogueItemOrigin | null
     createdInLive: boolean | null
     createdAt: Date | null
@@ -22458,6 +22544,10 @@ export namespace Prisma {
     availableQty: number
     reservedQty: number
     mediaStorageKey: number
+    name: number
+    metaProductId: number
+    syncedToMeta: number
+    metaSyncedAt: number
     attributes: number
     origin: number
     createdInLive: number
@@ -22490,6 +22580,10 @@ export namespace Prisma {
     availableQty?: true
     reservedQty?: true
     mediaStorageKey?: true
+    name?: true
+    metaProductId?: true
+    syncedToMeta?: true
+    metaSyncedAt?: true
     origin?: true
     createdInLive?: true
     createdAt?: true
@@ -22505,6 +22599,10 @@ export namespace Prisma {
     availableQty?: true
     reservedQty?: true
     mediaStorageKey?: true
+    name?: true
+    metaProductId?: true
+    syncedToMeta?: true
+    metaSyncedAt?: true
     origin?: true
     createdInLive?: true
     createdAt?: true
@@ -22520,6 +22618,10 @@ export namespace Prisma {
     availableQty?: true
     reservedQty?: true
     mediaStorageKey?: true
+    name?: true
+    metaProductId?: true
+    syncedToMeta?: true
+    metaSyncedAt?: true
     attributes?: true
     origin?: true
     createdInLive?: true
@@ -22623,6 +22725,10 @@ export namespace Prisma {
     availableQty: number
     reservedQty: number
     mediaStorageKey: string | null
+    name: string | null
+    metaProductId: string | null
+    syncedToMeta: boolean
+    metaSyncedAt: Date | null
     attributes: JsonValue | null
     origin: $Enums.CatalogueItemOrigin
     createdInLive: boolean
@@ -22658,6 +22764,10 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    name?: boolean
+    metaProductId?: boolean
+    syncedToMeta?: boolean
+    metaSyncedAt?: boolean
     attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
@@ -22679,6 +22789,10 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    name?: boolean
+    metaProductId?: boolean
+    syncedToMeta?: boolean
+    metaSyncedAt?: boolean
     attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
@@ -22696,6 +22810,10 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    name?: boolean
+    metaProductId?: boolean
+    syncedToMeta?: boolean
+    metaSyncedAt?: boolean
     attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
@@ -22713,6 +22831,10 @@ export namespace Prisma {
     availableQty?: boolean
     reservedQty?: boolean
     mediaStorageKey?: boolean
+    name?: boolean
+    metaProductId?: boolean
+    syncedToMeta?: boolean
+    metaSyncedAt?: boolean
     attributes?: boolean
     origin?: boolean
     createdInLive?: boolean
@@ -22720,7 +22842,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type CatalogueItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "code" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "attributes" | "origin" | "createdInLive" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogueItem"]>
+  export type CatalogueItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "code" | "amount" | "quantity" | "availableQty" | "reservedQty" | "mediaStorageKey" | "name" | "metaProductId" | "syncedToMeta" | "metaSyncedAt" | "attributes" | "origin" | "createdInLive" | "createdAt" | "updatedAt", ExtArgs["result"]["catalogueItem"]>
   export type CatalogueItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     reservations?: boolean | CatalogueItem$reservationsArgs<ExtArgs>
@@ -22752,6 +22874,10 @@ export namespace Prisma {
       availableQty: number
       reservedQty: number
       mediaStorageKey: string | null
+      name: string | null
+      metaProductId: string | null
+      syncedToMeta: boolean
+      metaSyncedAt: Date | null
       attributes: Prisma.JsonValue | null
       origin: $Enums.CatalogueItemOrigin
       createdInLive: boolean
@@ -23192,6 +23318,10 @@ export namespace Prisma {
     readonly availableQty: FieldRef<"CatalogueItem", 'Int'>
     readonly reservedQty: FieldRef<"CatalogueItem", 'Int'>
     readonly mediaStorageKey: FieldRef<"CatalogueItem", 'String'>
+    readonly name: FieldRef<"CatalogueItem", 'String'>
+    readonly metaProductId: FieldRef<"CatalogueItem", 'String'>
+    readonly syncedToMeta: FieldRef<"CatalogueItem", 'Boolean'>
+    readonly metaSyncedAt: FieldRef<"CatalogueItem", 'DateTime'>
     readonly attributes: FieldRef<"CatalogueItem", 'Json'>
     readonly origin: FieldRef<"CatalogueItem", 'CatalogueItemOrigin'>
     readonly createdInLive: FieldRef<"CatalogueItem", 'Boolean'>
@@ -34429,7 +34559,13 @@ export namespace Prisma {
     faqDelivery: 'faqDelivery',
     faqPayment: 'faqPayment',
     faqLocation: 'faqLocation',
-    faqAvailability: 'faqAvailability'
+    faqAvailability: 'faqAvailability',
+    metaCatalogId: 'metaCatalogId',
+    hasMetaCatalogSync: 'hasMetaCatalogSync',
+    businessHoursStart: 'businessHoursStart',
+    businessHoursEnd: 'businessHoursEnd',
+    businessTimezone: 'businessTimezone',
+    awayMessage: 'awayMessage'
   };
 
   export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
@@ -34639,6 +34775,10 @@ export namespace Prisma {
     availableQty: 'availableQty',
     reservedQty: 'reservedQty',
     mediaStorageKey: 'mediaStorageKey',
+    name: 'name',
+    metaProductId: 'metaProductId',
+    syncedToMeta: 'syncedToMeta',
+    metaSyncedAt: 'metaSyncedAt',
     attributes: 'attributes',
     origin: 'origin',
     createdInLive: 'createdInLive',
@@ -35069,6 +35209,12 @@ export namespace Prisma {
     faqPayment?: StringNullableFilter<"Tenant"> | string | null
     faqLocation?: StringNullableFilter<"Tenant"> | string | null
     faqAvailability?: StringNullableFilter<"Tenant"> | string | null
+    metaCatalogId?: StringNullableFilter<"Tenant"> | string | null
+    hasMetaCatalogSync?: BoolFilter<"Tenant"> | boolean
+    businessHoursStart?: StringNullableFilter<"Tenant"> | string | null
+    businessHoursEnd?: StringNullableFilter<"Tenant"> | string | null
+    businessTimezone?: StringNullableFilter<"Tenant"> | string | null
+    awayMessage?: StringNullableFilter<"Tenant"> | string | null
     users?: UserListRelationFilter
     conversationStates?: ConversationStateListRelationFilter
     categoryPrices?: CategoryPriceListRelationFilter
@@ -35125,6 +35271,12 @@ export namespace Prisma {
     faqPayment?: SortOrderInput | SortOrder
     faqLocation?: SortOrderInput | SortOrder
     faqAvailability?: SortOrderInput | SortOrder
+    metaCatalogId?: SortOrderInput | SortOrder
+    hasMetaCatalogSync?: SortOrder
+    businessHoursStart?: SortOrderInput | SortOrder
+    businessHoursEnd?: SortOrderInput | SortOrder
+    businessTimezone?: SortOrderInput | SortOrder
+    awayMessage?: SortOrderInput | SortOrder
     users?: UserOrderByRelationAggregateInput
     conversationStates?: ConversationStateOrderByRelationAggregateInput
     categoryPrices?: CategoryPriceOrderByRelationAggregateInput
@@ -35184,6 +35336,12 @@ export namespace Prisma {
     faqPayment?: StringNullableFilter<"Tenant"> | string | null
     faqLocation?: StringNullableFilter<"Tenant"> | string | null
     faqAvailability?: StringNullableFilter<"Tenant"> | string | null
+    metaCatalogId?: StringNullableFilter<"Tenant"> | string | null
+    hasMetaCatalogSync?: BoolFilter<"Tenant"> | boolean
+    businessHoursStart?: StringNullableFilter<"Tenant"> | string | null
+    businessHoursEnd?: StringNullableFilter<"Tenant"> | string | null
+    businessTimezone?: StringNullableFilter<"Tenant"> | string | null
+    awayMessage?: StringNullableFilter<"Tenant"> | string | null
     users?: UserListRelationFilter
     conversationStates?: ConversationStateListRelationFilter
     categoryPrices?: CategoryPriceListRelationFilter
@@ -35240,6 +35398,12 @@ export namespace Prisma {
     faqPayment?: SortOrderInput | SortOrder
     faqLocation?: SortOrderInput | SortOrder
     faqAvailability?: SortOrderInput | SortOrder
+    metaCatalogId?: SortOrderInput | SortOrder
+    hasMetaCatalogSync?: SortOrder
+    businessHoursStart?: SortOrderInput | SortOrder
+    businessHoursEnd?: SortOrderInput | SortOrder
+    businessTimezone?: SortOrderInput | SortOrder
+    awayMessage?: SortOrderInput | SortOrder
     _count?: TenantCountOrderByAggregateInput
     _avg?: TenantAvgOrderByAggregateInput
     _max?: TenantMaxOrderByAggregateInput
@@ -35283,6 +35447,12 @@ export namespace Prisma {
     faqPayment?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     faqLocation?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     faqAvailability?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    metaCatalogId?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    hasMetaCatalogSync?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    businessHoursStart?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    businessHoursEnd?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    businessTimezone?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    awayMessage?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
   }
 
   export type InvitationWhereInput = {
@@ -36314,6 +36484,10 @@ export namespace Prisma {
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    name?: StringNullableFilter<"CatalogueItem"> | string | null
+    metaProductId?: StringNullableFilter<"CatalogueItem"> | string | null
+    syncedToMeta?: BoolFilter<"CatalogueItem"> | boolean
+    metaSyncedAt?: DateTimeNullableFilter<"CatalogueItem"> | Date | string | null
     attributes?: JsonNullableFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
@@ -36334,6 +36508,10 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrderInput | SortOrder
+    name?: SortOrderInput | SortOrder
+    metaProductId?: SortOrderInput | SortOrder
+    syncedToMeta?: SortOrder
+    metaSyncedAt?: SortOrderInput | SortOrder
     attributes?: SortOrderInput | SortOrder
     origin?: SortOrder
     createdInLive?: SortOrder
@@ -36358,6 +36536,10 @@ export namespace Prisma {
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    name?: StringNullableFilter<"CatalogueItem"> | string | null
+    metaProductId?: StringNullableFilter<"CatalogueItem"> | string | null
+    syncedToMeta?: BoolFilter<"CatalogueItem"> | boolean
+    metaSyncedAt?: DateTimeNullableFilter<"CatalogueItem"> | Date | string | null
     attributes?: JsonNullableFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
@@ -36378,6 +36560,10 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrderInput | SortOrder
+    name?: SortOrderInput | SortOrder
+    metaProductId?: SortOrderInput | SortOrder
+    syncedToMeta?: SortOrder
+    metaSyncedAt?: SortOrderInput | SortOrder
     attributes?: SortOrderInput | SortOrder
     origin?: SortOrder
     createdInLive?: SortOrder
@@ -36402,6 +36588,10 @@ export namespace Prisma {
     availableQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
     reservedQty?: IntWithAggregatesFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableWithAggregatesFilter<"CatalogueItem"> | string | null
+    name?: StringNullableWithAggregatesFilter<"CatalogueItem"> | string | null
+    metaProductId?: StringNullableWithAggregatesFilter<"CatalogueItem"> | string | null
+    syncedToMeta?: BoolWithAggregatesFilter<"CatalogueItem"> | boolean
+    metaSyncedAt?: DateTimeNullableWithAggregatesFilter<"CatalogueItem"> | Date | string | null
     attributes?: JsonNullableWithAggregatesFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginWithAggregatesFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolWithAggregatesFilter<"CatalogueItem"> | boolean
@@ -37258,6 +37448,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -37314,6 +37510,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -37370,6 +37572,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -37426,6 +37634,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -37482,6 +37696,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
   }
 
   export type TenantUpdateManyMutationInput = {
@@ -37517,6 +37737,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TenantUncheckedUpdateManyInput = {
@@ -37552,6 +37778,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InvitationCreateInput = {
@@ -38625,6 +38857,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -38645,6 +38881,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -38663,6 +38903,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -38683,6 +38927,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -38702,6 +38950,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -38717,6 +38969,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -38733,6 +38989,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -39932,6 +40192,12 @@ export namespace Prisma {
     faqPayment?: SortOrder
     faqLocation?: SortOrder
     faqAvailability?: SortOrder
+    metaCatalogId?: SortOrder
+    hasMetaCatalogSync?: SortOrder
+    businessHoursStart?: SortOrder
+    businessHoursEnd?: SortOrder
+    businessTimezone?: SortOrder
+    awayMessage?: SortOrder
   }
 
   export type TenantAvgOrderByAggregateInput = {
@@ -39974,6 +40240,12 @@ export namespace Prisma {
     faqPayment?: SortOrder
     faqLocation?: SortOrder
     faqAvailability?: SortOrder
+    metaCatalogId?: SortOrder
+    hasMetaCatalogSync?: SortOrder
+    businessHoursStart?: SortOrder
+    businessHoursEnd?: SortOrder
+    businessTimezone?: SortOrder
+    awayMessage?: SortOrder
   }
 
   export type TenantMinOrderByAggregateInput = {
@@ -40009,6 +40281,12 @@ export namespace Prisma {
     faqPayment?: SortOrder
     faqLocation?: SortOrder
     faqAvailability?: SortOrder
+    metaCatalogId?: SortOrder
+    hasMetaCatalogSync?: SortOrder
+    businessHoursStart?: SortOrder
+    businessHoursEnd?: SortOrder
+    businessTimezone?: SortOrder
+    awayMessage?: SortOrder
   }
 
   export type TenantSumOrderByAggregateInput = {
@@ -40887,6 +41165,10 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrder
+    name?: SortOrder
+    metaProductId?: SortOrder
+    syncedToMeta?: SortOrder
+    metaSyncedAt?: SortOrder
     attributes?: SortOrder
     origin?: SortOrder
     createdInLive?: SortOrder
@@ -40910,6 +41192,10 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrder
+    name?: SortOrder
+    metaProductId?: SortOrder
+    syncedToMeta?: SortOrder
+    metaSyncedAt?: SortOrder
     origin?: SortOrder
     createdInLive?: SortOrder
     createdAt?: SortOrder
@@ -40925,6 +41211,10 @@ export namespace Prisma {
     availableQty?: SortOrder
     reservedQty?: SortOrder
     mediaStorageKey?: SortOrder
+    name?: SortOrder
+    metaProductId?: SortOrder
+    syncedToMeta?: SortOrder
+    metaSyncedAt?: SortOrder
     origin?: SortOrder
     createdInLive?: SortOrder
     createdAt?: SortOrder
@@ -44273,6 +44563,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -44291,6 +44585,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -44987,6 +45285,10 @@ export namespace Prisma {
     availableQty?: IntFilter<"CatalogueItem"> | number
     reservedQty?: IntFilter<"CatalogueItem"> | number
     mediaStorageKey?: StringNullableFilter<"CatalogueItem"> | string | null
+    name?: StringNullableFilter<"CatalogueItem"> | string | null
+    metaProductId?: StringNullableFilter<"CatalogueItem"> | string | null
+    syncedToMeta?: BoolFilter<"CatalogueItem"> | boolean
+    metaSyncedAt?: DateTimeNullableFilter<"CatalogueItem"> | Date | string | null
     attributes?: JsonNullableFilter<"CatalogueItem">
     origin?: EnumCatalogueItemOriginFilter<"CatalogueItem"> | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFilter<"CatalogueItem"> | boolean
@@ -45227,6 +45529,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -45282,6 +45590,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -45353,6 +45667,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -45408,6 +45728,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -45463,6 +45789,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -45518,6 +45850,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -45609,6 +45947,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -45664,6 +46008,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -45796,6 +46146,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -45851,6 +46207,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -45922,6 +46284,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -45977,6 +46345,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -46032,6 +46406,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -46087,6 +46467,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -46218,6 +46604,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -46273,6 +46665,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -46540,6 +46938,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -46595,6 +46999,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -46666,6 +47076,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -46721,6 +47137,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -46776,6 +47198,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -46831,6 +47259,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -46902,6 +47336,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -46957,6 +47397,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -47012,6 +47458,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -47067,6 +47519,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -47138,6 +47596,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -47193,6 +47657,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -47248,6 +47718,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -47303,6 +47779,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -47374,6 +47856,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -47429,6 +47917,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -47484,6 +47978,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -47539,6 +48039,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -47610,6 +48116,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -47665,6 +48177,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -47720,6 +48238,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -47775,6 +48299,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -47934,6 +48464,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -47989,6 +48525,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -48076,6 +48618,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -48131,6 +48679,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -48311,6 +48865,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -48366,6 +48926,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -48484,6 +49050,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -48539,6 +49111,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -48726,6 +49304,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -48781,6 +49365,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -48884,6 +49474,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -48939,6 +49535,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -48974,6 +49576,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -48993,6 +49599,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -49134,6 +49744,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -49189,6 +49805,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -49230,6 +49852,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -49249,6 +49875,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -49350,6 +49980,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -49405,6 +50041,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -49502,6 +50144,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -49521,6 +50167,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -49641,6 +50291,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -49696,6 +50352,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -49811,6 +50473,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -49830,6 +50496,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -49946,6 +50616,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
@@ -50001,6 +50677,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
     deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
@@ -50072,6 +50754,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
@@ -50127,6 +50815,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
@@ -50182,6 +50876,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -50237,6 +50937,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -50383,6 +51089,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -50438,6 +51150,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -50585,6 +51303,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -50640,6 +51364,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -50746,6 +51476,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -50801,6 +51537,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -50856,6 +51598,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -50911,6 +51659,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -50946,6 +51700,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -50965,6 +51723,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -51023,6 +51785,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -51078,6 +51846,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -51119,6 +51893,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -51138,6 +51916,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -51180,6 +51962,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -51235,6 +52023,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -51306,6 +52100,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -51361,6 +52161,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -51416,6 +52222,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -51471,6 +52283,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -51542,6 +52360,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -51597,6 +52421,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -51652,6 +52482,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
@@ -51707,6 +52543,12 @@ export namespace Prisma {
     faqPayment?: string | null
     faqLocation?: string | null
     faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
     conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
     categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
@@ -51778,6 +52620,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
@@ -51833,6 +52681,12 @@ export namespace Prisma {
     faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
     faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
     categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
@@ -52005,6 +52859,10 @@ export namespace Prisma {
     availableQty?: number
     reservedQty?: number
     mediaStorageKey?: string | null
+    name?: string | null
+    metaProductId?: string | null
+    syncedToMeta?: boolean
+    metaSyncedAt?: Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: $Enums.CatalogueItemOrigin
     createdInLive?: boolean
@@ -52540,6 +53398,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -52558,6 +53420,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean
@@ -52576,6 +53442,10 @@ export namespace Prisma {
     availableQty?: IntFieldUpdateOperationsInput | number
     reservedQty?: IntFieldUpdateOperationsInput | number
     mediaStorageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    metaProductId?: NullableStringFieldUpdateOperationsInput | string | null
+    syncedToMeta?: BoolFieldUpdateOperationsInput | boolean
+    metaSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     attributes?: NullableJsonNullValueInput | InputJsonValue
     origin?: EnumCatalogueItemOriginFieldUpdateOperationsInput | $Enums.CatalogueItemOrigin
     createdInLive?: BoolFieldUpdateOperationsInput | boolean

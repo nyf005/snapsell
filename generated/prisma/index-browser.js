@@ -152,7 +152,13 @@ exports.Prisma.TenantScalarFieldEnum = {
   faqDelivery: 'faqDelivery',
   faqPayment: 'faqPayment',
   faqLocation: 'faqLocation',
-  faqAvailability: 'faqAvailability'
+  faqAvailability: 'faqAvailability',
+  metaCatalogId: 'metaCatalogId',
+  hasMetaCatalogSync: 'hasMetaCatalogSync',
+  businessHoursStart: 'businessHoursStart',
+  businessHoursEnd: 'businessHoursEnd',
+  businessTimezone: 'businessTimezone',
+  awayMessage: 'awayMessage'
 };
 
 exports.Prisma.InvitationScalarFieldEnum = {
@@ -314,6 +320,10 @@ exports.Prisma.CatalogueItemScalarFieldEnum = {
   availableQty: 'availableQty',
   reservedQty: 'reservedQty',
   mediaStorageKey: 'mediaStorageKey',
+  name: 'name',
+  metaProductId: 'metaProductId',
+  syncedToMeta: 'syncedToMeta',
+  metaSyncedAt: 'metaSyncedAt',
   attributes: 'attributes',
   origin: 'origin',
   createdInLive: 'createdInLive',

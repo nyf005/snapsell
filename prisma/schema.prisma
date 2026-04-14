@@ -67,6 +67,16 @@ model Tenant {
   faqLocation     String?   @map("faq_location") @db.Text
   faqAvailability String?   @map("faq_availability") @db.Text
 
+  // Meta Commerce / Catalogue sync (Phase WB)
+  metaCatalogId      String?  @map("meta_catalog_id")
+  hasMetaCatalogSync Boolean  @default(false) @map("has_meta_catalog_sync")
+
+  // Away message / Business hours (Phase WB)
+  businessHoursStart String?  @map("business_hours_start")
+  businessHoursEnd   String?  @map("business_hours_end")
+  businessTimezone   String?  @map("business_timezone")
+  awayMessage        String?  @map("away_message") @db.Text
+
   users                 User[]
   conversationStates    ConversationState[]
   categoryPrices        CategoryPrice[]
@@ -360,6 +370,10 @@ model CatalogueItem {
   availableQty    Int      @default(1) @map("available_qty")
   reservedQty     Int      @default(0) @map("reserved_qty")
   mediaStorageKey String?  @map("media_storage_key")
+  name            String?  // Nom affiché (sync Meta Commerce)
+  metaProductId   String?  @map("meta_product_id")
+  syncedToMeta    Boolean  @default(false) @map("synced_to_meta")
+  metaSyncedAt    DateTime? @map("meta_synced_at")
   attributes      Json?    // Noms des dimensions (ex: ["Taille", "Couleur"])
   origin          CatalogueItemOrigin @default(dashboard)
   createdInLive   Boolean  @default(false) @map("created_in_live")
