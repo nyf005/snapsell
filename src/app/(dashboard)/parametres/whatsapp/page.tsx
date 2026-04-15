@@ -6,8 +6,8 @@ import { auth } from "~/server/auth";
 import { WhatsAppConfigContent } from "../_components/whatsapp-config-content";
 
 export const metadata = {
-  title: "Connexion WhatsApp | SnapSell",
-  description: "Configurer le numéro WhatsApp de votre boutique.",
+  title: "WhatsApp | SnapSell",
+  description: "Configurer la connexion API WhatsApp Meta.",
 };
 
 export default async function WhatsAppParametresPage() {

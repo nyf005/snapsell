@@ -128,13 +128,14 @@ const menuGroups: MenuGroup[] = [
     ],
   },
   {
-    label: "Connexion WhatsApp",
+    label: "WhatsApp",
     section: "Configuration",
     requiresGridRole: true,
     prefetch: false,
+    mainItem: { href: "/parametres/whatsapp", label: "WhatsApp", icon: MessageCircle, requiresGridRole: true, prefetch: false },
     items: [
-      { href: "/parametres/whatsapp", label: "Connexion WhatsApp", icon: MessageCircle, requiresGridRole: true, prefetch: false },
-      { href: "/parametres/whatsapp-business", label: "WhatsApp Business", icon: ShoppingBag, requiresGridRole: true, prefetch: false },
+      { href: "/parametres/whatsapp", label: "Connexion", icon: MessageCircle, requiresGridRole: true, prefetch: false },
+      { href: "/parametres/whatsapp-business", label: "Business", icon: ShoppingBag, requiresGridRole: true, prefetch: false },
     ],
   },
   {

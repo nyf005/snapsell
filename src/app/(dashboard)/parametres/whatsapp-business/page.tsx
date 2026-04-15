@@ -5,7 +5,7 @@ import { WhatsAppBusinessConfigContent } from "../_components/whatsapp-business-
 
 export const metadata = {
   title: "WhatsApp Business | SnapSell",
-  description: "Horaires, message hors-horaires et catalogue Meta Commerce.",
+  description: "Configurer les horaires et le catalogue Meta Commerce.",
 };
 
 export default async function WhatsAppBusinessParametresPage() {
