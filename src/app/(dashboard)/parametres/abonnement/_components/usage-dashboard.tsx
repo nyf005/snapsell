@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, FileCheck, Users, CalendarDays, AlertTriangle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card";
 
 interface UsageDashboardProps {
   data: {
@@ -58,36 +58,35 @@ function UsageBar({
   );
 }
 
-function CycleDates({ cycleStart }: { cycleStart: Date }) {
+function useCycleDates(cycleStart: Date) {
   const start = new Date(cycleStart);
   const cycleEnd = new Date(start.getTime() + 30 * 24 * 60 * 60 * 1000);
   const now = new Date();
   const daysRemaining = Math.max(0, Math.ceil((cycleEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
-
-  const fmt = (d: Date) =>
-    d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
-
-  return (
-    <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2 text-sm">
-      <span className="flex items-center gap-2 text-muted-foreground">
-        <CalendarDays className="size-3.5" />
-        Cycle {fmt(start)} → {fmt(cycleEnd)}
-      </span>
-      <span className="font-medium tabular-nums text-foreground">
-        {daysRemaining}j restants
-      </span>
-    </div>
-  );
+  const fmt = (d: Date) => d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  return { label: `${fmt(start)} → ${fmt(cycleEnd)}`, daysRemaining };
 }
 
 export function UsageDashboard({ data }: UsageDashboardProps) {
+  const { label, daysRemaining } = useCycleDates(data.cycleStart);
+
   return (
     <Card className="border-border">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-semibold">Activité du mois</CardTitle>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle className="text-base font-semibold">Activité du mois</CardTitle>
+            <CardDescription className="mt-0.5 flex items-center gap-1.5">
+              <CalendarDays className="size-3.5" />
+              {label}
+            </CardDescription>
+          </div>
+          <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+            {daysRemaining}j restants
+          </span>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <CycleDates cycleStart={data.cycleStart} />
 
         <div className="space-y-3">
           <UsageBar

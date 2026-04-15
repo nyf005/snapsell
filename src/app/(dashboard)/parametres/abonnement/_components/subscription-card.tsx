@@ -173,7 +173,7 @@ export function SubscriptionCard({ data }: SubscriptionCardProps) {
 
         {/* Dates — une ligne discrète */}
         {(data.expiresAt || data.cycleStartedAt) && (
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-border/60 pt-4 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-muted-foreground">
             {data.expiresAt && (
               <span className="flex items-center gap-1.5">
                 <Calendar className="size-3.5" />
@@ -192,7 +192,7 @@ export function SubscriptionCard({ data }: SubscriptionCardProps) {
         )}
 
         {/* Actions */}
-        <div className="flex flex-wrap items-center gap-2 border-t border-border/60 pt-5">
+        <div className="flex flex-wrap items-center gap-2 pt-2">
           {isFree && (
             <>
               <Button asChild size="sm">
