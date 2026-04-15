@@ -84,7 +84,7 @@ export function UsageDashboard({ data }: UsageDashboardProps) {
   return (
     <Card className="border-border">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-semibold">Usage ce cycle</CardTitle>
+        <CardTitle className="text-base font-semibold">Activité du mois</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <CycleDates cycleStart={data.cycleStart} />
