@@ -15,7 +15,6 @@ import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { verifyWebhookSignature } from "~/server/payment/paystack";
 import { getPlanConfig, SUBSCRIPTION_PLANS, type PlanId } from "~/lib/subscription-plans";
-import { chargeOverage } from "~/server/subscription/usage";
 import { workerLogger } from "~/lib/logger";
 
 export async function POST(request: Request) {
@@ -42,7 +41,11 @@ export async function POST(request: Request) {
   try {
     switch (event.event) {
       case "charge.success":
-        await handleChargeSuccess(event.data);
+        if (event.data.metadata?.type === "credits_topup") {
+          await handleCreditsTopup(event.data);
+        } else {
+          await handleChargeSuccess(event.data);
+        }
         break;
       case "subscription.create":
         await handleSubscriptionCreate(event.data);
@@ -215,20 +218,6 @@ async function handleChargeSuccess(data: PaystackWebhookData) {
       (currentTenant.subscriptionStatus === "active" ||
         currentTenant.subscriptionStatus === "non_renewing");
 
-    // AC #14: Charge accumulated overage BEFORE resetting the cycle
-    if (isRenewal) {
-      workerLogger.warn("Subscription renewal detected — charging overage if any", {
-        tenantId,
-        plan: planId,
-      });
-      try {
-        await chargeOverage(tenantId);
-      } catch (err) {
-        // Don't block renewal on overage charge failure — log and continue
-        workerLogger.warn("chargeOverage failed during renewal", { tenantId, error: err });
-      }
-    }
-
     await db.tenant.update({
       where: { id: tenantId },
       data: {
@@ -260,6 +249,59 @@ async function handleChargeSuccess(data: PaystackWebhookData) {
       },
     });
   }
+}
+
+/**
+ * charge.success (credits_topup): Crédite creditsBonus sur le tenant.
+ */
+async function handleCreditsTopup(data: PaystackWebhookData) {
+  const reference = data.reference;
+  if (!reference) return;
+
+  // Idempotence
+  const existing = await db.subscriptionPayment.findUnique({
+    where: { paystackReference: reference },
+  });
+  if (existing?.status === "success") return;
+
+  const tenantId = data.metadata?.tenantId as string | undefined;
+  const creditsAmount = data.metadata?.creditsAmount as number | undefined;
+
+  if (!tenantId || !creditsAmount || creditsAmount <= 0) {
+    workerLogger.warn("handleCreditsTopup: missing tenantId or creditsAmount", { reference });
+    return;
+  }
+
+  const amount = Math.round((data.amount ?? 0) / 100); // subunits → FCFA
+  const channel = data.authorization?.channel ?? data.channel ?? null;
+  const cardLast4 = data.authorization?.last4 ?? null;
+
+  if (existing) {
+    await db.subscriptionPayment.update({
+      where: { paystackReference: reference },
+      data: { status: "success", amount, channel, cardLast4 },
+    });
+  } else {
+    await db.subscriptionPayment.create({
+      data: {
+        tenantId,
+        paystackReference: reference,
+        type: "credits_topup",
+        amount,
+        status: "success",
+        channel,
+        cardLast4,
+        metadata: data.metadata as Record<string, string | number | boolean> | undefined,
+      },
+    });
+  }
+
+  await db.tenant.update({
+    where: { id: tenantId },
+    data: { creditsBonus: { increment: creditsAmount } },
+  });
+
+  workerLogger.info("Credits topup applied", { tenantId, creditsAmount, reference });
 }
 
 /**

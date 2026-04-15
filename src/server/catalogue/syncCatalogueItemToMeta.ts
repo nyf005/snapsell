@@ -9,7 +9,6 @@
  */
 
 import { db } from "~/server/db";
-import { generateSignedR2Url } from "~/server/media/r2-signed-url";
 import { workerLogger } from "~/lib/logger";
 import { env } from "~/env.js";
 
@@ -51,7 +50,7 @@ export async function syncCatalogueItemToMeta(
     return { success: false, reason: "sync_disabled" };
   }
 
-  const [item, tenant] = await Promise.all([
+  const [item, tenant, variants] = await Promise.all([
     db.catalogueItem.findUnique({ where: { id: catalogueItemId } }),
     db.tenant.findUnique({
       where: { id: tenantId },
@@ -60,6 +59,10 @@ export async function syncCatalogueItemToMeta(
         metaCatalogId: true,
         metaAccessToken: true,
       },
+    }),
+    db.itemVariant.findMany({
+      where: { catalogueItemId, tenantId },
+      select: { label: true, values: true, availableQty: true },
     }),
   ]);
 
@@ -78,25 +81,49 @@ export async function syncCatalogueItemToMeta(
   if (!item.name) {
     return { success: false, reason: "missing_name" };
   }
-  if (!item.mediaStorageKey) {
+
+  // Résoudre l'URL image : proxy permanent si R2, placeholder si configuré, sinon erreur.
+  let imageUrl: string | null = null;
+  if (item.mediaStorageKey) {
+    const appUrl = env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    imageUrl = `${appUrl}/api/media/${item.mediaStorageKey}`;
+  } else if (env.CATALOGUE_PLACEHOLDER_IMAGE_URL) {
+    imageUrl = env.CATALOGUE_PLACEHOLDER_IMAGE_URL;
+  }
+
+  if (!imageUrl) {
     return { success: false, reason: "missing_image" };
   }
 
-  const imageUrl = await generateSignedR2Url(
-    item.mediaStorageKey,
-    catalogueItemId,
-  );
-  if (!imageUrl) {
-    return { success: false, reason: "image_url_failed" };
+  // Construit une description textuelle des variantes disponibles pour Meta Commerce.
+  // Exemple: "Taille: S / M / L | Couleur: Rouge / Bleu"
+  let description: string | undefined;
+  if (variants.length > 0) {
+    const dimensionMap = new Map<string, Set<string>>();
+    for (const v of variants) {
+      if (v.availableQty <= 0) continue;
+      const values = v.values as Record<string, string> | null;
+      if (!values) continue;
+      for (const [dim, val] of Object.entries(values)) {
+        if (!dimensionMap.has(dim)) dimensionMap.set(dim, new Set());
+        dimensionMap.get(dim)!.add(val);
+      }
+    }
+    if (dimensionMap.size > 0) {
+      description = Array.from(dimensionMap.entries())
+        .map(([dim, vals]) => `${dim}: ${Array.from(vals).join(" / ")}`)
+        .join(" | ");
+    }
   }
 
-  const payload = {
+  const payload: Record<string, unknown> = {
     retailer_id: item.code,
     name: item.name,
     price: item.amount ?? 0,
     currency: "XOF",
     availability: item.availableQty > 0 ? "in stock" : "out of stock",
     image_url: imageUrl,
+    ...(description ? { description } : {}),
   };
 
   const isUpdate = !!item.metaProductId;
@@ -175,7 +202,7 @@ export async function unsyncCatalogueItemFromMeta(
       undefined,
       catalogueItemId,
     );
-    if (!result.success) return result;
+    if (!result.success) return { success: false, reason: "meta_error" };
   } else {
     const result = await callMetaCommerceApi(
       "POST",
@@ -184,7 +211,7 @@ export async function unsyncCatalogueItemFromMeta(
       { availability: "out of stock" },
       catalogueItemId,
     );
-    if (!result.success) return result;
+    if (!result.success) return { success: false, reason: "meta_error" };
   }
 
   await db.catalogueItem.update({
@@ -242,7 +269,7 @@ export async function syncPendingCatalogueItems(
 
 type MetaApiResult =
   | { success: true; data: unknown }
-  | { success: false; reason: SyncToMetaResult extends { success: false } ? SyncToMetaResult["reason"] : never };
+  | { success: false; reason: Extract<SyncToMetaResult, { success: false }>["reason"] };
 
 async function callMetaCommerceApi(
   method: "POST" | "DELETE",

@@ -12,6 +12,8 @@ import { normalizeCode } from "~/server/live-item/createLiveItem";
 import { getPriceFromCode } from "~/server/pricing/getPriceFromCode";
 import { workerLogger } from "~/lib/logger";
 import type { CatalogueItemOriginValue } from "./origin";
+import { syncCatalogueItemToMeta } from "./syncCatalogueItemToMeta";
+import { getItemNameFromCode } from "~/server/pricing/getItemNameFromCode";
 
 export type UpsertCatalogueFromWebhookResult =
   | { success: true; created: boolean; catalogueItemId: string }
@@ -86,10 +88,14 @@ export async function upsertCatalogueItemFromWebhook(
     // Si aucune ligne mise à jour → créer
     if (updated.count === 0) {
       try {
+        // Dériver le nom depuis la description de catégorie (ex. "Robes femme A12")
+        const name = await getItemNameFromCode(tenantId, normalized);
+
         const created = await db.catalogueItem.create({
           data: {
             tenantId,
             code: normalized,
+            name,
             amount,
             quantity,
             availableQty: quantity,
@@ -106,6 +112,7 @@ export async function upsertCatalogueItemFromWebhook(
           quantity,
         });
 
+        // Pas de sync immédiate sur création : l'article n'a ni name ni image à ce stade.
         return { success: true, created: true, catalogueItemId: created.id };
       } catch (createError) {
         // Race condition : un autre processus a créé l'item entre-temps
@@ -157,6 +164,15 @@ export async function upsertCatalogueItemFromWebhook(
           catalogueItemId: existing.id,
           code: normalized,
           quantity,
+        });
+        // Restock d'un article existant : sync Meta immédiate si l'article a déjà name + image.
+        // Fire-and-forget — ne bloque pas le flux vendeur si Meta est indisponible.
+        void syncCatalogueItemToMeta(tenantId, existing.id).catch((err) => {
+          workerLogger.warn("Post-restock Meta sync failed (non-blocking)", {
+            tenantId,
+            catalogueItemId: existing.id,
+            err,
+          });
         });
         return { success: true, created: false, catalogueItemId: existing.id };
       }

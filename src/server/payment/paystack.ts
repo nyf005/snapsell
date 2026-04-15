@@ -119,6 +119,41 @@ export async function initializeTransaction(
 }
 
 /**
+ * Initialize a one-time transaction (no recurring plan).
+ * Used for credit pack purchases.
+ */
+export async function initializeOneTimeTransaction(
+  email: string,
+  amountSubunits: number,
+  metadata: Record<string, unknown>,
+  callbackUrl: string,
+  currency: string = "XOF",
+): Promise<PaystackInitResponse> {
+  const amount = Math.round(Number(amountSubunits));
+  if (!Number.isFinite(amount) || amount < 1) {
+    throw new Error(`Invalid amount for Paystack: must be a positive integer (got ${amountSubunits})`);
+  }
+  const response = await fetch(`${PAYSTACK_BASE_URL}/transaction/initialize`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({
+      email,
+      amount,
+      currency,
+      callback_url: callbackUrl,
+      metadata,
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Paystack initializeOneTimeTransaction failed: ${response.status} ${text}`);
+  }
+
+  return response.json() as Promise<PaystackInitResponse>;
+}
+
+/**
  * Verify webhook signature (HMAC SHA-512).
  */
 export function verifyWebhookSignature(rawBody: string, signature: string): boolean {

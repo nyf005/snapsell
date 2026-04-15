@@ -90,27 +90,7 @@ describe("Story 7A.2: Usage service", () => {
     });
   });
 
-    it("calculates overage for Starter plan", async () => {
-      vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
-        subscriptionPlan: "starter",
-        cycleStartedAt: new Date("2026-02-01"),
-        creditsBalance: 450,
-        creditsTotalMonthly: 500,
-        maxProofsPerMonth: -1,
-        maxAgents: 1,
-        overagePerOrderCents: 2500,
-      } as never);
-      vi.mocked(db.conversationWindow.count).mockResolvedValue(50);
-
-      const usage = await getUsageThisCycle("tenant-1");
-
-      expect(usage.used).toBe(50);
-      expect(usage.overageCount).toBe(0);
-      expect(usage.overageAmountFCFA).toBe(0);
-    });
-  });
-
-describe("checkProofsQuota", () => {
+  describe("checkProofsQuota", () => {
     it("allows unlimited for Free plan (-1)", async () => {
       vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
         maxProofsPerMonth: -1,

@@ -9,6 +9,7 @@
  * - getManageCardLink — lien Paystack hosted
  */
 
+import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { canManageGrid } from "~/lib/rbac";
@@ -17,8 +18,10 @@ import { getUsageThisCycle } from "~/server/subscription/usage";
 import {
   disableSubscription,
   generateManageLink,
+  initializeOneTimeTransaction,
 } from "~/server/payment/paystack";
-import { SUBSCRIPTION_PLANS, type PlanId } from "~/lib/subscription-plans";
+import { SUBSCRIPTION_PLANS, getPlanConfig, type PlanId } from "~/lib/subscription-plans";
+import { env } from "~/env";
 
 /** Guard: Only OWNER/MANAGER can access subscription management */
 function assertCanManageSubscription(role: string) {
@@ -60,6 +63,7 @@ export const subscriptionRouter = createTRPCRouter({
         showUpgradeBanner: true,
         creditsBalance: true,
         creditsTotalMonthly: true,
+        creditsBonus: true,
       },
     });
 
@@ -90,6 +94,7 @@ export const subscriptionRouter = createTRPCRouter({
       credits: {
         balance: tenant.creditsBalance,
         totalMonthly: tenant.creditsTotalMonthly,
+        bonus: tenant.creditsBonus,
       },
     };
   }),
@@ -129,6 +134,7 @@ export const subscriptionRouter = createTRPCRouter({
       select: {
         creditsBalance: true,
         creditsTotalMonthly: true,
+        creditsBonus: true,
         usageResetDate: true,
         subscriptionPlan: true,
         cycleStartedAt: true,
@@ -159,9 +165,12 @@ export const subscriptionRouter = createTRPCRouter({
     
     const isLowCredits = usagePercent >= 80;
 
+    const planConfig = getPlanConfig(tenant.subscriptionPlan);
+
     return {
       balance: tenant.creditsBalance,
       totalMonthly: tenant.creditsTotalMonthly,
+      bonus: tenant.creditsBonus,
       used: creditsUsed,
       usagePercent,
       activeWindows,
@@ -169,6 +178,7 @@ export const subscriptionRouter = createTRPCRouter({
       resetDate: tenant.usageResetDate,
       isLowCredits,
       plan: tenant.subscriptionPlan,
+      creditPackPriceFCFA: planConfig.creditPackPriceFCFA,
     };
   }),
 
@@ -258,6 +268,62 @@ export const subscriptionRouter = createTRPCRouter({
 
     return { ok: true, status: "non_renewing" };
   }),
+
+  /**
+   * Initie un achat de pack de crédits supplémentaires (paiement one-time Paystack).
+   * Retourne authorization_url pour redirection côté client.
+   */
+  initBuyCredits: protectedProcedure
+    .input(z.object({ packs: z.number().int().min(1).max(10) }))
+    .mutation(async ({ ctx, input }) => {
+      assertCanManageSubscription(ctx.session.user.role as string);
+      const tenantId = ctx.session.user.tenantId;
+
+      const tenant = await db.tenant.findUniqueOrThrow({
+        where: { id: tenantId },
+        select: { subscriptionPlan: true },
+      });
+
+      const planConfig = getPlanConfig(tenant.subscriptionPlan);
+      if (planConfig.creditPackPriceFCFA === null) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "L'achat de crédits n'est pas disponible pour votre plan.",
+        });
+      }
+
+      const totalFCFA = input.packs * planConfig.creditPackPriceFCFA;
+      const creditsAmount = input.packs * 100;
+      const appUrl = env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+      const callbackUrl = `${appUrl}/parametres/abonnement?payment=callback&type=credits`;
+
+      try {
+        const response = await initializeOneTimeTransaction(
+          ctx.session.user.email,
+          totalFCFA * 100,
+          {
+            tenantId,
+            userId: ctx.session.user.id,
+            type: "credits_topup",
+            creditsAmount,
+            packs: input.packs,
+            packPriceFCFA: planConfig.creditPackPriceFCFA,
+          },
+          callbackUrl,
+        );
+
+        return {
+          authorizationUrl: response.data.authorization_url,
+          creditsAmount,
+          totalFCFA,
+        };
+      } catch {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Échec de l'initialisation du paiement. Réessayez.",
+        });
+      }
+    }),
 
   /**
    * Get Paystack manage link for updating payment card.

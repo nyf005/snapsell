@@ -2,14 +2,14 @@
 
 import { useMemo, useState } from "react";
 
-import { Bell, HelpCircle, Info, MoreVertical, Search, UserPlus, Users } from "lucide-react";
+import { Bell, HelpCircle, MoreVertical, Search, UserPlus, Users } from "lucide-react";
 
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { api } from "~/trpc/react";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card } from "~/components/ui/card";
 import { KpiCard } from "~/components/ui/kpi-card";
 import {
   Dialog,
@@ -32,7 +32,6 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 import { Input } from "~/components/ui/input";
-import { Spinner } from "~/components/ui/spinner";
 import { TeamContentSkeleton } from "./team-content-skeletons";
 import { Label } from "~/components/ui/label";
 import { cn } from "~/lib/utils";
@@ -44,17 +43,22 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { Info } from "lucide-react";
 
-/** Validation email côté client - utilise le même schéma Zod que le serveur */
 import { z } from "zod";
 
 const emailSchema = z.string().email("Adresse email invalide");
 function isValidEmail(value: string): boolean {
-  const result = emailSchema.safeParse(value.trim());
-  return result.success;
+  return emailSchema.safeParse(value.trim()).success;
 }
 
-/** Génère les initiales à partir d'un nom ou email */
 function getInitials(name: string, email: string): string {
   if (name) {
     const parts = name.trim().split(/\s+/);
@@ -65,14 +69,11 @@ function getInitials(name: string, email: string): string {
         return (first[0] + last[0]).toUpperCase();
       }
     }
-    if (name.length >= 2) {
-      return name.slice(0, 2).toUpperCase();
-    }
+    if (name.length >= 2) return name.slice(0, 2).toUpperCase();
   }
   return email.slice(0, 2).toUpperCase();
 }
 
-/** Formate la date de dernière activité */
 function formatLastActive(updatedAt: Date): string {
   const now = new Date();
   const diffMs = now.getTime() - updatedAt.getTime();
@@ -87,7 +88,6 @@ function formatLastActive(updatedAt: Date): string {
   return updatedAt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 }
 
-/** Formate le rôle pour l'affichage */
 function formatRole(role: string): string {
   if (role === "OWNER") return "Admin";
   if (role === "MANAGER") return "Manager";
@@ -95,13 +95,7 @@ function formatRole(role: string): string {
   return role;
 }
 
-function MemberAvatar({
-  initials,
-  isPrimary,
-}: {
-  initials: string;
-  isPrimary?: boolean;
-}) {
+function MemberAvatar({ initials, isPrimary }: { initials: string; isPrimary?: boolean }) {
   return (
     <span
       className={
@@ -131,6 +125,8 @@ function StatusCell({ status }: { status: string }) {
   );
 }
 
+type RoleOption = "MANAGER" | "AGENT";
+
 export function TeamContent() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -138,7 +134,17 @@ export function TeamContent() {
   const [inviteEmailError, setInviteEmailError] = useState<string | null>(null);
   const [createdInviteLink, setCreatedInviteLink] = useState<string | null>(null);
 
+  // Dialog: modifier le rôle
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [roleTarget, setRoleTarget] = useState<{ id: string; name: string; currentRole: RoleOption } | null>(null);
+  const [selectedRole, setSelectedRole] = useState<RoleOption>("AGENT");
+
+  // Dialog: retirer du tenant
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState<{ id: string; name: string } | null>(null);
+
   const utils = api.useUtils();
+
   const createInvitation = api.invitations.createInvitation.useMutation({
     onSuccess: (data) => {
       setCreatedInviteLink(data.acceptLink);
@@ -146,14 +152,29 @@ export function TeamContent() {
       void utils.team.listMembers.invalidate();
     },
     onError: (e) => {
-      setInviteEmailError(e.message ?? "Erreur lors de la création de l’invitation.");
+      setInviteEmailError(e.message ?? "Erreur lors de la création de l'invitation.");
+    },
+  });
+
+  const updateRole = api.team.updateRole.useMutation({
+    onSuccess: () => {
+      setRoleDialogOpen(false);
+      setRoleTarget(null);
+      void utils.team.listMembers.invalidate();
+    },
+  });
+
+  const removeMember = api.team.removeMember.useMutation({
+    onSuccess: () => {
+      setRemoveDialogOpen(false);
+      setRemoveTarget(null);
+      void utils.team.listMembers.invalidate();
     },
   });
 
   const { data: members = [], isLoading: loadingMembers } = api.team.listMembers.useQuery();
   const { data: invitations = [], isLoading: loadingInvitations } = api.invitations.listInvitations.useQuery();
 
-  // Combiner membres actifs et invitations en attente
   const allMembers = useMemo(() => {
     const activeMembers = members.map((m) => ({
       id: m.id,
@@ -161,6 +182,7 @@ export function TeamContent() {
       email: m.email,
       initials: getInitials(m.name, m.email),
       role: formatRole(m.role),
+      rawRole: m.role,
       status: "Active" as const,
       lastActive: formatLastActive(m.updatedAt),
       isPending: false,
@@ -172,6 +194,7 @@ export function TeamContent() {
       email: inv.email,
       initials: getInitials(inv.email.split("@")[0] ?? "", inv.email),
       role: formatRole(inv.role),
+      rawRole: inv.role,
       status: "Pending" as const,
       lastActive: "N/A",
       isPending: true,
@@ -184,15 +207,14 @@ export function TeamContent() {
     const q = search.trim().toLowerCase();
     if (!q) return allMembers;
     return allMembers.filter(
-      (m) =>
-        m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q)
+      (m) => m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q),
     );
   }, [search, allMembers]);
 
   const stats = useMemo(() => {
     const total = allMembers.length;
     const activeAgents = allMembers.filter(
-      (m) => m.role === "Agent" && m.status === "Active"
+      (m) => m.role === "Agent" && m.status === "Active",
     ).length;
     const pendingInvites = allMembers.filter((m) => m.status === "Pending").length;
     return { total, activeAgents, pendingInvites };
@@ -203,14 +225,8 @@ export function TeamContent() {
     setInviteEmailError(null);
     setCreatedInviteLink(null);
     const email = inviteEmail.trim();
-    if (!email) {
-      setInviteEmailError("L’adresse email est requise.");
-      return;
-    }
-    if (!isValidEmail(email)) {
-      setInviteEmailError("Adresse email invalide.");
-      return;
-    }
+    if (!email) { setInviteEmailError("L'adresse email est requise."); return; }
+    if (!isValidEmail(email)) { setInviteEmailError("Adresse email invalide."); return; }
     createInvitation.mutate({ email });
   };
 
@@ -229,6 +245,18 @@ export function TeamContent() {
     void navigator.clipboard.writeText(url);
   };
 
+  const openRoleDialog = (member: { id: string; name: string; rawRole: string }) => {
+    const currentRole = (member.rawRole === "MANAGER" ? "MANAGER" : "AGENT") as RoleOption;
+    setRoleTarget({ id: member.id, name: member.name, currentRole });
+    setSelectedRole(currentRole);
+    setRoleDialogOpen(true);
+  };
+
+  const openRemoveDialog = (member: { id: string; name: string }) => {
+    setRemoveTarget({ id: member.id, name: member.name });
+    setRemoveDialogOpen(true);
+  };
+
   return (
     <>
       <DashboardHeader
@@ -241,7 +269,7 @@ export function TeamContent() {
               className="h-9 w-full pl-9"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              aria-label="Rechercher un membre de l’équipe"
+              aria-label="Rechercher un membre de l'équipe"
             />
           </span>
         }
@@ -259,11 +287,9 @@ export function TeamContent() {
       <main className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <header>
-            <h1 className="text-2xl font-extrabold tracking-tight md:text-3xl">
-              Gestion d’équipe
-            </h1>
+            <h1 className="text-2xl font-extrabold tracking-tight md:text-3xl">Gestion d'équipe</h1>
             <p className="mt-1 text-muted-foreground">
-              Contrôlez qui a accès à votre boutique et ce qu’ils peuvent faire.
+              Contrôlez qui a accès à votre boutique et ce qu'ils peuvent faire.
             </p>
           </header>
           <Button
@@ -277,18 +303,8 @@ export function TeamContent() {
         </div>
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <KpiCard
-            label="Total membres"
-            value={stats.total}
-            icon={Users}
-            iconVariant="primary"
-          />
-          <KpiCard
-            label="Agents actifs"
-            value={stats.activeAgents}
-            icon={Users}
-            iconVariant="success"
-          />
+          <KpiCard label="Total membres" value={stats.total} icon={Users} iconVariant="primary" />
+          <KpiCard label="Agents actifs" value={stats.activeAgents} icon={Users} iconVariant="success" />
           <KpiCard
             label="Invitations en attente"
             value={stats.pendingInvites}
@@ -301,196 +317,154 @@ export function TeamContent() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h3 className="text-lg font-semibold">Tous les membres</h3>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="xs"
-              title="Disponible avec les données serveur"
-              disabled
-            >
-              Filtre
-            </Button>
-            <Button
-              variant="outline"
-              size="xs"
-              title="Disponible avec les données serveur"
-              disabled
-            >
-              Exporter
-            </Button>
+            <Button variant="outline" size="xs" disabled>Filtre</Button>
+            <Button variant="outline" size="xs" disabled>Exporter</Button>
           </div>
         </div>
 
         <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
           {loadingMembers || loadingInvitations ? (
-            <div className="p-6">
-              <TeamContentSkeleton />
-            </div>
+            <div className="p-6"><TeamContentSkeleton /></div>
           ) : (
             <>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
-                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Membre
-                  </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Rôle
-                  </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Statut
-                  </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Dernière activité
-                  </TableHead>
-                  <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredMembers.length === 0 ? (
-                  <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={5} className="px-6 py-16 text-center">
-                      <Empty className="mx-auto max-w-sm border-0 p-0">
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
-                            <Users />
-                          </EmptyMedia>
-                          <EmptyTitle>Aucun membre trouvé</EmptyTitle>
-                          <EmptyDescription>
-                            {search.trim() ? "Aucun membre ne correspond à votre recherche." : "Invitez des agents pour qu’ils apparaissent ici."}
-                          </EmptyDescription>
-                        </EmptyHeader>
-                      </Empty>
-                    </TableCell>
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
+                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Membre</TableHead>
+                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rôle</TableHead>
+                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Statut</TableHead>
+                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Dernière activité</TableHead>
+                    <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</TableHead>
                   </TableRow>
-                ) : (
-                filteredMembers.map((member, idx) => (
-                  <TableRow
-                    key={member.id}
-                    className={cn(
-                      "border-border transition-colors hover:bg-muted/40",
-                      idx % 2 === 1 && "bg-muted/20"
-                    )}
-                  >
-                  <TableCell className="whitespace-nowrap px-6 py-4">
-                    <span className="flex items-center gap-3">
-                      <MemberAvatar
-                        initials={member.initials}
-                        isPrimary={member.role === "Admin" || member.role === "Manager"}
-                      />
-                      <span>
-                        <p className="text-sm font-medium">
-                          {member.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {member.email}
-                        </p>
-                      </span>
-                    </span>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap px-6 py-4">
-                    <Badge
-                      variant={member.role === "Admin" || member.role === "Manager" ? "default" : "secondary"}
-                      className={
-                        member.role === "Admin"
-                          ? "border-purple-200 bg-purple-100 text-purple-600 dark:border-purple-800 dark:bg-purple-900/30 dark:text-purple-400"
-                          : ""
-                      }
-                    >
-                      {member.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap px-6 py-4">
-                    <StatusCell status={member.status} />
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                    {member.lastActive}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap px-6 py-4 text-right">
-                    {member.isPending ? (
-                      <Button
-                        variant="link"
-                        size="xs"
-                        className="h-auto p-0 font-bold text-primary hover:underline"
-                      >
-                        Renvoyer l’invitation
-                      </Button>
-                    ) : (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                            aria-label="Actions"
-                          >
-                            <MoreVertical className="size-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onSelect={() => {
-                              // TODO: Implémenter modification de rôle (nécessite router team.updateRole)
-                              alert("Fonctionnalité à venir : modification de rôle");
-                            }}
-                            disabled
-                            title="Modification de rôle (à implémenter)"
-                          >
-                            Modifier le rôle
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onSelect={() => {
-                              // TODO: Implémenter retrait du tenant (nécessite router team.removeMember)
-                              alert("Fonctionnalité à venir : retrait du tenant");
-                            }}
-                            disabled
-                            title="Retrait du tenant (à implémenter)"
-                          >
-                            Retirer du tenant
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </TableCell>
-                </TableRow>
-                ))
-                )}
-              </TableBody>
-            </Table>
-            <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
-              <p className="text-xs text-muted-foreground">
-                {filteredMembers.length} sur {stats.total} membres
-              </p>
-              <span className="flex gap-2" aria-label="Pagination (sera activée avec les données serveur)">
-                <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                  Précédent
-                </Button>
-                <Button variant="outline" size="xs" disabled title="Pagination avec données serveur">
-                  Suivant
-                </Button>
-              </span>
-            </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredMembers.length === 0 ? (
+                    <TableRow className="hover:bg-transparent">
+                      <TableCell colSpan={5} className="px-6 py-16 text-center">
+                        <Empty className="mx-auto max-w-sm border-0 p-0">
+                          <EmptyHeader>
+                            <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
+                              <Users />
+                            </EmptyMedia>
+                            <EmptyTitle>Aucun membre trouvé</EmptyTitle>
+                            <EmptyDescription>
+                              {search.trim()
+                                ? "Aucun membre ne correspond à votre recherche."
+                                : "Invitez des agents pour qu'ils apparaissent ici."}
+                            </EmptyDescription>
+                          </EmptyHeader>
+                        </Empty>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredMembers.map((member, idx) => {
+                      const isOwner = member.rawRole === "OWNER";
+                      const canAct = !isOwner && !member.isPending;
+                      return (
+                        <TableRow
+                          key={member.id}
+                          className={cn(
+                            "border-border transition-colors hover:bg-muted/40",
+                            idx % 2 === 1 && "bg-muted/20",
+                          )}
+                        >
+                          <TableCell className="whitespace-nowrap px-6 py-4">
+                            <span className="flex items-center gap-3">
+                              <MemberAvatar
+                                initials={member.initials}
+                                isPrimary={member.role === "Admin" || member.role === "Manager"}
+                              />
+                              <span>
+                                <p className="text-sm font-medium">{member.name}</p>
+                                <p className="text-xs text-muted-foreground">{member.email}</p>
+                              </span>
+                            </span>
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-6 py-4">
+                            <Badge
+                              variant={member.role === "Admin" || member.role === "Manager" ? "default" : "secondary"}
+                              className={
+                                member.role === "Admin"
+                                  ? "border-purple-200 bg-purple-100 text-purple-600 dark:border-purple-800 dark:bg-purple-900/30 dark:text-purple-400"
+                                  : ""
+                              }
+                            >
+                              {member.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-6 py-4">
+                            <StatusCell status={member.status} />
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
+                            {member.lastActive}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap px-6 py-4 text-right">
+                            {member.isPending ? (
+                              <Button
+                                variant="link"
+                                size="xs"
+                                className="h-auto p-0 font-bold text-primary hover:underline"
+                              >
+                                Renvoyer l'invitation
+                              </Button>
+                            ) : canAct ? (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                                    aria-label="Actions"
+                                  >
+                                    <MoreVertical className="size-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onSelect={() => openRoleDialog(member)}>
+                                    Modifier le rôle
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="text-destructive"
+                                    onSelect={() => openRemoveDialog(member)}
+                                  >
+                                    Retirer du tenant
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            ) : null}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+              <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
+                <p className="text-xs text-muted-foreground">
+                  {filteredMembers.length} sur {stats.total} membres
+                </p>
+                <span className="flex gap-2">
+                  <Button variant="outline" size="xs" disabled>Précédent</Button>
+                  <Button variant="outline" size="xs" disabled>Suivant</Button>
+                </span>
+              </div>
             </>
           )}
         </Card>
       </main>
 
-      <Dialog
-        open={inviteOpen}
-        onOpenChange={closeInviteModal}
-      >
+      {/* Dialog: inviter un membre */}
+      <Dialog open={inviteOpen} onOpenChange={closeInviteModal}>
         <DialogContent className="max-w-md border-border" showCloseButton>
           <DialogHeader>
             <DialogTitle>
-              {createdInviteLink ? "Lien d’invitation créé" : "Inviter un membre"}
+              {createdInviteLink ? "Lien d'invitation créé" : "Inviter un membre"}
             </DialogTitle>
           </DialogHeader>
           {createdInviteLink ? (
             <div className="space-y-4 pt-0">
               <p className="text-sm text-muted-foreground">
-                Envoyez ce lien à l’agent invité pour qu’il rejoigne votre équipe.
+                Envoyez ce lien à l'agent invité pour qu'il rejoigne votre équipe.
               </p>
               <div className="flex gap-2">
                 <Input
@@ -503,9 +477,7 @@ export function TeamContent() {
                 </Button>
               </div>
               <DialogFooter className="flex gap-3 pt-2">
-                <Button className="flex-1" onClick={() => closeInviteModal(false)}>
-                  Fermer
-                </Button>
+                <Button className="flex-1" onClick={() => closeInviteModal(false)}>Fermer</Button>
               </DialogFooter>
             </div>
           ) : (
@@ -533,9 +505,7 @@ export function TeamContent() {
                 )}
               </fieldset>
               <fieldset className="space-y-2" aria-labelledby="invite-role-label">
-                <span id="invite-role-label" className="text-sm font-medium">
-                  Rôle attribué
-                </span>
+                <span id="invite-role-label" className="text-sm font-medium">Rôle attribué</span>
                 <div className="flex flex-col items-center justify-center rounded-xl border-2 border-primary bg-primary/5 p-4">
                   <UserPlus className="mb-2 size-6 text-primary" aria-hidden />
                   <span className="text-sm font-bold text-primary">Agent</span>
@@ -548,8 +518,7 @@ export function TeamContent() {
                 <Info className="size-5 text-muted-foreground" />
                 <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
                   Les agents peuvent gérer les annonces et discuter avec les clients,
-                  mais ne peuvent pas modifier la facturation ni supprimer la
-                  boutique.
+                  mais ne peuvent pas modifier la facturation ni supprimer la boutique.
                 </AlertDescription>
               </Alert>
               <DialogFooter className="flex gap-3 pt-2">
@@ -563,11 +532,104 @@ export function TeamContent() {
                   Annuler
                 </Button>
                 <Button type="submit" className="flex-1 shadow-md" disabled={createInvitation.isPending}>
-                  {createInvitation.isPending ? "Création…" : "Envoyer l’invitation"}
+                  {createInvitation.isPending ? "Création…" : "Envoyer l'invitation"}
                 </Button>
               </DialogFooter>
             </form>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: modifier le rôle */}
+      <Dialog open={roleDialogOpen} onOpenChange={(open) => { setRoleDialogOpen(open); if (!open) updateRole.reset(); }}>
+        <DialogContent className="max-w-sm border-border" showCloseButton>
+          <DialogHeader>
+            <DialogTitle>Modifier le rôle</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-0">
+            <p className="text-sm text-muted-foreground">
+              Modifier le rôle de <span className="font-semibold text-foreground">{roleTarget?.name}</span>.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="role-select">Nouveau rôle</Label>
+              <Select
+                value={selectedRole}
+                onValueChange={(v) => setSelectedRole(v as RoleOption)}
+                disabled={updateRole.isPending}
+              >
+                <SelectTrigger id="role-select" className="h-9 w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MANAGER">Manager</SelectItem>
+                  <SelectItem value="AGENT">Agent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {updateRole.error && (
+              <p className="text-xs text-destructive" role="alert">{updateRole.error.message}</p>
+            )}
+          </div>
+          <DialogFooter className="flex gap-3 pt-2">
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={() => setRoleDialogOpen(false)}
+              disabled={updateRole.isPending}
+            >
+              Annuler
+            </Button>
+            <Button
+              className="flex-1"
+              disabled={updateRole.isPending || selectedRole === roleTarget?.currentRole}
+              onClick={() => {
+                if (!roleTarget) return;
+                updateRole.mutate({ userId: roleTarget.id, role: selectedRole });
+              }}
+            >
+              {updateRole.isPending ? "Enregistrement…" : "Enregistrer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: confirmer le retrait */}
+      <Dialog open={removeDialogOpen} onOpenChange={(open) => { setRemoveDialogOpen(open); if (!open) removeMember.reset(); }}>
+        <DialogContent className="max-w-sm border-border" showCloseButton>
+          <DialogHeader>
+            <DialogTitle>Retirer du tenant</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-0">
+            <p className="text-sm text-muted-foreground">
+              Êtes-vous sûr de vouloir retirer{" "}
+              <span className="font-semibold text-foreground">{removeTarget?.name}</span> de votre équipe ?
+              Son accès sera immédiatement révoqué.
+            </p>
+            {removeMember.error && (
+              <p className="text-xs text-destructive" role="alert">{removeMember.error.message}</p>
+            )}
+          </div>
+          <DialogFooter className="flex gap-3 pt-2">
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={() => setRemoveDialogOpen(false)}
+              disabled={removeMember.isPending}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              disabled={removeMember.isPending}
+              onClick={() => {
+                if (!removeTarget) return;
+                removeMember.mutate({ userId: removeTarget.id });
+              }}
+            >
+              {removeMember.isPending ? "Retrait…" : "Retirer"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

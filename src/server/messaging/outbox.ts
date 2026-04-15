@@ -61,6 +61,24 @@ const interactivePayloadSchema = z.discriminatedUnion("type", [
       description: z.string().max(72).optional(),
     })).min(1).max(10),
   }),
+  z.object({
+    type: z.literal("product"),
+    body: z.string().max(1024).optional(),
+    footer: z.string().max(60).optional(),
+    catalogId: z.string().min(1),
+    productRetailerId: z.string().min(1),
+  }),
+  z.object({
+    type: z.literal("product_list"),
+    header: z.string().min(1).max(60),
+    body: z.string().max(1024).optional(),
+    footer: z.string().max(60).optional(),
+    catalogId: z.string().min(1),
+    sections: z.array(z.object({
+      title: z.string().min(1).max(24),
+      items: z.array(z.object({ productRetailerId: z.string().min(1) })).min(1).max(30),
+    })).min(1).max(10),
+  }),
 ]);
 
 const outboundMessageSchema = z.object({

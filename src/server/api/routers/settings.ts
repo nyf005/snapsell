@@ -113,6 +113,22 @@ export const settingsRouter = createTRPCRouter({
       const tenantId = ctx.session.user.tenantId;
       const codesToKeep = input.items.map((i) => i.categoryLetter);
 
+      // Description obligatoire pour les nouvelles catégories (pas pour les existantes).
+      const existing = await db.categoryPrice.findMany({
+        where: { tenantId },
+        select: { categoryLetter: true },
+      });
+      const existingLetters = new Set(existing.map((r) => r.categoryLetter));
+      const missingDesc = input.items.filter(
+        (i) => !existingLetters.has(i.categoryLetter) && !i.description?.trim(),
+      );
+      if (missingDesc.length > 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Description requise pour les nouvelles catégories : ${missingDesc.map((i) => i.categoryLetter).join(", ")}.`,
+        });
+      }
+
       await db.$transaction(async (tx) => {
         if (codesToKeep.length > 0) {
           await tx.categoryPrice.deleteMany({
