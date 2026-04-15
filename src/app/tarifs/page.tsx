@@ -55,7 +55,7 @@ const comparisonItems: ComparisonItem[] = [
   { kind: "group", label: "Volume & limites" },
   { kind: "row", label: "Sessions client / mois", free: "70", starter: "500", pro: "1500" },
   { kind: "row", label: "Commandes", free: "Illimité", starter: "Illimité", pro: "Illimité" },
-  { kind: "row", label: "Sessions supplémentaires", free: "Non disponible", starter: "2 500 FCA / 100", pro: "2 000 FCA / 100" },
+  { kind: "row", label: "Sessions supplémentaires", free: "3 000 FCA / 100", starter: "2 500 FCA / 100", pro: "2 000 FCA / 100" },
   { kind: "row", label: "IA (analyse des intentions)", free: false, starter: true, pro: true },
   { kind: "row", label: "Preuves / mois", free: "Illimité", starter: "Illimité", pro: "Illimité" },
   { kind: "row", label: "Agents", free: "0", starter: "1", pro: "5" },
@@ -83,7 +83,7 @@ const faqItems = [
   },
   {
     q: "Que se passe-t-il si je depasse ma limite de sessions ?",
-    a: "En Free, les nouvelles sessions sont bloquées jusqu'au prochain mois. En Starter et Pro, chaque tranche de 100 sessions supplémentaires est facturée (2500 FCA ou 2000 FCA). Vous ne perdez jamais de ventes.",
+    a: "Sur tous les plans, vous pouvez acheter des packs de 100 sessions supplémentaires (3 000 FCA en Free, 2 500 FCA en Starter, 2 000 FCA en Pro). Les sessions achetées n'expirent pas. Vous ne perdez jamais de ventes.",
   },
   {
     q: "Puis-je changer de plan a tout moment ?",

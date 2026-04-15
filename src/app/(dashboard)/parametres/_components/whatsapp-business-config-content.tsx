@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bell, Check, Clock, MessageSquare, RefreshCw, ShoppingBag } from "lucide-react";
+import { AlertTriangle, Bell, Check, Clock, Info, MessageSquare, RefreshCw, ShoppingBag } from "lucide-react";
 import { api } from "~/trpc/react";
 import { cn } from "~/lib/utils";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
@@ -212,6 +212,13 @@ export function WhatsAppBusinessConfigContent() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
+            <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30">
+              <Info className="size-4 text-amber-600 dark:text-amber-400" />
+              <AlertDescription className="text-xs text-amber-700 dark:text-amber-300">
+                <strong>SnapSell est la source de vérité.</strong> Toute modification effectuée directement dans Meta Commerce Manager sera écrasée lors de la prochaine synchronisation. Gérez vos articles depuis l&apos;onglet Catalogue.
+              </AlertDescription>
+            </Alert>
+
             {data?.metaCatalogId && (
               <div className="rounded-lg border border-success/30 bg-success/5 p-3">
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Catalogue actif</p>

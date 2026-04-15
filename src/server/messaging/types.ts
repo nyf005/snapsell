@@ -72,6 +72,7 @@ export type InteractivePayload =
       /** Fiche produit unique depuis le catalogue Meta */
       type: "product";
       body?: string;
+      footer?: string;
       catalogId: string;
       productRetailerId: string;
     }
@@ -80,6 +81,7 @@ export type InteractivePayload =
       type: "product_list";
       header: string;
       body?: string;
+      footer?: string;
       catalogId: string;
       sections: Array<{
         title: string;

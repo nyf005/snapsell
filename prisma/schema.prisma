@@ -25,7 +25,7 @@ model Tenant {
   // Meta WhatsApp Cloud API (Story 10.1)
   metaPhoneNumberId     String?               @unique @map("meta_phone_number_id")
   metaWabaId            String?               @map("meta_waba_id")
-  metaAccessToken       String?               @map("meta_access_token") // TODO: chiffrer at-rest (secret API sensible)
+  metaAccessToken       String?               @map("meta_access_token") // Chiffré AES-256-GCM via src/lib/crypto.ts
   requireDeposit        Boolean               @default(false) @map("require_deposit") // Story 4.5: acompte activé → TTL locked, demande preuve
   createdAt             DateTime              @default(now()) @map("created_at")
   updatedAt             DateTime              @updatedAt @map("updated_at")
@@ -44,6 +44,8 @@ model Tenant {
     // Credits disponibles. Default 70 pour Free (plan gratuit).
   creditsTotalMonthly  Int       @default(70) @map("credits_total_monthly")
     // Credits inclus par mois selon le plan.
+  creditsBonus         Int       @default(0) @map("credits_bonus")
+    // Credits achetés (packs) — ne se remettent pas à zéro au reset mensuel.
   usageResetDate       DateTime? @map("usage_reset_date")
     // Date de reset mensuel des credits.
   lowCreditsAlerted    Boolean   @default(false) @map("low_credits_alerted")
@@ -62,6 +64,7 @@ model Tenant {
   overagePerOrderCents       Int       @default(0) @map("overage_per_order_cents")  // 0 = blocage (Free)
 
   // Entitlements — feature flags
+  hasAI                      Boolean   @default(false) @map("has_ai")
   hasExportCsv               Boolean   @default(false) @map("has_export_csv")
   hasAdvancedExports         Boolean   @default(false) @map("has_advanced_exports")
   hasNotificationsOutside24h Boolean   @default(false) @map("has_notifications_outside_24h")

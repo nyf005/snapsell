@@ -10,7 +10,11 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
-import { releaseReservationInputSchema } from "./live.schema";
+import {
+  releaseReservationInputSchema,
+  sendProductCardInputSchema,
+  addItemFromCatalogueInputSchema,
+} from "./live.schema";
 import { getCurrentSessionReadOnly, getOrCreateCurrentSession } from "~/server/live-session/service";
 import { releaseReservation } from "~/server/live-item/reservation";
 import type { StockTable } from "~/server/live-item/reservation";
@@ -24,6 +28,8 @@ import { botMsg } from "~/server/messaging/templates";
 import { workerLogger } from "~/lib/logger";
 import { LiveSessionStatus } from "../../../../generated/prisma";
 import { promoteSessionToCatalogue } from "~/server/catalogue/promoteSessionToCatalogue";
+import { createLiveItem } from "~/server/live-item/createLiveItem";
+import { decrypt } from "~/lib/crypto";
 
 const ACTIVE_RESERVATION_STATUSES = ["reserved", "address_collected"] as const;
 
@@ -281,6 +287,101 @@ export const liveRouter = createTRPCRouter({
       expiresAt: r.expiresAt,
     }));
   }),
+
+  /**
+   * Envoie une fiche produit WhatsApp interactive à un client (catalog product message).
+   * Requiert que l'article soit synchronisé avec Meta (metaProductId non null).
+   */
+  sendProductCard: protectedProcedure
+    .input(sendProductCardInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const tenantId = ctx.session.user.tenantId;
+
+      const [item, tenant] = await Promise.all([
+        db.catalogueItem.findUnique({
+          where: { id: input.catalogueItemId },
+          select: { id: true, tenantId: true, code: true, name: true, syncedToMeta: true, metaProductId: true },
+        }),
+        db.tenant.findUnique({
+          where: { id: tenantId },
+          select: { metaCatalogId: true, metaAccessToken: true },
+        }),
+      ]);
+
+      if (!item || item.tenantId !== tenantId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Article introuvable." });
+      }
+      if (!item.syncedToMeta || !item.metaProductId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "L'article doit être synchronisé avec Meta avant d'être partagé. Synchronisez-le d'abord depuis l'onglet Catalogue.",
+        });
+      }
+      if (!tenant?.metaCatalogId || !tenant.metaAccessToken) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Configuration Meta incomplète. Vérifiez votre connexion WhatsApp Business.",
+        });
+      }
+
+      const { botMsg } = await import("~/server/messaging/templates");
+      await writeToOutbox({
+        tenantId,
+        to: input.clientPhone,
+        ...botMsg.client.productCard(tenant.metaCatalogId, item.code),
+        correlationId: `product-card-${item.id}-${Date.now()}`,
+      });
+
+      return { ok: true };
+    }),
+
+  /**
+   * Ajoute un article du catalogue à la session live en cours.
+   * Hérite du code, prix et image du catalogue — évite la re-saisie.
+   */
+  addItemFromCatalogue: protectedProcedure
+    .input(addItemFromCatalogueInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const tenantId = ctx.session.user.tenantId;
+
+      const catalogueItem = await db.catalogueItem.findUnique({
+        where: { id: input.catalogueItemId },
+        select: {
+          id: true,
+          tenantId: true,
+          code: true,
+          availableQty: true,
+          mediaStorageKey: true,
+        },
+      });
+
+      if (!catalogueItem || catalogueItem.tenantId !== tenantId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Article catalogue introuvable." });
+      }
+      if (catalogueItem.availableQty <= 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Stock épuisé — cet article n'est plus disponible.",
+        });
+      }
+
+      const result = await createLiveItem(tenantId, catalogueItem.code, {
+        quantity: catalogueItem.availableQty,
+        mediaStorageKey: catalogueItem.mediaStorageKey,
+      });
+
+      if (!result.success) {
+        if ("duplicate" in result && result.duplicate) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Le code "${catalogueItem.code}" est déjà dans la session live en cours.`,
+          });
+        }
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Code article invalide." });
+      }
+
+      return result.liveItem;
+    }),
 
   releaseReservation: protectedProcedure
     .input(releaseReservationInputSchema)

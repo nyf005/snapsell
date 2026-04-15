@@ -14,6 +14,7 @@ import { logReservationStarted } from "~/server/events/eventLog";
 import { workerLogger } from "~/lib/logger";
 import { env } from "~/env";
 import { extractAddressComponents } from "~/server/messaging/ai-service";
+import { unsyncCatalogueItemFromMeta } from "~/server/catalogue/syncCatalogueItemToMeta";
 
 const ACTIVE_STATUSES = ["reserved", "address_collected"] as const;
 
@@ -160,6 +161,25 @@ export async function createReservation(
         });
       },
     );
+    // Si réservation sur un CatalogueItem : vérifier si le stock vient de tomber à 0.
+    // Si c'est le cas, marquer l'article "out of stock" sur Meta immédiatement.
+    if (catalogueItemId) {
+      const afterReserve = await db.catalogueItem.findUnique({
+        where: { id: catalogueItemId },
+        select: { availableQty: true, syncedToMeta: true, metaProductId: true },
+      });
+      if (afterReserve?.availableQty === 0 && afterReserve.syncedToMeta && afterReserve.metaProductId) {
+        void unsyncCatalogueItemFromMeta(tenantId, catalogueItemId, "out_of_stock").catch((err) => {
+          workerLogger.warn("Post-reservation Meta unsync failed (non-blocking)", {
+            tenantId,
+            catalogueItemId,
+            reservationId: reservation.id,
+            err,
+          });
+        });
+      }
+    }
+
     return { success: true, reservation: { id: reservation.id, status: reservation.status } };
   } catch (error) {
     const isUniqueViolation =

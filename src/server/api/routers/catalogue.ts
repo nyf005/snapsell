@@ -17,7 +17,10 @@ import {
   listCatalogueInputSchema,
   syncToMetaInputSchema,
 } from "./catalogue.schema";
-import { syncCatalogueItemToMeta } from "~/server/catalogue/syncCatalogueItemToMeta";
+import {
+  syncCatalogueItemToMeta,
+  unsyncCatalogueItemFromMeta,
+} from "~/server/catalogue/syncCatalogueItemToMeta";
 import { normalizeCode } from "~/server/live-item/createLiveItem";
 import { getPriceFromCode } from "~/server/pricing/getPriceFromCode";
 import { isR2Configured } from "~/server/media/r2-client";
@@ -145,8 +148,9 @@ export const catalogueRouter = createTRPCRouter({
       if (input.amount !== undefined) updateData.amount = input.amount;
       if (input.mediaStorageKey !== undefined) updateData.mediaStorageKey = input.mediaStorageKey;
 
+      let updated;
       try {
-        return await db.catalogueItem.update({
+        updated = await db.catalogueItem.update({
           where: { id: input.id },
           data: updateData,
         });
@@ -159,6 +163,15 @@ export const catalogueRouter = createTRPCRouter({
         }
         throw error;
       }
+
+      // Si le stock vient de tomber à 0 et que l'article était synced, marquer out of stock sur Meta.
+      if (updated.availableQty === 0 && existing.syncedToMeta && existing.metaProductId) {
+        void unsyncCatalogueItemFromMeta(tenantId, input.id, "out_of_stock").catch(() => {
+          // Fire-and-forget non-bloquant.
+        });
+      }
+
+      return updated;
     }),
 
   /** Supprime un article catalogue (dashboard) */
@@ -186,6 +199,13 @@ export const catalogueRouter = createTRPCRouter({
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Impossible de supprimer un article avec des réservations actives.",
+        });
+      }
+
+      // Retirer de Meta avant de supprimer de la DB (besoin du metaProductId).
+      if (existing.syncedToMeta && existing.metaProductId) {
+        await unsyncCatalogueItemFromMeta(tenantId, input.id, "delete").catch(() => {
+          // Non-bloquant : la suppression DB se poursuit même si Meta échoue.
         });
       }
 

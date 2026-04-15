@@ -176,6 +176,7 @@ export function PricingGridContent() {
   const addRowFromModal = useCallback(() => {
     const code = addForm.categoryLetter.trim();
     if (!code) return;
+    if (!addForm.description.trim()) return;
 
     const duplicate = serverRows.some(
       (r) => r.categoryLetter.trim().toLowerCase() === code.toLowerCase(),
@@ -192,7 +193,7 @@ export function PricingGridContent() {
     const newItem = {
       categoryLetter: code,
       amount: addForm.amount,
-      description: addForm.description.trim() || undefined,
+      description: addForm.description.trim(),
     };
     setCategoryPrices.mutate(
       { items: [...currentItems, newItem] },
@@ -242,7 +243,7 @@ export function PricingGridContent() {
           ? {
               categoryLetter: code,
               amount: editForm.amount,
-              description: editForm.description.trim() || undefined,
+              description: editForm.description.trim(),
             }
           : rowToItem(r)
       );
@@ -342,7 +343,7 @@ export function PricingGridContent() {
             <DialogHeader>
               <DialogTitle>Nouvelle catégorie</DialogTitle>
               <p className="text-sm text-muted-foreground">
-                Saisissez le code de la catégorie, le prix et une description optionnelle.
+                Saisissez le code de la catégorie, le prix et une description (utilisée pour nommer automatiquement les articles).
               </p>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -390,15 +391,16 @@ export function PricingGridContent() {
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="add-desc">Description (optionnel)</Label>
+                <Label htmlFor="add-desc">Description</Label>
                 <Input
                   id="add-desc"
-                  placeholder="Description optionnelle"
+                  placeholder="ex. Robes femme, Chaussures hommes"
                   value={addForm.description}
                   onChange={(e) =>
                     setAddForm((f) => ({ ...f, description: e.target.value }))
                   }
                 />
+                <p className="text-xs text-muted-foreground">Sert à nommer automatiquement les articles de cette catégorie.</p>
               </div>
             </div>
             <DialogFooter>
@@ -407,7 +409,7 @@ export function PricingGridContent() {
               </Button>
               <Button
                 onClick={addRowFromModal}
-                disabled={!addForm.categoryLetter.trim() || isPending}
+                disabled={!addForm.categoryLetter.trim() || !addForm.description.trim() || isPending}
                 className="gap-2"
               >
                 <Plus className="size-4" />
@@ -474,15 +476,16 @@ export function PricingGridContent() {
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="edit-desc">Description (optionnel)</Label>
+                <Label htmlFor="edit-desc">Description</Label>
                 <Input
                   id="edit-desc"
-                  placeholder="Description optionnelle"
+                  placeholder="ex. Robes femme, Chaussures hommes"
                   value={editForm.description}
                   onChange={(e) =>
                     setEditForm((f) => ({ ...f, description: e.target.value }))
                   }
                 />
+                <p className="text-xs text-muted-foreground">Sert à nommer automatiquement les articles de cette catégorie.</p>
               </div>
             </div>
             <DialogFooter>
@@ -497,7 +500,7 @@ export function PricingGridContent() {
               </Button>
               <Button
                 onClick={saveEditModal}
-                disabled={!editForm.categoryLetter.trim() || isPending}
+                disabled={!editForm.categoryLetter.trim() || !editForm.description.trim() || isPending}
                 className="gap-2"
               >
                 <Save className="size-4" />

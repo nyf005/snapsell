@@ -1,6 +1,8 @@
 /**
  * Service de gestion des credits (sessions client)
  * 1 credit = 1 session de 24h avec un client unique
+ *
+ * Ordre de consommation : creditsBalance (mensuel) en premier, puis creditsBonus (achetés).
  */
 
 import { db } from "~/server/db";
@@ -39,11 +41,12 @@ export async function checkAndConsumeCredit(
     return { allowed: true, isNewSession: false };
   }
 
-  // 2. Pas de session active - vérifier les credits
+  // 2. Pas de session active — vérifier les credits (mensuel + bonus)
   const tenant = await db.tenant.findUnique({
     where: { id: tenantId },
     select: {
       creditsBalance: true,
+      creditsBonus: true,
       subscriptionPlan: true,
     },
   });
@@ -53,38 +56,41 @@ export async function checkAndConsumeCredit(
     return { allowed: false, reason: "no_credits" };
   }
 
-  // 3. Vérifier si le tenant a des credits
-  if (tenant.creditsBalance <= 0) {
+  const totalAvailable = tenant.creditsBalance + tenant.creditsBonus;
+
+  if (totalAvailable <= 0) {
     workerLogger.warn("No credits remaining, blocking new session", {
       tenantId,
       customerPhone,
       creditsBalance: tenant.creditsBalance,
+      creditsBonus: tenant.creditsBonus,
       plan: tenant.subscriptionPlan,
     });
     return { allowed: false, reason: "no_credits" };
   }
 
-  // 4. Consommer 1 credit et créer une nouvelle session
+  // 3. Consommer 1 credit : d'abord mensuel, puis bonus
   const expiresAt = new Date(Date.now() + CONVERSATION_WINDOW_HOURS * 60 * 60 * 1000);
+
+  const deductFromBalance = tenant.creditsBalance > 0;
 
   await db.$transaction([
     db.tenant.update({
       where: { id: tenantId },
-      data: { creditsBalance: { decrement: 1 } },
+      data: deductFromBalance
+        ? { creditsBalance: { decrement: 1 } }
+        : { creditsBonus: { decrement: 1 } },
     }),
     db.conversationWindow.create({
-      data: {
-        tenantId,
-        customerPhone,
-        expiresAt,
-      },
+      data: { tenantId, customerPhone, expiresAt },
     }),
   ]);
 
   workerLogger.info("New session created, credit consumed", {
     tenantId,
     customerPhone,
-    creditsRemaining: tenant.creditsBalance - 1,
+    source: deductFromBalance ? "balance" : "bonus",
+    creditsRemaining: totalAvailable - 1,
     expiresAt,
   });
 

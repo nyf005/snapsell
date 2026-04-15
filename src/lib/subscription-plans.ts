@@ -38,6 +38,8 @@ export interface PlanConfig {
   entitlements: PlanEntitlements;
   features: string[]; // Pour affichage page Tarifs
   overageLabel?: string; // Ex: "2 500 FCA / 100 sessions"
+  /** Prix d'un pack de 100 crédits supplémentaires (FCFA). null = non disponible. */
+  creditPackPriceFCFA: number | null;
 }
 
 export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
@@ -73,6 +75,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       "Dashboard commandes basique",
       "Preuves de paiement illimitées",
     ],
+    creditPackPriceFCFA: 3_000,
   },
   starter: {
     id: "starter",
@@ -86,7 +89,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       maxConfirmedOrdersPerMonth: 999_999, // Illimité (remplacé par credits)
       maxProofsPerMonth: -1,
       maxAgents: 1,
-      overagePerOrderCents: 2_500, // 2500 FCA
+      overagePerOrderCents: 2_500, // 25 FCA/session → 2 500 FCA/100 sessions
       creditsTotalMonthly: 500,
       hasAI: true, // Starter: IA activée
       hasExportCsv: true,
@@ -107,6 +110,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       "Acompte recommandé (défaut ON)",
     ],
     overageLabel: "2 500 FCA / 100 sessions",
+    creditPackPriceFCFA: 2_500,
   },
   pro: {
     id: "pro",
@@ -121,7 +125,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       maxConfirmedOrdersPerMonth: 999_999, // Illimité (remplacé par credits)
       maxProofsPerMonth: -1,
       maxAgents: 5,
-      overagePerOrderCents: 20_000, // 2000 FCA per 100 sessions
+      overagePerOrderCents: 2_000, // 20 FCA/session → 2 000 FCA/100 sessions
       creditsTotalMonthly: 1500,
       hasAI: true, // Pro: IA activée
       hasExportCsv: true,
@@ -143,6 +147,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       "Support prioritaire",
     ],
     overageLabel: "2 000 FCA / 100 sessions",
+    creditPackPriceFCFA: 2_000,
   },
 };
 

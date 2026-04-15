@@ -79,6 +79,8 @@ export const env = createEnv({
     AI_MODEL_NAME: z.string().default("llama-3.1-8b-instant"),
     // WhatsApp Business — synchro catalogue Meta Commerce Manager (Starter/Pro)
     META_CATALOG_SYNC_ENABLED: z.enum(["true", "false"]).optional(),
+    // Image placeholder pour articles sans photo (URL publique permanente, ex. CDN)
+    CATALOGUE_PLACEHOLDER_IMAGE_URL: z.string().url().optional(),
   },
 
   /**
@@ -139,6 +141,7 @@ export const env = createEnv({
     AI_BASE_URL: process.env.AI_BASE_URL,
     AI_MODEL_NAME: process.env.AI_MODEL_NAME,
     META_CATALOG_SYNC_ENABLED: process.env.META_CATALOG_SYNC_ENABLED,
+    CATALOGUE_PLACEHOLDER_IMAGE_URL: process.env.CATALOGUE_PLACEHOLDER_IMAGE_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -9,6 +9,8 @@
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { Prisma } from "../../../generated/prisma";
+import { syncPendingCatalogueItems } from "./syncCatalogueItemToMeta";
+import { getItemNameFromCode } from "~/server/pricing/getItemNameFromCode";
 
 export type PromotionResult = {
   itemsProcessed: number;
@@ -85,6 +87,7 @@ export async function promoteSessionToCatalogue(
         remainingQty,
         item.amount,
         item.mediaStorageKey,
+        await getItemNameFromCode(tenantId, item.code),
       );
 
       if (existingBefore) {
@@ -118,6 +121,19 @@ export async function promoteSessionToCatalogue(
     ...result,
   });
 
+  // Déclenche la sync Meta immédiatement pour les articles promus éligibles
+  // (name + mediaStorageKey non null, availableQty > 0).
+  // Fire-and-forget : ne bloque pas la fermeture de session si Meta est lent ou indisponible.
+  if (result.itemsCreated > 0 || result.itemsUpdated > 0) {
+    void syncPendingCatalogueItems(tenantId).catch((err) => {
+      workerLogger.warn("Post-promotion Meta sync failed (non-blocking)", {
+        tenantId,
+        liveSessionId,
+        err,
+      });
+    });
+  }
+
   return result;
 }
 
@@ -137,6 +153,7 @@ async function upsertCatalogueItemFromLive(
   additionalQty: number,
   amount: number | null,
   mediaStorageKey: string | null,
+  name: string | null = null,
 ): Promise<void> {
   try {
     // Essayer de mettre à jour l'existant (ajouter les quantités)
@@ -157,6 +174,7 @@ async function upsertCatalogueItemFromLive(
           data: {
             tenantId,
             code,
+            name,
             amount,
             quantity: additionalQty,
             availableQty: additionalQty,

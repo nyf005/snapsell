@@ -3826,6 +3826,7 @@ export namespace Prisma {
   export type TenantAvgAggregateOutputType = {
     creditsBalance: number | null
     creditsTotalMonthly: number | null
+    creditsBonus: number | null
     maxConfirmedOrdersPerMonth: number | null
     maxProofsPerMonth: number | null
     maxAgents: number | null
@@ -3835,6 +3836,7 @@ export namespace Prisma {
   export type TenantSumAggregateOutputType = {
     creditsBalance: number | null
     creditsTotalMonthly: number | null
+    creditsBonus: number | null
     maxConfirmedOrdersPerMonth: number | null
     maxProofsPerMonth: number | null
     maxAgents: number | null
@@ -3856,6 +3858,7 @@ export namespace Prisma {
     cycleStartedAt: Date | null
     creditsBalance: number | null
     creditsTotalMonthly: number | null
+    creditsBonus: number | null
     usageResetDate: Date | null
     lowCreditsAlerted: boolean | null
     paystackCustomerCode: string | null
@@ -3866,6 +3869,7 @@ export namespace Prisma {
     maxProofsPerMonth: number | null
     maxAgents: number | null
     overagePerOrderCents: number | null
+    hasAI: boolean | null
     hasExportCsv: boolean | null
     hasAdvancedExports: boolean | null
     hasNotificationsOutside24h: boolean | null
@@ -3901,6 +3905,7 @@ export namespace Prisma {
     cycleStartedAt: Date | null
     creditsBalance: number | null
     creditsTotalMonthly: number | null
+    creditsBonus: number | null
     usageResetDate: Date | null
     lowCreditsAlerted: boolean | null
     paystackCustomerCode: string | null
@@ -3911,6 +3916,7 @@ export namespace Prisma {
     maxProofsPerMonth: number | null
     maxAgents: number | null
     overagePerOrderCents: number | null
+    hasAI: boolean | null
     hasExportCsv: boolean | null
     hasAdvancedExports: boolean | null
     hasNotificationsOutside24h: boolean | null
@@ -3946,6 +3952,7 @@ export namespace Prisma {
     cycleStartedAt: number
     creditsBalance: number
     creditsTotalMonthly: number
+    creditsBonus: number
     usageResetDate: number
     lowCreditsAlerted: number
     paystackCustomerCode: number
@@ -3956,6 +3963,7 @@ export namespace Prisma {
     maxProofsPerMonth: number
     maxAgents: number
     overagePerOrderCents: number
+    hasAI: number
     hasExportCsv: number
     hasAdvancedExports: number
     hasNotificationsOutside24h: number
@@ -3981,6 +3989,7 @@ export namespace Prisma {
   export type TenantAvgAggregateInputType = {
     creditsBalance?: true
     creditsTotalMonthly?: true
+    creditsBonus?: true
     maxConfirmedOrdersPerMonth?: true
     maxProofsPerMonth?: true
     maxAgents?: true
@@ -3990,6 +3999,7 @@ export namespace Prisma {
   export type TenantSumAggregateInputType = {
     creditsBalance?: true
     creditsTotalMonthly?: true
+    creditsBonus?: true
     maxConfirmedOrdersPerMonth?: true
     maxProofsPerMonth?: true
     maxAgents?: true
@@ -4011,6 +4021,7 @@ export namespace Prisma {
     cycleStartedAt?: true
     creditsBalance?: true
     creditsTotalMonthly?: true
+    creditsBonus?: true
     usageResetDate?: true
     lowCreditsAlerted?: true
     paystackCustomerCode?: true
@@ -4021,6 +4032,7 @@ export namespace Prisma {
     maxProofsPerMonth?: true
     maxAgents?: true
     overagePerOrderCents?: true
+    hasAI?: true
     hasExportCsv?: true
     hasAdvancedExports?: true
     hasNotificationsOutside24h?: true
@@ -4056,6 +4068,7 @@ export namespace Prisma {
     cycleStartedAt?: true
     creditsBalance?: true
     creditsTotalMonthly?: true
+    creditsBonus?: true
     usageResetDate?: true
     lowCreditsAlerted?: true
     paystackCustomerCode?: true
@@ -4066,6 +4079,7 @@ export namespace Prisma {
     maxProofsPerMonth?: true
     maxAgents?: true
     overagePerOrderCents?: true
+    hasAI?: true
     hasExportCsv?: true
     hasAdvancedExports?: true
     hasNotificationsOutside24h?: true
@@ -4101,6 +4115,7 @@ export namespace Prisma {
     cycleStartedAt?: true
     creditsBalance?: true
     creditsTotalMonthly?: true
+    creditsBonus?: true
     usageResetDate?: true
     lowCreditsAlerted?: true
     paystackCustomerCode?: true
@@ -4111,6 +4126,7 @@ export namespace Prisma {
     maxProofsPerMonth?: true
     maxAgents?: true
     overagePerOrderCents?: true
+    hasAI?: true
     hasExportCsv?: true
     hasAdvancedExports?: true
     hasNotificationsOutside24h?: true
@@ -4233,6 +4249,7 @@ export namespace Prisma {
     cycleStartedAt: Date | null
     creditsBalance: number
     creditsTotalMonthly: number
+    creditsBonus: number
     usageResetDate: Date | null
     lowCreditsAlerted: boolean
     paystackCustomerCode: string | null
@@ -4243,6 +4260,7 @@ export namespace Prisma {
     maxProofsPerMonth: number
     maxAgents: number
     overagePerOrderCents: number
+    hasAI: boolean
     hasExportCsv: boolean
     hasAdvancedExports: boolean
     hasNotificationsOutside24h: boolean
@@ -4297,6 +4315,7 @@ export namespace Prisma {
     cycleStartedAt?: boolean
     creditsBalance?: boolean
     creditsTotalMonthly?: boolean
+    creditsBonus?: boolean
     usageResetDate?: boolean
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: boolean
@@ -4307,6 +4326,7 @@ export namespace Prisma {
     maxProofsPerMonth?: boolean
     maxAgents?: boolean
     overagePerOrderCents?: boolean
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -4365,6 +4385,7 @@ export namespace Prisma {
     cycleStartedAt?: boolean
     creditsBalance?: boolean
     creditsTotalMonthly?: boolean
+    creditsBonus?: boolean
     usageResetDate?: boolean
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: boolean
@@ -4375,6 +4396,7 @@ export namespace Prisma {
     maxProofsPerMonth?: boolean
     maxAgents?: boolean
     overagePerOrderCents?: boolean
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -4410,6 +4432,7 @@ export namespace Prisma {
     cycleStartedAt?: boolean
     creditsBalance?: boolean
     creditsTotalMonthly?: boolean
+    creditsBonus?: boolean
     usageResetDate?: boolean
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: boolean
@@ -4420,6 +4443,7 @@ export namespace Prisma {
     maxProofsPerMonth?: boolean
     maxAgents?: boolean
     overagePerOrderCents?: boolean
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -4455,6 +4479,7 @@ export namespace Prisma {
     cycleStartedAt?: boolean
     creditsBalance?: boolean
     creditsTotalMonthly?: boolean
+    creditsBonus?: boolean
     usageResetDate?: boolean
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: boolean
@@ -4465,6 +4490,7 @@ export namespace Prisma {
     maxProofsPerMonth?: boolean
     maxAgents?: boolean
     overagePerOrderCents?: boolean
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -4485,7 +4511,7 @@ export namespace Prisma {
     awayMessage?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "creditsBonus" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasAI" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     conversationStates?: boolean | Tenant$conversationStatesArgs<ExtArgs>
@@ -4555,6 +4581,7 @@ export namespace Prisma {
       cycleStartedAt: Date | null
       creditsBalance: number
       creditsTotalMonthly: number
+      creditsBonus: number
       usageResetDate: Date | null
       lowCreditsAlerted: boolean
       paystackCustomerCode: string | null
@@ -4565,6 +4592,7 @@ export namespace Prisma {
       maxProofsPerMonth: number
       maxAgents: number
       overagePerOrderCents: number
+      hasAI: boolean
       hasExportCsv: boolean
       hasAdvancedExports: boolean
       hasNotificationsOutside24h: boolean
@@ -5042,6 +5070,7 @@ export namespace Prisma {
     readonly cycleStartedAt: FieldRef<"Tenant", 'DateTime'>
     readonly creditsBalance: FieldRef<"Tenant", 'Int'>
     readonly creditsTotalMonthly: FieldRef<"Tenant", 'Int'>
+    readonly creditsBonus: FieldRef<"Tenant", 'Int'>
     readonly usageResetDate: FieldRef<"Tenant", 'DateTime'>
     readonly lowCreditsAlerted: FieldRef<"Tenant", 'Boolean'>
     readonly paystackCustomerCode: FieldRef<"Tenant", 'String'>
@@ -5052,6 +5081,7 @@ export namespace Prisma {
     readonly maxProofsPerMonth: FieldRef<"Tenant", 'Int'>
     readonly maxAgents: FieldRef<"Tenant", 'Int'>
     readonly overagePerOrderCents: FieldRef<"Tenant", 'Int'>
+    readonly hasAI: FieldRef<"Tenant", 'Boolean'>
     readonly hasExportCsv: FieldRef<"Tenant", 'Boolean'>
     readonly hasAdvancedExports: FieldRef<"Tenant", 'Boolean'>
     readonly hasNotificationsOutside24h: FieldRef<"Tenant", 'Boolean'>
@@ -35853,6 +35883,7 @@ export namespace Prisma {
     cycleStartedAt: 'cycleStartedAt',
     creditsBalance: 'creditsBalance',
     creditsTotalMonthly: 'creditsTotalMonthly',
+    creditsBonus: 'creditsBonus',
     usageResetDate: 'usageResetDate',
     lowCreditsAlerted: 'lowCreditsAlerted',
     paystackCustomerCode: 'paystackCustomerCode',
@@ -35863,6 +35894,7 @@ export namespace Prisma {
     maxProofsPerMonth: 'maxProofsPerMonth',
     maxAgents: 'maxAgents',
     overagePerOrderCents: 'overagePerOrderCents',
+    hasAI: 'hasAI',
     hasExportCsv: 'hasExportCsv',
     hasAdvancedExports: 'hasAdvancedExports',
     hasNotificationsOutside24h: 'hasNotificationsOutside24h',
@@ -36522,6 +36554,7 @@ export namespace Prisma {
     cycleStartedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     creditsBalance?: IntFilter<"Tenant"> | number
     creditsTotalMonthly?: IntFilter<"Tenant"> | number
+    creditsBonus?: IntFilter<"Tenant"> | number
     usageResetDate?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     lowCreditsAlerted?: BoolFilter<"Tenant"> | boolean
     paystackCustomerCode?: StringNullableFilter<"Tenant"> | string | null
@@ -36532,6 +36565,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFilter<"Tenant"> | number
     maxAgents?: IntFilter<"Tenant"> | number
     overagePerOrderCents?: IntFilter<"Tenant"> | number
+    hasAI?: BoolFilter<"Tenant"> | boolean
     hasExportCsv?: BoolFilter<"Tenant"> | boolean
     hasAdvancedExports?: BoolFilter<"Tenant"> | boolean
     hasNotificationsOutside24h?: BoolFilter<"Tenant"> | boolean
@@ -36589,6 +36623,7 @@ export namespace Prisma {
     cycleStartedAt?: SortOrderInput | SortOrder
     creditsBalance?: SortOrder
     creditsTotalMonthly?: SortOrder
+    creditsBonus?: SortOrder
     usageResetDate?: SortOrderInput | SortOrder
     lowCreditsAlerted?: SortOrder
     paystackCustomerCode?: SortOrderInput | SortOrder
@@ -36599,6 +36634,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    hasAI?: SortOrder
     hasExportCsv?: SortOrder
     hasAdvancedExports?: SortOrder
     hasNotificationsOutside24h?: SortOrder
@@ -36661,6 +36697,7 @@ export namespace Prisma {
     cycleStartedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     creditsBalance?: IntFilter<"Tenant"> | number
     creditsTotalMonthly?: IntFilter<"Tenant"> | number
+    creditsBonus?: IntFilter<"Tenant"> | number
     usageResetDate?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     lowCreditsAlerted?: BoolFilter<"Tenant"> | boolean
     paystackEmailToken?: StringNullableFilter<"Tenant"> | string | null
@@ -36669,6 +36706,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFilter<"Tenant"> | number
     maxAgents?: IntFilter<"Tenant"> | number
     overagePerOrderCents?: IntFilter<"Tenant"> | number
+    hasAI?: BoolFilter<"Tenant"> | boolean
     hasExportCsv?: BoolFilter<"Tenant"> | boolean
     hasAdvancedExports?: BoolFilter<"Tenant"> | boolean
     hasNotificationsOutside24h?: BoolFilter<"Tenant"> | boolean
@@ -36726,6 +36764,7 @@ export namespace Prisma {
     cycleStartedAt?: SortOrderInput | SortOrder
     creditsBalance?: SortOrder
     creditsTotalMonthly?: SortOrder
+    creditsBonus?: SortOrder
     usageResetDate?: SortOrderInput | SortOrder
     lowCreditsAlerted?: SortOrder
     paystackCustomerCode?: SortOrderInput | SortOrder
@@ -36736,6 +36775,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    hasAI?: SortOrder
     hasExportCsv?: SortOrder
     hasAdvancedExports?: SortOrder
     hasNotificationsOutside24h?: SortOrder
@@ -36779,6 +36819,7 @@ export namespace Prisma {
     cycleStartedAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
     creditsBalance?: IntWithAggregatesFilter<"Tenant"> | number
     creditsTotalMonthly?: IntWithAggregatesFilter<"Tenant"> | number
+    creditsBonus?: IntWithAggregatesFilter<"Tenant"> | number
     usageResetDate?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
     lowCreditsAlerted?: BoolWithAggregatesFilter<"Tenant"> | boolean
     paystackCustomerCode?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
@@ -36789,6 +36830,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntWithAggregatesFilter<"Tenant"> | number
     maxAgents?: IntWithAggregatesFilter<"Tenant"> | number
     overagePerOrderCents?: IntWithAggregatesFilter<"Tenant"> | number
+    hasAI?: BoolWithAggregatesFilter<"Tenant"> | boolean
     hasExportCsv?: BoolWithAggregatesFilter<"Tenant"> | boolean
     hasAdvancedExports?: BoolWithAggregatesFilter<"Tenant"> | boolean
     hasNotificationsOutside24h?: BoolWithAggregatesFilter<"Tenant"> | boolean
@@ -38864,6 +38906,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -38874,6 +38917,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -38931,6 +38975,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -38941,6 +38986,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -38998,6 +39044,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39008,6 +39055,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -39065,6 +39113,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39075,6 +39124,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -39132,6 +39182,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -39142,6 +39193,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -39177,6 +39229,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39187,6 +39240,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -39222,6 +39276,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39232,6 +39287,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -41740,6 +41796,7 @@ export namespace Prisma {
     cycleStartedAt?: SortOrder
     creditsBalance?: SortOrder
     creditsTotalMonthly?: SortOrder
+    creditsBonus?: SortOrder
     usageResetDate?: SortOrder
     lowCreditsAlerted?: SortOrder
     paystackCustomerCode?: SortOrder
@@ -41750,6 +41807,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    hasAI?: SortOrder
     hasExportCsv?: SortOrder
     hasAdvancedExports?: SortOrder
     hasNotificationsOutside24h?: SortOrder
@@ -41773,6 +41831,7 @@ export namespace Prisma {
   export type TenantAvgOrderByAggregateInput = {
     creditsBalance?: SortOrder
     creditsTotalMonthly?: SortOrder
+    creditsBonus?: SortOrder
     maxConfirmedOrdersPerMonth?: SortOrder
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
@@ -41794,6 +41853,7 @@ export namespace Prisma {
     cycleStartedAt?: SortOrder
     creditsBalance?: SortOrder
     creditsTotalMonthly?: SortOrder
+    creditsBonus?: SortOrder
     usageResetDate?: SortOrder
     lowCreditsAlerted?: SortOrder
     paystackCustomerCode?: SortOrder
@@ -41804,6 +41864,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    hasAI?: SortOrder
     hasExportCsv?: SortOrder
     hasAdvancedExports?: SortOrder
     hasNotificationsOutside24h?: SortOrder
@@ -41839,6 +41900,7 @@ export namespace Prisma {
     cycleStartedAt?: SortOrder
     creditsBalance?: SortOrder
     creditsTotalMonthly?: SortOrder
+    creditsBonus?: SortOrder
     usageResetDate?: SortOrder
     lowCreditsAlerted?: SortOrder
     paystackCustomerCode?: SortOrder
@@ -41849,6 +41911,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    hasAI?: SortOrder
     hasExportCsv?: SortOrder
     hasAdvancedExports?: SortOrder
     hasNotificationsOutside24h?: SortOrder
@@ -41872,6 +41935,7 @@ export namespace Prisma {
   export type TenantSumOrderByAggregateInput = {
     creditsBalance?: SortOrder
     creditsTotalMonthly?: SortOrder
+    creditsBonus?: SortOrder
     maxConfirmedOrdersPerMonth?: SortOrder
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
@@ -47254,6 +47318,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -47264,6 +47329,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -47320,6 +47386,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -47330,6 +47397,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -47402,6 +47470,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47412,6 +47481,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -47468,6 +47538,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47478,6 +47549,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -47534,6 +47606,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -47544,6 +47617,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -47600,6 +47674,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -47610,6 +47685,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -47702,6 +47778,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47712,6 +47789,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -47768,6 +47846,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47778,6 +47857,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -47911,6 +47991,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -47921,6 +48002,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -47977,6 +48059,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -47987,6 +48070,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -48059,6 +48143,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48069,6 +48154,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -48125,6 +48211,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48135,6 +48222,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -48191,6 +48279,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -48201,6 +48290,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -48257,6 +48347,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -48267,6 +48358,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -48399,6 +48491,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48409,6 +48502,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -48465,6 +48559,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48475,6 +48570,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -48743,6 +48839,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -48753,6 +48850,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -48809,6 +48907,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -48819,6 +48918,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -48891,6 +48991,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48901,6 +49002,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -48957,6 +49059,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48967,6 +49070,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -49023,6 +49127,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -49033,6 +49138,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -49089,6 +49195,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -49099,6 +49206,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -49171,6 +49279,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49181,6 +49290,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -49237,6 +49347,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49247,6 +49358,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -49303,6 +49415,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -49313,6 +49426,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -49369,6 +49483,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -49379,6 +49494,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -49451,6 +49567,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49461,6 +49578,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -49517,6 +49635,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49527,6 +49646,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -49583,6 +49703,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -49593,6 +49714,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -49649,6 +49771,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -49659,6 +49782,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -49731,6 +49855,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49741,6 +49866,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -49797,6 +49923,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49807,6 +49934,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -49863,6 +49991,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -49873,6 +50002,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -49929,6 +50059,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -49939,6 +50070,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -50011,6 +50143,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50021,6 +50154,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -50077,6 +50211,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50087,6 +50222,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -50143,6 +50279,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -50153,6 +50290,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -50209,6 +50347,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -50219,6 +50358,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -50389,6 +50529,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50399,6 +50540,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -50455,6 +50597,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50465,6 +50608,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -50553,6 +50697,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -50563,6 +50708,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -50619,6 +50765,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -50629,6 +50776,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -50820,6 +50968,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50830,6 +50979,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -50886,6 +51036,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50896,6 +51047,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -51015,6 +51167,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -51025,6 +51178,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -51081,6 +51235,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -51091,6 +51246,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -51289,6 +51445,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51299,6 +51456,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -51355,6 +51513,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51365,6 +51524,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -51469,6 +51629,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -51479,6 +51640,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -51535,6 +51697,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -51545,6 +51708,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -51759,6 +51923,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51769,6 +51934,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -51825,6 +51991,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51835,6 +52002,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -52005,6 +52173,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -52015,6 +52184,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -52071,6 +52241,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -52081,6 +52252,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -52326,6 +52498,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52336,6 +52509,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -52392,6 +52566,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52402,6 +52577,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -52661,6 +52837,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -52671,6 +52848,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -52727,6 +52905,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -52737,6 +52916,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -52809,6 +52989,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52819,6 +53000,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -52875,6 +53057,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52885,6 +53068,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -52941,6 +53125,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -52951,6 +53136,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -53007,6 +53193,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -53017,6 +53204,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -53089,6 +53277,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53099,6 +53288,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -53155,6 +53345,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53165,6 +53356,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -53221,6 +53413,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -53231,6 +53424,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -53287,6 +53481,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -53297,6 +53492,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -53454,6 +53650,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53464,6 +53661,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -53520,6 +53718,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53530,6 +53729,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -53688,6 +53888,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -53698,6 +53899,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -53754,6 +53956,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -53764,6 +53967,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -53871,6 +54075,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53881,6 +54086,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -53937,6 +54143,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53947,6 +54154,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -54003,6 +54211,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -54013,6 +54222,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -54069,6 +54279,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -54079,6 +54290,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -54200,6 +54412,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54210,6 +54423,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -54266,6 +54480,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54276,6 +54491,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -54387,6 +54603,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -54397,6 +54614,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -54453,6 +54671,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -54463,6 +54682,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -54535,6 +54755,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54545,6 +54766,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -54601,6 +54823,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54611,6 +54834,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -54667,6 +54891,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -54677,6 +54902,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -54733,6 +54959,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -54743,6 +54970,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -54815,6 +55043,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54825,6 +55054,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -54881,6 +55111,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54891,6 +55122,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -54947,6 +55179,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -54957,6 +55190,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -55013,6 +55247,7 @@ export namespace Prisma {
     cycleStartedAt?: Date | string | null
     creditsBalance?: number
     creditsTotalMonthly?: number
+    creditsBonus?: number
     usageResetDate?: Date | string | null
     lowCreditsAlerted?: boolean
     paystackCustomerCode?: string | null
@@ -55023,6 +55258,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
     hasNotificationsOutside24h?: boolean
@@ -55095,6 +55331,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55105,6 +55342,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
@@ -55161,6 +55399,7 @@ export namespace Prisma {
     cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     creditsBalance?: IntFieldUpdateOperationsInput | number
     creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
     usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
     paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55171,6 +55410,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
     hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean

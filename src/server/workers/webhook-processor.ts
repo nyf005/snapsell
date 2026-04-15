@@ -311,7 +311,7 @@ export async function processWebhookJob(
           failed.push(code);
           continue;
         }
-        const reservation = await createReservation(tenantId, clientPhoneE164, result.id, item.quantity);
+        const reservation = await createReservation(tenantId, null, null, clientPhoneE164, correlationId, { catalogueItemId: result.id, quantity: item.quantity });
         if (reservation.success) {
           reserved.push({
             code,
