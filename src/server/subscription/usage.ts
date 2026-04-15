@@ -120,6 +120,8 @@ export interface UsageThisCycle {
   totalMonthly: number;
   used: number;
   confirmedOrders: number;
+  proofs: number;
+  maxProofs: number;
   agents: number;
   maxAgents: number;
   overageCount: number;
@@ -147,9 +149,10 @@ export async function getUsageThisCycle(tenantId: string): Promise<UsageThisCycl
 
   const cycleStart = getCycleStart(tenant);
 
-  const [used, confirmedOrders, agents] = await Promise.all([
+  const [used, confirmedOrders, proofs, agents] = await Promise.all([
     countCreditsUsedThisCycle(tenantId, cycleStart, tenant.creditsTotalMonthly, tenant.creditsBalance),
     countConfirmedOrdersThisCycle(tenantId, cycleStart),
+    countProofsThisCycle(tenantId, cycleStart),
     countActiveAgents(tenantId),
   ]);
 
@@ -164,6 +167,8 @@ export async function getUsageThisCycle(tenantId: string): Promise<UsageThisCycl
     totalMonthly: tenant.creditsTotalMonthly,
     used,
     confirmedOrders,
+    proofs,
+    maxProofs: tenant.maxProofsPerMonth,
     agents,
     maxAgents: tenant.maxAgents,
     overageCount,

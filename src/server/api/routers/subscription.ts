@@ -113,6 +113,8 @@ export const subscriptionRouter = createTRPCRouter({
       totalMonthly: usage.totalMonthly,
       used: usage.used,
       confirmedOrders: usage.confirmedOrders,
+      proofs: usage.proofs,
+      maxProofs: usage.maxProofs,
       agents: usage.agents,
       maxAgents: usage.maxAgents,
       overageCount: usage.overageCount,
