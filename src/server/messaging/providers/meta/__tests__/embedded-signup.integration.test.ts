@@ -69,7 +69,11 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
           Promise.resolve({
             data: {
               is_valid: true,
-              scopes: ["whatsapp_business_management", "whatsapp_business_messaging"],
+              scopes: [
+                "business_management",
+                "whatsapp_business_management",
+                "whatsapp_business_messaging",
+              ],
             },
           }),
       })
@@ -263,7 +267,11 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
           Promise.resolve({
             data: {
               is_valid: true,
-              scopes: ["whatsapp_business_management", "whatsapp_business_messaging"],
+              scopes: [
+                "business_management",
+                "whatsapp_business_management",
+                "whatsapp_business_messaging",
+              ],
             },
           }),
       })

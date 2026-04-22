@@ -143,6 +143,35 @@ describe("WhatsAppConfigContent — embedded signup", () => {
     ).toBeInTheDocument();
   });
 
+  it("forwards embedded signup session identifiers to backend when available", async () => {
+    mockLoadSdk.mockResolvedValue({ login: vi.fn(), init: vi.fn() });
+    mockStartSignup.mockResolvedValue({
+      status: "connected",
+      authResponse: { code: "oauth-456" },
+      embeddedSignupEvent: {
+        type: "WA_EMBEDDED_SIGNUP",
+        event: "FINISH",
+        data: {
+          waba_id: "waba-456",
+          phone_number_id: "phone-456",
+        },
+      },
+    });
+    mockExtractCode.mockReturnValue("oauth-456");
+    mockConnectEmbeddedMutateAsync.mockResolvedValue({ ok: true });
+
+    render(<WhatsAppConfigContent />);
+    fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp Business" }));
+
+    await waitFor(() => {
+      expect(mockConnectEmbeddedMutateAsync).toHaveBeenCalledWith({
+        code: "oauth-456",
+        wabaId: "waba-456",
+        phoneNumberId: "phone-456",
+      });
+    });
+  });
+
   it("shows user-facing error when popup is canceled or no code returned", async () => {
     mockLoadSdk.mockResolvedValue({ login: vi.fn(), init: vi.fn() });
     mockStartSignup.mockResolvedValue({ status: "unknown" });

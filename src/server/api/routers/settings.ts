@@ -291,6 +291,8 @@ export const settingsRouter = createTRPCRouter({
           code: input.code,
           appId: appId ?? "",
           appSecret: appSecret ?? "",
+          wabaId: input.wabaId,
+          phoneNumberId: input.phoneNumberId,
         });
 
         const normalizedBusinessPhone = normalizeMetaPhone(

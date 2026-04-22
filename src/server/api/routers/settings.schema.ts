@@ -38,6 +38,8 @@ export const setMetaConfigInputSchema = z.object({
 
 export const connectWhatsAppEmbeddedInputSchema = z.object({
   code: z.string().trim().min(1, "Le code OAuth est requis").max(4096),
+  wabaId: z.string().trim().min(1).max(128).optional(),
+  phoneNumberId: z.string().trim().min(1).max(128).optional(),
 });
 
 export type CategoryPriceItemInput = z.infer<typeof categoryPriceItemSchema>;

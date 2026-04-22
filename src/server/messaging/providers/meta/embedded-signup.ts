@@ -1,6 +1,7 @@
 const META_GRAPH_VERSION = "v21.0";
 const META_REQUEST_TIMEOUT_MS = 10_000;
 const REQUIRED_SCOPES = [
+  "business_management",
   "whatsapp_business_management",
   "whatsapp_business_messaging",
 ] as const;
@@ -118,6 +119,7 @@ function requireString(value: unknown): string | null {
 
 function extractFirstWabaAndPhone(
   payload: WabaAccountsResponse,
+  preferred?: { wabaId?: string; phoneNumberId?: string },
 ): { wabaId: string; phoneNumberId: string; businessPhoneNumber: string } | null {
   const pairs: Array<{ wabaId: string; phoneNumberId: string; businessPhoneNumber: string }> = [];
   const accounts = payload.data ?? [];
@@ -134,6 +136,17 @@ function extractFirstWabaAndPhone(
         pairs.push({ wabaId, phoneNumberId, businessPhoneNumber });
       }
     }
+  }
+
+  const preferredWabaId = requireString(preferred?.wabaId);
+  const preferredPhoneNumberId = requireString(preferred?.phoneNumberId);
+  if (preferredWabaId || preferredPhoneNumberId) {
+    const matched = pairs.find(
+      (pair) =>
+        (preferredWabaId == null || pair.wabaId === preferredWabaId) &&
+        (preferredPhoneNumberId == null || pair.phoneNumberId === preferredPhoneNumberId),
+    );
+    return matched ?? null;
   }
 
   if (pairs.length !== 1) {
@@ -246,6 +259,8 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
   code: string;
   appId: string;
   appSecret: string;
+  wabaId?: string;
+  phoneNumberId?: string;
 }): Promise<EmbeddedSignupConnectionResult> {
   const tenantId = params.tenantId.trim();
   const code = params.code.trim();
@@ -341,11 +356,17 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
     "Impossible de recuperer les ressources WhatsApp Business du compte Meta.",
   )) as WabaAccountsResponse;
 
-  const resolved = extractFirstWabaAndPhone(wabaPayload);
+  const preferredResource = {
+    wabaId: params.wabaId,
+    phoneNumberId: params.phoneNumberId,
+  };
+  const resolved = extractFirstWabaAndPhone(wabaPayload, preferredResource);
   if (!resolved) {
     throw new MetaEmbeddedSignupError(
       "BAD_REQUEST",
-      "Aucun compte WhatsApp Business utilisable trouve pour ce compte Meta.",
+      preferredResource.wabaId || preferredResource.phoneNumberId
+        ? "Le compte WhatsApp Business selectionne n'a pas pu etre resolu dans les ressources Meta accessibles."
+        : "Aucun compte WhatsApp Business utilisable trouve pour ce compte Meta.",
     );
   }
 

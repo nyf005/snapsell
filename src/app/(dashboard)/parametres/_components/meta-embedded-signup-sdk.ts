@@ -1,7 +1,8 @@
 export const META_SDK_SCRIPT_ID = "snapsell-meta-sdk";
 const META_SDK_SRC = "https://connect.facebook.net/en_US/sdk.js";
-const META_GRAPH_VERSION = "v20.0";
+const META_GRAPH_VERSION = "v21.0";
 const META_SDK_LOAD_TIMEOUT_MS = 10000;
+const META_EMBEDDED_SIGNUP_MESSAGE_WAIT_MS = 250;
 
 type Dict = Record<string, unknown>;
 
@@ -12,7 +13,18 @@ export type MetaLoginResponse = {
     code?: string;
     authorizationCode?: string;
   } | null;
+  embeddedSignupEvent?: MetaEmbeddedSignupEvent;
 } | null;
+
+export type MetaEmbeddedSignupEvent = {
+  type: "WA_EMBEDDED_SIGNUP";
+  event?: string;
+  data?: {
+    phone_number_id?: string;
+    waba_id?: string;
+    current_step?: string;
+  };
+};
 
 export type MetaSDK = {
   init: (params: Dict) => void;
@@ -40,7 +52,9 @@ function initMetaSdk(appId: string): MetaSDK {
   if (!hasInitForApp(appId)) {
     sdk.init({
       appId,
-      xfbml: false,
+      autoLogAppEvents: true,
+      cookie: true,
+      xfbml: true,
       version: META_GRAPH_VERSION,
     });
     window.__snapsellMetaSdkInitAppId = appId;
@@ -116,23 +130,111 @@ export async function startMetaEmbeddedSignup(
   }
 
   return new Promise<MetaLoginResponse>((resolve, reject) => {
+    let loginResponse: MetaLoginResponse | undefined;
+    let embeddedSignupEvent: MetaEmbeddedSignupEvent | undefined;
+    let resolved = false;
+    let finalizeTimer: number | undefined;
+
+    const cleanup = () => {
+      window.removeEventListener("message", handleMessage);
+      if (finalizeTimer != null) {
+        window.clearTimeout(finalizeTimer);
+      }
+    };
+
+    const finalize = () => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      if (loginResponse && typeof loginResponse === "object") {
+        resolve({
+          ...loginResponse,
+          ...(embeddedSignupEvent ? { embeddedSignupEvent } : {}),
+        });
+        return;
+      }
+      resolve(loginResponse ?? null);
+    };
+
+    const handleMessage = (event: MessageEvent) => {
+      if (!isAllowedMetaOrigin(event.origin)) return;
+
+      const parsed = parseEmbeddedSignupMessage(event.data);
+      if (!parsed) return;
+
+      embeddedSignupEvent = parsed;
+    };
+
+    window.addEventListener("message", handleMessage);
+
     try {
       sdk.login(
-        (response) => resolve(response),
+        (response) => {
+          loginResponse = response;
+          finalizeTimer = window.setTimeout(finalize, META_EMBEDDED_SIGNUP_MESSAGE_WAIT_MS);
+        },
         {
           config_id: cleanConfigId,
           response_type: "code",
           override_default_response_type: true,
           extras: {
+            setup: {},
             feature: "whatsapp_embedded_signup",
             sessionInfoVersion: "3",
           },
         },
       );
     } catch (error) {
+      cleanup();
       reject(error);
     }
   });
+}
+
+function isAllowedMetaOrigin(origin: string): boolean {
+  try {
+    const { hostname, protocol } = new URL(origin);
+    if (protocol !== "https:") return false;
+    return hostname === "facebook.com" || hostname.endsWith(".facebook.com");
+  } catch {
+    return false;
+  }
+}
+
+function parseEmbeddedSignupMessage(data: unknown): MetaEmbeddedSignupEvent | null {
+  const text = typeof data === "string" ? data : null;
+  if (!text) return null;
+
+  try {
+    const parsed = JSON.parse(text) as Record<string, unknown>;
+    if (parsed.type !== "WA_EMBEDDED_SIGNUP") {
+      return null;
+    }
+
+    return {
+      type: "WA_EMBEDDED_SIGNUP",
+      event: typeof parsed.event === "string" ? parsed.event : undefined,
+      data:
+        parsed.data && typeof parsed.data === "object"
+          ? {
+              phone_number_id:
+                typeof (parsed.data as Record<string, unknown>).phone_number_id === "string"
+                  ? ((parsed.data as Record<string, unknown>).phone_number_id as string)
+                  : undefined,
+              waba_id:
+                typeof (parsed.data as Record<string, unknown>).waba_id === "string"
+                  ? ((parsed.data as Record<string, unknown>).waba_id as string)
+                  : undefined,
+              current_step:
+                typeof (parsed.data as Record<string, unknown>).current_step === "string"
+                  ? ((parsed.data as Record<string, unknown>).current_step as string)
+                  : undefined,
+            }
+          : undefined,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export function extractOAuthCodeFromMetaLoginResponse(

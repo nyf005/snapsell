@@ -8,6 +8,7 @@ import { cn } from "~/lib/utils";
 
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import {
+  type MetaEmbeddedSignupEvent,
   extractOAuthCodeFromMetaLoginResponse,
   getMetaEmbeddedSignupErrorMessage,
   loadMetaEmbeddedSignupSdk,
@@ -200,7 +201,19 @@ export function WhatsAppConfigContent() {
         );
       }
 
-      await connectEmbedded.mutateAsync({ code });
+      const embeddedSignupEvent = loginResponse?.embeddedSignupEvent as
+        | MetaEmbeddedSignupEvent
+        | undefined;
+
+      await connectEmbedded.mutateAsync({
+        code,
+        ...(embeddedSignupEvent?.data?.waba_id
+          ? { wabaId: embeddedSignupEvent.data.waba_id }
+          : {}),
+        ...(embeddedSignupEvent?.data?.phone_number_id
+          ? { phoneNumberId: embeddedSignupEvent.data.phone_number_id }
+          : {}),
+      });
       setEmbeddedSignupState("success");
     } catch (error) {
       const message =

@@ -59,6 +59,13 @@ describe("meta-embedded-signup-sdk", () => {
       expect.any(Function),
       expect.objectContaining({
         config_id: "config-id",
+        response_type: "code",
+        override_default_response_type: true,
+        extras: expect.objectContaining({
+          setup: {},
+          feature: "whatsapp_embedded_signup",
+          sessionInfoVersion: "3",
+        }),
       }),
     );
   });

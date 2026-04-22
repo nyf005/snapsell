@@ -530,7 +530,11 @@ describe("settings router — connectWhatsAppEmbedded", () => {
           Promise.resolve({
             data: {
               is_valid: true,
-              scopes: ["whatsapp_business_management", "whatsapp_business_messaging"],
+              scopes: [
+                "business_management",
+                "whatsapp_business_management",
+                "whatsapp_business_messaging",
+              ],
             },
           }),
       })
@@ -728,7 +732,11 @@ describe("settings router — connectWhatsAppEmbedded", () => {
           Promise.resolve({
             data: {
               is_valid: true,
-              scopes: ["whatsapp_business_management", "whatsapp_business_messaging"],
+              scopes: [
+                "business_management",
+                "whatsapp_business_management",
+                "whatsapp_business_messaging",
+              ],
             },
           }),
       })
