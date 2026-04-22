@@ -1,13 +1,10 @@
 /**
- * GET /api/cron/close-sessions — Vercel Cron Job (toutes les 10 minutes)
+ * GET /api/cron/close-sessions — endpoint de fallback manuel / ops
  *
  * Ferme les sessions live inactives (Story 2.6) et promeut les items vers le catalogue (Story 8.2).
  *
- * Sécurité: Vercel injecte automatiquement Authorization: Bearer <CRON_SECRET>
- * quand CRON_SECRET est défini dans les variables d'environnement Vercel.
- *
- * Configuration vercel.json:
- *   path: /api/cron/close-sessions, schedule: every 10 minutes (cron: "0,10,20,30,40,50 * * * *")
+ * En production, la planification primaire tourne sur Railway via pg-boss.
+ * Cet endpoint reste disponible pour debug / exécution manuelle.
  */
 import { NextResponse } from "next/server";
 import { env } from "~/env";

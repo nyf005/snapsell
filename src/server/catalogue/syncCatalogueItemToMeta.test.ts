@@ -12,14 +12,13 @@ vi.mock("~/server/db", () => ({
       findMany: vi.fn(),
       update: vi.fn(),
     },
+    itemVariant: {
+      findMany: vi.fn(),
+    },
     tenant: {
       findUnique: vi.fn(),
     },
   },
-}));
-
-vi.mock("~/server/media/r2-signed-url", () => ({
-  generateSignedR2Url: vi.fn(),
 }));
 
 vi.mock("~/lib/logger", () => ({
@@ -27,10 +26,13 @@ vi.mock("~/lib/logger", () => ({
 }));
 
 vi.mock("~/env.js", () => ({
-  env: { META_CATALOG_SYNC_ENABLED: "true" },
+  env: {
+    META_CATALOG_SYNC_ENABLED: "true",
+    NEXT_PUBLIC_APP_URL: "https://app.example.com",
+    CATALOGUE_PLACEHOLDER_IMAGE_URL: undefined,
+  },
 }));
 
-import { generateSignedR2Url } from "~/server/media/r2-signed-url";
 import {
   syncCatalogueItemToMeta,
   syncPendingCatalogueItems,
@@ -60,17 +62,24 @@ const mockTenant = {
 describe("syncCatalogueItemToMeta", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(db.itemVariant.findMany).mockResolvedValue([]);
   });
 
   it("retourne sync_disabled si META_CATALOG_SYNC_ENABLED !== true", async () => {
-    vi.doMock("~/env.js", () => ({ env: { META_CATALOG_SYNC_ENABLED: "false" } }));
-    // On réimporte pour ce test spécifique — en pratique on vérifie via mock de l'env
+    vi.resetModules();
+    vi.doMock("~/env.js", () => ({
+      env: {
+        META_CATALOG_SYNC_ENABLED: "false",
+        NEXT_PUBLIC_APP_URL: "https://app.example.com",
+        CATALOGUE_PLACEHOLDER_IMAGE_URL: undefined,
+      },
+    }));
+
     const { syncCatalogueItemToMeta: fn } = await import("./syncCatalogueItemToMeta");
-    // Note: le mock d'env est global dans vitest, on teste via le comportement
+
     const result = await fn(TENANT_ID, ITEM_ID);
-    // Résultat attendu selon la valeur mockée globalement : success (car mock = "true")
-    // Ce test valide surtout le chemin heureux ci-dessous
-    expect(result).toBeDefined();
+
+    expect(result).toEqual({ success: false, reason: "sync_disabled" });
   });
 
   it("retourne no_entitlement si hasMetaCatalogSync = false", async () => {
@@ -121,20 +130,9 @@ describe("syncCatalogueItemToMeta", () => {
     expect(result).toEqual({ success: false, reason: "missing_image" });
   });
 
-  it("retourne image_url_failed si generateSignedR2Url retourne null", async () => {
-    vi.mocked(db.catalogueItem.findUnique).mockResolvedValue(mockItem as never);
-    vi.mocked(db.tenant.findUnique).mockResolvedValue(mockTenant as never);
-    vi.mocked(generateSignedR2Url).mockResolvedValue(null);
-
-    const result = await syncCatalogueItemToMeta(TENANT_ID, ITEM_ID);
-
-    expect(result).toEqual({ success: false, reason: "image_url_failed" });
-  });
-
   it("retourne success et stocke metaProductId si l'API Meta répond 200", async () => {
     vi.mocked(db.catalogueItem.findUnique).mockResolvedValue(mockItem as never);
     vi.mocked(db.tenant.findUnique).mockResolvedValue(mockTenant as never);
-    vi.mocked(generateSignedR2Url).mockResolvedValue("https://r2.example.com/photo.jpg");
     vi.mocked(db.catalogueItem.update).mockResolvedValue({} as never);
 
     globalThis.fetch = vi.fn().mockResolvedValue({
@@ -158,7 +156,6 @@ describe("syncCatalogueItemToMeta", () => {
   it("retourne rate_limited si l'API Meta répond 429 après 3 tentatives", async () => {
     vi.mocked(db.catalogueItem.findUnique).mockResolvedValue(mockItem as never);
     vi.mocked(db.tenant.findUnique).mockResolvedValue(mockTenant as never);
-    vi.mocked(generateSignedR2Url).mockResolvedValue("https://r2.example.com/photo.jpg");
 
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
@@ -177,6 +174,7 @@ describe("syncCatalogueItemToMeta", () => {
 describe("syncPendingCatalogueItems", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(db.itemVariant.findMany).mockResolvedValue([]);
   });
 
   it("retourne synced=0 failed=0 si aucun article éligible", async () => {
@@ -200,7 +198,6 @@ describe("syncPendingCatalogueItems", () => {
       .mockResolvedValueOnce({ ...mockItem, id: "item-2", name: null } as never); // item-2 sans nom
 
     vi.mocked(db.tenant.findUnique).mockResolvedValue(mockTenant as never);
-    vi.mocked(generateSignedR2Url).mockResolvedValue("https://r2.example.com/photo.jpg");
     vi.mocked(db.catalogueItem.update).mockResolvedValue({} as never);
 
     globalThis.fetch = vi.fn().mockResolvedValue({

@@ -4,11 +4,10 @@
  *
  * Workers démarrés:
  *   - webhook-processor: Traite les messages entrants (routing vendeur vs client) — pg-boss
+ *   - crons métier: reservation-ttl, close-sessions, deposit-expiry, meta-catalogue-sync
  *
- * Workers migrés vers Vercel (ne plus démarrer ici):
+ * Toujours externalisé:
  *   - outbox-sender: Remplacé par QStash + /api/qstash/outbox-send (Option A)
- *   - close-inactive-live-sessions: Remplacé par Vercel Cron /api/cron/close-sessions
- *   - reservation-ttl: Remplacé par Vercel Cron /api/cron/reservation-ttl
  *
  * Usage:
  *   tsx scripts/start-worker.ts
@@ -23,11 +22,15 @@ import { boss, ensureQueues, QUEUE } from "~/server/workers/queues";
 import { startWebhookProcessorWorker } from "~/server/workers/webhook-processor";
 import { runReservationReminderJob, runReservationTtlJob } from "~/server/workers/reservation-ttl";
 import { runCloseInactiveLiveSessions } from "~/server/workers/close-inactive-live-sessions";
+import { runDepositExpiryJob } from "~/server/workers/deposit-expiry";
+import { runMetaCatalogueSyncJob } from "~/server/workers/meta-catalogue-sync";
 import { workerLogger } from "~/lib/logger";
 
 const SCHEDULE = {
   RESERVATION_TTL: QUEUE.CRON_RESERVATION_TTL,
   CLOSE_SESSIONS: QUEUE.CRON_CLOSE_SESSIONS,
+  DEPOSIT_EXPIRY: QUEUE.CRON_DEPOSIT_EXPIRY,
+  META_CATALOGUE_SYNC: QUEUE.CRON_META_CATALOGUE_SYNC,
 } as const;
 
 /**
@@ -75,6 +78,8 @@ async function main(): Promise<void> {
     // Schedules pg-boss : verrou distribué en DB, safe si redémarrage ou scale
     await boss.schedule(SCHEDULE.RESERVATION_TTL, "* * * * *", {});
     await boss.schedule(SCHEDULE.CLOSE_SESSIONS, "*/10 * * * *", {});
+    await boss.schedule(SCHEDULE.DEPOSIT_EXPIRY, "*/5 * * * *", {});
+    await boss.schedule(SCHEDULE.META_CATALOGUE_SYNC, "0 * * * *", {});
 
     await boss.work(SCHEDULE.RESERVATION_TTL, async () => {
       await runReservationReminderJob();
@@ -85,7 +90,17 @@ async function main(): Promise<void> {
       await runCloseInactiveLiveSessions();
     });
 
-    workerLogger.info("Periodic jobs scheduled via pg-boss (reservation-ttl: 1min, close-sessions: 10min)");
+    await boss.work(SCHEDULE.DEPOSIT_EXPIRY, async () => {
+      await runDepositExpiryJob();
+    });
+
+    await boss.work(SCHEDULE.META_CATALOGUE_SYNC, async () => {
+      await runMetaCatalogueSyncJob();
+    });
+
+    workerLogger.info(
+      "Periodic jobs scheduled via pg-boss (reservation-ttl: 1min, close-sessions: 10min, deposit-expiry: 5min, meta-catalogue-sync: 1h)",
+    );
   } catch (error) {
     workerLogger.error("Failed to start workers", error);
     process.exit(1);

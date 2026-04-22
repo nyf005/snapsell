@@ -1,11 +1,11 @@
 /**
- * GET /api/cron/deposit-expiry — Vercel Cron Job (toutes les minutes)
+ * GET /api/cron/deposit-expiry — endpoint de fallback manuel / ops
  *
  * Annule les commandes en confirmed_pending_deposit dont le délai d'acompte est expiré
  * et notifie les clients via WhatsApp.
  *
- * Configuration vercel.json :
- *   { "path": "/api/cron/deposit-expiry", "schedule": "* * * * *" }
+ * En production, la planification primaire tourne sur Railway via pg-boss.
+ * Cet endpoint reste disponible pour debug / exécution manuelle.
  */
 
 import { NextResponse } from "next/server";
