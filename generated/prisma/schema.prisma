@@ -84,6 +84,11 @@ model Tenant {
   metaCatalogId      String? @map("meta_catalog_id")
   hasMetaCatalogSync Boolean @default(false) @map("has_meta_catalog_sync") // Entitlement Starter/Pro
 
+  // WhatsApp Business — selected approved message template for tenant workflows
+  whatsappTemplateName     String? @map("whatsapp_template_name")
+  whatsappTemplateLanguage String? @map("whatsapp_template_language")
+  whatsappTemplateCategory String? @map("whatsapp_template_category")
+
   // Away message — réponse automatique hors horaires d'ouverture
   businessHoursStart String? @map("business_hours_start") // ex: "08:00"
   businessHoursEnd   String? @map("business_hours_end") // ex: "20:00"

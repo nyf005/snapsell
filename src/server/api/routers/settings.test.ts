@@ -64,6 +64,7 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     mockSellerPhoneFindFirst.mockResolvedValue(null);
     mockGetProviderForTenant.mockResolvedValue({
       getAccessToken: () => "mocked-token",
+      sendTemplate: vi.fn().mockResolvedValue({ success: true, providerMessageId: "wamid-test" }),
     });
   });
 
@@ -471,6 +472,123 @@ describe("settings router — testWhatsAppConnection", () => {
     });
     expect(mockFetch).not.toHaveBeenCalled();
   });
+});
+
+describe("settings router — WhatsApp templates", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setupTransactionMock();
+    mockGetProviderForTenant.mockResolvedValue({
+      getAccessToken: () => "mocked-token",
+      sendTemplate: vi.fn().mockResolvedValue({ success: true, providerMessageId: "wamid-test" }),
+    });
+  });
+
+  const ownerSession = {
+    user: { id: "user-1", email: "owner@example.com", tenantId: "tenant-1", role: "OWNER" },
+  };
+
+  async function makeCaller(session: any) {
+    const ctx = await createTRPCContext({ headers: new Headers(), session: session as any });
+    return createCaller(ctx);
+  }
+
+  it("lists WhatsApp templates and returns the selected template", async () => {
+    mockTenantFindUnique.mockResolvedValue({
+      metaPhoneNumberId: "phone-123",
+      metaWabaId: "waba-123",
+      metaAccessToken: "access-token",
+      whatsappTemplateName: "order_confirmation",
+      whatsappTemplateLanguage: "en",
+      whatsappTemplateCategory: "UTILITY",
+    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          data: [
+            {
+              id: "template-1",
+              name: "order_confirmation",
+              language: "en",
+              category: "UTILITY",
+              status: "APPROVED",
+            },
+          ],
+        }),
+    });
+
+    const caller = await makeCaller(ownerSession);
+    const result = await caller.settings.fetchWhatsAppTemplates();
+
+    expect(result).toEqual({
+      templates: [
+        {
+          id: "template-1",
+          name: "order_confirmation",
+          language: "en",
+          category: "UTILITY",
+          status: "APPROVED",
+        },
+      ],
+      selectedTemplate: {
+        name: "order_confirmation",
+        language: "en",
+        category: "UTILITY",
+      },
+    });
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining("graph.facebook.com/v21.0/waba-123/message_templates"),
+      expect.objectContaining({
+        headers: { Authorization: "Bearer access-token" },
+      }),
+    );
+  });
+
+  it("persists only an approved WhatsApp template selection", async () => {
+    mockTenantFindUnique.mockResolvedValue({
+      metaPhoneNumberId: "phone-123",
+      metaWabaId: "waba-123",
+      metaAccessToken: "access-token",
+      whatsappTemplateName: null,
+      whatsappTemplateLanguage: null,
+      whatsappTemplateCategory: null,
+    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          data: [
+            {
+              name: "reservation_confirmation",
+              language: "fr",
+              category: "UTILITY",
+              status: "APPROVED",
+            },
+          ],
+        }),
+    });
+    mockTenantUpdate.mockResolvedValue({});
+
+    const caller = await makeCaller(ownerSession);
+    await expect(
+      caller.settings.selectWhatsAppTemplate({
+        name: "reservation_confirmation",
+        language: "fr",
+        category: "UTILITY",
+      }),
+    ).resolves.toEqual({ ok: true });
+
+    expect(mockTenantUpdate).toHaveBeenCalledWith({
+      where: { id: "tenant-1" },
+      data: {
+        whatsappTemplateName: "reservation_confirmation",
+        whatsappTemplateLanguage: "fr",
+        whatsappTemplateCategory: "UTILITY",
+      },
+    });
+  });
+
 });
 
 describe("settings router — connectWhatsAppEmbedded", () => {

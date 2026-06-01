@@ -27,7 +27,10 @@ vi.mock("~/app/(dashboard)/parametres/_components/meta-embedded-signup-sdk", () 
 vi.mock("~/trpc/react", () => ({
   api: {
     useUtils: () => ({
-      settings: { getWhatsAppConfig: { invalidate: vi.fn() } },
+      settings: {
+        getWhatsAppConfig: { invalidate: vi.fn() },
+        fetchWhatsAppTemplates: { invalidate: vi.fn() },
+      },
       sellerPhones: { list: { invalidate: vi.fn() } },
     }),
     settings: {
@@ -48,6 +51,19 @@ vi.mock("~/trpc/react", () => ({
           mutateAsync: mockConnectEmbeddedMutateAsync,
           isPending: false,
         }),
+      },
+      fetchWhatsAppTemplates: {
+        useQuery: () => ({
+          data: { templates: [], selectedTemplate: null },
+          isLoading: false,
+          isFetching: false,
+          isError: false,
+          error: null,
+          refetch: vi.fn(),
+        }),
+      },
+      selectWhatsAppTemplate: {
+        useMutation: () => ({ mutate: vi.fn(), isPending: false }),
       },
     },
     sellerPhones: {

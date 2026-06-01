@@ -51,6 +51,7 @@ yarn-error.log*
 .cursor
 .agent
 .opencode
+.claude/worktrees/
 
 # BMAD (ne pas pousser vers GitHub)
 _bmad

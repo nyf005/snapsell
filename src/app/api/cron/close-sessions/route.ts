@@ -7,17 +7,13 @@
  * Cet endpoint reste disponible pour debug / exécution manuelle.
  */
 import { NextResponse } from "next/server";
-import { env } from "~/env";
 import { workerLogger } from "~/lib/logger";
+import { requireCronAuthorization } from "~/server/cron/auth";
 import { runCloseInactiveLiveSessions } from "~/server/workers/close-inactive-live-sessions";
 
 export async function GET(request: Request) {
-  if (env.CRON_SECRET) {
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-  }
+  const unauthorized = requireCronAuthorization(request);
+  if (unauthorized) return unauthorized;
 
   try {
     const result = await runCloseInactiveLiveSessions();

@@ -657,6 +657,15 @@ export async function processWebhookJob(
             correlationId,
           );
           if (order.success) {
+            await db.conversationState.deleteMany({ where: { tenantId, phone: clientPhoneE164 } });
+            await writeToOutbox({
+              tenantId,
+              to: clientPhoneE164,
+              correlationId,
+              ...(tenant?.requireDeposit
+                ? botMsg.client.orderWithDepositInteractive(15)
+                : botMsg.client.orderConfirmedInteractive()),
+            });
             return buildEnrichedMessage(liveSessionId);
           }
         }

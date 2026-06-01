@@ -9,21 +9,16 @@
  * Cet endpoint reste disponible pour debug / exécution manuelle.
  */
 import { NextResponse } from "next/server";
-import { env } from "~/env";
 import { workerLogger } from "~/lib/logger";
+import { requireCronAuthorization } from "~/server/cron/auth";
 import {
   runReservationReminderJob,
   runReservationTtlJob,
 } from "~/server/workers/reservation-ttl";
 
 export async function GET(request: Request) {
-  // Vérification du secret cron (optionnelle en dev si CRON_SECRET absent)
-  if (env.CRON_SECRET) {
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-  }
+  const unauthorized = requireCronAuthorization(request);
+  if (unauthorized) return unauthorized;
 
   try {
     const reminderResult = await runReservationReminderJob();

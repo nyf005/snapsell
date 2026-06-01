@@ -4,7 +4,7 @@
  *
  * Workers démarrés:
  *   - webhook-processor: Traite les messages entrants (routing vendeur vs client) — pg-boss
- *   - crons métier: reservation-ttl, close-sessions, deposit-expiry, meta-catalogue-sync
+ *   - crons métier: reservation-ttl, close-sessions, deposit-expiry, meta-catalogue-sync, subscription-expired
  *
  * Toujours externalisé:
  *   - outbox-sender: Remplacé par QStash + /api/qstash/outbox-send (Option A)
@@ -24,6 +24,7 @@ import { runReservationReminderJob, runReservationTtlJob } from "~/server/worker
 import { runCloseInactiveLiveSessions } from "~/server/workers/close-inactive-live-sessions";
 import { runDepositExpiryJob } from "~/server/workers/deposit-expiry";
 import { runMetaCatalogueSyncJob } from "~/server/workers/meta-catalogue-sync";
+import { runSubscriptionExpiredJob } from "~/server/workers/subscription-expired";
 import { workerLogger } from "~/lib/logger";
 
 const SCHEDULE = {
@@ -31,6 +32,7 @@ const SCHEDULE = {
   CLOSE_SESSIONS: QUEUE.CRON_CLOSE_SESSIONS,
   DEPOSIT_EXPIRY: QUEUE.CRON_DEPOSIT_EXPIRY,
   META_CATALOGUE_SYNC: QUEUE.CRON_META_CATALOGUE_SYNC,
+  SUBSCRIPTION_EXPIRED: QUEUE.CRON_SUBSCRIPTION_EXPIRED,
 } as const;
 
 /**
@@ -80,6 +82,7 @@ async function main(): Promise<void> {
     await boss.schedule(SCHEDULE.CLOSE_SESSIONS, "*/10 * * * *", {});
     await boss.schedule(SCHEDULE.DEPOSIT_EXPIRY, "*/5 * * * *", {});
     await boss.schedule(SCHEDULE.META_CATALOGUE_SYNC, "0 * * * *", {});
+    await boss.schedule(SCHEDULE.SUBSCRIPTION_EXPIRED, "0 0 * * *", {});
 
     await boss.work(SCHEDULE.RESERVATION_TTL, async () => {
       await runReservationReminderJob();
@@ -98,8 +101,12 @@ async function main(): Promise<void> {
       await runMetaCatalogueSyncJob();
     });
 
+    await boss.work(SCHEDULE.SUBSCRIPTION_EXPIRED, async () => {
+      await runSubscriptionExpiredJob();
+    });
+
     workerLogger.info(
-      "Periodic jobs scheduled via pg-boss (reservation-ttl: 1min, close-sessions: 10min, deposit-expiry: 5min, meta-catalogue-sync: 1h)",
+      "Periodic jobs scheduled via pg-boss (reservation-ttl: 1min, close-sessions: 10min, deposit-expiry: 5min, meta-catalogue-sync: 1h, subscription-expired: daily)",
     );
   } catch (error) {
     workerLogger.error("Failed to start workers", error);

@@ -3884,6 +3884,9 @@ export namespace Prisma {
     faqAvailability: string | null
     metaCatalogId: string | null
     hasMetaCatalogSync: boolean | null
+    whatsappTemplateName: string | null
+    whatsappTemplateLanguage: string | null
+    whatsappTemplateCategory: string | null
     businessHoursStart: string | null
     businessHoursEnd: string | null
     businessTimezone: string | null
@@ -3931,6 +3934,9 @@ export namespace Prisma {
     faqAvailability: string | null
     metaCatalogId: string | null
     hasMetaCatalogSync: boolean | null
+    whatsappTemplateName: string | null
+    whatsappTemplateLanguage: string | null
+    whatsappTemplateCategory: string | null
     businessHoursStart: string | null
     businessHoursEnd: string | null
     businessTimezone: string | null
@@ -3978,6 +3984,9 @@ export namespace Prisma {
     faqAvailability: number
     metaCatalogId: number
     hasMetaCatalogSync: number
+    whatsappTemplateName: number
+    whatsappTemplateLanguage: number
+    whatsappTemplateCategory: number
     businessHoursStart: number
     businessHoursEnd: number
     businessTimezone: number
@@ -4047,6 +4056,9 @@ export namespace Prisma {
     faqAvailability?: true
     metaCatalogId?: true
     hasMetaCatalogSync?: true
+    whatsappTemplateName?: true
+    whatsappTemplateLanguage?: true
+    whatsappTemplateCategory?: true
     businessHoursStart?: true
     businessHoursEnd?: true
     businessTimezone?: true
@@ -4094,6 +4106,9 @@ export namespace Prisma {
     faqAvailability?: true
     metaCatalogId?: true
     hasMetaCatalogSync?: true
+    whatsappTemplateName?: true
+    whatsappTemplateLanguage?: true
+    whatsappTemplateCategory?: true
     businessHoursStart?: true
     businessHoursEnd?: true
     businessTimezone?: true
@@ -4141,6 +4156,9 @@ export namespace Prisma {
     faqAvailability?: true
     metaCatalogId?: true
     hasMetaCatalogSync?: true
+    whatsappTemplateName?: true
+    whatsappTemplateLanguage?: true
+    whatsappTemplateCategory?: true
     businessHoursStart?: true
     businessHoursEnd?: true
     businessTimezone?: true
@@ -4275,6 +4293,9 @@ export namespace Prisma {
     faqAvailability: string | null
     metaCatalogId: string | null
     hasMetaCatalogSync: boolean
+    whatsappTemplateName: string | null
+    whatsappTemplateLanguage: string | null
+    whatsappTemplateCategory: string | null
     businessHoursStart: string | null
     businessHoursEnd: string | null
     businessTimezone: string | null
@@ -4341,6 +4362,9 @@ export namespace Prisma {
     faqAvailability?: boolean
     metaCatalogId?: boolean
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: boolean
+    whatsappTemplateLanguage?: boolean
+    whatsappTemplateCategory?: boolean
     businessHoursStart?: boolean
     businessHoursEnd?: boolean
     businessTimezone?: boolean
@@ -4411,6 +4435,9 @@ export namespace Prisma {
     faqAvailability?: boolean
     metaCatalogId?: boolean
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: boolean
+    whatsappTemplateLanguage?: boolean
+    whatsappTemplateCategory?: boolean
     businessHoursStart?: boolean
     businessHoursEnd?: boolean
     businessTimezone?: boolean
@@ -4458,6 +4485,9 @@ export namespace Prisma {
     faqAvailability?: boolean
     metaCatalogId?: boolean
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: boolean
+    whatsappTemplateLanguage?: boolean
+    whatsappTemplateCategory?: boolean
     businessHoursStart?: boolean
     businessHoursEnd?: boolean
     businessTimezone?: boolean
@@ -4505,13 +4535,16 @@ export namespace Prisma {
     faqAvailability?: boolean
     metaCatalogId?: boolean
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: boolean
+    whatsappTemplateLanguage?: boolean
+    whatsappTemplateCategory?: boolean
     businessHoursStart?: boolean
     businessHoursEnd?: boolean
     businessTimezone?: boolean
     awayMessage?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "creditsBonus" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasAI" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "creditsBonus" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasAI" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "whatsappTemplateName" | "whatsappTemplateLanguage" | "whatsappTemplateCategory" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     conversationStates?: boolean | Tenant$conversationStatesArgs<ExtArgs>
@@ -4607,6 +4640,9 @@ export namespace Prisma {
       faqAvailability: string | null
       metaCatalogId: string | null
       hasMetaCatalogSync: boolean
+      whatsappTemplateName: string | null
+      whatsappTemplateLanguage: string | null
+      whatsappTemplateCategory: string | null
       businessHoursStart: string | null
       businessHoursEnd: string | null
       businessTimezone: string | null
@@ -5096,6 +5132,9 @@ export namespace Prisma {
     readonly faqAvailability: FieldRef<"Tenant", 'String'>
     readonly metaCatalogId: FieldRef<"Tenant", 'String'>
     readonly hasMetaCatalogSync: FieldRef<"Tenant", 'Boolean'>
+    readonly whatsappTemplateName: FieldRef<"Tenant", 'String'>
+    readonly whatsappTemplateLanguage: FieldRef<"Tenant", 'String'>
+    readonly whatsappTemplateCategory: FieldRef<"Tenant", 'String'>
     readonly businessHoursStart: FieldRef<"Tenant", 'String'>
     readonly businessHoursEnd: FieldRef<"Tenant", 'String'>
     readonly businessTimezone: FieldRef<"Tenant", 'String'>
@@ -35909,6 +35948,9 @@ export namespace Prisma {
     faqAvailability: 'faqAvailability',
     metaCatalogId: 'metaCatalogId',
     hasMetaCatalogSync: 'hasMetaCatalogSync',
+    whatsappTemplateName: 'whatsappTemplateName',
+    whatsappTemplateLanguage: 'whatsappTemplateLanguage',
+    whatsappTemplateCategory: 'whatsappTemplateCategory',
     businessHoursStart: 'businessHoursStart',
     businessHoursEnd: 'businessHoursEnd',
     businessTimezone: 'businessTimezone',
@@ -36580,6 +36622,9 @@ export namespace Prisma {
     faqAvailability?: StringNullableFilter<"Tenant"> | string | null
     metaCatalogId?: StringNullableFilter<"Tenant"> | string | null
     hasMetaCatalogSync?: BoolFilter<"Tenant"> | boolean
+    whatsappTemplateName?: StringNullableFilter<"Tenant"> | string | null
+    whatsappTemplateLanguage?: StringNullableFilter<"Tenant"> | string | null
+    whatsappTemplateCategory?: StringNullableFilter<"Tenant"> | string | null
     businessHoursStart?: StringNullableFilter<"Tenant"> | string | null
     businessHoursEnd?: StringNullableFilter<"Tenant"> | string | null
     businessTimezone?: StringNullableFilter<"Tenant"> | string | null
@@ -36649,6 +36694,9 @@ export namespace Prisma {
     faqAvailability?: SortOrderInput | SortOrder
     metaCatalogId?: SortOrderInput | SortOrder
     hasMetaCatalogSync?: SortOrder
+    whatsappTemplateName?: SortOrderInput | SortOrder
+    whatsappTemplateLanguage?: SortOrderInput | SortOrder
+    whatsappTemplateCategory?: SortOrderInput | SortOrder
     businessHoursStart?: SortOrderInput | SortOrder
     businessHoursEnd?: SortOrderInput | SortOrder
     businessTimezone?: SortOrderInput | SortOrder
@@ -36721,6 +36769,9 @@ export namespace Prisma {
     faqAvailability?: StringNullableFilter<"Tenant"> | string | null
     metaCatalogId?: StringNullableFilter<"Tenant"> | string | null
     hasMetaCatalogSync?: BoolFilter<"Tenant"> | boolean
+    whatsappTemplateName?: StringNullableFilter<"Tenant"> | string | null
+    whatsappTemplateLanguage?: StringNullableFilter<"Tenant"> | string | null
+    whatsappTemplateCategory?: StringNullableFilter<"Tenant"> | string | null
     businessHoursStart?: StringNullableFilter<"Tenant"> | string | null
     businessHoursEnd?: StringNullableFilter<"Tenant"> | string | null
     businessTimezone?: StringNullableFilter<"Tenant"> | string | null
@@ -36790,6 +36841,9 @@ export namespace Prisma {
     faqAvailability?: SortOrderInput | SortOrder
     metaCatalogId?: SortOrderInput | SortOrder
     hasMetaCatalogSync?: SortOrder
+    whatsappTemplateName?: SortOrderInput | SortOrder
+    whatsappTemplateLanguage?: SortOrderInput | SortOrder
+    whatsappTemplateCategory?: SortOrderInput | SortOrder
     businessHoursStart?: SortOrderInput | SortOrder
     businessHoursEnd?: SortOrderInput | SortOrder
     businessTimezone?: SortOrderInput | SortOrder
@@ -36845,6 +36899,9 @@ export namespace Prisma {
     faqAvailability?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     metaCatalogId?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     hasMetaCatalogSync?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    whatsappTemplateName?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    whatsappTemplateLanguage?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    whatsappTemplateCategory?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     businessHoursStart?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     businessHoursEnd?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     businessTimezone?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
@@ -38932,6 +38989,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -39001,6 +39061,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -39070,6 +39133,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39139,6 +39205,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39208,6 +39277,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -39255,6 +39327,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39302,6 +39377,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41822,6 +41900,9 @@ export namespace Prisma {
     faqAvailability?: SortOrder
     metaCatalogId?: SortOrder
     hasMetaCatalogSync?: SortOrder
+    whatsappTemplateName?: SortOrder
+    whatsappTemplateLanguage?: SortOrder
+    whatsappTemplateCategory?: SortOrder
     businessHoursStart?: SortOrder
     businessHoursEnd?: SortOrder
     businessTimezone?: SortOrder
@@ -41879,6 +41960,9 @@ export namespace Prisma {
     faqAvailability?: SortOrder
     metaCatalogId?: SortOrder
     hasMetaCatalogSync?: SortOrder
+    whatsappTemplateName?: SortOrder
+    whatsappTemplateLanguage?: SortOrder
+    whatsappTemplateCategory?: SortOrder
     businessHoursStart?: SortOrder
     businessHoursEnd?: SortOrder
     businessTimezone?: SortOrder
@@ -41926,6 +42010,9 @@ export namespace Prisma {
     faqAvailability?: SortOrder
     metaCatalogId?: SortOrder
     hasMetaCatalogSync?: SortOrder
+    whatsappTemplateName?: SortOrder
+    whatsappTemplateLanguage?: SortOrder
+    whatsappTemplateCategory?: SortOrder
     businessHoursStart?: SortOrder
     businessHoursEnd?: SortOrder
     businessTimezone?: SortOrder
@@ -47344,6 +47431,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -47412,6 +47502,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -47496,6 +47589,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47564,6 +47660,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47632,6 +47731,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -47700,6 +47802,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -47804,6 +47909,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47872,6 +47980,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48017,6 +48128,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -48085,6 +48199,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -48169,6 +48286,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48237,6 +48357,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48305,6 +48428,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -48373,6 +48499,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -48517,6 +48646,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48585,6 +48717,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48865,6 +49000,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -48933,6 +49071,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -49017,6 +49158,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49085,6 +49229,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49153,6 +49300,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -49221,6 +49371,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -49305,6 +49458,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49373,6 +49529,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49441,6 +49600,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -49509,6 +49671,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -49593,6 +49758,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49661,6 +49829,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49729,6 +49900,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -49797,6 +49971,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -49881,6 +50058,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49949,6 +50129,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50017,6 +50200,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -50085,6 +50271,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -50169,6 +50358,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50237,6 +50429,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50305,6 +50500,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -50373,6 +50571,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -50555,6 +50756,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50623,6 +50827,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50723,6 +50930,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -50791,6 +51001,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -50994,6 +51207,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51062,6 +51278,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51193,6 +51412,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -51261,6 +51483,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -51471,6 +51696,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51539,6 +51767,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51655,6 +51886,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -51723,6 +51957,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -51949,6 +52186,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52017,6 +52257,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52199,6 +52442,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -52267,6 +52513,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -52524,6 +52773,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52592,6 +52844,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52863,6 +53118,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -52931,6 +53189,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -53015,6 +53276,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53083,6 +53347,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53151,6 +53418,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -53219,6 +53489,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -53303,6 +53576,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53371,6 +53647,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53439,6 +53718,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -53507,6 +53789,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -53676,6 +53961,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53744,6 +54032,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53914,6 +54205,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -53982,6 +54276,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -54101,6 +54398,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54169,6 +54469,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54237,6 +54540,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -54305,6 +54611,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -54438,6 +54747,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54506,6 +54818,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54629,6 +54944,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -54697,6 +55015,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -54781,6 +55102,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54849,6 +55173,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54917,6 +55244,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -54985,6 +55315,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -55069,6 +55402,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55137,6 +55473,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55205,6 +55544,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -55273,6 +55615,9 @@ export namespace Prisma {
     faqAvailability?: string | null
     metaCatalogId?: string | null
     hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
     businessHoursStart?: string | null
     businessHoursEnd?: string | null
     businessTimezone?: string | null
@@ -55357,6 +55702,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55425,6 +55773,9 @@ export namespace Prisma {
     faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
     metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
     hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
     businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
     businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null

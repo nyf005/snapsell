@@ -86,3 +86,13 @@ export const selectMetaCatalogInputSchema = z.object({
   catalogId: z.string().trim().min(1, "L'identifiant du catalogue est requis").max(64),
   catalogName: z.string().trim().max(255).optional(),
 });
+
+export const selectWhatsAppTemplateInputSchema = z.object({
+  name: z.string().trim().min(1, "Le nom du template est requis").max(512),
+  language: z.string().trim().min(1, "La langue du template est requise").max(32),
+  category: z.string().trim().min(1, "La catégorie du template est requise").max(64),
+});
+
+export type SelectWhatsAppTemplateInput = z.infer<
+  typeof selectWhatsAppTemplateInputSchema
+>;

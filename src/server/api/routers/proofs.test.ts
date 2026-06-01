@@ -112,7 +112,7 @@ describe("proofs router", () => {
         session: tenant1Session as never,
       });
       const caller = createCaller(ctx);
-      const result = await caller.proofs.listPending();
+      const result = await caller.proofs.listPending({});
 
       expect(mockProofFindMany).toHaveBeenCalledWith({
         where: {
@@ -121,6 +121,9 @@ describe("proofs router", () => {
           order: { depositStatus: "deposit_pending" },
         },
         orderBy: { createdAt: "desc" },
+        take: 21,
+        skip: 0,
+        cursor: undefined,
         include: expect.any(Object),
       });
       expect(result.items).toHaveLength(1);
@@ -137,7 +140,7 @@ describe("proofs router", () => {
         session: tenant1Session as never,
       });
       const caller = createCaller(ctx);
-      await caller.proofs.listPending();
+      await caller.proofs.listPending({});
 
       expect(mockProofFindMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -158,7 +161,7 @@ describe("proofs router", () => {
         session: tenant1Session as never,
       });
       const caller = createCaller(ctx);
-      await caller.proofs.listPending();
+      await caller.proofs.listPending({});
 
       expect(mockProofFindMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -175,7 +178,7 @@ describe("proofs router", () => {
         session: tenant1Session as never,
       });
       const caller = createCaller(ctx);
-      const result = await caller.proofs.listPending();
+      const result = await caller.proofs.listPending({});
 
       expect(mockProofFindMany).toHaveBeenCalledWith(
         expect.objectContaining({

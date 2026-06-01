@@ -76,19 +76,22 @@ describe("catalogueRouter", () => {
       vi.mocked(db.catalogueItem.findMany).mockResolvedValue(items as never);
 
       const caller = createCaller(mockCtx("tenant-1"));
-      const result = await caller.list();
+      const result = await caller.list({});
 
-      expect(result).toEqual(items);
+      expect(result).toEqual({ items, nextCursor: undefined });
       expect(db.catalogueItem.findMany).toHaveBeenCalledWith({
         where: { tenantId: "tenant-1" },
         orderBy: { createdAt: "desc" },
+        take: 21,
+        skip: 0,
+        cursor: undefined,
       });
     });
 
     it("should throw if no tenantId", async () => {
       const caller = createCaller(mockCtx(null));
 
-      await expect(caller.list()).rejects.toThrow(TRPCError);
+      await expect(caller.list({})).rejects.toThrow(TRPCError);
     });
   });
 
@@ -126,6 +129,7 @@ describe("catalogueRouter", () => {
         data: {
           tenantId: "tenant-1",
           code: "A1",
+          name: null,
           amount: 1000,
           quantity: 5,
           availableQty: 5,

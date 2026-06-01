@@ -153,6 +153,11 @@ TWILIO_WHATSAPP_NUMBER=<votre-numero-whatsapp>  # Format E.164, ex. +14155238886
 - le worker Railway n'a besoin que de `QSTASH_TOKEN` pour publier les jobs outbox
 - `QSTASH_CURRENT_SIGNING_KEY` et `QSTASH_NEXT_SIGNING_KEY` sont requises sur les routes HTTP QStash (`/api/qstash/*`), typiquement côté Vercel
 
+**Note crons métier Railway:**
+- les crons métier tournent dans le worker Railway via pg-boss : `reservation-ttl`, `close-sessions`, `deposit-expiry`, `meta-catalogue-sync`, `subscription-expired`
+- les routes HTTP `/api/cron/*` restent uniquement des fallbacks manuels / ops et exigent `Authorization: Bearer <CRON_SECRET>`
+- définir `CRON_SECRET` en production sur Vercel et Railway, car la validation d'environnement production le requiert
+
 **Où trouver les valeurs:**
 - **DATABASE_URL:** [Neon Console](https://console.neon.tech) → Connection string
 - **REDIS_URL:** [Upstash Console](https://console.upstash.com) → Redis URL

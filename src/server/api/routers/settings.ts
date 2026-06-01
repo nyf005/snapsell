@@ -5,7 +5,7 @@ import {
   normalizeMetaPhone,
 } from "~/lib/validations/phone";
 import { workerLogger } from "~/lib/logger";
-import { encrypt } from "~/lib/crypto";
+import { decrypt, encrypt } from "~/lib/crypto";
 import { getProviderForTenant } from "~/server/messaging/service";
 import { db } from "~/server/db";
 import {
@@ -20,6 +20,7 @@ import {
   listCategoryPricesInputSchema,
   setBusinessConfigInputSchema,
   selectMetaCatalogInputSchema,
+  selectWhatsAppTemplateInputSchema,
 } from "./settings.schema";
 import {
   MetaEmbeddedSignupError,
@@ -27,6 +28,79 @@ import {
 } from "~/server/messaging/providers/meta/embedded-signup";
 
 import { env } from "~/env";
+
+type WhatsAppTemplate = {
+  id?: string;
+  name: string;
+  language: string;
+  category: string;
+  status: string;
+};
+
+async function getTenantMetaTemplateAccess(tenantId: string): Promise<{
+  metaWabaId: string;
+  metaPhoneNumberId: string;
+  metaAccessToken: string;
+  whatsappTemplateName: string | null;
+  whatsappTemplateLanguage: string | null;
+  whatsappTemplateCategory: string | null;
+  accessToken: string;
+}> {
+  const tenant = await db.tenant.findUnique({
+    where: { id: tenantId },
+    select: {
+      metaWabaId: true,
+      metaPhoneNumberId: true,
+      metaAccessToken: true,
+      whatsappTemplateName: true,
+      whatsappTemplateLanguage: true,
+      whatsappTemplateCategory: true,
+    },
+  });
+
+  if (!tenant?.metaWabaId || !tenant.metaPhoneNumberId || !tenant.metaAccessToken) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Connectez d'abord votre compte WhatsApp Business.",
+    });
+  }
+
+  return {
+    metaWabaId: tenant.metaWabaId,
+    metaPhoneNumberId: tenant.metaPhoneNumberId,
+    metaAccessToken: tenant.metaAccessToken,
+    whatsappTemplateName: tenant.whatsappTemplateName,
+    whatsappTemplateLanguage: tenant.whatsappTemplateLanguage,
+    whatsappTemplateCategory: tenant.whatsappTemplateCategory,
+    accessToken: decrypt(tenant.metaAccessToken),
+  };
+}
+
+async function fetchWhatsAppTemplatesFromMeta(opts: {
+  wabaId: string;
+  accessToken: string;
+}): Promise<WhatsAppTemplate[]> {
+  const res = await fetch(
+    `https://graph.facebook.com/v21.0/${encodeURIComponent(opts.wabaId)}/message_templates?fields=id,name,language,category,status&limit=100`,
+    { headers: { Authorization: `Bearer ${opts.accessToken}` } },
+  );
+
+  if (!res.ok) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Impossible de récupérer les templates WhatsApp. Vérifiez vos permissions WhatsApp Business Management.",
+    });
+  }
+
+  const body = (await res.json()) as { data?: WhatsAppTemplate[] };
+  return (body.data ?? []).map((template) => ({
+    id: template.id,
+    name: template.name,
+    language: template.language,
+    category: template.category,
+    status: template.status,
+  }));
+}
 
 /**
  * Valide les identifiants Meta auprès de l'API Graph.
@@ -477,6 +551,66 @@ export const settingsRouter = createTRPCRouter({
         where: { id: ctx.session.user.tenantId },
         data: { metaCatalogId: input.catalogId, hasMetaCatalogSync: true },
       });
+      return { ok: true };
+    }),
+
+  fetchWhatsAppTemplates: managerProcedure.query(async ({ ctx }) => {
+    const tenant = await getTenantMetaTemplateAccess(ctx.session.user.tenantId);
+    const templates = await fetchWhatsAppTemplatesFromMeta({
+      wabaId: tenant.metaWabaId,
+      accessToken: tenant.accessToken,
+    });
+
+    const sortedTemplates = [...templates].sort((a, b) => {
+      if (a.status === "APPROVED" && b.status !== "APPROVED") return -1;
+      if (a.status !== "APPROVED" && b.status === "APPROVED") return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    return {
+      templates: sortedTemplates,
+      selectedTemplate:
+        tenant.whatsappTemplateName && tenant.whatsappTemplateLanguage
+          ? {
+              name: tenant.whatsappTemplateName,
+              language: tenant.whatsappTemplateLanguage,
+              category: tenant.whatsappTemplateCategory,
+            }
+          : null,
+    };
+  }),
+
+  selectWhatsAppTemplate: managerProcedure
+    .input(selectWhatsAppTemplateInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const tenant = await getTenantMetaTemplateAccess(ctx.session.user.tenantId);
+      const templates = await fetchWhatsAppTemplatesFromMeta({
+        wabaId: tenant.metaWabaId,
+        accessToken: tenant.accessToken,
+      });
+      const matchingTemplate = templates.find(
+        (template) =>
+          template.name === input.name &&
+          template.language === input.language &&
+          template.status === "APPROVED",
+      );
+
+      if (!matchingTemplate) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Sélectionnez un template WhatsApp approuvé.",
+        });
+      }
+
+      await db.tenant.update({
+        where: { id: ctx.session.user.tenantId },
+        data: {
+          whatsappTemplateName: matchingTemplate.name,
+          whatsappTemplateLanguage: matchingTemplate.language,
+          whatsappTemplateCategory: matchingTemplate.category,
+        },
+      });
+
       return { ok: true };
     }),
 });

@@ -68,7 +68,16 @@ export const env = createEnv({
     QSTASH_CURRENT_SIGNING_KEY: z.string().min(1).optional(),
     QSTASH_NEXT_SIGNING_KEY: z.string().min(1).optional(),
     // Secret partagé pour sécuriser les routes Vercel Cron (header Authorization: Bearer <CRON_SECRET>)
-    CRON_SECRET: z.string().min(1).optional(),
+    CRON_SECRET: z
+      .string()
+      .min(1)
+      .optional()
+      .refine(
+        (val) =>
+          process.env.NODE_ENV !== "production" ||
+          (typeof val === "string" && val.length > 0),
+        { message: "CRON_SECRET is required in production" },
+      ),
     // Meta WhatsApp Cloud API (Story 10.1)
     META_APP_ID: z.string().min(1).optional(),
     META_APP_SECRET: z.string().min(1).optional(),

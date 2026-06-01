@@ -12,6 +12,7 @@ import { db } from "~/server/db";
 import type { PgBossJob } from "./queues";
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { startSellerVariantConfig } from "~/server/conversation/sellerVariantConfig";
+import type { Tenant } from "../../../generated/prisma";
 
 // Mock Prisma client
 vi.mock("~/server/db", () => ({
@@ -22,7 +23,7 @@ vi.mock("~/server/db", () => ({
     },
     tenant: {
       findUnique: vi.fn().mockResolvedValue(null),
-      update: vi.fn().mockResolvedValue({}),
+      update: vi.fn(),
     },
     conversationWindow: {
       findFirst: vi.fn().mockResolvedValue(null),
@@ -36,6 +37,7 @@ vi.mock("~/server/db", () => ({
       findUnique: vi.fn().mockResolvedValue(null),
       upsert: vi.fn().mockResolvedValue({}),
       update: vi.fn().mockResolvedValue({}),
+      deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
     catalogueItem: {
       findFirst: vi.fn().mockResolvedValue(null),
@@ -75,21 +77,65 @@ vi.mock("./queues", () => ({
   QUEUE: { WEBHOOK_PROCESSING: "webhook-processing", OUTBOX_SEND: "outbox-send", OUTBOX_DLQ: "outbox-dlq" },
 }));
 
-// Helper to set up common client message mocks
-function setupClientMocks(plan = "starter") {
-  vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
-  vi.mocked(db.conversationWindow.findFirst).mockResolvedValue(null);
-  vi.mocked(db.tenant.findUnique).mockResolvedValue({
+function mockTenant(overrides: Partial<Tenant> = {}): Tenant {
+  return {
     id: "tenant-123",
     name: "Test Vendor",
-    subscriptionPlan: plan,
+    metaPhoneNumberId: null,
+    metaWabaId: null,
+    metaAccessToken: null,
     requireDeposit: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    subscriptionPlan: "starter",
+    subscriptionStatus: "active",
+    subscriptionExpiresAt: null,
+    cycleStartedAt: null,
+    creditsBalance: 70,
+    creditsTotalMonthly: 70,
+    creditsBonus: 0,
+    usageResetDate: null,
+    lowCreditsAlerted: false,
+    paystackCustomerCode: null,
+    paystackSubscriptionCode: null,
+    paystackEmailToken: null,
+    paystackAuthorizationCode: null,
+    maxConfirmedOrdersPerMonth: 50,
+    maxProofsPerMonth: 20,
+    maxAgents: 0,
+    overagePerOrderCents: 0,
+    hasAI: false,
+    hasExportCsv: false,
+    hasAdvancedExports: false,
+    hasNotificationsOutside24h: false,
+    hasDepositRecommended: false,
+    hasAdvancedFilters: false,
+    hasPrioritySupport: false,
+    showBranding: true,
+    showUpgradeBanner: true,
     faqDelivery: "Livraison zone",
     faqPayment: "Espèces",
     faqLocation: "Paris",
     faqAvailability: "En stock",
-  });
-  vi.mocked(db.tenant.update).mockResolvedValue({});
+    metaCatalogId: null,
+    hasMetaCatalogSync: false,
+    whatsappTemplateName: null,
+    whatsappTemplateLanguage: null,
+    whatsappTemplateCategory: null,
+    businessHoursStart: null,
+    businessHoursEnd: null,
+    businessTimezone: null,
+    awayMessage: null,
+    ...overrides,
+  };
+}
+
+// Helper to set up common client message mocks
+function setupClientMocks(plan = "starter") {
+  vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+  vi.mocked(db.conversationWindow.findFirst).mockResolvedValue(null);
+  vi.mocked(db.tenant.findUnique).mockResolvedValue(mockTenant({ subscriptionPlan: plan }));
+  vi.mocked(db.tenant.update).mockResolvedValue(mockTenant());
   vi.mocked(db.conversationWindow.create).mockResolvedValue({ id: "window-new" } as never);
 }
 
@@ -430,18 +476,11 @@ describe("webhook-processor", () => {
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]); // client
       vi.mocked(db.conversationWindow.findFirst).mockResolvedValue(null); // no active window
-      vi.mocked(db.tenant.findUnique).mockResolvedValue({
-        id: tenantId,
-        name: "Test Vendor",
-        subscriptionPlan: "starter",
-        requireDeposit: false,
-        faqDelivery: "Livraison zone",
-        faqPayment: "Espèces",
-        faqLocation: "Paris",
-        faqAvailability: "En stock",
-      }); // Tenant with credits
-      vi.mocked(db.tenant.update).mockResolvedValue({});
-      vi.mocked(db.conversationWindow.create).mockResolvedValue({});
+      vi.mocked(db.tenant.findUnique).mockResolvedValue(
+        mockTenant({ id: tenantId, subscriptionPlan: "starter" }),
+      ); // Tenant with credits
+      vi.mocked(db.tenant.update).mockResolvedValue(mockTenant({ id: tenantId }));
+      vi.mocked(db.conversationWindow.create).mockResolvedValue({} as never);
       vi.mocked(db.optOut.findUnique).mockResolvedValue(null); // pas encore d'opt-out
       vi.mocked(db.optOut.create).mockResolvedValue({
         id: "optout-1",
@@ -487,16 +526,9 @@ describe("webhook-processor", () => {
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
       vi.mocked(db.conversationWindow.findFirst).mockResolvedValue(null);
-      vi.mocked(db.tenant.findUnique).mockResolvedValue({
-        id: tenantId,
-        name: "Test Vendor",
-        subscriptionPlan: "free",
-        requireDeposit: false,
-        faqDelivery: "Livraison zone",
-        faqPayment: "Espèces",
-        faqLocation: "Paris",
-        faqAvailability: "En stock",
-      });
+      vi.mocked(db.tenant.findUnique).mockResolvedValue(
+        mockTenant({ id: tenantId, subscriptionPlan: "free" }),
+      );
       vi.mocked(db.optOut.findUnique).mockResolvedValue({
         id: "optout-existing",
         tenantId,
@@ -617,13 +649,17 @@ describe("webhook-processor", () => {
 
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]); // client
       vi.mocked(db.conversationWindow.findFirst).mockResolvedValue({ id: "window-1" } as never); // active session, no credit consumed
-      vi.mocked(db.tenant.findUnique).mockResolvedValue({
-        id: tenantId,
-        name: "Test",
-        subscriptionPlan: "starter",
-        requireDeposit: false,
-        faqDelivery: "", faqPayment: "", faqLocation: "", faqAvailability: "",
-      });
+      vi.mocked(db.tenant.findUnique).mockResolvedValue(
+        mockTenant({
+          id: tenantId,
+          name: "Test",
+          subscriptionPlan: "starter",
+          faqDelivery: "",
+          faqPayment: "",
+          faqLocation: "",
+          faqAvailability: "",
+        }),
+      );
       const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
       vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
         id: "live-session-hello",
@@ -1324,7 +1360,7 @@ describe("webhook-processor", () => {
           tenantId,
           to: from,
           correlationId: "corr-oui",
-          body: expect.stringContaining("on a besoin d'un acompte"),
+          body: expect.stringContaining("preuve de paiement"),
         }),
       );
     });

@@ -45,6 +45,7 @@ export const QUEUE = {
   CRON_CLOSE_SESSIONS: "cron-close-sessions",
   CRON_DEPOSIT_EXPIRY: "cron-deposit-expiry",
   CRON_META_CATALOGUE_SYNC: "cron-meta-catalogue-sync",
+  CRON_SUBSCRIPTION_EXPIRED: "cron-subscription-expired",
 } as const;
 
 /**
@@ -81,6 +82,10 @@ export async function ensureQueues(): Promise<void> {
   });
 
   await boss.createQueue(QUEUE.CRON_META_CATALOGUE_SYNC, {
+    deleteAfterSeconds: 3600,
+  });
+
+  await boss.createQueue(QUEUE.CRON_SUBSCRIPTION_EXPIRED, {
     deleteAfterSeconds: 3600,
   });
 }

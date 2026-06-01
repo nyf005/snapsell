@@ -547,6 +547,7 @@ export class MetaCloudAdapter implements MessagingProvider {
     message: OutboundMessage,
     templateName: string,
     templateParams: string[] = [],
+    languageCode = "fr",
   ): Promise<ProviderSendResult> {
     try {
       const toNumber = message.to.replace(/^\+/, "");
@@ -558,7 +559,7 @@ export class MetaCloudAdapter implements MessagingProvider {
         type: "template",
         template: {
           name: templateName,
-          language: { code: "fr" },
+          language: { code: languageCode },
           components: templateParams.length > 0
             ? [{
                 type: "body",
