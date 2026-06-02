@@ -5,14 +5,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Bell,
   Check,
-  ExternalLink,
   Eye,
   EyeOff,
   Info,
   KeyRound,
   Phone,
   Plus,
-  RefreshCw,
   Trash2,
   Zap,
 } from "lucide-react";
@@ -42,13 +40,6 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { api } from "~/trpc/react";
 
 export function WhatsAppConfigContent() {
@@ -67,9 +58,6 @@ export function WhatsAppConfigContent() {
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [embeddedSignupError, setEmbeddedSignupError] = useState<string | null>(null);
-  const [selectedTemplateKey, setSelectedTemplateKey] = useState("");
-  const [templateNotice, setTemplateNotice] = useState<string | null>(null);
-  const [templateError, setTemplateError] = useState<string | null>(null);
 
   const utils = api.useUtils();
   const { data, isLoading } = api.settings.getWhatsAppConfig.useQuery();
@@ -124,18 +112,6 @@ export function WhatsAppConfigContent() {
     serverWabaId != null && serverWabaId !== "" &&
     serverHasToken;
 
-  const templatesQuery = api.settings.fetchWhatsAppTemplates.useQuery(undefined, {
-    enabled: isConnected,
-  });
-  const selectTemplate = api.settings.selectWhatsAppTemplate.useMutation({
-    onSuccess: () => {
-      setTemplateError(null);
-      setTemplateNotice("Template WhatsApp sélectionné.");
-      void utils.settings.fetchWhatsAppTemplates.invalidate();
-      setTimeout(() => setTemplateNotice(null), 3000);
-    },
-    onError: (e) => setTemplateError(e.message),
-  });
   const isLocked = isConnected && !isEditing;
 
   const fieldsComplete =
@@ -163,12 +139,6 @@ export function WhatsAppConfigContent() {
     hydrateFromServer();
   }, [data, hydrateFromServer]);
 
-  useEffect(() => {
-    const selected = templatesQuery.data?.selectedTemplate;
-    if (!selected) return;
-    setSelectedTemplateKey(`${selected.name}::${selected.language}`);
-  }, [templatesQuery.data?.selectedTemplate]);
-
   const handleSave = useCallback(() => {
     const phoneId = metaPhoneNumberId.trim();
     const wabaId = metaWabaId.trim();
@@ -193,25 +163,6 @@ export function WhatsAppConfigContent() {
     setSellerPhoneError(null);
     addSellerPhone.mutate({ phoneNumber: value });
   }, [newSellerPhone, addSellerPhone]);
-
-  const templates = templatesQuery.data?.templates ?? [];
-  const approvedTemplates = templates.filter((template) => template.status === "APPROVED");
-  const selectedTemplate = templates.find(
-    (template) => `${template.name}::${template.language}` === selectedTemplateKey,
-  );
-  const whatsappManagerTemplatesUrl = serverWabaId
-    ? `https://business.facebook.com/latest/whatsapp_manager/message_templates?asset_id=${encodeURIComponent(serverWabaId)}`
-    : "https://business.facebook.com/wa/manage/message-templates/";
-
-  const handleSelectTemplate = useCallback(() => {
-    if (!selectedTemplate) return;
-    setTemplateError(null);
-    selectTemplate.mutate({
-      name: selectedTemplate.name,
-      language: selectedTemplate.language,
-      category: selectedTemplate.category,
-    });
-  }, [selectTemplate, selectedTemplate]);
 
   const PLACEHOLDER = "+33612345678";
   const metaAppId = process.env.NEXT_PUBLIC_META_APP_ID ?? "";
@@ -611,152 +562,6 @@ export function WhatsAppConfigContent() {
                 </Alert>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border shadow-sm">
-          <CardHeader className="border-b border-border pb-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <CardTitle className="text-xl">Templates WhatsApp</CardTitle>
-                <CardDescription className="text-sm">
-                  Sélectionnez un template approuvé depuis le WABA connecté pour l&apos;associer au workspace.
-                </CardDescription>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="gap-2 sm:self-start"
-                asChild
-              >
-                <a href={whatsappManagerTemplatesUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink className="size-4" />
-                  WhatsApp Manager
-                </a>
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            {!isConnected ? (
-              <Alert className="border-dashed bg-muted/50">
-                <Info className="size-4 text-primary" />
-                <AlertDescription className="text-sm">
-                  Connectez d&apos;abord votre compte WhatsApp Business pour charger les templates du WABA.
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <div className="space-y-6">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
-                  <div className="min-w-0 flex-1 space-y-2">
-                    <Label className="text-sm font-semibold text-foreground">
-                      Template approuvé
-                    </Label>
-                    <Select
-                      value={selectedTemplateKey}
-                      onValueChange={setSelectedTemplateKey}
-                      disabled={templatesQuery.isLoading || approvedTemplates.length === 0}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue
-                          placeholder={
-                            templatesQuery.isLoading
-                              ? "Chargement des templates..."
-                              : "Choisir un template approuvé"
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {approvedTemplates.map((template) => (
-                          <SelectItem
-                            key={`${template.name}:${template.language}`}
-                            value={`${template.name}::${template.language}`}
-                          >
-                            {template.name} · {template.language}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="gap-2"
-                      disabled={templatesQuery.isFetching}
-                      onClick={() => void templatesQuery.refetch()}
-                    >
-                      <RefreshCw className="size-4" />
-                      Actualiser
-                    </Button>
-                    <Button
-                      type="button"
-                      className="gap-2 font-semibold"
-                      disabled={!selectedTemplate || selectTemplate.isPending}
-                      onClick={handleSelectTemplate}
-                    >
-                      <Check className="size-4" />
-                      {selectTemplate.isPending ? "Sélection..." : "Sélectionner"}
-                    </Button>
-                  </div>
-                </div>
-
-                {templatesQuery.isError && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{templatesQuery.error.message}</AlertDescription>
-                  </Alert>
-                )}
-
-                {templatesQuery.isLoading ? (
-                  <p className="text-sm text-muted-foreground">Chargement des templates WhatsApp...</p>
-                ) : templates.length === 0 ? (
-                  <div className="rounded-md border border-dashed border-border p-4">
-                    <p className="text-sm font-medium text-foreground">
-                      Aucun template trouvé sur ce WABA.
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Créez un template Utility dans WhatsApp Manager, puis revenez l&apos;actualiser ici.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="overflow-hidden rounded-md border border-border">
-                    <div className="grid grid-cols-[1fr_auto_auto] gap-3 border-b border-border bg-muted/40 px-3 py-2 text-xs font-semibold uppercase text-muted-foreground">
-                      <span>Template</span>
-                      <span>Catégorie</span>
-                      <span>Statut</span>
-                    </div>
-                    <div className="divide-y divide-border">
-                      {templates.slice(0, 8).map((template) => (
-                        <div
-                          key={`${template.name}:${template.language}:${template.status}`}
-                          className="grid grid-cols-[1fr_auto_auto] items-center gap-3 px-3 py-2 text-sm"
-                        >
-                          <div className="min-w-0">
-                            <p className="truncate font-medium text-foreground">{template.name}</p>
-                            <p className="text-xs text-muted-foreground">{template.language}</p>
-                          </div>
-                          <Badge variant="secondary">{template.category}</Badge>
-                          <Badge variant={template.status === "APPROVED" ? "success" : "outline"}>
-                            {template.status}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {templateError && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{templateError}</AlertDescription>
-                  </Alert>
-                )}
-                {templateNotice && (
-                  <Alert className="border-success/50 bg-success/10 text-success [&>svg]:text-success">
-                    <AlertDescription>{templateNotice}</AlertDescription>
-                  </Alert>
-                )}
-              </div>
-            )}
           </CardContent>
         </Card>
 
