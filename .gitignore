@@ -53,6 +53,10 @@ yarn-error.log*
 .opencode
 .claude/worktrees/
 
-# BMAD (ne pas pousser vers GitHub)
+# BMAD : l'outillage reste local (611 fichiers, ~5 Mo, réinstallable).
 _bmad
-_bmad-output
+
+# _bmad-output N'EST PAS ignoré : il contient la documentation du projet
+# (architecture.md, PRD, epics, artefacts d'implémentation). L'avoir exclu a coûté
+# cher — architecture.md a dérivé pendant deux migrations structurantes sans que
+# personne ne le voie, parce qu'un fichier hors du dépôt ne passe jamais en revue.

@@ -1,0 +1,148 @@
+# generated: 2026-02-04
+# project: SnapSell
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: "2026-02-04"
+project: SnapSell
+project_key: NOKEY
+tracking_system: file-system
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  epic-1: done
+  1-1-initialiser-le-projet-t3-app-prisma-structure-de-base: done
+  1-2-inscription-vendeur-creation-de-compte-et-tenant: done
+  1-3-connexion-au-dashboard-authentification: done
+  1-4-configurer-la-grille-categories-prix: done
+  1-5-configurer-les-frais-de-livraison-optionnel: done
+  1-6-connecter-whatsapp-twilio-au-tenant: done
+  1-7-inviter-un-agent-manager: done
+  epic-1-retrospective: done
+
+  epic-2: done
+  2-1-route-webhook-reception-verif-signature-idempotence-200-1-s: done
+  2-2-attribuer-le-message-au-tenant-et-router-vendeur-vs-client: done
+  2-3-event-log-minimal-webhook-received-message-sent-idempotent-ignored: done
+  2-4-envoi-sortant-via-outbox-retries-dlq: done
+  2-5-respect-du-stop-scope-tenant: done
+  2-6-creation-et-fermeture-automatiques-de-la-session-live: done
+  epic-2-retrospective: optional
+
+  epic-3: done
+  3-1-appliquer-le-prix-au-code-via-la-grille-categorie-prix: done
+  3-2-unicite-du-code-par-tenant-id-live-session-id-code: done
+  3-3-creer-un-item-unique-code-non-prepare-quantite-1: done
+  3-4-enregistrer-du-stock-prepare-via-whatsapp-code-xqte-photo-optionnelle: done
+  3-5-photo-vendeur-dernier-code-fenetre-2-min: done
+  3-6-blocage-a-la-reservation-reserved-qty-decrement-a-la-confirmation: done
+  3-7-extendre-categories-lettres-groupes-mots: done
+  epic-3-retrospective: done
+
+  epic-4: done
+  4-1-reserver-un-article-code-et-fournir-ladresse: done
+  4-2-code-inexistant-ou-typo-message-clair-suggestion: done
+  4-3-file-dattente-et-promotion-automatique-a-lexpiration: done
+  4-4-rappel-t-2-min-avant-expiration: done
+  4-5-regle-acompte-soft-locked-et-etats-de-paiement: done
+  epic-4-retrospective: done
+
+  epic-5: done
+  5-1-creer-une-commande-ss-xxxx-a-partir-dune-reservation-confirmee: done
+  5-2-gerer-les-statuts-de-commande-new-confirmed-delivered-cancelled: done
+  5-3-valider-ou-refuser-une-preuve-dacompte: done
+  5-4-notifier-la-cliente-par-whatsapp-des-changements-de-statut: done
+  epic-5-retrospective: done
+
+  epic-6: done
+  6-1-liste-des-commandes-avec-filtres-et-statuts: done
+  6-2-proofs-inbox-preuves-a-valider-dans-le-flux: done
+  6-3-mettre-a-jour-le-statut-dune-commande-prepa-livraison-livre-annule: done
+  6-4-live-ops-session-en-cours-reservations-liberer: done
+  6-5-export-csv-manager-et-affichage-audit-trail: done
+  6-6-tableau-de-bord-page-accueil-sidebar-live-ops: done
+  epic-6-retrospective: done
+
+  epic-7A: done
+  7A-1-landing-de-presentation-du-produit: done
+  7A-2-gerer-labonnement-les-entitlements-du-tenant: done
+  epic-7A-retrospective: done
+
+  epic-7B: done
+  7B-1-consulter-les-logs-devenements-correlation-id: done
+  7B-2-consulter-la-file-derreurs-dlq-media-envoi-echoue: done
+  7B-3-definir-le-scope-stop-tenant-et-messages-autorises-apres-stop: done
+  epic-7B-retrospective: done
+
+  epic-8: done
+  8-1-catalogue-persistant-et-reservation-par-code: done
+  8-2-alimentation-catalogue-fin-session-crud-dashboard: done
+  8-3-lancer-le-live-par-clic: done
+  epic-8-retrospective: done
+
+  epic-9: done
+  9-1-refactorer-catalogue-session-sentinel: done
+  9-2-upload-photo-catalogue-dashboard: done
+  9-3-upload-photo-catalogue-whatsapp: done
+  9-4-photo-dans-messages-whatsapp-confirmation: done
+  epic-9-retrospective: done
+
+  epic-10: done
+  10-1-env-vars-meta-champs-prisma-page-settings: done
+  10-2-metacloudadapter-send-parseinbound-verifysignature: done
+  10-3-webhook-meta-get-challenge-post-inbound-schema-zod: done
+  10-4-outbox-sender-remplacer-twilio-par-meta: done
+  10-5-test-bout-en-bout-meta: done
+  10-6-supprimer-twilio-adapter-webhook-env-vars-dependance-npm: done
+  epic-10-retrospective: done
+
+  epic-11: done
+  11-1-migrer-bullmq-redis-vers-pg-boss-postgres: done
+  epic-11-retrospective: optional
+
+  epic-12: done
+  12-1-sdk-meta-embedded-signup-bouton-connecter-whatsapp-business: done
+  12-2-backend-oauth-callback-meta-stockage-automatique-credentials: done
+  12-3-reconnexion-guidee-tenants-existants: done
+  12-4-tests-end-to-end-embedded-signup-sandbox-meta: done
+  12-5-auto-ajout-numero-business-dans-seller-phones: done
+  epic-12-retrospective: done
+
+  epic-13: done
+  13-1-chiffrement-at-rest-meta-access-token: done
+  13-2-session-revocation-token-version: done
+  13-3-rate-limiting-trpc-upstash-redis: done
+  13-4-qstash-outbox-option-a: done
+  13-5-vercel-cron-jobs-option-a: done
+  13-6-health-check-endpoint: done
+  epic-13-retrospective: optional
