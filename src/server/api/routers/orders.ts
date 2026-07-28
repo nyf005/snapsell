@@ -105,7 +105,7 @@ export const ordersRouter = createTRPCRouter({
       const tenantId = ctx.session.user.tenantId;
       const tenantFeatures = await db.tenant.findUnique({
         where: { id: tenantId },
-        select: { hasExportCsv: true },
+        select: { hasExportCsv: true, hasAdvancedExports: true },
       });
       if (!tenantFeatures?.hasExportCsv) {
         throw new TRPCError({
@@ -113,6 +113,13 @@ export const ordersRouter = createTRPCRouter({
           message: "L'export CSV est disponible à partir du plan Starter.",
         });
       }
+
+      // Différenciation Starter / Pro : `hasAdvancedExports` n'ouvre pas de filtre
+      // supplémentaire — l'UI envoie déjà les mêmes filtres à tous les plans — mais
+      // enrichit le fichier produit. Choix délibéré : le Pro GAGNE des colonnes,
+      // le Starter ne perd rien de ce qu'il exportait déjà.
+      const advanced = tenantFeatures.hasAdvancedExports;
+
       const where = buildOrdersWhere(tenantId, {
         status: input?.status,
         dateFrom: input?.dateFrom,
@@ -126,8 +133,12 @@ export const ordersRouter = createTRPCRouter({
           reservation: {
             select: {
               clientPhone: true,
+              quantity: true,
+              addressCommune: true,
+              addressCity: true,
               liveItem: { select: { code: true } },
               catalogueItem: { select: { code: true } },
+              variant: { select: { label: true } },
             },
           },
         },
@@ -138,15 +149,45 @@ export const ordersRouter = createTRPCRouter({
           message: `Trop de commandes (max ${EXPORT_CSV_MAX_ROWS}). Affinez les filtres (statut, période).`,
         });
       }
-      const headers = ["orderNumber", "status", "depositStatus", "createdAt", "clientPhone", "liveItemCode"];
-      const rows = orders.map((o) => [
-        o.orderNumber,
-        o.status,
-        o.depositStatus ?? "",
-        o.createdAt.toISOString(),
-        maskPhone(o.reservation.clientPhone),
-        o.reservation.catalogueItem?.code ?? o.reservation.liveItem?.code ?? "",
-      ]);
+
+      const baseHeaders = [
+        "orderNumber",
+        "status",
+        "depositStatus",
+        "createdAt",
+        "clientPhone",
+        "liveItemCode",
+      ];
+      const advancedHeaders = [
+        "quantity",
+        "variant",
+        "addressCommune",
+        "addressCity",
+        "depositExpiresAt",
+        "updatedAt",
+      ];
+      const headers = advanced ? [...baseHeaders, ...advancedHeaders] : baseHeaders;
+
+      const rows = orders.map((o) => {
+        const base = [
+          o.orderNumber,
+          o.status,
+          o.depositStatus ?? "",
+          o.createdAt.toISOString(),
+          maskPhone(o.reservation.clientPhone),
+          o.reservation.catalogueItem?.code ?? o.reservation.liveItem?.code ?? "",
+        ];
+        if (!advanced) return base;
+        return [
+          ...base,
+          String(o.reservation.quantity),
+          o.reservation.variant?.label ?? "",
+          o.reservation.addressCommune ?? "",
+          o.reservation.addressCity ?? "",
+          o.depositExpiresAt?.toISOString() ?? "",
+          o.updatedAt.toISOString(),
+        ];
+      });
       const csvLines = [
         headers.map(escapeCsvCell).join(","),
         ...rows.map((row) => row.map(escapeCsvCell).join(",")),

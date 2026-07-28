@@ -29,7 +29,13 @@ export const eventLogRouter = createTRPCRouter({
       }
       const opts: Partial<ListEventLogsInput> = input ?? {};
       const limit = opts.limit ?? 50;
-      const where = buildEventLogWhere(tenantId, opts);
+      // « Audit renforcé » (Pro) = historique complet. Sans lui, le journal est borné
+      // aux 90 derniers jours — voir AUDIT_RETENTION_DAYS_WITHOUT_ADVANCED.
+      const auditFeatures = await db.tenant.findUnique({
+        where: { id: tenantId },
+        select: { hasAdvancedFilters: true },
+      });
+      const where = buildEventLogWhere(tenantId, opts, auditFeatures?.hasAdvancedFilters ?? false);
       const rows = await db.eventLog.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -69,7 +75,7 @@ export const eventLogRouter = createTRPCRouter({
       }
       const tenantFeatures = await db.tenant.findUnique({
         where: { id: tenantId },
-        select: { hasExportCsv: true },
+        select: { hasExportCsv: true, hasAdvancedFilters: true },
       });
       if (!tenantFeatures?.hasExportCsv) {
         throw new TRPCError({
@@ -78,7 +84,9 @@ export const eventLogRouter = createTRPCRouter({
         });
       }
       const opts = input ?? {};
-      const where = buildEventLogWhere(tenantId, opts);
+      // Même borne d'historique que la consultation : l'export ne doit pas être
+      // une porte dérobée pour récupérer un journal plus profond que la liste.
+      const where = buildEventLogWhere(tenantId, opts, tenantFeatures.hasAdvancedFilters);
       const rows = await db.eventLog.findMany({
         where,
         orderBy: { createdAt: "desc" },

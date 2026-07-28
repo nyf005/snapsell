@@ -33,8 +33,8 @@ describe("Story 7A.2: subscription-plans config", () => {
       expect(free.entitlements.showUpgradeBanner).toBe(true);
     });
 
-    it("has no overage label", () => {
-      expect(free.overageLabel).toBeUndefined();
+    it("n'affiche pas de recharge (le plan Free bloque au lieu de proposer un pack)", () => {
+      expect(free.creditPackLabel).toBeUndefined();
     });
   });
 

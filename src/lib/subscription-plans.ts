@@ -13,15 +13,32 @@ export interface PlanEntitlements {
   maxConfirmedOrdersPerMonth: number;
   maxProofsPerMonth: number; // -1 = illimité
   maxAgents: number;
-  overagePerOrderCents: number; // 0 = blocage (Free)
+  /**
+   * @deprecated Vestige du modèle « dépassement facturé », abandonné au profit du
+   * prépayé (packs de crédits). Plus aucun prélèvement ne s'appuie dessus ; seul
+   * `getUsageThisCycle` s'en sert pour un montant indicatif non affiché.
+   */
+  overagePerOrderCents: number;
   creditsTotalMonthly: number; // Credits d'automatisation (sessions 24h)
-  hasAI: boolean; // AI Analysis pour les messages entrants
-  hasExportCsv: boolean;
-  hasAdvancedExports: boolean;
+  hasAI: boolean; // Analyse IA des messages entrants
+  hasExportCsv: boolean; // Accès à l'export CSV (commandes + journal)
+  hasAdvancedExports: boolean; // Colonnes enrichies dans l'export commandes
+  /**
+   * Envoi de notifications hors fenêtre WhatsApp de 24h, via templates Meta approuvés.
+   *
+   * ⚠️ NON IMPLÉMENTÉ — `MetaCloudAdapter.sendTemplate()` existe mais n'est appelé
+   * nulle part. Aucun plan ne bénéficie donc de l'envoi hors 24h aujourd'hui, et
+   * tous — Free inclus — reçoivent les notifications de statut dans la fenêtre.
+   *
+   * Ce flag n'est volontairement associé à AUCUN garde-fou : verrouiller une capacité
+   * inexistante n'apporterait rien, et priver Free des notifications qu'il reçoit déjà
+   * serait une régression. Le drapeau reste prêt pour la livraison des templates —
+   * voir docs/plan-whatsapp-template-workflows.md.
+   */
   hasNotificationsOutside24h: boolean;
-  hasDepositRecommended: boolean;
-  hasAdvancedFilters: boolean;
-  hasPrioritySupport: boolean;
+  hasDepositRecommended: boolean; // Active requireDeposit à la souscription
+  hasAdvancedFilters: boolean; // « Audit renforcé » : journal sans limite de durée
+  hasPrioritySupport: boolean; // Processus humain — aucun garde-fou applicatif
   showBranding: boolean;
   showUpgradeBanner: boolean;
 }
@@ -38,7 +55,16 @@ export interface PlanConfig {
   paystackPlanCodeEnv: string | null;
   entitlements: PlanEntitlements;
   features: string[]; // Pour affichage page Tarifs
-  overageLabel?: string; // Ex: "2 500 FCFA / 100 conversations"
+  /**
+   * Mention affichée sous le prix pour les recharges de conversations.
+   *
+   * ⚠️ Le modèle est **prépayé** : une fois les conversations du mois épuisées, les
+   * nouvelles sessions sont bloquées jusqu'à l'achat d'un pack. Il n'y a pas de
+   * dépassement facturé a posteriori. La formulation doit donc annoncer une recharge,
+   * pas un compteur — l'ancien libellé « + 2 500 FCFA / 100 conversations » laissait
+   * croire à un postpayé au compteur.
+   */
+  creditPackLabel?: string;
   /** Prix d'un pack de 100 crédits supplémentaires (FCFA). null = non disponible. */
   creditPackPriceFCFA: number | null;
 }
@@ -106,11 +132,12 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       "500 conversations client / mois",
       "1 vendeur + 1 agent",
       "Suivi complet des preuves de paiement",
-      "Export CSV basique",
+      "Export CSV des commandes et du journal",
       "Notifications statut",
       "Acompte recommandé (défaut ON)",
+      "Journal d'activité sur 90 jours",
     ],
-    overageLabel: "2 500 FCFA / 100 conversations",
+    creditPackLabel: "Recharge : 2 500 FCFA les 100 conversations",
     creditPackPriceFCFA: 2_500,
   },
   pro: {
@@ -141,13 +168,13 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
     features: [
       "1 500 conversations client / mois",
       "Jusqu'à 5 agents",
-      "Filtres avancés + audit renforcé",
-      "Export CSV avancé (multi-filtres)",
+      "Journal d'activité sans limite de durée",
+      "Export CSV enrichi (quantité, variante, commune, délais)",
       "Notifications statut",
       "Acompte recommandé",
       "Support prioritaire",
     ],
-    overageLabel: "2 000 FCFA / 100 conversations",
+    creditPackLabel: "Recharge : 2 000 FCFA les 100 conversations",
     creditPackPriceFCFA: 2_000,
   },
 };
@@ -168,14 +195,6 @@ export function getPlanConfig(planId: string): PlanConfig {
     throw new Error(`Unknown plan: ${planId}`);
   }
   return plan;
-}
-
-/** Get plan config by Paystack plan code (resolved from env at runtime) */
-export function getPlanByPaystackCode(planCode: string): PlanConfig | undefined {
-  return Object.values(SUBSCRIPTION_PLANS).find((p) => {
-    const code = getPaystackPlanCode(p);
-    return code != null && code === planCode;
-  });
 }
 
 /**

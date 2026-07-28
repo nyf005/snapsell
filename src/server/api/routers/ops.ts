@@ -163,8 +163,10 @@ export const opsRouter = createTRPCRouter({
         const { tenantId, ...opts } = input;
         const limit = opts.limit ?? 50;
 
-        // buildEventLogWhere gère tenantId optionnel + tous les filtres (dates, eventType, correlationId)
-        const where = buildEventLogWhere(tenantId, opts);
+        // buildEventLogWhere gère tenantId optionnel + tous les filtres (dates, eventType, correlationId).
+        // Console OPS interne : historique complet, volontairement NON borné par le plan
+        // du tenant — le support doit pouvoir investiguer au-delà de 90 jours.
+        const where = buildEventLogWhere(tenantId, opts, true);
 
         // Vérifier que le tenant existe si fourni
         if (tenantId) await assertTenantExists(tenantId);

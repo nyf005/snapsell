@@ -42,7 +42,12 @@ describe("eventLog router", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockTenantFindUnique.mockResolvedValue({ hasExportCsv: true });
+    // Par défaut : tenant Pro (audit renforcé) → historique complet, aucun plancher de
+    // date injecté. Les tests portant sur la borne des 90 jours redéfinissent ce mock.
+    mockTenantFindUnique.mockResolvedValue({
+      hasExportCsv: true,
+      hasAdvancedFilters: true,
+    });
   });
 
   describe("list", () => {
@@ -309,6 +314,99 @@ describe("eventLog router", () => {
           take: 10_001,
         }),
       );
+    });
+  });
+
+  describe("audit renforcé (hasAdvancedFilters)", () => {
+    /** Borne haute tolérante : le plancher est calculé à l'exécution. */
+    function daysAgo(n: number): Date {
+      const d = new Date();
+      d.setUTCDate(d.getUTCDate() - n);
+      d.setUTCHours(0, 0, 0, 0);
+      return d;
+    }
+
+    it("borne le journal à 90 jours sans audit renforcé", async () => {
+      mockTenantFindUnique.mockResolvedValue({
+        hasExportCsv: true,
+        hasAdvancedFilters: false,
+      });
+      mockEventLogFindMany.mockResolvedValue([]);
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+      await caller.eventLog.list({});
+
+      const call = mockEventLogFindMany.mock.calls[0]![0] as {
+        where: { createdAt?: { gte?: Date } };
+      };
+      expect(call.where.createdAt?.gte).toEqual(daysAgo(90));
+    });
+
+    it("n'impose aucune borne avec audit renforcé", async () => {
+      mockTenantFindUnique.mockResolvedValue({
+        hasExportCsv: true,
+        hasAdvancedFilters: true,
+      });
+      mockEventLogFindMany.mockResolvedValue([]);
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+      await caller.eventLog.list({});
+
+      const call = mockEventLogFindMany.mock.calls[0]![0] as {
+        where: { createdAt?: unknown };
+      };
+      expect(call.where.createdAt).toBeUndefined();
+    });
+
+    it("ne relâche pas une borne demandée plus récente que le plancher", async () => {
+      mockTenantFindUnique.mockResolvedValue({
+        hasExportCsv: true,
+        hasAdvancedFilters: false,
+      });
+      mockEventLogFindMany.mockResolvedValue([]);
+
+      const recent = daysAgo(7).toISOString().slice(0, 10);
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+      await caller.eventLog.list({ dateFrom: recent });
+
+      const call = mockEventLogFindMany.mock.calls[0]![0] as {
+        where: { createdAt?: { gte?: Date } };
+      };
+      // La demande de l'utilisateur (7 jours) est plus restrictive : on la conserve.
+      expect(call.where.createdAt?.gte).toEqual(daysAgo(7));
+    });
+
+    it("l'export applique la même borne que la consultation", async () => {
+      mockTenantFindUnique.mockResolvedValue({
+        hasExportCsv: true,
+        hasAdvancedFilters: false,
+      });
+      mockEventLogFindMany.mockResolvedValue([]);
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+      await caller.eventLog.exportCsv({});
+
+      const call = mockEventLogFindMany.mock.calls[0]![0] as {
+        where: { createdAt?: { gte?: Date } };
+      };
+      // Sinon l'export serait une porte dérobée vers un historique plus profond.
+      expect(call.where.createdAt?.gte).toEqual(daysAgo(90));
     });
   });
 });

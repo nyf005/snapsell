@@ -295,16 +295,14 @@ export default async function TarifsPage(props: TarifsPageProps) {
 
                     <p
                       className={`mt-2 h-4 text-xs ${
-                        plan.overageLabel
+                        plan.creditPackLabel
                           ? isPopular
                             ? "text-primary-foreground/65"
                             : "text-muted-foreground"
                           : "invisible"
                       }`}
                     >
-                      {plan.overageLabel
-                        ? `+ ${plan.overageLabel}`
-                        : "\u00A0"}
+                      {plan.creditPackLabel ?? "\u00A0"}
                     </p>
                   </div>
 
