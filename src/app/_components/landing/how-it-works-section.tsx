@@ -11,9 +11,9 @@ const steps = [
   },
   {
     number: 2,
-    title: "Lancez votre live",
+    title: "Connectez WhatsApp",
     description:
-      "Connectez WhatsApp, diffusez vos produits. SnapSell gère les réservations et la file d'attente en DM automatiquement.",
+      "Votre numéro actuel reçoit les codes. L’assistant réserve, répond et tient la file d’attente — pendant un live comme au fil de la journée.",
   },
   {
     number: 3,
@@ -25,14 +25,20 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section className="bg-muted/40 py-24 lg:py-36">
+    <section className="overflow-hidden bg-muted/40 py-24 lg:py-36">
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col items-center gap-16 lg:flex-row lg:gap-20">
           {/* Left — Steps */}
           <div className="lg:w-1/2">
             <AnimateOnScroll animation="fade-up">
+              {/*
+                Ce titre annonçait « Opérationnel en 5 minutes » alors que
+                `marketing.promise.setup` — affiché dans le hero et sur Tarifs —
+                promet autre chose. Deux délais concurrents sur la même page :
+                on garde la promesse canonique comme seule source.
+              */}
               <h2 className="mb-12 text-3xl font-extrabold lg:text-5xl">
-                Opérationnel en 5 minutes
+                Trois étapes, et c’est en route
               </h2>
             </AnimateOnScroll>
 
@@ -139,7 +145,7 @@ export function HowItWorksSection() {
                         rupture temporaire
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        Vous serez notifiée si le stock revient.
+                        Je te préviens si l’article se libère.
                       </p>
                       <p className="mt-1 text-right text-[10px] text-muted-foreground">
                         14:33

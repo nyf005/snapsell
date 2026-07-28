@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { marketing } from "~/lib/copy/marketing";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -8,6 +9,7 @@ import { signIn } from "next-auth/react";
 import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
+import { formatErrorText } from "~/lib/copy";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { api } from "~/trpc/react";
@@ -68,10 +70,14 @@ function InviteAcceptContent() {
         }
       }
       
-      // Si échec après retries, rediriger vers login avec message
+      // La cause réelle vient de next-auth, en anglais : elle part dans la console
+      // pour le diagnostic, jamais à l'écran.
+      if (lastError) {
+        console.error("[invite] connexion automatique échouée:", lastError);
+      }
+
       setError(
-        result.message ??
-          "Compte créé avec succès, mais la connexion automatique a échoué. Veuillez vous connecter manuellement."
+        "Compte créé. La connexion automatique n’a pas abouti : connectez-vous avec votre e-mail et votre mot de passe.",
       );
       setTimeout(() => {
         router.push("/login?callbackUrl=/dashboard&fromInvite=1&message=signin_failed&email=" + encodeURIComponent(email));
@@ -81,7 +87,7 @@ function InviteAcceptContent() {
       const errorCode = e.data?.code as string | undefined;
       if (errorCode === "CONFLICT") {
         // Gestion améliorée : message clair avec bouton pour se connecter
-        const conflictMessage = e.message ?? "Un compte existe déjà avec cet email.";
+        const conflictMessage = formatErrorText(e, "auth");
         setError(conflictMessage);
         // Redirection automatique après 3 secondes avec message explicite
         setTimeout(() => {
@@ -92,7 +98,7 @@ function InviteAcceptContent() {
           "Cette invitation a déjà été utilisée ou a expiré. Demandez un nouveau lien à votre responsable."
         );
       } else {
-        setError(e.message ?? "Erreur lors de l'acceptation. Veuillez réessayer.");
+        setError(formatErrorText(e, "auth"));
       }
     },
   });
@@ -178,7 +184,7 @@ function InviteAcceptContent() {
           Rejoindre l'équipe {invitation.tenantName}
         </h1>
         <p className="text-muted-foreground">
-          Vous avez été invité en tant qu'agent. Complétez votre inscription ci-dessous pour
+          Vous avez reçu une invitation comme agent. Complétez votre inscription ci-dessous pour
           accéder au tableau de bord.
         </p>
       </div>
@@ -226,7 +232,7 @@ function InviteAcceptContent() {
           <Input
             id="invite-name"
             type="text"
-            placeholder="Jean Dupont"
+            placeholder={marketing.placeholder.name}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className={inputClassName}

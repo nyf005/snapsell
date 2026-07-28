@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import React from "react";
 
 // Mock next dependencies
@@ -11,10 +11,12 @@ vi.mock("next/link", () => ({
   default: ({
     children,
     href,
+    prefetch: _prefetch,
     ...props
   }: {
     children: React.ReactNode;
     href: string;
+    prefetch?: boolean;
     [key: string]: unknown;
   }) => (
     <a href={href} {...props}>
@@ -65,7 +67,7 @@ vi.mock("~/trpc/react", () => ({
     }),
     orders: {
       list: {
-        useQuery: () => ({ data: ORDERS, isLoading: false }),
+        useQuery: () => ({ data: { items: ORDERS, nextCursor: null }, isLoading: false }),
       },
       updateStatus: {
         useMutation: () => ({
@@ -95,24 +97,44 @@ describe("OrdersListContent", () => {
   it("renders the page header", () => {
     render(<OrdersListContent />);
     expect(
-      screen.getByText("Gestion des commandes"),
+      screen.getByRole("heading", { name: "Commandes" }),
     ).toBeInTheDocument();
   });
 
-  it("renders all orders in the table", () => {
+  // DataList rend deux compositions complètes (tableau ≥ md, cartes en dessous) :
+  // chaque valeur apparaît deux fois dans le DOM, une seule étant visible.
+  it("renders all orders in the table", async () => {
     render(<OrdersListContent />);
-    expect(screen.getByText("CMD-2025-001")).toBeInTheDocument();
-    expect(screen.getByText("CMD-2025-002")).toBeInTheDocument();
-    expect(screen.getByText("CMD-2025-003")).toBeInTheDocument();
+    expect((await screen.findAllByText("CMD-2025-001")).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("CMD-2025-002").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("CMD-2025-003").length).toBeGreaterThan(0);
   });
 
-  it("displays status badges for each order", () => {
+  // Régression : l'onglet « À préparer » affichait des lignes marquées « Confirmée ».
+  it("un onglet d’état porte le même mot que le badge correspondant", async () => {
     render(<OrdersListContent />);
-    // Each status appears as both a tab label and a badge in the table.
-    // getAllByText confirms badges are rendered (at least 2 per status: tab + badge).
-    expect(screen.getAllByText("Confirmée").length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText("Livrée").length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText("Annulée").length).toBeGreaterThanOrEqual(2);
+    await screen.findAllByText("CMD-2025-001");
+
+    // « Confirmée » existe comme onglet ET comme badge : même mot des deux côtés.
+    expect(screen.getAllByText("Confirmée").length).toBeGreaterThan(1);
+    // Les anciens libellés divergents ont disparu.
+    expect(screen.queryByText("À préparer")).not.toBeInTheDocument();
+    expect(screen.queryByText("Prépa")).not.toBeInTheDocument();
+    // La seule vue transversale reste, sans équivalent en badge.
+    expect(screen.getByText("À traiter")).toBeInTheDocument();
+  });
+
+  it("expose chaque commande dans la composition mobile", async () => {
+    render(<OrdersListContent />);
+    const list = await screen.findByRole("list", { name: "Liste des commandes" });
+    expect(within(list).getAllByRole("listitem")).toHaveLength(3);
+  });
+
+  it("displays status badges for each order", async () => {
+    render(<OrdersListContent />);
+    expect((await screen.findAllByText("Confirmée")).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Livrée").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Annulée").length).toBeGreaterThan(0);
   });
 
   it("shows pending proofs link when proofs exist", () => {

@@ -34,6 +34,7 @@ import { isR2Configured } from "~/server/media/r2-client";
 import { createPaymentProof } from "~/server/proof/createPaymentProof";
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { botMsg } from "~/server/messaging/templates";
+import { getDeliveryFee } from "~/server/delivery/getDeliveryFee";
 import { createOrderFromReservation } from "~/server/order/createOrderFromReservation";
 import { upsertCatalogueItemFromWebhook } from "~/server/catalogue/upsertCatalogueItemFromWebhook";
 import { getConversationState, setHandedOff } from "~/server/conversation/conversationState";
@@ -72,7 +73,6 @@ const HANDOFF_KEYWORDS = [
 ];
 
 /** Pattern « code » client : lettre(s) + chiffre(s) ex. A12, B7 (Story 2.6 Option A) */
-const CLIENT_CODE_PATTERN = /^[A-Za-z]+\d+$/;
 
 /** Story 4.2 : extrait un candidat code (strict ou typo) depuis le body client */
 const CLIENT_CODE_INTENT_PATTERN = /^([A-Za-z]+\d+)(?:\s*[x\s]?\s*(\d+))?/i;
@@ -630,11 +630,22 @@ export async function processWebhookJob(
           if (collect.success) {
             const { code, amount, quantity, variantLabel, mediaStorageKey } =
               collect.reservation.item;
-            const displayPrice = amount
-              ? `${Math.round(amount / 100).toLocaleString("fr-FR")} FCFA`
-              : "—";
+
+            // Frais de livraison : commune > zone > « Intérieur du pays » > aucun.
+            // Voir src/lib/delivery/resolve-delivery-fee.ts.
+            const deliveryFee = await getDeliveryFee(
+              tenantId,
+              collect.reservation.addressCommune,
+            );
+
+            const formatFcfa = (cents: number) =>
+              `${Math.round(cents / 100).toLocaleString("fr-FR")} FCFA`;
+
+            const displayPrice = amount ? formatFcfa(amount) : "—";
+            const displayDelivery =
+              deliveryFee.amount !== null ? formatFcfa(deliveryFee.amount) : null;
             const displayTotal = amount
-              ? `${Math.round((amount * quantity) / 100).toLocaleString("fr-FR")} FCFA`
+              ? formatFcfa(amount * quantity + (deliveryFee.amount ?? 0))
               : "—";
             const label = `${code}${variantLabel ? ` [${variantLabel}]` : ""}${
               quantity > 1 ? ` (x${quantity})` : ""
@@ -643,7 +654,13 @@ export async function processWebhookJob(
               tenantId,
               to: clientPhoneE164,
               correlationId,
-              ...botMsg.client.recapInteractive(label, displayPrice, displayTotal, trimmedBody),
+              ...botMsg.client.recapInteractive(
+                label,
+                displayPrice,
+                displayTotal,
+                trimmedBody,
+                displayDelivery,
+              ),
               mediaUrl: mediaStorageKey || undefined,
             });
             return buildEnrichedMessage(liveSessionId);

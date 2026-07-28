@@ -24,7 +24,17 @@ export const authRouter = createTRPCRouter({
 
       const result = await db.$transaction(async (tx) => {
         const tenant = await tx.tenant.create({
-          data: { name: input.tenantName },
+          data: {
+            name: input.tenantName,
+            // Amorçage minimal : ces trois champs ne pilotent que le message
+            // d'absence, et `awayMessage` reste null — rien n'est donc envoyé.
+            // On n'amorce volontairement NI grille de prix, NI zones de livraison,
+            // NI réponses FAQ : ces valeurs partent telles quelles aux clientes sur
+            // WhatsApp, et un défaut non choisi par la vendeuse est irrattrapable.
+            businessTimezone: "Africa/Abidjan",
+            businessHoursStart: "08:00",
+            businessHoursEnd: "20:00",
+          },
         });
         const newUser = await tx.user.create({
           data: {

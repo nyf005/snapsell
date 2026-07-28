@@ -2,10 +2,23 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { api } from "~/trpc/react";
+import { formatDateTime, formatErrorText } from "~/lib/copy";
+import { DataList } from "~/components/ui/data-list";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
+import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
 import {
   Empty,
   EmptyDescription,
@@ -13,32 +26,14 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { Spinner } from "~/components/ui/spinner";
+
 import { ProofsListSkeleton } from "./proofs-skeletons";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
 import { DataPagination } from "~/components/ui/data-pagination";
 import { Check, FileCheck, Phone, X } from "lucide-react";
-import { cn } from "~/lib/utils";
+
 import type { RouterOutputs } from "~/trpc/react";
 
 type ProofOutput = RouterOutputs["proofs"]["listPending"]["items"][number];
-
-function formatProofDate(date: Date) {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
 
 export function ProofsListContent() {
   const utils = api.useUtils();
@@ -68,32 +63,36 @@ export function ProofsListContent() {
     if (nextCursor) setCursor(nextCursor);
   };
 
-  const resetPagination = () => {
-    setCursor(undefined);
-    setAccumulatedProofs([]);
-  };
-
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [rejectTarget, setRejectTarget] = useState<{ id: string; orderNumber: string } | null>(null);
+  const [showBulkReject, setShowBulkReject] = useState(false);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   const approve = api.proofs.approve.useMutation({
     onSuccess: () => {
+      setActionMessage("Preuve validée. La commande peut avancer.");
       void utils.proofs.listPending.invalidate();
     },
   });
   const reject = api.proofs.reject.useMutation({
     onSuccess: () => {
+      setActionMessage("Preuve refusée. Le message de suite part automatiquement.");
+      setRejectTarget(null);
       void utils.proofs.listPending.invalidate();
     },
   });
   const bulkApprove = api.proofs.bulkApprove.useMutation({
     onSuccess: () => {
+      setActionMessage(`${selectedIds.size} preuve${selectedIds.size > 1 ? "s" : ""} validée${selectedIds.size > 1 ? "s" : ""}.`);
       setSelectedIds(new Set());
       void utils.proofs.listPending.invalidate();
     },
   });
   const bulkReject = api.proofs.bulkReject.useMutation({
     onSuccess: () => {
+      setActionMessage(`${selectedIds.size} preuve${selectedIds.size > 1 ? "s" : ""} refusée${selectedIds.size > 1 ? "s" : ""}.`);
       setSelectedIds(new Set());
+      setShowBulkReject(false);
       void utils.proofs.listPending.invalidate();
     },
   });
@@ -131,7 +130,7 @@ export function ProofsListContent() {
 
   const handleBulkReject = () => {
     if (selectedIds.size === 0) return;
-    bulkReject.mutate({ proofIds: Array.from(selectedIds) });
+    setShowBulkReject(true);
   };
 
   return (
@@ -139,15 +138,22 @@ export function ProofsListContent() {
       <DashboardHeader />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
         <div className="space-y-8 p-6 md:p-8">
-          {/* Page header */}
-          <div className="flex flex-col gap-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-              Vérification des preuves d&apos;acompte
-            </h1>
-            <p className="text-base font-medium text-muted-foreground">
-              Consultez, validez ou refusez les preuves d&apos;acompte envoyées par les clientes pour confirmer leurs commandes.
-            </p>
-          </div>
+          <TaskPageHeader
+            href="/dashboard/proofs"
+            description="Comparez la preuve avec la commande, puis validez-la ou refusez-la. Un refus demande toujours confirmation."
+          />
+
+          {actionMessage ? (
+            <div
+              role="status"
+              className="flex items-center justify-between gap-3 rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm font-medium text-foreground"
+            >
+              <span>{actionMessage}</span>
+              <Button variant="ghost" size="sm" onClick={() => setActionMessage(null)}>
+                Fermer
+              </Button>
+            </div>
+          ) : null}
 
           <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
             {isLoading ? (
@@ -191,11 +197,16 @@ export function ProofsListContent() {
                   </div>
                 </div>
               )}
-              <div className="min-h-0 flex-1 overflow-x-auto">
-              <Table aria-label="Preuves d'acompte en attente de validation">
-                <TableHeader>
-                  <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
-                    <TableHead className="w-12 px-4 py-3 text-center">
+              <DataList
+                items={proofs}
+                getKey={(proof) => proof.id}
+                label="Preuves de paiement en attente de validation"
+                columns={[
+                  {
+                    id: "select",
+                    // Régression : la case « tout sélectionner » vivait dans
+                    // l'en-tête du tableau et avait disparu à la migration DataList.
+                    header: (
                       <button
                         type="button"
                         onClick={toggleAll}
@@ -204,142 +215,142 @@ export function ProofsListContent() {
                       >
                         {isAllSelected && <Check className="size-3" strokeWidth={3} />}
                       </button>
-                    </TableHead>
-                    <TableHead className="w-24 px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Aperçu
-                    </TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      N° commande
-                    </TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Type
-                    </TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Client
-                    </TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Reçue le
-                    </TableHead>
-                    <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {proofs.length === 0 ? (
-                    <TableRow className="hover:bg-transparent">
-                      <TableCell colSpan={7} className="px-6 py-16 text-center">
-                        <Empty className="mx-auto max-w-sm border-0 p-0">
-                          <EmptyHeader>
-                            <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
-                              <FileCheck />
-                            </EmptyMedia>
-                            <EmptyTitle>Aucune preuve en attente</EmptyTitle>
-                            <EmptyDescription>
-                              Les preuves d&apos;acompte envoyées par les clientes apparaîtront ici pour validation.
-                            </EmptyDescription>
-                          </EmptyHeader>
-                        </Empty>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    proofs.map((proof, idx) => (
-                      <TableRow
-                        key={proof.id}
-                        className={cn(
-                          "group border-border transition-colors hover:bg-muted/40",
-                          idx % 2 === 1 && "bg-muted/20",
-                        )}
+                    ),
+                    role: "hiddenOnMobile",
+                    headerClassName: "w-12 px-4 py-3 text-center",
+                    className: "px-4 py-3 text-center",
+                    cell: (proof) => (
+                      <button
+                        type="button"
+                        onClick={() => toggleOne(proof.id)}
+                        className="flex size-5 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                        aria-label={`Sélectionner la preuve ${proof.orderNumber}`}
                       >
-                        <TableCell className="px-4 py-3 text-center">
-                          <button
-                            type="button"
-                            onClick={() => toggleOne(proof.id)}
-                            className={cn(
-                              "flex size-5 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0",
-                            )}
-                            aria-label={`Sélectionner la preuve ${proof.orderNumber}`}
-                          >
-                            {selectedIds.has(proof.id) && (
-                              <Check className="size-3" strokeWidth={3} />
-                            )}
-                          </button>
-                        </TableCell>
-                        <TableCell className="px-6 py-4">
-                          {proof.mediaStorageKey ? (
-                            <a
-                              href={`/api/proofs/${proof.id}/media`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="relative block size-12 overflow-hidden rounded-lg border border-border bg-muted"
-                            >
-                              <img
-                                src={`/api/proofs/${proof.id}/media`}
-                                alt={`Preuve pour ${proof.orderNumber}`}
-                                className="absolute inset-0 size-full object-cover opacity-0 transition-[opacity,transform] duration-300 group-hover:scale-110"
-                                onLoad={(e) => e.currentTarget.classList.replace("opacity-0", "opacity-100")}
-                              />
-                            </a>
-                          ) : (
-                            <div className="flex size-12 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
-                              <FileCheck className="size-5" />
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="px-6 py-4">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-sm font-bold text-primary">
-                              {proof.orderNumber}
-                            </span>
-                            <Badge
-                              variant="secondary"
-                              className="w-fit bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                            >
-                              En attente
-                            </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell className="px-6 py-4 text-sm font-medium text-muted-foreground">
-                          {proof.mediaStorageKey ? "Image" : proof.textPayload ? "Texte" : "—"}
-                        </TableCell>
-                        <TableCell className="px-6 py-4">
-                          <div className="flex items-center gap-2 text-sm text-foreground">
-                            <Phone className="size-4 shrink-0 text-muted-foreground" />
-                            <span>{proof.clientPhone}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="px-6 py-4 text-sm text-muted-foreground">
-                          {formatProofDate(new Date(proof.createdAt))}
-                        </TableCell>
-                        <TableCell className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="size-8 rounded-md bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                              disabled={isPending}
-                              aria-label={`Refuser la preuve pour la commande ${proof.orderNumber}`}
-                              onClick={() => reject.mutate({ proofId: proof.id })}
-                            >
-                              <X className="size-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              className="h-8 rounded-md bg-primary px-3 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/20 hover:brightness-110"
-                              disabled={isPending}
-                              aria-label={`Valider la preuve pour la commande ${proof.orderNumber}`}
-                              onClick={() => approve.mutate({ proofId: proof.id })}
-                            >
-                              Valider
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-              </div>
+                        {selectedIds.has(proof.id) && (
+                          <Check className="size-3" strokeWidth={3} />
+                        )}
+                      </button>
+                    ),
+                  },
+                  {
+                    id: "preview",
+                    header: "Aperçu",
+                    role: "hiddenOnMobile",
+                    headerClassName:
+                      "w-24 px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    className: "px-6 py-4",
+                    cell: (proof) =>
+                      proof.mediaStorageKey ? (
+                        <a
+                          href={`/api/proofs/${proof.id}/media`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="relative block size-12 overflow-hidden rounded-lg border border-border bg-muted"
+                        >
+                          <img
+                            src={`/api/proofs/${proof.id}/media`}
+                            alt={`Preuve pour ${proof.orderNumber}`}
+                            className="absolute inset-0 size-full object-cover"
+                          />
+                        </a>
+                      ) : (
+                        <div className="flex size-12 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
+                          <FileCheck className="size-5" />
+                        </div>
+                      ),
+                  },
+                  {
+                    id: "order",
+                    header: "N° commande",
+                    role: "primary",
+                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    className: "px-6 py-4",
+                    cell: (proof) => (
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-bold text-primary">
+                          {proof.orderNumber}
+                        </span>
+                        <Badge
+                          variant="secondary"
+                          className="w-fit bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                        >
+                          En attente
+                        </Badge>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: "type",
+                    header: "Type",
+                    role: "meta",
+                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    className: "px-6 py-4 text-sm font-medium text-muted-foreground",
+                    cell: (proof) =>
+                      proof.mediaStorageKey ? "Image" : proof.textPayload ? "Texte" : "—",
+                  },
+                  {
+                    id: "client",
+                    header: "Client",
+                    role: "meta",
+                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    className: "px-6 py-4",
+                    cell: (proof) => (
+                      <div className="flex items-center gap-2 text-sm text-foreground">
+                        <Phone className="size-4 shrink-0 text-muted-foreground" />
+                        <span>{proof.clientPhone}</span>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: "createdAt",
+                    header: "Reçue le",
+                    role: "meta",
+                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    className: "px-6 py-4 text-sm text-muted-foreground",
+                    cell: (proof) => formatDateTime(new Date(proof.createdAt)),
+                  },
+                ]}
+                actions={(proof) => (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      disabled={isPending}
+                      aria-label={`Refuser la preuve pour la commande ${proof.orderNumber}`}
+                      onClick={() =>
+                        setRejectTarget({ id: proof.id, orderNumber: proof.orderNumber })
+                      }
+                    >
+                      <X className="size-4" />
+                      <span className="md:hidden">Refuser</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="rounded-md bg-primary px-3 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/20 hover:brightness-110"
+                      disabled={isPending}
+                      aria-label={`Valider la preuve pour la commande ${proof.orderNumber}`}
+                      onClick={() => approve.mutate({ proofId: proof.id })}
+                    >
+                      Valider
+                    </Button>
+                  </>
+                )}
+                empty={
+                  <Empty className="mx-auto max-w-sm border-0 p-0">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
+                        <FileCheck />
+                      </EmptyMedia>
+                      <EmptyTitle>Aucune preuve en attente</EmptyTitle>
+                      <EmptyDescription>
+                        Quand une preuve de paiement arrivera sur WhatsApp, elle
+                        apparaîtra ici pour que vous la validiez.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                }
+              />
               <DataPagination
                 totalItems={proofs.length}
                 pageSize={itemsPerPage}
@@ -354,17 +365,63 @@ export function ProofsListContent() {
 
           {(approve.isError || reject.isError || bulkApprove.isError || bulkReject.isError) && (
             <p role="alert" aria-live="polite" className="text-sm text-destructive">
-              {approve.error?.message ??
-                reject.error?.message ??
-                bulkApprove.error?.message ??
-                bulkReject.error?.message}
+              {formatErrorText(
+                approve.error ?? reject.error ?? bulkApprove.error ?? bulkReject.error,
+                "proofs",
+              )}
             </p>
           )}
 
-          {/* Barre flottante de sélection (style code.html) */}
+          <AlertDialog open={rejectTarget !== null} onOpenChange={(open) => !open && setRejectTarget(null)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Refuser cette preuve ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  La preuve de la commande {rejectTarget?.orderNumber} sera marquée comme refusée.
+                  Une nouvelle preuve pourra être envoyée selon le parcours actuel.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Garder la preuve</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => rejectTarget && reject.mutate({ proofId: rejectTarget.id })}
+                  disabled={reject.isPending}
+                  className="bg-destructive text-primary-foreground hover:bg-destructive/90"
+                >
+                  {reject.isPending ? "Refus…" : "Refuser la preuve"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <AlertDialog open={showBulkReject} onOpenChange={setShowBulkReject}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Refuser {selectedIds.size} preuve{selectedIds.size > 1 ? "s" : ""} ?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Chaque preuve sélectionnée sera marquée comme refusée. Vérifiez la sélection avant
+                  de continuer.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Revoir la sélection</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => bulkReject.mutate({ proofIds: Array.from(selectedIds) })}
+                  disabled={bulkReject.isPending}
+                  className="bg-destructive text-primary-foreground hover:bg-destructive/90"
+                >
+                  {bulkReject.isPending ? "Refus…" : "Refuser les preuves"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {/* Barre flottante de sélection */}
           {isSomeSelected && (
-            <div className="fixed bottom-8 left-1/2 z-40 w-auto -translate-x-1/2">
-              <div className="flex items-center gap-6 rounded-full border border-border bg-card px-6 py-3 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl">
+            <div className="fixed inset-x-3 bottom-24 z-30 md:inset-x-auto md:bottom-8 md:left-1/2 md:w-auto md:-translate-x-1/2">
+              <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface px-4 py-3 shadow-xl md:flex-row md:items-center md:gap-6 md:rounded-full md:px-6">
                 <div className="flex items-center gap-3">
                   <span className="flex size-6 items-center justify-center rounded-full bg-primary text-[11px] font-black text-primary-foreground">
                     {selectedIds.size}
@@ -374,11 +431,11 @@ export function ProofsListContent() {
                     {selectedIds.size > 1 ? "s" : ""}
                   </span>
                 </div>
-                <div className="h-6 w-px bg-border" />
-                <div className="flex items-center gap-3">
+                <div className="hidden h-6 w-px bg-border md:block" />
+                <div className="grid grid-cols-2 gap-2 md:flex md:items-center md:gap-3">
                   <Button
                     size="sm"
-                    className="gap-1.5 rounded-full bg-emerald-500 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-600"
+                    className="gap-1.5 rounded-lg px-3 text-xs font-bold md:rounded-full md:px-4"
                     disabled={isPending}
                     onClick={handleBulkApprove}
                   >
@@ -388,7 +445,7 @@ export function ProofsListContent() {
                   <Button
                     size="sm"
                     variant="destructive"
-                    className="gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold"
+                    className="gap-1.5 rounded-lg px-3 text-xs font-bold md:rounded-full md:px-4"
                     disabled={isPending}
                     onClick={handleBulkReject}
                   >
@@ -398,7 +455,7 @@ export function ProofsListContent() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-8 rounded-full text-muted-foreground hover:text-foreground"
+                    className="absolute right-2 top-2 size-8 rounded-full text-muted-foreground hover:text-foreground md:static"
                     aria-label="Annuler la sélection"
                     onClick={clearSelection}
                   >

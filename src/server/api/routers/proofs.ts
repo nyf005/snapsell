@@ -4,6 +4,8 @@
  */
 
 import { TRPCError } from "@trpc/server";
+
+import { appError } from "~/server/api/errors";
 import { db } from "~/server/db";
 import {
   createTRPCRouter,
@@ -27,7 +29,7 @@ export const proofsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
       if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+        throw appError("UNAUTHORIZED", "session.expired");
       }
       const limit = input.limit ?? 20;
       const proofs = await db.paymentProof.findMany({
@@ -72,7 +74,7 @@ export const proofsRouter = createTRPCRouter({
   pendingCount: protectedProcedure.query(async ({ ctx }) => {
     const tenantId = ctx.session.user.tenantId;
     if (!tenantId) {
-      throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+      throw appError("UNAUTHORIZED", "session.expired");
     }
     return db.paymentProof.count({
       where: {
@@ -88,7 +90,7 @@ export const proofsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
       if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+        throw appError("UNAUTHORIZED", "session.expired");
       }
       const proof = await db.paymentProof.findFirst({
         where: { id: input.proofId, tenantId },
@@ -173,7 +175,7 @@ export const proofsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
       if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+        throw appError("UNAUTHORIZED", "session.expired");
       }
       const proof = await db.paymentProof.findFirst({
         where: { id: input.proofId, tenantId },
@@ -249,7 +251,7 @@ export const proofsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
       if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+        throw appError("UNAUTHORIZED", "session.expired");
       }
       const results: { proofId: string; ok: boolean; error?: string }[] = [];
       for (const proofId of input.proofIds) {
@@ -331,7 +333,7 @@ export const proofsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
       if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+        throw appError("UNAUTHORIZED", "session.expired");
       }
       const results: { proofId: string; ok: boolean; error?: string }[] = [];
       for (const proofId of input.proofIds) {

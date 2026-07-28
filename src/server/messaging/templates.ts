@@ -14,65 +14,65 @@ export const botMsg = {
     // --- Reservation flow ---
 
     reserved: (code: string) =>
-      `Super choix ! 🎉 L'article *${code}* est réservé pour toi.\n\nEnvoie-moi ton adresse de livraison stp 📍\n\n_(Tu pourras ajouter d'autres articles juste après !)_`,
+      `✅ *${code} est réservé pour toi.*\n\nProchaine étape : envoie ton adresse de livraison 📍\n\nTu pourras ajouter d’autres articles ensuite.`,
 
     exhausted: () =>
-      `Oh non, cet article vient d'être épuisé 😔`,
+      `Article épuisé.\n\nIl n’est plus disponible pour le moment.`,
 
     waitlist: (code: string, position: number) =>
-      `Oh non, l'article *${code}* est épuisé 😔\n\nJe t'ajoute en liste d'attente à la position #${position}. Si une place se libère, tu seras prévenu(e) automatiquement ! 🔔`,
+      `⏳ *${code} est déjà réservé.*\n\nTu es en file d’attente, position *n° ${position}*. Je te préviens automatiquement si l’article se libère.`,
 
     orderConfirmed: () =>
-      `C'est validé ! 🙌 Ta commande est bien enregistrée.\n\nOn te recontacte très vite pour les détails de livraison. Merci de nous faire confiance 💛`,
+      `✅ *Commande confirmée.*\n\nOn te contacte pour organiser la livraison.`,
 
     orderWithDeposit: (minutes: number) =>
-      `Super ! Ta commande est enregistrée 🎉\n\nPour finaliser, on a besoin d'un acompte. Envoie la preuve de paiement ici dans les ${minutes} min 📸\n\nOn garde ton article de côté en attendant 🔒`,
+      `⏳ *Commande en attente d’acompte.*\n\nEnvoie la preuve de paiement ici dans les *${minutes} minutes* 📸\n\nL’article reste réservé pendant ce délai.`,
 
     // --- Code lookup ---
 
     codeUnknown: (code: string) =>
-      `Je n'ai pas trouvé l'article *${code}* 🔍\n\nVérifie le code et renvoie-le moi.`,
+      `🔍 *Code ${code} introuvable.*\n\nVérifie le code affiché pendant le live, puis renvoie-le.`,
 
     codeSuggestion: (code: string) =>
-      `Je n'ai pas trouvé ce code. Tu voulais dire *${code}* ? Renvoie-le moi 😊`,
+      `🔍 *Code introuvable.*\n\nTu voulais dire *${code}* ?`,
 
     // --- Phase 2: new automation messages ---
 
     welcome: (shopName: string) =>
-      `Bonjour ! 👋 Bienvenue chez *${shopName}*.\n\nTu as le code d'un article qui t'intéresse ? Envoie-le moi (ex : A12) et je m'occupe de toi 😊`,
+      `Bonjour 👋 Bienvenue chez *${shopName}*.\n\nEnvoie le code de l’article qui t’intéresse, par exemple *A12*.`,
 
     fallback: () =>
-      `Je n'ai pas bien compris 😅\n\nEnvoie-moi le code de l'article que tu veux (ex : A12) et je m'occupe du reste !`,
+      `Je n’ai pas reconnu ce message.\n\nEnvoie le code de l’article, par exemple *A12*, ou demande de l’aide.`,
 
     orderStatus: (orderNumber: string) =>
-      `Ta commande *${orderNumber}* est bien enregistrée ✅\n\nOn te recontacte très vite pour les détails de livraison 🚚`,
+      `✅ *Commande ${orderNumber} confirmée.*\n\nOn te contacte pour organiser la livraison.`,
 
     // --- Order status notifications ---
 
     orderDelivered: (orderNumber: string) =>
-      `Ta commande *${orderNumber}* a bien été livrée ! 🎉\n\nMerci de ta confiance 💛`,
+      `✅ *Commande ${orderNumber} livrée.*\n\nMerci pour ta confiance.`,
 
     orderCancelled: (orderNumber: string) =>
-      `Ta commande *${orderNumber}* a été annulée 😔\n\nN'hésite pas à nous écrire si tu as des questions.`,
+      `❌ *Commande ${orderNumber} annulée.*\n\nÉcris-nous si tu as besoin d’aide.`,
 
     orderInDelivery: (orderNumber: string) =>
-      `Bonne nouvelle ! 🚚 Ta commande *${orderNumber}* est en cours de livraison.\n\nTu la reçois très bientôt !`,
+      `🚚 *Commande ${orderNumber} en livraison.*\n\nElle est en route vers toi.`,
 
     // --- Deposit proof ---
 
     proofReceived: (orderNumber: string) =>
-      `Preuve reçue pour la commande *${orderNumber}* ✅\n\nLe vendeur va la vérifier et te confirme très vite 🔔`,
+      `✅ *Preuve reçue pour ${orderNumber}.*\n\nElle doit maintenant être vérifiée. Je te préviens du résultat.`,
 
     sendProofNow: () =>
-      `Envoie ta photo de preuve de paiement maintenant 📸\n\n_(Capture d'écran, photo du reçu, etc.)_`,
+      `📸 *Envoie ta preuve de paiement.*\n\nUne capture d’écran ou une photo du reçu convient.`,
 
     depositExpired: (orderNumber: string) =>
-      `Ta commande *${orderNumber}* a été annulée car aucune preuve d'acompte n'a été reçue dans le délai imparti 😔\n\nN'hésite pas à repasser une commande !`,
+      `⌛ *Commande ${orderNumber} expirée.*\n\nAucune preuve de paiement n’a été reçue dans le délai. Tu peux envoyer un nouveau code pour recommencer.`,
 
     // --- Handoff ---
 
     handedOff: () =>
-      `Je transfère ta conversation à un membre de l'équipe 👤\n\nOn te répond très vite, merci de patienter 🙏`,
+      `👤 *Conversation transmise à l’équipe.*\n\nUn membre de l’équipe te répondra dès que possible.`,
 
     // --- Messages interactifs (boutons) ---
 
@@ -81,129 +81,132 @@ export const botMsg = {
       prix: string,
       total: string,
       address: string,
+      /** Frais de livraison. `null` → « à confirmer » : mieux vaut annoncer
+       *  l’incertitude que facturer un montant non choisi par la vendeuse. */
+      livraison: string | null = null,
     ): InteractiveMessage => ({
-      body: `Parfait ! Voici le récap de ta commande 👇\n\nArticle : *${code}*\n💰 Prix : ${prix}\n📍 Adresse : ${address}\n💳 Total : ${total}`,
+      body: `🧾 *Commande prête à confirmer.*\n\nArticle : *${code}*\nPrix : ${prix}\nAdresse : ${address}\nLivraison : ${livraison ?? "à confirmer"}\nTotal : *${total}*\n\nVérifie les informations, puis choisis une action.`,
       interactive: {
         type: "buttons",
         header: "🛍️ Récapitulatif",
         buttons: [
           { id: "confirm_order", title: "Confirmer ✅" },
-          { id: "cancel_order", title: "Annuler ❌" },
-          { id: "add_item", title: "Ajouter ➕" },
+          { id: "cancel_order", title: "Annuler" },
+          { id: "add_item", title: "Ajouter un article" },
         ],
       } satisfies InteractivePayload,
     }),
 
     /** Rappel expiration avec boutons Envoyer adresse / Annuler */
     reminderInteractive: (): InteractiveMessage => ({
-      body: `Hey ! 👀 Ta réservation expire dans 2 minutes.\n\nEnvoie ton adresse vite pour ne pas la perdre 📍`,
+      body: `⏳ *Réservation bientôt expirée.*\n\nIl reste 2 minutes. Envoie ton adresse maintenant pour garder l’article.`,
       interactive: {
         type: "buttons",
         header: "⏳ Expiration proche",
         buttons: [
-          { id: "send_proof", title: "Mon adresse 📍" },
-          { id: "cancel_order", title: "Annuler ❌" },
+          { id: "send_proof", title: "Envoyer l’adresse" },
+          { id: "cancel_order", title: "Annuler" },
         ],
       } satisfies InteractivePayload,
     }),
 
     /** Expiration avec bouton Recommencer */
     reservationExpiredInteractive: (code: string): InteractiveMessage => ({
-      body: `Ta réservation pour *${code}* a malheureusement expiré ⏰`,
+      body: `⌛ *Réservation ${code} expirée.*\n\nL’article n’est plus réservé à ton nom. Tu peux recommencer ou demander de l’aide.`,
       interactive: {
         type: "buttons",
         header: "⏰ Réservation expirée",
         buttons: [
-          { id: `retry_code:${code}`, title: `Recommencer 🔄` },
-          { id: "contact_agent", title: "Aide agent 👤" },
+          { id: `retry_code:${code}`, title: `Recommencer` },
+          { id: "contact_agent", title: "Demander de l’aide" },
         ],
       } satisfies InteractivePayload,
     }),
 
     /** Preuve rejetée avec boutons Renvoyer / Agent */
     proofRejectedInteractive: (orderNumber: string): InteractiveMessage => ({
-      body: `Oops, ta preuve d'acompte pour *${orderNumber}* n'a pas pu être validée 😕`,
+      body: `❌ *Preuve refusée pour ${orderNumber}.*\n\nEnvoie une nouvelle preuve lisible ou demande de l’aide.`,
       interactive: {
         type: "buttons",
         header: "❌ Preuve rejetée",
         buttons: [
-          { id: "send_proof", title: "Ma preuve 📸" },
-          { id: "contact_agent", title: "Aide agent 👤" },
+          { id: "send_proof", title: "Renvoyer la preuve" },
+          { id: "contact_agent", title: "Demander de l’aide" },
         ],
       } satisfies InteractivePayload,
     }),
 
     /** Suggestion code avec boutons Oui / Non */
     codeSuggestionInteractive: (code: string): InteractiveMessage => ({
-      body: `Je n'ai pas trouvé ce code. Tu voulais dire *${code}* ? 😊`,
+      body: `🔍 *Code introuvable.*\n\nTu voulais dire *${code}* ?`,
       interactive: {
         type: "buttons",
         header: "🔍 Code introuvable",
         buttons: [
-          { id: `retry_code:${code}`, title: `C'est bien ça ✅` },
-          { id: "fallback_no", title: "Autre code ❌" },
+          { id: `retry_code:${code}`, title: `Oui, ${code}` },
+          { id: "fallback_no", title: "Saisir un autre code" },
         ],
       } satisfies InteractivePayload,
     }),
 
     /** Fallback avec boutons Voir articles / Agent */
     fallbackInteractive: (): InteractiveMessage => ({
-      body: `Je n'ai pas bien compris 😅\n\nEnvoie-moi le code de l'article que tu veux (ex : A12)`,
+      body: `Je n’ai pas reconnu ce message.\n\nEnvoie le code de l’article, par exemple *A12*, ou demande de l’aide.`,
       interactive: {
         type: "buttons",
         header: "😅 Incompris",
         buttons: [
-          { id: "contact_agent", title: "Aide agent 👤" },
+          { id: "contact_agent", title: "Demander de l’aide" },
         ],
       } satisfies InteractivePayload,
     }),
 
-    /** Liste d'attente promue avec boutons Envoyer adresse / Annuler */
+    /** Liste d’attente promue avec boutons Envoyer adresse / Annuler */
     waitlistPromotedInteractive: (code: string): InteractiveMessage => ({
-      body: `Bonne nouvelle ! 🎉 Une place s'est libérée pour l'article *${code}*.\n\nIl est réservé pour toi ! Envoie ton adresse de livraison 📍`,
+      body: `✅ *${code} est maintenant réservé pour toi.*\n\nUne place s’est libérée. Envoie ton adresse de livraison pour confirmer.`,
       interactive: {
         type: "buttons",
         header: "🎉 Place libérée !",
         buttons: [
-          { id: "send_proof", title: "Mon adresse 📍" },
-          { id: "cancel_order", title: "Je ne veux plus ❌" },
+          { id: "send_proof", title: "Envoyer l’adresse" },
+          { id: "cancel_order", title: "Libérer l’article" },
         ],
       } satisfies InteractivePayload,
     }),
 
     /** Acompte approuvé avec bouton Suivre commande */
     proofApprovedInteractive: (orderNumber: string): InteractiveMessage => ({
-      body: `Ton acompte pour la commande *${orderNumber}* a été validé ! ✅\n\nTa commande est confirmée. On te recontacte pour la livraison 💛`,
+      body: `✅ *Acompte validé pour ${orderNumber}.*\n\nLa commande est confirmée. On te contacte pour la livraison.`,
       interactive: {
         type: "buttons",
         header: "✅ Acompte validé",
         buttons: [
-          { id: "track_order", title: "Suivre commande 📦" },
+          { id: "track_order", title: "Suivre la commande" },
         ],
       } satisfies InteractivePayload,
     }),
 
     /** Commande confirmée avec bouton Suivre */
     orderConfirmedInteractive: (): InteractiveMessage => ({
-      body: `C'est validé ! 🙌 Ta commande est bien enregistrée.\n\nOn te recontacte très vite pour les détails de livraison. Merci de nous faire confiance 💛`,
+      body: `✅ *Commande confirmée.*\n\nOn te contacte pour organiser la livraison.`,
       interactive: {
         type: "buttons",
         header: "✅ Commande confirmée",
         buttons: [
-          { id: "track_order", title: "Suivre commande 📦" },
+          { id: "track_order", title: "Suivre la commande" },
         ],
       } satisfies InteractivePayload,
     }),
 
     /** Acompte requis avec boutons Envoyer preuve / Agent */
     orderWithDepositInteractive: (minutes: number): InteractiveMessage => ({
-      body: `Super ! Ta commande est enregistrée 🎉\n\nPour finaliser, envoie la preuve de paiement dans les ${minutes} min 📸\n\nOn garde ton article de côté en attendant 🔒`,
+      body: `⏳ *Commande en attente d’acompte.*\n\nEnvoie la preuve de paiement dans les *${minutes} minutes*. L’article reste réservé pendant ce délai.`,
       interactive: {
         type: "buttons",
         header: "⚡ Action requise",
         buttons: [
-          { id: "send_proof", title: "Ma preuve 📸" },
-          { id: "contact_agent", title: "Aide agent 👤" },
+          { id: "send_proof", title: "Envoyer la preuve" },
+          { id: "contact_agent", title: "Demander de l’aide" },
         ],
       } satisfies InteractivePayload,
     }),
@@ -214,7 +217,7 @@ export const botMsg = {
     productCard: (
       catalogId: string,
       productRetailerId: string,
-      body = "Voici l'article que tu as demandé 👇",
+      body = "Voici l’article que tu as demandé 👇",
     ): InteractiveMessage => ({
       body,
       interactive: {
@@ -264,7 +267,7 @@ export const botMsg = {
 
     /** Away message hors horaires avec boutons (Phase 4) */
     awayMessageInteractive: (awayText: string, shopName: string): InteractiveMessage => ({
-      body: awayText || `Bonjour ! 👋 *${shopName}* est actuellement fermé.\n\nRevenez pendant nos heures d'ouverture ou laissez-nous un message, on vous répond dès que possible 🙏`,
+      body: awayText || `Bonjour ! 👋 *${shopName}* est actuellement fermé.\n\nReviens pendant nos heures d’ouverture ou laisse un message, je te réponds dès que possible 🙏`,
       interactive: {
         type: "buttons",
         header: "🕐 Boutique fermée",
@@ -289,10 +292,10 @@ export const botMsg = {
       return (
         `📊 *Résumé du live du ${opts.liveDateLabel}*\n\n` +
         `✅ Commandes confirmées : ${opts.orderCount}\n` +
-        (opts.pendingDeposit > 0 ? `💳 En attente d'acompte : ${opts.pendingDeposit}\n` : "") +
+        (opts.pendingDeposit > 0 ? `💳 En attente d’acompte : ${opts.pendingDeposit}\n` : "") +
         `⏳ Réservations en cours : ${opts.pendingReservations}\n` +
         `📦 Articles non vendus : ${opts.unsoldItems}\n` +
-        `💰 Chiffre d'affaires : ${revenueFormatted} FCFA`
+        `💰 Chiffre d’affaires : ${revenueFormatted} FCFA`
       );
     },
 
@@ -303,7 +306,7 @@ export const botMsg = {
       `✅ *${code}* ajouté — ${qty} en stock 📸`,
 
     itemAlreadyUsed: (code: string) =>
-      `⚠️ Le code *${code}* est déjà utilisé dans cette session.\n\nChoisis un autre code (ex: ${code}B) ou libère le stock existant depuis le dashboard.`,
+      `⚠️ Le code *${code}* est déjà utilisé dans ce live.\n\nChoisis un autre code (ex: ${code}B) ou libère le stock existant depuis le tableau de bord.`,
 
     catalogueAdded: (code: string, qty: number) =>
       `✅ *${code}* ajouté au catalogue — ${qty} en stock`,
@@ -321,19 +324,19 @@ export const botMsg = {
       `📸 Photo reçue, mais je ne sais pas à quel article la lier.\n\nAstuce : envoie la photo avec le code en légende (ex: *A12 x3*) pour la lier directement.`,
 
     noPriceConfigured: (letter: string) =>
-      `⚠️ Aucun prix configuré pour la catégorie *${letter}*.\n\nVa dans le dashboard → Grille de prix pour l'ajouter.`,
+      `⚠️ Aucun prix configuré pour la catégorie *${letter}*.\n\nVa dans Paramètres → Prix pour l’ajouter.`,
 
     codeNotInCatalogue: (code: string) =>
-      `⚠️ Le code *${code}* n'existe pas dans ton catalogue.\n\nCrée-le d'abord depuis le dashboard ou envoie-le avec une quantité (ex: *${code} 3*).`,
+      `⚠️ Le code *${code}* n’existe pas dans ton catalogue.\n\nCrée-le d’abord depuis le tableau de bord ou envoie-le avec une quantité (ex: *${code} 3*).`,
 
     codeAlreadyInStock: (code: string, availableQty: number) =>
-      `⚠️ *${code}* a encore *${availableQty}* unité${availableQty > 1 ? "s" : ""} en stock.\n\nÉpuise d'abord ce stock ou choisis un autre code.`,
+      `⚠️ *${code}* a encore *${availableQty}* unité${availableQty > 1 ? "s" : ""} en stock.\n\nÉpuise d’abord ce stock ou choisis un autre code.`,
 
     liveCreateInstruction: () =>
-      `ℹ️ En live, pas besoin d'écrire "ajout" ! Envoie juste le code (ex: *A12*) ou avec quantité (ex: *A12 x3*).`,
+      `ℹ️ En live, pas besoin d’écrire "ajout" ! Envoie juste le code (ex: *A12*) ou avec quantité (ex: *A12 x3*).`,
 
     sellerFallback: () =>
-      `Je n'ai pas compris ce code 😅\n\nEnvoie juste le code (ex: *A12*) ou avec quantité (ex: *A12 x3*) pour créer l'article dans ce live.`,
+      `Je n’ai pas compris ce code 😅\n\nEnvoie juste le code (ex: *A12*) ou avec quantité (ex: *A12 x3*) pour créer l’article dans ce live.`,
 
     offLiveCreateInstruction: () =>
       `ℹ️ Hors live, utilise *ajout A12* ou *ajout A12 x3* pour créer un article.`,
@@ -343,7 +346,7 @@ export const botMsg = {
       body: `*${code}* ajouté au catalogue — ${qty} en stock`,
       interactive: {
         type: "buttons",
-        header: "✅ Article Ajouté",
+        header: "✅ Article ajouté",
         buttons: [
           { id: `configure_variants:${code}`, title: "Variantes 🏷️" },
           { id: "no_variants", title: "Sans variantes ⏭️" },
@@ -356,7 +359,7 @@ export const botMsg = {
       body: `*${code}* ajouté au catalogue — ${qty} en stock`,
       interactive: {
         type: "buttons",
-        header: "✅ Article + Photo 📸",
+        header: "✅ Article et photo 📸",
         buttons: [
           { id: `configure_variants:${code}`, title: "Variantes 🏷️" },
           { id: "no_variants", title: "Sans variantes ⏭️" },
@@ -369,7 +372,7 @@ export const botMsg = {
       body: [
         `🏷️ Configuration des variantes pour *${code}* (${dimExample})`,
         ``,
-        `Répondez avec vos variantes dans ce format :`,
+        `Réponds avec tes variantes dans ce format :`,
         `\`Label:stock, Label:stock\``,
         ``,
         `📝 Exemple :`,
@@ -379,7 +382,7 @@ export const botMsg = {
       ].join("\n"),
       interactive: {
         type: "buttons",
-        header: "⚡ Action Requise",
+        header: "⚡ Action requise",
         buttons: [
           { id: "cancel_variant_config", title: "Annuler config ❌" },
         ],

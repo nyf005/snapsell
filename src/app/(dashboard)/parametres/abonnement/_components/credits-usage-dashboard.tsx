@@ -5,6 +5,7 @@ import { CreditCard, Activity, Clock, AlertTriangle, Plus, Minus, ShoppingCart }
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
+import { formatXofUnits } from "~/lib/copy";
 
 interface CreditsUsageData {
   balance: number;
@@ -108,7 +109,7 @@ export function CreditsUsageDashboard({ data }: { data: CreditsUsageData }) {
               <Activity className="size-4 text-primary" />
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs text-muted-foreground">Sessions</p>
+              <p className="truncate text-xs text-muted-foreground">Ce mois-ci</p>
               <p className="font-semibold">{data.sessionsThisMonth}</p>
             </div>
           </div>
@@ -123,14 +124,14 @@ export function CreditsUsageDashboard({ data }: { data: CreditsUsageData }) {
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Clock className="size-3.5" />
-          <span>Reset le <span className="font-medium">{formatDate(data.resetDate)}</span></span>
+          <span>Renouvellement le <span className="font-medium">{formatDate(data.resetDate)}</span></span>
         </div>
 
         {/* Achat de crédits supplémentaires */}
         {packPrice !== null && (
           <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
             <p className="text-xs font-medium text-foreground">
-              Crédits supplémentaires — {new Intl.NumberFormat("fr-FR").format(packPrice)} FCA / 100
+              Crédits supplémentaires — {formatXofUnits(packPrice)} / 100
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -164,7 +165,7 @@ export function CreditsUsageDashboard({ data }: { data: CreditsUsageData }) {
               <ShoppingCart className="size-4" />
               {isPurchasing || buyCredits.isPending
                 ? "Redirection…"
-                : `Acheter — ${totalPrice !== null ? new Intl.NumberFormat("fr-FR").format(totalPrice) : "—"} FCA`}
+                : `Acheter — ${totalPrice !== null ? formatXofUnits(totalPrice) : "—"}`}
             </Button>
           </div>
         )}

@@ -5,6 +5,8 @@ import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 
 import { AppSidebar } from "~/app/(dashboard)/_components/app-sidebar";
+import { MobileBottomNav } from "~/app/(dashboard)/_components/mobile-bottom-nav";
+import { FeedbackProvider } from "~/components/ui/feedback";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 
 export default async function DashboardLayout({
@@ -46,18 +48,30 @@ export default async function DashboardLayout({
   const canManageGridRole = canManageGrid(session.user.role as string);
 
   return (
-    <SidebarProvider className="h-screen overflow-hidden">
-      <AppSidebar
-        userName={session.user.name ?? session.user.email ?? ""}
-        tenantName={tenant.name}
-        canManageGrid={canManageGridRole}
-        showBranding={tenant.showBranding}
-      />
-      <SidebarInset className="flex flex-1 flex-col min-h-0 overflow-hidden">
-        <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
-          {children}
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <FeedbackProvider>
+      <SidebarProvider className="h-screen overflow-hidden">
+        <a
+          href="#main-content"
+          className="fixed left-3 top-3 z-[70] -translate-y-20 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform focus:translate-y-0"
+        >
+          Aller au contenu
+        </a>
+        <AppSidebar
+          userName={session.user.name ?? session.user.email ?? ""}
+          tenantName={tenant.name}
+          canManageGrid={canManageGridRole}
+          showBranding={tenant.showBranding}
+        />
+        <SidebarInset className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div
+            id="main-content"
+            className="flex min-h-0 flex-1 flex-col overflow-hidden pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0"
+          >
+            {children}
+          </div>
+        </SidebarInset>
+        <MobileBottomNav canManageGrid={canManageGridRole} />
+      </SidebarProvider>
+    </FeedbackProvider>
   );
 }

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { canManageGrid } from "~/lib/rbac";
 import { auth } from "~/server/auth";
 
+import { SettingsAccessDenied } from "../_components/settings-access-denied";
+
 import { SubscriptionContent } from "./_components/subscription-content";
 
 export const metadata = {
@@ -19,7 +21,7 @@ export default async function AbonnementPage() {
   }
 
   if (!canManageGrid(session.user.role as string)) {
-    redirect("/dashboard");
+    return <SettingsAccessDenied />;
   }
 
   return <SubscriptionContent />;

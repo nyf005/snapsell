@@ -5,6 +5,8 @@
  */
 
 import { TRPCError } from "@trpc/server";
+
+import { appError } from "~/server/api/errors";
 import { db } from "~/server/db";
 import {
   createTRPCRouter,
@@ -29,7 +31,7 @@ import { workerLogger } from "~/lib/logger";
 import { LiveSessionStatus } from "../../../../generated/prisma";
 import { promoteSessionToCatalogue } from "~/server/catalogue/promoteSessionToCatalogue";
 import { createLiveItem } from "~/server/live-item/createLiveItem";
-import { decrypt } from "~/lib/crypto";
+import { getSessionInventory } from "~/server/live-session/getSessionInventory";
 
 const ACTIVE_RESERVATION_STATUSES = ["reserved", "address_collected"] as const;
 
@@ -49,19 +51,7 @@ export const liveRouter = createTRPCRouter({
     }
 
     const [items, reservations, waitlistCount] = await Promise.all([
-      db.liveItem.findMany({
-        where: { liveSessionId: session.id, tenantId },
-        orderBy: { createdAt: "asc" },
-        select: {
-          id: true,
-          code: true,
-          amount: true,
-          quantity: true,
-          availableQty: true,
-          reservedQty: true,
-          mediaStorageKey: true,
-        },
-      }),
+      getSessionInventory(tenantId, session.id),
       db.reservation.findMany({
         where: {
           tenantId,
@@ -145,7 +135,7 @@ export const liveRouter = createTRPCRouter({
     const session = await getCurrentSessionReadOnly(tenantId);
 
     if (!session) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "Aucune session live active." });
+      throw new TRPCError({ code: "NOT_FOUND", message: "Aucun live en cours." });
     }
 
     await db.liveSession.update({
@@ -174,25 +164,47 @@ export const liveRouter = createTRPCRouter({
     // Awaité directement (pas de fire-and-forget) pour garantir l'envoi avant que
     // Vercel serverless termine la fonction. Erreur non-bloquante : catch silencieux.
     try {
-      const [orderCount, pendingDeposit, pendingReservations, items, sellerPhone] = await Promise.all([
+      const [orderCount, pendingDeposit, pendingReservations, items, sellerPhone, sessionOrders] =
+        await Promise.all([
         db.order.count({ where: { tenantId, reservation: { liveSessionId: session.id }, status: { not: "confirmed_pending_deposit" } } }),
         db.order.count({ where: { tenantId, reservation: { liveSessionId: session.id }, status: "confirmed_pending_deposit" } }),
         db.reservation.count({
           where: { tenantId, liveSessionId: session.id, status: { in: ["reserved", "address_collected"] } },
         }),
-        db.liveItem.findMany({
-          where: { tenantId, liveSessionId: session.id },
-          select: { availableQty: true, reservedQty: true, amount: true },
-        }),
+        getSessionInventory(tenantId, session.id),
         db.sellerPhone.findFirst({
           where: { tenantId },
           orderBy: { createdAt: "asc" },
           select: { phoneNumber: true },
         }),
+        // Le chiffre d'affaires se lit sur les commandes, pas sur les réservations :
+        // `reservedQty` est décrémenté à la confirmation, donc il ne compte que ce
+        // qui est encore en attente.
+        db.order.findMany({
+          where: {
+            tenantId,
+            reservation: { liveSessionId: session.id },
+            status: { notIn: ["confirmed_pending_deposit", "cancelled"] },
+          },
+          select: {
+            reservation: {
+              select: {
+                quantity: true,
+                liveItem: { select: { amount: true } },
+                catalogueItem: { select: { amount: true } },
+              },
+            },
+          },
+        }),
       ]);
 
+      // Encore vendable = stock possédé moins ce qui est déjà retenu.
       const unsoldItems = items.reduce((sum, i) => sum + (i.availableQty - i.reservedQty), 0);
-      const revenue = items.reduce((sum, i) => sum + (i.reservedQty * (i.amount ?? 0)), 0);
+      const revenue = sessionOrders.reduce((sum, o) => {
+        const unitAmount =
+          o.reservation.catalogueItem?.amount ?? o.reservation.liveItem?.amount ?? 0;
+        return sum + unitAmount * o.reservation.quantity;
+      }, 0);
       const revenueInFcfa = Math.round(revenue / 100);
       const liveDateLabel = session.createdAt.toLocaleDateString("fr-FR", {
         day: "numeric",
@@ -231,29 +243,7 @@ export const liveRouter = createTRPCRouter({
     const session = await getCurrentSessionReadOnly(tenantId);
     if (!session) return [];
 
-    const items = await db.liveItem.findMany({
-      where: { liveSessionId: session.id, tenantId },
-      orderBy: { createdAt: "asc" },
-      select: {
-        id: true,
-        code: true,
-        amount: true,
-        quantity: true,
-        availableQty: true,
-        reservedQty: true,
-        mediaStorageKey: true,
-      },
-    });
-
-    return items.map((i) => ({
-      id: i.id,
-      code: i.code,
-      amount: i.amount,
-      quantity: i.quantity,
-      availableQty: i.availableQty,
-      reservedQty: i.reservedQty,
-      mediaStorageKey: i.mediaStorageKey,
-    }));
+    return getSessionInventory(tenantId, session.id);
   }),
 
   getSessionReservations: protectedProcedure.query(async ({ ctx }) => {
@@ -374,7 +364,7 @@ export const liveRouter = createTRPCRouter({
         if ("duplicate" in result && result.duplicate) {
           throw new TRPCError({
             code: "CONFLICT",
-            message: `Le code "${catalogueItem.code}" est déjà dans la session live en cours.`,
+            message: `Le code "${catalogueItem.code}" est déjà dans le live en cours.`,
           });
         }
         throw new TRPCError({ code: "BAD_REQUEST", message: "Code article invalide." });
@@ -414,9 +404,8 @@ export const liveRouter = createTRPCRouter({
       const correlationId = reservation.correlationId;
 
       if (!itemIdForStock) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Réservation invalide : aucun item associé (ni liveItemId ni catalogueItemId).",
+        throw appError("BAD_REQUEST", "reservation.invalid", {
+          logMessage: "reservation has neither liveItemId nor catalogueItemId",
         });
       }
 

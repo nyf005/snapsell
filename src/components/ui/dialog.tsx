@@ -47,13 +47,21 @@ function DialogOverlay({
   )
 }
 
+/**
+ * `variant="sheet-on-mobile"` : sous `sm`, la boîte de dialogue devient une feuille
+ * ancrée en bas, pleine largeur, avec la marge de sécurité iOS. Une carte centrée de
+ * 375 px avec le clavier ouvert laisse trop peu de place pour les formulaires de
+ * la vendeuse (prix, zones, article).
+ */
 function DialogContent({
   className,
   children,
   showCloseButton = true,
+  variant = "default",
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
+  variant?: "default" | "sheet-on-mobile"
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
@@ -61,7 +69,19 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid max-h-[calc(100vh-2rem)] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto rounded-lg border p-6 shadow-lg duration-200 outline-none sm:max-w-lg",
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed z-50 grid gap-4 overflow-y-auto border shadow-lg duration-200 outline-none",
+          variant === "sheet-on-mobile"
+            ? [
+                // Mobile : feuille basse, pleine largeur, marge de sécurité incluse.
+                "inset-x-0 bottom-0 top-auto max-h-[85vh] w-full max-w-none translate-x-0 translate-y-0",
+                "rounded-t-2xl rounded-b-none border-b-0 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]",
+                "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+                // Desktop : carte centrée, identique à la variante par défaut.
+                "sm:inset-x-auto sm:bottom-auto sm:top-[50%] sm:left-[50%] sm:max-h-[calc(100vh-2rem)] sm:w-full sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%]",
+                "sm:rounded-lg sm:border-b sm:p-6 sm:pb-6",
+                "sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=open]:slide-in-from-bottom-0",
+              ]
+            : "top-[50%] left-[50%] max-h-[calc(100vh-2rem)] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] rounded-lg p-6 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:max-w-lg",
           className
         )}
         {...props}

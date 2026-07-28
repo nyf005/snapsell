@@ -10,10 +10,13 @@ import { getPriceFromCode } from "~/server/pricing/getPriceFromCode";
 import { getOrCreateCurrentSession, updateLastActivity } from "~/server/live-session/service";
 import { botMsg } from "~/server/messaging/templates";
 
-/** Code normalisé : trim + uppercase (aligné Story 3.1, contrainte unique) */
-export function normalizeCode(code: string): string {
-  return code.trim().toUpperCase();
-}
+/**
+ * Code normalisé : trim + uppercase (aligné Story 3.1, contrainte unique).
+ * Ré-export de la définition partagée — voir src/lib/pricing/resolve-category.ts.
+ */
+import { normalizeCode } from "~/lib/pricing/resolve-category";
+
+export { normalizeCode };
 
 /** Message FR40 : code déjà utilisé (inclut le code pour MODIF) */
 export function messageCodeAlreadyUsed(code: string): string {
@@ -109,73 +112,6 @@ async function createLiveItemRecord(
     availableQty: liveItem.availableQty,
     reservedQty: liveItem.reservedQty,
   };
-}
-
-/**
- * Résout ou crée un LiveItem pour (tenantId, liveSessionId, code). Story 3.3.
- * Si l'item existe → le retourne (created: false).
- * Sinon crée avec quantity 1 et prix grille ; en cas de race (P2002), lit l'item créé par l'autre (read-after-conflict).
- * Code vide après normalisation → throw (le caller ne doit invoquer qu'avec un body valide type code).
- */
-export async function resolveOrCreateLiveItem(
-  tenantId: string,
-  liveSessionId: string,
-  code: string,
-): Promise<ResolveOrCreateLiveItemResult> {
-  const normalized = normalizeCode(code);
-  if (!normalized.length) {
-    throw new Error("resolveOrCreateLiveItem: invalid_code");
-  }
-
-  const existing = await db.liveItem.findFirst({
-    where: {
-      tenantId,
-      liveSessionId,
-      code: normalized,
-    },
-  });
-  if (existing) {
-    return {
-      liveItem: {
-        id: existing.id,
-        code: existing.code,
-        liveSessionId: existing.liveSessionId,
-        amount: existing.amount,
-        quantity: existing.quantity,
-        availableQty: existing.availableQty,
-        reservedQty: existing.reservedQty,
-      },
-      created: false,
-    };
-  }
-
-  try {
-    // Story 3.3: article unique → quantity 1, availableQty 1, reservedQty 0
-    const liveItem = await createLiveItemRecord(tenantId, liveSessionId, normalized, 1, {
-      availableQty: 1,
-      reservedQty: 0,
-    });
-    return { liveItem, created: true };
-  } catch (error) {
-    const isUniqueViolation =
-      error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
-    if (!isUniqueViolation) throw error;
-    const afterConflict = await db.liveItem.findFirstOrThrow({
-      where: { tenantId, liveSessionId, code: normalized },
-    });
-    return {
-      liveItem: {
-        id: afterConflict.id,
-        code: afterConflict.code,
-        liveSessionId: afterConflict.liveSessionId,
-        amount: afterConflict.amount,
-        quantity: afterConflict.quantity,
-        availableQty: afterConflict.availableQty,
-        reservedQty: afterConflict.reservedQty,
-      },
-      created: false,
-    };
-  }
 }
 
 /**

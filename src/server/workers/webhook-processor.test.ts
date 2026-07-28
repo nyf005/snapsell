@@ -175,18 +175,6 @@ vi.mock("~/server/live-item/createLiveItem", () => ({
   normalizeCode: vi.fn((s: string) => s.trim().toUpperCase()),
 }));
 
-vi.mock("~/server/live-item/findLiveItemByCode", () => ({
-  findLiveItemByCode: vi.fn().mockResolvedValue({
-    id: "item-1",
-    code: "A12",
-    liveSessionId: "session-1",
-    amount: 5000,
-    quantity: 1,
-    availableQty: 1,
-    reservedQty: 0,
-  }),
-}));
-
 vi.mock("~/server/live-item/getLastEditedLiveItemInWindow", () => ({
   getLastEditedLiveItemInWindow: vi.fn(),
 }));
@@ -198,6 +186,10 @@ vi.mock("~/server/reservation/service", () => ({
   }),
   getActiveReservationForClient: vi.fn().mockResolvedValue(null),
   collectAddress: vi.fn(),
+}));
+
+vi.mock("~/server/delivery/getDeliveryFee", () => ({
+  getDeliveryFee: vi.fn().mockResolvedValue({ amount: null, source: "none", label: null }),
 }));
 
 vi.mock("~/server/waitlist/addToWaitlist", () => ({
@@ -771,7 +763,7 @@ describe("webhook-processor", () => {
         expect.objectContaining({
           tenantId,
           to: from,
-          body: expect.stringContaining("L'article *A12* est réservé pour toi"),
+          body: expect.stringContaining("*A12 est réservé pour toi.*"),
           correlationId: "corr-a12",
         }),
       );
@@ -828,7 +820,7 @@ describe("webhook-processor", () => {
         { catalogueItemId: "cat-item-existing", liveSessionId: "live-session-client", quantity: 1 },
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
-        expect.objectContaining({ body: expect.stringContaining("L'article *A12* est réservé pour toi") }),
+        expect.objectContaining({ body: expect.stringContaining("*A12 est réservé pour toi.*") }),
       );
     });
 
@@ -888,7 +880,7 @@ describe("webhook-processor", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: expect.stringContaining("position #2"),
+          body: expect.stringContaining("position *n° 2*"),
           to: from,
           correlationId: "corr-ex",
         }),
@@ -940,7 +932,7 @@ describe("webhook-processor", () => {
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: expect.stringContaining("vient d'être épuisé"),
+          body: expect.stringContaining("plus disponible"),
           to: from,
           correlationId: "corr-race",
         }),
@@ -1151,6 +1143,7 @@ describe("webhook-processor", () => {
         reservation: {
           id: "res-1",
           item: { code: "A12", amount: 5000, quantity: 1 },
+          addressCommune: null,
         },
       });
 
@@ -1184,12 +1177,135 @@ describe("webhook-processor", () => {
           tenantId,
           to: from,
           correlationId: "corr-addr",
-          body: expect.stringContaining("Voici le récap de ta commande"),
+          body: expect.stringContaining("Commande prête à confirmer"),
           interactive: expect.objectContaining({
             type: "buttons",
           }),
         }),
       );
+    });
+
+    // Les frais de livraison étaient configurables mais jamais appliqués : le récap
+    // annonçait article × quantité, sans jamais lire DeliveryZone / DeliveryFeeCommune.
+    it("ajoute les frais de livraison au total annoncé à la cliente", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
+        id: "live-session-1",
+        status: "active",
+        lastActivityAt: new Date(),
+        createdAt: new Date(),
+      } as never);
+
+      const { getActiveReservationForClient, collectAddress } = await import(
+        "~/server/reservation/service"
+      );
+      const { getDeliveryFee } = await import("~/server/delivery/getDeliveryFee");
+
+      vi.mocked(getActiveReservationForClient).mockResolvedValue({
+        id: "res-fee",
+        status: "reserved",
+        tenantId,
+        liveSessionId: "live-session-1",
+        catalogueItemId: "cat-item-1",
+        clientPhone: from,
+      } as never);
+      vi.mocked(collectAddress).mockResolvedValue({
+        success: true,
+        reservation: {
+          id: "res-fee",
+          item: { code: "A12", amount: 500_000, quantity: 2 },
+          addressCommune: "Cocody",
+        },
+      });
+      vi.mocked(getDeliveryFee).mockResolvedValue({
+        amount: 150_000,
+        source: "commune",
+        label: "Cocody",
+      });
+
+      await processWebhookJob({
+        id: "job-fee",
+        data: {
+          tenantId,
+          providerMessageId: "SMfee",
+          from,
+          body: "Cocody, rue des jardins",
+          correlationId: "corr-fee",
+        } as InboundMessage,
+      } as PgBossJob<InboundMessage>);
+
+      expect(getDeliveryFee).toHaveBeenCalledWith(tenantId, "Cocody");
+
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+      const call = vi.mocked(writeToOutbox).mock.calls.at(-1)?.[0] as { body: string };
+      // toLocaleString("fr-FR") sépare les milliers par une espace insécable étroite.
+      const body = call.body.replace(/\s/g, " ");
+      // 2 × 5 000 + 1 500 = 11 500
+      expect(body).toContain("Livraison : 1 500 FCFA");
+      expect(body).toContain("Total : *11 500 FCFA*");
+    });
+
+    it("annonce « à confirmer » quand aucun frais n’est configuré", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
+        id: "live-session-1",
+        status: "active",
+        lastActivityAt: new Date(),
+        createdAt: new Date(),
+      } as never);
+
+      const { getActiveReservationForClient, collectAddress } = await import(
+        "~/server/reservation/service"
+      );
+      const { getDeliveryFee } = await import("~/server/delivery/getDeliveryFee");
+
+      vi.mocked(getActiveReservationForClient).mockResolvedValue({
+        id: "res-nofee",
+        status: "reserved",
+        tenantId,
+        liveSessionId: "live-session-1",
+        catalogueItemId: "cat-item-1",
+        clientPhone: from,
+      } as never);
+      vi.mocked(collectAddress).mockResolvedValue({
+        success: true,
+        reservation: {
+          id: "res-nofee",
+          item: { code: "A12", amount: 500_000, quantity: 1 },
+          addressCommune: "Korhogo",
+        },
+      });
+      vi.mocked(getDeliveryFee).mockResolvedValue({
+        amount: null,
+        source: "none",
+        label: null,
+      });
+
+      await processWebhookJob({
+        id: "job-nofee",
+        data: {
+          tenantId,
+          providerMessageId: "SMnofee",
+          from,
+          body: "Korhogo centre",
+          correlationId: "corr-nofee",
+        } as InboundMessage,
+      } as PgBossJob<InboundMessage>);
+
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+      const call = vi.mocked(writeToOutbox).mock.calls.at(-1)?.[0] as { body: string };
+      const body = call.body.replace(/\s/g, " ");
+      expect(body).toContain("Livraison : à confirmer");
+      // Aucun frais inventé : le total reste celui de l'article.
+      expect(body).toContain("Total : *5 000 FCFA*");
     });
 
     describe("Story 5.1 AC#1: OUI → order SS-XXXX from confirmed reservation", () => {
@@ -1276,7 +1392,7 @@ describe("webhook-processor", () => {
           tenantId,
           to: from,
           correlationId: "corr-oui",
-          body: expect.stringContaining("Ta commande est bien enregistrée"),
+          body: expect.stringContaining("Commande confirmée"),
         }),
       );
     });
@@ -1906,7 +2022,7 @@ describe("webhook-processor", () => {
           body: "*B7* ajouté au catalogue — 3 en stock",
           interactive: expect.objectContaining({
             type: "buttons",
-            header: "✅ Article Ajouté",
+            header: "✅ Article ajouté",
           }),
           correlationId: "corr-nosession",
         }),
@@ -2012,7 +2128,7 @@ describe("webhook-processor", () => {
             body: "*A12* ajouté au catalogue — 1 en stock",
             interactive: expect.objectContaining({
               type: "buttons",
-              header: "✅ Article + Photo 📸",
+              header: "✅ Article et photo 📸",
             }),
           }),
         );
@@ -2067,7 +2183,7 @@ describe("webhook-processor", () => {
           expect.objectContaining({
             tenantId,
             to: from,
-            body: expect.stringContaining("Le code *Z99* n'existe pas dans ton catalogue"),
+            body: expect.stringContaining("Le code *Z99* n’existe pas dans ton catalogue"),
             correlationId: "corr-photounknown",
           }),
         );
@@ -2352,7 +2468,7 @@ describe("webhook-processor", () => {
             to: from,
             body: "*A12* ajouté au catalogue — 1 en stock",
             interactive: expect.objectContaining({
-              header: "✅ Article Ajouté",
+              header: "✅ Article ajouté",
               type: "buttons",
             }),
           }),
@@ -2441,6 +2557,7 @@ describe("webhook-processor", () => {
             catalogueItemId: "cat-item-photo",
             mediaStorageKey: "tenants/t1/catalogue-items/ci1/photo",
           },
+          addressCommune: null,
         },
       });
 
@@ -2463,7 +2580,7 @@ describe("webhook-processor", () => {
         expect.objectContaining({
           tenantId,
           to: from,
-          body: expect.stringContaining("Voici le récap de ta commande"),
+          body: expect.stringContaining("Commande prête à confirmer"),
           mediaUrl: "tenants/t1/catalogue-items/ci1/photo",
           correlationId: "corr-photo",
           interactive: expect.objectContaining({
@@ -2509,6 +2626,7 @@ describe("webhook-processor", () => {
             catalogueItemId: "cat-item-no-photo",
             mediaStorageKey: null,
           },
+          addressCommune: null,
         },
       });
 
@@ -2530,12 +2648,12 @@ describe("webhook-processor", () => {
         expect.objectContaining({
           tenantId,
           to: from,
-          body: expect.stringContaining("Voici le récap de ta commande"),
+          body: expect.stringContaining("Commande prête à confirmer"),
         }),
       );
       // Pas de mediaUrl
       const writeCall = vi.mocked(writeToOutbox).mock.calls.find(
-        (c) => (c[0] as { body: string }).body.includes("Voici le récap"),
+        (c) => (c[0] as { body: string }).body.includes("Commande prête à confirmer"),
       );
       expect(writeCall?.[0].mediaUrl).toBeFalsy();
     });
@@ -2576,6 +2694,7 @@ describe("webhook-processor", () => {
             catalogueItemId: "cat-key",
             mediaStorageKey: "tenants/t1/catalogue-items/key/photo",
           },
+          addressCommune: null,
         },
       });
 
@@ -2594,7 +2713,7 @@ describe("webhook-processor", () => {
 
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const writeCall = vi.mocked(writeToOutbox).mock.calls.find(
-        (c) => (c[0] as { body: string }).body.includes("Voici le récap"),
+        (c) => (c[0] as { body: string }).body.includes("Commande prête à confirmer"),
       );
       // H1 fix: storageKey brut passé (signé dans outbox-sender, fallback géré là-bas)
       expect(writeCall?.[0]).toHaveProperty("mediaUrl", "tenants/t1/catalogue-items/key/photo");
@@ -2634,6 +2753,7 @@ describe("webhook-processor", () => {
         reservation: {
           id: "res-live",
           item: { code: "D1", amount: 3000, quantity: 1 },
+          addressCommune: null,
         },
       });
 
@@ -2652,7 +2772,7 @@ describe("webhook-processor", () => {
 
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const writeCall = vi.mocked(writeToOutbox).mock.calls.find(
-        (c) => (c[0] as { body: string }).body.includes("Voici le récap"),
+        (c) => (c[0] as { body: string }).body.includes("Commande prête à confirmer"),
       );
       // LiveItem (pas de mediaStorageKey) → pas de mediaUrl
       expect(writeCall?.[0].mediaUrl).toBeFalsy();
@@ -2711,7 +2831,7 @@ describe("webhook-processor", () => {
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       // Le message de confirmation doit être texte uniquement (pas de photo en double)
       const confirmCall = vi.mocked(writeToOutbox).mock.calls.find(
-        (c) => (c[0] as { body: string }).body.includes("Ta commande est bien enregistrée"),
+        (c) => (c[0] as { body: string }).body.includes("Commande confirmée"),
       );
       expect(confirmCall).toBeDefined();
       expect(confirmCall?.[0]).not.toHaveProperty("mediaUrl");

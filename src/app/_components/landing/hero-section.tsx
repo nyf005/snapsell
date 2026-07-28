@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, ChevronDown } from "lucide-react";
+import { marketing } from "~/lib/copy/marketing";
+import { ArrowRight, BadgeCheck, Check, ChevronDown } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import { AnimateEntrance } from "~/app/_components/landing/animate-on-scroll";
@@ -30,15 +31,8 @@ export function HeroSection({ user }: HeroSectionProps) {
         )}>
           {isLoggedIn ? (
             <>
-              <AnimateEntrance delay={200}>
-                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-                  <BadgeCheck className="size-4" />
-                  Vous êtes connecté
-                </div>
-              </AnimateEntrance>
-
               <AnimateEntrance delay={400}>
-                <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-7xl">
+                <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight text-[var(--hero-fg)] sm:text-5xl lg:text-7xl">
                   Bon retour
                   {user.name ? (
                     <span className="hero-gradient-text">, {user.name}</span>
@@ -47,7 +41,7 @@ export function HeroSection({ user }: HeroSectionProps) {
               </AnimateEntrance>
 
               <AnimateEntrance delay={650}>
-                <p className="max-w-2xl text-lg text-white/60 lg:text-xl">
+                <p className="max-w-2xl text-lg text-[var(--hero-fg-muted)] lg:text-xl">
                   Accédez à votre tableau de bord pour gérer vos commandes, vos
                   lives et vos paramètres.
                 </p>
@@ -71,22 +65,31 @@ export function HeroSection({ user }: HeroSectionProps) {
               <AnimateEntrance delay={200}>
                 <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
                   <BadgeCheck className="size-4" />
-                  Nouveau : Catalogue produit intégré
+                  {marketing.audience}
                 </div>
               </AnimateEntrance>
 
               <AnimateEntrance delay={400}>
-                <h1 className="text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-[4.5rem]">
-                  Vos ventes en live,{" "}
+                {/*
+                  Titre plus long que le précédent : à 4.5rem il partait en
+                  trois lignes et repoussait les boutons sous la ligne de
+                  flottaison. 3rem est la plus grande taille qui le tient en
+                  deux lignes dans les 672px de la colonne — au-delà il faut
+                  élargir la colonne, ce qui fait déborder la page.
+                */}
+                <h1 className="text-4xl font-extrabold leading-[1.08] tracking-tight text-[var(--hero-fg)] sm:text-5xl lg:text-5xl">
+                  Votre boutique répond.{" "}
                   <br className="hidden lg:block" />
-                  <span className="hero-gradient-text">entièrement automatisées.</span>
+                  Vendez pendant qu’
+                  <span className="hero-gradient-text">elle</span> le fait.
                 </h1>
               </AnimateEntrance>
 
               <AnimateEntrance delay={650}>
-                <p className="max-w-xl text-lg text-white/70 lg:text-[1.35rem] leading-relaxed">
-                  Catalogue produit, réservations WhatsApp, file d&apos;attente
-                  et suivi de commandes. Ne ratez plus aucune vente.
+                <p className="max-w-xl text-lg text-[var(--hero-fg-muted)] lg:text-[1.35rem] leading-relaxed">
+                  Un code envoyé sur WhatsApp, et l’article est réservé,
+                  l’adresse collectée, la preuve de paiement enregistrée.
+                  Pendant un live comme au fil de la journée.
                 </p>
               </AnimateEntrance>
 
@@ -98,7 +101,7 @@ export function HeroSection({ user }: HeroSectionProps) {
                     className="h-12 rounded-xl px-10 text-base font-bold shadow-2xl shadow-primary/40 transition-all hover:scale-[1.03] hover:shadow-primary/60 active:scale-[0.98]"
                   >
                     <Link href="/login?tab=signup">
-                      Créer mon compte vendeur
+                      {marketing.cta.signup}
                       <ArrowRight className="size-5" />
                     </Link>
                   </Button>
@@ -106,30 +109,36 @@ export function HeroSection({ user }: HeroSectionProps) {
                     asChild
                     variant="outline"
                     size="lg"
-                    className="h-12 rounded-xl border-white/15 bg-white/5 px-10 text-base font-bold text-white backdrop-blur-sm transition-all hover:scale-[1.03] hover:bg-white/10 active:scale-[0.98]"
+                    className="h-12 rounded-xl border-[var(--hero-border)] bg-[var(--hero-surface)] px-10 text-base font-bold text-[var(--hero-fg)] backdrop-blur-sm transition-all hover:scale-[1.03] hover:bg-[var(--hero-surface-hover)] hover:text-[var(--hero-fg)] active:scale-[0.98]"
                   >
-                    <Link href="#fonctionnalites">
-                      Découvrir
+                    <Link href="#fonctionnement">
+                      {marketing.cta.how}
+                      <ArrowRight className="size-5" />
                     </Link>
                   </Button>
                 </div>
               </AnimateEntrance>
 
+              {/*
+                Les trois avatars « S A M » qui vivaient ici se lisaient comme
+                une preuve sociale — trois boutiques inscrites — alors que
+                `marketing.ts` interdit explicitement les avatars fictifs. Ils
+                sont remplacés par trois faits vérifiables, qui répondent en
+                plus aux objections réelles.
+              */}
               <AnimateEntrance delay={1150}>
-                <div className="flex items-center gap-4 text-sm text-white/40">
-                  <div className="flex -space-x-2" aria-hidden="true">
-                    <div className="flex size-8 items-center justify-center rounded-full border-2 border-[#050507] bg-primary/50 text-xs font-bold text-white">
-                      S
-                    </div>
-                    <div className="flex size-8 items-center justify-center rounded-full border-2 border-[#050507] bg-primary/35 text-xs font-bold text-white">
-                      A
-                    </div>
-                    <div className="flex size-8 items-center justify-center rounded-full border-2 border-[#050507] bg-primary/60 text-xs font-bold text-white">
-                      M
-                    </div>
-                  </div>
-                  <span>Inscription en 2 min — gratuit pour démarrer</span>
-                </div>
+                <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--hero-fg-subtle)]">
+                  {[
+                    marketing.cta.signupHint,
+                    "Plan gratuit permanent",
+                    "Votre numéro WhatsApp actuel",
+                  ].map((fact) => (
+                    <li key={fact} className="flex items-center gap-2">
+                      <Check className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                      {fact}
+                    </li>
+                  ))}
+                </ul>
               </AnimateEntrance>
             </>
           )}
@@ -144,7 +153,7 @@ export function HeroSection({ user }: HeroSectionProps) {
 
       {/* Scroll indicator */}
       <div className="scroll-indicator absolute bottom-10 left-1/2 -translate-x-1/2" aria-hidden="true">
-        <ChevronDown className="size-6 text-white/30" />
+        <ChevronDown className="size-6 text-[var(--hero-fg-subtle)]" />
       </div>
     </section>
   );

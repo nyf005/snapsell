@@ -1,6 +1,7 @@
 "use client";
 
 import { Skeleton } from "~/components/ui/skeleton";
+import { DataListSkeleton } from "~/components/ui/data-list-skeleton";
 import { Card, CardContent } from "~/components/ui/card";
 
 export function PricingGridSkeleton() {
@@ -32,43 +33,7 @@ export function PricingGridSkeleton() {
       {/* Table skeleton */}
       <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-muted/60">
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Catégorie</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Prix (FCFA)</th>
-                  <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">Statut</th>
-                  <th className="w-24 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="border-b border-border">
-                    <td className="px-6 py-4">
-                      <Skeleton className="h-5 w-16" variant="text" />
-                    </td>
-                    <td className="px-6 py-4">
-                      <Skeleton className="h-4 w-48" variant="text" />
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Skeleton className="h-5 w-20 ml-auto" variant="text" />
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <Skeleton className="h-5 w-20 rounded mx-auto" />
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <Skeleton className="size-8 rounded-md" />
-                        <Skeleton className="size-8 rounded-md" />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataListSkeleton columns={5} rows={5} />
         </CardContent>
       </Card>
     </div>

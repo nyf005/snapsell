@@ -1,19 +1,32 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
+const { emptyPriceData } = vi.hoisted(() => ({
+  emptyPriceData: { items: [], nextCursor: null },
+}));
+
 vi.mock("~/app/(dashboard)/_components/dashboard-header", () => ({
   DashboardHeader: () => <div data-testid="dashboard-header" />,
 }));
 
 vi.mock("~/trpc/react", () => ({
   api: {
+    catalogue: {
+      // Consommé par CodePricePreview.
+      getCategoryLabels: {
+        useQuery: () => ({
+          data: [{ categoryLetter: "A", amount: 500_000, description: null }],
+          isLoading: false,
+        }),
+      },
+    },
     useUtils: () => ({
       settings: { getCategoryPrices: { invalidate: vi.fn() } },
     }),
     settings: {
       getCategoryPrices: {
         useQuery: () => ({
-          data: [],
+          data: emptyPriceData,
           isLoading: false,
         }),
       },
@@ -33,7 +46,7 @@ describe("PricingGridContent", () => {
   it("does not inject Meta SDK script outside WhatsApp settings page", () => {
     render(<PricingGridContent />);
 
-    expect(screen.getByText("Grille de prix")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Prix" })).toBeInTheDocument();
     expect(document.getElementById("snapsell-meta-sdk")).toBeNull();
   });
 });

@@ -16,6 +16,13 @@ vi.mock("~/trpc/react", () => ({
       },
     }),
     catalogue: {
+      // Consommé par CodePricePreview.
+      getCategoryLabels: {
+        useQuery: () => ({
+          data: [{ categoryLetter: "A", amount: 500_000, description: null }],
+          isLoading: false,
+        }),
+      },
       create: {
         useMutation: () => ({
           mutateAsync: mockMutateAsync,
@@ -46,6 +53,15 @@ vi.mock("~/trpc/react", () => ({
           isPending: false,
         }),
       },
+      syncToMeta: {
+        useMutation: () => ({
+          mutateAsync: vi.fn(),
+          mutate: vi.fn(),
+          isPending: false,
+          isError: false,
+          error: null,
+        }),
+      },
     },
   },
 }));
@@ -66,10 +82,10 @@ describe("CatalogueItemFormDialog", () => {
     mockMutateAsync.mockResolvedValue({ id: "new-item-id" });
   });
 
-  it("renders create mode title when item is null", () => {
+  it("renders create mode title and the variants disclosure when item is null", () => {
     render(<CatalogueItemFormDialog {...defaultProps} />);
     expect(screen.getByText("Ajouter un article")).toBeInTheDocument();
-    expect(screen.getByText("Variantes du produit")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Variantes" })).toBeInTheDocument();
   });
 
   it("renders edit mode title when item is provided", () => {
@@ -98,13 +114,15 @@ describe("CatalogueItemFormDialog", () => {
     expect(screen.getByText("Modifier l'article")).toBeInTheDocument();
   });
 
-  it("shows R2 not configured message when r2Configured is false", () => {
+  it("explique l’indisponibilité des photos sans nommer l’infrastructure", () => {
     render(
       <CatalogueItemFormDialog {...defaultProps} r2Configured={false} />,
     );
     expect(
-      screen.getByText(/Configuration R2 requise/),
+      screen.getByText(/L’envoi de photos n’est pas encore activé/),
     ).toBeInTheDocument();
+    // « R2 » est un détail d'infrastructure : il ne doit pas atteindre la vendeuse.
+    expect(screen.queryByText(/\bR2\b/)).not.toBeInTheDocument();
   });
 
   it("pre-fills form fields in edit mode", () => {
@@ -194,7 +212,6 @@ describe("CatalogueItemFormDialog", () => {
 
     await user.click(screen.getByRole("button", { name: /Variantes/i }));
 
-    expect(screen.getByText("Variantes du produit")).toBeInTheDocument();
     expect(screen.getByText("Stock par variante")).toBeInTheDocument();
   });
 });

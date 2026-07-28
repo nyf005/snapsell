@@ -2,6 +2,7 @@ import { type Metadata } from "next";
 
 import { LandingHeader } from "~/app/_components/landing/landing-header";
 import { HeroSection } from "~/app/_components/landing/hero-section";
+import { CoreSection } from "~/app/_components/landing/core-section";
 import { FeaturesSection } from "~/app/_components/landing/features-section";
 import { HowItWorksSection } from "~/app/_components/landing/how-it-works-section";
 import { CtaSection } from "~/app/_components/landing/cta-section";
@@ -10,13 +11,13 @@ import { auth } from "~/server/auth";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://snapsell.app"),
-  title: "SnapSell — Catalogue et ventes en live, automatisés via WhatsApp",
+  title: "SnapSell — Vendez sur WhatsApp sans rien noter à la main",
   description:
-    "SnapSell : gérez votre catalogue produit, automatisez vos ventes en live via WhatsApp — réservations, file d'attente, suivi de commandes.",
+    "Un code sur WhatsApp, et l’article est réservé, l’adresse collectée, la preuve de paiement enregistrée. Catalogue, commandes et livraison au même endroit.",
   openGraph: {
-    title: "SnapSell — Catalogue et ventes en live, automatisés via WhatsApp",
+    title: "SnapSell — Vendez sur WhatsApp sans rien noter à la main",
     description:
-      "Gérez votre catalogue, automatisez vos ventes en live via WhatsApp — réservations, file d'attente, suivi de commandes.",
+      "Un code sur WhatsApp, et l’article est réservé, l’adresse collectée, la preuve de paiement enregistrée. Catalogue, commandes et livraison au même endroit.",
     url: "https://snapsell.app",
     siteName: "SnapSell",
     type: "website",
@@ -25,9 +26,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "SnapSell — Catalogue et ventes en live, automatisés via WhatsApp",
+    title: "SnapSell — Vendez sur WhatsApp sans rien noter à la main",
     description:
-      "Gérez votre catalogue, automatisez vos ventes en live via WhatsApp — réservations, file d'attente, suivi de commandes.",
+      "Un code sur WhatsApp, et l’article est réservé, l’adresse collectée, la preuve de paiement enregistrée. Catalogue, commandes et livraison au même endroit.",
   },
 };
 
@@ -39,6 +40,7 @@ export default async function Home() {
       <LandingHeader user={session?.user ? { name: session.user.name, email: session.user.email! } : null} />
       <main id="main-content">
         <HeroSection user={session?.user ? { name: session.user.name ?? undefined } : null} />
+        <CoreSection />
         <FeaturesSection />
         <HowItWorksSection />
         <CtaSection />

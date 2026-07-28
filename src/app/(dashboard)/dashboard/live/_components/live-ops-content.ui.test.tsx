@@ -22,6 +22,12 @@ vi.mock("~/trpc/react", () => ({
     useUtils: () => ({
       live: { getLiveOpsData: { invalidate: vi.fn() } },
     }),
+    // Consommé par SetupRequiredBanner ; boutique connectée → bandeau masqué.
+    onboarding: {
+      getStatus: {
+        useQuery: () => ({ data: { whatsappConnected: true }, isLoading: false }),
+      },
+    },
     live: {
       getLiveOpsData: {
         useQuery: () => ({
@@ -94,7 +100,7 @@ describe("LiveOpsContent — active session", () => {
 
   it("renders the page title", () => {
     render(<LiveOpsContent />);
-    expect(screen.getByText("Live Ops")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Live du moment" })).toBeInTheDocument();
   });
 
   it("shows item codes in the inventory table", () => {
@@ -108,13 +114,13 @@ describe("LiveOpsContent — active session", () => {
   it("shows the end session button when session is active", () => {
     render(<LiveOpsContent />);
     expect(
-      screen.getByRole("button", { name: /Terminer la session/ }),
+      screen.getByRole("button", { name: /Terminer le live/ }),
     ).toBeInTheDocument();
   });
 
   it("displays KPI section with article count label", () => {
     render(<LiveOpsContent />);
-    expect(screen.getByText("Articles en session")).toBeInTheDocument();
+    expect(screen.getByText("Articles du live")).toBeInTheDocument();
     expect(screen.getAllByText("Réservations actives").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/file d'attente/)).toBeInTheDocument();
   });

@@ -34,7 +34,7 @@ describe("uploadMediaToCatalogueItem", () => {
   });
 
   it("should upload media to R2 and update CatalogueItem.mediaStorageKey", async () => {
-    const { isR2Configured, createR2Client, getR2BucketName } = await import(
+    const { isR2Configured, createR2Client } = await import(
       "~/server/media/r2-client"
     );
     vi.mocked(isR2Configured).mockReturnValue(true);

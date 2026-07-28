@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { marketing } from "~/lib/copy/marketing";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, useMemo, useEffect } from "react";
 
@@ -9,6 +10,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 
 import { Button } from "~/components/ui/button";
+import { formatErrorText } from "~/lib/copy";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { getLoginValidationErrors } from "~/lib/validations/login";
@@ -16,7 +18,7 @@ import { getSignupValidationErrors } from "~/lib/validations/signup";
 import { api } from "~/trpc/react";
 
 const inputClassName =
-  "w-full rounded-lg border border-border bg-card text-foreground h-14 px-4 focus:border-primary focus:ring-1 focus:ring-primary focus:shadow-md focus:shadow-primary/10 transition-all duration-200 placeholder:text-placeholder";
+  "w-full rounded-lg border border-border bg-card text-foreground h-12 px-4 focus:border-primary focus:ring-1 focus:ring-primary focus:shadow-md focus:shadow-primary/10 transition-all duration-200 placeholder:text-placeholder";
 
 type Tab = "login" | "signup";
 
@@ -66,7 +68,7 @@ function LoginTabContent() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       {errors.form && (
         <p
           className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
@@ -75,7 +77,7 @@ function LoginTabContent() {
           {errors.form}
         </p>
       )}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         <Label
           htmlFor="login-email"
           className="text-sm font-semibold text-foreground"
@@ -85,7 +87,7 @@ function LoginTabContent() {
         <Input
           id="login-email"
           type="email"
-          placeholder="vous@entreprise.com"
+          placeholder={marketing.placeholder.email}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className={inputClassName}
@@ -96,7 +98,7 @@ function LoginTabContent() {
           <p className="text-sm text-destructive">{errors.email}</p>
         )}
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         <Label
           htmlFor="login-password"
           className="text-sm font-semibold text-foreground"
@@ -137,7 +139,7 @@ function LoginTabContent() {
       </div>
       <Button
         type="submit"
-        className="h-14 w-full rounded-lg text-lg font-bold shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
+        className="h-12 w-full rounded-lg text-base font-bold shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
         disabled={isPending}
       >
         {isPending ? "Connexion…" : "Se connecter"}
@@ -173,7 +175,7 @@ function SignupTabContent() {
       }
     },
     onError: (e) => {
-      setErrors({ form: e.message });
+      setErrors({ form: formatErrorText(e, "auth") });
     },
   });
 
@@ -194,7 +196,7 @@ function SignupTabContent() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       {errors.form && (
         <p
           className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
@@ -203,7 +205,7 @@ function SignupTabContent() {
           {errors.form}
         </p>
       )}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         <Label
           htmlFor="signup-tenantName"
           className="text-sm font-semibold text-foreground"
@@ -224,7 +226,7 @@ function SignupTabContent() {
           <p className="text-sm text-destructive">{errors.tenantName}</p>
         )}
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         <Label
           htmlFor="signup-email"
           className="text-sm font-semibold text-foreground"
@@ -234,7 +236,7 @@ function SignupTabContent() {
         <Input
           id="signup-email"
           type="email"
-          placeholder="vous@entreprise.com"
+          placeholder={marketing.placeholder.email}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className={inputClassName}
@@ -245,7 +247,7 @@ function SignupTabContent() {
           <p className="text-sm text-destructive">{errors.email}</p>
         )}
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         <Label
           htmlFor="signup-password"
           className="text-sm font-semibold text-foreground"
@@ -285,7 +287,7 @@ function SignupTabContent() {
           <p className="text-sm text-destructive">{errors.password}</p>
         )}
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         <Label
           htmlFor="signup-name"
           className="text-sm font-semibold text-foreground"
@@ -295,7 +297,7 @@ function SignupTabContent() {
         <Input
           id="signup-name"
           type="text"
-          placeholder="Jean Dupont"
+          placeholder={marketing.placeholder.name}
           value={name}
           onChange={(e) => setName(e.target.value)}
           className={inputClassName}
@@ -307,10 +309,10 @@ function SignupTabContent() {
       </div>
       <Button
         type="submit"
-        className="h-14 w-full rounded-lg text-lg font-bold shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
+        className="h-12 w-full rounded-lg text-base font-bold shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
         disabled={signup.isPending}
       >
-        {signup.isPending ? "Création en cours…" : "Créer mon compte vendeur"}
+        {signup.isPending ? "Création en cours…" : marketing.cta.signup}
       </Button>
       <p className="px-4 text-center text-xs text-muted-foreground">
         En vous inscrivant, vous acceptez nos{" "}
@@ -350,17 +352,27 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="max-w-[480px] w-full flex flex-col gap-8">
-      <div className="animate-entrance animate-fade-up flex flex-col gap-3 text-center" style={{ animationDelay: "100ms" }}>
-        <h2 className="text-3xl font-extrabold tracking-tight text-foreground md:text-4xl">
+    <div className="max-w-[480px] w-full flex flex-col gap-3">
+      {/*
+        Masqué sur les écrans courts pour que l'inscription — quatre champs —
+        tienne sans défilement : la bascule d'onglets juste en dessous porte
+        déjà « Connexion » / « Créer un compte ».
+      */}
+      <div className="animate-entrance animate-fade-up flex flex-col gap-3 text-center [@media(max-height:820px)]:hidden" style={{ animationDelay: "100ms" }}>
+        <h2 className="text-2xl font-extrabold tracking-tight text-foreground md:text-3xl">
           {activeTab === "login"
             ? "Connexion à votre compte"
             : "Créer un compte vendeur"}
         </h2>
-        <p className="text-lg text-muted-foreground/80 md:text-xl">
+        {/*
+          « Rejoignez plus de 10 000 entreprises » était un chiffre d'adoption
+          inventé — interdit par `marketing.ts`, et non attrapé par la garde qui
+          n'inspectait pas ce fichier. Remplacé par ce que la personne obtient.
+        */}
+        <p className="text-sm text-muted-foreground/80 md:text-base">
           {activeTab === "login"
-            ? "Bienvenue. Saisissez vos identifiants pour accéder à votre dashboard."
-            : "Rejoignez plus de 10 000 entreprises qui automatisent leurs ventes."}
+            ? "Bienvenue. Saisissez vos identifiants pour accéder à votre tableau de bord."
+            : `Gardez votre numéro WhatsApp actuel. ${marketing.promise.setup}.`}
         </p>
       </div>
 
@@ -407,18 +419,11 @@ function LoginPageContent() {
         {activeTab === "login" ? <LoginTabContent /> : <SignupTabContent />}
       </div>
 
-      <div className="animate-entrance animate-fade-up flex items-center justify-center gap-2 pt-4 text-sm" style={{ animationDelay: "500ms" }}>
-        <span className="text-muted-foreground">
-          {activeTab === "login" ? "Pas encore de compte ?" : "Vous avez déjà un compte ?"}
-        </span>
-        <button
-          type="button"
-          className="font-bold text-primary hover:underline"
-          onClick={() => setTab(activeTab === "login" ? "signup" : "login")}
-        >
-          {activeTab === "login" ? "S'inscrire" : "Se connecter"}
-        </button>
-      </div>
+      {/*
+        La bascule qui vivait ici (« Pas encore de compte ? S'inscrire »)
+        faisait doublon avec les onglets juste au-dessus, pour 60px de hauteur.
+        Supprimée pour que la page tienne sans défilement.
+      */}
     </div>
   );
 }

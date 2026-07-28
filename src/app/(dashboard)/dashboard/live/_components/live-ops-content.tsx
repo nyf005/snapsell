@@ -1,23 +1,18 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { formatErrorText, formatXof } from "~/lib/copy";
+import { DataList } from "~/components/ui/data-list";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
+import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
+import { SetupRequiredBanner } from "~/app/(dashboard)/_components/setup-required-banner";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { KpiCard } from "~/components/ui/kpi-card";
-import { Spinner } from "~/components/ui/spinner";
+
 import { LiveOpsSkeleton } from "./live-ops-skeletons";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,16 +45,6 @@ const POLL_INTERVAL_ACTIVE_MS = 15_000; // live actif sans réservation récente
 const POLL_INTERVAL_IDLE_MS = 60_000; // pas de live : rafraîchissement toutes les 60s
 const EXPIRING_SOON_THRESHOLD_MS = 5 * 60 * 1000; // 5 min
 
-function formatPrice(amount: number | null): string {
-  if (amount == null) return "—";
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XOF",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount / 100);
-}
-
 /** Returns remaining "MM:SS" or "0:00" when expired. Updates every second when in range. */
 function useExpiryCountdown(expiresAt: Date | null): string {
   const [now, setNow] = useState(() => Date.now());
@@ -83,11 +68,6 @@ function isExpiringSoon(expiresAt: Date | null): boolean {
   return new Date(expiresAt).getTime() - Date.now() < EXPIRING_SOON_THRESHOLD_MS && new Date(expiresAt).getTime() > Date.now();
 }
 
-const RESERVATION_STATUS_LABELS: Record<string, string> = {
-  reserved: "Réservé",
-  address_collected: "Adresse reçue",
-};
-
 type StockLevel = "full" | "low" | "critical";
 function getStockLevel(availableQty: number, quantity: number): StockLevel {
   if (quantity <= 0) return "full";
@@ -98,7 +78,6 @@ function getStockLevel(availableQty: number, quantity: number): StockLevel {
 }
 
 export function LiveOpsContent() {
-  const router = useRouter();
   const utils = api.useUtils();
   const [releaseTargetId, setReleaseTargetId] = useState<string | null>(null);
   const [releaseTargetCode, setReleaseTargetCode] = useState<string>("");
@@ -172,16 +151,16 @@ export function LiveOpsContent() {
       <DashboardHeader />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
         <div className="space-y-8 p-6 md:p-8">
-          <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
-            <div className="flex flex-col gap-1">
-              <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                Live Ops
-              </h1>
-              <p className="text-base font-medium text-muted-foreground">
-                Gérez vos sessions live, suivez les stocks et les réservations en temps réel.
-              </p>
-            </div>
-            <div className="flex gap-2">
+          <SetupRequiredBanner />
+          <TaskPageHeader
+            href="/dashboard/live"
+            description={
+              hasSession
+                ? "Surveillez d’abord les réservations qui expirent. L’inventaire se met à jour automatiquement."
+                : "Le live démarre automatiquement au premier code. Le bouton reste disponible si vous souhaitez le préparer maintenant."
+            }
+            actions={
+              <>
               {hasSession ? (
                 <>
                   <Button variant="outline" size="icon" aria-label="Paramètres">
@@ -198,7 +177,7 @@ export function LiveOpsContent() {
                     disabled={endLiveMutation.isPending}
                   >
                     <X className="size-4" />
-                    {endLiveMutation.isPending ? "Fermeture…" : "Terminer la session"}
+                    {endLiveMutation.isPending ? "Fermeture…" : "Terminer le live"}
                   </Button>
                 </>
               ) : (
@@ -209,15 +188,16 @@ export function LiveOpsContent() {
                   disabled={startLiveMutation.isPending}
                 >
                   <Play className="size-4" />
-                  {startLiveMutation.isPending ? "Démarrage…" : "Lancer le live"}
+                  {startLiveMutation.isPending ? "Démarrage…" : "Démarrer maintenant"}
                 </Button>
               )}
-            </div>
-          </div>
+              </>
+            }
+          />
 
           <section aria-label="Indicateurs" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <KpiCard
-              label="Articles en session"
+              label="Articles du live"
               value={isLoading ? "—" : items.length}
               icon={Package}
               iconVariant="primary"
@@ -237,7 +217,7 @@ export function LiveOpsContent() {
           </section>
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-stretch">
-            <div className="flex flex-col lg:col-span-7">
+            <div className="order-2 flex flex-col lg:order-1 lg:col-span-7">
               <Card className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border-border gap-0 pt-0 shadow-sm">
                 <CardHeader className="flex items-center border-b border-border bg-muted/30 px-6 py-2.5 [.border-b]:pb-2.5">
                   <div className="flex w-full items-center justify-between">
@@ -259,11 +239,11 @@ export function LiveOpsContent() {
                     <div className="p-6">
                       <DashboardEmptyState
                         icon={Radio}
-                        title={hasSession ? "Aucun article enregistré pour cette session" : "Aucune session live en cours"}
+                        title={hasSession ? "Aucun article dans ce live" : "Aucun live en cours"}
                         description={
                           hasSession
-                            ? "Les articles apparaîtront ici lorsqu'ils seront ajoutés à la session."
-                            : "Commencez par lancer une session live pour voir l'inventaire en temps réel."
+                            ? "Les articles apparaîtront ici dès qu’un code sera annoncé."
+                            : "Lancez un live pour voir votre inventaire en temps réel."
                         }
                         action={!hasSession ? (
                           <Button
@@ -278,28 +258,44 @@ export function LiveOpsContent() {
                     </div>
                   ) : (
                     <>
-                      <div className="overflow-x-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="border-border text-muted-foreground">
-                              <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
-                                Code
-                              </TableHead>
-                              <TableHead className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">
-                                Prix
-                              </TableHead>
-                              <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
-                                Stock
-                              </TableHead>
-                              <TableHead className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider">
-                                Réservées
-                              </TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody className="divide-y divide-border">
-                            {items.map((item) => {
+                      <DataList
+                        items={items}
+                        getKey={(item) => item.id}
+                        label="Inventaire du live"
+                        columns={[
+                          {
+                            id: "code",
+                            header: "Code",
+                            role: "primary",
+                            headerClassName:
+                              "px-6 py-4 text-xs font-bold uppercase tracking-wider",
+                            className: "px-6 py-4",
+                            cell: (item) => (
+                              <div className="font-bold text-foreground">{item.code}</div>
+                            ),
+                          },
+                          {
+                            id: "price",
+                            header: "Prix",
+                            role: "secondary",
+                            headerClassName:
+                              "px-6 py-4 text-right text-xs font-bold uppercase tracking-wider",
+                            className: "px-6 py-4 text-right font-semibold",
+                            cell: (item) => formatXof(item.amount),
+                          },
+                          {
+                            id: "stock",
+                            header: "Stock",
+                            role: "meta",
+                            headerClassName:
+                              "px-6 py-4 text-xs font-bold uppercase tracking-wider",
+                            className: "px-6 py-4",
+                            cell: (item) => {
                               const level = getStockLevel(item.availableQty, item.quantity);
-                              const pct = item.quantity > 0 ? (item.availableQty / item.quantity) * 100 : 0;
+                              const pct =
+                                item.quantity > 0
+                                  ? (item.availableQty / item.quantity) * 100
+                                  : 0;
                               const barColor =
                                 level === "critical"
                                   ? "bg-destructive"
@@ -307,55 +303,52 @@ export function LiveOpsContent() {
                                     ? "bg-amber-500"
                                     : "bg-primary";
                               return (
-                                <TableRow
-                                  key={item.id}
-                                  className="border-border hover:bg-muted/40 transition-colors"
-                                >
-                                  <TableCell className="px-6 py-4">
-                                    <div className="font-bold text-foreground">{item.code}</div>
-                                  </TableCell>
-                                  <TableCell className="px-6 py-4 text-right font-semibold">
-                                    {formatPrice(item.amount)}
-                                  </TableCell>
-                                  <TableCell className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                                        <div
-                                          className={`h-full rounded-full ${barColor}`}
-                                          style={{ width: `${pct}%` }}
-                                        />
-                                      </div>
-                                      <span className="w-8 text-right text-sm font-bold">
-                                        {item.availableQty}
-                                      </span>
+                                <div className="min-w-32">
+                                  <div className="flex items-center gap-3">
+                                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                                      <div
+                                        className={`h-full rounded-full ${barColor}`}
+                                        style={{ width: `${pct}%` }}
+                                      />
                                     </div>
-                                    <div
-                                      className={`mt-1 text-[10px] ${
-                                        level === "critical"
-                                          ? "font-bold uppercase tracking-tighter text-destructive"
-                                          : level === "low"
-                                            ? "text-amber-600 dark:text-amber-400"
-                                            : "text-muted-foreground"
-                                      }`}
-                                    >
-                                      {level === "critical"
-                                        ? "Stock critique"
+                                    <span className="w-8 text-right text-sm font-bold">
+                                      {item.availableQty}
+                                    </span>
+                                  </div>
+                                  <div
+                                    className={`mt-1 text-[10px] ${
+                                      level === "critical"
+                                        ? "font-bold uppercase tracking-tighter text-destructive"
                                         : level === "low"
-                                          ? "Stock bas"
-                                          : `Dispo. sur ${item.quantity} total`}
-                                    </div>
-                                  </TableCell>
-                                  <TableCell className="px-6 py-4 text-center">
-                                    <Badge variant="secondary" className="font-bold">
-                                      {item.reservedQty}
-                                    </Badge>
-                                  </TableCell>
-                                </TableRow>
+                                          ? "text-amber-600 dark:text-amber-400"
+                                          : "text-muted-foreground"
+                                    }`}
+                                  >
+                                    {level === "critical"
+                                      ? "Stock critique"
+                                      : level === "low"
+                                        ? "Stock bas"
+                                        : `Dispo. sur ${item.quantity} total`}
+                                  </div>
+                                </div>
                               );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </div>
+                            },
+                          },
+                          {
+                            id: "reserved",
+                            header: "Réservé",
+                            role: "meta",
+                            headerClassName:
+                              "px-6 py-4 text-center text-xs font-bold uppercase tracking-wider",
+                            className: "px-6 py-4 text-center",
+                            cell: (item) => (
+                              <Badge variant="secondary" className="font-bold">
+                                {item.reservedQty}
+                              </Badge>
+                            ),
+                          },
+                        ]}
+                      />
                       <div className="border-t border-border bg-muted/20 px-4 py-4 text-center">
                         <Button variant="ghost" size="sm" className="font-bold text-primary">
                           Voir tout l&apos;inventaire de la session ({items.length} articles)
@@ -367,13 +360,13 @@ export function LiveOpsContent() {
               </Card>
             </div>
 
-            <div className="flex min-h-0 flex-col gap-6 lg:col-span-5">
+            <div className="order-1 flex min-h-0 flex-col gap-6 lg:order-2 lg:col-span-5">
               <Card className="flex flex-1 flex-col overflow-hidden rounded-xl border-border pt-0 shadow-sm">
                 <CardHeader className="flex items-center border-b border-border bg-muted/30 px-6 py-2.5 [.border-b]:pb-2.5">
                   <div className="flex w-full items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-lg font-bold leading-tight">
                       <Clock className="size-5 shrink-0 text-amber-500" />
-                      Réservations actives
+                      À surveiller maintenant
                     </CardTitle>
                     <Badge variant="secondary" className="text-[10px] font-bold">
                       FLUX TEMPS RÉEL
@@ -389,11 +382,11 @@ export function LiveOpsContent() {
                     <div className="flex flex-1 flex-col justify-center p-6">
                       <DashboardEmptyState
                         icon={Clock}
-                        title={hasSession ? "Aucune réservation en cours." : "Aucune session live."}
+                        title={hasSession ? "Aucune réservation en cours" : "Aucun live en cours"}
                         description={
                           hasSession
-                            ? "Aucune réservation n'est active pour le moment."
-                            : "Une session live doit être lancée pour commencer à recevoir des réservations."
+                            ? "Dès qu’un code sera envoyé pendant votre live, la réservation s’affichera ici avec son délai."
+                            : "Lancez un live pour commencer à recevoir des réservations."
                         }
                         action={!hasSession ? (
                           <Button
@@ -446,7 +439,7 @@ export function LiveOpsContent() {
               <Card className="overflow-hidden rounded-xl border-0 bg-primary text-primary-foreground shadow-lg shadow-primary/20">
                 <CardContent className="relative overflow-hidden p-6">
                   <div className="relative z-10">
-                    <h4 className="mb-2 font-bold">Momentum de la session</h4>
+                    <h4 className="mb-2 font-bold">Rythme du live</h4>
                     <div className="mb-4 flex items-center gap-2">
                       <span className="text-2xl font-extrabold tabular-nums">
                         {isLoading ? "—" : `${soldThroughPercent} %`}
@@ -463,8 +456,8 @@ export function LiveOpsContent() {
                     </div>
                     <p className="text-[10px] opacity-70">
                       {hasSession
-                        ? "Part des quantités réservées par rapport au total en session."
-                        : "Démarrez une session pour voir le momentum."}
+                        ? "Part des quantités réservées par rapport au total du live."
+                        : "Lancez un live pour voir le rythme."}
                     </p>
                   </div>
                   <TrendingUp className="absolute -bottom-4 -right-4 size-24 opacity-10" />
@@ -488,7 +481,7 @@ export function LiveOpsContent() {
               aria-live="polite"
               className="text-sm text-destructive"
             >
-              {releaseReservation.error?.message}
+              {formatErrorText(releaseReservation.error, "live")}
             </p>
           )}
         </div>
@@ -500,7 +493,7 @@ export function LiveOpsContent() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Terminer la session live ?</AlertDialogTitle>
+            <AlertDialogTitle>Terminer le live ?</AlertDialogTitle>
             <AlertDialogDescription>
               Cette action ferme la session en cours. Les articles restants seront promus vers
               votre catalogue. Cette action est irréversible.

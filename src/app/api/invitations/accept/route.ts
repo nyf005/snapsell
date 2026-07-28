@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       success: true,
       userId: user.id,
       email: user.email,
-      message: "Compte créé avec succès. Vous allez être connecté automatiquement.",
+      message: "Compte créé. La connexion se fait automatiquement.",
       // Le client utilisera ces credentials pour créer la session
       requiresSignIn: true,
     });

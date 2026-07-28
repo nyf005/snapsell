@@ -14,11 +14,15 @@ vi.mock("~/server/db", () => ({
       create: vi.fn(),
       findUnique: vi.fn(),
     },
+    categoryPrice: {
+      findUnique: vi.fn(),
+    },
   },
 }));
 
 vi.mock("~/server/pricing/getPriceFromCode", () => ({
   getPriceFromCode: vi.fn(),
+  resolveCategoryFromCode: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock("~/server/live-item/createLiveItem", () => ({
@@ -76,6 +80,7 @@ describe("upsertCatalogueItemFromWebhook", () => {
       data: {
         tenantId,
         code: "A1",
+        name: null,
         amount: 1000,
         quantity: 5,
         availableQty: 5,
@@ -114,6 +119,7 @@ describe("upsertCatalogueItemFromWebhook", () => {
       data: {
         tenantId,
         code: "A2",
+        name: null,
         amount: 1000,
         quantity: 2,
         availableQty: 2,

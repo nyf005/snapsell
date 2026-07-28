@@ -2,7 +2,6 @@
 
 import { Skeleton } from "~/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { KpiCard } from "~/components/ui/kpi-card";
 
 export function DashboardLoadingState() {
   return (

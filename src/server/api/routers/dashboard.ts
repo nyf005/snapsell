@@ -3,9 +3,9 @@
  * Isolation tenant: tenantId depuis ctx.session.user.tenantId.
  */
 
-import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
-import { createTRPCRouter, managerProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { canManageGrid } from "~/lib/rbac";
 import { dashboardSummaryOutputSchema } from "./dashboard.schema";
 import { getCurrentSessionReadOnly } from "~/server/live-session/service";
 
@@ -45,10 +45,20 @@ export function getLast7DaysRanges(now: Date = new Date()): { date: string; from
 }
 
 export const dashboardRouter = createTRPCRouter({
-  getSummary: managerProcedure
+  /**
+   * `protectedProcedure` et non `managerProcedure` : les AGENT et VENDEUR ont
+   * `/dashboard` pour page d'accueil, et un `managerProcedure` leur renvoyait
+   * FORBIDDEN — le composant tombait alors sur `if (!summary) return null` et
+   * affichait une salutation au-dessus du vide.
+   *
+   * Les chiffres d'affaires restent réservés aux managers ; ils sont mis à zéro
+   * côté serveur pour les autres rôles (voir `canSeeRevenue` plus bas).
+   */
+  getSummary: protectedProcedure
     .output(dashboardSummaryOutputSchema)
     .query(async ({ ctx }) => {
       const tenantId = ctx.session.user.tenantId;
+      const canSeeRevenue = canManageGrid(ctx.session.user.role as string);
 
       const now = new Date();
       const today = getTodayUtcRange(now);
@@ -58,11 +68,23 @@ export const dashboardRouter = createTRPCRouter({
       const orderSelectForRevenue = {
         reservation: {
           select: {
+            quantity: true,
             liveItem: { select: { amount: true } },
             catalogueItem: { select: { amount: true } },
           },
         },
       } as const;
+
+      /** Montant d'une commande = prix unitaire × quantité réservée. */
+      const orderRevenue = (o: {
+        reservation: {
+          quantity: number;
+          liveItem: { amount: number | null } | null;
+          catalogueItem: { amount: number | null } | null;
+        };
+      }) =>
+        (o.reservation.catalogueItem?.amount ?? o.reservation.liveItem?.amount ?? 0) *
+        o.reservation.quantity;
 
       const [
         pendingProofsCount,
@@ -117,6 +139,7 @@ export const dashboardRouter = createTRPCRouter({
             createdAt: true,
             reservation: {
               select: {
+                quantity: true,
                 liveItem: { select: { amount: true } },
                 catalogueItem: { select: { amount: true } },
               },
@@ -126,19 +149,11 @@ export const dashboardRouter = createTRPCRouter({
       ]);
 
       const revenueTodayCents = ordersToday.reduce(
-        (sum, o) =>
-          sum +
-          (o.reservation.liveItem?.amount ??
-            o.reservation.catalogueItem?.amount ??
-            0),
+        (sum, o) => sum + orderRevenue(o),
         0
       );
       const revenueYesterdayCents = ordersYesterday.reduce(
-        (sum, o) =>
-          sum +
-          (o.reservation.liveItem?.amount ??
-            o.reservation.catalogueItem?.amount ??
-            0),
+        (sum, o) => sum + orderRevenue(o),
         0
       );
 
@@ -149,11 +164,7 @@ export const dashboardRouter = createTRPCRouter({
           return t >= day.from.getTime() && t <= day.to.getTime();
         });
         const revenueCents = dayOrders.reduce(
-          (sum, o) =>
-            sum +
-            (o.reservation.liveItem?.amount ??
-              o.reservation.catalogueItem?.amount ??
-              0),
+          (sum, o) => sum + orderRevenue(o),
           0
         );
         return { date: day.date, revenueCents, orders: dayOrders.length };
@@ -165,9 +176,12 @@ export const dashboardRouter = createTRPCRouter({
         ordersPreparingCount,
         ordersTodayCount: ordersToday.length,
         ordersYesterdayCount: ordersYesterday.length,
-        revenueTodayCents,
-        revenueYesterdayCents,
-        revenueByDay,
+        // Le chiffre d'affaires n'est pas exposé aux rôles opérationnels.
+        revenueTodayCents: canSeeRevenue ? revenueTodayCents : 0,
+        revenueYesterdayCents: canSeeRevenue ? revenueYesterdayCents : 0,
+        revenueByDay: canSeeRevenue
+          ? revenueByDay
+          : revenueByDay.map((d) => ({ ...d, revenueCents: 0 })),
         hasLiveSession: liveSession != null,
       };
     }),

@@ -34,6 +34,23 @@ vi.mock("~/trpc/react", () => ({
       sellerPhones: { list: { invalidate: vi.fn() } },
     }),
     settings: {
+      // Consommées par WhatsAppAdvancedSections, désormais imbriquée dans la page.
+      getBusinessConfig: {
+        useQuery: () => ({ data: null, isLoading: false }),
+      },
+      setBusinessConfig: {
+        useMutation: () => ({ mutate: vi.fn(), isPending: false }),
+      },
+      fetchMetaCatalogs: {
+        useQuery: () => ({
+          data: [],
+          isLoading: false,
+          refetch: vi.fn(),
+        }),
+      },
+      selectMetaCatalog: {
+        useMutation: () => ({ mutate: vi.fn(), isPending: false }),
+      },
       getWhatsAppConfig: {
         useQuery: () => ({
           data: mockWhatsAppConfig,
@@ -85,7 +102,7 @@ vi.mock("~/trpc/react", () => ({
 
 import { WhatsAppConfigContent } from "./whatsapp-config-content";
 
-describe("WhatsAppConfigContent — embedded signup", () => {
+describe("WhatsAppConfigContent — chemin unique de connexion", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockWhatsAppConfig.metaPhoneNumberId = null;
@@ -97,69 +114,60 @@ describe("WhatsAppConfigContent — embedded signup", () => {
     process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED = "true";
   });
 
-  it("renders embedded CTA while keeping manual fallback fields", () => {
+  it("propose un seul bouton de connexion à une boutique non connectée", () => {
     render(<WhatsAppConfigContent />);
 
-    expect(
-      screen.getByRole("button", { name: "Connecter WhatsApp Business" }),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText("Phone Number ID")).toBeInTheDocument();
-    expect(screen.getByLabelText("WABA ID (WhatsApp Business Account)")).toBeInTheDocument();
-    expect(screen.getByLabelText("Access Token")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Connecter WhatsApp" })).toBeEnabled();
+    expect(screen.getByText("WhatsApp n’est pas connecté")).toBeInTheDocument();
   });
 
-  it("shows reconnect CTA and migration info for already connected tenant", () => {
+  it("range les identifiants Meta derrière « Configuration avancée »", () => {
+    render(<WhatsAppConfigContent />);
+
+    const disclosure = screen.getByText("Configuration avancée").closest("details");
+    expect(disclosure).not.toBeNull();
+    expect(disclosure).not.toHaveAttribute("open");
+    // Les champs existent toujours pour le dépannage, mais repliés.
+    expect(disclosure).toContainElement(screen.getByLabelText("Phone Number ID"));
+    expect(disclosure).toContainElement(screen.getByLabelText("Access Token"));
+  });
+
+  it("affiche le numéro connecté et propose de tester", () => {
     mockWhatsAppConfig.metaPhoneNumberId = "phone-123";
     mockWhatsAppConfig.metaWabaId = "waba-123";
-    mockWhatsAppConfig.metaBusinessPhoneNumber = "+33612345678";
+    mockWhatsAppConfig.metaBusinessPhoneNumber = "+2250701020304";
     mockWhatsAppConfig.hasAccessToken = true;
 
     render(<WhatsAppConfigContent />);
 
-    expect(
-      screen.getByRole("button", { name: "Reconnecter via Meta (recommandé)" }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Reconnexion recommandée")).toBeInTheDocument();
-    expect(screen.getByText(/Numéro business actuellement connecté:/i)).toBeInTheDocument();
-    expect(screen.getByText("+33612345678")).toBeInTheDocument();
-    expect(screen.getByText(/renouvellement automatique du token/i)).toBeInTheDocument();
-    expect(screen.getAllByText("Connecté")).toHaveLength(2);
-    expect(screen.queryByText("Déconnecté")).not.toBeInTheDocument();
+    expect(screen.getByText("WhatsApp est connecté")).toBeInTheDocument();
+    expect(screen.getByText(/\+2250701020304/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Tester la connexion" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Reconnecter" })).toBeInTheDocument();
   });
 
-  it("shows reconnect CTA for legacy tenant with phone+token but no wabaId", () => {
-    mockWhatsAppConfig.metaPhoneNumberId = "phone-legacy";
-    mockWhatsAppConfig.metaWabaId = null;
-    mockWhatsAppConfig.hasAccessToken = true;
-
-    render(<WhatsAppConfigContent />);
-
-    expect(
-      screen.getByRole("button", { name: "Reconnecter via Meta (recommandé)" }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Reconnexion recommandée")).toBeInTheDocument();
-    expect(screen.getAllByText("Connecté")).toHaveLength(2);
-    expect(screen.queryByText("Déconnecté")).not.toBeInTheDocument();
-  });
-
-  it("sends OAuth code to backend mutation after successful popup flow", async () => {
+  it("transmet le code OAuth au serveur après le popup", async () => {
     mockLoadSdk.mockResolvedValue({ login: vi.fn(), init: vi.fn() });
-    mockStartSignup.mockResolvedValue({ status: "connected", authResponse: { code: "oauth-123" } });
+    mockStartSignup.mockResolvedValue({
+      status: "connected",
+      authResponse: { code: "oauth-123" },
+    });
     mockExtractCode.mockReturnValue("oauth-123");
     mockConnectEmbeddedMutateAsync.mockResolvedValue({ ok: true });
 
     render(<WhatsAppConfigContent />);
-    fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp Business" }));
+    fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp" }));
 
     await waitFor(() => {
       expect(mockConnectEmbeddedMutateAsync).toHaveBeenCalledWith({ code: "oauth-123" });
     });
+    // Le message de succès parle à la vendeuse, pas du backend ni d'OAuth.
     expect(
-      screen.getByText("Code OAuth recu et transmis au backend SnapSell."),
+      screen.getByText("WhatsApp est connecté. Votre clientèle peut vous écrire."),
     ).toBeInTheDocument();
   });
 
-  it("forwards embedded signup session identifiers to backend when available", async () => {
+  it("transmet les identifiants de session Meta quand ils sont fournis", async () => {
     mockLoadSdk.mockResolvedValue({ login: vi.fn(), init: vi.fn() });
     mockStartSignup.mockResolvedValue({
       status: "connected",
@@ -167,17 +175,14 @@ describe("WhatsAppConfigContent — embedded signup", () => {
       embeddedSignupEvent: {
         type: "WA_EMBEDDED_SIGNUP",
         event: "FINISH",
-        data: {
-          waba_id: "waba-456",
-          phone_number_id: "phone-456",
-        },
+        data: { waba_id: "waba-456", phone_number_id: "phone-456" },
       },
     });
     mockExtractCode.mockReturnValue("oauth-456");
     mockConnectEmbeddedMutateAsync.mockResolvedValue({ ok: true });
 
     render(<WhatsAppConfigContent />);
-    fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp Business" }));
+    fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp" }));
 
     await waitFor(() => {
       expect(mockConnectEmbeddedMutateAsync).toHaveBeenCalledWith({
@@ -188,30 +193,41 @@ describe("WhatsAppConfigContent — embedded signup", () => {
     });
   });
 
-  it("shows user-facing error when popup is canceled or no code returned", async () => {
+  it("explique l’échec sans exposer la cause technique", async () => {
     mockLoadSdk.mockResolvedValue({ login: vi.fn(), init: vi.fn() });
     mockStartSignup.mockResolvedValue({ status: "unknown" });
     mockExtractCode.mockReturnValue(null);
-    mockErrorMessage.mockReturnValue("Popup fermee avant la fin du flow Meta.");
+    mockErrorMessage.mockReturnValue("Popup closed before OAuth completion");
 
     render(<WhatsAppConfigContent />);
-    fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp Business" }));
+    fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp" }));
 
-    expect(
-      await screen.findByText("Popup fermee avant la fin du flow Meta."),
-    ).toBeInTheDocument();
+    const alerts = await screen.findAllByRole("alert");
+    expect(alerts.length).toBeGreaterThan(0);
+    // Le texte brut de Meta ne doit pas atteindre la vendeuse.
+    for (const alert of alerts) {
+      expect(alert.textContent).not.toContain("Popup closed before OAuth completion");
+    }
     expect(mockConnectEmbeddedMutateAsync).not.toHaveBeenCalled();
   });
 
-  it("keeps embedded signup disabled when feature flag is not enabled", () => {
+  it("n’affiche jamais de nom de variable d’environnement", () => {
     process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED = "false";
+    const { container } = render(<WhatsAppConfigContent />);
 
-    render(<WhatsAppConfigContent />);
-    expect(
-      screen.getByRole("button", { name: "Connecter WhatsApp Business" }),
-    ).toBeDisabled();
-    expect(
-      screen.getByText(/Embedded Signup est actuellement desactive/i),
-    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp" }));
+
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("NEXT_PUBLIC_");
+    expect(text).not.toContain("BSP");
+    expect(text).not.toContain("Tech Provider");
+    expect(text).not.toContain("backend");
+  });
+
+  it("n’emploie ni « tenant » ni « E.164 »", () => {
+    const { container } = render(<WhatsAppConfigContent />);
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("tenant");
+    expect(text).not.toContain("E.164");
   });
 });

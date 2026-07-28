@@ -1,4 +1,6 @@
 import { TRPCError } from "@trpc/server";
+
+import { appError } from "~/server/api/errors";
 import { Prisma } from "../../../../generated/prisma";
 
 import {
@@ -86,9 +88,8 @@ async function fetchWhatsAppTemplatesFromMeta(opts: {
   );
 
   if (!res.ok) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: "Impossible de récupérer les templates WhatsApp. Vérifiez vos permissions WhatsApp Business Management.",
+    throw appError("BAD_REQUEST", "whatsapp.missingPermissions", {
+      logMessage: "meta template list refused",
     });
   }
 
@@ -122,9 +123,8 @@ async function validateMetaCredentials(opts: {
         },
       );
       if (!metaRes.ok) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Credentials WhatsApp invalides. Vérifie ton WABA ID et ton Access Token Meta.",
+        throw appError("BAD_REQUEST", "whatsapp.invalidCredentials", {
+          logMessage: "meta phone_numbers lookup refused",
         });
       }
       const body = (await metaRes.json()) as { data?: Array<{ id: string }> };
@@ -421,9 +421,11 @@ export const settingsRouter = createTRPCRouter({
         if (isMetaError) {
           const metaErr = error as MetaEmbeddedSignupError;
           if (metaErr.kind === "BAD_REQUEST") {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: metaErr.message,
+            // Le texte de Meta est en anglais et parle d'identifiants techniques :
+            // il part dans les logs, pas à l'écran.
+            throw appError("BAD_REQUEST", "whatsapp.metaRefused", {
+              cause: metaErr,
+              logMessage: metaErr.message,
             });
           }
           throw new TRPCError({
@@ -535,9 +537,8 @@ export const settingsRouter = createTRPCRouter({
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
     if (!res.ok) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Impossible de récupérer les catalogues Meta. Vérifiez vos permissions Commerce Manager.",
+      throw appError("BAD_REQUEST", "whatsapp.missingPermissions", {
+        logMessage: "meta catalog list refused",
       });
     }
     const body = (await res.json()) as { data?: Array<{ id: string; name?: string }> };

@@ -5,9 +5,12 @@ import type { DateRange } from "react-day-picker";
 import { fr } from "react-day-picker/locale";
 import Link from "next/link";
 import { api, type RouterOutputs } from "~/trpc/react";
+import { formatDateCompact, formatDateTime, formatErrorText, formatRelativeDate, humanizeEventType } from "~/lib/copy";
+import { DataList } from "~/components/ui/data-list";
 import type { z } from "zod";
 import { eventTypeEnumSchema } from "~/server/api/routers/eventLog.schema";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
+import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent } from "~/components/ui/card";
@@ -17,15 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-import { Spinner } from "~/components/ui/spinner";
+
 import { AuditTrailSkeleton } from "./audit-trail-skeletons";
 import {
   Select,
@@ -79,7 +74,7 @@ const CATEGORY_OPTIONS: { value: string; label: string; types: EventType[] }[] =
   },
   {
     value: "live",
-    label: "Sessions live",
+    label: "Lives",
     types: ["live_session_created", "live_session_closed", "live_item_created", "live_item_duplicate_rejected", "live_item_photo_linked"],
   },
   {
@@ -135,7 +130,7 @@ function eventPresentation(event: EventLogItem): EventPresentation {
       const isCancelled = p.to === "cancelled";
       const isDelivered = p.to === "delivered";
       return {
-        label: `Commande → ${toLabel}`,
+        label: `Commande passée à « ${toLabel} »`,
         detail: p.orderNumber ? `N° ${p.orderNumber as string}` : undefined,
         category: "Statut",
         categoryVariant: isCancelled ? "destructive" : isDelivered ? "success" : "outline",
@@ -154,13 +149,13 @@ function eventPresentation(event: EventLogItem): EventPresentation {
     case "reservation_released":
       return { label: "Réservation libérée", category: "Réservation", categoryVariant: "outline", Icon: ArrowRight };
     case "waitlist_promoted":
-      return { label: "Client promu (liste d'attente)", category: "Réservation", categoryVariant: "default", Icon: Users };
+      return { label: "Place libérée — file d’attente", category: "Réservation", categoryVariant: "default", Icon: Users };
     case "reservation_reminder_sent":
       return { label: "Rappel de réservation envoyé", category: "Message", categoryVariant: "outline", Icon: MessageSquare };
     case "live_session_created":
-      return { label: "Session live démarrée", category: "Live", categoryVariant: "default", Icon: Radio };
+      return { label: "Live démarré", category: "Live", categoryVariant: "default", Icon: Radio };
     case "live_session_closed":
-      return { label: "Session live terminée", category: "Live", categoryVariant: "outline", Icon: Radio };
+      return { label: "Live terminé", category: "Live", categoryVariant: "outline", Icon: Radio };
     case "live_item_created":
       return { label: "Article live ajouté", detail: p.code ? `Code : ${p.code as string}` : undefined, category: "Live", categoryVariant: "default", Icon: Package };
     case "live_item_duplicate_rejected":
@@ -172,56 +167,30 @@ function eventPresentation(event: EventLogItem): EventPresentation {
     case "webhook_received":
       return { label: "Message entrant reçu", category: "Message", categoryVariant: "outline", Icon: MessageSquare };
     case "idempotent_ignored":
-      return { label: "Message doublon ignoré", category: "Message", categoryVariant: "outline", Icon: MessageSquare };
+      return { label: "Doublon détecté, aucune action nécessaire", category: "Message", categoryVariant: "outline", Icon: MessageSquare };
     case "opt_out_recorded":
-      return { label: "Client désabonné (opt-out)", category: "Message", categoryVariant: "destructive", Icon: MessageSquareOff };
+      return { label: "Désabonnement", category: "Message", categoryVariant: "destructive", Icon: MessageSquareOff };
     case "message_blocked_optout":
-      return { label: "Message bloqué — opt-out", detail: "Ce client ne peut pas être contacté", category: "Message", categoryVariant: "destructive", Icon: MessageSquareOff };
+      return { label: "Message non envoyé — numéro désabonné", detail: "Ce numéro a demandé à ne plus recevoir de messages", category: "Message", categoryVariant: "destructive", Icon: MessageSquareOff };
     default:
-      return { label: event.eventType, category: "—", categoryVariant: "outline", Icon: ScrollText };
+      // Sans ce repli, le type technique en snake_case s’affichait tel quel.
+      return {
+        label: humanizeEventType(event.eventType),
+        category: "—",
+        categoryVariant: "outline",
+        Icon: ScrollText,
+      };
   }
 }
 
 function actorLabel(actorType: string): string {
   if (actorType === "system") return "Système";
-  if (actorType === "agent") return "Agent IA";
+  if (actorType === "agent") return "Automatisation";
   if (actorType === "seller") return "Vendeur";
   return actorType;
 }
 
 // ─── Formatage des dates ──────────────────────────────────────────────────────
-
-function formatEventDate(date: Date) {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
-
-function formatDateShort(date: Date) {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(date);
-}
-
-function formatRelativeTime(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  if (diffMs < 0) return "À l'instant";
-  const diffMin = Math.floor(diffMs / 60_000);
-  const diffH = Math.floor(diffMin / 60);
-  if (diffMin < 1) return "À l'instant";
-  if (diffMin < 60) return `Il y a ${diffMin} min`;
-  if (diffH < 24) return `Il y a ${diffH}h`;
-  const diffD = Math.floor(diffH / 24);
-  if (diffD < 7) return `Il y a ${diffD}j`;
-  return formatEventDate(date);
-}
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
@@ -296,9 +265,7 @@ export function AuditTrailContent({
       a.click();
       URL.revokeObjectURL(a.href);
     } catch (e) {
-      setExportError(
-        e instanceof Error ? e.message : "Export impossible. Réessayez.",
-      );
+      setExportError(formatErrorText(e, "generic"));
     } finally {
       setIsExporting(false);
     }
@@ -309,17 +276,9 @@ export function AuditTrailContent({
       <DashboardHeader />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
         <div className="space-y-8 p-6 md:p-8">
-          {/* En-tête */}
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-black tracking-tight">
-              Journal d&apos;activité
-            </h1>
-            <p className="max-w-2xl text-muted-foreground">
-              Historique complet de ce qui s&apos;est passé : commandes,
-              réservations, sessions live, messages. Filtrez par catégorie ou
-              période.
-            </p>
-          </div>
+          <TaskPageHeader
+            href="/dashboard/audit"
+          />
 
           {/* Filtres */}
           <Card className="rounded-xl border border-border bg-card shadow-sm">
@@ -372,12 +331,12 @@ export function AuditTrailContent({
                         <CalendarIcon className="mr-2 size-4 shrink-0" />
                         <span className="min-w-0 truncate">
                           {dateFrom && dateTo
-                            ? `${formatDateShort(new Date(dateFrom))} – ${formatDateShort(new Date(dateTo))}`
+                            ? `${formatDateCompact(new Date(dateFrom))} – ${formatDateCompact(new Date(dateTo))}`
                             : !dateFrom && !dateTo
                               ? "Choisir une période"
                               : dateFrom
-                                ? `À partir du ${formatDateShort(new Date(dateFrom))}`
-                                : `Jusqu'au ${formatDateShort(new Date(dateTo!))}`}
+                                ? `À partir du ${formatDateCompact(new Date(dateFrom))}`
+                                : `Jusqu'au ${formatDateCompact(new Date(dateTo!))}`}
                         </span>
                       </Button>
                     </PopoverTrigger>
@@ -451,112 +410,92 @@ export function AuditTrailContent({
               </div>
             ) : (
               <>
-                <div className="min-h-0 flex-1 overflow-x-auto">
-                  <Table aria-label="Journal d'activité">
-                    <TableHeader>
-                      <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
-                        <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          Événement
-                        </TableHead>
-                        <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          Catégorie
-                        </TableHead>
-                        <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          Acteur
-                        </TableHead>
-                        <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          Date
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginatedItems.length === 0 ? (
-                        <TableRow className="hover:bg-transparent">
-                          <TableCell
-                            colSpan={4}
-                            className="px-6 py-16 text-center"
-                          >
-                            <Empty className="mx-auto max-w-sm border-0 p-0">
-                              <EmptyHeader>
-                                <EmptyMedia
-                                  variant="icon"
-                                  className="size-14 rounded-2xl [&_svg]:size-7"
-                                >
-                                  <ScrollText />
-                                </EmptyMedia>
-                                <EmptyTitle>Aucun événement</EmptyTitle>
-                                <EmptyDescription>
-                                  Aucun événement ne correspond à ces critères.
-                                  Modifiez les filtres.
-                                </EmptyDescription>
-                              </EmptyHeader>
-                            </Empty>
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        paginatedItems.map((row, idx) => {
-                          const { label, detail, category: cat, categoryVariant, Icon, href } =
-                            eventPresentation(row);
-                          return (
-                            <TableRow
-                              key={row.id}
-                              className={`border-border transition-colors hover:bg-muted/40 ${idx % 2 === 1 ? "bg-muted/20" : ""}`}
-                            >
-                              <TableCell className="px-6 py-4">
-                                {href ? (
-                                  <Link
-                                    href={href}
-                                    className="group flex flex-col gap-0.5"
-                                  >
-                                    <span className="flex items-center gap-1.5 text-sm font-bold text-foreground group-hover:text-primary transition-colors">
-                                      <Icon className="size-3.5 shrink-0 text-muted-foreground" />
-                                      {label}
-                                    </span>
-                                    {detail && (
-                                      <span className="ml-5 text-xs text-muted-foreground">
-                                        {detail}
-                                      </span>
-                                    )}
-                                  </Link>
-                                ) : (
-                                  <div className="flex flex-col gap-0.5">
-                                    <span className="flex items-center gap-1.5 text-sm font-bold text-foreground">
-                                      <Icon className="size-3.5 shrink-0 text-muted-foreground" />
-                                      {label}
-                                    </span>
-                                    {detail && (
-                                      <span className="ml-5 text-xs text-muted-foreground">
-                                        {detail}
-                                      </span>
-                                    )}
-                                  </div>
-                                )}
-                              </TableCell>
-                              <TableCell className="px-6 py-4">
-                                <Badge
-                                  variant={categoryVariant}
-                                  className="whitespace-nowrap"
-                                >
-                                  {cat}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="px-6 py-4 text-sm text-muted-foreground">
-                                {actorLabel(row.actorType)}
-                              </TableCell>
-                              <TableCell className="px-6 py-4 text-sm text-muted-foreground">
-                                <span
-                                  title={formatEventDate(new Date(row.createdAt))}
-                                >
-                                  {formatRelativeTime(new Date(row.createdAt))}
-                                </span>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
+                <DataList
+                  items={paginatedItems}
+                  getKey={(row) => row.id}
+                  label="Journal d’activité"
+                  columns={[
+                    {
+                      id: "event",
+                      header: "Événement",
+                      role: "primary",
+                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      className: "px-6 py-4",
+                      cell: (row) => {
+                        const { label, detail, Icon, href } = eventPresentation(row);
+                        const body = (
+                          <>
+                            <span className="flex items-center gap-1.5 text-sm font-bold text-foreground">
+                              <Icon className="size-3.5 shrink-0 text-muted-foreground" />
+                              {label}
+                            </span>
+                            {detail && (
+                              <span className="ml-5 text-xs text-muted-foreground">
+                                {detail}
+                              </span>
+                            )}
+                          </>
+                        );
+                        return href ? (
+                          <Link href={href} className="group flex flex-col gap-0.5">
+                            {body}
+                          </Link>
+                        ) : (
+                          <div className="flex flex-col gap-0.5">{body}</div>
+                        );
+                      },
+                    },
+                    {
+                      id: "date",
+                      header: "Date",
+                      role: "secondary",
+                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      className: "px-6 py-4 text-sm text-muted-foreground",
+                      cell: (row) => (
+                        <span title={formatDateTime(new Date(row.createdAt))}>
+                          {formatRelativeDate(new Date(row.createdAt))}
+                        </span>
+                      ),
+                    },
+                    {
+                      id: "category",
+                      header: "Catégorie",
+                      role: "meta",
+                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      className: "px-6 py-4",
+                      cell: (row) => {
+                        const { category, categoryVariant } = eventPresentation(row);
+                        return (
+                          <Badge variant={categoryVariant} className="whitespace-nowrap">
+                            {category}
+                          </Badge>
+                        );
+                      },
+                    },
+                    {
+                      id: "actor",
+                      header: "Acteur",
+                      role: "meta",
+                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      className: "px-6 py-4 text-sm text-muted-foreground",
+                      cell: (row) => actorLabel(row.actorType),
+                    },
+                  ]}
+                  empty={
+                    <Empty className="mx-auto max-w-sm border-0 p-0">
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
+                          <ScrollText />
+                        </EmptyMedia>
+                        <EmptyTitle>Aucun événement</EmptyTitle>
+                        <EmptyDescription>
+                          Aucun événement ne correspond à ces critères. Élargissez la période
+                          ou changez le type d’activité.
+                        </EmptyDescription>
+                      </EmptyHeader>
+                    </Empty>
+                  }
+                />
                 <DataPagination
                   currentPage={safePage}
                   totalPages={totalPages}

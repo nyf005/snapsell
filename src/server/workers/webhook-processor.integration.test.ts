@@ -83,10 +83,6 @@ vi.mock("~/server/live-item/createLiveItem", () => ({
   normalizeCode: vi.fn((s: string) => s.trim().toUpperCase()),
 }));
 
-vi.mock("~/server/live-item/findLiveItemByCode", () => ({
-  findLiveItemByCode: vi.fn(),
-}));
-
 vi.mock("~/server/live-item/getLastEditedLiveItemInWindow", () => ({
   getLastEditedLiveItemInWindow: vi.fn(),
 }));

@@ -193,7 +193,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       expect(writeToOutbox).toHaveBeenCalledWith({
         tenantId,
         to: clientPhone,
-        body: "Super ! Ta commande est enregistrée 🎉\n\nPour finaliser, on a besoin d'un acompte. Envoie la preuve de paiement ici dans les 15 min 📸\n\nOn garde ton article de côté en attendant 🔒",
+        body: "⏳ *Commande en attente d’acompte.*\n\nEnvoie la preuve de paiement ici dans les *15 minutes* 📸\n\nL’article reste réservé pendant ce délai.",
         correlationId,
       });
       expect(logDepositRequested).toHaveBeenCalledWith(tenantId, "order-1", correlationId, {

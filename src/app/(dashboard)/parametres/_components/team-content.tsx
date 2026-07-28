@@ -2,10 +2,13 @@
 
 import { useMemo, useState } from "react";
 
-import { Bell, HelpCircle, MoreVertical, Search, UserPlus, Users } from "lucide-react";
+import { MoreVertical, Search, UserPlus, Users } from "lucide-react";
 
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
+import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import { api } from "~/trpc/react";
+import { formatErrorText } from "~/lib/copy";
+import { DataList } from "~/components/ui/data-list";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -34,15 +37,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { TeamContentSkeleton } from "./team-content-skeletons";
 import { Label } from "~/components/ui/label";
-import { cn } from "~/lib/utils";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
+
 import {
   Select,
   SelectContent,
@@ -139,7 +134,7 @@ export function TeamContent() {
   const [roleTarget, setRoleTarget] = useState<{ id: string; name: string; currentRole: RoleOption } | null>(null);
   const [selectedRole, setSelectedRole] = useState<RoleOption>("AGENT");
 
-  // Dialog: retirer du tenant
+  // Dialog : retirer de l'équipe
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<{ id: string; name: string } | null>(null);
 
@@ -152,7 +147,7 @@ export function TeamContent() {
       void utils.team.listMembers.invalidate();
     },
     onError: (e) => {
-      setInviteEmailError(e.message ?? "Erreur lors de la création de l'invitation.");
+      setInviteEmailError(formatErrorText(e, "team"));
     },
   });
 
@@ -273,34 +268,20 @@ export function TeamContent() {
             />
           </span>
         }
-        right={
-          <>
-            <Button variant="ghost" size="icon" aria-label="Notifications">
-              <Bell className="size-5" />
-            </Button>
-            <Button variant="ghost" size="icon" aria-label="Aide">
-              <HelpCircle className="size-5" />
-            </Button>
-          </>
-        }
       />
-      <main className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <header>
-            <h1 className="text-2xl font-extrabold tracking-tight md:text-3xl">Gestion d'équipe</h1>
-            <p className="mt-1 text-muted-foreground">
-              Contrôlez qui a accès à votre boutique et ce qu'ils peuvent faire.
-            </p>
-          </header>
-          <Button
-            size="sm"
-            className="shrink-0 gap-2 font-semibold shadow-sm"
-            onClick={() => setInviteOpen(true)}
-          >
-            <UserPlus className="size-4" />
-            Inviter un agent
-          </Button>
-        </div>
+      <main className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-4 md:p-8">
+        <TaskPageHeader
+          href="/parametres/team"
+          actions={
+            <Button
+              className="w-full shrink-0 gap-2 font-semibold sm:w-auto"
+              onClick={() => setInviteOpen(true)}
+            >
+              <UserPlus className="size-4" />
+              Inviter un agent
+            </Button>
+          }
+        />
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <KpiCard label="Total membres" value={stats.total} icon={Users} iconVariant="primary" />
@@ -316,10 +297,6 @@ export function TeamContent() {
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h3 className="text-lg font-semibold">Tous les membres</h3>
-          <div className="flex gap-2">
-            <Button variant="outline" size="xs" disabled>Filtre</Button>
-            <Button variant="outline" size="xs" disabled>Exporter</Button>
-          </div>
         </div>
 
         <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
@@ -327,118 +304,127 @@ export function TeamContent() {
             <div className="p-6"><TeamContentSkeleton /></div>
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
-                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Membre</TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rôle</TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Statut</TableHead>
-                    <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Dernière activité</TableHead>
-                    <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredMembers.length === 0 ? (
-                    <TableRow className="hover:bg-transparent">
-                      <TableCell colSpan={5} className="px-6 py-16 text-center">
-                        <Empty className="mx-auto max-w-sm border-0 p-0">
-                          <EmptyHeader>
-                            <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
-                              <Users />
-                            </EmptyMedia>
-                            <EmptyTitle>Aucun membre trouvé</EmptyTitle>
-                            <EmptyDescription>
-                              {search.trim()
-                                ? "Aucun membre ne correspond à votre recherche."
-                                : "Invitez des agents pour qu'ils apparaissent ici."}
-                            </EmptyDescription>
-                          </EmptyHeader>
-                        </Empty>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredMembers.map((member, idx) => {
-                      const isOwner = member.rawRole === "OWNER";
-                      const canAct = !isOwner && !member.isPending;
-                      return (
-                        <TableRow
-                          key={member.id}
-                          className={cn(
-                            "border-border transition-colors hover:bg-muted/40",
-                            idx % 2 === 1 && "bg-muted/20",
-                          )}
+              <DataList
+                items={filteredMembers}
+                getKey={(m) => m.id}
+                label="Membres de l’équipe"
+                columns={[
+                  {
+                    id: "member",
+                    header: "Membre",
+                    role: "primary",
+                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    className: "whitespace-nowrap px-6 py-4",
+                    cell: (member) => (
+                      <span className="flex items-center gap-3">
+                        <MemberAvatar
+                          initials={member.initials}
+                          isPrimary={member.role === "Admin" || member.role === "Manager"}
+                        />
+                        <span>
+                          <p className="text-sm font-medium">{member.name}</p>
+                          <p className="text-xs text-muted-foreground">{member.email}</p>
+                        </span>
+                      </span>
+                    ),
+                  },
+                  {
+                    id: "role",
+                    header: "Rôle",
+                    role: "meta",
+                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    className: "whitespace-nowrap px-6 py-4",
+                    cell: (member) => (
+                      <Badge
+                        variant={
+                          member.role === "Admin" || member.role === "Manager"
+                            ? "default"
+                            : "secondary"
+                        }
+                        className={
+                          member.role === "Admin"
+                            ? "border-purple-200 bg-purple-100 text-purple-600 dark:border-purple-800 dark:bg-purple-900/30 dark:text-purple-400"
+                            : ""
+                        }
+                      >
+                        {member.role}
+                      </Badge>
+                    ),
+                  },
+                  {
+                    id: "status",
+                    header: "Statut",
+                    role: "meta",
+                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    className: "whitespace-nowrap px-6 py-4",
+                    cell: (member) => <StatusCell status={member.status} />,
+                  },
+                  {
+                    id: "lastActive",
+                    header: "Dernière activité",
+                    role: "hiddenOnMobile",
+                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    className: "whitespace-nowrap px-6 py-4 text-sm text-muted-foreground",
+                    cell: (member) => member.lastActive,
+                  },
+                ]}
+                actions={(member) => {
+                  const isOwner = member.rawRole === "OWNER";
+                  const canAct = !isOwner && !member.isPending;
+                  if (member.isPending) {
+                    return (
+                      <Button
+                        variant="link"
+                        size="xs"
+                        className="h-auto p-0 font-bold text-primary hover:underline"
+                      >
+                        Renvoyer l’invitation
+                      </Button>
+                    );
+                  }
+                  if (!canAct) return null;
+                  return (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                          aria-label="Actions"
                         >
-                          <TableCell className="whitespace-nowrap px-6 py-4">
-                            <span className="flex items-center gap-3">
-                              <MemberAvatar
-                                initials={member.initials}
-                                isPrimary={member.role === "Admin" || member.role === "Manager"}
-                              />
-                              <span>
-                                <p className="text-sm font-medium">{member.name}</p>
-                                <p className="text-xs text-muted-foreground">{member.email}</p>
-                              </span>
-                            </span>
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-6 py-4">
-                            <Badge
-                              variant={member.role === "Admin" || member.role === "Manager" ? "default" : "secondary"}
-                              className={
-                                member.role === "Admin"
-                                  ? "border-purple-200 bg-purple-100 text-purple-600 dark:border-purple-800 dark:bg-purple-900/30 dark:text-purple-400"
-                                  : ""
-                              }
-                            >
-                              {member.role}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-6 py-4">
-                            <StatusCell status={member.status} />
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-6 py-4 text-sm text-muted-foreground">
-                            {member.lastActive}
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap px-6 py-4 text-right">
-                            {member.isPending ? (
-                              <Button
-                                variant="link"
-                                size="xs"
-                                className="h-auto p-0 font-bold text-primary hover:underline"
-                              >
-                                Renvoyer l'invitation
-                              </Button>
-                            ) : canAct ? (
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                                    aria-label="Actions"
-                                  >
-                                    <MoreVertical className="size-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onSelect={() => openRoleDialog(member)}>
-                                    Modifier le rôle
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    className="text-destructive"
-                                    onSelect={() => openRemoveDialog(member)}
-                                  >
-                                    Retirer du tenant
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            ) : null}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
+                          <MoreVertical className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => openRoleDialog(member)}>
+                          Modifier le rôle
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onSelect={() => openRemoveDialog(member)}
+                        >
+                          Retirer de l’équipe
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  );
+                }}
+                empty={
+                  <Empty className="mx-auto max-w-sm border-0 p-0">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
+                        <Users />
+                      </EmptyMedia>
+                      <EmptyTitle>Aucun membre trouvé</EmptyTitle>
+                      <EmptyDescription>
+                        {search.trim()
+                          ? "Aucun membre ne correspond à votre recherche."
+                          : "Invitez des agents pour qu’ils apparaissent ici."}
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                }
+              />
               <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
                 <p className="text-xs text-muted-foreground">
                   {filteredMembers.length} sur {stats.total} membres
@@ -455,7 +441,7 @@ export function TeamContent() {
 
       {/* Dialog: inviter un membre */}
       <Dialog open={inviteOpen} onOpenChange={closeInviteModal}>
-        <DialogContent className="max-w-md border-border" showCloseButton>
+        <DialogContent variant="sheet-on-mobile" className="max-w-md border-border" showCloseButton>
           <DialogHeader>
             <DialogTitle>
               {createdInviteLink ? "Lien d'invitation créé" : "Inviter un membre"}
@@ -542,7 +528,7 @@ export function TeamContent() {
 
       {/* Dialog: modifier le rôle */}
       <Dialog open={roleDialogOpen} onOpenChange={(open) => { setRoleDialogOpen(open); if (!open) updateRole.reset(); }}>
-        <DialogContent className="max-w-sm border-border" showCloseButton>
+        <DialogContent variant="sheet-on-mobile" className="max-w-sm border-border" showCloseButton>
           <DialogHeader>
             <DialogTitle>Modifier le rôle</DialogTitle>
           </DialogHeader>
@@ -567,7 +553,7 @@ export function TeamContent() {
               </Select>
             </div>
             {updateRole.error && (
-              <p className="text-xs text-destructive" role="alert">{updateRole.error.message}</p>
+              <p className="text-xs text-destructive" role="alert">{formatErrorText(updateRole.error, "team")}</p>
             )}
           </div>
           <DialogFooter className="flex gap-3 pt-2">
@@ -595,18 +581,18 @@ export function TeamContent() {
 
       {/* Dialog: confirmer le retrait */}
       <Dialog open={removeDialogOpen} onOpenChange={(open) => { setRemoveDialogOpen(open); if (!open) removeMember.reset(); }}>
-        <DialogContent className="max-w-sm border-border" showCloseButton>
+        <DialogContent variant="sheet-on-mobile" className="max-w-sm border-border" showCloseButton>
           <DialogHeader>
-            <DialogTitle>Retirer du tenant</DialogTitle>
+            <DialogTitle>Retirer de l’équipe</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-0">
             <p className="text-sm text-muted-foreground">
               Êtes-vous sûr de vouloir retirer{" "}
               <span className="font-semibold text-foreground">{removeTarget?.name}</span> de votre équipe ?
-              Son accès sera immédiatement révoqué.
+              Cette personne perdra immédiatement l’accès.
             </p>
             {removeMember.error && (
-              <p className="text-xs text-destructive" role="alert">{removeMember.error.message}</p>
+              <p className="text-xs text-destructive" role="alert">{formatErrorText(removeMember.error, "team")}</p>
             )}
           </div>
           <DialogFooter className="flex gap-3 pt-2">

@@ -114,7 +114,6 @@ describe.skipIf(!shouldRun)(
     let db: typeof import("~/server/db").db;
     let POST: typeof import("~/app/api/webhooks/meta/route").POST;
     let processOutboundMessage: typeof import("~/server/workers/outbox-sender").processOutboundMessage;
-    let writeToOutbox: typeof import("~/server/messaging/outbox").writeToOutbox;
 
     beforeAll(async () => {
       const dbMod = await import("~/server/db");
@@ -123,8 +122,6 @@ describe.skipIf(!shouldRun)(
       POST = routeMod.POST;
       const outboxSenderMod = await import("~/server/workers/outbox-sender");
       processOutboundMessage = outboxSenderMod.processOutboundMessage;
-      const outboxMod = await import("~/server/messaging/outbox");
-      writeToOutbox = outboxMod.writeToOutbox;
 
       const tenant = await db.tenant.create({
         data: {

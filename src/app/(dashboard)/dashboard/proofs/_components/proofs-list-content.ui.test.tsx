@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
@@ -39,7 +39,7 @@ vi.mock("~/trpc/react", () => ({
     }),
     proofs: {
       listPending: {
-        useQuery: () => ({ data: PROOFS, isLoading: false }),
+        useQuery: () => ({ data: { items: PROOFS, nextCursor: null }, isLoading: false }),
       },
       approve: {
         useMutation: (opts: { onSuccess?: () => void }) => ({
@@ -87,14 +87,32 @@ describe("ProofsListContent", () => {
   it("renders the page title", () => {
     render(<ProofsListContent />);
     expect(
-      screen.getByText(/Vérification des preuves/),
+      screen.getByRole("heading", { name: "Preuves de paiement" }),
     ).toBeInTheDocument();
   });
 
   it("renders proof entries with order numbers", () => {
     render(<ProofsListContent />);
-    expect(screen.getByText("CMD-001")).toBeInTheDocument();
-    expect(screen.getByText("CMD-002")).toBeInTheDocument();
+    // DataList rend deux compositions : chaque valeur apparaît deux fois dans le DOM.
+    expect(screen.getAllByText("CMD-001").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("CMD-002").length).toBeGreaterThan(0);
+  });
+
+  // Régression : la case vivait dans l'en-tête du tableau et avait été perdue
+  // à la migration DataList, sans qu'aucun test ne s'en aperçoive.
+  it("permet de tout sélectionner d’un clic", () => {
+    render(<ProofsListContent />);
+    expect(
+      screen.getByRole("button", { name: /Tout sélectionner/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("expose chaque preuve dans la composition mobile", () => {
+    render(<ProofsListContent />);
+    const list = screen.getByRole("list", {
+      name: "Preuves de paiement en attente de validation",
+    });
+    expect(within(list).getAllByRole("listitem")).toHaveLength(2);
   });
 
   it("calls approve mutation when Valider is clicked", async () => {
@@ -117,6 +135,7 @@ describe("ProofsListContent", () => {
       name: /Refuser la preuve pour la commande/,
     });
     await user.click(rejectButtons[0]!);
+    await user.click(screen.getByRole("button", { name: "Refuser la preuve" }));
 
     expect(mockReject).toHaveBeenCalledWith({ proofId: "proof-1" });
   });

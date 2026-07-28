@@ -1,28 +1,38 @@
 "use client";
 
-import { CreditCard, AlertTriangle } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import Link from "next/link";
+
+import { formatCreditCount, ui } from "~/lib/copy";
 import { api } from "~/trpc/react";
 
-export function CreditsAlert() {
-  const { data, isLoading } = api.subscription.getCreditsUsage.useQuery(undefined, {
-    staleTime: 60_000, // 1 minute
+type CreditsAlertProps = {
+  /**
+   * Seuls le propriétaire et les managers peuvent lire le solde
+   * (`getCreditsUsage` appelle `assertCanManageSubscription`). Monter ce composant
+   * pour un AGENT ou un VENDEUR déclenchait un 403 à chaque chargement de page.
+   */
+  canManageSubscription: boolean;
+};
+
+export function CreditsAlert({ canManageSubscription }: CreditsAlertProps) {
+  const { data } = api.subscription.getCreditsUsage.useQuery(undefined, {
+    staleTime: 60_000,
+    enabled: canManageSubscription,
   });
 
-  if (isLoading || !data) return null;
-
-  if (!data.isLowCredits) return null;
+  if (!canManageSubscription || !data?.isLowCredits) return null;
 
   return (
     <Link
       href="/parametres/abonnement"
-      className="flex items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-500/20 hover:text-amber-800 dark:text-amber-300"
+      className="flex items-center gap-2 rounded-lg bg-warning/15 px-3 py-1.5 text-xs font-semibold text-warning-foreground transition-colors hover:bg-warning/25"
+      aria-label={`${formatCreditCount(data.balance)} restantes. ${ui.credits.lowDetail}`}
     >
-      <CreditCard className="size-3.5" />
-      <span className="hidden sm:inline">
-        {data.balance} credits restants
-      </span>
-      <AlertTriangle className="size-3.5 sm:hidden" />
+      <CreditCard className="size-3.5 shrink-0" />
+      {/* Le nombre était masqué sous `sm`, alors même que la sidebar qui l'héberge
+          est déjà réservée au desktop : la vendeuse ne voyait jamais son solde. */}
+      <span>{formatCreditCount(data.balance)}</span>
     </Link>
   );
 }

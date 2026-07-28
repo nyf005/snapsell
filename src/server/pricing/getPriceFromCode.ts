@@ -1,15 +1,11 @@
 import { db } from "~/server/db";
+import { resolveCategoryFromCategories } from "~/lib/pricing/resolve-category";
 
 /**
  * Module: résolution de prix à partir du code (catégorie + numéro).
  *
- * Règle de résolution catégorie (Story 3.7) :
- * - Longest match depuis le début du code normalisé (trim + uppercase) contre les categoryLetter du tenant.
- * - Catégories triées par longueur décroissante pour matcher d'abord les plus longues (ex. Premium avant P, AB avant A).
- * - Si même longueur : ordre stable (alphabétique) pour comportement déterministe.
- * - Aucun match → null. Code vide / invalide → null.
- *
- * Exemples : A12→A, AB12→AB, Premium1→Premium, A1 avec grille [AB] uniquement → null.
+ * Règle de résolution catégorie (Story 3.7) : voir src/lib/pricing/resolve-category.ts,
+ * fonction pure partagée avec le client. Ce module n'ajoute que l'accès base.
  */
 
 /**
@@ -25,8 +21,7 @@ export async function resolveCategoryFromCode(
   code: string,
 ): Promise<string | null> {
   if (!tenantId?.trim()) return null;
-  const trimmed = code.trim().toUpperCase();
-  if (trimmed.length === 0) return null;
+  if (code.trim().length === 0) return null;
 
   const rows = await db.categoryPrice.findMany({
     where: { tenantId },
@@ -34,18 +29,12 @@ export async function resolveCategoryFromCode(
   });
   if (rows.length === 0) return null;
 
-  const categories = [...new Set(rows.map((r) => r.categoryLetter))];
-  const sorted = [...categories].sort((a, b) => {
-    const len = b.length - a.length;
-    return len !== 0 ? len : a.localeCompare(b);
-  });
-
-  const categoryUpper = (c: string) => c.toUpperCase();
-  for (const cat of sorted) {
-    const prefix = categoryUpper(cat);
-    if (prefix.length > 0 && trimmed.startsWith(prefix)) return cat;
-  }
-  return null;
+  // La règle vit dans src/lib/pricing/resolve-category.ts, partagée avec le
+  // client : l'aperçu affiché à la vendeuse ne peut pas diverger du calcul réel.
+  return resolveCategoryFromCategories(
+    rows.map((r) => r.categoryLetter),
+    code,
+  );
 }
 
 /**

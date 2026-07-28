@@ -1,4 +1,5 @@
-import { CheckCircle2, MessageCircle, Lock, TimerOff } from "lucide-react";
+import { BarChart3, Layers, Zap } from "lucide-react";
+import { marketing } from "~/lib/copy/marketing";
 
 import { AnimateEntrance } from "~/app/_components/landing/animate-on-scroll";
 
@@ -15,24 +16,32 @@ const messages = [
     text: "✅ Réservé ! Sac bandoulière — 22 000 FCFA\nPaiement sous 30 min.",
     time: "14:32",
   },
-  { from: "customer3", text: "DEF34", time: "14:33" },
-  {
-    from: "bot",
-    text: "⏳ File d'attente — Sandales dorées\nVous serez notifiée si le stock revient.",
-    time: "14:33",
-  },
 ] as const;
 
 export function AuthValuePanel() {
   return (
-    <div className="relative hidden flex-1 items-center justify-center overflow-hidden bg-primary/10 p-16 lg:flex dark:bg-card">
+    <div className="relative hidden flex-1 items-center justify-center overflow-hidden bg-primary/10 px-16 py-6 lg:flex dark:bg-card">
       {/* Ambient glows */}
       <div className="absolute -top-[10%] -right-[10%] size-[400px] rounded-full bg-primary/20 blur-3xl" />
       <div className="absolute -bottom-[10%] -left-[10%] size-[300px] rounded-full bg-primary/10 blur-3xl" />
 
-      <div className="relative z-10 flex w-full max-w-[480px] flex-col gap-8">
+      <div className="relative z-10 flex w-full max-w-[480px] flex-col gap-5">
+        <AnimateEntrance delay={100}>
+          <div className="flex flex-col gap-3">
+            <h2 className="text-2xl font-extrabold leading-tight tracking-tight">
+              Gérez. Vendez. Développez.
+              <br />
+              <span className="text-primary">Tout depuis SnapSell.</span>
+            </h2>
+            <p className="text-muted-foreground">
+              La plateforme des boutiques qui vendent sur WhatsApp et veulent
+              arrêter de tout noter à la main.
+            </p>
+          </div>
+        </AnimateEntrance>
+
         <AnimateEntrance delay={200} animation="scale-in">
-          {/* Live session mock */}
+          {/* Aperçu d'une conversation */}
           <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border bg-primary/10 px-5 py-3">
@@ -41,17 +50,17 @@ export function AuthValuePanel() {
                   B
                 </div>
                 <div>
-                  <p className="text-sm font-bold">Boutiquemode237</p>
+                  <p className="text-sm font-bold">{marketing.demo.shopName}</p>
                   <div className="flex items-center gap-1.5">
                     <span className="size-2 rounded-full bg-green-500" />
-                    <p className="text-xs text-muted-foreground">Live en cours</p>
+                    <p className="text-xs text-muted-foreground">En ligne</p>
                   </div>
                 </div>
               </div>
-              {/* Live stats */}
+              {/* Compteurs du jour */}
               <div className="text-right">
                 <p className="text-xs font-bold text-primary">42 réservations</p>
-                <p className="text-xs text-muted-foreground">1 240 000 FCFA</p>
+                <p className="text-xs text-muted-foreground">aujourd’hui</p>
               </div>
             </div>
 
@@ -80,37 +89,45 @@ export function AuthValuePanel() {
               ))}
             </div>
 
-            {/* Feature pills */}
-            <div className="grid grid-cols-2 gap-3 border-t border-border p-4">
-              <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2">
-                <Lock className="size-4 shrink-0 text-primary" />
-                <div>
-                  <p className="text-xs font-bold">Réservation auto</p>
-                  <p className="text-[10px] text-muted-foreground">Stock verrouillé</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2">
-                <TimerOff className="size-4 shrink-0 text-primary" />
-                <div>
-                  <p className="text-xs font-bold">Anti-fantômes</p>
-                  <p className="text-[10px] text-muted-foreground">TTL 30 min</p>
-                </div>
-              </div>
-            </div>
           </div>
         </AnimateEntrance>
 
-        {/* Trust bullets */}
-        <div className="flex flex-col gap-3">
+        {/*
+          Ces trois lignes étaient des gages de confiance interchangeables, dont
+          une quatrième promesse de délai concurrente (« en 2 minutes »). Elles
+          disent maintenant ce que la personne obtient, titre par titre.
+
+          Masquées sur les écrans courts : la page ne doit pas défiler, et ce
+          bloc est le seul contenu du panneau dont on peut se passer — la
+          conversation au-dessus porte déjà la démonstration.
+        */}
+        <div className="flex flex-col gap-4 [@media(max-height:860px)]:hidden">
           {[
-            "Aucune carte bancaire requise pour commencer",
-            "Mise en place de la boutique en 2 minutes",
-            "Support WhatsApp dédié inclus",
-          ].map((text, i) => (
-            <AnimateEntrance key={text} delay={500 + i * 150}>
-              <div className="flex items-center gap-3 text-muted-foreground">
-                <CheckCircle2 className="size-5 shrink-0 text-success" />
-                <span className="text-sm">{text}</span>
+            {
+              icon: Layers,
+              title: "Centralisez vos ventes",
+              text: "Commandes, preuves de paiement et messages au même endroit.",
+            },
+            {
+              icon: Zap,
+              title: "Gagnez du temps",
+              text: "L’assistant réserve, relance et enregistre pendant que vous vendez.",
+            },
+            {
+              icon: BarChart3,
+              title: "Suivez votre activité",
+              text: "Ce qui est payé, ce qui reste à expédier, ce qui a expiré.",
+            },
+          ].map(({ icon: Icon, title, text }, i) => (
+            <AnimateEntrance key={title} delay={500 + i * 150}>
+              <div className="flex items-start gap-3">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <Icon className="size-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">{title}</p>
+                  <p className="text-sm text-muted-foreground">{text}</p>
+                </div>
               </div>
             </AnimateEntrance>
           ))}

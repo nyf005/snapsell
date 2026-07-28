@@ -323,7 +323,7 @@ export function VariantsSection({
               ) : (
                 <TableRow>
                   <TableCell colSpan={3} className="py-8 text-center text-sm text-muted-foreground">
-                    Aucune variante pour le moment.
+                    Aucune variante. Ajoutez-en si l’article existe en plusieurs tailles ou couleurs.
                   </TableCell>
                 </TableRow>
               )}

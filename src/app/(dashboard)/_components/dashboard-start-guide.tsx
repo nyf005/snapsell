@@ -1,82 +1,86 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "~/components/ui/card";
+import { ArrowRight, CheckCircle2, Radio, ShoppingCart } from "lucide-react";
+
 import { Button } from "~/components/ui/button";
-import { CheckCircle2, Package, Play } from "lucide-react";
 
-export function DashboardStartGuide({ hasLiveSession }: { hasLiveSession: boolean }) {
+/**
+ * Bandeau d'action prioritaire — « le travail du moment d'abord » (PRODUCT.md).
+ *
+ * Ne s'occupe QUE du triage quotidien. La mise en route d'une nouvelle boutique est
+ * gérée par SetupChecklist, qui connaît l'état réel de la configuration ; ce composant
+ * ne le connaît pas et ne doit donc rien proposer à un compte neuf.
+ */
+type DashboardStartGuideProps = {
+  hasLiveSession: boolean;
+  pendingProofsCount: number;
+  ordersPreparingCount: number;
+};
+
+export function DashboardStartGuide({
+  hasLiveSession,
+  pendingProofsCount,
+  ordersPreparingCount,
+}: DashboardStartGuideProps) {
+  const priority =
+    pendingProofsCount > 0
+      ? {
+          href: "/dashboard/proofs",
+          icon: CheckCircle2,
+          eyebrow: "À traiter maintenant",
+          title: `${pendingProofsCount} preuve${pendingProofsCount > 1 ? "s" : ""} à vérifier`,
+          description: "Validez les acomptes pour ne pas retarder les commandes.",
+          action: "Vérifier les preuves",
+        }
+      : ordersPreparingCount > 0
+        ? {
+            href: "/dashboard/orders",
+            icon: ShoppingCart,
+            eyebrow: "Prochaine étape",
+            title: `${ordersPreparingCount} commande${ordersPreparingCount > 1 ? "s" : ""} à préparer`,
+            description: "Passez les commandes prêtes à l’étape suivante.",
+            action: "Ouvrir les commandes",
+          }
+        : hasLiveSession
+          ? {
+              href: "/dashboard/live",
+              icon: Radio,
+              eyebrow: "Live en cours",
+              title: "Les réservations arrivent ici",
+              description: "Suivez les délais et libérez une réservation si nécessaire.",
+              action: "Suivre le live",
+            }
+          : null;
+
+  // Rien d'urgent : la place revient à SetupChecklist si la boutique n'est pas prête,
+  // sinon aux indicateurs du jour.
+  if (!priority) return null;
+
+  const Icon = priority.icon;
+
   return (
-    <Card className="border-primary/20 bg-primary/5 shadow-sm">
-      <CardContent className="space-y-6 p-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="space-y-2">
-            <CardTitle className="text-lg font-bold">Démarrez votre activité rapidement</CardTitle>
-            <CardDescription className="max-w-2xl">
-              Ajoutez vos premiers produits, lancez une session live et suivez les commandes en temps réel.
-            </CardDescription>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Button asChild size="sm" variant="secondary" className="font-semibold">
-              <Link href="/dashboard/catalogue" prefetch>Ajouter un article</Link>
-            </Button>
-            <Button asChild size="sm" className="font-semibold">
-              <Link href="/dashboard/live" prefetch>Voir le live</Link>
-            </Button>
-          </div>
+    <div className="flex flex-col gap-5 rounded-2xl border border-primary/20 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <div className="flex min-w-0 items-start gap-4">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+          <Icon className="size-5" />
         </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-border bg-background p-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Package className="size-5" />
-              </div>
-              <div>
-                <p className="font-semibold">1. Ajouter des articles</p>
-                <p className="text-sm text-muted-foreground">Créez votre catalogue avec des codes, prix et stock.</p>
-              </div>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-border bg-background p-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary/10 text-secondary">
-                <Play className="size-5" />
-              </div>
-              <div>
-                <p className="font-semibold">2. Lancer une session live</p>
-                <p className="text-sm text-muted-foreground">Ouvrez la session pour rendre vos articles commandables.</p>
-              </div>
-            </div>
-          </div>
-          <div className="rounded-2xl border border-border bg-background p-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
-                <CheckCircle2 className="size-5" />
-              </div>
-              <div>
-                <p className="font-semibold">3. Suivre les commandes</p>
-                <p className="text-sm text-muted-foreground">Traitez les réservations et préparez les livraisons au bon moment.</p>
-              </div>
-            </div>
-          </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+            {priority.eyebrow}
+          </p>
+          <h2 className="mt-1 text-lg font-bold text-foreground">{priority.title}</h2>
+          <p className="mt-1 max-w-[58ch] text-sm leading-6 text-muted-foreground">
+            {priority.description}
+          </p>
         </div>
-
-        {!hasLiveSession ? (
-          <div className="rounded-2xl border border-border bg-muted/10 p-4 text-sm text-muted-foreground">
-            Votre session live est inactive. Lancez-la dès que votre catalogue est prêt.
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-border bg-muted/10 p-4 text-sm text-muted-foreground">
-            Votre session live est active. Allez sur Live Ops pour suivre les réservations et le stock.</div>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+      <Button asChild className="w-full shrink-0 sm:w-auto">
+        <Link href={priority.href}>
+          {priority.action}
+          <ArrowRight className="size-4" />
+        </Link>
+      </Button>
+    </div>
   );
 }

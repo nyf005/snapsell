@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { canManageGrid } from "~/lib/rbac";
 import { auth } from "~/server/auth";
 
+import { SettingsAccessDenied } from "../_components/settings-access-denied";
+
 import { TeamContent } from "../_components/team-content";
 
 export const metadata = {
@@ -18,7 +20,7 @@ export default async function TeamParametresPage() {
   }
 
   if (!canManageGrid(session.user.role as string)) {
-    redirect("/dashboard");
+    return <SettingsAccessDenied />;
   }
 
   return <TeamContent />;

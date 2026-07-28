@@ -1,13 +1,6 @@
 import { describe, it, expect } from "vitest";
-import {
-  SUBSCRIPTION_PLANS,
-  PLAN_IDS,
-  getPlanConfig,
-  getPlanByPaystackCode,
-  getPaystackPlanCode,
-  formatPriceFCFA,
-} from "./subscription-plans";
-import type { PlanId, PlanEntitlements } from "./subscription-plans";
+import { SUBSCRIPTION_PLANS, PLAN_IDS, getPlanConfig, formatPriceFCFA } from "./subscription-plans";
+import type { PlanId } from "./subscription-plans";
 
 describe("Story 7A.2: subscription-plans config", () => {
   it("exports 3 plans: free, starter, pro", () => {
@@ -74,7 +67,7 @@ describe("Story 7A.2: subscription-plans config", () => {
       expect(pro.entitlements.creditsTotalMonthly).toBe(1500);
       expect(pro.entitlements.maxProofsPerMonth).toBe(-1); // Illimité
       expect(pro.entitlements.maxAgents).toBe(5);
-      expect(pro.entitlements.overagePerOrderCents).toBe(20_000); // 200 Fcfa
+      expect(pro.entitlements.overagePerOrderCents).toBe(2_000); // 20 FCFA/session
       expect(pro.entitlements.hasAI).toBe(true);
     });
 
@@ -113,9 +106,15 @@ describe("Story 7A.2: subscription-plans config", () => {
       expect(formatPriceFCFA(0)).toBe("Gratuit");
     });
 
+    // La fonction s'appelait formatPriceFCFA mais renvoyait « FCA ». La monnaie
+    // s'écrit FCFA partout — voir src/lib/copy/format.ts.
     it("formats with non-breaking space separator", () => {
-      expect(formatPriceFCFA(25000)).toContain("FCA");
-      expect(formatPriceFCFA(50000)).toContain("FCA");
+      expect(formatPriceFCFA(25000)).toContain("FCFA");
+      expect(formatPriceFCFA(50000)).toContain("FCFA");
+    });
+
+    it("n’écrit jamais la monnaie « FCA »", () => {
+      expect(formatPriceFCFA(25000)).not.toMatch(/\bFCA\b/);
     });
   });
 

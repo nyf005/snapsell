@@ -1,11 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { fr } from "react-day-picker/locale";
 import { api } from "~/trpc/react";
+import { formatDateCompact, formatDateTime, formatErrorText } from "~/lib/copy";
+import {
+  ORDER_STATUS_LABEL,
+  orderFilterOptions,
+  orderStatusLabel,
+  orderWorkViews,
+  statusesForView,
+  type OrderWorkView,
+} from "~/lib/copy/orders";
+import { DataList } from "~/components/ui/data-list";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
+import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -15,18 +26,10 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { DashboardEmptyState } from "~/app/(dashboard)/_components/dashboard-empty-state";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
 import { Card, CardContent } from "~/components/ui/card";
 import { KpiCard } from "~/components/ui/kpi-card";
 import { Input } from "~/components/ui/input";
-import { Spinner } from "~/components/ui/spinner";
+
 import { OrdersListSkeleton } from "./orders-skeletons";
 import {
   Select,
@@ -42,42 +45,11 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { DataPagination } from "~/components/ui/data-pagination";
-import {
-  Package,
-  ListOrdered,
-  Wallet,
-  Truck,
-  XCircle,
-  Search,
-  CheckCircle,
-  Eye,
-  Ban,
-  CalendarIcon,
-  FileCheck,
-  Download,
-} from "lucide-react";
+import { Package, ListOrdered, Wallet, Truck, XCircle, Search, CalendarIcon, FileCheck, Download } from "lucide-react";
 import { getAllowedNextStatuses } from "~/lib/order-status-transitions";
 import type { RouterOutputs } from "~/trpc/react";
 
 type OrderOutput = RouterOutputs["orders"]["list"]["items"][number];
-function formatOrderDate(date: Date) {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
-
-function formatDateShort(date: Date) {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(date);
-}
-
 type OrderStatus =
   | "confirmed"
   | "confirmed_pending_deposit"
@@ -86,24 +58,6 @@ type OrderStatus =
   | "delivered"
   | "cancelled";
 
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  confirmed: "Confirmée",
-  confirmed_pending_deposit: "En attente acompte",
-  preparing: "Prépa",
-  in_delivery: "En livraison",
-  delivered: "Livrée",
-  cancelled: "Annulée",
-};
-
-const STATUS_FILTER_OPTIONS: { value: "" | OrderStatus; label: string }[] = [
-  { value: "", label: "Tous les statuts" },
-  { value: "confirmed", label: "Confirmée" },
-  { value: "confirmed_pending_deposit", label: "En attente acompte" },
-  { value: "preparing", label: "Prépa" },
-  { value: "in_delivery", label: "En livraison" },
-  { value: "delivered", label: "Livrée" },
-  { value: "cancelled", label: "Annulée" },
-];
 
 /** Story 6.3: transitions depuis ~/lib/order-status-transitions (partagé avec le serveur). */
 
@@ -124,7 +78,7 @@ function StatusBadge({
           : status === "preparing" || status === "in_delivery"
             ? "outline"
             : "default";
-  const label = STATUS_LABELS[status];
+  const label = orderStatusLabel(status);
   const content = (
     <Badge variant={variant} className="whitespace-nowrap">
       {label}
@@ -153,23 +107,24 @@ const canChangeStatus = (s: OrderStatus) =>
   getAllowedNextStatuses(s as Parameters<typeof getAllowedNextStatuses>[0]).length > 0;
 
 export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boolean }) {
-  const [statusFilter, setStatusFilter] = useState<"" | OrderStatus>("");
+  const [workView, setWorkView] = useState<OrderWorkView>("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [search, setSearch] = useState("");
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [accumulatedOrders, setAccumulatedOrders] = useState<OrderOutput[]>([]);
+  const filtersMounted = useRef(false);
   const itemsPerPage = 20;
 
   const queryInput = useMemo(
     () => ({
-      status: statusFilter || undefined,
+      status: statusesForView(workView),
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
       limit: itemsPerPage,
       cursor,
     }),
-    [statusFilter, dateFrom, dateTo, cursor],
+    [workView, dateFrom, dateTo, cursor],
   );
 
   const utils = api.useUtils();
@@ -193,7 +148,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
     setExportError(null);
     try {
       const data = await utils.orders.exportCsv.fetch({
-        status: statusFilter || undefined,
+        status: statusesForView(workView),
         dateFrom: dateFrom || undefined,
         dateTo: dateTo || undefined,
       });
@@ -207,7 +162,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
       URL.revokeObjectURL(a.href);
     } catch (e) {
       const message =
-        e instanceof Error ? e.message : "Export impossible. Réessayez.";
+        e instanceof Error ? formatErrorText(e, "orders") : "Export impossible. Réessayez.";
       setExportError(message);
     } finally {
       setIsExporting(false);
@@ -236,6 +191,16 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
     setAccumulatedOrders([]);
   };
 
+  const hasActiveFilters =
+    search.trim().length > 0 || workView !== "" || dateFrom !== "" || dateTo !== "";
+
+  const clearFilters = () => {
+    setSearch("");
+    setWorkView("");
+    setDateFrom("");
+    setDateTo("");
+  };
+
   const filteredBySearch = useMemo(() => {
     if (!search.trim()) return orders;
     const q = search.trim().toLowerCase();
@@ -248,8 +213,12 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
   }, [orders, search]);
 
   useEffect(() => {
+    if (!filtersMounted.current) {
+      filtersMounted.current = true;
+      return;
+    }
     resetPagination();
-  }, [statusFilter, dateFrom, dateTo, search]);
+  }, [workView, dateFrom, dateTo, search]);
 
   const kpis = useMemo(() => {
     return {
@@ -272,18 +241,11 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
       <TooltipProvider>
         <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
           <div className="space-y-8 p-6 md:p-8">
-            {/* Page Header */}
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-black tracking-tight">
-                  Gestion des commandes
-                </h1>
-                <p className="max-w-2xl text-muted-foreground">
-                  Consultez la liste des commandes avec filtres par statut et date.
-                  Gérez les livraisons et annulations.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
+            <TaskPageHeader
+              href="/dashboard/orders"
+              description="Avancez chaque commande jusqu’à la livraison. Les vues ci-dessous suivent votre rythme de travail."
+              actions={
+                <>
                 {pendingProofCount > 0 && (
                   <Link
                     href="/dashboard/proofs"
@@ -318,8 +280,9 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                     )}
                   </div>
                 )}
-              </div>
-            </div>
+                </>
+              }
+            />
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -349,6 +312,28 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
               />
             </div>
 
+            <nav
+              aria-label="Vues des commandes"
+              className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1"
+            >
+              {orderWorkViews.map((view) => {
+                const active = workView === view.value;
+                return (
+                  <Button
+                    key={view.label}
+                    type="button"
+                    variant={active ? "default" : "ghost"}
+                    size="sm"
+                    className="shrink-0"
+                    aria-pressed={active}
+                    onClick={() => setWorkView(view.value)}
+                  >
+                    {view.label}
+                  </Button>
+                );
+              })}
+            </nav>
+
             {/* Filter Section */}
             <Card className="rounded-xl border border-border bg-card shadow-sm">
               <CardContent className="space-y-4 p-4">
@@ -375,9 +360,9 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                       Statut
                     </label>
                     <Select
-                      value={statusFilter || "all"}
+                      value={workView || "all"}
                       onValueChange={(v) =>
-                        setStatusFilter((v === "all" ? "" : v) as "" | OrderStatus)
+                        setWorkView((v === "all" ? "" : v) as "" | OrderStatus)
                       }
                     >
                       <SelectTrigger
@@ -387,7 +372,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                         <SelectValue placeholder="Tous les statuts" />
                       </SelectTrigger>
                       <SelectContent>
-                        {STATUS_FILTER_OPTIONS.map((opt) => (
+                        {orderFilterOptions.map((opt) => (
                           <SelectItem
                             key={opt.value || "all"}
                             value={opt.value || "all"}
@@ -413,12 +398,12 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                         >
                           <CalendarIcon className="mr-2 size-4" />
                           {dateFrom && dateTo
-                            ? `${formatDateShort(new Date(dateFrom))} – ${formatDateShort(new Date(dateTo))}`
+                            ? `${formatDateCompact(new Date(dateFrom))} – ${formatDateCompact(new Date(dateTo))}`
                             : !dateFrom && !dateTo
                               ? "Choisir une période"
                               : dateFrom
-                                ? `À partir du ${formatDateShort(new Date(dateFrom))}`
-                                : `Jusqu'au ${formatDateShort(new Date(dateTo!))}`}
+                                ? `À partir du ${formatDateCompact(new Date(dateFrom))}`
+                                : `Jusqu'au ${formatDateCompact(new Date(dateTo!))}`}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -463,34 +448,6 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                     Rafraîchir
                   </Button>
                 </div>
-                {/* Tabs (quick filters) */}
-                <div className="flex gap-1 border-t border-border pt-3">
-                  {[
-                    { value: "" as const, label: "Toutes" },
-                    { value: "confirmed" as const, label: "Confirmée" },
-                    {
-                      value: "confirmed_pending_deposit" as const,
-                      label: "En attente acompte",
-                    },
-                    { value: "preparing" as const, label: "Prépa" },
-                    { value: "in_delivery" as const, label: "En livraison" },
-                    { value: "delivered" as const, label: "Livrée" },
-                    { value: "cancelled" as const, label: "Annulée" },
-                  ].map(({ value, label }) => (
-                    <button
-                      key={value || "all"}
-                      type="button"
-                      className={`whitespace-nowrap rounded px-4 py-2 text-sm font-semibold transition-colors ${
-                        statusFilter === value
-                          ? "border-b-2 border-primary text-primary"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                      onClick={() => setStatusFilter(value)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
               </CardContent>
             </Card>
 
@@ -502,149 +459,133 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                 </div>
               ) : (
                 <>
-                <div className="min-h-0 flex-1 overflow-x-auto">
-                  <Table aria-label="Liste des commandes">
-                      <TableHeader>
-                        <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
-                          <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            N° commande
-                          </TableHead>
-                          <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            Code article
-                          </TableHead>
-                          <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            Client
-                          </TableHead>
-                          <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            Statut
-                          </TableHead>
-                          <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            Créée le
-                          </TableHead>
-                          <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            Actions
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredBySearch.length === 0 ? (
-                          <TableRow className="hover:bg-transparent">
-                            <TableCell colSpan={6} className="px-6 py-16">
-                              <DashboardEmptyState
-                                icon={Package}
-                                title="Aucune commande"
-                                description="Aucune commande ne correspond aux critères. Modifiez les filtres ou la recherche."
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          filteredBySearch.map((order, idx) => {
-                            const status = order.status as OrderStatus;
-                            const canAct = canChangeStatus(status);
-                            return (
-                              <TableRow
-                                key={order.id}
-                                className={`border-border transition-colors hover:bg-muted/40 ${idx % 2 === 1 ? "bg-muted/20" : ""}`}
-                              >
-                              <TableCell className="px-6 py-4 font-bold text-primary">
-                                {order.orderNumber}
-                              </TableCell>
-                              <TableCell className="px-6 py-4 text-sm font-medium text-foreground">
-                                {order.liveItemCode ?? "—"}
-                              </TableCell>
-                              <TableCell className="px-6 py-4">
-                                <div className="flex flex-col">
-                                  <span className="text-sm font-bold text-foreground">
-                                    {order.clientPhone}
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="px-6 py-4">
-                                <StatusBadge
-                                  status={status}
-                                  depositStatus={order.depositStatus}
-                                />
-                              </TableCell>
-                              <TableCell className="px-6 py-4 text-sm text-muted-foreground">
-                                {formatOrderDate(new Date(order.createdAt))}
-                              </TableCell>
-                              <TableCell className="px-6 py-4 text-right">
-                                <div className="flex justify-end gap-1">
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="size-9 text-muted-foreground hover:bg-muted hover:text-foreground"
-                                        aria-label={`Voir la commande ${order.orderNumber}`}
-                                      >
-                                        <Eye className="size-5" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>Voir le détail</TooltipContent>
-                                  </Tooltip>
-                                  {canAct && (
-                                    <Select
-                                      value=""
-                                      onValueChange={(newStatus) => {
-                                        if (newStatus && getAllowedNextStatuses(status as Parameters<typeof getAllowedNextStatuses>[0]).includes(newStatus as OrderStatus)) {
-                                          updateStatus.mutate({
-                                            orderId: order.id,
-                                            status: newStatus as OrderStatus,
-                                          });
-                                        }
-                                      }}
-                                      disabled={updateStatus.isPending}
-                                      aria-label={`Changer le statut de la commande ${order.orderNumber}`}
-                                    >
-                                      <SelectTrigger className="h-9 w-[140px] border-border bg-muted/50">
-                                        <SelectValue placeholder="Nouveau statut" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {getAllowedNextStatuses(status as Parameters<typeof getAllowedNextStatuses>[0]).map((next) => (
-                                          <SelectItem
-                                            key={next}
-                                            value={next}
-                                          >
-                                            {STATUS_LABELS[next]}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                  )}
-                                  {status === "delivered" && (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <span className="inline-flex size-9 cursor-not-allowed items-center justify-center rounded-lg text-muted-foreground/50">
-                                          <CheckCircle className="size-5" />
-                                        </span>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        Déjà livrée
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                  {status === "cancelled" && (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <span className="inline-flex size-9 cursor-not-allowed items-center justify-center rounded-lg text-muted-foreground/50">
-                                          <Ban className="size-5" />
-                                        </span>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        Commande annulée
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                </div>
-                              </TableCell>
-                              </TableRow>
-                            );
-                          })
-                        )}
-                      </TableBody>
-                    </Table>
-                </div>
+                <DataList
+                  items={filteredBySearch}
+                  getKey={(order) => order.id}
+                  label="Liste des commandes"
+                  columns={[
+                    {
+                      id: "orderNumber",
+                      header: "N° commande",
+                      role: "primary",
+                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      className: "px-6 py-4 font-bold text-primary",
+                      cell: (order) => (
+                        <span className="font-bold text-primary">{order.orderNumber}</span>
+                      ),
+                    },
+                    {
+                      id: "status",
+                      header: "Statut",
+                      role: "secondary",
+                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      className: "px-6 py-4",
+                      cell: (order) => (
+                        <StatusBadge
+                          status={order.status as OrderStatus}
+                          depositStatus={order.depositStatus}
+                        />
+                      ),
+                    },
+                    {
+                      id: "code",
+                      header: "Code article",
+                      role: "meta",
+                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      className: "px-6 py-4 text-sm font-medium text-foreground",
+                      cell: (order) => order.liveItemCode ?? "—",
+                    },
+                    {
+                      id: "client",
+                      header: "Client",
+                      role: "meta",
+                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      className: "px-6 py-4",
+                      cell: (order) => (
+                        <span className="text-sm font-bold text-foreground">
+                          {order.clientPhone}
+                        </span>
+                      ),
+                    },
+                    {
+                      id: "createdAt",
+                      header: "Créée le",
+                      role: "meta",
+                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      className: "px-6 py-4 text-sm text-muted-foreground",
+                      cell: (order) => formatDateTime(new Date(order.createdAt)),
+                    },
+                  ]}
+                  actions={(order) => {
+                    const status = order.status as OrderStatus;
+                    if (canChangeStatus(status)) {
+                      return (
+                        <Select
+                          value=""
+                          onValueChange={(newStatus) => {
+                            if (
+                              newStatus &&
+                              getAllowedNextStatuses(
+                                status as Parameters<typeof getAllowedNextStatuses>[0],
+                              ).includes(newStatus as OrderStatus)
+                            ) {
+                              updateStatus.mutate({
+                                orderId: order.id,
+                                status: newStatus as OrderStatus,
+                              });
+                            }
+                          }}
+                          disabled={updateStatus.isPending}
+                          aria-label={`Changer le statut de la commande ${order.orderNumber}`}
+                        >
+                          <SelectTrigger className="h-9 w-full border-border bg-muted/50 sm:w-[140px]">
+                            <SelectValue placeholder="Nouveau statut" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getAllowedNextStatuses(
+                              status as Parameters<typeof getAllowedNextStatuses>[0],
+                            ).map((next) => (
+                              <SelectItem key={next} value={next}>
+                                {ORDER_STATUS_LABEL[next]}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      );
+                    }
+                    if (status === "delivered") {
+                      return (
+                        <span className="text-sm text-muted-foreground">Déjà livrée</span>
+                      );
+                    }
+                    if (status === "cancelled") {
+                      return (
+                        <span className="text-sm text-muted-foreground">Commande annulée</span>
+                      );
+                    }
+                    return null;
+                  }}
+                  empty={
+                    hasActiveFilters ? (
+                      <DashboardEmptyState
+                        icon={Package}
+                        title="Aucun résultat"
+                        description="Aucune commande ne correspond à votre recherche."
+                        action={
+                          <Button variant="outline" onClick={clearFilters}>
+                            Effacer les filtres
+                          </Button>
+                        }
+                      />
+                    ) : (
+                      <DashboardEmptyState
+                        icon={Package}
+                        title="Aucune commande pour l’instant"
+                        description="Les commandes apparaîtront ici dès qu’une réservation sera confirmée sur WhatsApp."
+                      />
+                    )
+                  }
+                />
                 <DataPagination
                   totalItems={filteredBySearch.length}
                   pageSize={itemsPerPage}
@@ -662,7 +603,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                 className="text-sm text-destructive"
                 role="alert"
               >
-                {updateStatus.error.message}
+                {formatErrorText(updateStatus.error, "orders")}
               </p>
             )}
           </div>

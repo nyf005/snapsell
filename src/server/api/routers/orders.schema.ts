@@ -21,7 +21,11 @@ const dateOptionalSchema = z
 
 export const listOrdersInputSchema = z
   .object({
-    status: orderStatusSchema.optional(),
+    /**
+     * Un ou plusieurs états. La liste sert à la vue « À traiter », qui réunit
+     * `confirmed_pending_deposit` et `confirmed` — voir src/lib/copy/orders.ts.
+     */
+    status: z.union([orderStatusSchema, z.array(orderStatusSchema).min(1)]).optional(),
     dateFrom: dateOptionalSchema,
     dateTo: dateOptionalSchema,
     limit: z.number().min(1).max(100).default(20),

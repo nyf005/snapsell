@@ -2,22 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  Bell,
-  Clock,
-  DollarSign,
-  Layers,
-  Pencil,
-  Plus,
-  Save,
-  Trash2,
-} from "lucide-react";
+import { Clock, DollarSign, Layers, Pencil, Plus, Save, Trash2 } from "lucide-react";
 
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
-import {
-  Alert,
-  AlertDescription,
-} from "~/components/ui/alert";
+import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +17,7 @@ import {
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { Card } from "~/components/ui/card";
 import { KpiCard } from "~/components/ui/kpi-card";
 import {
   Dialog,
@@ -40,7 +28,7 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { Separator } from "~/components/ui/separator";
+
 import {
   Empty,
   EmptyDescription,
@@ -48,18 +36,15 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
-import { Spinner } from "~/components/ui/spinner";
+
 import { DataPagination } from "~/components/ui/data-pagination";
 import { PricingGridSkeleton } from "./pricing-grid-skeletons";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
 import { api } from "~/trpc/react";
+import { CodePricePreview } from "~/app/(dashboard)/_components/code-price-preview";
+import { formatDateCompact, formatXof, ui } from "~/lib/copy";
+import { DataList } from "~/components/ui/data-list";
+import { ErrorAlert } from "~/components/ui/error-alert";
+import { formatError, type UserError } from "~/lib/copy";
 import { cn } from "~/lib/utils";
 import type { RouterOutputs } from "~/trpc/react";
 
@@ -83,14 +68,6 @@ type LocalRow = {
   isNew?: boolean;
 };
 
-function formatDate(d: Date) {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(d);
-}
-
 const PAGE_SIZE = 10;
 
 const emptyAddForm = {
@@ -111,6 +88,34 @@ function rowToItem(r: {
   };
 }
 
+/**
+ * Bandeau « Tester un code ».
+ *
+ * La règle code→prix est le mécanisme central du produit. Plutôt que de la décrire,
+ * on laisse taper un code et voir le prix qui sera annoncé.
+ */
+function CodeTester() {
+  const [testCode, setTestCode] = useState("");
+
+  return (
+    <div className="rounded-xl border border-border bg-surface p-4">
+      <Label htmlFor="code-tester" className="text-sm font-semibold">
+        {ui.pricing.testTitle}
+      </Label>
+      <p className="mt-0.5 text-xs text-muted-foreground">{ui.pricing.testHint}</p>
+      <Input
+        id="code-tester"
+        value={testCode}
+        onChange={(event) => setTestCode(event.target.value)}
+        placeholder="ex. A12"
+        className="mt-2 max-w-xs"
+        autoComplete="off"
+      />
+      <CodePricePreview code={testCode} />
+    </div>
+  );
+}
+
 export function PricingGridContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [cursor, setCursor] = useState<string | undefined>(undefined);
@@ -120,7 +125,7 @@ export function PricingGridContent() {
   const [rowToDelete, setRowToDelete] = useState<string | null>(null);
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState(emptyAddForm);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<UserError | null>(null);
   const [addFormError, setAddFormError] = useState<string | null>(null);
 
   const queryInput = useMemo(() => ({ limit: PAGE_SIZE, cursor }), [cursor]);
@@ -145,11 +150,6 @@ export function PricingGridContent() {
     if (nextCursor) setCursor(nextCursor);
   };
 
-  const resetPagination = () => {
-    setCursor(undefined);
-    setAccumulatedRows([]);
-  };
-
   const utils = api.useUtils();
   const setCategoryPrices = api.settings.setCategoryPrices.useMutation({
     onSuccess: () => {
@@ -157,7 +157,7 @@ export function PricingGridContent() {
       void utils.settings.getCategoryPrices.invalidate();
     },
     onError: (err) => {
-      setSaveError(err.message ?? "Erreur lors de l’enregistrement.");
+      setSaveError(formatError(err, "pricing"));
     },
   });
 
@@ -289,44 +289,21 @@ export function PricingGridContent() {
 
   return (
     <>
-      <DashboardHeader
-        right={
-          <Button variant="ghost" size="icon" className="text-muted-foreground" aria-label="Notifications">
-            <Bell className="size-5" />
-          </Button>
-        }
-      />
-      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-              Grille de prix
-            </h1>
-            <p className="mt-1 text-base text-muted-foreground">
-              Définissez les montants par catégorie (A, B, C…) pour appliquer automatiquement les prix à votre catalogue.
-            </p>
-          </div>
-          <Button onClick={() => setOpenAddModal(true)} className="gap-2 font-semibold shrink-0" size="default">
-            <Plus className="size-5" />
-            Ajouter une catégorie
-          </Button>
-        </div>
+      <DashboardHeader />
+      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-4 md:p-8">
+        <TaskPageHeader
+          href="/parametres/prix"
+          actions={
+            <Button onClick={() => setOpenAddModal(true)} className="w-full gap-2 font-semibold sm:w-auto">
+              <Plus className="size-5" />
+              Ajouter une catégorie
+            </Button>
+          }
+        />
 
-        {saveError && (
-          <Alert variant="destructive" className="flex flex-row flex-wrap items-center justify-between gap-2">
-            <AlertDescription className="flex flex-1 items-center justify-between gap-2">
-              <span>{saveError}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto p-1 text-destructive hover:bg-destructive/20"
-                onClick={() => setSaveError(null)}
-              >
-                Fermer
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
+        <CodeTester />
+
+        {saveError && <ErrorAlert error={saveError} />}
 
         {/* Modale Ajouter une catégorie */}
         <Dialog
@@ -339,7 +316,7 @@ export function PricingGridContent() {
             }
           }}
         >
-          <DialogContent className="sm:max-w-md">
+          <DialogContent variant="sheet-on-mobile" className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Nouvelle catégorie</DialogTitle>
               <p className="text-sm text-muted-foreground">
@@ -429,7 +406,7 @@ export function PricingGridContent() {
             }
           }}
         >
-          <DialogContent className="sm:max-w-md">
+          <DialogContent variant="sheet-on-mobile" className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Modifier la catégorie</DialogTitle>
               <p className="text-sm text-muted-foreground">
@@ -548,7 +525,7 @@ export function PricingGridContent() {
           />
           <KpiCard
             label="Dernière MAJ"
-            value={lastUpdated ? formatDate(lastUpdated) : "—"}
+            value={lastUpdated ? formatDateCompact(lastUpdated) : "—"}
             icon={Clock}
             iconVariant="warning"
             valueClassName="text-xl font-bold md:text-2xl"
@@ -563,108 +540,97 @@ export function PricingGridContent() {
             </div>
           ) : (
             <>
-            <div className="min-h-0 flex-1 overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border bg-muted/60 hover:bg-muted/60">
-                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Catégorie
-                  </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Prix
-                  </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Description
-                  </TableHead>
-                  <TableHead className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Dernière MAJ
-                  </TableHead>
-                  <TableHead className="w-12 px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginated.length === 0 ? (
-                  <TableRow className="hover:bg-transparent">
-                    <TableCell
-                      colSpan={5}
-                      className="px-6 py-16 text-center"
-                    >
-                      <Empty className="mx-auto max-w-sm border-0 p-0">
-                        <EmptyHeader>
-                          <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
-                            <Layers />
-                          </EmptyMedia>
-                          <EmptyTitle>Aucune catégorie</EmptyTitle>
-                          <EmptyDescription>
-                            Ajoutez des catégories (ex. A, Premium, AB) et définissez un prix pour chacune.
-                          </EmptyDescription>
-                        </EmptyHeader>
-                      </Empty>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginated.map((row, idx) => (
-                    <TableRow
-                      key={row.id}
-                      className={cn(
-                        "border-border transition-colors hover:bg-muted/40",
-                        idx % 2 === 1 && "bg-muted/20"
-                      )}
-                    >
-                      <TableCell className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={cn(
-                              "size-2.5 shrink-0 rounded-full",
-                              CATEGORY_DOT_COLORS[idx % CATEGORY_DOT_COLORS.length]
-                            )}
-                          />
-                          <span className="text-sm font-medium">
-                            {row.categoryLetter || "—"}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-6 py-4 text-sm tabular-nums">
-                        {row.amount === 0
-                          ? "—"
-                          : `${Math.round(row.amount / 100).toLocaleString("fr-FR")} FCFA`}
-                      </TableCell>
-                      <TableCell className="px-6 py-4 text-sm text-muted-foreground">
-                        {row.description ?? "—"}
-                      </TableCell>
-                      <TableCell className="px-6 py-4 text-sm text-muted-foreground tabular-nums">
-                        {formatDate(row.updatedAt)}
-                      </TableCell>
-                      <TableCell className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-muted-foreground hover:bg-primary/10 hover:text-primary"
-                            aria-label="Modifier la catégorie"
-                            onClick={() => openEditModal(row)}
-                          >
-                            <Pencil className="size-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                            aria-label="Supprimer la catégorie"
-                            onClick={() => setRowToDelete(row.id)}
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-            </div>
+            <DataList
+              items={paginated}
+              getKey={(row) => row.id}
+              label="Catégories de prix"
+              columns={[
+                {
+                  id: "category",
+                  header: "Catégorie",
+                  role: "primary",
+                  headerClassName:
+                    "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                  className: "px-6 py-4",
+                  cell: (row) => (
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          "size-2.5 shrink-0 rounded-full",
+                          CATEGORY_DOT_COLORS[
+                            paginated.indexOf(row) % CATEGORY_DOT_COLORS.length
+                          ],
+                        )}
+                      />
+                      <span className="text-sm font-medium">{row.categoryLetter || "—"}</span>
+                    </div>
+                  ),
+                },
+                {
+                  id: "amount",
+                  header: "Prix",
+                  role: "secondary",
+                  headerClassName:
+                    "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                  className: "px-6 py-4 text-sm tabular-nums",
+                  cell: (row) => (row.amount === 0 ? "—" : formatXof(row.amount)),
+                },
+                {
+                  id: "description",
+                  header: "Description",
+                  role: "meta",
+                  headerClassName:
+                    "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                  className: "px-6 py-4 text-sm text-muted-foreground",
+                  cell: (row) => row.description ?? "—",
+                },
+                {
+                  id: "updated",
+                  header: "Dernière MAJ",
+                  role: "hiddenOnMobile",
+                  headerClassName:
+                    "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                  className: "px-6 py-4 text-sm text-muted-foreground tabular-nums",
+                  cell: (row) => formatDateCompact(row.updatedAt),
+                },
+              ]}
+              actions={(row) => (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                    aria-label="Modifier la catégorie"
+                    onClick={() => openEditModal(row)}
+                  >
+                    <Pencil className="size-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    aria-label="Supprimer la catégorie"
+                    onClick={() => setRowToDelete(row.id)}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </>
+              )}
+              empty={
+                <Empty className="mx-auto max-w-sm border-0 p-0">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
+                      <Layers />
+                    </EmptyMedia>
+                    <EmptyTitle>Aucune catégorie</EmptyTitle>
+                    <EmptyDescription>
+                      Ajoutez des catégories (ex. A, Premium, AB) et définissez un prix pour
+                      chacune.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              }
+            />
             <DataPagination
               totalItems={displayRows.length}
               pageSize={PAGE_SIZE}

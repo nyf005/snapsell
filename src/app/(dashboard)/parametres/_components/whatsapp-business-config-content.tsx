@@ -1,24 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Bell,
-  Check,
-  Clock,
-  ExternalLink,
-  Info,
-  MessageSquare,
-  RefreshCw,
-  ShoppingBag,
-} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Check, ExternalLink, Info, MessageSquare, RefreshCw, ShoppingBag } from "lucide-react";
 import { api } from "~/trpc/react";
+import { ErrorAlert } from "~/components/ui/error-alert";
+import {
+  formatError,
+  templateCategoryLabel,
+  templateStatusLabel,
+  type UserError,
+} from "~/lib/copy";
 import { cn } from "~/lib/utils";
-import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-import { Textarea } from "~/components/ui/textarea";
+
 import {
   Select,
   SelectContent,
@@ -26,38 +23,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { TimePickerField } from "~/components/ui/time-picker";
-
-const TIMEZONES = [
-  { value: "Africa/Abidjan", label: "Abidjan (UTC+0)" },
-  { value: "Africa/Dakar",   label: "Dakar (UTC+0)" },
-  { value: "Africa/Accra",   label: "Accra (UTC+0)" },
-  { value: "Africa/Lagos",   label: "Lagos (UTC+1)" },
-  { value: "Africa/Douala",  label: "Douala (UTC+1)" },
-  { value: "Africa/Nairobi", label: "Nairobi (UTC+3)" },
-  { value: "Europe/Paris",   label: "Paris (UTC+1/+2)" },
-];
 
 const fieldLabel = "mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground";
 
-export function WhatsAppBusinessConfigContent() {
-  const [hoursStart, setHoursStart]   = useState("");
-  const [hoursEnd, setHoursEnd]       = useState("");
-  const [timezone, setTimezone]       = useState("Africa/Abidjan");
-  const [awayMessage, setAwayMessage] = useState("");
-  const [saveError, setSaveError]     = useState<string | null>(null);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+/**
+ * Fonctions avancées de WhatsApp : catalogue Meta Commerce et modèles de message.
+ *
+ * Vivait sur sa propre page « Profil WhatsApp Business », nommée d'après un produit
+ * Meta. Ces deux réglages ne concernent qu'une minorité de vendeuses : ils sont
+ * désormais repliés dans la page Connexion WhatsApp.
+ */
+export function WhatsAppAdvancedSections() {
 
   const [selectedCatalogId, setSelectedCatalogId] = useState("");
   const [catalogFetchEnabled, setCatalogFetchEnabled] = useState(false);
   const [catalogSaveSuccess, setCatalogSaveSuccess]   = useState(false);
-  const [catalogSaveError, setCatalogSaveError]       = useState<string | null>(null);
+  const [catalogSaveError, setCatalogSaveError]       = useState<UserError | null>(null);
   const [selectedTemplateKey, setSelectedTemplateKey] = useState("");
   const [templateNotice, setTemplateNotice] = useState<string | null>(null);
-  const [templateError, setTemplateError] = useState<string | null>(null);
+  const [templateError, setTemplateError] = useState<UserError | null>(null);
 
   const utils                  = api.useUtils();
-  const { data, isLoading }    = api.settings.getBusinessConfig.useQuery();
+  const { data }               = api.settings.getBusinessConfig.useQuery();
   const { data: waConfig }     = api.settings.getWhatsAppConfig.useQuery();
 
   const { data: catalogs = [], isLoading: catalogsLoading, refetch: refetchCatalogs } =
@@ -71,27 +58,6 @@ export function WhatsAppBusinessConfigContent() {
     enabled: isConnected,
   });
 
-  const hasInitialSync = useRef(false);
-
-  useEffect(() => {
-    if (!data || hasInitialSync.current) return;
-    hasInitialSync.current = true;
-    setHoursStart(data.businessHoursStart ?? "");
-    setHoursEnd(data.businessHoursEnd ?? "");
-    setTimezone(data.businessTimezone ?? "Africa/Abidjan");
-    setAwayMessage(data.awayMessage ?? "");
-  }, [data]);
-
-  const saveConfig = api.settings.setBusinessConfig.useMutation({
-    onSuccess: () => {
-      setSaveError(null);
-      setSaveSuccess(true);
-      void utils.settings.getBusinessConfig.invalidate();
-      setTimeout(() => setSaveSuccess(false), 3000);
-    },
-    onError: (e) => setSaveError(e.message),
-  });
-
   const selectCatalog = api.settings.selectMetaCatalog.useMutation({
     onSuccess: () => {
       setCatalogSaveError(null);
@@ -99,7 +65,7 @@ export function WhatsAppBusinessConfigContent() {
       void utils.settings.getBusinessConfig.invalidate();
       setTimeout(() => setCatalogSaveSuccess(false), 3000);
     },
-    onError: (e) => setCatalogSaveError(e.message),
+    onError: (e) => setCatalogSaveError(formatError(e, "whatsapp")),
   });
   const selectTemplate = api.settings.selectWhatsAppTemplate.useMutation({
     onSuccess: () => {
@@ -108,18 +74,8 @@ export function WhatsAppBusinessConfigContent() {
       void utils.settings.fetchWhatsAppTemplates.invalidate();
       setTimeout(() => setTemplateNotice(null), 3000);
     },
-    onError: (e) => setTemplateError(e.message),
+    onError: (e) => setTemplateError(formatError(e, "whatsapp")),
   });
-
-  const handleSave = useCallback(() => {
-    setSaveError(null);
-    saveConfig.mutate({
-      businessHoursStart: hoursStart || null,
-      businessHoursEnd:   hoursEnd   || null,
-      businessTimezone:   timezone   || null,
-      awayMessage:        awayMessage.trim() || null,
-    });
-  }, [hoursStart, hoursEnd, timezone, awayMessage, saveConfig]);
 
   useEffect(() => {
     const selected = templatesQuery.data?.selectedTemplate;
@@ -147,110 +103,7 @@ export function WhatsAppBusinessConfigContent() {
   }, [selectTemplate, selectedTemplate]);
 
   return (
-    <>
-      <DashboardHeader
-        right={
-          <Button variant="ghost" size="icon" className="text-muted-foreground" aria-label="Notifications">
-            <Bell className="size-5" />
-          </Button>
-        }
-      />
-      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-6 md:p-8">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight">WhatsApp Business</h1>
-          <p className="mt-1 max-w-2xl text-muted-foreground">
-            Configurez les horaires d&apos;ouverture et le catalogue Meta Commerce.
-          </p>
-        </div>
-
-        {/* Horaires + message away */}
-        <Card className="rounded-xl border border-border bg-card shadow-sm">
-          <CardHeader className="border-b border-border pb-6">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Clock className="size-5 text-muted-foreground" />
-              Horaires d&apos;ouverture
-            </CardTitle>
-            <CardDescription>
-              En dehors de ces horaires, le message hors-horaires est envoyé automatiquement au premier message reçu.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
-            {/* Ligne horaires */}
-            <div className="flex flex-wrap items-end gap-4">
-              <TimePickerField
-                label="Ouverture"
-                value={hoursStart}
-                onChange={setHoursStart}
-                disabled={isLoading || saveConfig.isPending}
-              />
-              <TimePickerField
-                label="Fermeture"
-                value={hoursEnd}
-                onChange={setHoursEnd}
-                disabled={isLoading || saveConfig.isPending}
-              />
-              <div className="min-w-[200px] flex-1">
-                <label className={fieldLabel}>Fuseau horaire</label>
-                <Select
-                  value={timezone}
-                  onValueChange={setTimezone}
-                  disabled={isLoading || saveConfig.isPending}
-                >
-                  <SelectTrigger className="h-9 w-full border-border bg-muted/50">
-                    <SelectValue placeholder="Choisir…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TIMEZONES.map((tz) => (
-                      <SelectItem key={tz.value} value={tz.value}>
-                        {tz.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Away message */}
-            <div>
-              <label htmlFor="away-message" className={cn(fieldLabel, "flex items-center gap-1.5")}>
-                <MessageSquare className="size-3.5" />
-                Message hors-horaires
-              </label>
-              <Textarea
-                id="away-message"
-                value={awayMessage}
-                onChange={(e) => setAwayMessage(e.target.value)}
-                placeholder="Bonjour ! Nous sommes actuellement fermés. Nos horaires sont 8h–20h. Nous vous répondrons dès notre réouverture."
-                rows={4}
-                maxLength={2000}
-                disabled={isLoading || saveConfig.isPending}
-                className="mt-1.5 resize-none border-border bg-muted/50"
-              />
-              <p className="mt-1 text-right text-xs text-muted-foreground">{awayMessage.length}/2000</p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Button
-                type="button"
-                onClick={handleSave}
-                disabled={saveConfig.isPending || isLoading}
-                className="font-semibold shadow-lg shadow-primary/20"
-              >
-                {saveConfig.isPending ? "Enregistrement…" : "Enregistrer"}
-              </Button>
-              {saveSuccess && (
-                <span className="flex items-center gap-1 text-sm text-success">
-                  <Check className="size-4" /> Enregistré
-                </span>
-              )}
-            </div>
-            {saveError && (
-              <Alert variant="destructive">
-                <AlertDescription>{saveError}</AlertDescription>
-              </Alert>
-            )}
-          </CardContent>
-        </Card>
+    <div className="space-y-6">
 
         {/* Catalogue Meta */}
         <Card className="rounded-xl border border-border bg-card shadow-sm">
@@ -300,7 +153,7 @@ export function WhatsAppBusinessConfigContent() {
                       <SelectContent>
                         {catalogs.map((c) => (
                           <SelectItem key={c.id} value={c.id}>
-                            {c.name} <span className="text-muted-foreground">({c.id})</span>
+                            {c.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -342,11 +195,7 @@ export function WhatsAppBusinessConfigContent() {
                     <Check className="size-4" /> Catalogue enregistré
                   </span>
                 )}
-                {catalogSaveError && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{catalogSaveError}</AlertDescription>
-                  </Alert>
-                )}
+                {catalogSaveError && <ErrorAlert error={catalogSaveError} />}
 
                 {catalogFetchEnabled && !catalogsLoading && catalogs.length === 0 && (
                   <Alert className="border-dashed bg-muted/50">
@@ -360,17 +209,17 @@ export function WhatsAppBusinessConfigContent() {
           </CardContent>
         </Card>
 
-        {/* Templates WhatsApp */}
+        {/* Modèles de message */}
         <Card className="rounded-xl border border-border bg-card shadow-sm">
           <CardHeader className="border-b border-border pb-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2 text-xl">
                   <MessageSquare className="size-5 text-muted-foreground" />
-                  Templates WhatsApp
+                  Modèles de message
                 </CardTitle>
                 <CardDescription>
-                  Sélectionnez un template approuvé depuis le WABA connecté pour l&apos;associer au workspace.
+                  Choisissez le modèle de message que SnapSell utilisera pour écrire sur WhatsApp. Seuls les modèles approuvés par WhatsApp apparaissent ici.
                 </CardDescription>
               </div>
               <Button
@@ -392,7 +241,7 @@ export function WhatsAppBusinessConfigContent() {
               <Alert className="border-dashed bg-muted/50">
                 <Info className="size-4 text-primary" />
                 <AlertDescription className="text-sm">
-                  Connectez d&apos;abord votre compte WhatsApp Business (onglet Connexion) pour charger les templates du WABA.
+                  Connectez d&apos;abord WhatsApp pour voir vos modèles de message.
                 </AlertDescription>
               </Alert>
             ) : (
@@ -450,9 +299,7 @@ export function WhatsAppBusinessConfigContent() {
                 </div>
 
                 {templatesQuery.isError && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{templatesQuery.error.message}</AlertDescription>
-                  </Alert>
+                  <ErrorAlert error={templatesQuery.error} context="whatsapp" />
                 )}
 
                 {templatesQuery.isLoading ? (
@@ -460,7 +307,7 @@ export function WhatsAppBusinessConfigContent() {
                 ) : templates.length === 0 ? (
                   <div className="rounded-md border border-dashed border-border p-4">
                     <p className="text-sm font-medium text-foreground">
-                      Aucun template trouvé sur ce WABA.
+                      Aucun modèle de message disponible.
                     </p>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Créez un template Utility dans WhatsApp Manager, puis revenez l&apos;actualiser ici.
@@ -483,9 +330,9 @@ export function WhatsAppBusinessConfigContent() {
                             <p className="truncate font-medium text-foreground">{template.name}</p>
                             <p className="text-xs text-muted-foreground">{template.language}</p>
                           </div>
-                          <Badge variant="secondary">{template.category}</Badge>
+                          <Badge variant="secondary">{templateCategoryLabel(template.category)}</Badge>
                           <Badge variant={template.status === "APPROVED" ? "success" : "outline"}>
-                            {template.status}
+                            {templateStatusLabel(template.status)}
                           </Badge>
                         </div>
                       ))}
@@ -493,11 +340,7 @@ export function WhatsAppBusinessConfigContent() {
                   </div>
                 )}
 
-                {templateError && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{templateError}</AlertDescription>
-                  </Alert>
-                )}
+                {templateError && <ErrorAlert error={templateError} />}
                 {templateNotice && (
                   <Alert className="border-success/50 bg-success/10 text-success [&>svg]:text-success">
                     <AlertDescription>{templateNotice}</AlertDescription>
@@ -508,8 +351,6 @@ export function WhatsAppBusinessConfigContent() {
           </CardContent>
         </Card>
 
-        <div className="pb-12" />
-      </div>
-    </>
+    </div>
   );
 }

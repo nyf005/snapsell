@@ -1,23 +1,10 @@
-import { redirect } from "next/navigation";
-import { canManageGrid } from "~/lib/rbac";
-import { auth } from "~/server/auth";
-import { WhatsAppBusinessConfigContent } from "../_components/whatsapp-business-config-content";
+import { permanentRedirect } from "next/navigation";
 
-export const metadata = {
-  title: "WhatsApp Business | SnapSell",
-  description: "Configurer les horaires et le catalogue Meta Commerce.",
-};
-
-export default async function WhatsAppBusinessParametresPage() {
-  const session = await auth();
-
-  if (!session?.user) {
-    redirect("/login");
-  }
-
-  if (!canManageGrid(session.user.role as string)) {
-    redirect("/dashboard");
-  }
-
-  return <WhatsAppBusinessConfigContent />;
+/**
+ * « Profil WhatsApp Business » est replié dans /parametres/whatsapp : les horaires
+ * sont partis vers /parametres/reponses, le reste (catalogue Meta, modèles de
+ * message) vit sous « Fonctions avancées ».
+ */
+export default function WhatsAppBusinessRedirectPage() {
+  permanentRedirect("/parametres/whatsapp");
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { Skeleton } from "~/components/ui/skeleton";
+import { DataListSkeleton } from "~/components/ui/data-list-skeleton";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { Badge } from "~/components/ui/badge";
 
 export function LiveOpsSkeleton() {
   return (
@@ -48,41 +48,7 @@ export function LiveOpsSkeleton() {
               </div>
             </CardHeader>
             <CardContent className="flex-1 p-0">
-              <div className="w-full overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">Code</th>
-                      <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-muted-foreground">Prix</th>
-                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">Stock</th>
-                      <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">Réservées</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <tr key={i} className="border-b border-border">
-                        <td className="px-6 py-4">
-                          <Skeleton className="h-5 w-16" variant="text" />
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <Skeleton className="h-5 w-20 ml-auto" variant="text" />
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <Skeleton className="h-2 w-24 rounded-full" />
-                            <Skeleton className="h-4 w-8" variant="text" />
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <Badge variant="secondary">
-                            <Skeleton className="h-4 w-6" />
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataListSkeleton columns={4} rows={5} />
             </CardContent>
           </Card>
         </div>

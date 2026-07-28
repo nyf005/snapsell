@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { marketing } from "~/lib/copy/marketing";
 import { cn } from "~/lib/utils";
 import { MessageCircle, MoreVertical, Phone, Video, Send, CheckCircle2 } from "lucide-react";
 
@@ -15,16 +16,16 @@ type Message = {
 
 const CHAT_SEQUENCE: Message[] = [
     { id: "1", sender: "user", text: "V12", delayMs: 1000 },
-    { id: "2", sender: "bot", text: "Typing...", delayMs: 2500 },
+    { id: "2", sender: "bot", text: marketing.demo.typing, delayMs: 2500 },
     { id: "3", sender: "bot", text: "Réservé. Envoie ton adresse.", delayMs: 4000 },
-    { id: "4", sender: "user", text: "42 rue de la Paix, Paris", delayMs: 7000 },
-    { id: "5", sender: "bot", text: "Typing...", delayMs: 8500 },
+    { id: "4", sender: "user", text: marketing.demo.address, delayMs: 7000 },
+    { id: "5", sender: "bot", text: marketing.demo.typing, delayMs: 8500 },
     { id: "6", sender: "bot", text: "Récap : V12 — 15 000 FCFA — Total : 15 000 FCFA. Réponds OUI pour confirmer.", delayMs: 10000 },
     { id: "7", sender: "user", text: "OUI", delayMs: 12500 },
-    { id: "8", sender: "bot", text: "Typing...", delayMs: 14000 },
+    { id: "8", sender: "bot", text: marketing.demo.typing, delayMs: 14000 },
     { id: "9", sender: "bot", text: "Commande enregistrée. Merci d'envoyer ta preuve de transfert ici.", delayMs: 15500 },
     { id: "10", sender: "user", text: "Photo", isImage: true, delayMs: 18500 },
-    { id: "11", sender: "bot", text: "Typing...", delayMs: 20000 },
+    { id: "11", sender: "bot", text: marketing.demo.typing, delayMs: 20000 },
     { id: "12", sender: "bot", text: "Preuve bien reçue ! Nous la validons rapidement.", delayMs: 21500 },
 ];
 
@@ -56,8 +57,8 @@ export function SimulatedChat() {
                 const t = setTimeout(() => {
                     const msg: Message = { ...val, uid: `${run}-${val.id}` };
                     setMessages((prev) => {
-                        if (msg.sender === 'bot' && msg.text !== 'Typing...') {
-                            return [...prev.filter(m => m.text !== 'Typing...'), msg];
+                        if (msg.sender === 'bot' && msg.text !== marketing.demo.typing) {
+                            return [...prev.filter(m => m.text !== marketing.demo.typing), msg];
                         }
                         return [...prev, msg];
                     });
@@ -125,7 +126,7 @@ export function SimulatedChat() {
                         )}
                         style={{ animationFillMode: "forwards" }}
                     >
-                        {msg.text === "Typing..." ? (
+                        {msg.text === marketing.demo.typing ? (
                             <span className="flex items-center gap-1 min-h-[20px]">
                                 <span className="size-[5px] animate-bounce rounded-full bg-primary/50" />
                                 <span className="size-[5px] animate-bounce rounded-full bg-primary/50 [animation-delay:0.2s]" />

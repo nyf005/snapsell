@@ -25,6 +25,8 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { api } from "~/trpc/react";
+import { ErrorAlert } from "~/components/ui/error-alert";
+import { formatError, type UserError } from "~/lib/copy";
 import { formatPriceFCFA } from "~/lib/subscription-plans";
 
 const statusConfig = {
@@ -74,14 +76,14 @@ interface SubscriptionCardProps {
 
 export function SubscriptionCard({ data }: SubscriptionCardProps) {
   const utils = api.useUtils();
-  const [cancelError, setCancelError] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<UserError | null>(null);
   const cancelMutation = api.subscription.cancelSubscription.useMutation({
     onSuccess: () => {
       void utils.subscription.getSubscription.invalidate();
       setCancelError(null);
     },
     onError: (err) => {
-      setCancelError(err.message);
+      setCancelError(formatError(err, "subscription"));
     },
   });
   const manageCardQuery = api.subscription.getManageCardLink.useQuery(
@@ -260,7 +262,7 @@ export function SubscriptionCard({ data }: SubscriptionCardProps) {
                 </AlertDialogContent>
               </AlertDialog>
               {cancelError && (
-                <p className="text-sm text-destructive">{cancelError}</p>
+                <ErrorAlert error={cancelError} />
               )}
             </div>
           )}

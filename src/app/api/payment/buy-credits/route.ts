@@ -5,9 +5,9 @@
  * Body : { packs: number }  — nombre de packs de 100 crédits (1–10)
  *
  * Prix par pack selon le plan actuel du tenant :
- *   Free    → 3 000 FCA
- *   Starter → 2 500 FCA
- *   Pro     → 2 000 FCA
+ *   Free    → 3 000 FCFA
+ *   Starter → 2 500 FCFA
+ *   Pro     → 2 000 FCFA
  *
  * Retourne { authorization_url } pour redirection vers Paystack.
  * Les crédits sont crédités dans le webhook charge.success (metadata.type = "credits_topup").

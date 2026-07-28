@@ -3,11 +3,13 @@ import { redirect } from "next/navigation";
 import { canManageGrid } from "~/lib/rbac";
 import { auth } from "~/server/auth";
 
+import { SettingsAccessDenied } from "../_components/settings-access-denied";
+
 import { DeliveryFeesContent } from "../_components/delivery-fees-content";
 
 export const metadata = {
   title: "Frais de livraison | SnapSell",
-  description: "Prix par zone ou par commune pour votre tenant.",
+  description: "Définir les frais de livraison par zone ou par commune.",
 };
 
 export default async function LivraisonPage() {
@@ -18,7 +20,7 @@ export default async function LivraisonPage() {
   }
 
   if (!canManageGrid(session.user.role as string)) {
-    redirect("/dashboard");
+    return <SettingsAccessDenied />;
   }
 
   return <DeliveryFeesContent />;

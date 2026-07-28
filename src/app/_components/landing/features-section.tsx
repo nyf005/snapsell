@@ -21,7 +21,7 @@ function CatalogueVisual() {
     <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
       <div className="border-b border-border px-5 py-3">
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-          Catalogue produit
+          Catalogue
         </p>
       </div>
       <div className="divide-y divide-border">
@@ -52,7 +52,7 @@ function ReservationVisual() {
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-xl">
       <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-        WhatsApp DM
+        Message WhatsApp
       </p>
       {/* Customer sends code */}
       <div className="flex justify-end">
@@ -134,36 +134,42 @@ function DashboardVisual() {
   );
 }
 
+/*
+ * Les titres nomment la corvée supprimée, pas la fonctionnalité.
+ * « Catalogue » ou « Tableau de bord tout-en-un » décrivent ce que le logiciel
+ * contient ; la personne qui lit veut savoir ce qu'elle arrête de faire.
+ * Le bloc 03 procédait déjà ainsi — c'est le modèle des trois autres.
+ */
 const features: Feature[] = [
   {
     number: "01",
-    title: "Catalogue produit",
+    title: "Votre stock ne se compte plus à la main",
     description:
-      "Créez et gérez votre catalogue d'articles avec codes et prix. Ajoutez des produits manuellement ou depuis vos sessions live, avec suivi des stocks en temps réel.",
-    highlight: "Stock suivi en temps réel",
+      "Chaque article a un code et un prix. Le stock baisse tout seul à chaque réservation, que l’article vienne du catalogue ou d’un live.",
+    highlight: "Stock à jour en temps réel",
     visual: <CatalogueVisual />,
   },
   {
     number: "02",
-    title: "Réservation automatique",
+    title: "Deux demandes, un seul article : plus de litige",
     description:
-      "Vos clients envoient un code par WhatsApp, le stock est verrouillé instantanément. Premier arrivé, premier servi.",
+      "Le premier code reçu emporte l’article, à la seconde près. Le suivant part en file d’attente et sait qu’il est en attente — vous n’arbitrez plus rien.",
     highlight: "Verrouillage instantané",
     visual: <ReservationVisual />,
   },
   {
     number: "03",
-    title: "Anti-fantômes (TTL)",
+    title: "Fini les réservations qui ne paient jamais",
     description:
-      "Définissez un temps limite pour le paiement. Si le client ne paie pas à temps, le stock est remis en vente automatiquement.",
+      "Vous fixez le délai de paiement. Passé ce délai, l’article repart en vente automatiquement et la personne suivante est prévenue.",
     highlight: "Zéro commande fantôme",
     visual: <TimerVisual />,
   },
   {
     number: "04",
-    title: "Dashboard tout-en-un",
+    title: "Le lendemain, tout est déjà trié",
     description:
-      "Commandes, preuves de paiement, expéditions — tout est centralisé dans votre tableau de bord pour gérer votre activité sereinement.",
+      "Commandes, preuves de paiement, expéditions : plus rien à recopier le soir. Vous ouvrez le tableau de bord, tout y est déjà, à jour.",
     highlight: "Tout centralisé",
     visual: <DashboardVisual />,
   },
@@ -171,18 +177,17 @@ const features: Feature[] = [
 
 export function FeaturesSection() {
   return (
-    <section id="fonctionnalites" className="py-24 lg:py-36">
+    <section id="fonctionnalites" className="overflow-hidden py-24 lg:py-36">
       <div className="mx-auto max-w-7xl px-6">
         <AnimateOnScroll className="mx-auto mb-20 max-w-3xl text-center lg:mb-32">
           <h2 className="mb-6 text-3xl font-extrabold lg:text-5xl">
-            Tout ce dont vous avez besoin{" "}
+            Ce que vous arrêtez de faire{" "}
             <br className="hidden lg:block" />
-            pour gérer vos ventes
+            dès le premier jour
           </h2>
           <p className="text-lg text-muted-foreground">
-            Du catalogue à la livraison, SnapSell centralise toute votre
-            activité pour que vous n&apos;ayez plus à jongler entre fichiers
-            Excel et messages WhatsApp.
+            Du catalogue à la livraison, SnapSell tient le carnet à votre place.
+            Vous gardez la vente, la relation et la décision.
           </p>
         </AnimateOnScroll>
 

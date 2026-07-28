@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { KpiCard } from "~/components/ui/kpi-card";
-import { Spinner } from "~/components/ui/spinner";
+
 import { DashboardLoadingState } from "./dashboard-skeletons";
 import {
   ChartContainer,
@@ -30,6 +30,10 @@ import {
   Zap,
 } from "lucide-react";
 import { DashboardStartGuide } from "~/app/(dashboard)/_components/dashboard-start-guide";
+import { SetupChecklist } from "~/app/(dashboard)/_components/setup-checklist";
+import { CreditsAlertBanner } from "~/app/(dashboard)/_components/credits-alert-banner";
+import { formatError, formatRelativeDate, formatXof, type UserError } from "~/lib/copy";
+import { ErrorAlert } from "~/components/ui/error-alert";
 import { cn } from "~/lib/utils";
 
 const revenueChartConfig = {
@@ -69,42 +73,27 @@ function trendVsHier(
   };
 }
 
-function formatRevenueCents(cents: number): string {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XOF",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
-
-function formatRelativeTime(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  if (diffMs < 0) return "À l'instant";
-  const diffMin = Math.floor(diffMs / 60_000);
-  const diffH = Math.floor(diffMin / 60);
-  if (diffMin < 1) return "À l'instant";
-  if (diffMin < 60) return `Il y a ${diffMin} min`;
-  if (diffH < 24) return `Il y a ${diffH}h`;
-  const diffD = Math.floor(diffH / 24);
-  return `Il y a ${diffD}j`;
-}
-
-export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boolean }) {
+export function DashboardContent({
+  showUpgradeBanner,
+  canManageSubscription,
+}: {
+  showUpgradeBanner: boolean;
+  canManageSubscription: boolean;
+}) {
   const router = useRouter();
   const { data: summary, isLoading } = api.dashboard.getSummary.useQuery(
     undefined,
     { refetchInterval: POLL_INTERVAL_MS }
   );
-  const [startLiveError, setStartLiveError] = useState<string | null>(null);
+  const { data: setup } = api.onboarding.getStatus.useQuery();
+  const [startLiveError, setStartLiveError] = useState<UserError | null>(null);
   const startLiveMutation = api.live.startLive.useMutation({
     onSuccess: () => {
       setStartLiveError(null);
       router.push("/dashboard/live");
     },
     onError: (err) => {
-      setStartLiveError(err.message);
+      setStartLiveError(formatError(err, "live"));
     },
   });
 
@@ -116,34 +105,39 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
     return null;
   }
 
+  // Tant que WhatsApp n'est pas connecté, aucun message ne peut arriver : les
+  // indicateurs valent zéro par construction et le graphique est vide. La place
+  // revient entièrement à la mise en route.
+  const setupBlocking = setup ? !setup.whatsappConnected : false;
+
   const handleStartLive = async () => {
     await startLiveMutation.mutateAsync();
   };
 
   const lastProofLabel = summary.lastProofSubmittedAt
-    ? formatRelativeTime(summary.lastProofSubmittedAt)
-    : "Aucune soumission récente";
+    ? formatRelativeDate(summary.lastProofSubmittedAt)
+    : "Aucune preuve reçue pour l’instant";
 
   return (
-    <div className="space-y-10">
-      {showUpgradeBanner && (
-        <div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
-          <Zap className="size-4 shrink-0 text-primary" />
-          <p className="flex-1 text-foreground">
-            Vous êtes sur le plan <span className="font-semibold">Gratuit</span>. Passez au plan{" "}
-            <span className="font-semibold">Starter</span> ou{" "}
-            <span className="font-semibold">Pro</span> pour débloquer l'export CSV, les filtres avancés et plus encore.
-          </p>
-          <a
-            href="/parametres/abonnement"
-            className="shrink-0 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
-          >
-            Mettre à niveau
-          </a>
-        </div>
+    <div className="space-y-8">
+      {/* Sur mobile, c'est le seul endroit où le solde est visible. */}
+      <CreditsAlertBanner canManageSubscription={canManageSubscription} />
+      {setup && !setup.isComplete && (
+        <section aria-label="Mise en route">
+          <SetupChecklist
+            steps={setup.steps}
+            doneCount={setup.doneCount}
+            totalCount={setup.totalCount}
+            compact={setup.whatsappConnected}
+          />
+        </section>
       )}
-      <section aria-labelledby="demarrer-heading">
-        <DashboardStartGuide hasLiveSession={summary.hasLiveSession} />
+      <section aria-label="Action prioritaire">
+        <DashboardStartGuide
+          hasLiveSession={summary.hasLiveSession}
+          pendingProofsCount={summary.pendingProofsCount}
+          ordersPreparingCount={summary.ordersPreparingCount}
+        />
       </section>
       {/* Section: À traiter */}
       <section aria-labelledby="a-traiter-heading">
@@ -152,7 +146,7 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
           className="text-lg font-bold text-foreground flex items-center gap-2 mb-4"
         >
           <ClipboardList className="size-5 text-primary" />
-          À traiter
+          Votre travail
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Preuves en attente */}
@@ -219,7 +213,7 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
             </CardContent>
           </Card>
 
-          {/* Session Live */}
+          {/* Live du moment */}
           <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
@@ -248,12 +242,12 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
             </CardHeader>
             <CardContent className="pt-0 space-y-2">
               <p className="text-xl font-extrabold text-foreground">
-                Session Live
+                Live du moment
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {summary.hasLiveSession
-                  ? "Une session live est en cours."
-                  : "Aucun live en cours. Préparez votre prochaine session."}
+                  ? "Les réservations et délais sont suivis automatiquement."
+                  : "Le live peut démarrer automatiquement au premier code."}
               </p>
               {summary.hasLiveSession ? (
                 <Button asChild size="sm" className="mt-2">
@@ -267,10 +261,10 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
                     onClick={handleStartLive}
                     disabled={startLiveMutation.isPending}
                   >
-                    {startLiveMutation.isPending ? "Démarrage..." : "Lancer le live"}
+                    {startLiveMutation.isPending ? "Démarrage..." : "Démarrer maintenant"}
                   </Button>
                   {startLiveError && (
-                    <p className="text-xs text-destructive mt-1">{startLiveError}</p>
+                    <ErrorAlert error={startLiveError} className="mt-2" />
                   )}
                 </>
               )}
@@ -279,14 +273,16 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
         </div>
       </section>
 
-      {/* Section: Activité */}
+      {/* Section: Activité — masquée tant que WhatsApp n'est pas connecté :
+          sans messages entrants, tous ces chiffres valent zéro. */}
+      {!setupBlocking && (
       <section aria-labelledby="activite-heading">
         <h2
           id="activite-heading"
           className="text-lg font-bold text-foreground flex items-center gap-2 mb-6"
         >
           <TrendingUp className="size-5 text-primary" />
-          Activité
+          Résultats du jour
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Stats + Chart */}
@@ -304,7 +300,7 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
               />
               <KpiCard
                 label="Revenu estimé"
-                value={formatRevenueCents(summary.revenueTodayCents)}
+                value={formatXof(summary.revenueTodayCents)}
                 icon={Wallet}
                 iconVariant="primary"
                 {...trendVsHier(
@@ -424,7 +420,7 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
                   </div>
                   <div>
                     <p className="text-sm font-bold text-foreground">
-                      Session live en cours
+                      Live en cours
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Consultez Live Ops pour gérer les réservations
@@ -436,7 +432,7 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
                 summary.pendingProofsCount === 0 &&
                 !summary.hasLiveSession && (
                   <p className="text-sm text-muted-foreground">
-                    Aucune activité récente.
+                    Aucune activité récente. Les réservations et commandes s’afficheront ici.
                   </p>
                 )}
             </CardContent>
@@ -452,6 +448,28 @@ export function DashboardContent({ showUpgradeBanner }: { showUpgradeBanner: boo
           </Card>
         </div>
       </section>
+      )}
+
+      {/* L'upsell passe en dernier, et disparaît tant que la boutique n'est pas
+          en état de vendre : demander de payer avant le premier message envoyé
+          contredit « le travail du moment d'abord ». */}
+      {showUpgradeBanner && !setupBlocking && (
+        <div className="flex flex-col gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm sm:flex-row sm:items-center">
+          <Zap className="size-4 shrink-0 text-primary" />
+          <p className="flex-1 text-foreground">
+            Vous êtes sur le plan <span className="font-semibold">Gratuit</span>. Passez au plan{" "}
+            <span className="font-semibold">Starter</span> ou{" "}
+            <span className="font-semibold">Pro</span> pour débloquer l’export CSV, les filtres
+            avancés et plus encore.
+          </p>
+          <Link
+            href="/parametres/abonnement"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            Mettre à niveau
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

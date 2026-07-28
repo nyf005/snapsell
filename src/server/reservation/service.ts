@@ -256,7 +256,15 @@ export type CollectAddressItemInfo = {
 };
 
 export type CollectAddressResult =
-  | { success: true; reservation: { id: string; item: CollectAddressItemInfo } }
+  | {
+      success: true;
+      reservation: {
+        id: string;
+        item: CollectAddressItemInfo;
+        /** Commune extraite de l'adresse — sert à calculer les frais de livraison. */
+        addressCommune: string | null;
+      };
+    }
   | { success: false; reason: "no_reservation" | "already_collected" | "address_too_long" };
 
 /**
@@ -330,6 +338,7 @@ export async function collectAddress(
     reservation: {
       id: reservation.id,
       item,
+      addressCommune: updated.addressCommune,
     },
   };
 }

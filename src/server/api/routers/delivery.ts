@@ -1,5 +1,7 @@
 import { TRPCError } from "@trpc/server";
 
+import { appError } from "~/server/api/errors";
+
 import { canManageGrid } from "~/lib/rbac";
 import { db } from "~/server/db";
 import {
@@ -59,7 +61,7 @@ export const deliveryRouter = createTRPCRouter({
       checkDeliveryAccess(ctx.session.user.role as string);
       const tenantId = ctx.session.user.tenantId;
       if (!tenantId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant non identifié." });
+        throw appError("UNAUTHORIZED", "session.expired");
       }
       const zoneId = input.id;
       const communeNames = [...new Set(input.communeNames.filter(Boolean))];

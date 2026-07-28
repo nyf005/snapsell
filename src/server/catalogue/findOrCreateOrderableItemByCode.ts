@@ -45,9 +45,22 @@ function toCatalogueItemLookup(item: {
  * Cherche un CatalogueItem par (tenantId, code) ; si absent, le crée
  * (qty 1, availableQty 1, prix via grille, createdInLive = true).
  *
+ * ── ORDRE DE RÉSOLUTION ─────────────────────────────────────────────────────
+ * 1. Le catalogue d'abord. Un article déjà enregistré porte son propre prix ;
+ *    la grille n'a rien à dire sur lui.
+ * 2. La grille ensuite, uniquement pour créer un article inconnu — c'est le seul
+ *    moyen de connaître un prix pour un code annoncé en live et jamais saisi.
+ *
+ * L'ordre inverse (grille avant catalogue) refusait les commandes d'articles
+ * pourtant présents au catalogue avec leur prix, dès lors qu'aucune catégorie ne
+ * correspondait à leur code : la cliente recevait « Code introuvable » pendant le
+ * live, alors que le même code fonctionnait hors live.
+ * ────────────────────────────────────────────────────────────────────────────
+ *
  * Retourne null si :
  * - code vide après normalisation
- * - lettre non configurée dans la grille (pas de prix → pas de création)
+ * - article absent du catalogue ET lettre non configurée dans la grille
+ *   (aucun prix connaissable → pas de création)
  *
  * En cas de doublon (race condition P2002), réessaie le lookup.
  */
@@ -58,16 +71,16 @@ export async function findOrCreateOrderableItemByCode(
   const normalized = normalizeCode(code);
   if (!normalized.length) return null;
 
-  // Valider que le code a un prix (lettre configurée dans la grille)
-  const amount = await getPriceFromCode(tenantId, normalized);
-  if (amount === null) return null;
-
-  // Lookup existant
+  // 1. Lookup existant — l'article porte son propre prix.
   const existing = await db.catalogueItem.findUnique({
     where: { tenantId_code: { tenantId, code: normalized } },
     include: { variants: { select: { id: true } } },
   });
   if (existing) return toCatalogueItemLookup(existing);
+
+  // 2. Article inconnu : la grille est le seul moyen d'en connaître le prix.
+  const amount = await getPriceFromCode(tenantId, normalized);
+  if (amount === null) return null;
 
   // Créer
   try {

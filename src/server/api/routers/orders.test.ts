@@ -571,7 +571,7 @@ describe("orders router", () => {
         expect.objectContaining({
           tenantId: "tenant-1",
           to: "+33612345678",
-          body: "Ta commande *SS-0001* a bien été livrée ! 🎉\n\nMerci de ta confiance 💛",
+          body: "✅ *Commande SS-0001 livrée.*\n\nMerci pour ta confiance.",
           correlationId: expect.stringMatching(/^order-order-1-\d+$/),
         }),
       );
@@ -823,7 +823,7 @@ describe("orders router", () => {
         expect.objectContaining({
           tenantId: "tenant-1",
           to: "+33698765432",
-          body: "Bonne nouvelle ! 🚚 Ta commande *SS-0011* est en cours de livraison.\n\nTu la reçois très bientôt !",
+          body: "🚚 *Commande SS-0011 en livraison.*\n\nElle est en route vers toi.",
           correlationId: expect.stringMatching(/^order-order-d-\d+$/),
         }),
       );
@@ -867,7 +867,7 @@ describe("orders router", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Ta commande *SS-0012* a bien été livrée ! 🎉\n\nMerci de ta confiance 💛",
+          body: "✅ *Commande SS-0012 livrée.*\n\nMerci pour ta confiance.",
           to: "+33611111111",
         }),
       );
@@ -911,7 +911,7 @@ describe("orders router", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Ta commande *SS-0013* a été annulée 😔\n\nN'hésite pas à nous écrire si tu as des questions.",
+          body: "❌ *Commande SS-0013 annulée.*\n\nÉcris-nous si tu as besoin d’aide.",
           to: "+33622222222",
         }),
       );
@@ -952,7 +952,7 @@ describe("orders router", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Ta commande *SS-0016* a été annulée 😔\n\nN'hésite pas à nous écrire si tu as des questions.",
+          body: "❌ *Commande SS-0016 annulée.*\n\nÉcris-nous si tu as besoin d’aide.",
           to: "+33633333333",
         }),
       );
@@ -993,7 +993,7 @@ describe("orders router", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Ta commande *SS-0017* a été annulée 😔\n\nN'hésite pas à nous écrire si tu as des questions.",
+          body: "❌ *Commande SS-0017 annulée.*\n\nÉcris-nous si tu as besoin d’aide.",
           to: "+33644444444",
         }),
       );
@@ -1034,7 +1034,7 @@ describe("orders router", () => {
       );
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Ta commande *SS-0018* a été annulée 😔\n\nN'hésite pas à nous écrire si tu as des questions.",
+          body: "❌ *Commande SS-0018 annulée.*\n\nÉcris-nous si tu as besoin d’aide.",
           to: "+33655555555",
         }),
       );

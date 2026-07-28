@@ -6,6 +6,7 @@ import { Manrope } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { ThemeProvider, themeInitScript } from "~/components/ui/theme";
 
 export const metadata: Metadata = {
   title: "SnapSell",
@@ -31,11 +32,19 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fr" className={`dark ${geist.variable} ${manrope.variable}`}>
+    // `suppressHydrationWarning` : le script ci-dessous modifie la classe de <html>
+    // avant l'hydratation, ce qui est précisément le but.
+    <html lang="fr" className={`${geist.variable} ${manrope.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Doit s'exécuter avant la première peinture, sinon l'écran clignote. */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-screen bg-background text-foreground transition-colors duration-300 [font-family:var(--font-manrope),Manrope,sans-serif]">
-        <SessionProvider>
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-        </SessionProvider>
+        <ThemeProvider>
+          <SessionProvider>
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -161,8 +161,8 @@ describe("Story 7A.2: Usage service", () => {
       const result = await checkProofsQuota("tenant-1");
 
       expect(result.allowed).toBe(false);
-      expect(result.currentUsage).toBe(20);
-      expect(result.quota).toBe(20);
+      expect(result.currentUsage).toBe(10);
+      expect(result.quota).toBe(10);
     });
   });
 
@@ -364,6 +364,10 @@ describe("Story 7A.2: Usage service", () => {
     });
 
     it("returns true when no overage to charge", async () => {
+      vi.mocked(db.tenant.findUniqueOrThrow).mockReset();
+      vi.mocked(db.order.count).mockReset();
+      vi.mocked(db.order.count).mockResolvedValue(0);
+      vi.mocked(chargeAuthorization).mockReset();
       vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
         paystackAuthorizationCode: "AUTH_xxx",
         subscriptionPlan: "starter",
@@ -414,4 +418,3 @@ describe("Story 7A.2: Usage service", () => {
       expect(error.message).toContain("50/50");
     });
 });
-

@@ -3,11 +3,12 @@ import { redirect } from "next/navigation";
 import { canManageGrid } from "~/lib/rbac";
 import { auth } from "~/server/auth";
 
-import { PricingGridContent } from "./_components/pricing-grid-content";
+import { SettingsAccessDenied } from "./_components/settings-access-denied";
+import { SettingsIndexContent } from "./_components/settings-index-content";
 
 export const metadata = {
-  title: "Grille de prix | SnapSell",
-  description: "Configurer la grille catégories→prix pour votre tenant.",
+  title: "Paramètres | SnapSell",
+  description: "Tous vos réglages au même endroit.",
 };
 
 export default async function ParametresPage() {
@@ -17,9 +18,10 @@ export default async function ParametresPage() {
     redirect("/login");
   }
 
+  // On garde l'URL et on explique, plutôt que de rediriger sans un mot.
   if (!canManageGrid(session.user.role as string)) {
-    redirect("/dashboard");
+    return <SettingsAccessDenied />;
   }
 
-  return <PricingGridContent />;
+  return <SettingsIndexContent />;
 }

@@ -54,6 +54,8 @@ describe("findOrCreateOrderableItemByCode", () => {
     expect(result!.id).toBe("cat-1");
     expect(result!.code).toBe("A12");
     expect(mockCreate).not.toHaveBeenCalled();
+    // L'article porte son propre prix : la grille n'est même pas consultée.
+    expect(mockGetPrice).not.toHaveBeenCalled();
   });
 
   it("creates item when code absent with qty 1, prix grille, createdInLive true", async () => {
@@ -91,13 +93,15 @@ describe("findOrCreateOrderableItemByCode", () => {
     expect(mockFindUnique).not.toHaveBeenCalled();
   });
 
-  it("returns null for code with no price in grid (letter not configured)", async () => {
+  it("returns null for unknown code with no price in grid", async () => {
+    // Le catalogue est consulté en premier ; la grille ne tranche que pour la création.
+    mockFindUnique.mockResolvedValue(null as never);
     mockGetPrice.mockResolvedValue(null);
 
     const result = await findOrCreateOrderableItemByCode(TENANT, "Z99");
 
     expect(result).toBeNull();
-    expect(mockFindUnique).not.toHaveBeenCalled();
+    expect(mockFindUnique).toHaveBeenCalled();
     expect(mockCreate).not.toHaveBeenCalled();
   });
 
@@ -126,7 +130,6 @@ describe("findOrCreateOrderableItemByCode", () => {
 
     await findOrCreateOrderableItemByCode(TENANT, "  a12  ");
 
-    expect(mockGetPrice).toHaveBeenCalledWith(TENANT, "A12");
     expect(mockFindUnique).toHaveBeenCalledWith({
       where: { tenantId_code: { tenantId: TENANT, code: "A12" } },
       include: { variants: { select: { id: true } } },
@@ -141,5 +144,95 @@ describe("findOrCreateOrderableItemByCode", () => {
     await expect(findOrCreateOrderableItemByCode(TENANT, "A12")).rejects.toThrow(
       "DB connection failed",
     );
+  });
+});
+
+/**
+ * Régression : la grille était consultée AVANT le catalogue et bloquait tout.
+ *
+ * Une vendeuse ajoutait « ROBE01 » à son catalogue avec son prix, démarrait un live,
+ * et la cliente qui envoyait « ROBE01 » recevait « Code introuvable » — parce
+ * qu'aucune catégorie ne commençait par R. Hors live le même code fonctionnait,
+ * ce qui rendait le défaut invisible aux tests manuels.
+ */
+describe("findOrCreateOrderableItemByCode — commande possible dès que l'article existe", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  /** Article au catalogue dont le code ne correspond à aucune catégorie. */
+  const ROBE = {
+    ...CATALOGUE_ITEM,
+    id: "cat-robe",
+    code: "ROBE01",
+    amount: 1_500_000,
+    origin: "dashboard",
+    createdInLive: false,
+  };
+
+  it("accepte un article du catalogue dont le code n'a aucune catégorie", async () => {
+    mockFindUnique.mockResolvedValue(ROBE as never);
+    mockGetPrice.mockResolvedValue(null); // aucune catégorie ne commence par R
+
+    const result = await findOrCreateOrderableItemByCode(TENANT, "ROBE01");
+
+    expect(result).not.toBeNull();
+    expect(result!.id).toBe("cat-robe");
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it("conserve le prix de l'article, pas celui de la grille", async () => {
+    mockFindUnique.mockResolvedValue(ROBE as never);
+    mockGetPrice.mockResolvedValue(999); // la grille propose autre chose
+
+    const result = await findOrCreateOrderableItemByCode(TENANT, "ROBE01");
+
+    expect(result!.amount).toBe(1_500_000);
+  });
+
+  it("crée toujours un article inconnu quand la grille donne un prix", async () => {
+    mockFindUnique.mockResolvedValue(null as never);
+    mockGetPrice.mockResolvedValue(5000);
+    mockCreate.mockResolvedValue(CATALOGUE_ITEM as never);
+
+    const result = await findOrCreateOrderableItemByCode(TENANT, "A12");
+
+    expect(result).not.toBeNull();
+    expect(result!.createdInLive).toBe(true);
+    expect(mockCreate).toHaveBeenCalled();
+  });
+
+  it("refuse un code inconnu sans prix connaissable", async () => {
+    mockFindUnique.mockResolvedValue(null as never);
+    mockGetPrice.mockResolvedValue(null);
+
+    expect(await findOrCreateOrderableItemByCode(TENANT, "ZZZ9")).toBeNull();
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  it("interroge le catalogue avant la grille", async () => {
+    const order: string[] = [];
+    // `as never` : le type de retour de Prisma est plus riche qu'une simple promesse.
+    mockFindUnique.mockImplementation((() => {
+      order.push("catalogue");
+      return Promise.resolve(null);
+    }) as never);
+    mockGetPrice.mockImplementation(() => {
+      order.push("grille");
+      return Promise.resolve(null);
+    });
+
+    await findOrCreateOrderableItemByCode(TENANT, "A12");
+
+    expect(order).toEqual(["catalogue", "grille"]);
+  });
+
+  it("n'interroge jamais la grille pour un article déjà au catalogue", async () => {
+    mockFindUnique.mockResolvedValue(ROBE as never);
+
+    await findOrCreateOrderableItemByCode(TENANT, "ROBE01");
+
+    // Une requête de moins sur le chemin chaud du live.
+    expect(mockGetPrice).not.toHaveBeenCalled();
   });
 });

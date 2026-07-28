@@ -14,6 +14,13 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "checkJs": true,
+    /* Le code mort n'est pas cosmétique : un import ou une variable orphelins ont
+       déjà signalé ici une régression (case « tout sélectionner » perdue) et une
+       erreur d'authentification jetée en silence.
+       `next dev` n'échoue pas dessus — seuls `npm run build` et `npm run lint` le font.
+       `noUnusedParameters` reste volontairement désactivé : les paramètres imposés
+       par une signature produisent du bruit sans valeur. */
+    "noUnusedLocals": true,
 
     /* Bundled projects */
     "lib": ["dom", "dom.iterable", "ES2022"],

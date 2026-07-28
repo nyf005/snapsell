@@ -7,11 +7,7 @@
 
 import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
-import {
-  createTRPCRouter,
-  managerProcedure,
-  protectedProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, managerProcedure } from "~/server/api/trpc";
 import {
   bulkUpdateStatusInputSchema,
   exportCsvOrdersInputSchema,
@@ -35,11 +31,13 @@ type OrderWhereInput = Prisma.OrderWhereInput;
 /** Construit le where pour list et exportCsv (évite duplication, CR 6-5). */
 function buildOrdersWhere(
   tenantId: string,
-  opts: { status?: string; dateFrom?: string; dateTo?: string },
+  opts: { status?: string | readonly string[]; dateFrom?: string; dateTo?: string },
 ): OrderWhereInput {
   const where: OrderWhereInput = { tenantId };
   if (opts?.status) {
-    where.status = opts.status as OrderStatus;
+    where.status = Array.isArray(opts.status)
+      ? { in: opts.status as OrderStatus[] }
+      : (opts.status as OrderStatus);
   }
   if (opts?.dateFrom ?? opts?.dateTo) {
     where.createdAt = {};

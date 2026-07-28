@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { marketing } from "~/lib/copy/marketing";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 
@@ -16,7 +17,7 @@ import { SnapSellLogo } from "~/components/auth/snapsel-logo";
 import { cn, getInitials } from "~/lib/utils";
 
 const accueilLink = { label: "Accueil", href: "/" } as const;
-const tarificationLink = { label: "Tarification", href: "/tarifs" } as const;
+const tarificationLink = { label: "Tarifs", href: "/tarifs" } as const;
 
 function isNavActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
@@ -121,7 +122,7 @@ export function SiteHeader({ user, variant = "default" }: SiteHeaderProps) {
                   asChild
                   className="hidden rounded-lg font-bold shadow-lg shadow-primary/20 sm:inline-flex"
                 >
-                  <Link href="/login?tab=signup">Démarrer gratuitement</Link>
+                  <Link href="/login?tab=signup">{marketing.cta.signup}</Link>
                 </Button>
               </>
             )}
@@ -192,7 +193,7 @@ export function SiteHeader({ user, variant = "default" }: SiteHeaderProps) {
                       </Button>
                       <Button asChild className="rounded-lg font-bold">
                         <Link href="/login?tab=signup">
-                          Démarrer gratuitement
+                          {marketing.cta.signup}
                         </Link>
                       </Button>
                     </>

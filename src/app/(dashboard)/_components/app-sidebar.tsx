@@ -4,26 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
 
-import {
-  CheckCircle2,
-  CreditCard,
-  Grid3X3,
-  HelpCircle,
-  LayoutDashboard,
-  MessageCircle,
-  Package,
-  ShoppingBag,
-  ShoppingCart,
-  Users,
-  Radio,
-  Settings,
-  ScrollText,
-  PackageOpen,
-} from "lucide-react";
+import { Home } from "lucide-react";
 
 import { SnapSellLogo } from "~/components/auth/snapsel-logo";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { SignOutButton } from "./sign-out-button";
+import { NAV_ITEMS, NAV_SECTIONS } from "~/lib/navigation";
 import { CreditsAlert } from "./credits-alert";
 import {
   Sidebar,
@@ -42,14 +28,14 @@ import { cn, getInitials } from "~/lib/utils";
 type MenuItem = {
   href: string;
   label: string;
-  icon: typeof LayoutDashboard;
+  icon: typeof Home;
   requiresGridRole?: boolean;
   prefetch?: boolean;
 };
 
 type MenuGroup = {
   label: string;
-  section: "Opérations" | "Ventes" | "Pilotage" | "Configuration";
+  section: "Aujourd’hui" | "Vendre" | "Traiter" | "Gérer";
   items: MenuItem[];
   requiresGridRole?: boolean;
   mainItem?: MenuItem;
@@ -60,119 +46,31 @@ type VisibleMenuGroup = Omit<MenuGroup, "items"> & {
   items: MenuItem[];
 };
 
-const menuGroups: MenuGroup[] = [
-  {
-    label: "Principal",
-    section: "Opérations",
-    prefetch: true,
-    items: [
-      { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard, prefetch: true },
-    ],
-  },
-  {
-    label: "Catalogue",
-    section: "Opérations",
-    prefetch: true,
-    items: [
-      { href: "/dashboard/catalogue", label: "Catalogue", icon: PackageOpen, prefetch: true },
-    ],
-  },
-  {
-    label: "Sessions Live",
-    section: "Opérations",
-    prefetch: true,
-    items: [
-      { href: "/dashboard/live", label: "Sessions Live", icon: Radio, prefetch: true },
-    ],
-  },
-  {
-    label: "Liste des commandes",
-    section: "Ventes",
-    prefetch: true,
-    items: [
-      { href: "/dashboard/orders", label: "Liste des commandes", icon: ShoppingCart, prefetch: true },
-    ],
-  },
-  {
-    label: "Preuves",
-    section: "Ventes",
-    prefetch: true,
-    items: [
-      { href: "/dashboard/proofs", label: "Preuves", icon: CheckCircle2, prefetch: true },
-    ],
-  },
-  {
-    label: "Journal d'événements",
-    section: "Pilotage",
-    prefetch: false,
-    items: [
-      { href: "/dashboard/audit", label: "Journal d'événements", icon: ScrollText, prefetch: false },
-    ],
-  },
-  {
-    label: "Grille de prix",
-    section: "Configuration",
-    requiresGridRole: true,
-    prefetch: false,
-    items: [
-      { href: "/parametres", label: "Grille de prix", icon: Grid3X3, requiresGridRole: true, prefetch: false },
-    ],
-  },
-  {
-    label: "Frais de livraison",
-    section: "Configuration",
-    requiresGridRole: true,
-    prefetch: false,
-    items: [
-      { href: "/parametres/livraison", label: "Frais de livraison", icon: Package, requiresGridRole: true, prefetch: false },
-    ],
-  },
-  {
-    label: "WhatsApp",
-    section: "Configuration",
-    requiresGridRole: true,
-    prefetch: false,
-    mainItem: { href: "/parametres/whatsapp", label: "WhatsApp", icon: MessageCircle, requiresGridRole: true, prefetch: false },
-    items: [
-      { href: "/parametres/whatsapp", label: "Connexion", icon: MessageCircle, requiresGridRole: true, prefetch: false },
-      { href: "/parametres/whatsapp-business", label: "Business", icon: ShoppingBag, requiresGridRole: true, prefetch: false },
-    ],
-  },
-  {
-    label: "Équipe",
-    section: "Configuration",
-    requiresGridRole: true,
-    prefetch: false,
-    items: [
-      { href: "/parametres/team", label: "Équipe", icon: Users, requiresGridRole: true, prefetch: false },
-    ],
-  },
-  {
-    label: "Réponses FAQ",
-    section: "Configuration",
-    requiresGridRole: true,
-    prefetch: false,
-    items: [
-      { href: "/parametres/faq", label: "Réponses FAQ", icon: HelpCircle, requiresGridRole: true, prefetch: false },
-    ],
-  },
-  {
-    label: "Abonnement",
-    section: "Configuration",
-    requiresGridRole: true,
-    prefetch: false,
-    items: [
-      { href: "/parametres/abonnement", label: "Abonnement", icon: CreditCard, requiresGridRole: true, prefetch: false },
-    ],
-  },
-];
+/**
+ * Groupes de la barre latérale, dérivés de la source unique (src/lib/navigation.ts).
+ *
+ * Chaque route est sa propre entrée : le sous-menu WhatsApp a disparu avec la fusion
+ * de « Profil WhatsApp Business » dans la page Connexion.
+ */
+const menuGroups: MenuGroup[] = NAV_ITEMS.filter((item) =>
+  item.surfaces.includes("sidebar"),
+).map((item) => ({
+  label: item.label,
+  section: item.section,
+  requiresGridRole: item.requiresGridRole,
+  prefetch: item.prefetch ?? false,
+  items: [
+    {
+      href: item.href,
+      label: item.label,
+      icon: item.icon,
+      requiresGridRole: item.requiresGridRole,
+      prefetch: item.prefetch ?? false,
+    },
+  ],
+}));
 
-const sectionOrder = [
-  "Opérations",
-  "Ventes",
-  "Pilotage",
-  "Configuration",
-] as const;
+const sectionOrder = NAV_SECTIONS;
 
 type AppSidebarProps = {
   userName: string;
@@ -326,7 +224,7 @@ export function AppSidebar({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent aria-label="Navigation principale">
         <div className="flex flex-col pb-2 pt-3">
           {sectionOrder.map((section) => {
             const groupsInSection = visibleMenuGroups.filter((group) => group.section === section);
@@ -337,7 +235,7 @@ export function AppSidebar({
             return (
               <div key={section} className="px-2 pt-3 first:pt-1">
                 <div className="mb-1 px-2 group-data-[collapsible=icon]:sr-only">
-                  <p className="text-xs font-medium text-muted-foreground">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                     {section}
                   </p>
                 </div>
@@ -374,7 +272,7 @@ export function AppSidebar({
                   {tenantName}
                 </p>
               </div>
-              <CreditsAlert />
+              <CreditsAlert canManageSubscription={canManageGrid} />
               <SignOutButton className="shrink-0 text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
             </div>
           </SidebarMenuItem>

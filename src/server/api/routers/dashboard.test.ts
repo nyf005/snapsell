@@ -64,10 +64,10 @@ async function callerForSession(session: { user: { id: string; email: string; te
   return createCaller(ctx);
 }
 
-function makeOrderWithAmount(amount: number | null, createdAt?: Date) {
+function makeOrderWithAmount(amount: number | null, createdAt?: Date, quantity = 1) {
   return {
     createdAt: createdAt ?? new Date(),
-    reservation: { liveItem: { amount } },
+    reservation: { quantity, liveItem: { amount }, catalogueItem: null },
   };
 }
 
@@ -328,6 +328,46 @@ describe("dashboard router", () => {
         expect(typeof day.revenueCents).toBe("number");
         expect(typeof day.orders).toBe("number");
       }
+    });
+
+    // Régression : getSummary était un managerProcedure, donc un AGENT recevait
+    // FORBIDDEN et /dashboard — sa page d'accueil — s'affichait vide.
+    it.each(["AGENT", "VENDEUR"])(
+      "renvoie le travail du jour à un %s",
+      async (role) => {
+        mockProofCount.mockResolvedValue(3);
+        mockProofFindFirst.mockResolvedValue(null);
+        mockOrderCount.mockResolvedValue(2);
+        mockOrderFindMany.mockResolvedValue([]);
+        mockGetCurrentSessionReadOnly.mockResolvedValue(null);
+
+        const caller = await callerForSession({
+          user: { id: "user-3", email: "agent@example.com", tenantId: "tenant-1", role },
+        });
+
+        const result = await caller.dashboard.getSummary();
+        expect(result.pendingProofsCount).toBe(3);
+        expect(result.ordersPreparingCount).toBe(2);
+      },
+    );
+
+    it("masque le chiffre d’affaires aux rôles opérationnels", async () => {
+      mockProofCount.mockResolvedValue(0);
+      mockProofFindFirst.mockResolvedValue(null);
+      mockOrderCount.mockResolvedValue(0);
+      mockOrderFindMany.mockResolvedValue([makeOrderWithAmount(50_000)]);
+      mockGetCurrentSessionReadOnly.mockResolvedValue(null);
+
+      const agent = await callerForSession({
+        user: { id: "user-3", email: "agent@example.com", tenantId: "tenant-1", role: "AGENT" },
+      });
+      const agentResult = await agent.dashboard.getSummary();
+      expect(agentResult.revenueTodayCents).toBe(0);
+      expect(agentResult.revenueByDay.every((d) => d.revenueCents === 0)).toBe(true);
+
+      const owner = await callerForSession(tenant1Session);
+      const ownerResult = await owner.dashboard.getSummary();
+      expect(ownerResult.revenueTodayCents).toBeGreaterThan(0);
     });
 
     it("throws FORBIDDEN when tenantId missing (enforceTenant middleware)", async () => {

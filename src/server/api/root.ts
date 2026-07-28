@@ -6,6 +6,7 @@ import { eventLogRouter } from "~/server/api/routers/eventLog";
 import { exampleRouter } from "~/server/api/routers/example";
 import { invitationsRouter } from "~/server/api/routers/invitations";
 import { liveRouter } from "~/server/api/routers/live";
+import { onboardingRouter } from "~/server/api/routers/onboarding";
 import { opsRouter } from "~/server/api/routers/ops";
 import { ordersRouter } from "~/server/api/routers/orders";
 import { proofsRouter } from "~/server/api/routers/proofs";
@@ -31,6 +32,7 @@ export const appRouter = createTRPCRouter({
   eventLog: eventLogRouter,
   invitations: invitationsRouter,
   live: liveRouter,
+  onboarding: onboardingRouter,
   ops: opsRouter,
   orders: ordersRouter,
   proofs: proofsRouter,

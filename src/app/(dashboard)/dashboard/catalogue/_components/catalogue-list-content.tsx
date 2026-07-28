@@ -2,19 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { api } from "~/trpc/react";
+import { ErrorAlert } from "~/components/ui/error-alert";
+import { formatError, formatXof, type UserError } from "~/lib/copy";
+import { DataList } from "~/components/ui/data-list";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
+import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
+import { SetupRequiredBanner } from "~/app/(dashboard)/_components/setup-required-banner";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
 import { Card, CardContent } from "~/components/ui/card";
-import { Spinner } from "~/components/ui/spinner";
+
 import { DataPagination } from "~/components/ui/data-pagination";
 import { CatalogueListSkeleton } from "./catalogue-skeletons";
 import {
@@ -30,19 +27,9 @@ import {
 import { Plus, Pencil, Trash2, PackageOpen, ImageOff } from "lucide-react";
 import { CatalogueItemFormDialog } from "./catalogue-item-form-dialog";
 import { DashboardEmptyState } from "~/app/(dashboard)/_components/dashboard-empty-state";
-import { cn } from "~/lib/utils";
 
 import type { CatalogueItemOutput } from "~/server/api/routers/catalogue.schema";
 import { getCatalogueOriginLabel, isLiveCatalogueOrigin } from "~/server/catalogue/origin";
-
-function formatPrice(amount: number | null): string {
-  if (amount === null) return "—";
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XOF",
-    minimumFractionDigits: 0,
-  }).format(Math.round(amount / 100));
-}
 
 export function CatalogueListContent() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -84,13 +71,8 @@ export function CatalogueListContent() {
     if (nextCursor) setCursor(nextCursor);
   };
 
-  const resetPagination = () => {
-    setCursor(undefined);
-    setAccumulatedItems([]);
-  };
-
   const { data: r2Status } = api.catalogue.r2Status.useQuery();
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<UserError | null>(null);
 
   const deleteMutation = api.catalogue.delete.useMutation({
     onSuccess: () => {
@@ -99,7 +81,7 @@ export function CatalogueListContent() {
       setDeleteError(null);
     },
     onError: (err) => {
-      setDeleteError(err.message);
+      setDeleteError(formatError(err, "catalogue"));
     },
   });
 
@@ -134,25 +116,27 @@ export function CatalogueListContent() {
       <DashboardHeader />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
         <div className="space-y-8 p-6 md:p-8">
-          {/* Page Header */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-black tracking-tight">Catalogue</h1>
-              <p className="max-w-2xl text-muted-foreground">
-                Gérez les articles de votre catalogue. Ces articles sont toujours
-                commandables par code, en live ou après.
+          <SetupRequiredBanner />
+          <TaskPageHeader
+            href="/dashboard/catalogue"
+            description={
+              <>
+                Ces articles restent disponibles d’un live à l’autre. Ceux improvisés pendant un
+                live sont suivis dans « Live du moment ».
                 {items && items.length > 0 && (
                   <span className="ml-1 text-muted-foreground">
-                    — {items.length} article{items.length > 1 ? "s" : ""}
+                    {items.length} article{items.length > 1 ? "s" : ""} chargé{items.length > 1 ? "s" : ""}.
                   </span>
                 )}
-              </p>
-            </div>
-            <Button onClick={handleAddItem}>
-              <Plus className="h-4 w-4 mr-2" />
-              Ajouter un article
-            </Button>
-          </div>
+              </>
+            }
+            actions={
+              <Button onClick={handleAddItem} className="w-full sm:w-auto">
+                <Plus className="size-4" />
+                Ajouter un article permanent
+              </Button>
+            }
+          />
 
           {isLoading ? (
             <CatalogueListSkeleton />
@@ -160,98 +144,124 @@ export function CatalogueListContent() {
             <div className="space-y-4">
               <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
                 <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-16">Photo</TableHead>
-                        <TableHead>Article</TableHead>
-                        <TableHead>Prix</TableHead>
-                        <TableHead className="text-right">Quantité totale</TableHead>
-                        <TableHead className="text-right">Disponible</TableHead>
-                        <TableHead className="text-right">Réservé</TableHead>
-                        <TableHead>Origine</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {items.map((item) => (
-                        <TableRow key={item.id} className="group">
-                          <TableCell className="px-3 py-2">
-                            {item.mediaStorageKey ? (
-                              <a
-                                href={`/api/catalogue/${item.id}/photo`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="relative block size-10 overflow-hidden rounded-lg border border-border bg-muted"
-                              >
-                                <img
-                                  src={`/api/catalogue/${item.id}/photo`}
-                                  alt={`Photo ${item.code}`}
-                                  className="size-full object-cover opacity-0 transition-[opacity,transform] duration-300 group-hover:scale-110"
-                                  onLoad={(e) => e.currentTarget.classList.replace("opacity-0", "opacity-100")}
-                                />
-                              </a>
-                            ) : (
-                              <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
-                                <ImageOff className="size-4" />
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col gap-0.5">
-                              <span className="font-medium">{item.code}</span>
-                              {item.name && (
-                                <span className="text-xs text-muted-foreground">{item.name}</span>
-                              )}
-                              {item.syncedToMeta && (
-                                <Badge variant="success" className="w-fit text-[10px] px-1.5 py-0">
-                                  Meta ✓
-                                </Badge>
-                              )}
+                  <DataList
+                    items={items}
+                    getKey={(item) => item.id}
+                    label="Articles du catalogue"
+                    columns={[
+                      {
+                        id: "photo",
+                        header: "Photo",
+                        role: "hiddenOnMobile",
+                        headerClassName: "w-16",
+                        className: "px-3 py-2",
+                        cell: (item) =>
+                          item.mediaStorageKey ? (
+                            <a
+                              href={`/api/catalogue/${item.id}/photo`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="relative block size-10 overflow-hidden rounded-lg border border-border bg-muted"
+                            >
+                              <img
+                                src={`/api/catalogue/${item.id}/photo`}
+                                alt={`Photo ${item.code}`}
+                                className="size-full object-cover"
+                              />
+                            </a>
+                          ) : (
+                            <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
+                              <ImageOff className="size-4" />
                             </div>
-                          </TableCell>
-                          <TableCell>{formatPrice(item.amount)}</TableCell>
-                          <TableCell className="text-right">{item.quantity}</TableCell>
-                          <TableCell className="text-right">
-                            <Badge variant={item.availableQty > 0 ? "default" : "secondary"}>
-                              {item.availableQty}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {item.reservedQty > 0 ? (
-                              <Badge variant="outline">{item.reservedQty}</Badge>
-                            ) : (
-                              <span className="text-muted-foreground">—</span>
+                          ),
+                      },
+                      {
+                        id: "article",
+                        header: "Article",
+                        role: "primary",
+                        cell: (item) => (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-medium">{item.code}</span>
+                            {item.name && (
+                              <span className="text-xs text-muted-foreground">{item.name}</span>
                             )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={isLiveCatalogueOrigin(item.origin) ? "default" : "secondary"}>
-                              {getCatalogueOriginLabel(item.origin)}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEditItem(item)}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteItem(item)}
-                                disabled={item.reservedQty > 0}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                          </div>
+                        ),
+                      },
+                      {
+                        id: "price",
+                        header: "Prix",
+                        role: "secondary",
+                        cell: (item) => formatXof(item.amount),
+                      },
+                      {
+                        id: "quantity",
+                        header: "Quantité totale",
+                        role: "meta",
+                        headerClassName: "text-right",
+                        className: "text-right",
+                        cell: (item) => item.quantity,
+                      },
+                      {
+                        id: "available",
+                        header: "Disponible",
+                        role: "meta",
+                        headerClassName: "text-right",
+                        className: "text-right",
+                        cell: (item) => (
+                          <Badge variant={item.availableQty > 0 ? "default" : "secondary"}>
+                            {item.availableQty}
+                          </Badge>
+                        ),
+                      },
+                      {
+                        id: "reserved",
+                        header: "Réservé",
+                        role: "meta",
+                        headerClassName: "text-right",
+                        className: "text-right",
+                        cell: (item) =>
+                          item.reservedQty > 0 ? (
+                            <Badge variant="outline">{item.reservedQty}</Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          ),
+                      },
+                      {
+                        id: "origin",
+                        header: "Origine",
+                        role: "hiddenOnMobile",
+                        cell: (item) => (
+                          <Badge
+                            variant={isLiveCatalogueOrigin(item.origin) ? "default" : "secondary"}
+                          >
+                            {getCatalogueOriginLabel(item.origin)}
+                          </Badge>
+                        ),
+                      },
+                    ]}
+                    actions={(item) => (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditItem(item)}
+                          aria-label={`Modifier l’article ${item.code}`}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteItem(item)}
+                          disabled={item.reservedQty > 0}
+                          aria-label={`Supprimer l’article ${item.code}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                  />
                 </CardContent>
                 <DataPagination
                   totalItems={items.length}
@@ -278,8 +288,6 @@ export function CatalogueListContent() {
         </div>
       </main>
 
-
-
       <CatalogueItemFormDialog
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
@@ -297,11 +305,7 @@ export function CatalogueListContent() {
               <strong>{deletingItem?.code}</strong> ? Cette action est irréversible.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          {deleteError && (
-            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-              {deleteError}
-            </div>
-          )}
+          {deleteError && <ErrorAlert error={deleteError} />}
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setDeleteError(null)}>Annuler</AlertDialogCancel>
             <AlertDialogAction

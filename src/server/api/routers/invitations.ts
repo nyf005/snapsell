@@ -296,7 +296,7 @@ export const invitationsRouter = createTRPCRouter({
         created: true, 
         alreadyMember: false, 
         userId: user.id,
-        message: "Compte créé avec succès. Vous allez être connecté automatiquement.",
+        message: "Compte créé. La connexion se fait automatiquement.",
       };
     }),
 });

@@ -116,7 +116,8 @@ export async function loadMetaEmbeddedSignupSdk(appId: string): Promise<MetaSDK>
       throw error;
     });
   }
-  const sdk = await window.__snapsellMetaSdkPromise;
+  // Attend le chargement du script Meta avant d'initialiser le SDK.
+  await window.__snapsellMetaSdkPromise;
   return initMetaSdk(cleanAppId);
 }
 

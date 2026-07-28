@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { marketing } from "~/lib/copy/marketing";
 import { Globe, Share2, Mail } from "lucide-react";
 
 import { SnapSellLogo } from "~/components/auth/snapsel-logo";
@@ -39,8 +40,9 @@ export function LandingFooter() {
                 </span>
               </div>
               <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
-                La plateforme tout-en-un pour gérer votre catalogue, vos ventes
-                en live et vos commandes via WhatsApp.
+                La plateforme des boutiques qui vendent sur WhatsApp :
+                catalogue, réservations, commandes et preuves de paiement au
+                même endroit.
               </p>
               <div className="flex gap-4">
                 <Link
@@ -122,14 +124,10 @@ export function LandingFooter() {
 
         {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-xs text-muted-foreground md:flex-row">
-          <p>© 2026 SnapSell Inc. Tous droits réservés.</p>
-          <div className="flex gap-6">
-            <span>Fait avec passion à Paris</span>
-            <span className="flex items-center gap-1">
-              <span className="size-2 animate-pulse rounded-full bg-green-500" />
-              Systèmes opérationnels
-            </span>
-          </div>
+          <p>{marketing.footer.copyright}</p>
+          {/* La pastille « Systèmes opérationnels » clignotait sans qu'aucune page
+              de statut ne la soutienne : retirée. */}
+          <span>Conçu pour les boutiques d’Afrique de l’Ouest</span>
         </div>
       </div>
     </footer>

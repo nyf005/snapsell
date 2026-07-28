@@ -1,19 +1,8 @@
 import { type Metadata } from "next";
+import { marketing } from "~/lib/copy/marketing";
+import { formatXofUnitsParts } from "~/lib/copy";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Check,
-  X,
-  Zap,
-  Crown,
-  Users,
-  ShoppingCart,
-  Lock,
-  Shield,
-  Sparkles,
-  ChevronDown,
-  AlertCircle,
-} from "lucide-react";
+import { ArrowRight, Check, Zap, Crown, Users, ShoppingCart, Lock, Shield, ShieldCheck, Sparkles, ChevronDown, AlertCircle } from "lucide-react";
 
 import { SiteHeader } from "~/components/site-header";
 import { LandingFooter } from "~/app/_components/landing/landing-footer";
@@ -30,7 +19,7 @@ import {
 export const metadata: Metadata = {
   title: "Tarifs — SnapSell",
   description:
-    "Choisissez le plan SnapSell adapte a votre activite : Free, Starter ou Pro. Commencez gratuitement, passez a la vitesse superieure quand vous etes pret.",
+    "Choisissez le plan SnapSell adapté à votre activité : Free, Starter ou Pro. Commencez gratuitement, passez à la vitesse supérieure quand vos ventes décollent.",
 };
 
 const planIcons: Record<PlanId, typeof Zap> = {
@@ -53,16 +42,16 @@ type ComparisonItem =
 
 const comparisonItems: ComparisonItem[] = [
   { kind: "group", label: "Volume & limites" },
-  { kind: "row", label: "Sessions client / mois", free: "70", starter: "500", pro: "1500" },
+  { kind: "row", label: "Conversations client / mois", free: "70", starter: "500", pro: "1 500" },
   { kind: "row", label: "Commandes", free: "Illimité", starter: "Illimité", pro: "Illimité" },
-  { kind: "row", label: "Sessions supplémentaires", free: "3 000 FCA / 100", starter: "2 500 FCA / 100", pro: "2 000 FCA / 100" },
+  { kind: "row", label: "Conversations supplémentaires", free: "3 000 FCFA / 100", starter: "2 500 FCFA / 100", pro: "2 000 FCFA / 100" },
   { kind: "row", label: "IA (analyse des intentions)", free: false, starter: true, pro: true },
   { kind: "row", label: "Preuves / mois", free: "Illimité", starter: "Illimité", pro: "Illimité" },
   { kind: "row", label: "Agents", free: "0", starter: "1", pro: "5" },
   { kind: "group", label: "Fonctionnalités principales" },
   { kind: "row", label: "Grille catégories prix", free: true, starter: true, pro: true },
-  { kind: "row", label: "File de réservation TTL", free: true, starter: true, pro: true },
-  { kind: "row", label: "Dashboard commandes", free: true, starter: true, pro: true },
+  { kind: "row", label: "File de réservation", free: true, starter: true, pro: true },
+  { kind: "row", label: "Tableau de bord des commandes", free: true, starter: true, pro: true },
   { kind: "row", label: "Preuves de paiement", free: "Illimité", starter: "Illimité", pro: "Illimité" },
   { kind: "group", label: "Outils avancés" },
   { kind: "row", label: "Export CSV", free: false, starter: "Basique", pro: "Avancé" },
@@ -78,20 +67,20 @@ const comparisonItems: ComparisonItem[] = [
 
 const faqItems = [
   {
-    q: "Qu'est-ce qu'une session client ?",
-    a: "Une session client correspond à une fenêtre de conversation WhatsApp de 24h avec un client unique. Chaque nouveau client initie une session. Pendant 24h, tous vos échanges avec ce client utilisent le même crédit, peu importe le nombre de messages.",
+    q: "Qu’est-ce qu’une conversation client ?",
+    a: "Une conversation client correspond à 24 h d’échanges illimités avec un même numéro sur WhatsApp. Chaque nouveau numéro ouvre une conversation. Pendant 24 h, tous les échanges avec ce numéro consomment le même crédit, quel que soit le nombre de messages.",
   },
   {
-    q: "Que se passe-t-il si je depasse ma limite de sessions ?",
-    a: "Sur tous les plans, vous pouvez acheter des packs de 100 sessions supplémentaires (3 000 FCA en Free, 2 500 FCA en Starter, 2 000 FCA en Pro). Les sessions achetées n'expirent pas. Vous ne perdez jamais de ventes.",
+    q: "Que se passe-t-il si je dépasse ma limite de conversations ?",
+    a: "Sur tous les plans, vous pouvez acheter des packs de 100 conversations supplémentaires (3 000 FCFA en Free, 2 500 FCFA en Starter, 2 000 FCFA en Pro). Les conversations achetées n’expirent pas. Vous ne perdez jamais de ventes.",
   },
   {
-    q: "Puis-je changer de plan a tout moment ?",
-    a: "Oui. Vous pouvez passer à un plan supérieur immédiatement depuis Paramètres - Abonnement. L'accès au nouveau plan est instantané.",
+    q: "Puis-je changer de plan à tout moment ?",
+    a: "Oui. Vous pouvez passer à un plan supérieur immédiatement depuis Paramètres - Abonnement. L’accès au nouveau plan est instantané.",
   },
   {
     q: "Y a-t-il un engagement minimum ?",
-    a: "Aucun. Les plans sont facturés mensuellement et vous pouvez annuler à tout moment. Votre accès reste actif jusqu'à la fin de la période payée.",
+    a: "Aucun. Les plans sont facturés mensuellement et vous pouvez annuler à tout moment. Votre accès reste actif jusqu’à la fin de la période payée.",
   },
   {
     q: "Comment fonctionne le paiement ?",
@@ -182,29 +171,14 @@ export default async function TarifsPage(props: TarifsPageProps) {
             <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
               Commencez gratuitement, passez à la vitesse supérieure quand vos
               ventes décollent. Facturation sur les{" "}
-              <strong className="text-foreground">sessions client</strong>{" "}
+              <strong className="text-foreground">conversations client</strong>{" "}
               uniquement.
             </p>
 
-            {/* Social proof */}
+            {/* Aucune preuve sociale inventée : le produit se décrit lui-même. */}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2.5">
-                <div className="flex -space-x-2" aria-hidden="true">
-                  {["S", "A", "M", "F"].map((l) => (
-                    <div
-                      key={l}
-                      className="flex size-7 items-center justify-center rounded-full border-2 border-background bg-primary/25 text-xs font-bold text-primary"
-                    >
-                      {l}
-                    </div>
-                  ))}
-                </div>
-                <span>500+ vendeurs actifs</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="size-2 rounded-full bg-green-500" aria-hidden="true" />
-                <span>Aucune CB requise pour démarrer</span>
-              </div>
+              <span>Aucune carte bancaire pour démarrer</span>
+              <span>{marketing.promise.setup}</span>
             </div>
           </div>
         </section>
@@ -214,11 +188,23 @@ export default async function TarifsPage(props: TarifsPageProps) {
           className="mx-auto max-w-5xl px-6 pb-24"
           aria-label="Plans tarifaires"
         >
-          <div className="grid items-start gap-6 md:grid-cols-3">
-            {PLAN_IDS.map((planId) => {
+          {/*
+            Pas d'`items-start` : les cartes s'étirent à la hauteur de la plus
+            haute, sinon le nombre de lignes de fonctionnalités décale les trois
+            boutons. La carte Pro n'est pas non plus décalée vers le haut : le
+            prix est ce qu'on compare d'une carte à l'autre, il doit rester sur
+            une seule ligne. Sa mise en avant passe par la couleur et le badge.
+          */}
+          <div className="grid gap-6 md:grid-cols-3">
+            {PLAN_IDS.map((planId, planIndex) => {
               const plan = SUBSCRIPTION_PLANS[planId];
               const Icon = planIcons[planId];
               const isPopular = !!plan.popular;
+              const price = formatXofUnitsParts(plan.price);
+              const previousPlanId = PLAN_IDS[planIndex - 1];
+              const inheritsFrom = previousPlanId
+                ? SUBSCRIPTION_PLANS[previousPlanId].name
+                : null;
 
               let ctaHref: string;
               let ctaLabel: string;
@@ -226,7 +212,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
                 ctaHref = isLoggedIn ? "/dashboard" : "/login?tab=signup";
                 ctaLabel = isLoggedIn
                   ? "Tableau de bord"
-                  : "Commencer gratuitement";
+                  : marketing.cta.signup;
               } else if (isLoggedIn && isManager) {
                 ctaHref = `/api/payment/subscribe?plan=${planId}`;
                 ctaLabel = "S'abonner";
@@ -243,7 +229,10 @@ export default async function TarifsPage(props: TarifsPageProps) {
                   key={planId}
                   className={`relative flex flex-col rounded-2xl transition-all duration-300 ${
                     isPopular
-                      ? "bg-primary text-primary-foreground shadow-2xl shadow-primary/40 md:-mt-6"
+                      ? // `border-transparent` : sans lui, la carte Pro n'a pas
+                        // le liseré de 1px des deux autres et tout son contenu
+                        // remonte d'un pixel.
+                        "border border-transparent bg-primary text-primary-foreground shadow-2xl shadow-primary/40"
                       : planId === "starter"
                         ? "border border-primary/25 bg-card shadow-lg shadow-primary/5 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10"
                         : "border border-border bg-card hover:border-border/60 hover:shadow-md"
@@ -252,7 +241,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
                   {/* Popular badge */}
                   {isPopular && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-primary shadow-lg shadow-primary/20">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-background px-4 py-1.5 text-xs font-bold text-primary shadow-lg shadow-primary/20">
                         <Crown className="size-3" />
                         Le plus populaire
                       </span>
@@ -264,7 +253,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
                     <div
                       className={`mb-4 flex size-12 items-center justify-center rounded-xl ${
                         isPopular
-                          ? "bg-white/20 text-white"
+                          ? "bg-primary-foreground/15 text-primary-foreground"
                           : planId === "starter"
                             ? "bg-primary/10 text-primary"
                             : "bg-muted text-muted-foreground"
@@ -275,29 +264,40 @@ export default async function TarifsPage(props: TarifsPageProps) {
 
                     <h2 className="text-lg font-bold">{plan.name}</h2>
                     <p
-                      className={`mt-1 text-sm ${isPopular ? "text-white/70" : "text-muted-foreground"}`}
+                      className={`mt-1 text-sm ${isPopular ? "text-primary-foreground/70" : "text-muted-foreground"}`}
                     >
                       {plan.description}
                     </p>
 
-                    <div className="mt-5">
-                      <span className="font-display text-5xl font-extrabold tracking-tight">
-                        {plan.price === 0
-                          ? "0"
-                          : new Intl.NumberFormat("fr-FR").format(plan.price)}
-                      </span>
-                      <span
-                        className={`ml-1 text-sm font-medium ${isPopular ? "text-white/70" : "text-muted-foreground"}`}
-                      >
-                        {plan.price === 0 ? "FCA" : "FCA / mois"}
-                      </span>
+                    <div className="mt-5 flex flex-wrap items-baseline justify-center gap-x-1.5">
+                      {plan.price === 0 ? (
+                        <span className="font-display text-5xl font-extrabold tracking-tight">
+                          Gratuit
+                        </span>
+                      ) : (
+                        <>
+                          <span className="font-display text-5xl font-extrabold tracking-tight data-numeric">
+                            {price.amount}
+                          </span>
+                          <span
+                            className={`text-base font-semibold ${isPopular ? "text-primary-foreground/75" : "text-muted-foreground"}`}
+                          >
+                            {price.currency}
+                          </span>
+                          <span
+                            className={`text-sm font-medium ${isPopular ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+                          >
+                            / mois
+                          </span>
+                        </>
+                      )}
                     </div>
 
                     <p
                       className={`mt-2 h-4 text-xs ${
                         plan.overageLabel
                           ? isPopular
-                            ? "text-white/60"
+                            ? "text-primary-foreground/65"
                             : "text-muted-foreground"
                           : "invisible"
                       }`}
@@ -310,11 +310,26 @@ export default async function TarifsPage(props: TarifsPageProps) {
 
                   {/* Divider */}
                   <div
-                    className={`mx-6 border-t ${isPopular ? "border-white/20" : "border-border"}`}
+                    className={`mx-6 border-t ${isPopular ? "border-primary-foreground/20" : "border-border"}`}
                   />
 
                   {/* Features */}
                   <div className="flex flex-1 flex-col px-6 pb-8 pt-6">
+                    {/*
+                      Chaque plan contient le précédent : le dire évite de
+                      relire trois listes pour comprendre ce qui change.
+                    */}
+                    {inheritsFrom && (
+                      <p
+                        className={`mb-4 text-xs font-bold uppercase tracking-wider ${
+                          isPopular
+                            ? "text-primary-foreground/70"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        Tout dans {inheritsFrom}, plus :
+                      </p>
+                    )}
                     <ul
                       className="flex-1 space-y-3"
                       role="list"
@@ -327,16 +342,16 @@ export default async function TarifsPage(props: TarifsPageProps) {
                         >
                           <div
                             className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full ${
-                              isPopular ? "bg-white/20" : "bg-green-500/10"
+                              isPopular ? "bg-primary-foreground/15" : "bg-green-500/10"
                             }`}
                           >
                             <Check
-                              className={`size-3 ${isPopular ? "text-white" : "text-green-500"}`}
+                              className={`size-3 ${isPopular ? "text-primary-foreground" : "text-green-500"}`}
                               aria-hidden="true"
                             />
                           </div>
                           <span
-                            className={isPopular ? "text-white/90" : ""}
+                            className={isPopular ? "text-primary-foreground/90" : ""}
                           >
                             {feature}
                           </span>
@@ -352,7 +367,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
                         variant={isPopular ? "default" : "outline"}
                         className={`w-full rounded-xl font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] ${
                           isPopular
-                            ? "bg-white text-primary shadow-lg hover:bg-white/90"
+                            ? "bg-primary-foreground text-primary shadow-lg hover:bg-primary-foreground/90"
                             : ""
                         }`}
                       >
@@ -439,27 +454,69 @@ export default async function TarifsPage(props: TarifsPageProps) {
           </div>
         </section>
 
-        {/* ── D : FAQ ─────────────────────────────────────────────────────── */}
-        <section className="mx-auto max-w-3xl px-6 pb-24">
-          <h2 className="mb-2 text-center text-2xl font-bold">
+        {/* ── D : FAQ + réassurance ───────────────────────────────────────── */}
+        <section className="mx-auto max-w-5xl px-6 pb-24">
+          <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-primary">
             Questions fréquentes
-          </h2>
-          <p className="mb-10 text-center text-sm text-muted-foreground">
-            Tout ce que vous devez savoir avant de vous lancer
           </p>
+          <h2 className="mb-8 text-center text-2xl font-bold">
+            Tout ce que vous devez savoir
+          </h2>
 
-          <div className="divide-y divide-border rounded-2xl border border-border">
-            {faqItems.map(({ q, a }) => (
-              <details key={q} className="group px-6 py-5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
-                  {q}
-                  <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180" />
-                </summary>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {a}
-                </p>
-              </details>
-            ))}
+          {/*
+            La FAQ et l'encart sont deux enfants directs de la grille : ils
+            s'étirent donc à la même hauteur, sous le titre commun.
+          */}
+          <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-10">
+            <div className="divide-y divide-border rounded-2xl border border-border">
+              {faqItems.map(({ q, a }) => (
+                <details key={q} className="group px-6 py-5">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
+                    {q}
+                    <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180" />
+                  </summary>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    {a}
+                  </p>
+                </details>
+              ))}
+            </div>
+
+            {/*
+              Bloc de réassurance. Volontairement sans « essai gratuit » : le
+              plan Free est permanent, pas une période d'essai — et le terme est
+              banni par `marketing.ts`. Le dire est plus fort que l'inverse.
+            */}
+            <aside className="flex flex-col gap-4 rounded-2xl border border-primary/25 bg-primary/5 p-7">
+              <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10">
+                <ShieldCheck className="size-5 text-primary" />
+              </div>
+              <h2 className="text-xl font-bold">Commencez sans risque</h2>
+              <ul className="flex flex-col gap-3" role="list">
+                {[
+                  "Le plan Free est permanent, ce n’est pas une période d’essai",
+                  "Aucune carte bancaire pour démarrer",
+                  "Changez ou arrêtez votre plan à tout moment",
+                  "Vos conversations achetées n’expirent jamais",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm">
+                    <Check
+                      className="mt-0.5 size-4 shrink-0 text-primary"
+                      aria-hidden="true"
+                    />
+                    <span className="text-muted-foreground">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              {/* `mt-auto` : le bouton se cale en bas de l'encart, donc au
+                  même niveau que le bas de la FAQ d'à côté. */}
+              <Button asChild size="lg" className="mt-auto w-full rounded-xl font-bold">
+                <Link href={isLoggedIn ? "/dashboard" : "/login?tab=signup"}>
+                  {isLoggedIn ? "Tableau de bord" : marketing.cta.signup}
+                  <ArrowRight className="ml-2 size-4" />
+                </Link>
+              </Button>
+            </aside>
           </div>
         </section>
 

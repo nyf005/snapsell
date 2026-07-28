@@ -29,10 +29,13 @@ vi.mock("~/server/live-session/service", () => ({
   getOrCreateCurrentSession: (...args: unknown[]) => mockGetOrCreateCurrentSession(...args),
 }));
 
+const mockCatalogueItemFindMany = vi.hoisted(() => vi.fn(() => Promise.resolve([])));
+
 vi.mock("~/server/db", () => ({
   db: {
     liveSession: { findFirst: vi.fn() },
     liveItem: { findMany: mockLiveItemFindMany },
+    catalogueItem: { findMany: mockCatalogueItemFindMany },
     reservation: {
       findFirst: mockReservationFindFirst,
       findMany: mockReservationFindMany,
@@ -876,7 +879,9 @@ describe("live router", () => {
         caller.live.releaseReservation({ reservationId: VALID_RESERVATION_ID }),
       ).rejects.toMatchObject({
         code: "BAD_REQUEST",
-        message: expect.stringContaining("aucun item"),
+        // Le message porte désormais une clé utilisateur ; les noms de colonnes
+        // (liveItemId / catalogueItemId) ne sortent plus vers l'interface.
+        userKey: "reservation.invalid",
       });
       expect(mockReleaseReservation).not.toHaveBeenCalled();
     });

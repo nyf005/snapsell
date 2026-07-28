@@ -8,7 +8,7 @@ import { env } from "~/env";
 import { webhookLogger } from "~/lib/logger";
 import { checkWebhookRateLimit, getClientIpFromRequest } from "~/lib/rate-limit";
 import { captureException as sendToSentry } from "~/lib/sentry";
-import { decrypt } from "~/lib/crypto";
+
 import {
   normalizeIncomingPhone,
 } from "~/lib/validations/phone";

@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, ImagePlus, RefreshCw, Trash2, Upload } from "lucide-react";
 import { api } from "~/trpc/react";
+import { CodePricePreview } from "~/app/(dashboard)/_components/code-price-preview";
+import { ErrorAlert } from "~/components/ui/error-alert";
+import { formatError, type UserError } from "~/lib/copy";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -120,8 +123,8 @@ export function CatalogueItemFormDialog({
   const [quantity, setQuantity] = useState("1");
   const [amount, setAmountCents] = useState("");
   const [syncSuccess, setSyncSuccess] = useState(false);
-  const [syncError, setSyncError] = useState<string | null>(null);
-  const [error, setError] = useState("");
+  const [syncError, setSyncError] = useState<UserError | null>(null);
+  const [error, setError] = useState<UserError | null>(null);
   const [showVariants, setShowVariants] = useState(true);
   const [variantDraft, setVariantDraft] = useState<VariantDraftPayload | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -138,20 +141,20 @@ export function CatalogueItemFormDialog({
       onSuccess();
       setTimeout(() => setSyncSuccess(false), 3000);
     },
-    onError: (e) => setSyncError(e.message),
+    onError: (e) => setSyncError(formatError(e, "catalogue")),
   });
 
   const createMutation = api.catalogue.create.useMutation({
-    onError: (err) => setError(err.message),
+    onError: (err) => setError(formatError(err, "catalogue")),
   });
   const updateMutation = api.catalogue.update.useMutation({
-    onError: (err) => setError(err.message),
+    onError: (err) => setError(formatError(err, "catalogue")),
   });
   const upsertVariantsMutation = api.catalogue.upsertVariants.useMutation({
-    onError: (err) => setError(err.message),
+    onError: (err) => setError(formatError(err, "catalogue")),
   });
   const deleteVariantsMutation = api.catalogue.deleteVariants.useMutation({
-    onError: (err) => setError(err.message),
+    onError: (err) => setError(formatError(err, "catalogue")),
   });
 
   useEffect(() => {
@@ -169,7 +172,7 @@ export function CatalogueItemFormDialog({
     setSelectedFile(null);
     setPreviewUrl(null);
     setRemoveExistingPhoto(false);
-    setError("");
+    setError(null);
     setSyncError(null);
     setSyncSuccess(false);
     setVariantDraft(null);
@@ -186,7 +189,7 @@ export function CatalogueItemFormDialog({
     setName("");
     setQuantity("1");
     setAmountCents("");
-    setError("");
+    setError(null);
     setSyncError(null);
     setSyncSuccess(false);
     setSelectedFile(null);
@@ -197,15 +200,15 @@ export function CatalogueItemFormDialog({
 
   const validateAndSetFile = (file: File) => {
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setError("Type de fichier non autorisé. Acceptés : JPEG, PNG, WebP");
+      setError({ title: "Type de fichier non autorisé. Acceptés : JPEG, PNG, WebP" });
       return;
     }
     if (file.size > MAX_FILE_SIZE) {
-      setError("Taille maximale dépassée (5 MB)");
+      setError({ title: "Taille maximale dépassée (5 MB)" });
       return;
     }
 
-    setError("");
+    setError(null);
     setSelectedFile(file);
     setRemoveExistingPhoto(false);
 
@@ -234,11 +237,11 @@ export function CatalogueItemFormDialog({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError("");
+    setError(null);
 
     const qty = effectiveQuantity;
     if (Number.isNaN(qty) || qty < 1) {
-      setError("La quantité doit être un nombre positif");
+      setError({ title: "La quantité doit être un nombre positif" });
       return;
     }
 
@@ -246,14 +249,18 @@ export function CatalogueItemFormDialog({
     if (amount.trim()) {
       const parsed = Number.parseInt(amount, 10);
       if (Number.isNaN(parsed) || parsed < 0) {
-        setError("Le prix doit être un nombre positif");
+        setError({ title: "Le prix doit être un nombre positif" });
         return;
       }
       amountValue = parsed * 100;
     }
 
     if (showVariants && variantDraft && !variantDraft.isValid) {
-      setError(item ? "Corrigez les variantes avant de modifier l'article." : "Corrigez les variantes avant d'ajouter l'article.");
+      setError({
+        title: item
+          ? "Corrigez les variantes avant de modifier l’article."
+          : "Corrigez les variantes avant d’ajouter l’article.",
+      });
       return;
     }
 
@@ -323,7 +330,7 @@ export function CatalogueItemFormDialog({
     } catch (err) {
       setIsUploading(false);
       if (err instanceof Error && !error) {
-        setError(err.message);
+        setError(formatError(err, "catalogue"));
       }
     }
   };
@@ -353,7 +360,7 @@ export function CatalogueItemFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-6xl max-h-[92vh] overflow-y-auto overflow-x-hidden custom-scrollbar">
+      <DialogContent variant="sheet-on-mobile" className="sm:max-w-6xl max-h-[92vh] overflow-y-auto overflow-x-hidden custom-scrollbar">
         <DialogHeader>
           <DialogTitle>{item ? "Modifier l'article" : "Ajouter un article"}</DialogTitle>
           <DialogDescription>
@@ -377,7 +384,7 @@ export function CatalogueItemFormDialog({
                     disabled={isSubmitting}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Nom affiché dans le catalogue Meta Commerce (requis pour la synchro)
+                    Nom affiché sur WhatsApp.
                   </p>
                 </div>
 
@@ -394,6 +401,8 @@ export function CatalogueItemFormDialog({
                   <p className="text-xs text-muted-foreground">
                     Le code sera normalisé (majuscules, espaces supprimés)
                   </p>
+                  {/* Montre le prix qui sera annoncé, plutôt que de le décrire. */}
+                  <CodePricePreview code={code} disabled={amount.trim().length > 0} />
                 </div>
 
                 <div className="space-y-2">
@@ -430,7 +439,7 @@ export function CatalogueItemFormDialog({
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Si non spécifié, le prix sera dérivé de la première lettre du code
+                    Sans prix, SnapSell applique celui de la catégorie qui commence le code (A12 → catégorie A).
                   </p>
                 </div>
                 {showPhotoSection ? (
@@ -578,15 +587,11 @@ export function CatalogueItemFormDialog({
 
             {!r2Configured ? (
               <div className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
-                Configuration R2 requise pour les photos. Contactez votre administrateur.
+                L’envoi de photos n’est pas encore activé. Vous pouvez créer l’article sans photo et l’ajouter plus tard.
               </div>
             ) : null}
 
-            {error ? (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            ) : null}
+            {error ? <ErrorAlert error={error} /> : null}
 
             {item && (
               <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
@@ -622,7 +627,7 @@ export function CatalogueItemFormDialog({
                   <p className="text-xs text-success">Article synchronisé avec succès.</p>
                 )}
                 {syncError && (
-                  <p className="text-xs text-destructive">{syncError}</p>
+                  <ErrorAlert error={syncError} />
                 )}
               </div>
             )}

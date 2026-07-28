@@ -4,6 +4,8 @@
  */
 
 import { TRPCError } from "@trpc/server";
+
+import { appError } from "~/server/api/errors";
 import { db } from "~/server/db";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import {
@@ -23,10 +25,7 @@ export const eventLogRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
       if (!tenantId) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Tenant non identifié.",
-        });
+        throw appError("UNAUTHORIZED", "session.expired");
       }
       const opts: Partial<ListEventLogsInput> = input ?? {};
       const limit = opts.limit ?? 50;
@@ -66,10 +65,7 @@ export const eventLogRouter = createTRPCRouter({
       }
       const tenantId = ctx.session.user.tenantId;
       if (!tenantId) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Tenant non identifié.",
-        });
+        throw appError("UNAUTHORIZED", "session.expired");
       }
       const tenantFeatures = await db.tenant.findUnique({
         where: { id: tenantId },
@@ -91,7 +87,7 @@ export const eventLogRouter = createTRPCRouter({
       if (rows.length > EXPORT_CSV_MAX_ROWS) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: `Trop d'événements (max ${EXPORT_CSV_MAX_ROWS}). Affinez les filtres (type, période, correlationId).`,
+          message: `Trop d'événements (max ${EXPORT_CSV_MAX_ROWS}). Réduisez la période ou choisissez un type d’activité.`,
         });
       }
       const escapeCsv = (value: string | number | Date | object | null) => {

@@ -3,7 +3,7 @@
 import { Skeleton } from "~/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 
-export function FaqSettingsSkeleton() {
+export function AutoRepliesSkeleton() {
   return (
     <div className="space-y-8">
       {/* Header skeleton */}

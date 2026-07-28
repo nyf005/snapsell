@@ -49,10 +49,15 @@ export const createTRPCContext = async (opts: {
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
+    // `userKey` est posé par appError() (src/server/api/errors.ts). C'est la liste
+    // blanche que formatError() consulte côté client : sans clé, rien n'est affiché
+    // tel quel, on tombe sur un message générique.
+    const userKey = (error as { userKey?: unknown }).userKey;
     return {
       ...shape,
       data: {
         ...shape.data,
+        userKey: typeof userKey === "string" ? userKey : null,
         zodError:
           error.cause instanceof ZodError ? error.cause.flatten() : null,
       },

@@ -52,6 +52,26 @@ export const catalogueRouter = createTRPCRouter({
       return { items, nextCursor };
     }),
 
+  /**
+   * Libellés et prix des catégories, en lecture seule.
+   *
+   * `settings.getCategoryPrices` est réservé aux managers, mais `catalogue.create`
+   * est ouvert aux vendeurs : sans cette procédure, un VENDEUR ne peut pas voir la
+   * grille qui détermine le prix de l'article qu'il est en train de créer.
+   */
+  getCategoryLabels: protectedProcedure.query(async ({ ctx }) => {
+    const rows = await db.categoryPrice.findMany({
+      where: { tenantId: ctx.session.user.tenantId },
+      orderBy: { categoryLetter: "asc" },
+      select: { categoryLetter: true, amount: true, description: true },
+    });
+    return rows.map((r) => ({
+      categoryLetter: r.categoryLetter,
+      amount: r.amount,
+      description: r.description,
+    }));
+  }),
+
   /** Crée un nouvel article catalogue (dashboard) */
   create: protectedProcedure
     .input(createCatalogueItemInputSchema)
@@ -70,7 +90,7 @@ export const catalogueRouter = createTRPCRouter({
         if (derivedPrice === null) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "Prix non configuré pour cette catégorie (première lettre du code).",
+            message: `Aucune catégorie de prix ne correspond au début du code « ${code} ». Ajoutez la catégorie dans vos prix, ou saisissez un prix pour cet article.`,
           });
         }
         amount = derivedPrice;

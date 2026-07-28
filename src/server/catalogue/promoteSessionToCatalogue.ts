@@ -1,9 +1,24 @@
 /**
  * Story 8.2 Task 1: Promotion session → catalogue à la fermeture
  *
- * Après fermeture d'une session live, récupère les LiveItem avec stock restant
- * (availableQty - reservedQty > 0) et les upsert dans le catalogue.
- * Si le code existe déjà en catalogue : ajoute les quantités restantes.
+ * Récupère les LiveItem d'une session fermée et crée l'article catalogue
+ * correspondant **s'il n'existe pas encore**.
+ *
+ * ── POURQUOI ON N'ADDITIONNE PLUS ───────────────────────────────────────────
+ * La version précédente incrémentait `quantity` et `availableQty` de l'article
+ * catalogue existant, avec la quantité restante lue sur le `LiveItem`.
+ *
+ * Or les réservations des clientes décrémentent `catalogue_items`, jamais
+ * `live_items` : la quantité lue sur le LiveItem est celle de sa création, figée.
+ * Chaque fin de live ré-ajoutait donc le stock initial au stock réel — un article
+ * à 10 en stock passait à 20, puis 30, sans qu'aucune vente ne l'explique.
+ *
+ * Aujourd'hui les deux chemins qui créent un LiveItem garantissent déjà l'article
+ * catalogue (tableau de bord : il en part ; vendeur WhatsApp :
+ * `upsertCatalogueItemFromWebhook` s'exécute avant). La création n'est donc plus
+ * qu'un filet de sécurité pour un orphelin, et l'addition n'a plus lieu d'être :
+ * le catalogue est déjà la source de vérité.
+ * ────────────────────────────────────────────────────────────────────────────
  */
 
 import { db } from "~/server/db";
@@ -21,9 +36,9 @@ export type PromotionResult = {
 
 /**
  * Promeut les items restants d'une session fermée vers le catalogue.
- * Pour chaque LiveItem avec stock disponible > 0, upsert CatalogueItem :
- * - Si absent : création avec les quantités restantes
- * - Si présent : ajout des quantités restantes
+ * Pour chaque LiveItem avec stock disponible > 0 :
+ * - Si l'article catalogue est absent : création avec les quantités restantes
+ * - S'il est présent : on n'y touche pas (il porte déjà le stock réel)
  *
  * @param tenantId - ID du tenant (isolation)
  * @param liveSessionId - ID de la session fermée
@@ -74,25 +89,23 @@ export async function promoteSessionToCatalogue(
     }
 
     try {
-      // Vérifier si l'item existe déjà en catalogue (pour statistiques)
       const existingBefore = await db.catalogueItem.findUnique({
         where: { tenantId_code: { tenantId, code: item.code } },
         select: { id: true },
       });
 
-      // Tenter l'upsert : créer ou ajouter les quantités
-      await upsertCatalogueItemFromLive(
-        tenantId,
-        item.code,
-        remainingQty,
-        item.amount,
-        item.mediaStorageKey,
-        await getItemNameFromCode(tenantId, item.code),
-      );
-
       if (existingBefore) {
+        // L'article catalogue porte déjà le stock réel : rien à faire.
         result.itemsUpdated++;
       } else {
+        await createCatalogueItemFromLive(
+          tenantId,
+          item.code,
+          remainingQty,
+          item.amount,
+          item.mediaStorageKey,
+          await getItemNameFromCode(tenantId, item.code),
+        );
         result.itemsCreated++;
       }
 
@@ -147,7 +160,7 @@ export async function promoteSessionToCatalogue(
  * @param amount - Prix en centimes (optionnel)
  * @param mediaStorageKey - Clé R2 pour photo (optionnel)
  */
-async function upsertCatalogueItemFromLive(
+async function createCatalogueItemFromLive(
   tenantId: string,
   code: string,
   additionalQty: number,
@@ -156,19 +169,7 @@ async function upsertCatalogueItemFromLive(
   name: string | null = null,
 ): Promise<void> {
   try {
-    // Essayer de mettre à jour l'existant (ajouter les quantités)
-    const updated = await db.catalogueItem.updateMany({
-      where: { tenantId, code },
-      data: {
-        quantity: { increment: additionalQty },
-        availableQty: { increment: additionalQty },
-        // Ne pas écraser le prix ou la photo si déjà présents
-        // (l'item catalogue peut avoir été modifié manuellement)
-      },
-    });
-
-    // Si aucune ligne mise à jour → item absent, créer
-    if (updated.count === 0) {
+    {
       try {
         await db.catalogueItem.create({
           data: {
@@ -191,21 +192,15 @@ async function upsertCatalogueItemFromLive(
           createError.code === "P2002";
 
         if (isUniqueViolation) {
-          // Retry update
-          await db.catalogueItem.updateMany({
-            where: { tenantId, code },
-            data: {
-              quantity: { increment: additionalQty },
-              availableQty: { increment: additionalQty },
-            },
-          });
+          // Un autre processus a créé l'article entre-temps : il fait autorité,
+          // rien à faire.
         } else {
           throw createError;
         }
       }
     }
   } catch (error) {
-    workerLogger.error("Error in upsertCatalogueItemFromLive", error, {
+    workerLogger.error("Error in createCatalogueItemFromLive", error, {
       tenantId,
       code,
       additionalQty,
