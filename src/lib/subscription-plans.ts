@@ -37,7 +37,24 @@ export interface PlanEntitlements {
    */
   hasNotificationsOutside24h: boolean;
   hasDepositRecommended: boolean; // Active requireDeposit à la souscription
-  hasAdvancedFilters: boolean; // « Audit renforcé » : journal sans limite de durée
+  /**
+   * Profondeur du journal d'audit, en jours. `-1` = illimité.
+   *
+   * Remplace l'ancien booléen `hasAdvancedFilters`, qui ne pouvait exprimer que
+   * deux niveaux alors que la grille en compte trois (30 / 90 / illimité).
+   *
+   * Lu depuis la config du plan via `getAuditRetentionDays()`, et non depuis une
+   * colonne dénormalisée sur Tenant : une seule source de vérité, donc aucune
+   * dérive possible, et le bon comportement pour tous les tenants existants sans
+   * migration de données.
+   */
+  auditRetentionDays: number;
+  /**
+   * @deprecated Superseded par `auditRetentionDays`. La colonne `has_advanced_filters`
+   * existe encore sur Tenant mais n'est plus lue : la suppression du champ est une
+   * migration destructive, à décider séparément.
+   */
+  hasAdvancedFilters: boolean;
   hasPrioritySupport: boolean; // Processus humain — aucun garde-fou applicatif
   showBranding: boolean;
   showUpgradeBanner: boolean;
@@ -89,6 +106,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       hasAdvancedExports: false,
       hasNotificationsOutside24h: false,
       hasDepositRecommended: false,
+      auditRetentionDays: 30,
       hasAdvancedFilters: false,
       hasPrioritySupport: false,
       showBranding: true,
@@ -101,7 +119,9 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       "Réservation, file d’attente et délai",
       "Tableau de bord des commandes",
       "Preuves de paiement illimitées",
+      "Journal d'activité sur 30 jours",
     ],
+    creditPackLabel: "Recharge : 3 000 FCFA les 100 conversations",
     creditPackPriceFCFA: 3_000,
   },
   starter: {
@@ -123,6 +143,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       hasAdvancedExports: false,
       hasNotificationsOutside24h: true,
       hasDepositRecommended: true,
+      auditRetentionDays: 90,
       hasAdvancedFilters: false,
       hasPrioritySupport: false,
       showBranding: false,
@@ -160,6 +181,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       hasAdvancedExports: true,
       hasNotificationsOutside24h: true,
       hasDepositRecommended: true,
+      auditRetentionDays: -1,
       hasAdvancedFilters: true,
       hasPrioritySupport: true,
       showBranding: false,
@@ -195,6 +217,18 @@ export function getPlanConfig(planId: string): PlanConfig {
     throw new Error(`Unknown plan: ${planId}`);
   }
   return plan;
+}
+
+/**
+ * Profondeur du journal d'audit autorisée pour un plan, en jours (`-1` = illimité).
+ *
+ * Ne lève jamais : un plan inconnu (donnée corrompue) retombe sur le niveau Free,
+ * le plus restrictif. Consulter le journal ne doit pas échouer parce qu'une valeur
+ * de plan est invalide — mais on ne doit pas non plus ouvrir l'historique complet.
+ */
+export function getAuditRetentionDays(planId: string): number {
+  const plan = SUBSCRIPTION_PLANS[planId as PlanId];
+  return (plan ?? SUBSCRIPTION_PLANS.free).entitlements.auditRetentionDays;
 }
 
 /**

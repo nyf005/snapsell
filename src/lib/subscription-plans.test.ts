@@ -33,8 +33,13 @@ describe("Story 7A.2: subscription-plans config", () => {
       expect(free.entitlements.showUpgradeBanner).toBe(true);
     });
 
-    it("n'affiche pas de recharge (le plan Free bloque au lieu de proposer un pack)", () => {
-      expect(free.creditPackLabel).toBeUndefined();
+    it("propose bien une recharge (les packs sont achetables sur tous les plans)", () => {
+      expect(free.creditPackPriceFCFA).toBe(3_000);
+      expect(free.creditPackLabel).toContain("3 000 FCFA");
+    });
+
+    it("borne le journal d'activité à 30 jours", () => {
+      expect(free.entitlements.auditRetentionDays).toBe(30);
     });
   });
 

@@ -40,27 +40,99 @@ type ComparisonItem =
       pro: string | boolean;
     };
 
+/**
+ * Les lignes quantitatives sont DÉRIVÉES de SUBSCRIPTION_PLANS plutôt que recopiées.
+ *
+ * Ce tableau était auparavant entièrement codé en dur, indépendamment de la config :
+ * deux sources de vérité pour la même grille, et l'une a dérivé sans que l'autre
+ * bouge. Tout ce qui peut être calculé depuis les entitlements doit l'être.
+ */
+const ent = (id: PlanId) => SUBSCRIPTION_PLANS[id].entitlements;
+
+const packLabel = (id: PlanId) => {
+  const price = SUBSCRIPTION_PLANS[id].creditPackPriceFCFA;
+  return price ? `${price.toLocaleString("fr-FR")} FCFA / 100` : "—";
+};
+
+const auditLabel = (id: PlanId) => {
+  const days = ent(id).auditRetentionDays;
+  return days === -1 ? "Illimité" : `${days} jours`;
+};
+
 const comparisonItems: ComparisonItem[] = [
   { kind: "group", label: "Volume & limites" },
-  { kind: "row", label: "Conversations client / mois", free: "70", starter: "500", pro: "1 500" },
+  {
+    kind: "row",
+    label: "Conversations client / mois",
+    free: ent("free").creditsTotalMonthly.toLocaleString("fr-FR"),
+    starter: ent("starter").creditsTotalMonthly.toLocaleString("fr-FR"),
+    pro: ent("pro").creditsTotalMonthly.toLocaleString("fr-FR"),
+  },
   { kind: "row", label: "Commandes", free: "Illimité", starter: "Illimité", pro: "Illimité" },
-  { kind: "row", label: "Conversations supplémentaires", free: "3 000 FCFA / 100", starter: "2 500 FCFA / 100", pro: "2 000 FCFA / 100" },
-  { kind: "row", label: "IA (analyse des intentions)", free: false, starter: true, pro: true },
+  {
+    kind: "row",
+    label: "Packs de conversations",
+    free: packLabel("free"),
+    starter: packLabel("starter"),
+    pro: packLabel("pro"),
+  },
+  {
+    kind: "row",
+    label: "IA (analyse des intentions)",
+    free: ent("free").hasAI,
+    starter: ent("starter").hasAI,
+    pro: ent("pro").hasAI,
+  },
   { kind: "row", label: "Preuves / mois", free: "Illimité", starter: "Illimité", pro: "Illimité" },
-  { kind: "row", label: "Agents", free: "0", starter: "1", pro: "5" },
+  {
+    kind: "row",
+    label: "Agents",
+    free: String(ent("free").maxAgents),
+    starter: String(ent("starter").maxAgents),
+    pro: String(ent("pro").maxAgents),
+  },
   { kind: "group", label: "Fonctionnalités principales" },
   { kind: "row", label: "Grille catégories prix", free: true, starter: true, pro: true },
   { kind: "row", label: "File de réservation", free: true, starter: true, pro: true },
   { kind: "row", label: "Tableau de bord des commandes", free: true, starter: true, pro: true },
-  { kind: "row", label: "Preuves de paiement", free: "Illimité", starter: "Illimité", pro: "Illimité" },
+  { kind: "row", label: "Notifications de statut", free: true, starter: true, pro: true },
   { kind: "group", label: "Outils avancés" },
-  { kind: "row", label: "Export CSV", free: false, starter: "Basique", pro: "Avancé" },
-  { kind: "row", label: "Notifications hors 24h", free: false, starter: true, pro: true },
-  { kind: "row", label: "Acompte recommandé", free: false, starter: true, pro: true },
-  { kind: "row", label: "Filtres avancés audit", free: false, starter: "Basique", pro: "Avancé" },
+  {
+    kind: "row",
+    label: "Export CSV",
+    free: ent("free").hasExportCsv,
+    starter: "Standard",
+    pro: "Enrichi",
+  },
+  {
+    kind: "row",
+    label: "Journal d'activité",
+    free: auditLabel("free"),
+    starter: auditLabel("starter"),
+    pro: auditLabel("pro"),
+  },
+  {
+    kind: "row",
+    label: "Acompte recommandé",
+    free: ent("free").hasDepositRecommended,
+    starter: ent("starter").hasDepositRecommended,
+    pro: ent("pro").hasDepositRecommended,
+  },
   { kind: "group", label: "Support" },
-  { kind: "row", label: "Support prioritaire", free: false, starter: false, pro: true },
-  { kind: "row", label: "Branding SnapSell", free: "Oui", starter: "Non", pro: "Non" },
+  {
+    kind: "row",
+    label: "Support prioritaire",
+    free: ent("free").hasPrioritySupport,
+    starter: ent("starter").hasPrioritySupport,
+    pro: ent("pro").hasPrioritySupport,
+  },
+  {
+    kind: "row",
+    label: "Branding SnapSell",
+    free: ent("free").showBranding ? "Oui" : "Non",
+    starter: ent("starter").showBranding ? "Oui" : "Non",
+    pro: ent("pro").showBranding ? "Oui" : "Non",
+  },
 ];
 
 /* ── D : FAQ ─────────────────────────────────────────────────────────────── */
@@ -72,7 +144,7 @@ const faqItems = [
   },
   {
     q: "Que se passe-t-il si je dépasse ma limite de conversations ?",
-    a: "Sur tous les plans, vous pouvez acheter des packs de 100 conversations supplémentaires (3 000 FCFA en Free, 2 500 FCFA en Starter, 2 000 FCFA en Pro). Les conversations achetées n’expirent pas. Vous ne perdez jamais de ventes.",
+    a: "Les conversations avec de nouveaux numéros sont mises en pause jusqu’à votre prochaine recharge : les échanges déjà ouverts continuent normalement. Vous pouvez acheter à tout moment des packs de 100 conversations (3 000 FCFA en Free, 2 500 FCFA en Starter, 2 000 FCFA en Pro), et les conversations achetées n’expirent pas. Nous vous alertons dans le tableau de bord dès 80 % de consommation pour que vous puissiez recharger avant d’être à court.",
   },
   {
     q: "Puis-je changer de plan à tout moment ?",

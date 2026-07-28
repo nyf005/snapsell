@@ -14,22 +14,24 @@ export interface EventLogFilterOpts {
   correlationId?: string;
 }
 
+/** Historique complet, sans borne de date. */
+export const AUDIT_RETENTION_UNLIMITED = -1;
+
 /**
- * Profondeur d'historique du journal d'audit pour les plans sans « audit renforcé ».
+ * Construit le filtre, en bornant éventuellement la profondeur d'historique.
  *
- * C'est le différenciant retenu pour l'entitlement `hasAdvancedFilters` (Pro) :
- * Free et Starter consultent les 90 derniers jours, Pro dispose de l'historique complet.
+ * La profondeur est un différenciant de plan : 30 jours en Free, 90 en Starter,
+ * illimité en Pro (voir `auditRetentionDays` dans subscription-plans.ts).
  *
  * Ne s'applique QU'AU journal d'audit — donnée forensique. Les commandes, elles, sont
  * de la donnée opérationnelle : elles restent accessibles sans limite à tous les plans.
+ *
+ * @param retentionDays nombre de jours consultables ; `-1` pour l'historique complet.
  */
-export const AUDIT_RETENTION_DAYS_WITHOUT_ADVANCED = 90;
-
 export function buildEventLogWhere(
   tenantId: string | undefined,
   opts: EventLogFilterOpts,
-  /** false ⇒ borne l'historique à AUDIT_RETENTION_DAYS_WITHOUT_ADVANCED jours. */
-  hasAdvancedFilters = true,
+  retentionDays: number = AUDIT_RETENTION_UNLIMITED,
 ): EventLogWhereInput {
   const where: EventLogWhereInput = {};
   if (tenantId) {
@@ -55,9 +57,9 @@ export function buildEventLogWhere(
     createdAt.lte = to;
   }
 
-  if (!hasAdvancedFilters) {
+  if (retentionDays !== AUDIT_RETENTION_UNLIMITED) {
     const floor = new Date();
-    floor.setUTCDate(floor.getUTCDate() - AUDIT_RETENTION_DAYS_WITHOUT_ADVANCED);
+    floor.setUTCDate(floor.getUTCDate() - retentionDays);
     floor.setUTCHours(0, 0, 0, 0);
     // On ne remplace pas une borne demandée plus récente : on ne fait que la relever.
     createdAt.gte = createdAt.gte && createdAt.gte > floor ? createdAt.gte : floor;

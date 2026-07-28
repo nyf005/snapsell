@@ -10,7 +10,10 @@ import { Prisma } from "../../../../generated/prisma";
 import { createTRPCRouter, opsProcedure } from "~/server/api/trpc";
 import { z } from "zod";
 import { eventTypeEnumSchema } from "./eventLog.schema";
-import { buildEventLogWhere } from "~/server/events/buildEventLogWhere";
+import {
+  AUDIT_RETENTION_UNLIMITED,
+  buildEventLogWhere,
+} from "~/server/events/buildEventLogWhere";
 
 const dateOptionalSchema = z
   .string()
@@ -166,7 +169,7 @@ export const opsRouter = createTRPCRouter({
         // buildEventLogWhere gère tenantId optionnel + tous les filtres (dates, eventType, correlationId).
         // Console OPS interne : historique complet, volontairement NON borné par le plan
         // du tenant — le support doit pouvoir investiguer au-delà de 90 jours.
-        const where = buildEventLogWhere(tenantId, opts, true);
+        const where = buildEventLogWhere(tenantId, opts, AUDIT_RETENTION_UNLIMITED);
 
         // Vérifier que le tenant existe si fourni
         if (tenantId) await assertTenantExists(tenantId);

@@ -42,11 +42,11 @@ describe("eventLog router", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // Par défaut : tenant Pro (audit renforcé) → historique complet, aucun plancher de
-    // date injecté. Les tests portant sur la borne des 90 jours redéfinissent ce mock.
+    // Par défaut : plan Pro → journal illimité, aucun plancher de date injecté.
+    // Les tests de profondeur redéfinissent ce mock avec un autre plan.
     mockTenantFindUnique.mockResolvedValue({
       hasExportCsv: true,
-      hasAdvancedFilters: true,
+      subscriptionPlan: "pro",
     });
   });
 
@@ -317,7 +317,7 @@ describe("eventLog router", () => {
     });
   });
 
-  describe("audit renforcé (hasAdvancedFilters)", () => {
+  describe("profondeur du journal selon le plan (auditRetentionDays)", () => {
     /** Borne haute tolérante : le plancher est calculé à l'exécution. */
     function daysAgo(n: number): Date {
       const d = new Date();
@@ -326,10 +326,10 @@ describe("eventLog router", () => {
       return d;
     }
 
-    it("borne le journal à 90 jours sans audit renforcé", async () => {
+    it("borne le journal à 90 jours en Starter", async () => {
       mockTenantFindUnique.mockResolvedValue({
         hasExportCsv: true,
-        hasAdvancedFilters: false,
+        subscriptionPlan: "starter",
       });
       mockEventLogFindMany.mockResolvedValue([]);
 
@@ -346,10 +346,52 @@ describe("eventLog router", () => {
       expect(call.where.createdAt?.gte).toEqual(daysAgo(90));
     });
 
-    it("n'impose aucune borne avec audit renforcé", async () => {
+    it("borne le journal à 30 jours en Free", async () => {
+      mockTenantFindUnique.mockResolvedValue({
+        hasExportCsv: false,
+        subscriptionPlan: "free",
+      });
+      mockEventLogFindMany.mockResolvedValue([]);
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+      await caller.eventLog.list({});
+
+      const call = mockEventLogFindMany.mock.calls[0]![0] as {
+        where: { createdAt?: { gte?: Date } };
+      };
+      expect(call.where.createdAt?.gte).toEqual(daysAgo(30));
+    });
+
+    it("retombe sur la borne la plus restrictive si le plan est inconnu", async () => {
+      mockTenantFindUnique.mockResolvedValue({
+        hasExportCsv: false,
+        subscriptionPlan: "plan-corrompu",
+      });
+      mockEventLogFindMany.mockResolvedValue([]);
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+      // Ne doit pas lever : consulter le journal ne peut pas échouer sur une
+      // valeur de plan invalide — mais on n'ouvre pas l'historique complet.
+      await caller.eventLog.list({});
+
+      const call = mockEventLogFindMany.mock.calls[0]![0] as {
+        where: { createdAt?: { gte?: Date } };
+      };
+      expect(call.where.createdAt?.gte).toEqual(daysAgo(30));
+    });
+
+    it("n'impose aucune borne en Pro", async () => {
       mockTenantFindUnique.mockResolvedValue({
         hasExportCsv: true,
-        hasAdvancedFilters: true,
+        subscriptionPlan: "pro",
       });
       mockEventLogFindMany.mockResolvedValue([]);
 
@@ -369,7 +411,7 @@ describe("eventLog router", () => {
     it("ne relâche pas une borne demandée plus récente que le plancher", async () => {
       mockTenantFindUnique.mockResolvedValue({
         hasExportCsv: true,
-        hasAdvancedFilters: false,
+        subscriptionPlan: "starter",
       });
       mockEventLogFindMany.mockResolvedValue([]);
 
@@ -391,7 +433,7 @@ describe("eventLog router", () => {
     it("l'export applique la même borne que la consultation", async () => {
       mockTenantFindUnique.mockResolvedValue({
         hasExportCsv: true,
-        hasAdvancedFilters: false,
+        subscriptionPlan: "starter",
       });
       mockEventLogFindMany.mockResolvedValue([]);
 
