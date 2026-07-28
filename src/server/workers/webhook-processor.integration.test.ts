@@ -3,8 +3,12 @@
  *
  * Ces tests vérifient que le worker fonctionne correctement avec pg-boss.
  *
+ * Ce qui est réellement testé ici, c'est le transport pg-boss : un job publié dans
+ * Postgres est bien distribué au handler et traité. La couche métier, elle, est
+ * couverte par webhook-processor.test.ts — d'où le mock complet de Prisma ci-dessous.
+ *
  * Note: Ces tests nécessitent une connexion PostgreSQL (DATABASE_URL).
- * Pour exécuter localement: RUN_INTEGRATION_TESTS=true pnpm test -- webhook-processor.integration.test.ts
+ * Pour exécuter localement: RUN_INTEGRATION_TESTS=true npm test -- webhook-processor.integration.test.ts
  *
  * ⚠️ Ces tests sont désactivés par défaut (skip) car ils nécessitent une DB.
  */
@@ -16,14 +20,87 @@ import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types"
 import { db } from "~/server/db";
 import type { PgBossJob } from "./queues";
 
-// Mock Prisma pour éviter les vraies connexions DB dans les tests d'intégration
-vi.mock("~/server/db", () => ({
-  db: {
-    sellerPhone: {
-      findMany: vi.fn(),
+/**
+ * pg-boss met quelques secondes à distribuer un job (démarrage du worker + polling).
+ * Le timeout vitest par défaut (5 s) expirait AVANT le garde-fou interne des tests
+ * (10 s), qui ne servait donc jamais : les tests échouaient systématiquement.
+ */
+const PGBOSS_DELIVERY_TIMEOUT_MS = 20_000;
+
+// Mock Prisma : ces tests portent sur le transport pg-boss, pas sur les accès DB.
+// Le mock doit néanmoins couvrir tout ce que processWebhookJob appelle — sinon la
+// moindre méthode manquante lève une exception qui ne résout NI ne rejette la
+// promesse du handler, et le test part en timeout sans message utile.
+vi.mock("~/server/db", () => {
+  const tenantRow = {
+    id: "tenant-integration",
+    name: "Boutique Test",
+    subscriptionPlan: "starter",
+    requireDeposit: false,
+    creditsBalance: 100,
+    creditsBonus: 0,
+    showBranding: false,
+    businessTimezone: "Africa/Abidjan",
+    businessHoursStart: "08:00",
+    businessHoursEnd: "20:00",
+    awayMessage: null,
+    faqDelivery: null,
+    faqPayment: null,
+    faqLocation: null,
+    faqAvailability: null,
+  };
+
+  const db: Record<string, unknown> = {
+    $queryRaw: vi.fn().mockResolvedValue([]),
+    sellerPhone: { findMany: vi.fn() },
+    tenant: {
+      findUnique: vi.fn().mockResolvedValue(tenantRow),
+      update: vi.fn().mockResolvedValue(tenantRow),
     },
-  },
-}));
+    conversationWindow: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      create: vi.fn().mockResolvedValue({ id: "win-1" }),
+    },
+    conversationState: {
+      findUnique: vi.fn().mockResolvedValue(null),
+      upsert: vi.fn().mockResolvedValue({}),
+      update: vi.fn().mockResolvedValue({}),
+      deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+    },
+    optOut: {
+      findUnique: vi.fn().mockResolvedValue(null),
+      create: vi.fn().mockResolvedValue({}),
+    },
+    catalogueItem: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      findUnique: vi.fn().mockResolvedValue(null),
+    },
+    messageIn: { count: vi.fn().mockResolvedValue(0) },
+    messageOut: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      create: vi.fn().mockResolvedValue({ id: "msg-out-1" }),
+      findUnique: vi.fn().mockResolvedValue(null),
+    },
+    order: { findFirst: vi.fn().mockResolvedValue(null) },
+    reservation: { findFirst: vi.fn().mockResolvedValue(null) },
+    liveItem: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      findUnique: vi.fn().mockResolvedValue(null),
+    },
+    itemVariant: { findMany: vi.fn().mockResolvedValue([]) },
+    waitlist: { findFirst: vi.fn().mockResolvedValue(null) },
+  };
+
+  // Supporte les deux formes : tableau d'opérations et callback interactif
+  // (utilisé par checkAndConsumeCredit, qui prend un verrou FOR UPDATE).
+  db.$transaction = vi.fn((arg: unknown) =>
+    typeof arg === "function"
+      ? (arg as (tx: unknown) => unknown)(db)
+      : Promise.all(arg as Promise<unknown>[]),
+  );
+
+  return { db };
+});
 
 // Mock logger pour éviter le bruit dans les logs
 vi.mock("~/lib/logger", () => ({
@@ -142,7 +219,64 @@ describe.skipIf(!shouldRunIntegrationTests)(
       vi.clearAllMocks();
     });
 
-    it("should process job and determine message type as seller", async () => {
+    /**
+     * Publie un job puis attend qu'il soit distribué et traité.
+     *
+     * Chaque appel utilise une queue DÉDIÉE et désenregistre son worker à la fin.
+     * Sans cela, le worker du premier test restait actif et consommait le job du
+     * second : la promesse du second test n'était jamais résolue et il partait en
+     * timeout — c'était la cause réelle de l'échec, pas la lenteur de pg-boss.
+     */
+    async function publishAndProcess(
+      jobData: InboundMessage,
+      label: string,
+    ): Promise<EnrichedInboundMessage> {
+      const isolatedQueue = `${queueName}-${label}-${Date.now()}`;
+      await testBoss.createQueue(isolatedQueue, { deleteAfterSeconds: 60 });
+
+      const jobId = await testBoss.send(isolatedQueue, jobData);
+      expect(jobId).toBeTruthy();
+
+      let workerId: string | undefined;
+      try {
+        return await new Promise<EnrichedInboundMessage>((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error(`Job processing timeout (queue ${isolatedQueue})`));
+          }, PGBOSS_DELIVERY_TIMEOUT_MS - 2_000);
+
+          void testBoss
+            .work<InboundMessage>(
+              isolatedQueue,
+              { localConcurrency: 1 },
+              async (jobs: PgBossJob<InboundMessage>[]) => {
+                clearTimeout(timeout);
+                const job = jobs[0];
+                if (!job) {
+                  reject(new Error("No job received from pg-boss worker"));
+                  return;
+                }
+                try {
+                  resolve(await processWebhookJob(job));
+                } catch (err) {
+                  // Sans ce rejet, une exception métier laissait la promesse pendante
+                  // et le test échouait en timeout au lieu d'afficher la vraie erreur.
+                  reject(err instanceof Error ? err : new Error(String(err)));
+                }
+              },
+            )
+            .then((id) => {
+              workerId = id;
+            })
+            .catch(reject);
+        });
+      } finally {
+        if (workerId) await testBoss.offWork(isolatedQueue);
+      }
+    }
+
+    it(
+      "should process job and determine message type as seller",
+      async () => {
       const tenantId = "tenant-integration-1";
       const sellerPhoneNumber = "+33612345678";
 
@@ -163,38 +297,18 @@ describe.skipIf(!shouldRunIntegrationTests)(
         correlationId: "corr-integration-1",
       };
 
-      // Send job to queue
-      const jobId = await testBoss.send(queueName, jobData);
-      expect(jobId).toBeTruthy();
-
-      // Process job via handler
-      const result = await new Promise<EnrichedInboundMessage>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error("Job processing timeout"));
-        }, 10000);
-
-        void testBoss.work<InboundMessage>(
-          queueName,
-          { localConcurrency: 1 },
-          async (jobs: PgBossJob<InboundMessage>[]) => {
-            clearTimeout(timeout);
-            const job = jobs[0];
-            if (!job) {
-              reject(new Error("No job received from pg-boss worker"));
-              return;
-            }
-            const enriched = await processWebhookJob(job);
-            resolve(enriched);
-          },
-        );
-      });
+      const result = await publishAndProcess(jobData, "seller");
 
       expect(result.messageType).toBe("seller");
       expect(result.tenantId).toBe(tenantId);
-      expect(result.providerMessageId).toBe("SM-INTEGRATION-1");
-    });
+        expect(result.providerMessageId).toBe("SM-INTEGRATION-1");
+      },
+      PGBOSS_DELIVERY_TIMEOUT_MS,
+    );
 
-    it("should process job and determine message type as client", async () => {
+    it(
+      "should process job and determine message type as client",
+      async () => {
       const tenantId = "tenant-integration-2";
       const clientPhoneNumber = "+33698765432";
 
@@ -208,32 +322,12 @@ describe.skipIf(!shouldRunIntegrationTests)(
         correlationId: "corr-integration-2",
       };
 
-      const jobId = await testBoss.send(queueName, jobData);
-      expect(jobId).toBeTruthy();
+      const result = await publishAndProcess(jobData, "client");
 
-      const result = await new Promise<EnrichedInboundMessage>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error("Job processing timeout"));
-        }, 10000);
-
-        void testBoss.work<InboundMessage>(
-          queueName,
-          { localConcurrency: 1 },
-          async (jobs: PgBossJob<InboundMessage>[]) => {
-            clearTimeout(timeout);
-            const job = jobs[0];
-            if (!job) {
-              reject(new Error("No job received from pg-boss worker"));
-              return;
-            }
-            const enriched = await processWebhookJob(job);
-            resolve(enriched);
-          },
-        );
-      });
-
-      expect(result.messageType).toBe("client");
-      expect(result.tenantId).toBe(tenantId);
-    });
+        expect(result.messageType).toBe("client");
+        expect(result.tenantId).toBe(tenantId);
+      },
+      PGBOSS_DELIVERY_TIMEOUT_MS,
+    );
   },
 );
