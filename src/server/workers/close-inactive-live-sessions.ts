@@ -101,33 +101,6 @@ export async function runCloseInactiveLiveSessions(): Promise<{
   return { closedCount: closedIds.length, closedIds };
 }
 
-const DEFAULT_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
-
-/**
- * Démarre le worker périodique de fermeture des sessions inactives.
- * @param intervalMs - Intervalle en ms (défaut 10 min)
- * @returns Référence à l'interval pour arrêt propre (clearInterval)
- */
-export function startCloseInactiveLiveSessionsWorker(
-  intervalMs: number = DEFAULT_INTERVAL_MS,
-): NodeJS.Timeout {
-  workerLogger.info("Starting close-inactive-live-sessions worker", {
-    intervalMs,
-    intervalMinutes: Math.round(intervalMs / 60000),
-  });
-
-  const run = () => {
-    void runCloseInactiveLiveSessions();
-  };
-
-  run(); // Premier run au démarrage
-  return setInterval(run, intervalMs);
-}
-
-/**
- * Arrête le worker (clear l'interval).
- */
-export function stopCloseInactiveLiveSessionsWorker(intervalId: NodeJS.Timeout): void {
-  clearInterval(intervalId);
-  workerLogger.info("Close-inactive-live-sessions worker stopped");
-}
+// La planification se fait via boss.schedule(QUEUE.CRON_CLOSE_SESSIONS, "*/10 * * * *")
+// dans scripts/start-worker.ts (verrou distribué en DB). Les anciens starters
+// setInterval ont été supprimés lors de la migration vers pg-boss (commit b6dda93).

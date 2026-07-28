@@ -26,6 +26,3 @@ export function parseSellerOffLiveCreateItemIntent(body: string): SellerCreateIt
   return { code: match[1]!, quantity: parseQuantity(match) };
 }
 
-export function looksLikeImplicitSellerCreateItem(body: string): boolean {
-  return SELLER_CREATE_ITEM_PATTERN.test(body.trim());
-}

@@ -132,25 +132,6 @@ export async function checkRateLimit(
 }
 
 /**
- * Réinitialise le rate limit pour une clé (utile pour les tests locaux).
- */
-export function resetRateLimit(key: string): void {
-  rateLimitStore.delete(key);
-}
-
-/**
- * Nettoie les entrées expirées (à appeler périodiquement côté mémoire locale).
- */
-export function cleanupExpiredEntries(): void {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitStore.entries()) {
-    if (entry.resetAt < now) {
-      rateLimitStore.delete(key);
-    }
-  }
-}
-
-/**
  * Extrait l’IP client depuis les headers (Vercel/proxy) ou fallback.
  * À utiliser côté serveur uniquement.
  */

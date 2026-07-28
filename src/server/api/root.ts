@@ -3,7 +3,6 @@ import { catalogueRouter } from "~/server/api/routers/catalogue";
 import { dashboardRouter } from "~/server/api/routers/dashboard";
 import { deliveryRouter } from "~/server/api/routers/delivery";
 import { eventLogRouter } from "~/server/api/routers/eventLog";
-import { exampleRouter } from "~/server/api/routers/example";
 import { invitationsRouter } from "~/server/api/routers/invitations";
 import { liveRouter } from "~/server/api/routers/live";
 import { onboardingRouter } from "~/server/api/routers/onboarding";
@@ -22,7 +21,6 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  example: exampleRouter,
   auth: authRouter,
   catalogue: catalogueRouter,
   dashboard: dashboardRouter,

@@ -334,37 +334,6 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
   return { expiredCount, promotedCount };
 }
 
-const DEFAULT_INTERVAL_MS = 60 * 1000; // 1 minute
-
-/**
- * Démarre le worker périodique expiration réservations + promotion file.
- */
-export function startReservationTtlWorker(
-  intervalMs: number = DEFAULT_INTERVAL_MS,
-): NodeJS.Timeout {
-  workerLogger.info("Starting reservation TTL worker", {
-    intervalMs,
-    intervalSeconds: Math.round(intervalMs / 1000),
-  });
-
-  const run = () => {
-    void runReservationReminderJob()
-      .catch((err) => {
-        workerLogger.error("Reservation reminder job failed", { err });
-      })
-      .then(() => {
-        void runReservationTtlJob();
-      });
-  };
-
-  run();
-  return setInterval(run, intervalMs);
-}
-
-/**
- * Arrête le worker (clear l'interval).
- */
-export function stopReservationTtlWorker(intervalId: NodeJS.Timeout): void {
-  clearInterval(intervalId);
-  workerLogger.info("Reservation TTL worker stopped");
-}
+// La planification se fait via boss.schedule(QUEUE.CRON_RESERVATION_TTL, "* * * * *")
+// dans scripts/start-worker.ts (verrou distribué en DB). Les anciens starters
+// setInterval ont été supprimés lors de la migration vers pg-boss (commit b6dda93).

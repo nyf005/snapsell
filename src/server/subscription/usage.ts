@@ -1,36 +1,22 @@
 /**
- * Story 7A.2 — AC #12, #13, #14: Usage counting, quota check, overage calculation.
+ * Story 7A.2 — Comptage d'usage et quotas (preuves, agents).
  *
- * Compteur usage = COUNT dynamique des commandes confirmées depuis début du cycle.
- * Pas de compteur stocké en dur — recalculé à chaque appel.
+ * Compteurs = COUNT dynamique depuis le début du cycle. Pas de compteur stocké en dur.
+ *
+ * Note (2026-07-28) : la facturation au dépassement (`checkQuota`, `calculateOverage`,
+ * `chargeOverage`, `QuotaExceededError`) a été supprimée. Elle calculait le dépassement
+ * sur le nombre de **commandes** confirmées face à `maxConfirmedOrdersPerMonth` — un
+ * quota porté à 999 999 sur tous les plans depuis que le modèle économique est passé
+ * aux **crédits/sessions**. Elle n'aurait donc jamais rien facturé.
+ *
+ * Le dépassement pertinent est calculé sur la bonne dimension par `getUsageThisCycle`
+ * (`overageCount = créditsUtilisés − creditsTotalMonthly`) mais n'est aujourd'hui
+ * ni affiché ni prélevé. Facturer le dépassement demandera une décision produit
+ * (quand prélever ? que faire en cas d'échec ?) et un calcul à réécrire sur les crédits.
+ * `chargeAuthorization()` reste disponible dans `server/payment/paystack.ts`.
  */
 
 import { db } from "~/server/db";
-import { chargeAuthorization } from "~/server/payment/paystack";
-import { workerLogger } from "~/lib/logger";
-
-/** Status enum pour le résultat du quota check */
-export type QuotaCheckResult = {
-  allowed: boolean;
-  isOverage: boolean;
-  currentUsage: number;
-  quota: number;
-  overageCount: number;
-  plan: string;
-};
-
-/**
- * Custom error for quota exceeded (Free plan blocking).
- */
-export class QuotaExceededError extends Error {
-  constructor(
-    public readonly tenantId: string,
-    public readonly quota: QuotaCheckResult,
-  ) {
-    super(`Quota exceeded for tenant ${tenantId}: ${quota.currentUsage}/${quota.quota}`);
-    this.name = "QuotaExceededError";
-  }
-}
 
 /**
  * Get the start of the current billing cycle for a tenant.
@@ -228,148 +214,4 @@ export async function checkAgentsQuota(tenantId: string): Promise<AgentsQuotaChe
     currentCount,
     maxAgents: tenant.maxAgents,
   };
-}
-
-/**
- * Check if a tenant can confirm another order.
- * - Free: blocked at quota (allowed=false)
- * - Starter/Pro: allowed with overage tracking
- */
-export async function checkQuota(tenantId: string): Promise<QuotaCheckResult> {
-  const tenant = await db.tenant.findUniqueOrThrow({
-    where: { id: tenantId },
-    select: {
-      subscriptionPlan: true,
-      cycleStartedAt: true,
-      maxConfirmedOrdersPerMonth: true,
-      overagePerOrderCents: true,
-    },
-  });
-
-  const cycleStart = getCycleStart(tenant);
-  const currentUsage = await countConfirmedOrdersThisCycle(tenantId, cycleStart);
-  const quota = tenant.maxConfirmedOrdersPerMonth;
-  const isOverQuota = currentUsage >= quota;
-
-  // Free plan: block at quota
-  if (tenant.subscriptionPlan === "free" && isOverQuota) {
-    return {
-      allowed: false,
-      isOverage: false,
-      currentUsage,
-      quota,
-      overageCount: 0,
-      plan: tenant.subscriptionPlan,
-    };
-  }
-
-  // Paid plans: allow with overage
-  const overageCount = isOverQuota ? currentUsage - quota + 1 : 0; // +1 for the order about to be created
-
-  return {
-    allowed: true,
-    isOverage: isOverQuota,
-    currentUsage,
-    quota,
-    overageCount,
-    plan: tenant.subscriptionPlan,
-  };
-}
-
-/**
- * Calculate total overage amount for current cycle.
- */
-export async function calculateOverage(
-  tenantId: string,
-): Promise<{ overageCount: number; ratePerOrder: number; totalAmountFCFA: number }> {
-  const tenant = await db.tenant.findUniqueOrThrow({
-    where: { id: tenantId },
-    select: {
-      subscriptionPlan: true,
-      cycleStartedAt: true,
-      maxConfirmedOrdersPerMonth: true,
-      overagePerOrderCents: true,
-    },
-  });
-
-  const cycleStart = getCycleStart(tenant);
-  const confirmedOrders = await countConfirmedOrdersThisCycle(tenantId, cycleStart);
-  const overageCount = Math.max(0, confirmedOrders - tenant.maxConfirmedOrdersPerMonth);
-
-  if (overageCount === 0 || tenant.overagePerOrderCents === 0) {
-    return { overageCount: 0, ratePerOrder: 0, totalAmountFCFA: 0 };
-  }
-
-  const ratePerOrder = Math.round(tenant.overagePerOrderCents / 100);
-  const totalAmountFCFA = overageCount * ratePerOrder;
-
-  return { overageCount, ratePerOrder, totalAmountFCFA };
-}
-
-/**
- * Charge accumulated overage via Paystack authorization.
- * Called at renewal (webhook charge.success).
- */
-export async function chargeOverage(tenantId: string): Promise<boolean> {
-  const tenant = await db.tenant.findUniqueOrThrow({
-    where: { id: tenantId },
-    select: {
-      paystackAuthorizationCode: true,
-      subscriptionPlan: true,
-      cycleStartedAt: true,
-      maxConfirmedOrdersPerMonth: true,
-      overagePerOrderCents: true,
-      users: {
-        where: { role: "OWNER" },
-        select: { email: true },
-        take: 1,
-      },
-    },
-  });
-
-  if (!tenant.paystackAuthorizationCode) {
-    workerLogger.warn("chargeOverage: no authorization code", { tenantId });
-    return false;
-  }
-
-  const overage = await calculateOverage(tenantId);
-  if (overage.totalAmountFCFA === 0) {
-    return true; // No overage to charge
-  }
-
-  const email = tenant.users[0]?.email;
-  if (!email) {
-    workerLogger.warn("chargeOverage: no owner email found", { tenantId });
-    return false;
-  }
-
-  try {
-    const result = await chargeAuthorization(
-      tenant.paystackAuthorizationCode,
-      email,
-      overage.totalAmountFCFA * 100, // Convert FCFA to kobo
-    );
-
-    // Record overage payment
-    await db.subscriptionPayment.create({
-      data: {
-        tenantId,
-        paystackReference: result.data.reference,
-        type: "overage",
-        plan: tenant.subscriptionPlan,
-        amount: overage.totalAmountFCFA,
-        status: result.data.status === "success" ? "success" : "failed",
-        overageDetails: {
-          ordersOverQuota: overage.overageCount,
-          ratePerOrder: overage.ratePerOrder,
-          totalAmount: overage.totalAmountFCFA,
-        },
-      },
-    });
-
-    return result.data.status === "success";
-  } catch (error) {
-    workerLogger.warn("chargeOverage: Paystack charge failed", { tenantId, error });
-    return false;
-  }
 }

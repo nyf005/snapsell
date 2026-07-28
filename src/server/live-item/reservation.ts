@@ -1,7 +1,7 @@
 /**
  * Story 3.6: Blocage à la réservation (reserved_qty += 1), décrément à la confirmation.
  * Story 8.1: Support CatalogueItem en plus de LiveItem (même sémantique, table différente).
- * reserveOneUnit, releaseReservation, confirmReservation avec transaction + SELECT FOR UPDATE.
+ * reserveUnits, releaseReservation, confirmReservation avec transaction + SELECT FOR UPDATE.
  */
 
 import { Prisma } from "../../../generated/prisma";
@@ -16,7 +16,6 @@ export type ReserveUnitsResult =
   | { success: true }
   | { success: false; reason: "exhausted" | "not_found" };
 
-export type ReserveOneUnitResult = ReserveUnitsResult;
 
 export type ReleaseReservationResult =
   | { success: true }
@@ -122,15 +121,6 @@ export async function reserveUnits(
     });
   }
   return result;
-}
-
-/** Legacy alias pour reserveUnits(..., 1) */
-export async function reserveOneUnit(
-  tenantId: string,
-  itemId: string,
-  options?: ReservationOptions & { table?: StockTable },
-): Promise<ReserveOneUnitResult> {
-  return reserveUnits(tenantId, itemId, 1, options);
 }
 
 /**

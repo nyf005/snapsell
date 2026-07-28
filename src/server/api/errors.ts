@@ -42,8 +42,3 @@ export function appError(
   return error;
 }
 
-/** Extrait la clé utilisateur d'une erreur, si elle en porte une. */
-export function getUserKey(error: unknown): string | null {
-  const key = (error as { userKey?: unknown } | null)?.userKey;
-  return typeof key === "string" ? key : null;
-}
