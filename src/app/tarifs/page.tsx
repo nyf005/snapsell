@@ -49,9 +49,14 @@ type ComparisonItem =
  */
 const ent = (id: PlanId) => SUBSCRIPTION_PLANS[id].entitlements;
 
-const packLabel = (id: PlanId) => {
+/**
+ * Renvoie `false` — et non un tiret — quand le plan ne propose pas de recharge :
+ * la cellule emprunte alors le même rendu que les autres « non inclus », donc le
+ * même tiret ET le libellé sr-only « Non inclus » qu'un caractère seul n'aurait pas.
+ */
+const packLabel = (id: PlanId): string | false => {
   const price = SUBSCRIPTION_PLANS[id].creditPackPriceFCFA;
-  return price ? `${price.toLocaleString("fr-FR")} FCFA / 100` : "—";
+  return price ? `${price.toLocaleString("fr-FR")} FCFA / 100` : false;
 };
 
 const auditLabel = (id: PlanId) => {
