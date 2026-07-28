@@ -583,10 +583,18 @@ export default async function TarifsPage(props: TarifsPageProps) {
           </h2>
 
           {/*
-            La FAQ et l'encart sont deux enfants directs de la grille : ils
-            s'étirent donc à la même hauteur, sous le titre commun.
+            `lg:items-start` : l'encart ne s'étire PAS à la hauteur de la FAQ.
+
+            L'alignement bas d'origine ne tenait que FAQ fermée. Les <details>
+            rendent la colonne de gauche dynamique : à une question ouverte
+            l'encart s'étirait déjà de 391 à 585 px, et à toutes ouvertes jusqu'à
+            964 px — pour un contenu fixe de 376 px. Le `mt-auto` du bouton
+            reportait tout l'écart au milieu, jusqu'à 600 px de vide.
+
+            L'encart garde donc sa hauteur naturelle et devient collant : au lieu
+            de subir la longueur de la FAQ, le CTA reste visible pendant sa lecture.
           */}
-          <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-10">
+          <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-10">
             <div className="divide-y divide-border rounded-2xl border border-border">
               {faqItems.map(({ q, a }) => (
                 <details key={q} className="group px-6 py-5">
@@ -606,7 +614,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
               plan Free est permanent, pas une période d'essai — et le terme est
               banni par `marketing.ts`. Le dire est plus fort que l'inverse.
             */}
-            <aside className="flex flex-col gap-4 rounded-2xl border border-primary/25 bg-primary/5 p-7">
+            <aside className="flex flex-col gap-4 rounded-2xl border border-primary/25 bg-primary/5 p-7 lg:sticky lg:top-24">
               <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10">
                 <ShieldCheck className="size-5 text-primary" />
               </div>
@@ -631,9 +639,9 @@ export default async function TarifsPage(props: TarifsPageProps) {
                   </li>
                 ))}
               </ul>
-              {/* `mt-auto` : le bouton se cale en bas de l'encart, donc au
-                  même niveau que le bas de la FAQ d'à côté. */}
-              <Button asChild size="lg" className="mt-auto w-full rounded-xl font-bold">
+              {/* Plus de `mt-auto` : l'encart épouse son contenu, il n'y a plus
+                  d'espace résiduel à repousser vers le bas. */}
+              <Button asChild size="lg" className="mt-2 w-full rounded-xl font-bold">
                 <Link href={isLoggedIn ? "/dashboard" : "/login?tab=signup"}>
                   {isLoggedIn ? "Tableau de bord" : marketing.cta.signup}
                   <ArrowRight className="ml-2 size-4" />
