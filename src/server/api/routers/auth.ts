@@ -23,6 +23,10 @@ export const authRouter = createTRPCRouter({
       const passwordHash = await hash(input.password, 10);
 
       const result = await db.$transaction(async (tx) => {
+        const now = new Date();
+        const firstResetDate = new Date(now);
+        firstResetDate.setMonth(firstResetDate.getMonth() + 1);
+
         const tenant = await tx.tenant.create({
           data: {
             name: input.tenantName,
@@ -34,6 +38,11 @@ export const authRouter = createTRPCRouter({
             businessTimezone: "Africa/Abidjan",
             businessHoursStart: "08:00",
             businessHoursEnd: "20:00",
+            // Amorçage du cycle de facturation : sans ces deux dates, le cron
+            // `credits-monthly-reset` ne voit jamais le tenant et ses crédits
+            // ne se rechargent jamais.
+            cycleStartedAt: now,
+            usageResetDate: firstResetDate,
           },
         });
         const newUser = await tx.user.create({

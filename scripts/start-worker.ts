@@ -4,7 +4,8 @@
  *
  * Workers démarrés:
  *   - webhook-processor: Traite les messages entrants (routing vendeur vs client) — pg-boss
- *   - crons métier: reservation-ttl, close-sessions, deposit-expiry, meta-catalogue-sync, subscription-expired
+ *   - crons métier: reservation-ttl, close-sessions, deposit-expiry, meta-catalogue-sync,
+ *     subscription-expired, credits-monthly-reset
  *
  * Toujours externalisé:
  *   - outbox-sender: Remplacé par QStash + /api/qstash/outbox-send (Option A)
@@ -25,6 +26,7 @@ import { runCloseInactiveLiveSessions } from "~/server/workers/close-inactive-li
 import { runDepositExpiryJob } from "~/server/workers/deposit-expiry";
 import { runMetaCatalogueSyncJob } from "~/server/workers/meta-catalogue-sync";
 import { runSubscriptionExpiredJob } from "~/server/workers/subscription-expired";
+import { runCreditsMonthlyResetJob } from "~/server/workers/credits-monthly-reset";
 import { workerLogger } from "~/lib/logger";
 
 const SCHEDULE = {
@@ -33,6 +35,7 @@ const SCHEDULE = {
   DEPOSIT_EXPIRY: QUEUE.CRON_DEPOSIT_EXPIRY,
   META_CATALOGUE_SYNC: QUEUE.CRON_META_CATALOGUE_SYNC,
   SUBSCRIPTION_EXPIRED: QUEUE.CRON_SUBSCRIPTION_EXPIRED,
+  CREDITS_MONTHLY_RESET: QUEUE.CRON_CREDITS_MONTHLY_RESET,
 } as const;
 
 /**
@@ -83,6 +86,10 @@ async function main(): Promise<void> {
     await boss.schedule(SCHEDULE.DEPOSIT_EXPIRY, "*/5 * * * *", {});
     await boss.schedule(SCHEDULE.META_CATALOGUE_SYNC, "0 * * * *", {});
     await boss.schedule(SCHEDULE.SUBSCRIPTION_EXPIRED, "0 0 * * *", {});
+    // Renouvellement mensuel des crédits + purge des conversation_windows échues.
+    // Tourne chaque heure : le job ne traite que les tenants dont usageResetDate est échue,
+    // ce qui lisse les renouvellements au lieu de tous les grouper à minuit.
+    await boss.schedule(SCHEDULE.CREDITS_MONTHLY_RESET, "0 * * * *", {});
 
     await boss.work(SCHEDULE.RESERVATION_TTL, async () => {
       await runReservationReminderJob();
@@ -105,8 +112,12 @@ async function main(): Promise<void> {
       await runSubscriptionExpiredJob();
     });
 
+    await boss.work(SCHEDULE.CREDITS_MONTHLY_RESET, async () => {
+      await runCreditsMonthlyResetJob();
+    });
+
     workerLogger.info(
-      "Periodic jobs scheduled via pg-boss (reservation-ttl: 1min, close-sessions: 10min, deposit-expiry: 5min, meta-catalogue-sync: 1h, subscription-expired: daily)",
+      "Periodic jobs scheduled via pg-boss (reservation-ttl: 1min, close-sessions: 10min, deposit-expiry: 5min, meta-catalogue-sync: 1h, credits-monthly-reset: 1h, subscription-expired: daily)",
     );
   } catch (error) {
     workerLogger.error("Failed to start workers", error);

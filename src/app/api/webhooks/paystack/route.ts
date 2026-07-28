@@ -225,9 +225,14 @@ async function handleChargeSuccess(data: PaystackWebhookData) {
         subscriptionStatus: "active",
         subscriptionExpiresAt: expiresAt,
         cycleStartedAt: now, // Reset cycle → usage counters reset (dynamic COUNT from this date)
+        // Prochaine échéance de renouvellement des crédits, lue par le cron
+        // `credits-monthly-reset`. Sans elle, les crédits ne se rechargeraient
+        // qu'au prochain paiement Paystack.
+        usageResetDate: expiresAt,
         // Reset credits on upgrade/renewal
         creditsTotalMonthly: planConfig.entitlements.creditsTotalMonthly,
         creditsBalance: planConfig.entitlements.creditsTotalMonthly,
+        lowCreditsAlerted: false,
         // Store authorization for future charges
         paystackAuthorizationCode: data.authorization?.authorization_code ?? undefined,
         // Entitlements from plan config
