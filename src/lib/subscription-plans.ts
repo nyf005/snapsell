@@ -156,6 +156,10 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       showUpgradeBanner: false,
     },
     features: [
+      // Argument le plus concret du passage au payant, et il était absent de la
+      // carte : la mention « Via SnapSell » disparaît des messages envoyés aux
+      // clientes, remplacée par le nom de la boutique.
+      "Messages signés au nom de votre boutique",
       "500 conversations client / mois",
       "1 vendeur + 1 agent",
       "Suivi complet des preuves de paiement",

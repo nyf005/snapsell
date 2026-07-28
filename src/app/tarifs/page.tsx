@@ -132,11 +132,15 @@ const comparisonItems: ComparisonItem[] = [
     pro: ent("pro").hasPrioritySupport,
   },
   {
+    // « Branding SnapSell — Oui/Non/Non » ne disait pas de quoi il s'agit : un
+    // prospect comprenait « un logo dans l'interface », alors que la ligne porte
+    // sur la signature que SES CLIENTES voient dans chaque message WhatsApp.
+    // On montre donc la valeur réelle de chaque côté plutôt qu'un oui/non.
     kind: "row",
-    label: "Branding SnapSell",
-    free: ent("free").showBranding ? "Oui" : "Non",
-    starter: ent("starter").showBranding ? "Oui" : "Non",
-    pro: ent("pro").showBranding ? "Oui" : "Non",
+    label: "Signature de vos messages",
+    free: ent("free").showBranding ? "Via SnapSell" : "Votre boutique",
+    starter: ent("starter").showBranding ? "Via SnapSell" : "Votre boutique",
+    pro: ent("pro").showBranding ? "Via SnapSell" : "Votre boutique",
   },
 ];
 
@@ -150,6 +154,10 @@ const faqItems = [
   {
     q: "Que se passe-t-il si je dépasse ma limite de conversations ?",
     a: "Les conversations avec de nouveaux numéros sont mises en pause jusqu’au renouvellement de votre mois : les échanges déjà ouverts continuent normalement. En Starter et Pro, vous pouvez recharger à tout moment par packs de 100 conversations (2 500 FCFA en Starter, 2 000 FCFA en Pro), et les conversations achetées n’expirent pas. En Free, les 70 conversations se renouvellent chaque mois — pour aller au-delà, passez à Starter. Dans tous les cas, nous vous alertons dans le tableau de bord dès 80 % de consommation.",
+  },
+  {
+    q: "Ma clientèle voit-elle que j’utilise SnapSell ?",
+    a: "En Free, chaque message envoyé se termine par la mention « Via SnapSell ». À partir du plan Starter, cette mention est remplacée par le nom de votre boutique : votre clientèle ne voit plus que votre marque, dans tous les messages automatiques.",
   },
   {
     q: "Puis-je changer de plan à tout moment ?",
