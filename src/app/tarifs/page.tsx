@@ -162,6 +162,14 @@ const faqItems = [
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 
+/**
+ * Une cellule du comparatif.
+ *
+ * Les états inclus/non inclus passent par du texte `sr-only` plutôt que par un
+ * `aria-label` sur l'icône : le « non inclus » ne rendait qu'un tiret décoratif,
+ * qu'un lecteur d'écran annonce « tiret » ou ignore — or c'est justement
+ * l'information qu'on vient chercher dans un tableau comparatif.
+ */
 function CellValue({
   val,
   isPro,
@@ -171,13 +179,24 @@ function CellValue({
 }) {
   if (val === true)
     return (
-      <div className="mx-auto flex size-5 items-center justify-center rounded-full bg-green-500/15">
-        <Check className="size-3 text-green-500" aria-label="Inclus" />
-      </div>
+      <>
+        <div
+          aria-hidden="true"
+          className="mx-auto flex size-5 items-center justify-center rounded-full bg-green-500/15"
+        >
+          <Check className="size-3 text-green-500" />
+        </div>
+        <span className="sr-only">Inclus</span>
+      </>
     );
   if (val === false)
     return (
-      <span className="text-muted-foreground/40">-</span>
+      <>
+        <span aria-hidden="true" className="text-muted-foreground/40">
+          -
+        </span>
+        <span className="sr-only">Non inclus</span>
+      </>
     );
   return (
     <span className={isPro ? "font-medium text-primary" : "text-muted-foreground"}>
@@ -240,11 +259,17 @@ export default async function TarifsPage(props: TarifsPageProps) {
               <span className="hero-gradient-text">vendeur</span>
             </h1>
 
+            {/*
+              « Facturation sur les conversations uniquement » laissait croire à
+              du paiement à l'usage, alors que c'est un forfait mensuel : un
+              Starter paie 25 000 F même avec trois conversations. Le sens voulu
+              — rien d'autre n'est facturé — est conservé, sans l'ambiguïté.
+            */}
             <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
               Commencez gratuitement, passez à la vitesse supérieure quand vos
-              ventes décollent. Facturation sur les{" "}
+              ventes décollent. Un forfait mensuel dimensionné par vos{" "}
               <strong className="text-foreground">conversations client</strong>{" "}
-              uniquement.
+              — ni frais par commande, ni frais par message.
             </p>
 
             {/* Aucune preuve sociale inventée : le produit se décrit lui-même. */}
@@ -467,12 +492,16 @@ export default async function TarifsPage(props: TarifsPageProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/60">
-                  <th className="px-5 py-4 text-left font-semibold text-foreground">
+                  <th
+                    scope="col"
+                    className="px-5 py-4 text-left font-semibold text-foreground"
+                  >
                     Fonctionnalité
                   </th>
                   {PLAN_IDS.map((planId) => (
                     <th
                       key={planId}
+                      scope="col"
                       className={`px-5 py-4 text-center font-bold ${
                         planId === "pro"
                           ? "text-primary"
@@ -492,12 +521,15 @@ export default async function TarifsPage(props: TarifsPageProps) {
                   if (item.kind === "group") {
                     return (
                       <tr key={`group-${item.label}`}>
-                        <td
-                          colSpan={4}
-                          className="bg-muted/40 px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-muted-foreground"
+                        {/* colSpan dérivé : le tableau entier suit PLAN_IDS, cette
+                            ligne doit en faire autant plutôt que figer un 4. */}
+                        <th
+                          scope="colgroup"
+                          colSpan={PLAN_IDS.length + 1}
+                          className="bg-muted/40 px-5 py-2.5 text-left text-xs font-bold uppercase tracking-widest text-muted-foreground"
                         >
                           {item.label}
-                        </td>
+                        </th>
                       </tr>
                     );
                   }
@@ -506,7 +538,11 @@ export default async function TarifsPage(props: TarifsPageProps) {
                       key={item.label}
                       className={`border-b border-border last:border-0 ${idx % 2 === 0 ? "" : "bg-muted/20"}`}
                     >
-                      <td className="px-5 py-3 font-medium">{item.label}</td>
+                      {/* `th scope="row"` : sans lui, un lecteur d'écran ne peut pas
+                          rattacher « Illimité » à la fois à sa ligne et à sa colonne. */}
+                      <th scope="row" className="px-5 py-3 text-left font-medium">
+                        {item.label}
+                      </th>
                       <td className="px-5 py-3 text-center">
                         <CellValue val={item.free} />
                       </td>
@@ -564,10 +600,14 @@ export default async function TarifsPage(props: TarifsPageProps) {
               <h2 className="text-xl font-bold">Commencez sans risque</h2>
               <ul className="flex flex-col gap-3" role="list">
                 {[
+                  // Cet encart s'adresse à quelqu'un qui démarre, donc en Free.
+                  // Ne rien y promettre qui soit réservé aux plans payants : la
+                  // ligne « vos conversations achetées n'expirent jamais » y
+                  // figurait alors que le Free n'achète pas de conversations.
                   "Le plan Free est permanent, ce n’est pas une période d’essai",
                   "Aucune carte bancaire pour démarrer",
+                  "Vos 70 conversations se renouvellent chaque mois",
                   "Changez ou arrêtez votre plan à tout moment",
-                  "Vos conversations achetées n’expirent jamais",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm">
                     <Check
