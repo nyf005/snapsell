@@ -597,7 +597,14 @@ export default async function TarifsPage(props: TarifsPageProps) {
           <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-10">
             <div className="divide-y divide-border rounded-2xl border border-border">
               {faqItems.map(({ q, a }) => (
-                <details key={q} className="group px-6 py-5">
+                /*
+                  `name` partagé : le navigateur applique nativement le
+                  comportement accordéon — ouvrir une question referme la
+                  précédente. Aucun JavaScript, donc la page reste un composant
+                  serveur. Sur un navigateur qui ignore l'attribut, on retombe
+                  simplement sur des dépliants indépendants : rien ne casse.
+                */
+                <details key={q} name="faq-tarifs" className="group px-6 py-5">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
                     {q}
                     <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180" />
