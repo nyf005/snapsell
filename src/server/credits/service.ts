@@ -5,6 +5,7 @@
  * Ordre de consommation : creditsBalance (mensuel) en premier, puis creditsBonus (achetés).
  */
 
+import { Prisma } from "../../../generated/prisma";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 
@@ -23,7 +24,8 @@ export async function checkAndConsumeCredit(
   tenantId: string,
   customerPhone: string,
 ): Promise<CheckCreditsResult> {
-  // 1. Check si une session active existe déjà
+  // 1. Chemin rapide (sans verrou) : une session active existe déjà.
+  //    Cas très majoritaire — une conversation en cours ne doit pas sérialiser sur le tenant.
   const existingWindow = await db.conversationWindow.findFirst({
     where: {
       tenantId,
@@ -41,60 +43,88 @@ export async function checkAndConsumeCredit(
     return { allowed: true, isNewSession: false };
   }
 
-  // 2. Pas de session active — vérifier les credits (mensuel + bonus)
-  const tenant = await db.tenant.findUnique({
-    where: { id: tenantId },
-    select: {
-      creditsBalance: true,
-      creditsBonus: true,
-      subscriptionPlan: true,
-    },
-  });
+  // 2. Ouverture d'une nouvelle session : tout se joue sous verrou.
+  //
+  //    Sans ce verrou, deux messages rapprochés du même client traités en parallèle
+  //    (le worker tourne en localConcurrency: 5) passaient tous deux l'étape 1,
+  //    lisaient le même solde et décrémentaient chacun un crédit : double facturation
+  //    et solde pouvant devenir négatif.
+  //
+  //    On verrouille la ligne tenant (FOR UPDATE) — même idiome que reserveUnits() —
+  //    ce qui sérialise la consommation de crédits par tenant, puis on re-vérifie
+  //    la fenêtre à l'intérieur de la transaction.
+  return db.$transaction(async (tx) => {
+    await tx.$queryRaw(
+      Prisma.sql`SELECT id FROM tenants WHERE id = ${tenantId} FOR UPDATE`,
+    );
 
-  if (!tenant) {
-    workerLogger.error("Tenant not found", { tenantId });
-    return { allowed: false, reason: "no_credits" };
-  }
-
-  const totalAvailable = tenant.creditsBalance + tenant.creditsBonus;
-
-  if (totalAvailable <= 0) {
-    workerLogger.warn("No credits remaining, blocking new session", {
-      tenantId,
-      customerPhone,
-      creditsBalance: tenant.creditsBalance,
-      creditsBonus: tenant.creditsBonus,
-      plan: tenant.subscriptionPlan,
+    // 2a. Double-check sous verrou : un job concurrent a pu créer la fenêtre entre-temps.
+    const windowUnderLock = await tx.conversationWindow.findFirst({
+      where: { tenantId, customerPhone, expiresAt: { gt: new Date() } },
     });
-    return { allowed: false, reason: "no_credits" };
-  }
 
-  // 3. Consommer 1 credit : d'abord mensuel, puis bonus
-  const expiresAt = new Date(Date.now() + CONVERSATION_WINDOW_HOURS * 60 * 60 * 1000);
+    if (windowUnderLock) {
+      workerLogger.debug("Session created concurrently, no credit consumed", {
+        tenantId,
+        customerPhone,
+        windowId: windowUnderLock.id,
+      });
+      return { allowed: true, isNewSession: false };
+    }
 
-  const deductFromBalance = tenant.creditsBalance > 0;
+    // 2b. Lire les credits sous verrou (mensuel + bonus)
+    const tenant = await tx.tenant.findUnique({
+      where: { id: tenantId },
+      select: {
+        creditsBalance: true,
+        creditsBonus: true,
+        subscriptionPlan: true,
+      },
+    });
 
-  await db.$transaction([
-    db.tenant.update({
+    if (!tenant) {
+      workerLogger.error("Tenant not found", { tenantId });
+      return { allowed: false, reason: "no_credits" };
+    }
+
+    const totalAvailable = tenant.creditsBalance + tenant.creditsBonus;
+
+    if (totalAvailable <= 0) {
+      workerLogger.warn("No credits remaining, blocking new session", {
+        tenantId,
+        customerPhone,
+        creditsBalance: tenant.creditsBalance,
+        creditsBonus: tenant.creditsBonus,
+        plan: tenant.subscriptionPlan,
+      });
+      return { allowed: false, reason: "no_credits" };
+    }
+
+    // 2c. Consommer 1 credit : d'abord mensuel, puis bonus
+    const expiresAt = new Date(Date.now() + CONVERSATION_WINDOW_HOURS * 60 * 60 * 1000);
+    const deductFromBalance = tenant.creditsBalance > 0;
+
+    await tx.tenant.update({
       where: { id: tenantId },
       data: deductFromBalance
         ? { creditsBalance: { decrement: 1 } }
         : { creditsBonus: { decrement: 1 } },
-    }),
-    db.conversationWindow.create({
+    });
+
+    await tx.conversationWindow.create({
       data: { tenantId, customerPhone, expiresAt },
-    }),
-  ]);
+    });
 
-  workerLogger.info("New session created, credit consumed", {
-    tenantId,
-    customerPhone,
-    source: deductFromBalance ? "balance" : "bonus",
-    creditsRemaining: totalAvailable - 1,
-    expiresAt,
+    workerLogger.info("New session created, credit consumed", {
+      tenantId,
+      customerPhone,
+      source: deductFromBalance ? "balance" : "bonus",
+      creditsRemaining: totalAvailable - 1,
+      expiresAt,
+    });
+
+    return { allowed: true, isNewSession: true };
   });
-
-  return { allowed: true, isNewSession: true };
 }
 
 /**

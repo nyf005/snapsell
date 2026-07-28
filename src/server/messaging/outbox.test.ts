@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Prisma } from "../../../generated/prisma";
 import { writeToOutbox } from "./outbox";
 import { db } from "~/server/db";
+import { workerLogger } from "~/lib/logger";
 import { boss, QUEUE } from "~/server/workers/queues";
 
 // Mock db
@@ -11,6 +13,7 @@ vi.mock("~/server/db", () => ({
     },
     messageOut: {
       create: vi.fn(),
+      findUnique: vi.fn(),
     },
   },
 }));
@@ -212,6 +215,99 @@ describe("writeToOutbox", () => {
     vi.mocked(db.messageOut.create).mockRejectedValue(dbError);
 
     await expect(writeToOutbox(message)).rejects.toThrow("DB error");
+  });
+
+  describe("idempotence sur conflit unique (tenantId, correlationId, to)", () => {
+    /**
+     * Simule la violation de contrainte unique remontée par Prisma.
+     * On reproduit la forme de l'erreur plutôt que d'importer le vrai constructeur,
+     * afin de rester indépendant de la version du client généré.
+     */
+    function uniqueViolation(): Error {
+      const err = Object.create(Prisma.PrismaClientKnownRequestError.prototype) as Error & {
+        code: string;
+        meta: unknown;
+        clientVersion: string;
+      };
+      err.message = "Unique constraint failed";
+      err.code = "P2002";
+      err.meta = { target: ["tenant_id", "correlation_id", "to"] };
+      err.clientVersion = "test";
+      return err;
+    }
+
+    const message = {
+      tenantId: "tenant-123",
+      to: "+33612345678",
+      body: "Ta réservation est confirmée",
+      correlationId: "corr-retry",
+    };
+
+    const existing = {
+      id: "msg-out-existing",
+      tenantId: message.tenantId,
+      to: message.to,
+      body: `${message.body}\n\n_La Boutique_`, // le footer est injecté par writeToOutbox
+      status: "pending",
+      attempts: 0,
+      correlationId: message.correlationId,
+      createdAt: new Date(),
+    };
+
+    it("ne relance pas l'erreur et retourne le message déjà écrit (rejeu de job)", async () => {
+      vi.mocked(db.messageOut.create).mockRejectedValue(uniqueViolation());
+      vi.mocked(db.messageOut.findUnique).mockResolvedValue(existing as never);
+
+      const result = await writeToOutbox(message);
+
+      // Le job peut se terminer : c'est ce qui permet au retry pg-boss d'aboutir
+      // au lieu d'échouer indéfiniment sur le message déjà présent.
+      expect(result.id).toBe("msg-out-existing");
+      expect(db.messageOut.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            tenantId_correlationId_to: {
+              tenantId: message.tenantId,
+              correlationId: message.correlationId,
+              to: message.to,
+            },
+          },
+        }),
+      );
+    });
+
+    it("ne ré-enqueue pas le message déjà en file", async () => {
+      vi.mocked(db.messageOut.create).mockRejectedValue(uniqueViolation());
+      vi.mocked(db.messageOut.findUnique).mockResolvedValue(existing as never);
+
+      await writeToOutbox(message);
+
+      expect(boss.send).not.toHaveBeenCalled();
+    });
+
+    it("journalise en erreur si un message DIFFÉRENT existe déjà (défaut de flux)", async () => {
+      vi.mocked(db.messageOut.create).mockRejectedValue(uniqueViolation());
+      vi.mocked(db.messageOut.findUnique).mockResolvedValue({
+        ...existing,
+        body: "Un tout autre message",
+      } as never);
+
+      const result = await writeToOutbox(message);
+
+      expect(result.id).toBe("msg-out-existing");
+      expect(workerLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining("Outbox conflict"),
+        undefined,
+        expect.objectContaining({ correlationId: message.correlationId }),
+      );
+    });
+
+    it("relance l'erreur si le message en conflit est introuvable", async () => {
+      vi.mocked(db.messageOut.create).mockRejectedValue(uniqueViolation());
+      vi.mocked(db.messageOut.findUnique).mockResolvedValue(null as never);
+
+      await expect(writeToOutbox(message)).rejects.toThrow("Unique constraint failed");
+    });
   });
 
   it("preserves CI WhatsApp recipient without implicit migration", async () => {

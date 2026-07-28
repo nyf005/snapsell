@@ -135,6 +135,22 @@ export async function sendNextDimensionQuestion(
 
 /**
  * Handles a user's choice for the current dimension.
+ *
+ * ⚠️ Concurrence : le worker tourne en `localConcurrency: 5`, donc deux réponses
+ * rapprochées de la même cliente peuvent être traitées en parallèle. `metadata` est un
+ * blob JSON réécrit en entier — sans verrou, les deux jobs lisaient le même
+ * `currentDimensionIndex`, et la dernière écriture écrasait le choix de l'autre :
+ * une dimension perdue, la question reposée, ou pire une réservation sur la mauvaise
+ * variante.
+ *
+ * On isole donc le read-modify-write dans une transaction courte avec `FOR UPDATE`
+ * sur la ligne `conversation_states`. La réservation et les envois qui suivent restent
+ * HORS transaction : ils sont longs (réseau, QStash) et `createReservation` ouvre déjà
+ * sa propre transaction avec son propre verrou sur le stock.
+ *
+ * Le passage à l'état `COMPLETED` à l'intérieur du verrou fait office de garde : un job
+ * concurrent qui arriverait ensuite échouerait sur le contrôle d'état et ne pourrait
+ * pas créer une seconde réservation.
  */
 export async function handleVariantChoice(
   tenantId: string,
@@ -142,29 +158,49 @@ export async function handleVariantChoice(
   choiceValue: string,
   correlationId: string,
 ) {
-  const conv = await db.conversationState.findUnique({
-    where: { tenantId_phone: { tenantId, phone: from } },
+  const claimed = await db.$transaction(async (tx) => {
+    await tx.$queryRaw(
+      Prisma.sql`SELECT id FROM conversation_states WHERE tenant_id = ${tenantId} AND phone = ${from} FOR UPDATE`,
+    );
+
+    const conv = await tx.conversationState.findUnique({
+      where: { tenantId_phone: { tenantId, phone: from } },
+    });
+
+    if (!conv || conv.state !== VARIANT_SELECTION_STATE.CHOOSING_DIMENSION) return null;
+
+    const metadata = conv.metadata as unknown as VariantSelectionMetadata;
+    const currentDim = metadata.dimensions[metadata.currentDimensionIndex];
+
+    // Record selection
+    if (currentDim) {
+      metadata.selections[currentDim] = choiceValue;
+      metadata.currentDimensionIndex++;
+    }
+
+    const isComplete = metadata.currentDimensionIndex >= metadata.dimensions.length;
+
+    await tx.conversationState.update({
+      where: { id: conv.id },
+      data: {
+        metadata: metadata as unknown as Prisma.InputJsonValue,
+        // Verrouille le flux dès la dernière dimension choisie.
+        ...(isComplete ? { state: VARIANT_SELECTION_STATE.COMPLETED } : {}),
+      },
+    });
+
+    return { convId: conv.id, metadata, isComplete };
   });
 
-  if (!conv || conv.state !== VARIANT_SELECTION_STATE.CHOOSING_DIMENSION) return;
+  // État absent, ou déjà consommé par un job concurrent : rien à faire.
+  if (!claimed) return;
 
-  const metadata = conv.metadata as unknown as VariantSelectionMetadata;
-  const currentDim = metadata.dimensions[metadata.currentDimensionIndex];
-
-  // Record selection
-  if (currentDim) {
-    metadata.selections[currentDim] = choiceValue;
-    metadata.currentDimensionIndex++;
+  if (!claimed.isComplete) {
+    return sendNextDimensionQuestion(tenantId, from, claimed.metadata, correlationId);
   }
 
-  if (metadata.currentDimensionIndex < metadata.dimensions.length) {
-    // There are more dimensions to pick
-    await db.conversationState.update({
-      where: { id: conv.id },
-      data: { metadata: metadata },
-    });
-    return sendNextDimensionQuestion(tenantId, from, metadata, correlationId);
-  }
+  const conv = { id: claimed.convId };
+  const metadata = claimed.metadata;
 
   // All selections done! Find the variant
   const variants = await db.itemVariant.findMany({

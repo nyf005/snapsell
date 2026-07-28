@@ -134,57 +134,72 @@ export async function startSellerVariantConfig(
  * Traite la réponse du vendeur à la question de configuration des variantes.
  * Appelé dans le webhook-processor quand le ConversationState = seller_config_variants.
  */
+/**
+ * Résultat de la phase transactionnelle, consommé ensuite pour choisir le message à envoyer.
+ * Les envois restent hors transaction : ils sortent vers QStash et ne doivent pas
+ * prolonger la détention du verrou.
+ */
+type ConfigOutcome =
+  | { kind: "not_in_state" }
+  | { kind: "cancelled" }
+  | { kind: "parse_error" }
+  | { kind: "saved"; code: string; summary: string; count: number };
+
 export async function handleSellerVariantConfigReply(
   tenantId: string,
   sellerPhone: string,
   body: string,
   correlationId: string,
 ): Promise<boolean> {
-  const conv = await db.conversationState.findUnique({
-    where: { tenantId_phone: { tenantId, phone: sellerPhone } },
-  });
-
-  if (!conv || conv.state !== STATE_KEY) return false;
-
-  const metadata = conv.metadata as unknown as SellerVariantConfigMetadata;
-
-  // Annulation
-  if (body.trim().toLowerCase() === "annuler") {
-    await clearSellerState(conv.id);
-    await writeToOutbox({ tenantId, to: sellerPhone, body: "❌ Configuration des variantes annulée.", correlationId });
-    return true;
-  }
-
-  const parsed = parseVariantConfigText(body.trim());
-  if (!parsed) {
-    await writeToOutbox({
-      tenantId,
-      to: sellerPhone,
-      body: [
-        `❌ Format non reconnu. Utilisez :`,
-        `\`Label:stock, Label:stock\``,
-        ``,
-        `Exemple : \`S:5, M:3, L:2, XL:0\``,
-        `ou \`Rouge/S:5, Rouge/M:3, Bleu/S:2\``,
-        ``,
-        `Répondez *annuler* pour abandonner.`,
-      ].join("\n"),
-      correlationId,
-    });
-    return true;
-  }
-
-  const withDimensions = injectDimensions(parsed, metadata.dimensions);
-
-  // Déduire les dimensions depuis les labels si non-définies
-  const firstLabel = withDimensions[0]!.label;
-  const segCount = firstLabel.split(" / ").length;
-  const finalDimensions = metadata.dimensions.length > 0
-    ? metadata.dimensions
-    : Array.from({ length: segCount }, (_, i) => `Dim${i + 1}`);
+  let outcome: ConfigOutcome;
 
   try {
-    await db.$transaction(async (tx) => {
+    // ⚠️ Concurrence : deux réponses rapprochées du même vendeur peuvent être traitées
+    // en parallèle (`localConcurrency: 5`). Sans verrou, les deux passaient le contrôle
+    // d'état et exécutaient chacune deleteMany + createMany sur les variantes, avec un
+    // risque d'entrelacement (variantes dupliquées ou manquantes) et un stock agrégé
+    // écrit deux fois.
+    //
+    // Ici, contrairement à handleVariantChoice, le travail est purement DB : on peut
+    // tenir le verrou sur toute la transaction sans risque de la faire traîner.
+    outcome = await db.$transaction(async (tx): Promise<ConfigOutcome> => {
+      await tx.$queryRaw(
+        Prisma.sql`SELECT id FROM conversation_states WHERE tenant_id = ${tenantId} AND phone = ${sellerPhone} FOR UPDATE`,
+      );
+
+      const conv = await tx.conversationState.findUnique({
+        where: { tenantId_phone: { tenantId, phone: sellerPhone } },
+      });
+
+      if (!conv || conv.state !== STATE_KEY) return { kind: "not_in_state" };
+
+      const metadata = conv.metadata as unknown as SellerVariantConfigMetadata;
+
+      // Annulation
+      if (body.trim().toLowerCase() === "annuler") {
+        await tx.conversationState.update({
+          where: { id: conv.id },
+          data: { state: null, metadata: Prisma.JsonNull },
+        });
+        return { kind: "cancelled" };
+      }
+
+      const parsed = parseVariantConfigText(body.trim());
+      if (!parsed) {
+        // On ne touche pas à l'état : le vendeur doit pouvoir renvoyer un format correct.
+        return { kind: "parse_error" };
+      }
+
+      const withDimensions = injectDimensions(parsed, metadata.dimensions);
+
+      // Déduire les dimensions depuis les labels si non-définies
+      const firstLabel = withDimensions[0]!.label;
+      const segCount = firstLabel.split(" / ").length;
+      const finalDimensions =
+        metadata.dimensions.length > 0
+          ? metadata.dimensions
+          : Array.from({ length: segCount }, (_, i) => `Dim${i + 1}`);
+
       // Supprimer anciennes variantes
       await tx.itemVariant.deleteMany({ where: { catalogueItemId: metadata.itemId, tenantId } });
 
@@ -212,39 +227,76 @@ export async function handleSellerVariantConfigReply(
           reservedQty: 0,
         },
       });
-    });
 
-    await clearSellerState(conv.id);
+      // L'état n'est libéré qu'une fois la sauvegarde réussie, dans la même transaction :
+      // si quoi que ce soit échoue, tout est annulé et le vendeur peut réessayer.
+      await tx.conversationState.update({
+        where: { id: conv.id },
+        data: { state: null, metadata: Prisma.JsonNull },
+      });
 
-    const summary = withDimensions
-      .map((e) => `  • ${e.label} : ${e.quantity} en stock`)
-      .join("\n");
-
-    await writeToOutbox({
-      tenantId,
-      to: sellerPhone,
-      body: [
-        `✅ Variantes de *${metadata.code}* configurées (${withDimensions.length} variante${withDimensions.length > 1 ? "s" : ""}) :`,
-        summary,
-      ].join("\n"),
-      correlationId,
+      return {
+        kind: "saved",
+        code: metadata.code,
+        count: withDimensions.length,
+        summary: withDimensions.map((e) => `  • ${e.label} : ${e.quantity} en stock`).join("\n"),
+      };
     });
   } catch (err) {
-    workerLogger.error("Failed to save seller variant config", { tenantId, itemId: metadata.itemId, err });
+    workerLogger.error("Failed to save seller variant config", { tenantId, sellerPhone, err });
     await writeToOutbox({
       tenantId,
       to: sellerPhone,
       body: "❌ Une erreur est survenue lors de la sauvegarde. Réessayez ou passez par le dashboard.",
       correlationId,
     });
+    return true;
   }
 
-  return true;
+  switch (outcome.kind) {
+    case "not_in_state":
+      return false;
+
+    case "cancelled":
+      await writeToOutbox({
+        tenantId,
+        to: sellerPhone,
+        body: "❌ Configuration des variantes annulée.",
+        correlationId,
+      });
+      return true;
+
+    case "parse_error":
+      await writeToOutbox({
+        tenantId,
+        to: sellerPhone,
+        body: [
+          `❌ Format non reconnu. Utilisez :`,
+          `\`Label:stock, Label:stock\``,
+          ``,
+          `Exemple : \`S:5, M:3, L:2, XL:0\``,
+          `ou \`Rouge/S:5, Rouge/M:3, Bleu/S:2\``,
+          ``,
+          `Répondez *annuler* pour abandonner.`,
+        ].join("\n"),
+        correlationId,
+      });
+      return true;
+
+    case "saved":
+      await writeToOutbox({
+        tenantId,
+        to: sellerPhone,
+        body: [
+          `✅ Variantes de *${outcome.code}* configurées (${outcome.count} variante${outcome.count > 1 ? "s" : ""}) :`,
+          outcome.summary,
+        ].join("\n"),
+        correlationId,
+      });
+      return true;
+  }
 }
 
-async function clearSellerState(convId: string) {
-  await db.conversationState.update({
-    where: { id: convId },
-    data: { state: null, metadata: Prisma.JsonNull },
-  }).catch(() => { /* best-effort */ });
-}
+// clearSellerState() a été supprimé : la libération de l'état se fait désormais
+// à l'intérieur de la transaction verrouillée de handleSellerVariantConfigReply,
+// pour qu'elle soit annulée avec le reste en cas d'échec.

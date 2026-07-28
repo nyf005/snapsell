@@ -7,16 +7,23 @@
 
 import { z } from "zod";
 import { Client as QStashClient } from "@upstash/qstash";
+import { Prisma } from "../../../generated/prisma";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { boss, QUEUE } from "~/server/workers/queues";
 import { env } from "~/env";
 import type { OutboundMessage } from "./types";
 
+const PRISMA_UNIQUE_VIOLATION = "P2002";
+
 /**
  * Enqueue via QStash (production) ou pg-boss (dev/fallback).
  * QStash est event-driven, serverless-native, et gère les retries automatiquement.
- * pg-boss est utilisé comme fallback en développement local.
+ *
+ * ⚠️ Le fallback pg-boss `outbox-send` n'a AUCUN consommateur : `startOutboxSenderWorker()`
+ * n'est démarré par aucun entrypoint. Il ne sert donc qu'à ne pas faire échouer le flux
+ * métier en développement local. En production, l'absence de configuration QStash
+ * signifie que plus aucun message ne part — on refuse de le laisser passer en silence.
  */
 async function enqueueOutboxSend(messageOutId: string): Promise<void> {
   if (env.QSTASH_TOKEN && env.NEXT_PUBLIC_APP_URL) {
@@ -29,10 +36,31 @@ async function enqueueOutboxSend(messageOutId: string): Promise<void> {
       retries: 5,
       failureCallback: failureCallbackUrl,
     });
-  } else {
-    // Fallback : pg-boss (développement local sans QStash configuré)
-    await boss.send(QUEUE.OUTBOX_SEND, { messageOutId }, { singletonKey: messageOutId });
+    return;
   }
+
+  // Configuration incomplète : diagnostiquer précisément laquelle des deux manque.
+  const missing = [
+    !env.QSTASH_TOKEN ? "QSTASH_TOKEN" : null,
+    !env.NEXT_PUBLIC_APP_URL ? "NEXT_PUBLIC_APP_URL" : null,
+  ].filter(Boolean);
+
+  if (env.NODE_ENV === "production") {
+    // En production, la bascule silencieuse sur une queue sans consommateur
+    // laissait les messages en `pending` indéfiniment, sans la moindre erreur.
+    throw new Error(
+      `Outbox non configuré : ${missing.join(" et ")} manquant(s). ` +
+        `Les deux sont requis ensemble pour publier vers QStash. ` +
+        `Le message ${messageOutId} reste en statut 'pending' et ne partira pas.`,
+    );
+  }
+
+  workerLogger.warn(
+    "QStash non configuré — fallback pg-boss `outbox-send`, qui n'a aucun consommateur. " +
+      "Le message ne sera PAS envoyé. Configurer QSTASH_TOKEN + NEXT_PUBLIC_APP_URL pour un envoi réel.",
+    { messageOutId, missing },
+  );
+  await boss.send(QUEUE.OUTBOX_SEND, { messageOutId }, { singletonKey: messageOutId });
 }
 
 /**
@@ -170,17 +198,32 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
       },
     });
 
-    // Enqueue via QStash (prod) ou pg-boss (dev) pour traitement immédiat
-    // Si enqueueOutboxSend() échoue, le MessageOut reste en `pending` (sera traité au prochain cycle)
+    // Enqueue via QStash (prod) ou pg-boss (dev) pour traitement immédiat.
+    // On ne propage volontairement pas l'échec : le MessageOut est déjà persisté en
+    // `pending` et ne doit pas être perdu, ni faire échouer le flux métier appelant.
+    //
+    // En revanche l'échec est journalisé en `error` en production : quelle qu'en soit la
+    // cause (QStash indisponible ou mal configuré), le message ne partira pas tant que
+    // personne n'intervient. C'est un incident, pas un avertissement.
     try {
       await enqueueOutboxSend(messageOut.id);
     } catch (enqueueError) {
-      workerLogger.warn("Failed to enqueue outbox-send job, MessageOut remains pending", {
+      const context = {
         messageOutId: messageOut.id,
         tenantId: validatedMessage.tenantId,
         correlationId: validatedMessage.correlationId,
         error: enqueueError instanceof Error ? enqueueError.message : String(enqueueError),
-      });
+      };
+
+      if (env.NODE_ENV === "production") {
+        workerLogger.error(
+          "Failed to enqueue outbox-send job — message stuck in 'pending', will NOT be delivered",
+          enqueueError,
+          context,
+        );
+      } else {
+        workerLogger.warn("Failed to enqueue outbox-send job, MessageOut remains pending", context);
+      }
     }
 
     workerLogger.info("Message written to outbox", {
@@ -201,6 +244,74 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
       createdAt: messageOut.createdAt,
     };
   } catch (error) {
+    // La contrainte @@unique([tenantId, correlationId, to]) sur MessageOut sert de clé
+    // d'idempotence : un même flux entrant ne peut écrire qu'un message par destinataire.
+    //
+    // Avant, un P2002 remontait jusqu'au handler pg-boss et faisait échouer le job.
+    // Conséquence : après un incident transitoire survenu APRÈS l'écriture du message,
+    // le retry rejouait le job, retombait sur ce P2002 et échouait à son tour — le job
+    // ne pouvait donc jamais se terminer, et tout le traitement métier restant
+    // (réservation, commande, event log) était perdu définitivement.
+    //
+    // On traite désormais le conflit comme ce qu'il est : le message est déjà en outbox.
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === PRISMA_UNIQUE_VIOLATION
+    ) {
+      const existing = await db.messageOut.findUnique({
+        where: {
+          tenantId_correlationId_to: {
+            tenantId: validatedMessage.tenantId,
+            correlationId: validatedMessage.correlationId,
+            to: validatedMessage.to,
+          },
+        },
+        select: {
+          id: true,
+          tenantId: true,
+          to: true,
+          body: true,
+          status: true,
+          attempts: true,
+          correlationId: true,
+          createdAt: true,
+        },
+      });
+
+      if (existing) {
+        const sameContent = (existing.body ?? "") === (validatedMessage.body ?? "");
+
+        if (sameContent) {
+          // Cas nominal d'un rejeu : le message identique est déjà en file. Rien à faire.
+          workerLogger.info("Outbox message already written (idempotent replay), skipping", {
+            messageOutId: existing.id,
+            tenantId: validatedMessage.tenantId,
+            to: validatedMessage.to,
+            correlationId: validatedMessage.correlationId,
+          });
+        } else {
+          // Contenu différent : le flux a tenté d'envoyer un SECOND message distinct au
+          // même destinataire pour le même message entrant. La contrainte l'interdit.
+          // On ne fait pas échouer le job pour autant, mais on le signale bruyamment :
+          // c'est un défaut de conception du flux appelant, pas un incident transitoire.
+          workerLogger.error(
+            "Outbox conflict: a different message already exists for this correlationId+recipient. Second message dropped.",
+            undefined,
+            {
+              messageOutId: existing.id,
+              tenantId: validatedMessage.tenantId,
+              to: validatedMessage.to,
+              correlationId: validatedMessage.correlationId,
+              existingBody: (existing.body ?? "").slice(0, 120),
+              droppedBody: (validatedMessage.body ?? "").slice(0, 120),
+            },
+          );
+        }
+
+        return existing;
+      }
+    }
+
     workerLogger.error("Error writing message to outbox", error, {
       tenantId: validatedMessage.tenantId,
       to: validatedMessage.to,

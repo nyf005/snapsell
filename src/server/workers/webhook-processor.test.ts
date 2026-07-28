@@ -15,9 +15,9 @@ import { startSellerVariantConfig } from "~/server/conversation/sellerVariantCon
 import type { Tenant } from "../../../generated/prisma";
 
 // Mock Prisma client
-vi.mock("~/server/db", () => ({
-  db: {
-    $transaction: vi.fn((ops) => Promise.all(ops)),
+vi.mock("~/server/db", () => {
+  const db: Record<string, unknown> = {
+    $queryRaw: vi.fn().mockResolvedValue([]),
     sellerPhone: {
       findMany: vi.fn().mockResolvedValue([]),
     },
@@ -52,8 +52,21 @@ vi.mock("~/server/db", () => ({
     reservation: {
       findFirst: vi.fn().mockResolvedValue(null),
     },
-  },
-}));
+  };
+
+  // Supporte les deux formes de $transaction :
+  //   - tableau d'opérations  : db.$transaction([op1, op2])
+  //   - callback interactif   : db.$transaction(async (tx) => ...)
+  // La forme callback est utilisée par checkAndConsumeCredit(), qui prend un verrou
+  // FOR UPDATE sur la ligne tenant. Le callback reçoit le mock `db` comme client `tx`.
+  db.$transaction = vi.fn((arg: unknown) =>
+    typeof arg === "function"
+      ? (arg as (tx: unknown) => unknown)(db)
+      : Promise.all(arg as Promise<unknown>[]),
+  );
+
+  return { db };
+});
 
 vi.mock("~/server/conversation/sellerVariantConfig", () => ({
   SELLER_VARIANT_CONFIG_STATE: "seller_config_variants",
