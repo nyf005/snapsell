@@ -121,8 +121,14 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       "Preuves de paiement illimitées",
       "Journal d'activité sur 30 jours",
     ],
-    creditPackLabel: "Recharge : 3 000 FCFA les 100 conversations",
-    creditPackPriceFCFA: 3_000,
+    // Pas de recharge en Free : le palier d'essai doit forcer une décision.
+    //
+    // Ouvrir les packs au Free créait une inversion tarifaire — 5 packs à 3 000 F
+    // donnaient 570 conversations pour 15 000 F, là où le Starter en offre 500 pour
+    // 25 000 F. Un prospect qui fait ce calcul n'y voit pas une astuce, il y voit
+    // une grille mal pensée. Rouvrir les packs ici plus tard est trivial et ne
+    // rompt aucune promesse ; l'inverse le serait beaucoup moins.
+    creditPackPriceFCFA: null,
   },
   starter: {
     id: "starter",

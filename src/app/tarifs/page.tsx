@@ -144,7 +144,7 @@ const faqItems = [
   },
   {
     q: "Que se passe-t-il si je dépasse ma limite de conversations ?",
-    a: "Les conversations avec de nouveaux numéros sont mises en pause jusqu’à votre prochaine recharge : les échanges déjà ouverts continuent normalement. Vous pouvez acheter à tout moment des packs de 100 conversations (3 000 FCFA en Free, 2 500 FCFA en Starter, 2 000 FCFA en Pro), et les conversations achetées n’expirent pas. Nous vous alertons dans le tableau de bord dès 80 % de consommation pour que vous puissiez recharger avant d’être à court.",
+    a: "Les conversations avec de nouveaux numéros sont mises en pause jusqu’au renouvellement de votre mois : les échanges déjà ouverts continuent normalement. En Starter et Pro, vous pouvez recharger à tout moment par packs de 100 conversations (2 500 FCFA en Starter, 2 000 FCFA en Pro), et les conversations achetées n’expirent pas. En Free, les 70 conversations se renouvellent chaque mois — pour aller au-delà, passez à Starter. Dans tous les cas, nous vous alertons dans le tableau de bord dès 80 % de consommation.",
   },
   {
     q: "Puis-je changer de plan à tout moment ?",

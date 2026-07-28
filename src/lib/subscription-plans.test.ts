@@ -33,9 +33,11 @@ describe("Story 7A.2: subscription-plans config", () => {
       expect(free.entitlements.showUpgradeBanner).toBe(true);
     });
 
-    it("propose bien une recharge (les packs sont achetables sur tous les plans)", () => {
-      expect(free.creditPackPriceFCFA).toBe(3_000);
-      expect(free.creditPackLabel).toContain("3 000 FCFA");
+    it("ne propose pas de recharge — le palier d'essai doit forcer une décision", () => {
+      // Ouvrir les packs au Free créait une inversion : 570 conversations pour
+      // 15 000 F contre 500 pour 25 000 F en Starter.
+      expect(free.creditPackPriceFCFA).toBeNull();
+      expect(free.creditPackLabel).toBeUndefined();
     });
 
     it("borne le journal d'activité à 30 jours", () => {
