@@ -23,14 +23,19 @@ npx tsx scripts/start-worker.ts
 
 **Variables d'environnement requises:**
 - `DATABASE_URL` - URL PostgreSQL directe Neon (non-pooler, obligatoire pour pg-boss)
-- `LIVE_SESSION_INACTIVITY_WINDOW_MINUTES` - (optionnel, défaut 45) Fenêtre d'inactivité en min pour fermeture auto des sessions live
-- `QSTASH_TOKEN` - optionnel sur le worker, utilisé pour publier les jobs outbox en production
+- `ENCRYPTION_KEY` - requis en production ; doit être **identique** à celle de Vercel (déchiffrement de `metaAccessToken`)
+- `QSTASH_TOKEN` **et** `NEXT_PUBLIC_APP_URL` - requis **ensemble** pour publier les jobs outbox. Si l'un manque, les messages sortants ne partent jamais (voir section Envoi sortant plus bas)
+- `AUTH_SECRET`, `CRON_SECRET` - non utilisés fonctionnellement par le worker, mais exigés par la validation d'environnement en production
 
-**Variables non requises sur le worker seul:**
-- `QSTASH_CURRENT_SIGNING_KEY`
-- `QSTASH_NEXT_SIGNING_KEY`
+**Variables optionnelles (dégradation silencieuse si absentes):**
+- `R2_*` - sans elles, l'upload média des messages entrants est ignoré
+- `AI_API_KEY` - sans elle, l'analyse d'intention IA est désactivée
+- `LIVE_SESSION_INACTIVITY_WINDOW_MINUTES` - (défaut 45) fenêtre d'inactivité pour la fermeture auto des sessions live
+- `SENTRY_DSN` - remontée des erreurs worker
 
-Ces deux clés servent à vérifier la signature des callbacks QStash sur les routes HTTP `/api/qstash/*`. Elles doivent être présentes sur le runtime qui expose ces routes.
+**Variables non requises sur le worker:**
+- `QSTASH_CURRENT_SIGNING_KEY` / `QSTASH_NEXT_SIGNING_KEY` — elles vérifient la signature des callbacks QStash sur les routes HTTP `/api/qstash/*`, donc uniquement sur Vercel
+- aucune variable de provider WhatsApp : les credentials Meta sont **par tenant, en base**
 
 ### Déploiement
 
@@ -93,23 +98,50 @@ Le worker gère automatiquement:
 
 ---
 
-## Worker: outbox-sender
+## Envoi sortant: outbox (⚠️ ne tourne PAS sur Railway)
 
-Le worker `outbox-sender` traite les messages sortants via pg-boss queue `outbox-send` avec retries et DLQ.
+L'envoi sortant a été externalisé sur **QStash + Vercel**. Il ne reste rien à démarrer côté worker.
 
 ### Architecture
 
-- **Queue:** `outbox-send` (pg-boss, `localConcurrency: 3`)
-- **Pattern:** Event-driven via pg-boss (plus de polling setInterval)
-- **Provider:** Meta WhatsApp Cloud API via MetaCloudAdapter (credentials per-tenant en DB)
-- **DLQ:** Queue `outbox-dlq` (pg-boss deadLetter natif après 5 retries)
-- **Plateforme:** Railway - même service que webhook-processor
+```
+writeToOutbox()                  → INSERT messages_out (status = 'pending')
+  └─ enqueueOutboxSend()         → QStash publish   [src/server/messaging/outbox.ts]
+       └─ POST /api/qstash/outbox-send   (Vercel, signature vérifiée)
+            └─ processOutboundMessage()  → Meta WhatsApp Cloud API
+       └─ échec après 5 retries → POST /api/qstash/outbox-dlq → dead_letter_jobs
+```
+
+- **Transport:** QStash (`retries: 5`, backoff exponentiel, `failureCallback`)
+- **Provider:** Meta WhatsApp Cloud API via MetaCloudAdapter (credentials per-tenant en DB, `metaAccessToken` chiffré)
+- **Plateforme:** Vercel — **le worker Railway ne fait que publier le job**
+
+### Rôle du worker Railway
+
+Publier, rien de plus. D'où les variables `QSTASH_TOKEN` **et** `NEXT_PUBLIC_APP_URL` sur le service Railway.
+
+### ⚠️ Code résiduel: `startOutboxSenderWorker()`
+
+`startOutboxSenderWorker()` et la queue pg-boss `outbox-send` existent encore comme fallback de développement local, **mais `scripts/start-worker.ts` ne les démarre jamais** : cette queue n'a aucun consommateur.
+
+Depuis le 2026-07-28, la bascule n'est plus silencieuse :
+- **en production**, l'absence de `QSTASH_TOKEN` ou `NEXT_PUBLIC_APP_URL` lève une erreur explicite nommant la variable manquante, journalisée en `error` (le `MessageOut` reste en `pending` mais l'incident est visible) ;
+- **en développement**, un `warn` explicite rappelle que le message ne partira pas.
+
+En local, soit configurer QStash + un tunnel public, soit accepter que les messages sortants ne partent pas.
+
+### Idempotence de l'outbox
+
+`MessageOut` porte une contrainte `@@unique([tenantId, correlationId, to])` : un même message entrant ne peut produire qu'un message sortant par destinataire.
+
+`writeToOutbox()` **rattrape** désormais la violation P2002 et retourne le message existant sans le ré-enqueuer. C'est ce qui permet à un retry pg-boss d'aboutir : auparavant, un incident transitoire survenu *après* l'écriture du message faisait échouer le rejeu sur ce même conflit, et tout le traitement métier restant (réservation, commande, event log) était perdu définitivement.
+
+Si le message en conflit a un **contenu différent**, c'est que le flux appelant a tenté d'envoyer un second message distinct pour le même message entrant : le message est abandonné et un `error` est journalisé — c'est un défaut de conception du flux, pas un incident transitoire.
 
 ### Fonctionnalités
 
-- **Outbox Pattern:** Tout message sortant écrit d'abord dans `MessageOut` avec `status = 'pending'`, puis enqueued via `boss.send("outbox-send", { messageOutId })`
-- **Retries:** pg-boss natif (retryLimit: 5, retryBackoff: true)
-- **DLQ:** pg-boss deadLetter natif vers `outbox-dlq`
+- **Outbox Pattern:** Tout message sortant écrit d'abord dans `MessageOut` avec `status = 'pending'`, puis publié vers QStash
+- **Retries / DLQ:** gérés par QStash, plus par pg-boss
 - **Event Log:** Intégration `logMessageSent()` après envoi réussi
 - **Isolation tenant:** Filtrage strict par `tenant_id`
 
@@ -127,7 +159,9 @@ Le worker logge les événements suivants:
 ### Troubleshooting
 
 **Messages ne sont pas envoyés:**
-- Vérifier que le worker est démarré (logs "Outbox sender worker started")
+- ⚠️ **Cause la plus fréquente :** `QSTASH_TOKEN` ou `NEXT_PUBLIC_APP_URL` absent sur le service qui appelle `writeToOutbox()` (Railway **et** Vercel) → bascule silencieuse sur la queue pg-boss non consommée
+- Vérifier la console QStash : le message a-t-il été publié ? Est-il en `DELIVERED` ou en échec ?
+- Vérifier les logs Vercel de `/api/qstash/outbox-send` (un 401 = clés de signature absentes ou incorrectes)
 - Vérifier table `messages_out` pour messages avec `status = 'pending'`
 - Vérifier que le tenant a `metaPhoneNumberId` et `metaAccessToken` configurés en base
 
@@ -140,7 +174,28 @@ Le worker logge les événements suivants:
 
 - **§4.5:** Outbound messaging via outbox + retries + DLQ
 - **§7.1:** Provider-agnostic via MetaCloudAdapter
-- **§11.2:** Worker sur Railway
+- **§11.2:** Envoi sortant sur Vercel + QStash (externalisé du worker Railway)
+
+---
+
+## Crons métier (worker Railway)
+
+Planifiés via `boss.schedule()` dans [`scripts/start-worker.ts`](../../../scripts/start-worker.ts) — verrou distribué en base, donc sûrs au redémarrage et au scale.
+
+| Queue | Fréquence | Job |
+|---|---|---|
+| `cron-reservation-ttl` | `* * * * *` | rappels + expiration des réservations |
+| `cron-deposit-expiry` | `*/5 * * * *` | expiration des acomptes |
+| `cron-close-sessions` | `*/10 * * * *` | fermeture des sessions live inactives |
+| `cron-meta-catalogue-sync` | `0 * * * *` | synchro catalogue Meta Commerce |
+| `cron-credits-monthly-reset` | `0 * * * *` | renouvellement mensuel des crédits + purge des `conversation_windows` échues |
+| `cron-subscription-expired` | `0 0 * * *` | expiration des abonnements |
+
+### 🚨 Ne pas dupliquer avec Vercel Cron
+
+Les routes [`/api/cron/*`](../../app/api/cron) exécutent **la même logique métier** que ces schedules. Elles sont des **fallbacks manuels / ops uniquement**, protégés par `Authorization: Bearer <CRON_SECRET>`.
+
+`vercel.json` doit rester sans clé `crons`. En ajouter ferait tourner chaque job **deux fois en parallèle**, sur deux runtimes sans verrou partagé (doubles expirations de réservations, doubles relances clients). La bascule a déjà été tentée puis annulée deux fois : `c64837d`, `46e06e5`.
 
 ---
 

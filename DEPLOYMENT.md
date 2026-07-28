@@ -7,15 +7,30 @@
 
 ---
 
+## 🗺️ Répartition des runtimes
+
+| Runtime | Ce qui y tourne | Pourquoi |
+|---|---|---|
+| **Vercel** | App Next.js, tRPC, webhook Meta entrant, routes `/api/qstash/*`, fallbacks `/api/cron/*` | HTTP, request-scoped |
+| **Railway** (`webhook-worker`) | Consommation pg-boss de `webhook-processing` + les 5 crons métier | Process long-running : `boss.work()` est un poller persistant qui exige une connexion Neon **directe** et des advisory locks — incompatible avec le serverless |
+| **QStash** (Upstash) | Envoi sortant : retries, backoff, DLQ | Push-based, idempotent, tolérant à la latence |
+| **Neon** | Postgres applicatif **+ backend de queue pg-boss** | — |
+
+Le webhook Vercel ne fait qu'un `boss.send()` ; tout le traitement métier des messages entrants se fait sur Railway.
+
+---
+
 ## 📋 Prérequis
 
 - ✅ Compte Railway ([railway.app](https://railway.app))
 - ✅ Compte Vercel (déjà configuré pour Story 2.1)
-- ✅ Variables d'environnement :
-  - `DATABASE_URL` (Neon PostgreSQL)
-  - `REDIS_URL` (Upstash Redis)
-  - `REDIS_TOKEN` (si requis)
-  - `TWILIO_*` (Account SID, Auth Token, Webhook Secret, WhatsApp Number)
+- ✅ Compte Upstash (QStash pour l'outbox ; Redis REST optionnel pour le rate limiting tRPC)
+- ✅ Compte Meta Business (WhatsApp Cloud API)
+- ✅ Variables d'environnement — la liste faisant foi est [src/env.js](src/env.js) :
+  - `DATABASE_URL` (Neon PostgreSQL, URL **directe** non-pooler)
+  - `AUTH_SECRET`, `ENCRYPTION_KEY`, `CRON_SECRET` (requis en production)
+  - `QSTASH_TOKEN`, `NEXT_PUBLIC_APP_URL` (envoi sortant)
+  - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optionnel : rate limiting tRPC)
 
 ---
 
@@ -39,12 +54,12 @@ Une fois l’app déployée sur Vercel, mets à jour les URLs suivantes.
 | Où | Variable / Champ | Valeur à mettre |
 |----|------------------|-----------------|
 | **Vercel** (Dashboard → Project → Settings → Environment Variables) | `AUTH_URL` *(optionnel)* | URL publique de l’app, ex. `https://snapsell.vercel.app` ou ton domaine custom. Si tu n’ajoutes rien, Vercel fournit déjà `VERCEL_URL` et NextAuth peut s’en servir pour les callbacks. À définir si tu utilises un **domaine personnalisé** (ex. `https://app.snapsell.com`). |
-| **Twilio Console** → [Messaging](https://console.twilio.com) → Try it out → Send a WhatsApp message → **Webhook URL** (ou config du numéro WhatsApp) | Webhook "When a message comes in" | `https://<TON_DOMAINE_VERCEL>/api/webhooks/twilio` — ex. `https://snapsell.vercel.app/api/webhooks/twilio` |
+| **Meta App Dashboard** → WhatsApp → Configuration → **Webhook** | Callback URL + Verify token | `https://<TON_DOMAINE_VERCEL>/api/webhooks/meta` + la valeur de `META_VERIFY_TOKEN` |
 
 **Récap :**
-- **NEXT_PUBLIC_APP_URL** (Vercel) : à définir en prod, ex. `https://snapsell-nine.vercel.app` — utilisé pour callbacks Paystack et liens.
+- **NEXT_PUBLIC_APP_URL** (Vercel **et** Railway) : à définir en prod, ex. `https://snapsell-nine.vercel.app` — utilisé pour les callbacks Paystack, les liens, **et l'URL de callback QStash de l'outbox**.
+- **Meta** : obligatoire — Callback URL = `https://snapsell-nine.vercel.app/api/webhooks/meta`, avec `META_VERIFY_TOKEN` identique des deux côtés.
 - **Paystack** (Dashboard) : Webhook URL = `https://snapsell-nine.vercel.app/api/webhooks/paystack` ; Callback URL (si demandé) = `https://snapsell-nine.vercel.app/parametres/abonnement?payment=callback`
-- **Twilio** : obligatoire — Webhook URL = `https://snapsell-nine.vercel.app/api/webhooks/twilio`
 - **AUTH_URL** : optionnel — utile si domaine personnalisé.
 
 ### ⚠️ Paystack Webhook (Story 7A.2) — obligatoire pour mettre à jour l’abonnement
@@ -139,32 +154,55 @@ DATABASE_URL=<production-url> npx prisma migrate deploy
 Dans l'onglet **"Variables"** du service, ajouter :
 
 ```bash
-AUTH_SECRET=<secret-nextauth>   # Requis par la validation env en prod. Générer : openssl rand -base64 32
-DATABASE_URL=<votre-url-neon>
-REDIS_URL=<votre-url-upstash>
+# --- Requis (la validation env échoue au démarrage sans ces variables en production) ---
 NODE_ENV=production
-REDIS_TOKEN=<token-si-requis>
-TWILIO_ACCOUNT_SID=<votre-account-sid>
-TWILIO_AUTH_TOKEN=<votre-auth-token>
-TWILIO_WHATSAPP_NUMBER=<votre-numero-whatsapp>  # Format E.164, ex. +14155238886
+DATABASE_URL=<url-neon-DIRECTE>   # NON-pooler : pg-boss est incompatible avec PgBouncer
+AUTH_SECRET=<secret-nextauth>     # Requis par la validation env en prod. Générer : openssl rand -base64 32
+ENCRYPTION_KEY=<hex-64-caracteres># Requis en prod. Déchiffre metaAccessToken. Doit être IDENTIQUE à Vercel
+CRON_SECRET=<secret-partage>      # Requis en prod par la validation env
+
+# --- Requis fonctionnellement pour que les messages sortants partent ---
+QSTASH_TOKEN=<token-upstash-qstash>
+NEXT_PUBLIC_APP_URL=https://<votre-domaine-vercel>
+
+# --- Recommandé (sinon dégradation silencieuse de fonctionnalités) ---
+R2_ACCOUNT_ID=<...>               # Sans R2, l'upload média des messages entrants est ignoré
+R2_ACCESS_KEY_ID=<...>
+R2_SECRET_ACCESS_KEY=<...>
+R2_BUCKET_NAME=<...>
+AI_API_KEY=<cle-groq>             # Sans clé, l'analyse d'intention IA est désactivée
+SENTRY_DSN=<dsn-sentry>           # Optionnel, remontée des erreurs worker
 ```
 
+⚠️ **`NEXT_PUBLIC_APP_URL` est obligatoire sur le worker, ce n'est pas qu'une variable front.**
+`enqueueOutboxSend()` ([outbox.ts](src/server/messaging/outbox.ts)) exige **à la fois** `QSTASH_TOKEN` **et** `NEXT_PUBLIC_APP_URL` pour publier vers QStash. Si l'une des deux manque, les messages restent en `status = 'pending'` et ne partent jamais.
+
+Depuis le 2026-07-28, cet état n'est plus silencieux : en production, une erreur explicite nommant la variable manquante est journalisée en `error` à chaque message. Chercher `Outbox non configuré` ou `message stuck in 'pending'` dans les logs.
+
+**Note provider WhatsApp:**
+- l'envoi passe par **Meta WhatsApp Cloud API**, avec des credentials **par tenant stockés en base** (`metaPhoneNumberId`, `metaAccessToken` chiffré) — il n'y a donc pas de variable d'environnement de provider à définir sur Railway
+- `META_APP_ID` / `META_APP_SECRET` / `META_VERIFY_TOKEN` servent au webhook et à l'embedded signup, côté Vercel
+
 **Note QStash:**
-- le worker Railway n'a besoin que de `QSTASH_TOKEN` pour publier les jobs outbox
-- `QSTASH_CURRENT_SIGNING_KEY` et `QSTASH_NEXT_SIGNING_KEY` sont requises sur les routes HTTP QStash (`/api/qstash/*`), typiquement côté Vercel
+- le worker Railway n'a besoin que de `QSTASH_TOKEN` (+ `NEXT_PUBLIC_APP_URL`) pour publier les jobs outbox
+- `QSTASH_CURRENT_SIGNING_KEY` et `QSTASH_NEXT_SIGNING_KEY` sont requises sur les routes HTTP QStash (`/api/qstash/*`), donc côté Vercel uniquement
 
 **Note crons métier Railway:**
-- les crons métier tournent dans le worker Railway via pg-boss : `reservation-ttl`, `close-sessions`, `deposit-expiry`, `meta-catalogue-sync`, `subscription-expired`
+- les crons métier tournent dans le worker Railway via pg-boss : `reservation-ttl`, `close-sessions`, `deposit-expiry`, `meta-catalogue-sync`, `credits-monthly-reset`, `subscription-expired`
 - les routes HTTP `/api/cron/*` restent uniquement des fallbacks manuels / ops et exigent `Authorization: Bearer <CRON_SECRET>`
 - définir `CRON_SECRET` en production sur Vercel et Railway, car la validation d'environnement production le requiert
 
+> 🚨 **Ne pas activer de crons Vercel tant que le worker Railway tourne.**
+> Les schedules pg-boss de [start-worker.ts](scripts/start-worker.ts) et les routes [/api/cron/*](src/app/api/cron) exécutent **la même logique métier**. `vercel.json` doit rester sans clé `crons` : ajouter des crons Vercel ferait tourner chaque job **deux fois en parallèle**, sur deux runtimes qui ne partagent aucun verrou — avec à la clé des expirations de réservations et des relances clients en double.
+>
+> Historique : cette bascule a déjà été tentée deux fois puis annulée (`c64837d`, `46e06e5`). Le passage à un plan Vercel payant lève la limite de granularité des crons, **mais ne change rien à ce risque de double exécution**.
+
 **Où trouver les valeurs:**
-- **DATABASE_URL:** [Neon Console](https://console.neon.tech) → Connection string
-- **REDIS_URL:** [Upstash Console](https://console.upstash.com) → Redis URL
-- **REDIS_TOKEN:** Même page Upstash (si requis)
-- **TWILIO_ACCOUNT_SID:** [Twilio Console](https://console.twilio.com) → Account SID
-- **TWILIO_AUTH_TOKEN:** Même page Twilio → Auth Token
-- **TWILIO_WHATSAPP_NUMBER:** Numéro WhatsApp Twilio (format E.164, ex. +14155238886)
+- **DATABASE_URL:** [Neon Console](https://console.neon.tech) → Connection string (bien prendre l'URL **directe**, pas celle contenant `-pooler.`)
+- **QSTASH_TOKEN:** [Upstash Console](https://console.upstash.com) → QStash → Token
+- **R2_\*:** [Cloudflare Dashboard](https://dash.cloudflare.com) → R2 → API Tokens
+- **AI_API_KEY:** [Groq Console](https://console.groq.com) → API Keys
+- **ENCRYPTION_KEY:** générer avec `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` — **réutiliser exactement la même valeur que sur Vercel**, sinon les tokens Meta chiffrés en base seront illisibles par le worker
 
 ### 4. Déployer
 
@@ -174,23 +212,41 @@ Railway détectera automatiquement les changements et déploiera. Sinon, cliquer
 
 **Dans les logs Railway, rechercher:**
 ```
+[INFO] [Worker] pg-boss started successfully
+[INFO] [Worker] pg-boss queues created
 [INFO] [Worker] Starting webhook processor worker...
-[INFO] [Worker] Webhook processor worker started successfully with metrics monitoring
-[INFO] [Worker] Starting outbox sender worker...
-[INFO] [Worker] Outbox sender worker started successfully
+[INFO] [Worker] Webhook processor worker started successfully
+[INFO] [Worker] Periodic jobs scheduled via pg-boss (reservation-ttl: 1min, close-sessions: 10min, deposit-expiry: 5min, meta-catalogue-sync: 1h, credits-monthly-reset: 1h, subscription-expired: daily)
 ```
 
+> ℹ️ Il n'y a **pas** de ligne « Outbox sender worker started » : l'envoi sortant ne tourne plus sur Railway (voir section Story 2.4 ci-dessous).
+
 **Vérifications externes:**
-- [Upstash Dashboard](https://console.upstash.com): Jobs traités (queue depth diminue)
-- Base de données: Tables `seller_phones`, `messages_out`, `dead_letter_jobs` existent
+- Base de données : table `pgboss.job` — la profondeur de la queue `webhook-processing` doit redescendre
+- Base de données : tables `seller_phones`, `messages_out`, `dead_letter_jobs` existent
+- Base de données : aucun `messages_out` ne doit rester bloqué en `status = 'pending'` (symptôme typique de `NEXT_PUBLIC_APP_URL` ou `QSTASH_TOKEN` manquant sur le worker)
 
 ---
 
-## 🚀 Déploiement Story 2.4 (Worker Outbox-Sender)
+## 🚀 Déploiement Story 2.4 (Envoi sortant / Outbox)
 
-**Status:** ✅ Intégré dans le même service Railway que Story 2.2
+**Status:** ✅ Externalisé sur QStash + Vercel — **ne tourne plus sur Railway**
 
-Le worker `outbox-sender` est démarré automatiquement avec `webhook-processor` dans le même service Railway.
+L'envoi sortant a été sorti du worker Railway. Le chemin actuel est entièrement push-based :
+
+```
+writeToOutbox()                    → INSERT messages_out (status = 'pending')
+  └─ enqueueOutboxSend()           → QStash publish  [src/server/messaging/outbox.ts]
+       └─ POST /api/qstash/outbox-send   (Vercel, signature QStash vérifiée)
+            └─ processOutboundMessage()  → Meta WhatsApp Cloud API
+       └─ échec après 5 retries → POST /api/qstash/outbox-dlq
+```
+
+- **Retries / backoff / DLQ :** gérés par QStash (`retries: 5`, `failureCallback`), plus par pg-boss
+- **Provider :** Meta WhatsApp Cloud API, credentials **par tenant en base** (`metaPhoneNumberId`, `metaAccessToken` chiffré via `ENCRYPTION_KEY`)
+- **Rôle de Railway :** uniquement **publier** le job QStash depuis le webhook-processor — d'où la nécessité de `QSTASH_TOKEN` et `NEXT_PUBLIC_APP_URL` sur le service
+
+> ⚠️ **Code résiduel :** `startOutboxSenderWorker()` ([outbox-sender.ts](src/server/workers/outbox-sender.ts)) et la queue pg-boss `outbox-send` existent encore comme fallback de développement local, mais **`start-worker.ts` ne les démarre jamais**. En pratique, si QStash n'est pas configuré, les jobs `outbox-send` s'empilent sans consommateur. Voir la section Développement local ci-dessous.
 
 ### 1. Migration Base de Données (OBLIGATOIRE)
 
@@ -207,35 +263,34 @@ DATABASE_URL=<production-url> npx prisma migrate deploy
 
 ⚠️ **IMPORTANT:** Appliquer AVANT le démarrage du worker.
 
-### 2. Variables d'Environnement Additionnelles
+### 2. Variables d'Environnement
 
-Ajouter dans l'onglet **"Variables"** du service Railway :
-
+**Sur Vercel** (les routes `/api/qstash/*` vérifient la signature) :
 ```bash
-TWILIO_ACCOUNT_SID=<votre-account-sid>
-TWILIO_AUTH_TOKEN=<votre-auth-token>
-TWILIO_WHATSAPP_NUMBER=<votre-numero-whatsapp>  # Format E.164, ex. +14155238886
+QSTASH_TOKEN=<token-upstash-qstash>
+QSTASH_CURRENT_SIGNING_KEY=<current-signing-key>
+QSTASH_NEXT_SIGNING_KEY=<next-signing-key>
+ENCRYPTION_KEY=<meme-valeur-que-railway>
+NEXT_PUBLIC_APP_URL=https://<votre-domaine-vercel>
 ```
 
-**Où trouver les valeurs:**
-- **TWILIO_ACCOUNT_SID:** [Twilio Console](https://console.twilio.com) → Account SID
-- **TWILIO_AUTH_TOKEN:** Même page Twilio → Auth Token
-- **TWILIO_WHATSAPP_NUMBER:** Numéro WhatsApp Twilio (format E.164, ex. +14155238886)
+**Sur Railway** (publication uniquement) : `QSTASH_TOKEN` + `NEXT_PUBLIC_APP_URL` — voir section 3 plus haut.
 
-### 3. Redéployer
+Les credentials WhatsApp ne sont **pas** des variables d'environnement : ils sont configurés par tenant depuis les réglages business (embedded signup Meta).
 
-Railway détectera automatiquement les changements et redéploiera. Sinon, cliquer sur **"Deploy"**.
+### 3. Vérifier le Déploiement
 
-### 4. Vérifier le Déploiement
+- **[Upstash Console](https://console.upstash.com) → QStash → Logs :** les messages publiés doivent passer en `DELIVERED`
+- **Base de données :** `messages_out` passe de `pending` à `sent` ; aucun blocage durable en `pending`
+- **Logs Vercel** (fonction `/api/qstash/outbox-send`) : `Message sent successfully`
+- **DLQ :** `dead_letter_jobs` doit rester vide ; s'il se remplit, vérifier `lastError` (`meta_config_missing` = tenant sans credentials Meta)
 
-**Dans les logs Railway, rechercher:**
-```
-[INFO] [Worker] Outbox sender worker started successfully
-```
+### 4. Développement local
 
-**Vérifications externes:**
-- Base de données: Tables `messages_out` et `dead_letter_jobs` existent
-- Logs montrent "Outbox sender worker started successfully"
+Sans `QSTASH_TOKEN` / `NEXT_PUBLIC_APP_URL`, `enqueueOutboxSend()` bascule sur pg-boss — mais aucun worker ne consomme cette queue. Deux options :
+
+- **Recommandé :** configurer `QSTASH_TOKEN` + un tunnel public (`NEXT_PUBLIC_APP_URL`) pour recevoir les callbacks QStash
+- **Sinon :** garder à l'esprit que les messages sortants resteront en `pending` en local
 
 ---
 
@@ -280,8 +335,9 @@ Railway détectera automatiquement les changements et redéploiera. Sinon, cliqu
 ## 🐛 Troubleshooting
 
 **Worker ne démarre pas:**
-- Vérifier variables d'environnement (DATABASE_URL, REDIS_URL)
-- Vérifier format URLs (postgresql://, redis:// ou rediss://)
+- Vérifier `DATABASE_URL` (format `postgresql://`)
+- Vérifier que c'est bien l'URL Neon **directe** : une URL contenant `-pooler.` fait échouer pg-boss (PgBouncer en transaction mode est incompatible avec les advisory locks)
+- Vérifier `ENCRYPTION_KEY` (hex de 64 caractères) et `CRON_SECRET`, exigés en production par [src/env.js](src/env.js)
 
 **"Can't reach database server at localhost:5432":**
 - La variable **DATABASE_URL** n'est pas définie (ou pas appliquée) sur le service Railway. Ajouter dans Variables l'URL Neon (ex. `postgresql://...@ep-xxx.aws.neon.tech/neondb?sslmode=require`). Vérifier que la variable est bien attachée au service qui exécute le worker.
@@ -290,39 +346,38 @@ Railway détectera automatiquement les changements et redéploiera. Sinon, cliqu
 - La validation env (src/env.js) exige **AUTH_SECRET** en production. Ajouter dans Variables du service webhook-worker une valeur secrète (ex. `openssl rand -base64 32`). Tu peux réutiliser le même AUTH_SECRET que sur Vercel.
 
 **Jobs non traités:**
-- Vérifier que le worker démarre (logs "Worker started successfully")
-- Vérifier Upstash dashboard (jobs dans la queue)
+- Vérifier que le worker démarre (logs "Webhook processor worker started successfully")
+- Vérifier la table `pgboss.job` : des jobs `webhook-processing` en `created` qui ne bougent pas = aucun consommateur actif
+- Vérifier que Vercel et Railway pointent sur la **même** `DATABASE_URL` (la queue vit dans Postgres, pas dans Redis)
 - Vérifier logs Railway pour erreurs
 
 **Migration non appliquée:**
 - Erreur: `relation "seller_phones" does not exist` ou `relation "messages_out" does not exist`
 - Solution: Ouvrir Railway Shell → `npm run db:migrate` → Redémarrer worker
 
-**Messages sortants ne sont pas envoyés:**
-- Vérifier variables d'environnement Twilio (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER)
-- Vérifier table `messages_out` pour messages avec `status = 'pending'`
-- Vérifier logs Railway pour erreurs Twilio
-- Vérifier format numéro WhatsApp (E.164, ex. +33612345678)
+**Messages sortants ne sont pas envoyés (`messages_out` bloqué en `pending`):**
+1. **Cause la plus fréquente :** `QSTASH_TOKEN` ou `NEXT_PUBLIC_APP_URL` absent sur le service qui appelle `writeToOutbox()`. `enqueueOutboxSend()` bascule alors sur la queue pg-boss `outbox-send`, **que personne ne consomme** — sans aucune erreur dans les logs.
+2. Vérifier la [console QStash](https://console.upstash.com) : le message a-t-il été publié ? Est-il `DELIVERED` ou en échec ?
+3. Vérifier les logs Vercel de `/api/qstash/outbox-send` — un **401** signifie `QSTASH_CURRENT_SIGNING_KEY` / `QSTASH_NEXT_SIGNING_KEY` absentes ou incorrectes, un **503** signifie une config de signature incomplète en production.
+4. Vérifier que le tenant a bien `metaPhoneNumberId` et `metaAccessToken` en base (`lastError = "meta_config_missing"` sinon).
+5. Vérifier que `ENCRYPTION_KEY` est **identique** sur Vercel et Railway — sinon `metaAccessToken` est indéchiffrable.
 
-**« J'envoie des messages mais je ne reçois rien » (messages entrants / pas de réponse) :**
+**« J'envoie des messages mais je ne reçois rien » (messages entrants) :**
 
-1. **Webhook Twilio**  
-   Dans [Twilio Console](https://console.twilio.com) → Messaging / ton numéro WhatsApp, le champ **« When a message comes in »** doit être exactement l’URL de ton app, par ex.  
-   `https://snapsell.vercel.app/api/webhooks/twilio`  
-   (sans slash final, en `https`). Si l’URL est vide ou incorrecte, Twilio n’appelle pas ton app → aucun message reçu.
+1. **Webhook Meta**
+   Dans [Meta App Dashboard](https://developers.facebook.com) → WhatsApp → Configuration, la **Callback URL** doit être exactement `https://<ton-domaine>/api/webhooks/meta` (en `https`, sans slash final), et le **Verify token** doit correspondre à `META_VERIFY_TOKEN`. Vérifier aussi que le champ `messages` est bien souscrit.
 
-2. **Numéro WhatsApp du tenant**  
-   Dans l’app : **Paramètres → Connexion WhatsApp**, le **numéro WhatsApp** enregistré doit être **exactement le numéro Twilio** qui reçoit les messages (celui de `TWILIO_WHATSAPP_NUMBER`), au format E.164, ex. `+14155238886`.  
-   C’est ce champ qui permet au webhook de retrouver ton tenant à partir du champ « To » envoyé par Twilio. Si ce numéro n’est pas renseigné ou ne correspond pas, les messages sont ignorés (pas de job traité).
+2. **Résolution du tenant**
+   Le webhook retrouve le tenant via `phone_number_id` (payload Meta) → `tenant.metaPhoneNumberId` en base ([route.ts:140](src/app/api/webhooks/meta/route.ts)). Si aucun tenant ne correspond, le message est persisté avec `tenantId = null` et **aucun job n'est créé** — chercher `Tenant not found for Meta phone_number_id` dans les logs Vercel. Reconnecter le numéro via **Paramètres → Connexion WhatsApp**.
 
-3. **Signature du webhook (production)**  
-   En production, si la signature Twilio est invalide, la requête est rejetée (401). Vérifier que l’URL configurée dans Twilio est **exactement** celle utilisée par les requêtes (même domaine, pas de slash en trop). Sur Vercel, l’app utilise l’URL de la requête ; si tu as un domaine custom, l’URL dans Twilio doit être ce domaine.
+3. **Signature du webhook (production)**
+   La signature HMAC-SHA256 est vérifiée avec `META_APP_SECRET` **avant** la résolution du tenant. Si elle est invalide, la requête est rejetée. Vérifier que `META_APP_SECRET` correspond bien à l'app Meta configurée.
 
-4. **Redis partagé (Vercel + Railway)**  
-   Le webhook (Vercel) enqueue les jobs dans Redis ; le worker (Railway) les consomme. Les deux doivent utiliser la **même** `REDIS_URL` (ex. Upstash). Si la variable diffère ou est absente sur l’un des deux, les jobs restent en file et rien n’est traité.
+4. **Queue partagée (Vercel + Railway)**
+   Le webhook (Vercel) enqueue via `boss.send()` **dans Postgres** (`pgboss.job`), et le worker (Railway) consomme. Les deux doivent donc utiliser la **même `DATABASE_URL`**. ⚠️ Il ne s'agit **pas** de Redis : `UPSTASH_REDIS_REST_*` ne sert qu'au rate limiting tRPC et n'a aucun rôle dans la queue.
 
-5. **Pas de réponse automatique**  
-   Aujourd’hui, l’app **reçoit** les messages (webhook + worker) et les enregistre, mais il n’y a **pas** de réponse automatique envoyée au client. Pour envoyer une réponse, il faut qu’un autre flux écrive dans l’outbox (`messages_out`). Une UI « envoyer un message » depuis le dashboard n’est pas encore en place.
+5. **Réponses automatiques**
+   Le webhook-processor répond automatiquement via `writeToOutbox()` (réservations, waitlist, sélection de variantes, FAQ…). Si les messages entrants sont bien traités mais qu'aucune réponse n'arrive, le problème est **en aval** : voir « Messages sortants ne sont pas envoyés » ci-dessus.
 
 ---
 
@@ -341,17 +396,20 @@ Railway détectera automatiquement les changements et redéploiera. Sinon, cliqu
 
 **Story 2.2:**
 - [x] Migration `20260208000000_add_seller_phones` appliquée en production (Neon, 18 migrations déployées)
-- [x] Service Railway créé et configuré (webhook-worker, repo connecté)
-- [x] Variables d'environnement configurées (DATABASE_URL, REDIS_URL, AUTH_SECRET, TWILIO_*, NODE_ENV)
-- [x] Worker démarre sans erreur (logs : webhook processor + outbox sender + close-inactive démarrés)
+- [x] Service Railway créé et configuré (webhook-worker, repo connecté, Serverless OFF)
+- [x] Variables d'environnement configurées (NODE_ENV, DATABASE_URL directe, AUTH_SECRET, ENCRYPTION_KEY, CRON_SECRET)
+- [x] Worker démarre sans erreur (logs : pg-boss started + webhook processor + schedules pg-boss)
 - [x] Jobs sont traités (logs : messageType "client" observé)
 - [ ] Tests vendeur/client fonctionnent (à valider : envoyer message client + ajouter seller_phone et tester vendeur)
+- [ ] `QSTASH_TOKEN` **et** `NEXT_PUBLIC_APP_URL` définis sur Railway (sinon les messages sortants restent en `pending`)
+- [ ] `ENCRYPTION_KEY` strictement identique entre Vercel et Railway
+- [ ] `vercel.json` ne contient **pas** de clé `crons` (risque de double exécution avec les schedules pg-boss)
 
-**Story 2.4:**
+**Story 2.4 (envoi sortant via QStash + Vercel):**
 - [x] Migration `20260205171901_add_message_out_and_dead_letter_job` appliquée en production
-- [x] Variables d'environnement Twilio configurées (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER)
-- [x] Worker outbox-sender démarre sans erreur (logs "Outbox sender worker started successfully")
-- [ ] Test envoi message sortant fonctionne (message écrit dans outbox → envoyé via Twilio)
+- [x] `QSTASH_CURRENT_SIGNING_KEY` et `QSTASH_NEXT_SIGNING_KEY` configurées sur Vercel
+- [ ] Test envoi message sortant fonctionne (`messages_out` passe de `pending` à `sent` → reçu sur WhatsApp)
+- [ ] Callback visible en `DELIVERED` dans la console QStash
 - [ ] Event log créé après envoi réussi
 
 ---
@@ -394,9 +452,10 @@ Se connecter sur `/login` avec l'email/mot de passe → redirection automatique 
 ## 📝 Notes
 
 - **Seller_phones:** Ajout manuel en DB pour l'instant (API tRPC à venir Story 1.6)
-- **Outbox-sender:** Polling DB toutes les 5 secondes, batch de 10 messages (configurable dans `startOutboxSenderWorker`)
-- **Retries:** Backoff exponentiel (1s, 2s, 4s, 8s, 16s, max 30s), max 5 tentatives avant DLQ
-- **DLQ:** Messages échoués après 5 tentatives sont créés dans `dead_letter_jobs` pour traçabilité ops
-- **Rate limiting webhook (Story 2.1 complément):** Par IP, configurable via `WEBHOOK_RATE_LIMIT_MAX` (défaut 120) et `WEBHOOK_RATE_LIMIT_WINDOW_MS` (défaut 60000). En cas de dépassement : réponse 200 + log (pas de 429 pour éviter les retries Twilio).
-- **Sentry:** Optionnel. Si `SENTRY_DSN` est défini et `@sentry/nextjs` installé, les erreurs critiques du webhook sont envoyées via `lib/sentry.ts`. Pour une initialisation complète (traces, erreurs non gérées) : `pnpm add @sentry/nextjs`, puis créer `src/sentry.server.config.ts` et `src/instrumentation.ts` selon la [doc Sentry Next.js](https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/).
-- **Scaling:** Augmenter instances Railway selon profondeur de queue (webhook-processing) et nombre de messages pending (messages_out)
+- **Envoi sortant:** event-driven via QStash (plus aucun polling). `writeToOutbox()` publie un job QStash consommé par `/api/qstash/outbox-send` sur Vercel
+- **Retries:** gérés par QStash (`retries: 5`, backoff exponentiel). La route doit renvoyer un 5xx pour déclencher un retry
+- **DLQ:** après épuisement des retries, QStash appelle `/api/qstash/outbox-dlq` qui enregistre dans `dead_letter_jobs` pour traçabilité ops
+- **Rate limiting webhook (Story 2.1 complément):** Par IP, configurable via `WEBHOOK_RATE_LIMIT_MAX` (défaut 120) et `WEBHOOK_RATE_LIMIT_WINDOW_MS` (défaut 60000). En cas de dépassement : réponse 200 + log (pas de 429, pour éviter que Meta ne relance le webhook).
+- **Sentry:** `@sentry/nextjs` est **déjà installé** (voir `package.json`). Si `SENTRY_DSN` est défini, les erreurs critiques du webhook et des workers sont remontées via [`src/lib/sentry.ts`](src/lib/sentry.ts). L'initialisation complète (traces, erreurs non gérées, source maps) n'est **pas** en place : elle nécessiterait `src/instrumentation.ts` et une config client/serveur selon la [doc Sentry Next.js](https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/). En l'état, seule la capture explicite via `captureException()` fonctionne.
+- **Scaling:** Augmenter les instances Railway selon la profondeur de la queue `webhook-processing` (`pgboss.job`). ⚠️ Le worker tourne en `localConcurrency: 5` et les machines à états conversationnelles (`ConversationState`, sélection de variantes) font du read-modify-write sans verrou : augmenter la concurrence ou le nombre d'instances accroît le risque de course sur un même couple `tenantId + phone`. Monter en charge en gardant ce point en tête.
+- **Envoi sortant:** ne se scale pas via Railway — il passe par QStash + les fonctions Vercel.

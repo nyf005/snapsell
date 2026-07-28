@@ -1,8 +1,24 @@
 # Plan : Messages interactifs WhatsApp
 
-## Contexte
+> ## ✅ Plan livré à une exception près
+>
+> **Toute l'infrastructure et 10 des 11 messages prévus sont en production.** Ce document est conservé comme trace de conception et de justification produit.
+>
+> | Étape du plan d'exécution | Statut |
+> |---|---|
+> | 1–5. Infrastructure (`interactivePayload`, types, outbox, route d'envoi, réception des replies) | ✅ Livré |
+> | 6. Priorité 1 — `recap`, `reminder`, `reservationExpired`, `proofRejected` | ✅ Livré |
+> | 7. Priorité 2 — `codeSuggestion`, `fallback`, `orderWithDeposit` | ✅ Livré |
+> | 7. Priorité 2 — **`welcome`** | ❌ **Reste en texte brut** — seul item ouvert |
+> | 8. Priorité 3 — `orderConfirmed`, `waitlistPromoted`, `proofApproved` | ✅ Livré |
+>
+> **Livré en plus du plan :** `productCard`, `productList` (catalogue Meta Commerce), `orderSummaryInteractive`, `awayMessageInteractive`.
+>
+> Les templates interactifs sont suffixés `*Interactive` dans [`templates.ts`](../src/server/messaging/templates.ts) et coexistent avec leurs variantes texte — conformément au point « Tests » des risques ci-dessous, le client peut toujours répondre en tapant.
 
-Actuellement tous les messages sortants sont du **texte brut**. Le client doit taper "OUI", une adresse, ou un code article à la main. L'API Meta WhatsApp Business supporte des messages interactifs (boutons, listes) qui permettent au client de répondre en **un tap**, réduisant les erreurs et les abandons.
+## Contexte _(état d'avril 2026, avant ce chantier)_
+
+À l'époque, tous les messages sortants étaient du **texte brut**. Le client devait taper "OUI", une adresse, ou un code article à la main. L'API Meta WhatsApp Business supporte des messages interactifs (boutons, listes) qui permettent au client de répondre en **un tap**, réduisant les erreurs et les abandons.
 
 ---
 

@@ -4,8 +4,12 @@
 - ✅ 2.1: Route webhook réception, vérification signature, idempotence, 200 < 1s
 - ✅ 2.2: Attribuer le message au tenant et router vendeur vs client
 - ✅ 2.3: Event Log minimal (webhook_received, message_sent, idempotent_ignored)
+- ✅ 2.4: Envoi sortant via outbox + retries + DLQ
+- ✅ 2.5: Respect du STOP (scope tenant)
 
-**Date:** 2026-02-05
+**Rédigé:** 2026-02-05 — **Mis à jour:** 2026-07-28
+
+> ⚠️ **Ce guide a été réécrit.** La version d'origine décrivait Twilio et BullMQ/Redis. Le projet utilise désormais **Meta WhatsApp Cloud API** (Epic 10) et **pg-boss sur Postgres** (Story 11.1). Les payloads, en-têtes et commandes ci-dessous sont ceux du code actuel.
 
 ---
 
@@ -14,196 +18,227 @@
 ### 1. Environnement de développement
 
 ```bash
-# Vérifier que les variables d'environnement sont configurées
-cat .env | grep -E "(DATABASE_URL|REDIS_URL|TWILIO_)"
+grep -E "^(DATABASE_URL|META_|ENCRYPTION_KEY|QSTASH_|AI_)" .env
 ```
 
-**Variables requises:**
-- `DATABASE_URL` - PostgreSQL (Neon ou local)
-- `REDIS_URL` - Redis (Upstash ou local)
-- `REDIS_TOKEN` - Token Redis (si requis)
-- `TWILIO_ACCOUNT_SID` - Compte Twilio
-- `TWILIO_AUTH_TOKEN` - Token Twilio
-- `TWILIO_WEBHOOK_SECRET` - Secret pour vérification signature (optionnel en dev)
+**Variables requises pour Epic 2 :**
+
+| Variable | Rôle |
+|---|---|
+| `DATABASE_URL` | Postgres — applicatif **et** queue pg-boss. En local, une URL directe (non-pooler). |
+| `META_APP_SECRET` | Vérification de la signature HMAC-SHA256 du webhook |
+| `META_VERIFY_TOKEN` | Challenge de vérification Meta (requête GET) |
+| `ENCRYPTION_KEY` | 64 caractères hex — déchiffrement de `metaAccessToken` |
+| `QSTASH_TOKEN` + `NEXT_PUBLIC_APP_URL` | **Ensemble**, pour que l'envoi sortant parte réellement |
+
+> ℹ️ Il n'y a **pas** de variable de provider WhatsApp : les credentials Meta (`metaPhoneNumberId`, `metaAccessToken`) sont stockés **par tenant en base**, via **Paramètres → Connexion WhatsApp**.
+
+⚠️ **Sans `QSTASH_TOKEN` + `NEXT_PUBLIC_APP_URL`**, `enqueueOutboxSend()` bascule sur la queue pg-boss `outbox-send` que **rien ne consomme** : les messages restent en `pending` sans erreur. C'est normal en dev, mais empêche de tester l'envoi sortant de bout en bout.
 
 ### 2. Base de données
 
 ```bash
-# Vérifier que toutes les migrations sont appliquées
 npx prisma migrate status
-
-# Si migrations en attente:
-npx prisma migrate deploy
 ```
 
-**Tables requises:**
-- `tenants` - Au moins un tenant de test
-- `users` - Au moins un utilisateur
-- `messages_in` - Pour vérifier idempotence
-- `seller_phones` - Pour tester routing vendeur vs client
-- `event_log` - Pour vérifier Event Log (Story 2.3)
+```bash
+npm run db:migrate
+```
+
+**Tables utilisées par Epic 2 :** `tenants`, `users`, `messages_in`, `messages_out`, `seller_phones`, `event_log`, `dead_letter_jobs`, `opt_outs`, plus le schéma `pgboss` (créé automatiquement au premier démarrage du worker).
 
 ### 3. Services démarrés
 
-**Terminal 1 - Next.js (webhook):**
+**Terminal 1 — Next.js (webhook + routes QStash) :**
 ```bash
 npm run dev
-# Le webhook sera accessible sur http://localhost:3000/api/webhooks/twilio
 ```
+Le webhook est exposé sur `http://localhost:3000/api/webhooks/meta`.
 
-**Terminal 2 - Worker (traitement messages):**
+**Terminal 2 — Worker (traitement des messages + crons) :**
 ```bash
 npm run dev:worker
-# ou
-npx tsx scripts/start-worker.ts
 ```
 
-### 4. Tests automatisés (optionnel)
+Au démarrage, le worker doit logger :
+```
+[INFO] [Worker] pg-boss started successfully
+[INFO] [Worker] pg-boss queues created
+[INFO] [Worker] Webhook processor worker started successfully
+[INFO] [Worker] Periodic jobs scheduled via pg-boss (...)
+```
 
-**Exécuter tous les tests unitaires:**
+### 4. Tests automatisés
+
 ```bash
 npm test
 ```
 
-**Exécuter les tests en mode watch:**
 ```bash
 npm test -- --watch
 ```
 
-**Exécuter un fichier de test spécifique:**
+**Fichiers de test pertinents pour Epic 2 :**
 ```bash
+npm test -- src/app/api/webhooks/meta/route.test.ts
+npm test -- src/server/workers/webhook-processor.test.ts
 npm test -- src/server/events/eventLog.test.ts
-npm test -- src/app/api/webhooks/twilio/route.integration.test.ts
+npm test -- src/server/messaging/outbox.test.ts
+npm test -- src/server/messaging/optout.test.ts
 ```
 
-**Note:** Les tests d'intégration nécessitent `RUN_INTEGRATION_TESTS=true` ; selon le test : `REDIS_URL` (webhook-processor) ou `DATABASE_URL` (outbox-sender, STOP → OptOut → message bloqué). Pour le test Story 2.5 STOP : `RUN_INTEGRATION_TESTS=true pnpm test -- stop-optout-blocked.integration.test.ts`
+**Tests d'intégration** — conditionnels, exigent `RUN_INTEGRATION_TESTS=true` et `DATABASE_URL` :
+```bash
+RUN_INTEGRATION_TESTS=true npm test -- src/server/workers/webhook-processor.integration.test.ts
+```
+
+```bash
+RUN_INTEGRATION_TESTS=true npm test -- src/server/workers/__tests__/stop-optout-blocked.integration.test.ts
+```
+
+> Le projet utilise **npm** (`packageManager: npm@10.9.2`), pas pnpm.
+
+---
+
+## 🔧 Outil : signer une requête webhook
+
+Meta signe le corps brut en HMAC-SHA256 avec `META_APP_SECRET`, dans l'en-tête `X-Hub-Signature-256` au format `sha256=<hex>`. Sans signature valide, la route rejette la requête.
+
+Créer `/tmp/send-webhook.sh` :
+
+```bash
+#!/usr/bin/env bash
+# Usage: ./send-webhook.sh '<json-payload>'
+set -euo pipefail
+
+SECRET="${META_APP_SECRET:?META_APP_SECRET manquant}"
+URL="${WEBHOOK_URL:-http://localhost:3000/api/webhooks/meta}"
+BODY="$1"
+
+SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$SECRET" | sed 's/^.* //')
+
+curl -s -o /dev/null -w "HTTP %{http_code} — %{time_total}s\n" \
+  -X POST "$URL" \
+  -H "Content-Type: application/json" \
+  -H "X-Hub-Signature-256: sha256=${SIG}" \
+  -d "$BODY"
+```
+
+```bash
+chmod +x /tmp/send-webhook.sh
+```
+
+**Payload de référence** (remplacer `PHONE_NUMBER_ID` par le `metaPhoneNumberId` du tenant de test) :
+
+```json
+{
+  "object": "whatsapp_business_account",
+  "entry": [{
+    "id": "WABA_ID_TEST",
+    "changes": [{
+      "field": "messages",
+      "value": {
+        "messaging_product": "whatsapp",
+        "metadata": {
+          "display_phone_number": "22500000000",
+          "phone_number_id": "PHONE_NUMBER_ID"
+        },
+        "contacts": [{ "profile": { "name": "Test" }, "wa_id": "22507000001" }],
+        "messages": [{
+          "from": "22507000001",
+          "id": "wamid.TEST0001",
+          "timestamp": "1738713600",
+          "type": "text",
+          "text": { "body": "A12" }
+        }]
+      }
+    }]
+  }]
+}
+```
+
+Récupérer le `phone_number_id` du tenant de test :
+```bash
+npx prisma studio
+```
 
 ---
 
 ## 🧪 Tests Story 2.1 : Webhook Réception
 
-### Test 1.1 : Webhook répond < 1s
+### Test 1.1 : Challenge de vérification (GET)
 
-**Objectif:** Vérifier que le webhook répond rapidement (< 1s)
+Meta appelle la route en GET pour valider l'abonnement.
 
-**Prérequis:**
-- Next.js démarré (`npm run dev`)
-- Webhook configuré dans Twilio Console pointant vers votre URL (ex: ngrok)
-
-**Test manuel:**
-1. Envoyer un message WhatsApp depuis un numéro de test vers le numéro Twilio configuré
-2. Vérifier les logs Next.js pour le temps de réponse
-3. Vérifier que la réponse HTTP 200 est retournée rapidement
-
-**Vérification dans les logs:**
 ```bash
-# Chercher dans les logs Next.js:
-grep "elapsedMs" logs
-# Doit afficher: elapsedMs: < 1000
+curl -i "http://localhost:3000/api/webhooks/meta?hub.mode=subscribe&hub.verify_token=$META_VERIFY_TOKEN&hub.challenge=test123"
 ```
 
-**Test automatisé (curl):**
+**Résultat attendu :**
+- ✅ HTTP 200, corps = `test123`
+- ✅ Avec un mauvais token → HTTP 403
+
+### Test 1.2 : Webhook répond < 1s
+
 ```bash
-# Simuler un webhook Twilio (en développement, signature peut être ignorée)
-curl -X POST http://localhost:3000/api/webhooks/twilio \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -H "X-Twilio-Signature: test-signature" \
-  -d "MessageSid=SM1234567890abcdef&From=whatsapp:+33612345678&Body=Test&To=whatsapp:+1234567890"
+/tmp/send-webhook.sh '{"object":"whatsapp_business_account","entry":[{"id":"W","changes":[{"field":"messages","value":{"messaging_product":"whatsapp","metadata":{"display_phone_number":"22500000000","phone_number_id":"PHONE_NUMBER_ID"},"messages":[{"from":"22507000001","id":"wamid.PERF001","timestamp":"1738713600","type":"text","text":{"body":"A12"}}]}}]}]}'
 ```
 
-**Résultat attendu:**
-- ✅ Réponse HTTP 200
-- ✅ Temps de réponse < 1000ms dans les logs
-- ✅ MessageIn créé en DB
+**Résultat attendu :**
+- ✅ HTTP 200 en moins de 1 s (affiché par le script)
+- ✅ `MessageIn` créé en DB
+- ✅ Log Next.js avec `elapsedMs < 1000`
 
----
+### Test 1.3 : Idempotence (doublon détecté)
 
-### Test 1.2 : Idempotence (doublon détecté)
+Rejouer **exactement la même commande** que le test 1.2 (même `wamid`).
 
-**Objectif:** Vérifier qu'un message dupliqué retourne 200 sans retraitement
+**Résultat attendu :**
+- ✅ HTTP 200 à nouveau
+- ✅ **Aucun** second `MessageIn` (contrainte unique `(tenant_id, provider_message_id)`)
+- ✅ Event `idempotent_ignored` créé dans `event_log`
+- ✅ Aucun nouveau job pg-boss
 
-**Prérequis:**
-- Un MessageIn existe déjà avec (tenant_id, provider_message_id)
+### Test 1.4 : Signature invalide rejetée
 
-**Test:**
-1. Envoyer le même message deux fois (même MessageSid)
-2. Vérifier que le deuxième appel retourne 200 immédiatement
-3. Vérifier qu'un seul MessageIn existe en DB
+```bash
+curl -i -X POST http://localhost:3000/api/webhooks/meta \
+  -H "Content-Type: application/json" \
+  -H "X-Hub-Signature-256: sha256=deadbeef" \
+  -d '{"object":"whatsapp_business_account","entry":[]}'
+```
 
-**Vérification DB:**
+**Résultat attendu :**
+- ✅ Requête rejetée (pas de 200 avec traitement)
+- ✅ La vérification a lieu **avant** la résolution du tenant
+- ✅ Aucun `MessageIn` créé
+
+### Test 1.5 : Tenant non résolu
+
+Envoyer un payload avec un `phone_number_id` inconnu.
+
+**Résultat attendu :**
+- ✅ HTTP 200 (pas d'erreur renvoyée à Meta)
+- ✅ `MessageIn` persisté avec `tenantId = null`
+- ✅ Log `Tenant not found for Meta phone_number_id`
+- ✅ **Aucun job créé** — le message n'est pas traité
+
+### Test 1.6 : Job enqueued dans pg-boss
+
+Après un webhook valide :
+
 ```sql
--- Vérifier qu'un seul MessageIn existe pour ce MessageSid
-SELECT COUNT(*) FROM messages_in 
-WHERE provider_message_id = 'SM1234567890abcdef' 
-AND tenant_id = '<tenant-id>';
--- Résultat attendu: 1
+SELECT id, name, state, created_on
+FROM pgboss.job
+WHERE name = 'webhook-processing'
+ORDER BY created_on DESC
+LIMIT 5;
 ```
 
-**Vérification logs:**
-```bash
-# Chercher dans les logs:
-grep "Duplicate message detected" logs
-# Doit apparaître pour le deuxième appel
-```
-
-**Résultat attendu:**
-- ✅ Deuxième appel retourne 200 immédiatement
-- ✅ Un seul MessageIn en DB
-- ✅ Log "Duplicate message detected" pour le deuxième appel
-- ✅ Event Log `idempotent_ignored` créé (Story 2.3)
-
----
-
-### Test 1.3 : Vérification signature (production)
-
-**Objectif:** Vérifier que les requêtes sans signature valide sont rejetées en production
-
-**Note:** En développement (`NODE_ENV=development`), la vérification peut être assouplie pour faciliter les tests.
-
-**Test production:**
-```bash
-# Requête sans signature (doit être rejetée en production)
-curl -X POST https://your-app.vercel.app/api/webhooks/twilio \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "MessageSid=SM123&From=whatsapp:+33612345678&Body=Test&To=whatsapp:+1234567890"
-```
-
-**Résultat attendu (production):**
-- ✅ Réponse HTTP 401 (Invalid signature)
-- ✅ MessageIn non créé
-
----
-
-### Test 1.4 : Job enqueued dans BullMQ
-
-**Objectif:** Vérifier qu'un job est bien enqueued après réception webhook
-
-**Vérification Upstash Dashboard:**
-1. Aller sur [Upstash Console](https://console.upstash.com)
-2. Sélectionner votre Redis instance
-3. Vérifier la queue `webhook-processing`
-4. Vérifier qu'un job est présent avec le payload normalisé
-
-**Vérification logs:**
-```bash
-# Chercher dans les logs Next.js:
-grep "Job enqueued in BullMQ" logs
-# Doit afficher: jobId, correlationId, tenantId
-```
-
-**Vérification programmatique (optionnel):**
-```typescript
-// Dans un script de test
-import { webhookProcessingQueue } from "~/server/workers/queues";
-
-const waitingCount = await webhookProcessingQueue.getWaitingCount();
-console.log(`Jobs en attente: ${waitingCount}`);
-```
-
-**Résultat attendu:**
-- ✅ Job présent dans la queue `webhook-processing`
-- ✅ Payload contient: tenantId, providerMessageId, from, body, correlationId
-- ✅ Log "Job enqueued in BullMQ" présent
+**Résultat attendu :**
+- ✅ Un job `webhook-processing` apparaît
+- ✅ Il passe de `created` à `completed` une fois le worker passé
+- ✅ S'il reste en `created`, le worker n'est pas démarré
 
 ---
 
@@ -211,463 +246,244 @@ console.log(`Jobs en attente: ${waitingCount}`);
 
 ### Test 2.1 : Message Client (numéro non vendeur)
 
-**Objectif:** Vérifier qu'un message depuis un numéro non enregistré comme vendeur est traité comme client
+Envoyer depuis un numéro **absent** de `seller_phones`.
 
-**Prérequis:**
-- Worker démarré (`npm run dev:worker`)
-- Tenant créé avec `whatsappPhoneNumber` configuré
-- Aucun `seller_phone` enregistré pour ce tenant (ou numéro différent)
-
-**Setup DB:**
-```sql
--- Vérifier qu'aucun seller_phone n'existe pour ce tenant
-SELECT * FROM seller_phones WHERE tenant_id = '<tenant-id>';
--- Résultat: vide ou numéro différent
-```
-
-**Test:**
-1. Envoyer un message WhatsApp depuis un numéro client (ex: `+33698765432`)
-2. Vérifier que le worker traite le job
-3. Vérifier les logs pour `messageType: "client"`
-
-**Vérification logs worker:**
-```bash
-# Chercher dans les logs worker:
-grep "Message type determined" logs
-# Doit afficher: messageType: "client"
-```
-
-**Résultat attendu:**
-- ✅ Worker traite le job avec succès
-- ✅ Log "Message type determined" avec `messageType: "client"`
-- ✅ Job complété dans BullMQ
-
----
+**Résultat attendu :**
+- ✅ Logs worker : `messageType: "client"`
+- ✅ Traitement comme intention cliente (réservation, FAQ, etc.)
 
 ### Test 2.2 : Message Vendeur (numéro enregistré)
 
-**Objectif:** Vérifier qu'un message depuis un numéro vendeur enregistré est traité comme vendeur
+Ajouter d'abord le numéro dans `seller_phones` (via Prisma Studio ou le dashboard), puis renvoyer le même code.
 
-**Prérequis:**
-- Seller phone enregistré pour le tenant
+**Résultat attendu :**
+- ✅ Logs worker : `messageType: "seller"`
+- ✅ Le code déclenche une **création d'article**, pas une réservation
 
-**Setup DB:**
-```sql
--- Ajouter un seller_phone pour le tenant
-INSERT INTO seller_phones (id, tenant_id, phone_number, created_at)
-VALUES (
-  gen_random_uuid()::text,
-  '<tenant-id>',
-  '+33612345678', -- Numéro du vendeur
-  NOW()
-);
-```
+> 🚨 **Piège critique de l'architecture :** ne jamais traiter un vendeur comme un client, sous peine d'auto-réservations. C'est le test le plus important de la Story 2.2.
 
-**Test:**
-1. Envoyer un message WhatsApp depuis `+33612345678` (numéro vendeur)
-2. Vérifier que le worker traite le job
-3. Vérifier les logs pour `messageType: "seller"`
+### Test 2.3 : Normalisation des numéros
 
-**Vérification logs worker:**
-```bash
-# Chercher dans les logs worker:
-grep "Message type determined" logs
-# Doit afficher: messageType: "seller"
-```
+Meta renvoie les numéros **sans** préfixe `whatsapp:` ni `+` (ex. `22507000001`). Vérifier que `normalizeIncomingPhone()` produit bien un E.164 cohérent avec le format stocké dans `seller_phones`.
 
-**Résultat attendu:**
-- ✅ Worker traite le job avec succès
-- ✅ Log "Message type determined" avec `messageType: "seller"`
-- ✅ Job complété dans BullMQ
-
----
-
-### Test 2.3 : Normalisation numéros (préfixe whatsapp:)
-
-**Objectif:** Vérifier que la normalisation fonctionne avec/sans préfixe `whatsapp:`
-
-**Setup DB:**
-```sql
--- Seller phone enregistré SANS préfixe whatsapp:
-INSERT INTO seller_phones (id, tenant_id, phone_number, created_at)
-VALUES (
-  gen_random_uuid()::text,
-  '<tenant-id>',
-  '+33612345678', -- Sans préfixe
-  NOW()
-);
-```
-
-**Test:**
-1. Envoyer un message depuis `whatsapp:+33612345678` (avec préfixe)
-2. Vérifier que le worker reconnaît le numéro comme vendeur
-
-**Résultat attendu:**
-- ✅ Worker reconnaît le numéro malgré le préfixe `whatsapp:`
-- ✅ `messageType: "seller"` dans les logs
+**Résultat attendu :**
+- ✅ Un vendeur enregistré en `+22507000001` est reconnu quand Meta envoie `22507000001`
 
 ---
 
 ## 🧪 Tests Story 2.3 : Event Log
 
-### Test 3.1 : Event webhook_received créé
+### Test 3.1 : Event `webhook_received`
 
-**Objectif:** Vérifier qu'un événement `webhook_received` est créé dans event_log après persist MessageIn
-
-**Test:**
-1. Envoyer un nouveau message WhatsApp (non dupliqué)
-2. Vérifier qu'un enregistrement existe dans `event_log`
-
-**Vérification DB:**
 ```sql
--- Vérifier l'événement webhook_received
-SELECT 
-  id,
-  tenant_id,
-  event_type,
-  entity_type,
-  entity_id,
-  correlation_id,
-  actor_type,
-  payload,
-  created_at
+SELECT event_type, entity_type, correlation_id, actor_type, created_at
 FROM event_log
-WHERE event_type = 'webhook_received'
 ORDER BY created_at DESC
-LIMIT 1;
+LIMIT 10;
 ```
 
-**Résultat attendu:**
-- ✅ `event_type = 'webhook_received'`
-- ✅ `entity_type = 'message_in'`
-- ✅ `entity_id` = ID du MessageIn créé
-- ✅ `correlation_id` présent (UUID ou MessageSid)
-- ✅ `payload` contient `message_in_id` et `provider_message_id` (pas de PII)
+**Résultat attendu :** une ligne `webhook_received` avec `entity_type = 'message_in'`.
 
----
+### Test 3.2 : Event `idempotent_ignored`
 
-### Test 3.2 : Event idempotent_ignored créé
+Après le test 1.3, une ligne `idempotent_ignored` doit exister.
 
-**Objectif:** Vérifier qu'un événement `idempotent_ignored` est créé quand doublon détecté
+### Test 3.3 : CorrelationId propagé
 
-**Test:**
-1. Envoyer un message (première fois)
-2. Envoyer le même message (deuxième fois - doublon)
-3. Vérifier qu'un événement `idempotent_ignored` est créé
-
-**Vérification DB:**
 ```sql
--- Vérifier l'événement idempotent_ignored
-SELECT 
-  id,
-  tenant_id,
-  event_type,
-  entity_type,
-  entity_id,
-  correlation_id,
-  payload
+SELECT event_type, entity_type, created_at
 FROM event_log
-WHERE event_type = 'idempotent_ignored'
+WHERE correlation_id = '<correlation_id_du_flux>'
+ORDER BY created_at;
+```
+
+**Résultat attendu :** tous les événements d'un même message partagent le `correlation_id`, du webhook jusqu'à l'envoi sortant.
+
+### Test 3.4 : Absence de PII dans le payload
+
+```sql
+SELECT payload FROM event_log ORDER BY created_at DESC LIMIT 20;
+```
+
+**Résultat attendu :** pas de numéro complet, d'adresse ni de contenu de message brut dans `payload`.
+
+---
+
+## 🧪 Tests Story 2.4 : Envoi sortant (outbox)
+
+L'envoi sortant ne tourne **pas** dans le worker. Chemin réel :
+
+```
+writeToOutbox()  →  INSERT messages_out (pending)
+  └─ enqueueOutboxSend()  →  QStash publish
+       └─ POST /api/qstash/outbox-send  →  Meta Cloud API
+       └─ échec ×5  →  POST /api/qstash/outbox-dlq  →  dead_letter_jobs
+```
+
+### Test 4.1 : Message écrit dans l'outbox
+
+Déclencher une réponse du bot (ex. réservation), puis :
+
+```sql
+SELECT id, status, attempts, last_error, created_at
+FROM messages_out
 ORDER BY created_at DESC
-LIMIT 1;
+LIMIT 10;
 ```
 
-**Résultat attendu:**
-- ✅ `event_type = 'idempotent_ignored'`
-- ✅ `entity_type = 'message_in'`
-- ✅ `entity_id` = NULL (pas d'entité créée)
-- ✅ `payload` contient `provider_message_id` et `reason: "duplicate_detected"`
+**Résultat attendu :**
+- ✅ Ligne créée en `pending`
+- ✅ Puis `sent` avec un `provider_message_id` renseigné
 
----
+### Test 4.2 : Diagnostic « bloqué en pending »
 
-### Test 3.3 : CorrelationId propagé correctement
+Si `status` reste `pending` :
 
-**Objectif:** Vérifier que le même `correlation_id` est utilisé pour tous les événements d'un même flux
+1. `QSTASH_TOKEN` ou `NEXT_PUBLIC_APP_URL` manquant → bascule silencieuse sur pg-boss sans consommateur
+2. Console QStash : le message a-t-il été publié ? statut `DELIVERED` ?
+3. Logs de `/api/qstash/outbox-send` : un **401** = clés de signature absentes/incorrectes, un **503** = config incomplète en production
+4. `last_error = "meta_config_missing"` → le tenant n'a pas ses credentials Meta
 
-**Test:**
-1. Envoyer un message (webhook_received créé)
-2. Vérifier que le `correlation_id` du MessageIn correspond à celui de l'event_log
+### Test 4.3 : DLQ
 
-**Vérification DB:**
 ```sql
--- Vérifier la correspondance correlation_id
-SELECT 
-  mi.id as message_in_id,
-  mi.correlation_id as message_correlation_id,
-  el.correlation_id as event_correlation_id,
-  el.event_type
-FROM messages_in mi
-JOIN event_log el ON el.entity_id = mi.id::text
-WHERE mi.provider_message_id = 'SM1234567890abcdef'
-AND el.event_type = 'webhook_received';
+SELECT * FROM dead_letter_jobs ORDER BY created_at DESC LIMIT 10;
 ```
 
-**Résultat attendu:**
-- ✅ `message_correlation_id` = `event_correlation_id`
-- ✅ Même correlationId pour tous les événements du même flux
+**Résultat attendu :** vide en fonctionnement normal ; alimenté après épuisement des 5 tentatives QStash.
 
 ---
 
-### Test 3.4 : Payload sans PII (validation)
+## 🧪 Tests Story 2.5 : STOP (opt-out)
 
-**Objectif:** Vérifier que le payload ne contient pas de données sensibles brutes
+### Test 5.1 : STOP enregistré
 
-**Vérification DB:**
+Envoyer `STOP` depuis un numéro client.
+
 ```sql
--- Vérifier le payload d'un événement
-SELECT 
-  event_type,
-  payload
-FROM event_log
-WHERE event_type = 'webhook_received'
-ORDER BY created_at DESC
-LIMIT 1;
+SELECT * FROM opt_outs ORDER BY opted_out_at DESC LIMIT 5;
 ```
 
-**Résultat attendu:**
-- ✅ Payload contient uniquement: `message_in_id`, `provider_message_id`
-- ✅ Pas de numéro de téléphone complet
-- ✅ Pas d'email complet
-- ✅ Pas de corps de message complet
+**Résultat attendu :**
+- ✅ Ligne créée avec le bon `tenant_id` (le scope est **par tenant**)
+- ✅ Event `opt_out_recorded` dans `event_log`
 
-**Test de validation (rejet PII):**
-```typescript
-// Test unitaire déjà présent dans eventLog.test.ts
-// Vérifie que payload avec PII est rejeté
+### Test 5.2 : Message bloqué après STOP
+
+Après un STOP, déclencher un message sortant vers ce numéro.
+
+**Résultat attendu :**
+- ✅ Log `Message blocked (opt-out)`
+- ✅ Aucun appel à Meta
+
+Test automatisé correspondant :
+```bash
+RUN_INTEGRATION_TESTS=true npm test -- src/server/workers/__tests__/stop-optout-blocked.integration.test.ts
 ```
 
 ---
 
-### Test 3.5 : Race condition correlationId
-
-**Objectif:** Vérifier que le correlationId du message existant est utilisé en cas de race condition
-
-**Test:**
-1. Envoyer deux requêtes simultanées avec le même MessageSid (race condition)
-2. Vérifier que l'événement `idempotent_ignored` utilise le correlationId du message existant
-
-**Vérification DB:**
-```sql
--- Vérifier correlationId dans idempotent_ignored après race condition
-SELECT 
-  el.correlation_id as event_correlation_id,
-  mi.correlation_id as message_correlation_id
-FROM event_log el
-JOIN messages_in mi ON mi.provider_message_id = (el.payload->>'provider_message_id')
-WHERE el.event_type = 'idempotent_ignored'
-AND el.payload->>'reason' = 'duplicate_detected'
-ORDER BY el.created_at DESC
-LIMIT 1;
-```
-
-**Résultat attendu:**
-- ✅ `event_correlation_id` = `message_correlation_id` (correlationId du message existant)
-
----
-
-## 🔍 Tests End-to-End Complets
+## 🔍 Tests End-to-End
 
 ### Test E2E 1 : Flux complet message client
 
-**Scénario:** Un client envoie un message, le système le traite et logge les événements
+1. Créer une session live et un article (code `A12`) côté vendeur
+2. Envoyer `A12` depuis un numéro client
+3. Vérifier la chaîne :
 
-**Étapes:**
-1. ✅ Webhook reçoit le message → MessageIn créé → Job enqueued → 200 < 1s
-2. ✅ Worker traite le job → messageType = "client"
-3. ✅ Event Log: `webhook_received` créé avec correlationId
-4. ✅ Vérifier traçabilité bout en bout
-
-**Vérification complète:**
 ```sql
--- Vérifier le flux complet
-SELECT 
-  mi.id as message_in_id,
-  mi.correlation_id,
-  mi.from,
-  mi.body,
-  mi.created_at as message_created,
-  el.event_type,
-  el.created_at as event_created
-FROM messages_in mi
-LEFT JOIN event_log el ON el.entity_id = mi.id::text 
-  AND el.event_type = 'webhook_received'
-WHERE mi.tenant_id = '<tenant-id>'
-ORDER BY mi.created_at DESC
-LIMIT 5;
+SELECT 'messages_in' AS t, COUNT(*) FROM messages_in WHERE provider_message_id = 'wamid.TEST0001'
+UNION ALL SELECT 'reservations', COUNT(*) FROM reservations WHERE created_at > now() - interval '5 minutes'
+UNION ALL SELECT 'messages_out', COUNT(*) FROM messages_out WHERE created_at > now() - interval '5 minutes';
 ```
 
----
+**Résultat attendu :** MessageIn → job traité → réservation créée → MessageOut envoyé → événements corrélés.
 
-### Test E2E 2 : Flux doublon (idempotence)
+### Test E2E 2 : Flux doublon
 
-**Scénario:** Un message est envoyé deux fois, le système détecte le doublon
-
-**Étapes:**
-1. ✅ Premier message → MessageIn créé → `webhook_received` loggé
-2. ✅ Deuxième message (même MessageSid) → 200 immédiat → `idempotent_ignored` loggé
-3. ✅ Un seul MessageIn en DB
-4. ✅ Deux événements dans event_log (webhook_received + idempotent_ignored)
-
-**Vérification:**
-```sql
--- Vérifier idempotence et event log
-SELECT 
-  COUNT(*) as message_count,
-  (SELECT COUNT(*) FROM event_log 
-   WHERE entity_id = mi.id::text 
-   AND event_type = 'webhook_received') as webhook_received_count,
-  (SELECT COUNT(*) FROM event_log 
-   WHERE payload->>'provider_message_id' = mi.provider_message_id
-   AND event_type = 'idempotent_ignored') as idempotent_ignored_count
-FROM messages_in mi
-WHERE mi.provider_message_id = 'SM1234567890abcdef'
-AND mi.tenant_id = '<tenant-id>';
-```
-
-**Résultat attendu:**
-- ✅ `message_count` = 1 (un seul MessageIn)
-- ✅ `webhook_received_count` = 1
-- ✅ `idempotent_ignored_count` = 1 (pour le deuxième appel)
+Rejouer le même `wamid` : une seule réservation, un event `idempotent_ignored`, aucun message sortant supplémentaire.
 
 ---
 
 ## 📊 Vérifications de Performance
 
-### Performance Webhook (< 1s)
+### Webhook (< 1 s)
 
-**Test:**
+Le script `/tmp/send-webhook.sh` affiche `time_total`. Répéter 5 fois et vérifier que toutes les valeurs sont sous 1 s.
+
+### Worker
+
 ```bash
-# Mesurer le temps de réponse du webhook
-time curl -X POST http://localhost:3000/api/webhooks/twilio \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -H "X-Twilio-Signature: test" \
-  -d "MessageSid=SM123&From=whatsapp:+33612345678&Body=Test&To=whatsapp:+1234567890"
+# Dans les logs worker, chercher :
+processingTimeMs
 ```
 
-**Résultat attendu:**
-- ✅ Temps total < 1 seconde
-- ✅ Logs montrent `elapsedMs < 1000`
-
----
-
-### Performance Worker
-
-**Vérification logs:**
-```bash
-# Chercher les temps de traitement
-grep "processingTimeMs" logs
-```
-
-**Résultat attendu:**
-- ✅ Temps de traitement < 500ms (normal)
-- ✅ Métriques loggées toutes les 100 jobs ou 5 minutes
+Le worker tourne en `localConcurrency: 5`, `batchSize: 1`.
 
 ---
 
 ## 🛠️ Outils de Debug
 
-### Vérifier la queue BullMQ
+### Inspecter la queue pg-boss
 
-**Via Upstash Dashboard:**
-1. Aller sur [Upstash Console](https://console.upstash.com)
-2. Sélectionner votre Redis instance
-3. Vérifier la queue `webhook-processing`
-4. Voir les jobs: waiting, active, completed, failed
-
-**Via CLI (si Redis local):**
-```bash
-redis-cli
-> KEYS bull:webhook-processing:*
-> LLEN bull:webhook-processing:waiting
+```sql
+SELECT name, state, COUNT(*)
+FROM pgboss.job
+GROUP BY name, state
+ORDER BY name, state;
 ```
 
----
-
-### Vérifier les Event Logs
-
-**Requête SQL utile:**
+Jobs en échec :
 ```sql
--- Voir tous les événements récents pour un tenant
-SELECT 
-  event_type,
-  entity_type,
-  correlation_id,
-  payload,
-  created_at
-FROM event_log
-WHERE tenant_id = '<tenant-id>'
-ORDER BY created_at DESC
+SELECT id, name, state, output, created_on
+FROM pgboss.job
+WHERE state IN ('failed', 'retry')
+ORDER BY created_on DESC
 LIMIT 20;
-
--- Voir tous les événements d'un flux (même correlation_id)
-SELECT 
-  event_type,
-  entity_type,
-  entity_id,
-  payload,
-  created_at
-FROM event_log
-WHERE correlation_id = '<correlation-id>'
-ORDER BY created_at ASC;
 ```
 
----
-
-### Vérifier les Messages In
-
-**Requête SQL utile:**
+Schedules cron actifs :
 ```sql
--- Voir les messages entrants récents
-SELECT 
-  id,
-  tenant_id,
-  provider_message_id,
-  from,
-  body,
-  correlation_id,
-  created_at
-FROM messages_in
-WHERE tenant_id = '<tenant-id>'
-ORDER BY created_at DESC
-LIMIT 10;
+SELECT name, cron, timezone FROM pgboss.schedule ORDER BY name;
+```
 
--- Vérifier idempotence (ne doit pas y avoir de doublons)
-SELECT 
-  provider_message_id,
-  COUNT(*) as count
-FROM messages_in
-WHERE tenant_id = '<tenant-id>'
-GROUP BY provider_message_id
-HAVING COUNT(*) > 1;
--- Résultat attendu: 0 lignes (pas de doublons)
+### Explorer la base
+
+```bash
+npm run db:studio
 ```
 
 ---
 
 ## ✅ Checklist de Validation Epic 2
 
-### Story 2.1 ✅
-- [ ] Webhook répond < 1s
-- [ ] MessageIn persisté correctement
-- [ ] Job enqueued dans BullMQ
-- [ ] Idempotence fonctionne (doublon → 200 sans retraitement)
-- [ ] Vérification signature (production)
-- [ ] Tests unitaires passent (`npm test`)
+**Story 2.1**
+- [ ] Challenge GET répond 200 avec le challenge
+- [ ] Webhook répond 200 en < 1 s
+- [ ] Signature invalide rejetée avant résolution du tenant
+- [ ] Doublon (même `wamid`) ignoré, pas de second MessageIn
+- [ ] Tenant inconnu → MessageIn avec `tenantId = null`, aucun job
+- [ ] Job `webhook-processing` créé puis complété
 
-### Story 2.2 ✅
-- [ ] Routing client fonctionne (numéro non vendeur → messageType = "client")
-- [ ] Routing vendeur fonctionne (numéro vendeur → messageType = "seller")
-- [ ] Normalisation numéros (préfixe whatsapp: géré)
-- [ ] Worker traite les jobs correctement
-- [ ] Tests unitaires passent (`npm test`)
+**Story 2.2**
+- [ ] Message client → `messageType: "client"`
+- [ ] Message vendeur → `messageType: "seller"`
+- [ ] Numéros Meta (sans `+`) correctement normalisés
 
-### Story 2.3 ✅
-- [ ] Event `webhook_received` créé après persist MessageIn
-- [ ] Event `idempotent_ignored` créé quand doublon détecté
-- [ ] CorrelationId propagé correctement dans tous les événements
-- [ ] Payload sans PII (validation fonctionne)
-- [ ] Race condition correlationId corrigée
-- [ ] Tests unitaires passent (`npm test -- src/server/events/eventLog.test.ts`)
+**Story 2.3**
+- [ ] `webhook_received` créé
+- [ ] `idempotent_ignored` créé sur doublon
+- [ ] `correlation_id` propagé de bout en bout
+- [ ] Aucune PII dans `payload`
+
+**Story 2.4**
+- [ ] MessageOut passe de `pending` à `sent`
+- [ ] Callback visible en `DELIVERED` dans la console QStash
+- [ ] DLQ alimentée après épuisement des retries
+
+**Story 2.5**
+- [ ] STOP crée une ligne `opt_outs` scopée au tenant
+- [ ] Message sortant bloqué après STOP
 
 ---
 
@@ -675,127 +491,65 @@ HAVING COUNT(*) > 1;
 
 ### Webhook ne répond pas
 
-**Vérifications:**
-1. Next.js démarré (`npm run dev`)
-2. URL webhook accessible (ngrok si local)
-3. Variables d'environnement configurées
-4. Logs Next.js pour erreurs
-
-**Solution:**
 ```bash
-# Vérifier que le serveur écoute
-curl http://localhost:3000/api/webhooks/twilio
-# Doit retourner 405 (Method Not Allowed) ou erreur, pas de timeout
+curl -i "http://localhost:3000/api/webhooks/meta?hub.mode=subscribe&hub.verify_token=wrong&hub.challenge=x"
 ```
-
----
+Un **403** confirme que la route est bien montée.
 
 ### Worker ne traite pas les jobs
 
-**Vérifications:**
-1. Worker démarré (`npm run dev:worker`)
-2. REDIS_URL configurée et accessible
-3. Jobs présents dans la queue (Upstash dashboard)
-4. Logs worker pour erreurs
+1. Le worker est-il démarré ? (`npm run dev:worker`)
+2. Y a-t-il des jobs en attente ?
+   ```sql
+   SELECT COUNT(*) FROM pgboss.job WHERE name = 'webhook-processing' AND state = 'created';
+   ```
+3. **`DATABASE_URL` identique** entre Next.js et le worker ? La queue vit dans Postgres — s'ils pointent sur deux bases différentes, rien n'est consommé.
+4. URL Neon **directe** (pas `-pooler.`) ? pg-boss est incompatible avec PgBouncer en transaction mode.
 
-**Solution:**
-```bash
-# Vérifier connexion Redis
-node -e "
-const Redis = require('ioredis');
-const redis = new Redis(process.env.REDIS_URL);
-redis.ping().then(() => console.log('Redis OK')).catch(console.error);
-"
-```
+### Messages sortants jamais envoyés
 
----
+Voir **Test 4.2** — dans la grande majorité des cas, `QSTASH_TOKEN` ou `NEXT_PUBLIC_APP_URL` manque.
 
 ### Event Log non créé
 
-**Vérifications:**
-1. Migration `20260209000000_add_event_log` appliquée
-2. Table `event_log` existe en DB
-3. Logs webhook/worker pour erreurs event_log
-
-**Solution:**
-```sql
--- Vérifier que la table existe
-SELECT * FROM event_log LIMIT 1;
-
--- Vérifier les permissions
-\dt event_log
-```
+Vérifier que le tenant est bien résolu : `event_log.tenant_id` est **NOT NULL**, donc aucun événement n'est écrit pour un message dont le tenant n'a pas pu être identifié.
 
 ---
 
 ## 📝 Notes de Test
 
-**Environnement de test recommandé:**
-- Base de données de test séparée (pas production)
-- Redis de test séparé (ou namespace différent)
-- Numéros WhatsApp de test Twilio
+- **Numéros de test :** utiliser des numéros de test Meta (WhatsApp Business Platform) ou un vrai numéro connecté en sandbox.
+- **Tunnel local :** pour recevoir de vrais webhooks Meta en local, exposer `localhost:3000` (ngrok ou équivalent) et déclarer l'URL publique dans la configuration du webhook Meta.
+- **Signature en local :** la vérification s'appuie sur `META_APP_SECRET` ; le script fourni plus haut évite d'avoir à passer par Meta pour tester.
+- **Isolation tenant :** tous les tests doivent être rejoués avec un second tenant pour confirmer qu'aucune donnée ne fuit entre tenants.
 
-**Données de test:**
-- Créer un tenant de test avec `whatsappPhoneNumber` configuré
-- Ajouter des seller_phones de test
-- Utiliser des MessageSid de test pour idempotence
+---
 
-**Nettoyage après tests:**
-```sql
--- Nettoyer les données de test (optionnel)
-DELETE FROM event_log WHERE tenant_id = '<test-tenant-id>';
-DELETE FROM messages_in WHERE tenant_id = '<test-tenant-id>';
-DELETE FROM seller_phones WHERE tenant_id = '<test-tenant-id>';
+## 📚 Ressources
+
+**Documentation interne**
+- [DEPLOYMENT.md](DEPLOYMENT.md) — déploiement, variables d'environnement, troubleshooting production
+- [src/server/workers/README.md](src/server/workers/README.md) — architecture worker, queues, crons
+- [_bmad-output/planning-artifacts/architecture.md](_bmad-output/planning-artifacts/architecture.md) — décisions d'architecture
+
+**Commandes utiles**
+```bash
+npm run dev
 ```
-
----
-
-## 🎯 Prochaines Stories (non testées)
-
-- **Story 2.4:** Envoi sortant via outbox + retries + DLQ (backlog)
-- **Story 2.5:** Respect du STOP scope tenant (backlog)
-- **Story 2.6:** Création et fermeture automatiques de la session live (backlog)
-
-Ces stories seront testées lors de leur implémentation.
-
----
-
-## 📚 Ressources Utiles
-
-### Documentation
-- **DEPLOYMENT.md** - Guide de déploiement pour Stories 2.1 & 2.2
-- **src/server/workers/README.md** - Documentation technique du worker
-- **Architecture** - Voir `_bmad-output/planning-artifacts/architecture.md`
-
-### Commandes Utiles
-
-**Prisma Studio (interface graphique DB):**
+```bash
+npm run dev:worker
+```
 ```bash
 npm run db:studio
-# Ouvre http://localhost:5555 pour explorer la base de données
 ```
-
-**Vérifier le statut des migrations:**
 ```bash
-npx prisma migrate status
+npm test
 ```
-
-**Générer les types Prisma:**
-```bash
-npm run db:generate
-```
-
-**Type checking:**
 ```bash
 npm run typecheck
 ```
 
-**Build de production:**
-```bash
-npm run build
-```
-
-### Liens Externes
-- [Upstash Console](https://console.upstash.com) - Monitoring Redis/BullMQ
-- [Neon Console](https://console.neon.tech) - Monitoring PostgreSQL
-- [Twilio Console](https://console.twilio.com) - Configuration webhooks WhatsApp
+**Liens externes**
+- [Meta WhatsApp Cloud API](https://developers.facebook.com/docs/whatsapp/cloud-api) — payloads webhook, envoi de messages
+- [Upstash Console](https://console.upstash.com) — QStash (envoi sortant) et Redis (rate limiting)
+- [Neon Console](https://console.neon.tech) — base de données et queue pg-boss

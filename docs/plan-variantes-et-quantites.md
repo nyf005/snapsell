@@ -2,11 +2,16 @@
 
 Ce document détaille la stratégie et le suivi de l'évolution de SnapSell pour supporter les variantes d'articles (tailles, couleurs, etc.) et les commandes clients à quantités multiples.
 
-## Situation Actuelle
-- Un article est identifié uniquement par un `code` (A12).
-- La gestion des variantes nécessite la création de codes multiples par le vendeur.
-- Les clients ne peuvent réserver qu'une unité à la fois.
-- Le système de stock est binaire (disponible/réservé) par unité de 1.
+> ## ✅ Plan terminé
+> Toutes les phases sont livrées. Ce document est conservé comme **trace de conception**, pas comme travail à faire.
+>
+> **Implémentation en place :** modèle `ItemVariant` (Prisma), `Reservation.quantity` et `Reservation.variantId`, [`variantSelection.ts`](../src/server/conversation/variantSelection.ts) pour le dialogue client, [`sellerVariantConfig.ts`](../src/server/conversation/sellerVariantConfig.ts) pour la configuration vendeur.
+
+## Situation de départ _(avril 2026, avant ce chantier)_
+- Un article était identifié uniquement par un `code` (A12).
+- La gestion des variantes imposait au vendeur de créer des codes multiples.
+- Les clients ne pouvaient réserver qu'une unité à la fois.
+- Le système de stock était binaire (disponible/réservé) par unité de 1.
 
 ---
 
@@ -53,5 +58,5 @@ Ce document détaille la stratégie et le suivi de l'évolution de SnapSell pour
 ## Suivi des Étapes
 *Utilisez cette section pour noter toute décision architecturale prise en cours de route.*
 
-- **Date :** 11 Avril 2026
-- **Statut :** Initialisation du plan.
+- **11 avril 2026** — Initialisation du plan.
+- **28 juillet 2026** — Plan clôturé : les 4 phases sont livrées et vérifiées dans le code. La syntaxe `A12 x3` et le questionnement par étapes sont en production.
