@@ -269,12 +269,15 @@ export default async function TarifsPage(props: TarifsPageProps) {
 
             {/*
               Même échelle typographique que le hero du landing
-              (src/app/_components/landing/hero-section.tsx) : 30 / 36 / 48 px.
+              (src/app/_components/landing/hero-section.tsx) : 30 / 36 / 44 px.
               Les deux titres se lisaient à des tailles très différentes — 36 px
               ici contre 60 px là — ce qui donnait l'impression de deux pages
               conçues séparément.
+
+              44px et non 48 : c'est la contrainte du landing, dont l'accroche
+              passe à quatre lignes au-delà. La valeur est donc fixée là-bas.
             */}
-            <h1 className="font-display text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl">
+            <h1 className="font-display text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-[2.75rem]">
               Un plan pour chaque{" "}
               <span className="hero-gradient-text">vendeur</span>
             </h1>

@@ -27,7 +27,11 @@ export function HeroSection({ user }: HeroSectionProps) {
           : "flex flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-16 max-w-6xl"
       )}>
         <div className={cn(
-          isLoggedIn ? "contents" : "flex flex-1 flex-col gap-8 max-lg:items-center max-lg:text-center text-left lg:max-w-2xl"
+          // 47rem (748px) plutôt que 2xl (672px) : les tournures parlées sont
+          // plus longues que les tournures écrites, et 672px les cassait en
+          // trois lignes. Mesuré — la colonne visuelle garde ses 340px et la
+          // page ne déborde pas, la marge venait du `justify-between`.
+          isLoggedIn ? "contents" : "flex flex-1 flex-col gap-8 max-lg:items-center max-lg:text-center text-left lg:max-w-[47rem]"
         )}>
           {isLoggedIn ? (
             <>
@@ -71,49 +75,77 @@ export function HeroSection({ user }: HeroSectionProps) {
 
               <AnimateEntrance delay={400}>
                 {/*
-                  Accroche narrative, et non slogan : 109 caractères, elle tient
-                  en trois lignes à 2.25rem dans les 672px de la colonne. Une
-                  taille supérieure la ferait passer à quatre lignes et
-                  repousserait les boutons sous la ligne de flottaison.
+                  Niveau de langue revu après retour de vendeurs : les tournures
+                  d'écrit (infinitif sans sujet, « reconstituer », « réclamer »,
+                  « classer ») ont été remplacées par la langue parlée.
 
-                  Un titre gros et gras se lit spontanément comme une promesse.
-                  Or celui-ci énonce le PROBLÈME. Le repère « Aujourd'hui » le
-                  date donc explicitement comme la situation actuelle, et le
-                  sous-titre lui répond par « Avec SnapSell ». C'est le même
-                  couple avant/après que `marketing.contrast`, porté dans le hero.
+                  Conséquence assumée : ces formulations sont plus longues. Le
+                  titre occupe trois lignes au lieu de deux — aucune taille
+                  raisonnable ne le tiendrait en deux sans amputer « aux clients »
+                  et « vous cherchez encore », c'est-à-dire exactement ce qui le
+                  rend naturel.
 
-                  Le titre garde la pleine couleur : l'atténuer le ferait passer
-                  pour secondaire. C'est le dégradé de la chute, plus bas, qui
-                  signale où va l'histoire.
+                  Un titre gros et gras se lit comme une promesse, or celui-ci
+                  énonce le PROBLÈME : le repère « Aujourd'hui » le date comme la
+                  situation actuelle, et « Avec SnapSell » plus bas lui répond.
+                  C'est le couple avant/après de `marketing.contrast`.
+
+                  Pas de <br> forcé ni de `text-wrap: balance` : chaque phrase
+                  dépasse la largeur de la colonne, et `balance` égalise les
+                  longueurs au prix d'une ligne supplémentaire (mesuré : 4 lignes
+                  contre 3). On laisse la coupure naturelle remplir les lignes.
+
+                  2rem (32px) : c'est la douleur, elle accroche mais ne doit pas
+                  écraser la promesse. À 44px elle occupait presque deux fois
+                  plus de place visuelle que la chute — un visiteur qui ne lisait
+                  que le plus gros repartait avec le problème, sans la solution.
+                  Bénéfice au passage : le titre tient en deux lignes au lieu de
+                  trois (mesuré : 3 lignes dès 34px).
                 */}
-                <h1 className="font-display text-3xl font-extrabold leading-[1.15] tracking-tight text-[var(--hero-fg)] sm:text-4xl lg:text-5xl">
-                  <span className="mb-3 block text-sm font-bold uppercase tracking-[0.2em] text-[var(--hero-fg-subtle)]">
+                <h1 className="font-display text-2xl font-extrabold leading-[1.15] tracking-tight text-[var(--hero-fg)] sm:text-3xl lg:text-[2rem]">
+                  <span className="mb-3 block text-[13px] font-bold uppercase tracking-[0.2em] text-[var(--hero-fg-subtle)]">
                     Aujourd’hui
                   </span>
-                  Toute la journée à répondre.{" "}
-                  <br className="hidden sm:block" />
-                  Le soir, à tout reconstituer.
+                  Toute la journée, vous répondez aux clients. Le soir, vous
+                  cherchez encore qui a commandé quoi.
                 </h1>
               </AnimateEntrance>
 
               <AnimateEntrance delay={650}>
                 <div className="flex max-w-xl flex-col gap-4 text-lg leading-relaxed text-[var(--hero-fg-muted)] lg:text-[1.35rem]">
-                  <p>
-                    <span className="font-bold text-[var(--hero-fg)]">
-                      Avec SnapSell
-                    </span>
-                    , vous ne répondez plus. Il réserve la pièce, réclame
-                    l’adresse, classe la preuve de paiement avec la bonne
-                    commande et libère les réservations non confirmées.
+                  {/*
+                    « Avec SnapSell » devient un repère à part entière, en écho
+                    exact au « Aujourd'hui » du titre : deux étiquettes de même
+                    forme, l'une pour l'avant, l'autre pour l'après.
+                  */}
+                  {/*
+                    « Avec » reste gris, comme le repère « Aujourd'hui » auquel
+                    il répond : ce sont deux mots de structure, ils s'écrivent
+                    pareil. Seul le NOM DU PRODUIT prend le dégradé — le même
+                    que la chute, plus bas. Nom et promesse portent ainsi le
+                    même traitement, sans toucher au logo de l'en-tête.
+                  */}
+                  <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-[var(--hero-fg-subtle)]">
+                    Avec <span className="hero-gradient-text">SnapSell</span>
+                  </p>
+                  <p className="font-medium">
+                    Votre assistant répond aux clients, enregistre chaque
+                    commande et y ajoute l’adresse du client et la capture de son
+                    paiement.
                   </p>
                   {/*
-                    La chute porte le dégradé : c'est le seul endroit coloré du
-                    hero, donc le point où l'œil se pose en dernier. Pas de
-                    classe de couleur ici — `hero-gradient-text` peint le texte
-                    lui-même, une couleur explicite la recouvrirait.
+                    Le dégradé porte la promesse ET le nom du produit juste
+                    au-dessus : les deux se répondent. Pas de classe de couleur
+                    ici — `hero-gradient-text` peint le texte lui-même, une
+                    couleur explicite la recouvrirait.
+
+                    Même taille que le titre (2rem) : à poids égal, c'est la
+                    couleur qui fait gagner la promesse. Elle reste sur deux
+                    lignes jusqu'à 36px, la marge est donc confortable.
                   */}
-                  <p className="hero-gradient-text text-xl font-extrabold lg:text-[1.6rem]">
-                    Vous n’avez plus qu’à emballer et faire livrer.
+                  <p className="hero-gradient-text text-2xl font-extrabold lg:text-[2rem]">
+                    Vous n’avez plus qu’à emballer les colis et les confier au
+                    livreur.
                   </p>
                 </div>
               </AnimateEntrance>
