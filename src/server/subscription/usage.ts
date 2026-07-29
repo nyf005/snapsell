@@ -16,6 +16,7 @@
  * `chargeAuthorization()` reste disponible dans `server/payment/paystack.ts`.
  */
 
+import { ASSIGNABLE_ROLES } from "~/lib/rbac";
 import { db } from "~/server/db";
 
 /**
@@ -90,13 +91,18 @@ async function countProofsThisCycle(
 }
 
 /**
- * Count active agents (users with role AGENT) for a tenant.
+ * Compte les sièges occupés d'une boutique — toute personne sauf le Propriétaire.
+ *
+ * Ne comptait que `role: "AGENT"`, ce qui ouvrait deux trous dans la limite vendue
+ * sur la page Tarifs : promouvoir un Agent en Manager libérait un siège, et inviter
+ * directement en Manager ou en Vente n'en consommait aucun. Le critère vit dans
+ * `ASSIGNABLE_ROLES` / `occupiesSeat` (`~/lib/rbac`), d'où les deux formes tiennent.
  */
-async function countActiveAgents(tenantId: string): Promise<number> {
+async function countOccupiedSeats(tenantId: string): Promise<number> {
   return db.user.count({
     where: {
       tenantId,
-      role: "AGENT",
+      role: { in: [...ASSIGNABLE_ROLES] },
     },
   });
 }
@@ -139,7 +145,7 @@ export async function getUsageThisCycle(tenantId: string): Promise<UsageThisCycl
     countCreditsUsedThisCycle(tenantId, cycleStart, tenant.creditsTotalMonthly, tenant.creditsBalance),
     countConfirmedOrdersThisCycle(tenantId, cycleStart),
     countProofsThisCycle(tenantId, cycleStart),
-    countActiveAgents(tenantId),
+    countOccupiedSeats(tenantId),
   ]);
 
   const overageCount = Math.max(0, used - tenant.creditsTotalMonthly);
@@ -208,7 +214,7 @@ export async function checkAgentsQuota(tenantId: string): Promise<AgentsQuotaChe
     where: { id: tenantId },
     select: { maxAgents: true },
   });
-  const currentCount = await countActiveAgents(tenantId);
+  const currentCount = await countOccupiedSeats(tenantId);
   return {
     allowed: currentCount < tenant.maxAgents,
     currentCount,

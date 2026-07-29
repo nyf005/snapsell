@@ -101,10 +101,15 @@ export function UsageDashboard({ data }: UsageDashboardProps) {
             label="Preuves de paiement"
             icon={FileCheck}
           />
+          {/*
+            Un siège = une personne invitée, quel que soit son rôle (cf.
+            `countOccupiedSeats`). Le libellé disait « Agents » alors que la barre
+            compte aussi les Managers et la Vente.
+          */}
           <UsageBar
             current={data.agents}
             max={data.maxAgents}
-            label="Agents"
+            label="Membres de l’équipe"
             icon={Users}
           />
         </div>
@@ -113,7 +118,7 @@ export function UsageDashboard({ data }: UsageDashboardProps) {
           <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-sm">
             <p className="flex items-center gap-2 font-medium text-red-800 dark:text-red-200">
               <AlertTriangle className="size-3.5 shrink-0" />
-              Limite agents atteinte — passez au plan Starter
+              Limite de membres atteinte — passez au plan Starter
             </p>
           </div>
         )}

@@ -12,6 +12,7 @@ vi.mock("~/server/db", () => ({
   },
 }));
 
+import { ASSIGNABLE_ROLES } from "~/lib/rbac";
 import { db } from "~/server/db";
 import { getUsageThisCycle, checkProofsQuota, checkAgentsQuota } from "./usage";
 
@@ -154,6 +155,32 @@ describe("Story 7A.2: Usage service", () => {
 
       expect(result.allowed).toBe(true);
       expect(result.currentCount).toBe(3);
+    });
+
+    /**
+     * Le siège est vendu par personne, pas par rôle.
+     *
+     * Le compteur ne regardait que `role: "AGENT"`, ce qui ouvrait deux
+     * contournements de la limite affichée sur la page Tarifs (free 0, starter 1,
+     * pro 5) : promouvoir un Agent en Manager libérait un siège, et inviter
+     * directement en Manager ou en Vente n'en consommait aucun. Les autres tests
+     * du bloc bouchonnent `db.user.count` et ne peuvent donc pas voir le critère.
+     */
+    it("compte tous les rôles assignables, Propriétaire exclu", async () => {
+      vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
+        maxAgents: 5,
+      } as never);
+      vi.mocked(db.user.count).mockResolvedValue(0);
+
+      await checkAgentsQuota("tenant-1");
+
+      expect(db.user.count).toHaveBeenCalledWith({
+        where: { tenantId: "tenant-1", role: { in: [...ASSIGNABLE_ROLES] } },
+      });
+      expect(ASSIGNABLE_ROLES).toEqual(
+        expect.arrayContaining(["MANAGER", "VENDEUR", "AGENT"]),
+      );
+      expect(ASSIGNABLE_ROLES).not.toContain("OWNER");
     });
   });
 });

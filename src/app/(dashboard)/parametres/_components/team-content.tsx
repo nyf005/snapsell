@@ -7,7 +7,8 @@ import { MoreVertical, Search, UserPlus, Users } from "lucide-react";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import { api } from "~/trpc/react";
-import { formatErrorText } from "~/lib/copy";
+import { formatErrorText, roleDescription, roleLabel } from "~/lib/copy";
+import { ASSIGNABLE_ROLES, occupiesSeat, type AssignableRole } from "~/lib/rbac";
 import { DataList } from "~/components/ui/data-list";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
@@ -83,12 +84,14 @@ function formatLastActive(updatedAt: Date): string {
   return updatedAt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 }
 
-function formatRole(role: string): string {
-  if (role === "OWNER") return "Admin";
-  if (role === "MANAGER") return "Manager";
-  if (role === "AGENT") return "Agent";
-  return role;
-}
+/**
+ * Les libellés de rôle viennent de `roleLabel` (`~/lib/copy/terms`).
+ *
+ * Un `formatRole` local vivait ici : il disait « Admin » quand le vocabulaire
+ * canonique dit « Propriétaire », et n'avait pas de cas VENDEUR — un membre en
+ * rôle Vente affichait donc `VENDEUR` brut, l'énumération que `terms.ts` a
+ * précisément pour mission de ne jamais laisser atteindre l'écran.
+ */
 
 function MemberAvatar({ initials, isPrimary }: { initials: string; isPrimary?: boolean }) {
   return (
@@ -120,19 +123,19 @@ function StatusCell({ status }: { status: string }) {
   );
 }
 
-type RoleOption = "MANAGER" | "AGENT";
-
 export function TeamContent() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteEmailError, setInviteEmailError] = useState<string | null>(null);
   const [createdInviteLink, setCreatedInviteLink] = useState<string | null>(null);
+  /** Rôle attribué à l'invitation. Défaut au plus étroit, comme le schéma serveur. */
+  const [inviteRole, setInviteRole] = useState<AssignableRole>("AGENT");
 
   // Dialog: modifier le rôle
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
-  const [roleTarget, setRoleTarget] = useState<{ id: string; name: string; currentRole: RoleOption } | null>(null);
-  const [selectedRole, setSelectedRole] = useState<RoleOption>("AGENT");
+  const [roleTarget, setRoleTarget] = useState<{ id: string; name: string; currentRole: AssignableRole } | null>(null);
+  const [selectedRole, setSelectedRole] = useState<AssignableRole>("AGENT");
 
   // Dialog : retirer de l'équipe
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
@@ -176,7 +179,7 @@ export function TeamContent() {
       name: m.name,
       email: m.email,
       initials: getInitials(m.name, m.email),
-      role: formatRole(m.role),
+      role: roleLabel(m.role),
       rawRole: m.role,
       status: "Active" as const,
       lastActive: formatLastActive(m.updatedAt),
@@ -188,7 +191,7 @@ export function TeamContent() {
       name: inv.email.split("@")[0] ?? "Invité",
       email: inv.email,
       initials: getInitials(inv.email.split("@")[0] ?? "", inv.email),
-      role: formatRole(inv.role),
+      role: roleLabel(inv.role),
       rawRole: inv.role,
       status: "Pending" as const,
       lastActive: "N/A",
@@ -208,11 +211,15 @@ export function TeamContent() {
 
   const stats = useMemo(() => {
     const total = allMembers.length;
-    const activeAgents = allMembers.filter(
-      (m) => m.role === "Agent" && m.status === "Active",
+    // Les personnes qui occupent un siège, Propriétaire exclu — même critère que
+    // le quota d'abonnement. Le filtre portait sur `m.role === "Agent"`, donc sur
+    // le libellé traduit : renommer « Agent » à l'écran cassait le compteur en
+    // silence, et un Manager n'y était jamais compté.
+    const activeSeats = allMembers.filter(
+      (m) => m.status === "Active" && occupiesSeat(m.rawRole),
     ).length;
     const pendingInvites = allMembers.filter((m) => m.status === "Pending").length;
-    return { total, activeAgents, pendingInvites };
+    return { total, activeSeats, pendingInvites };
   }, [allMembers]);
 
   const handleInviteSubmit = (e: React.FormEvent) => {
@@ -222,7 +229,7 @@ export function TeamContent() {
     const email = inviteEmail.trim();
     if (!email) { setInviteEmailError("L'adresse email est requise."); return; }
     if (!isValidEmail(email)) { setInviteEmailError("Adresse email invalide."); return; }
-    createInvitation.mutate({ email });
+    createInvitation.mutate({ email, role: inviteRole });
   };
 
   const closeInviteModal = (open: boolean) => {
@@ -230,6 +237,7 @@ export function TeamContent() {
     if (!open) {
       setInviteEmailError(null);
       setInviteEmail("");
+      setInviteRole("AGENT");
       setCreatedInviteLink(null);
     }
   };
@@ -241,7 +249,10 @@ export function TeamContent() {
   };
 
   const openRoleDialog = (member: { id: string; name: string; rawRole: string }) => {
-    const currentRole = (member.rawRole === "MANAGER" ? "MANAGER" : "AGENT") as RoleOption;
+    // Un rôle hors liste assignable — OWNER — n'ouvre pas ce dialogue : le menu ne
+    // propose pas l'entrée, et `team.updateRole` la refuserait. Le repli sur AGENT
+    // ne sert donc qu'à satisfaire le typage.
+    const currentRole = occupiesSeat(member.rawRole) ? member.rawRole : "AGENT";
     setRoleTarget({ id: member.id, name: member.name, currentRole });
     setSelectedRole(currentRole);
     setRoleDialogOpen(true);
@@ -285,7 +296,7 @@ export function TeamContent() {
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <KpiCard label="Total membres" value={stats.total} icon={Users} iconVariant="primary" />
-          <KpiCard label="Agents actifs" value={stats.activeAgents} icon={Users} iconVariant="success" />
+          <KpiCard label="Membres actifs" value={stats.activeSeats} icon={Users} iconVariant="success" />
           <KpiCard
             label="Invitations en attente"
             value={stats.pendingInvites}
@@ -490,21 +501,29 @@ export function TeamContent() {
                   </p>
                 )}
               </fieldset>
-              <fieldset className="space-y-2" aria-labelledby="invite-role-label">
-                <span id="invite-role-label" className="text-sm font-medium">Rôle attribué</span>
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-primary bg-primary/5 p-4">
-                  <UserPlus className="mb-2 size-6 text-primary" aria-hidden />
-                  <span className="text-sm font-bold text-primary">Agent</span>
-                  <span className="text-center text-[10px] text-muted-foreground">
-                    Accès support standard (scope story 1-7)
-                  </span>
-                </div>
+              <fieldset className="space-y-2">
+                <Label htmlFor="invite-role">Rôle attribué</Label>
+                <Select
+                  value={inviteRole}
+                  onValueChange={(v) => setInviteRole(v as AssignableRole)}
+                  disabled={createInvitation.isPending}
+                >
+                  <SelectTrigger id="invite-role" className="h-9 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ASSIGNABLE_ROLES.map((role) => (
+                      <SelectItem key={role} value={role}>
+                        {roleLabel(role)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </fieldset>
               <Alert variant="default" className="rounded-lg bg-muted py-4">
                 <Info className="size-5 text-muted-foreground" />
                 <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
-                  Les agents peuvent gérer les annonces et discuter avec les clients,
-                  mais ne peuvent pas modifier la facturation ni supprimer la boutique.
+                  {roleDescription(inviteRole)}
                 </AlertDescription>
               </Alert>
               <DialogFooter className="flex gap-3 pt-2">
@@ -512,7 +531,7 @@ export function TeamContent() {
                   type="button"
                   variant="secondary"
                   className="flex-1"
-                  onClick={() => setInviteOpen(false)}
+                  onClick={() => closeInviteModal(false)}
                   disabled={createInvitation.isPending}
                 >
                   Annuler
@@ -540,17 +559,21 @@ export function TeamContent() {
               <Label htmlFor="role-select">Nouveau rôle</Label>
               <Select
                 value={selectedRole}
-                onValueChange={(v) => setSelectedRole(v as RoleOption)}
+                onValueChange={(v) => setSelectedRole(v as AssignableRole)}
                 disabled={updateRole.isPending}
               >
                 <SelectTrigger id="role-select" className="h-9 w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="MANAGER">Manager</SelectItem>
-                  <SelectItem value="AGENT">Agent</SelectItem>
+                  {ASSIGNABLE_ROLES.map((role) => (
+                    <SelectItem key={role} value={role}>
+                      {roleLabel(role)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">{roleDescription(selectedRole)}</p>
             </div>
             {updateRole.error && (
               <p className="text-xs text-destructive" role="alert">{formatErrorText(updateRole.error, "team")}</p>

@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ASSIGNABLE_ROLES } from "~/lib/rbac";
 import { createCaller } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
 
@@ -119,6 +120,51 @@ describe("invitations router", () => {
       });
       expect(createInvitationMock.mock.calls[0]?.[0]?.data).not.toHaveProperty("token");
       expect(mockTransaction).toHaveBeenCalled();
+    });
+
+    /**
+     * Le rôle attribué vient de l'appelant.
+     *
+     * Il était écrit `role: "AGENT"` en dur : toute personne invitée devenait
+     * Agent, et le formulaire affichait une carte « Agent » non interactive.
+     * VENDEUR, pourtant présent dans l'enum Prisma et dans `roleLabel`, n'était
+     * attribuable par aucun chemin — `team.updateRole` ne l'acceptait pas non plus.
+     */
+    it.each(ASSIGNABLE_ROLES)("persiste le rôle %s choisi à l'invitation", async (role) => {
+      mockInvitationFindFirst.mockResolvedValue(null);
+      const createInvitationMock = vi.fn().mockResolvedValue({
+        id: "inv-1",
+        tenantId: "tenant-1",
+        email: "membre@example.com",
+        role,
+        tokenHash: "hash-123",
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        consumedAt: null,
+        createdAt: new Date(),
+      });
+
+      mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+        fn({
+          invitation: {
+            findFirst: vi.fn().mockResolvedValue(null),
+            create: createInvitationMock,
+          },
+        }),
+      );
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: mockSession as any,
+      });
+
+      await createCaller(ctx).invitations.createInvitation({
+        email: "membre@example.com",
+        role,
+      });
+
+      expect(createInvitationMock).toHaveBeenCalledWith({
+        data: expect.objectContaining({ email: "membre@example.com", role }),
+      });
     });
 
     it("creates invitation successfully for Manager", async () => {

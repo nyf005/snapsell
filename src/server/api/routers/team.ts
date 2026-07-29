@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
-import { canManageGrid } from "~/lib/rbac";
+import { ASSIGNABLE_ROLES, canManageGrid } from "~/lib/rbac";
 import { db } from "~/server/db";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
@@ -37,7 +37,7 @@ export const teamRouter = createTRPCRouter({
   }),
 
   updateRole: protectedProcedure
-    .input(z.object({ userId: z.string(), role: z.enum(["MANAGER", "AGENT"]) }))
+    .input(z.object({ userId: z.string(), role: z.enum(ASSIGNABLE_ROLES) }))
     .mutation(async ({ ctx, input }) => {
       if (!canManageGrid(ctx.session.user.role as string)) {
         throw new TRPCError({ code: "FORBIDDEN", message: "Permission insuffisante." });

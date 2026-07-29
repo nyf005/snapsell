@@ -34,7 +34,13 @@ const invitationLogger = createLogger("Invitation");
  */
 function logInvitationAction(
   action: "create" | "accept" | "list" | "get",
-  data: { tenantId?: string; email?: string; invitationId?: string; error?: string },
+  data: {
+    tenantId?: string;
+    email?: string;
+    invitationId?: string;
+    role?: string;
+    error?: string;
+  },
 ) {
   invitationLogger.info(`Invitation ${action}`, data);
 }
@@ -142,7 +148,7 @@ export const invitationsRouter = createTRPCRouter({
           data: {
             tenantId,
             email: input.email,
-            role: "AGENT",
+            role: input.role,
             tokenHash, // Hash SHA-256 du token
             expiresAt,
           },
@@ -152,6 +158,7 @@ export const invitationsRouter = createTRPCRouter({
           tenantId,
           email: input.email,
           invitationId: newInvitation.id,
+          role: input.role,
         });
 
         // Retourner invitation avec token original pour l'URL
