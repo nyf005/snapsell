@@ -42,6 +42,8 @@ import {
   parseSellerCreateItemIntent,
   parseSellerOffLiveCreateItemIntent,
 } from "~/server/catalogue/sellerCreateIntent";
+import { isSellerHelpRequest } from "~/server/messaging/seller-help";
+import { env } from "~/env";
 import {
   startVariantSelection,
   handleVariantChoice,
@@ -771,6 +773,23 @@ export async function processWebhookJob(
       });
       if (convState?.state === SELLER_VARIANT_CONFIG_STATE) {
         await handleSellerVariantConfigReply(tenantId, clientPhoneE164, body, correlationId);
+      } else if (isSellerHelpRequest(body)) {
+        // Avant le parsing d'intention, sinon « aide » suivrait le chemin des codes
+        // et repartirait en « Je n'ai pas compris ce code ».
+        //
+        // La réponse dépend de l'état du live : les commandes reconnues ne sont pas
+        // les mêmes des deux côtés.
+        await writeToOutbox({
+          tenantId,
+          to: clientPhoneE164,
+          body: botMsg.seller.help({
+            inLive: Boolean(liveSessionId),
+            ...(env.NEXT_PUBLIC_APP_URL
+              ? { helpUrl: `${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")}/aide` }
+              : {}),
+          }),
+          correlationId,
+        });
       } else {
         let intent = liveSessionId
           ? parseSellerCreateItemIntent(body)

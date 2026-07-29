@@ -341,6 +341,35 @@ export const botMsg = {
     offLiveCreateInstruction: () =>
       `ℹ️ Hors live, utilise *ajout A12* ou *ajout A12 x3* pour créer un article.`,
 
+    /**
+     * Réponse à « aide » envoyé depuis un numéro déclaré.
+     *
+     * Le texte change selon qu'un live est ouvert : en live le code seul suffit,
+     * hors live il faut le mot « ajout ». Donner les deux formes à la fois serait
+     * la meilleure façon de faire échouer la bonne.
+     *
+     * `helpUrl` est optionnel : sans `NEXT_PUBLIC_APP_URL`, la ligne du lien est
+     * simplement absente. Écrire « undefined » dans un message envoyé est
+     * exactement ce que `LEAK_PATTERNS` interdit à l'écran.
+     */
+    help: (opts: { inLive: boolean; helpUrl?: string }) => {
+      const commands = opts.inLive
+        ? `• *A12* — crée l’article A12\n` +
+          `• *A12 x3* — crée l’article avec 3 unités\n` +
+          `• une photo avec *A12* en légende — rattache la photo`
+        : `• *ajout A12* — ajoute A12 au catalogue\n` +
+          `• *ajout A12 x3* — ajoute A12 avec 3 unités\n` +
+          `• une photo avec *A12* en légende — rattache la photo`;
+
+      return (
+        `🛠️ *Aide*\n\n` +
+        (opts.inLive ? `Un live est ouvert.\n\n` : `Aucun live n’est ouvert.\n\n`) +
+        `${commands}\n\n` +
+        `Le début du code choisit le prix : A12 prend le prix de la catégorie A.` +
+        (opts.helpUrl ? `\n\nTout comprendre : ${opts.helpUrl}` : ``)
+      );
+    },
+
     /** Confirmation ajout catalogue avec bouton Variantes */
     catalogueAddedInteractive: (code: string, qty: number): InteractiveMessage => ({
       body: `*${code}* ajouté au catalogue — ${qty} en stock`,

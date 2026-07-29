@@ -2042,6 +2042,87 @@ describe("webhook-processor", () => {
       );
     });
 
+    it("numéro déclaré qui envoie « aide » pendant un live → aide, aucune création", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+        { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+      ] as never);
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
+        id: "live-session-1",
+        status: "active",
+        lastActivityAt: new Date(),
+        createdAt: new Date(),
+      });
+
+      const { upsertCatalogueItemFromWebhook } = await import(
+        "~/server/catalogue/upsertCatalogueItemFromWebhook"
+      );
+      const { createLiveItem } = await import("~/server/live-item/createLiveItem");
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+
+      const job = {
+        id: "job-seller-help-live",
+        data: {
+          tenantId,
+          providerMessageId: "SMhelpLive",
+          from,
+          body: "aide",
+          correlationId: "corr-help-live",
+        } as InboundMessage,
+      } as PgBossJob<InboundMessage>;
+
+      const result = await processWebhookJob(job);
+
+      expect(result.messageType).toBe("seller");
+      // Le point capital : « aide » ne doit jamais être lu comme un code.
+      expect(upsertCatalogueItemFromWebhook).not.toHaveBeenCalled();
+      expect(createLiveItem).not.toHaveBeenCalled();
+      expect(writeToOutbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenantId,
+          to: from,
+          body: expect.stringContaining("Un live est ouvert."),
+          correlationId: "corr-help-live",
+        }),
+      );
+    });
+
+    it("numéro déclaré qui envoie « aide » hors live → commandes hors live", async () => {
+      const tenantId = "tenant-123";
+      const from = "+33612345678";
+
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([
+        { id: "sp1", tenantId, phoneNumber: from, createdAt: new Date() },
+      ] as never);
+      const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
+      vi.mocked(getCurrentSessionReadOnly).mockResolvedValue(null);
+
+      const { writeToOutbox } = await import("~/server/messaging/outbox");
+
+      const job = {
+        id: "job-seller-help-offlive",
+        data: {
+          tenantId,
+          providerMessageId: "SMhelpOff",
+          from,
+          body: "  AIDE  ",
+          correlationId: "corr-help-off",
+        } as InboundMessage,
+      } as PgBossJob<InboundMessage>;
+
+      await processWebhookJob(job);
+
+      expect(writeToOutbox).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: from,
+          body: expect.stringContaining("ajout A12"),
+        }),
+      );
+    });
+
     it("seller sends code without active session → no creation, sends off-live instruction", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
