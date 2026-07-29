@@ -496,6 +496,12 @@ export function AuditTrailContent({
                     </Empty>
                   }
                 />
+                {/*
+                  Pas de `pb-0` ici : la Card est en `p-0`, donc la pagination
+                  touche directement le bord. Annuler son padding bas collait
+                  les contrôles contre la bordure. On garde le `py-3` du
+                  composant, comme sur toutes les autres listes.
+                */}
                 <DataPagination
                   currentPage={safePage}
                   totalPages={totalPages}
@@ -503,7 +509,6 @@ export function AuditTrailContent({
                   pageSize={ITEMS_PER_PAGE}
                   itemLabel={`événement${items.length > 1 ? "s" : ""}`}
                   onPageChange={setCurrentPage}
-                  className="pb-0"
                 />
               </>
             )}
