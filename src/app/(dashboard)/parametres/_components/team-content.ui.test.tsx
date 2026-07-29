@@ -63,9 +63,9 @@ vi.mock("~/trpc/react", () => ({
             },
             {
               id: "u-2",
-              email: "vente@example.com",
-              name: "Awa Vente",
-              role: "VENDEUR",
+              email: "agent@example.com",
+              name: "Awa Traoré",
+              role: "AGENT",
               createdAt: new Date("2026-01-02"),
               updatedAt: new Date("2026-01-02"),
             },
@@ -105,13 +105,19 @@ describe("TeamContent — le rôle est choisissable à l'invitation", () => {
     expect(control).toBeEnabled();
   });
 
-  it("propose Manager, Vente et Agent — et jamais Propriétaire", async () => {
+  /**
+   * Deux rôles, pas trois. « Vente » a été retiré de l'enum Prisma : aucun contrôle
+   * de permission ne le distinguait d'Agent, et le proposer offrait un choix sans
+   * conséquence — deux étiquettes pour un seul accès réel.
+   */
+  it("propose Manager et Agent — jamais Vente ni Propriétaire", async () => {
     const user = await openInviteDialog();
 
     await user.click(screen.getByRole("combobox", { name: /rôle attribué/i }));
     const options = screen.getAllByRole("option").map((o) => o.textContent);
 
-    expect(options).toEqual(["Manager", "Vente", "Agent"]);
+    expect(options).toEqual(["Manager", "Agent"]);
+    expect(options).not.toContain("Vente");
     expect(options).not.toContain("Propriétaire");
   });
 
@@ -145,10 +151,10 @@ describe("TeamContent — le rôle est choisissable à l'invitation", () => {
     const user = await openInviteDialog();
 
     await user.click(screen.getByRole("combobox", { name: /rôle attribué/i }));
-    await user.click(screen.getByRole("option", { name: "Vente" }));
+    await user.click(screen.getByRole("option", { name: "Manager" }));
 
-    // `roleDescription("VENDEUR")`, et non la mention « scope story 1-7 ».
-    expect(screen.getByText(/pilote les ventes pendant le live/i)).toBeInTheDocument();
+    // `roleDescription("MANAGER")`, et non la mention « scope story 1-7 ».
+    expect(screen.getByText(/accès complet à la configuration/i)).toBeInTheDocument();
     expect(screen.queryByText(/scope story/i)).not.toBeInTheDocument();
   });
 });
@@ -160,17 +166,19 @@ describe("TeamContent — les libellés de rôle viennent de roleLabel", () => {
 
   /**
    * Le `formatRole` local disait « Admin » là où le vocabulaire canonique dit
-   * « Propriétaire », et n'avait pas de cas VENDEUR : le rôle Vente s'affichait
-   * `VENDEUR`, l'énumération brute que `terms.ts` doit intercepter.
+   * « Propriétaire », et laissait passer les énumérations qu'il ne connaissait pas
+   * — c'est `terms.ts` qui a pour mission de les intercepter.
+   *
+   * `DataList` rend chaque membre deux fois — une ligne de tableau et une carte
+   * mobile — d'où les `getAllByText`.
    */
-  // `DataList` rend chaque membre deux fois — une ligne de tableau et une carte
-  // mobile — d'où les `getAllByText`.
-  it("affiche Propriétaire et Vente, jamais Admin ni l'énumération brute", async () => {
+  it("affiche Propriétaire et Agent, jamais Admin ni l'énumération brute", async () => {
     render(<TeamContent />);
 
     expect(await screen.findAllByText("Propriétaire")).not.toHaveLength(0);
-    expect(screen.getAllByText("Vente")).not.toHaveLength(0);
+    expect(screen.getAllByText("Agent")).not.toHaveLength(0);
     expect(screen.queryAllByText("Admin")).toHaveLength(0);
-    expect(screen.queryAllByText("VENDEUR")).toHaveLength(0);
+    expect(screen.queryAllByText("OWNER")).toHaveLength(0);
+    expect(screen.queryAllByText("AGENT")).toHaveLength(0);
   });
 });

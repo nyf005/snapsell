@@ -56,7 +56,7 @@ export const catalogueRouter = createTRPCRouter({
    * Libellés et prix des catégories, en lecture seule.
    *
    * `settings.getCategoryPrices` est réservé aux managers, mais `catalogue.create`
-   * est ouvert aux vendeurs : sans cette procédure, un VENDEUR ne peut pas voir la
+   * est ouvert aux agents : sans cette procédure, un AGENT ne peut pas voir la
    * grille qui détermine le prix de l'article qu'il est en train de créer.
    */
   getCategoryLabels: protectedProcedure.query(async ({ ctx }) => {

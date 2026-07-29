@@ -16,7 +16,6 @@
  * `chargeAuthorization()` reste disponible dans `server/payment/paystack.ts`.
  */
 
-import { ASSIGNABLE_ROLES } from "~/lib/rbac";
 import { db } from "~/server/db";
 
 /**
@@ -95,14 +94,18 @@ async function countProofsThisCycle(
  *
  * Ne comptait que `role: "AGENT"`, ce qui ouvrait deux trous dans la limite vendue
  * sur la page Tarifs : promouvoir un Agent en Manager libérait un siège, et inviter
- * directement en Manager ou en Vente n'en consommait aucun. Le critère vit dans
- * `ASSIGNABLE_ROLES` / `occupiesSeat` (`~/lib/rbac`), d'où les deux formes tiennent.
+ * directement en Manager n'en consommait aucun.
+ *
+ * Le critère est une **règle**, pas une liste de rôles — cf. `occupiesSeat` dans
+ * `~/lib/rbac`. Il a reposé un temps sur `ASSIGNABLE_ROLES`, au motif que les deux
+ * ensembles coïncidaient ; retirer un rôle de l'attribuable aurait alors cessé de
+ * facturer les membres concernés.
  */
 async function countOccupiedSeats(tenantId: string): Promise<number> {
   return db.user.count({
     where: {
       tenantId,
-      role: { in: [...ASSIGNABLE_ROLES] },
+      role: { not: "OWNER" },
     },
   });
 }

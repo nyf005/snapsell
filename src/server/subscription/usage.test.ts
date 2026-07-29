@@ -12,7 +12,7 @@ vi.mock("~/server/db", () => ({
   },
 }));
 
-import { ASSIGNABLE_ROLES } from "~/lib/rbac";
+import { occupiesSeat } from "~/lib/rbac";
 import { db } from "~/server/db";
 import { getUsageThisCycle, checkProofsQuota, checkAgentsQuota } from "./usage";
 
@@ -163,10 +163,15 @@ describe("Story 7A.2: Usage service", () => {
      * Le compteur ne regardait que `role: "AGENT"`, ce qui ouvrait deux
      * contournements de la limite affichée sur la page Tarifs (free 0, starter 1,
      * pro 5) : promouvoir un Agent en Manager libérait un siège, et inviter
-     * directement en Manager ou en Vente n'en consommait aucun. Les autres tests
-     * du bloc bouchonnent `db.user.count` et ne peuvent donc pas voir le critère.
+     * directement en Manager n'en consommait aucun. Les autres tests du bloc
+     * bouchonnent `db.user.count` et ne peuvent donc pas voir le critère.
+     *
+     * L'assertion porte sur `{ not: "OWNER" }` et non sur une liste de rôles :
+     * le critère a reposé un temps sur `ASSIGNABLE_ROLES`, et retirer VENDEUR de
+     * l'attribuable a suffi à faire cesser sa facturation. La règle survit à
+     * l'ajout comme au retrait d'un rôle, une liste non.
      */
-    it("compte tous les rôles assignables, Propriétaire exclu", async () => {
+    it("compte toute personne de la boutique sauf le Propriétaire", async () => {
       vi.mocked(db.tenant.findUniqueOrThrow).mockResolvedValue({
         maxAgents: 5,
       } as never);
@@ -175,12 +180,11 @@ describe("Story 7A.2: Usage service", () => {
       await checkAgentsQuota("tenant-1");
 
       expect(db.user.count).toHaveBeenCalledWith({
-        where: { tenantId: "tenant-1", role: { in: [...ASSIGNABLE_ROLES] } },
+        where: { tenantId: "tenant-1", role: { not: "OWNER" } },
       });
-      expect(ASSIGNABLE_ROLES).toEqual(
-        expect.arrayContaining(["MANAGER", "VENDEUR", "AGENT"]),
-      );
-      expect(ASSIGNABLE_ROLES).not.toContain("OWNER");
+      expect(occupiesSeat("MANAGER")).toBe(true);
+      expect(occupiesSeat("AGENT")).toBe(true);
+      expect(occupiesSeat("OWNER")).toBe(false);
     });
   });
 });

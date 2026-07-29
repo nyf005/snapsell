@@ -8,7 +8,12 @@ import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header"
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import { api } from "~/trpc/react";
 import { formatErrorText, roleDescription, roleLabel } from "~/lib/copy";
-import { ASSIGNABLE_ROLES, occupiesSeat, type AssignableRole } from "~/lib/rbac";
+import {
+  ASSIGNABLE_ROLES,
+  isAssignableRole,
+  occupiesSeat,
+  type AssignableRole,
+} from "~/lib/rbac";
 import { DataList } from "~/components/ui/data-list";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
@@ -88,9 +93,9 @@ function formatLastActive(updatedAt: Date): string {
  * Les libellés de rôle viennent de `roleLabel` (`~/lib/copy/terms`).
  *
  * Un `formatRole` local vivait ici : il disait « Admin » quand le vocabulaire
- * canonique dit « Propriétaire », et n'avait pas de cas VENDEUR — un membre en
- * rôle Vente affichait donc `VENDEUR` brut, l'énumération que `terms.ts` a
- * précisément pour mission de ne jamais laisser atteindre l'écran.
+ * canonique dit « Propriétaire », et renvoyait l'énumération brute pour tout rôle
+ * qu'il ne connaissait pas — précisément ce que `terms.ts` a pour mission de ne
+ * jamais laisser atteindre l'écran.
  */
 
 function MemberAvatar({ initials, isPrimary }: { initials: string; isPrimary?: boolean }) {
@@ -252,7 +257,7 @@ export function TeamContent() {
     // Un rôle hors liste assignable — OWNER — n'ouvre pas ce dialogue : le menu ne
     // propose pas l'entrée, et `team.updateRole` la refuserait. Le repli sur AGENT
     // ne sert donc qu'à satisfaire le typage.
-    const currentRole = occupiesSeat(member.rawRole) ? member.rawRole : "AGENT";
+    const currentRole = isAssignableRole(member.rawRole) ? member.rawRole : "AGENT";
     setRoleTarget({ id: member.id, name: member.name, currentRole });
     setSelectedRole(currentRole);
     setRoleDialogOpen(true);

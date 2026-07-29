@@ -332,24 +332,23 @@ describe("dashboard router", () => {
 
     // Régression : getSummary était un managerProcedure, donc un AGENT recevait
     // FORBIDDEN et /dashboard — sa page d'accueil — s'affichait vide.
-    it.each(["AGENT", "VENDEUR"])(
-      "renvoie le travail du jour à un %s",
-      async (role) => {
-        mockProofCount.mockResolvedValue(3);
-        mockProofFindFirst.mockResolvedValue(null);
-        mockOrderCount.mockResolvedValue(2);
-        mockOrderFindMany.mockResolvedValue([]);
-        mockGetCurrentSessionReadOnly.mockResolvedValue(null);
+    // Le cas était paramétré sur AGENT et VENDEUR ; VENDEUR a été retiré de l'enum
+    // Role, aucun contrôle de permission ne le distinguant d'AGENT.
+    it("renvoie le travail du jour à un AGENT", async () => {
+      mockProofCount.mockResolvedValue(3);
+      mockProofFindFirst.mockResolvedValue(null);
+      mockOrderCount.mockResolvedValue(2);
+      mockOrderFindMany.mockResolvedValue([]);
+      mockGetCurrentSessionReadOnly.mockResolvedValue(null);
 
-        const caller = await callerForSession({
-          user: { id: "user-3", email: "agent@example.com", tenantId: "tenant-1", role },
-        });
+      const caller = await callerForSession({
+        user: { id: "user-3", email: "agent@example.com", tenantId: "tenant-1", role: "AGENT" },
+      });
 
-        const result = await caller.dashboard.getSummary();
-        expect(result.pendingProofsCount).toBe(3);
-        expect(result.ordersPreparingCount).toBe(2);
-      },
-    );
+      const result = await caller.dashboard.getSummary();
+      expect(result.pendingProofsCount).toBe(3);
+      expect(result.ordersPreparingCount).toBe(2);
+    });
 
     it("masque le chiffre d’affaires aux rôles opérationnels", async () => {
       mockProofCount.mockResolvedValue(0);

@@ -44,16 +44,19 @@ export function templateCategoryLabel(category: string | null | undefined): stri
   }
 }
 
-/** Rôle d'un membre de l'équipe. */
+/**
+ * Rôle d'un membre de l'équipe.
+ *
+ * Trois rôles de boutique, plus OPS pour la console interne. VENDEUR a été retiré
+ * de l'enum Prisma : aucun contrôle de permission ne le distinguait d'AGENT. Le
+ * repli « Membre » couvre donc aussi les jetons de session émis avant la migration.
+ */
 export function roleLabel(role: string | null | undefined): string {
   switch (role?.toUpperCase()) {
     case "OWNER":
       return "Propriétaire";
     case "MANAGER":
       return "Manager";
-    case "VENDEUR":
-      // La fonction, pas le titre : « Vendeur » est le seul rôle non épicène.
-      return "Vente";
     case "AGENT":
       return "Agent";
     case "OPS":
@@ -63,17 +66,23 @@ export function roleLabel(role: string | null | undefined): string {
   }
 }
 
-/** Description de ce que chaque rôle peut faire, pour la page Équipe. */
+/**
+ * Description de ce que chaque rôle peut faire, pour la page Équipe.
+ *
+ * Celle de l'Agent énumère ce qu'il fait, sans prétendre à une cloison. « Traite
+ * les commandes et les preuves » se lisait comme une limite face au « Pilote les
+ * ventes pendant le live » de l'ancien VENDEUR, alors que les deux rôles pouvaient
+ * tout faire l'un de l'autre. La seule frontière réellement appliquée — les
+ * réglages — reste énoncée.
+ */
 export function roleDescription(role: string | null | undefined): string {
   switch (role?.toUpperCase()) {
     case "OWNER":
       return "Accès complet, y compris les prix, l’équipe et l’abonnement.";
     case "MANAGER":
       return "Accès complet à la configuration et aux ventes.";
-    case "VENDEUR":
-      return "Pilote les ventes pendant le live. Ne voit pas les paramètres.";
     case "AGENT":
-      return "Traite les commandes et les preuves. Ne voit pas les paramètres.";
+      return "Tient le live, le catalogue, les commandes et les preuves. Ne voit pas les réglages.";
     default:
       return "";
   }

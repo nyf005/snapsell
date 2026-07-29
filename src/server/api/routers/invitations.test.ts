@@ -126,9 +126,8 @@ describe("invitations router", () => {
      * Le rôle attribué vient de l'appelant.
      *
      * Il était écrit `role: "AGENT"` en dur : toute personne invitée devenait
-     * Agent, et le formulaire affichait une carte « Agent » non interactive.
-     * VENDEUR, pourtant présent dans l'enum Prisma et dans `roleLabel`, n'était
-     * attribuable par aucun chemin — `team.updateRole` ne l'acceptait pas non plus.
+     * Agent, et le formulaire affichait une carte « Agent » non interactive. Le
+     * rôle Manager n'était donc attribuable qu'après coup, par `team.updateRole`.
      */
     it.each(ASSIGNABLE_ROLES)("persiste le rôle %s choisi à l'invitation", async (role) => {
       mockInvitationFindFirst.mockResolvedValue(null);

@@ -13,36 +13,45 @@ export function canManageGrid(role: string): boolean {
  *
  * Source unique de `invitations.createInvitation`, de `team.updateRole` et du
  * sélecteur de la page Équipe. Ces trois-là divergeaient : l'invitation écrivait
- * `AGENT` en dur, `updateRole` n'acceptait que MANAGER et AGENT, et VENDEUR
- * n'était donc attribuable par aucun chemin malgré son existence dans l'enum
- * Prisma, dans `roleLabel` et dans `roleDescription`.
+ * `AGENT` en dur et `updateRole` n'acceptait que MANAGER et AGENT.
  *
- * Deux rôles de l'enum sont volontairement absents :
+ * VENDEUR n'y figure plus, et a été retiré de l'enum Prisma : aucun contrôle de
+ * permission du code ne le distinguait d'AGENT — tous testent `canManageGrid`,
+ * `isOpsUser`, ou si la cible est OWNER. Deux étiquettes pour un seul accès réel,
+ * et une copie qui laissait croire à une cloison inexistante.
+ *
+ * Deux autres rôles de l'enum sont volontairement absents :
  *   OWNER — désigne la personne qui a créé la boutique. `team.updateRole` et
  *           `team.removeMember` refusent déjà d'y toucher.
  *   OPS   — console interne, hors boutique (tenantId null, cf. `isOpsUser`).
  *
  * L'ordre est celui du plus large au plus étroit : il pilote l'affichage.
  */
-export const ASSIGNABLE_ROLES = ["MANAGER", "VENDEUR", "AGENT"] as const;
+export const ASSIGNABLE_ROLES = ["MANAGER", "AGENT"] as const;
 export type AssignableRole = (typeof ASSIGNABLE_ROLES)[number];
+
+export function isAssignableRole(role: string): role is AssignableRole {
+  return ASSIGNABLE_ROLES.includes(role as AssignableRole);
+}
 
 /**
  * Un membre occupe-t-il un siège facturé ?
  *
- * Les sièges sont exactement les rôles assignables : dans une boutique, on est
- * soit le Propriétaire — qui ne consomme pas de siège — soit l'un d'eux. Une même
- * liste sert donc au sélecteur, aux deux routers et au compteur de quota, côté
- * TypeScript comme côté Prisma (`role: { in: [...ASSIGNABLE_ROLES] }`).
- *
  * `maxAgents` est la limite vendue sur la page Tarifs (free 0, starter 1, pro 5).
  * Le compteur ne regardait que `role: "AGENT"`, ce qui laissait deux trous :
- * promouvoir un Agent en Manager libérait un siège, et — dès que le rôle devient
- * choisissable à l'invitation — inviter en Manager ou en Vente n'en aurait jamais
- * consommé.
+ * promouvoir un Agent en Manager libérait un siège, et — dès que le rôle est
+ * devenu choisissable à l'invitation — inviter en Manager n'en aurait jamais
+ * consommé. Un siège vaut une personne, quel que soit son rôle.
+ *
+ * Exprimé comme **règle** et non comme liste, à dessein. Le comptage a reposé un
+ * temps sur `ASSIGNABLE_ROLES`, au motif que les deux ensembles coïncidaient ;
+ * la suppression de VENDEUR de l'attribuable aurait alors cessé de facturer les
+ * membres concernés. « Tout le monde sauf le Propriétaire » ne peut pas dériver
+ * quand un rôle est ajouté ou retiré. Côté Prisma : `role: { not: "OWNER" }`,
+ * la requête filtrant déjà sur `tenantId`, qui exclut les OPS.
  */
-export function occupiesSeat(role: string): role is AssignableRole {
-  return ASSIGNABLE_ROLES.includes(role as AssignableRole);
+export function occupiesSeat(role: string): boolean {
+  return role !== "OWNER";
 }
 
 /**

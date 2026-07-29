@@ -26,7 +26,7 @@ type CodePricePreviewProps = {
  */
 export function CodePricePreview({ code, disabled, className }: CodePricePreviewProps) {
   // `catalogue.getCategoryLabels` et non `settings.getCategoryPrices` : cette
-  // dernière est réservée aux managers, alors qu'un VENDEUR peut créer un article.
+  // dernière est réservée aux managers, alors qu'un AGENT peut créer un article.
   const { data: categories, isLoading } = api.catalogue.getCategoryLabels.useQuery(undefined, {
     staleTime: 60_000,
   });

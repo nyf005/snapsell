@@ -6,7 +6,7 @@
  * volontairement pas de bouton « masquer », qui permettrait de cacher définitivement
  * la seule chose séparant la vendeuse d'un produit fonctionnel.
  *
- * `protectedProcedure` et non `managerProcedure` : un VENDEUR doit pouvoir comprendre
+ * `protectedProcedure` et non `managerProcedure` : un AGENT doit pouvoir comprendre
  * pourquoi rien n'arrive, même s'il ne peut pas corriger lui-même.
  */
 

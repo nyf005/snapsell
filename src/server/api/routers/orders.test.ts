@@ -77,15 +77,6 @@ describe("orders router", () => {
     },
   };
 
-  const vendeurSession = {
-    user: {
-      id: "user-vendeur",
-      email: "vendeur@example.com",
-      tenantId: "tenant-1",
-      role: "VENDEUR",
-    },
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     mockTenantFindUnique.mockResolvedValue({ hasExportCsv: true });
@@ -147,16 +138,6 @@ describe("orders router", () => {
       );
     });
 
-    it("list: la Vente obtient les commandes de son tenant", async () => {
-      mockOrderFindMany.mockResolvedValue([]);
-      const ctx = await createTRPCContext({
-        headers: new Headers(),
-        session: vendeurSession as never,
-      });
-
-      await expect(createCaller(ctx).orders.list()).resolves.toMatchObject({ items: [] });
-    });
-
     it("getById: l'Agent peut ouvrir une commande", async () => {
       mockOrderFindFirst.mockResolvedValue({
         id: "order-1",
@@ -207,20 +188,10 @@ describe("orders router", () => {
     });
 
     /**
-     * La contrepartie : sortir le fichier client reste un acte de gestion.
-     * Le cas AGENT est couvert dans le bloc exportCsv ci-dessous.
+     * La contrepartie : sortir le fichier client reste un acte de gestion, et
+     * `exportCsv` reste la seule procédure du router en `managerProcedure`. Le cas
+     * est couvert par « throws FORBIDDEN for AGENT role » dans le bloc exportCsv.
      */
-    it("exportCsv: la Vente reste refusée", async () => {
-      const ctx = await createTRPCContext({
-        headers: new Headers(),
-        session: vendeurSession as never,
-      });
-
-      await expect(createCaller(ctx).orders.exportCsv({})).rejects.toMatchObject({
-        code: "FORBIDDEN",
-      });
-      expect(mockOrderFindMany).not.toHaveBeenCalled();
-    });
   });
 
   describe("list", () => {

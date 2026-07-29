@@ -10,7 +10,7 @@ type CreditsAlertProps = {
   /**
    * Seuls le propriétaire et les managers peuvent lire le solde
    * (`getCreditsUsage` appelle `assertCanManageSubscription`). Monter ce composant
-   * pour un AGENT ou un VENDEUR déclenchait un 403 à chaque chargement de page.
+   * pour un AGENT déclenchait un 403 à chaque chargement de page.
    */
   canManageSubscription: boolean;
 };

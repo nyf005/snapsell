@@ -11,10 +11,13 @@ datasource db {
 }
 
 // Roles for RBAC (Owner = vendeur créateur du tenant, OPS = accès console ops sans tenant)
+//
+// VENDEUR a été retiré : aucun contrôle de permission ne le distinguait d'AGENT.
+// Tous testent canManageGrid, isOpsUser, ou si la cible est OWNER — deux étiquettes
+// pour un seul accès réel. Voir ASSIGNABLE_ROLES dans src/lib/rbac.ts.
 enum Role {
   OWNER
   MANAGER
-  VENDEUR
   AGENT
   OPS
 }

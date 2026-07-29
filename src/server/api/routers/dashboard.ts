@@ -46,7 +46,7 @@ export function getLast7DaysRanges(now: Date = new Date()): { date: string; from
 
 export const dashboardRouter = createTRPCRouter({
   /**
-   * `protectedProcedure` et non `managerProcedure` : les AGENT et VENDEUR ont
+   * `protectedProcedure` et non `managerProcedure` : les AGENT ont
    * `/dashboard` pour page d'accueil, et un `managerProcedure` leur renvoyait
    * FORBIDDEN — le composant tombait alors sur `if (!summary) return null` et
    * affichait une salutation au-dessus du vide.
