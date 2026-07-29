@@ -71,26 +71,51 @@ export function HeroSection({ user }: HeroSectionProps) {
 
               <AnimateEntrance delay={400}>
                 {/*
-                  Titre plus long que le précédent : à 4.5rem il partait en
-                  trois lignes et repoussait les boutons sous la ligne de
-                  flottaison. 3rem est la plus grande taille qui le tient en
-                  deux lignes dans les 672px de la colonne — au-delà il faut
-                  élargir la colonne, ce qui fait déborder la page.
+                  Accroche narrative, et non slogan : 109 caractères, elle tient
+                  en trois lignes à 2.25rem dans les 672px de la colonne. Une
+                  taille supérieure la ferait passer à quatre lignes et
+                  repousserait les boutons sous la ligne de flottaison.
+
+                  Un titre gros et gras se lit spontanément comme une promesse.
+                  Or celui-ci énonce le PROBLÈME. Le repère « Aujourd'hui » le
+                  date donc explicitement comme la situation actuelle, et le
+                  sous-titre lui répond par « Avec SnapSell ». C'est le même
+                  couple avant/après que `marketing.contrast`, porté dans le hero.
+
+                  Le titre garde la pleine couleur : l'atténuer le ferait passer
+                  pour secondaire. C'est le dégradé de la chute, plus bas, qui
+                  signale où va l'histoire.
                 */}
-                <h1 className="text-4xl font-extrabold leading-[1.08] tracking-tight text-[var(--hero-fg)] sm:text-5xl lg:text-5xl">
-                  Votre boutique répond.{" "}
-                  <br className="hidden lg:block" />
-                  Vendez pendant qu’
-                  <span className="hero-gradient-text">elle</span> le fait.
+                <h1 className="font-display text-3xl font-extrabold leading-[1.15] tracking-tight text-[var(--hero-fg)] sm:text-4xl lg:text-5xl">
+                  <span className="mb-3 block text-sm font-bold uppercase tracking-[0.2em] text-[var(--hero-fg-subtle)]">
+                    Aujourd’hui
+                  </span>
+                  Toute la journée à répondre.{" "}
+                  <br className="hidden sm:block" />
+                  Le soir, à tout reconstituer.
                 </h1>
               </AnimateEntrance>
 
               <AnimateEntrance delay={650}>
-                <p className="max-w-xl text-lg text-[var(--hero-fg-muted)] lg:text-[1.35rem] leading-relaxed">
-                  Un code envoyé sur WhatsApp, et l’article est réservé,
-                  l’adresse collectée, la preuve de paiement enregistrée.
-                  Pendant un live comme au fil de la journée.
-                </p>
+                <div className="flex max-w-xl flex-col gap-4 text-lg leading-relaxed text-[var(--hero-fg-muted)] lg:text-[1.35rem]">
+                  <p>
+                    <span className="font-bold text-[var(--hero-fg)]">
+                      Avec SnapSell
+                    </span>
+                    , vous ne répondez plus. Il réserve la pièce, réclame
+                    l’adresse, classe la preuve de paiement avec la bonne
+                    commande et libère les réservations non confirmées.
+                  </p>
+                  {/*
+                    La chute porte le dégradé : c'est le seul endroit coloré du
+                    hero, donc le point où l'œil se pose en dernier. Pas de
+                    classe de couleur ici — `hero-gradient-text` peint le texte
+                    lui-même, une couleur explicite la recouvrirait.
+                  */}
+                  <p className="hero-gradient-text text-xl font-extrabold lg:text-[1.6rem]">
+                    Vous n’avez plus qu’à emballer et faire livrer.
+                  </p>
+                </div>
               </AnimateEntrance>
 
               <AnimateEntrance delay={900}>
