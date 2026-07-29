@@ -30,6 +30,7 @@ import {
   Zap,
 } from "lucide-react";
 import { DashboardStartGuide } from "~/app/(dashboard)/_components/dashboard-start-guide";
+import { HelpHint } from "~/app/(dashboard)/_components/help-hint";
 import { SetupChecklist } from "~/app/(dashboard)/_components/setup-checklist";
 import { CreditsAlertBanner } from "~/app/(dashboard)/_components/credits-alert-banner";
 import { formatError, formatRelativeDate, formatXof, type UserError } from "~/lib/copy";
@@ -141,13 +142,22 @@ export function DashboardContent({
       </section>
       {/* Section: À traiter */}
       <section aria-labelledby="a-traiter-heading">
-        <h2
-          id="a-traiter-heading"
-          className="text-lg font-bold text-foreground flex items-center gap-2 mb-4"
-        >
-          <ClipboardList className="size-5 text-primary" />
-          Votre travail
-        </h2>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h2
+            id="a-traiter-heading"
+            className="flex items-center gap-2 text-lg font-bold text-foreground"
+          >
+            <ClipboardList className="size-5 text-primary" />
+            Votre travail
+          </h2>
+          {/*
+            « Aujourd'hui » n'utilise pas `TaskPageHeader` — cet écran n'a pas
+            d'en-tête de tâche — donc l'aide contextuelle est posée ici à la main.
+            C'est le premier écran de la journée, et le seul que voient les rôles
+            sans droits de gestion : l'article du trajet complet doit y être.
+          */}
+          <HelpHint slug="comment-ca-marche" />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Preuves en attente */}
           <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">

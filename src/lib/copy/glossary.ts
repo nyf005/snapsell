@@ -196,6 +196,10 @@ export const errorCopy: Record<
   "session.forbidden": {
     title: "Action réservée",
     detail: "Seuls le propriétaire et les managers peuvent faire cela.",
+    // Les erreurs dont la suite n'est pas un écran mais une explication renvoient
+    // vers l'aide : « Action réservée » sans dire qui peut agir laisse la personne
+    // sans recours.
+    action: { label: "Qui peut faire quoi", href: "/aide/qui-voit-quoi" },
   },
   "session.rateLimited": {
     title: "Trop d’actions d’un coup",
@@ -255,16 +259,25 @@ export const errorCopy: Record<
     title: "La quantité vient des variantes",
     detail:
       "Tant que des variantes sont actives, la quantité totale est la somme de leurs stocks.",
+    action: { label: "Comprendre les variantes", href: "/aide/creer-un-article" },
   },
 
   // --- Commandes / réservations ---
   "orders.invalidTransition": {
     title: "Ce changement d’état n’est pas possible",
     detail: "Rafraîchissez la page : la commande a peut-être déjà avancé.",
+    action: {
+      label: "Les états d’une commande",
+      href: "/aide/de-la-reservation-a-la-livraison",
+    },
   },
   "reservation.invalid": {
     title: "Cette réservation n’est plus valide",
     detail: "Rafraîchissez la page pour voir son état actuel.",
+    action: {
+      label: "Pourquoi une réservation expire",
+      href: "/aide/reservation-file-expiration",
+    },
   },
 
   // --- Abonnement ---

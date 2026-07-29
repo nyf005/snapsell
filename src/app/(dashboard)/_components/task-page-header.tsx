@@ -1,7 +1,10 @@
 import type { ReactNode } from "react";
 
+import { helpForRoute } from "~/lib/copy";
 import { NAV_ITEMS } from "~/lib/navigation";
 import { cn } from "~/lib/utils";
+
+import { HelpHint } from "./help-hint";
 
 /**
  * En-tête d'un écran : section, titre, explication.
@@ -21,6 +24,12 @@ import { cn } from "~/lib/utils";
  * l'état (le live selon qu'une diffusion est en cours, le catalogue selon le
  * nombre d'articles chargés).
  * ────────────────────────────────────────────────────────────────────────────
+ *
+ * ── L'AIDE CONTEXTUELLE PASSE PAR ICI ───────────────────────────────────────
+ * Puisque cet en-tête est la source unique et qu'il connaît déjà `href`, il demande
+ * son article à `helpForRoute()`. Un écran gagne donc son « Comment ça marche ? »
+ * en déclarant `route` dans `src/lib/copy/help.ts`, sans toucher à sa page.
+ * ────────────────────────────────────────────────────────────────────────────
  */
 type TaskPageHeaderProps = {
   /** Route de l'écran. Détermine section, titre et explication. */
@@ -29,6 +38,8 @@ type TaskPageHeaderProps = {
   description?: ReactNode;
   actions?: ReactNode;
   className?: string;
+  /** `false` retire le bouton d'aide d'un écran qui n'en veut pas. */
+  help?: false;
 };
 
 export function TaskPageHeader({
@@ -36,6 +47,7 @@ export function TaskPageHeader({
   description,
   actions,
   className,
+  help,
 }: TaskPageHeaderProps) {
   const item = NAV_ITEMS.find((i) => i.href === href);
   if (!item) {
@@ -45,6 +57,7 @@ export function TaskPageHeader({
   }
 
   const text = description ?? item.description;
+  const topic = help === false ? undefined : helpForRoute(href);
 
   return (
     <header
@@ -63,6 +76,13 @@ export function TaskPageHeader({
         {text ? (
           <div className="mt-2 max-w-[65ch] text-sm leading-6 text-muted-foreground sm:text-base">
             {text}
+          </div>
+        ) : null}
+        {topic ? (
+          // Décalé de la largeur du padding du bouton, pour rester aligné sur le
+          // titre plutôt que sur son libellé.
+          <div className="-ml-2 mt-2">
+            <HelpHint slug={topic.slug} />
           </div>
         ) : null}
       </div>

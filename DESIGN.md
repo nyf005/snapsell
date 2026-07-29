@@ -46,6 +46,8 @@ Les couleurs sont définies en OKLCH dans les tokens globaux.
 - Mobile : barre inférieure avec Aujourd’hui, Live, Commandes et Plus.
 - Les routes et permissions existantes sont conservées.
 
+L’**aide** n’est pas une cinquième section : ce n’est pas une tâche métier. Elle vit dans le pied de la barre latérale et de la feuille « Plus », hors du modèle de navigation, pour ne pas regonfler « Gérer ». Elle se lit sur deux surfaces : la page publique `/aide`, et un panneau contextuel ouvert depuis l’en-tête de chaque écran. Son contenu a une source unique, `src/lib/copy/help.ts`.
+
 ## Components
 
 ### Page header
@@ -117,4 +119,4 @@ Genre grammatical n'est pas genre social : *une personne*, *la clientèle*, *un 
 
 Écrire « votre clientèle » plutôt que « vos clientes », « les vôtres » plutôt que « ceux de la vendeuse », « Vous avez reçu une invitation » plutôt que « Vous avez été invité ».
 
-Les boutons utilisent un verbe et un objet : « Libérer la réservation », « Valider la preuve », « Enregistrer les prix ». Le jargon « fenêtre de conversation 24 h » n’apparaît que dans l’aide.
+Les boutons utilisent un verbe et un objet : « Libérer la réservation », « Valider la preuve », « Enregistrer les prix ». Le jargon « fenêtre de conversation 24 h » n’apparaît que dans l’aide — voir l’article « Les conversations client », le seul endroit où il est développé.

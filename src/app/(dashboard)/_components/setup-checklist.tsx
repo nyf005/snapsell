@@ -32,9 +32,24 @@ export type SetupChecklistProps = {
   compact?: boolean;
 };
 
+/**
+ * `helpSlug` : l'article qui explique *pourquoi* cette étape existe.
+ *
+ * Le libellé d'une étape dit quoi faire en une ligne ; il ne peut pas expliquer que
+ * le début du code choisit le prix, ni qu'un numéro non déclaré voit ses messages
+ * lus comme des achats. Le lien « Comprendre cette étape » s'en charge, sans allonger
+ * la liste.
+ */
 const STEP_META: Record<
   SetupStepId,
-  { icon: LucideIcon; title: string; description: string; href: string; action: string }
+  {
+    icon: LucideIcon;
+    title: string;
+    description: string;
+    href: string;
+    action: string;
+    helpSlug: string;
+  }
 > = {
   whatsapp: {
     icon: MessageCircle,
@@ -42,6 +57,7 @@ const STEP_META: Record<
     description: ui.setup.whatsapp.description,
     href: "/parametres/whatsapp",
     action: ui.setup.whatsapp.action,
+    helpSlug: "connecter-whatsapp",
   },
   prices: {
     icon: Tags,
@@ -49,6 +65,7 @@ const STEP_META: Record<
     description: ui.setup.prices.description,
     href: "/parametres",
     action: ui.setup.prices.action,
+    helpSlug: "le-code",
   },
   delivery: {
     icon: Truck,
@@ -56,6 +73,7 @@ const STEP_META: Record<
     description: ui.setup.delivery.description,
     href: "/parametres/livraison",
     action: ui.setup.delivery.action,
+    helpSlug: "prix-et-livraison",
   },
   replies: {
     icon: MessageCircle,
@@ -63,6 +81,7 @@ const STEP_META: Record<
     description: ui.setup.replies.description,
     href: "/parametres/faq",
     action: ui.setup.replies.action,
+    helpSlug: "reponses-automatiques",
   },
   sellerPhone: {
     icon: Phone,
@@ -70,6 +89,7 @@ const STEP_META: Record<
     description: ui.setup.sellerPhone.description,
     href: "/parametres/whatsapp",
     action: ui.setup.sellerPhone.action,
+    helpSlug: "mes-messages-creent-des-reservations",
   },
   firstSale: {
     icon: Radio,
@@ -77,6 +97,7 @@ const STEP_META: Record<
     description: ui.setup.firstSale.description,
     href: "/dashboard/live",
     action: ui.setup.firstSale.actionLive,
+    helpSlug: "comment-ca-marche",
   },
 };
 
@@ -205,9 +226,18 @@ export function SetupChecklist({
                     )}
                   </div>
                   {!step.done && (
-                    <p className="mt-1 max-w-[60ch] text-sm leading-5 text-muted-foreground">
-                      {meta.description}
-                    </p>
+                    <>
+                      <p className="mt-1 max-w-[60ch] text-sm leading-5 text-muted-foreground">
+                        {meta.description}
+                      </p>
+                      <Link
+                        href={`/aide/${meta.helpSlug}`}
+                        className="mt-1.5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                      >
+                        Comprendre cette étape
+                        <ArrowRight className="size-3.5" aria-hidden="true" />
+                      </Link>
+                    </>
                   )}
                 </div>
 

@@ -5,18 +5,23 @@ import { Globe, Share2, Mail } from "lucide-react";
 import { SnapSellLogo } from "~/components/auth/snapsel-logo";
 import { AnimateOnScroll } from "~/app/_components/landing/animate-on-scroll";
 
+/**
+ * « Contact » et « Aide » pointaient sur `href: "#"` — un lien mort, alors que la
+ * page tarifs promet une assistance et qu'aucune adresse n'apparaissait ailleurs
+ * que dans les mentions légales. Les deux mènent désormais quelque part.
+ */
 const footerLinks = {
   produit: [
     { label: "Fonctionnalités", href: "#fonctionnalites" },
     { label: "Tarifs", href: "/tarifs" },
+    { label: "Aide", href: "/aide" },
     { label: "Intégrations", href: "#" },
-    { label: "API", href: "#" },
   ],
   entreprise: [
     { label: "À propos", href: "#" },
     { label: "Blog", href: "#" },
     { label: "Recrutement", href: "#" },
-    { label: "Contact", href: "#" },
+    { label: "Contact", href: "mailto:contact@snapsell.app" },
   ],
   legal: [
     { label: "Confidentialité", href: "/politique-confidentialite" },

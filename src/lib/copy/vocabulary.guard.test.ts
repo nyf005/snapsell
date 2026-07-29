@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { BANNED_AGREEMENTS, BANNED_TERMS, term } from "./vocabulary";
 import { errorCopy, ui } from "./glossary";
+import { HELP_TOPICS } from "./help";
 import { NAV_ITEMS } from "~/lib/navigation";
 import { botMsg } from "~/server/messaging/templates";
 
@@ -50,6 +51,16 @@ const navStrings = NAV_ITEMS.flatMap((i) => [
 const clientStrings = collectStrings(botMsg.client, "botMsg.client");
 const sellerStrings = collectStrings(botMsg.seller, "botMsg.seller");
 
+/**
+ * L'aide est du texte affiché comme un autre, et c'est le plus long du produit :
+ * c'est là que le vocabulaire dériverait en premier si personne ne regardait.
+ *
+ * Une exception assumée, portée par les blocs `chat` : ils citent le robot, qui
+ * tutoie. Le test de registre plus bas ne s'applique donc qu'à `botMsg.client` ;
+ * `help.test.ts` vérifie de son côté que ces citations ne vouvoient pas.
+ */
+const helpStrings = collectStrings(HELP_TOPICS, "help");
+
 /** Tout ce qui est affiché ou envoyé, hors marketing (phase 5). */
 const allStrings = [
   ...uiStrings,
@@ -57,6 +68,7 @@ const allStrings = [
   ...navStrings,
   ...clientStrings,
   ...sellerStrings,
+  ...helpStrings,
 ];
 
 describe("Vocabulaire — termes écartés", () => {

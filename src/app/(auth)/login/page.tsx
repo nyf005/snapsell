@@ -424,6 +424,19 @@ function LoginPageContent() {
         faisait doublon avec les onglets juste au-dessus, pour 60px de hauteur.
         Supprimée pour que la page tienne sans défilement.
       */}
+
+      {/*
+        L'aide est publique, et c'est ici qu'elle sert le plus : quand on n'arrive
+        pas à entrer, ou qu'on vient de recevoir une invitation sans savoir ce
+        qu'est SnapSell. Une seule ligne, pour ne pas rallonger la page.
+      */}
+      <p className="pt-1 text-center text-xs text-muted-foreground">
+        Une question sur le fonctionnement ?{" "}
+        <Link href="/aide" className="font-semibold text-primary hover:underline">
+          Consultez l&apos;aide
+        </Link>
+        .
+      </p>
     </div>
   );
 }

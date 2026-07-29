@@ -4,6 +4,10 @@ import { canManageGrid, isOpsUser } from "~/lib/rbac";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
+import {
+  WelcomeCard,
+  shouldShowWelcome,
+} from "~/app/(dashboard)/_components/welcome-card";
 import { DashboardContent } from "./_components/dashboard-content";
 
 export default async function DashboardPage() {
@@ -18,10 +22,22 @@ export default async function DashboardPage() {
     redirect("/ops/logs");
   }
 
-  const tenant = await db.tenant.findUnique({
-    where: { id: session.user.tenantId },
-    select: { name: true, showUpgradeBanner: true },
-  });
+  const role = session.user.role as string;
+
+  const [tenant, user] = await Promise.all([
+    db.tenant.findUnique({
+      where: { id: session.user.tenantId },
+      select: { name: true, showUpgradeBanner: true },
+    }),
+    // `createdAt` sert uniquement à l'accueil des personnes invitées — voir
+    // `welcome-card.tsx` : sept jours dérivés, aucune colonne de suivi.
+    session.user.id
+      ? db.user.findUnique({
+          where: { id: session.user.id },
+          select: { createdAt: true },
+        })
+      : Promise.resolve(null),
+  ]);
 
   const userName = session.user.name ?? session.user.email ?? "Utilisateur";
   const tenantName = tenant?.name;
@@ -55,9 +71,14 @@ export default async function DashboardPage() {
               </span>
             </div>
           </header>
+          {shouldShowWelcome(role, user?.createdAt) && (
+            <div className="mb-8">
+              <WelcomeCard role={role} />
+            </div>
+          )}
           <DashboardContent
             showUpgradeBanner={tenant?.showUpgradeBanner ?? false}
-            canManageSubscription={canManageGrid(session.user.role as string)}
+            canManageSubscription={canManageGrid(role)}
           />
         </div>
       </main>

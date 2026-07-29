@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { HelpCircle, Menu } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "~/components/ui/button";
@@ -88,6 +88,20 @@ export function MobileBottomNav({ canManageGrid }: { canManageGrid: boolean }) {
                     </Link>
                   );
               })}
+
+              {/* Hors `NAV_ITEMS`, comme dans la barre latérale — même raison, et
+                  même position basse pour que les deux surfaces se ressemblent. */}
+              <Link
+                href="/aide"
+                onClick={() => setOpen(false)}
+                className={cn(
+                  "mt-1 flex min-h-12 items-center gap-3 rounded-xl border-t border-border px-3 pt-3 text-sm font-medium",
+                  isActive("/aide") ? "text-primary" : "text-foreground active:bg-muted",
+                )}
+              >
+                <HelpCircle className="size-5 text-current" />
+                <span>Aide</span>
+              </Link>
             </div>
           </SheetContent>
         </Sheet>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
 
-import { Home } from "lucide-react";
+import { HelpCircle, Home } from "lucide-react";
 
 import { SnapSellLogo } from "~/components/auth/snapsel-logo";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
@@ -259,6 +259,21 @@ export function AppSidebar({
       )}
       <SidebarFooter className="border-t border-sidebar-border px-2 py-2">
         <SidebarMenu>
+          {/*
+            L'aide vit dans le pied, pas dans `NAV_ITEMS`.
+            Deux raisons : ce n'est pas une tâche métier, et la section « Gérer » est
+            tenue à deux entrées par `navigation.test.ts` — PRODUCT.md range les menus
+            surchargés parmi ses anti-références. Sa place est ici, avec le compte et
+            la déconnexion : ce qu'on cherche quand on cherche « où est-ce que… ».
+          */}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Aide">
+              <Link href="/aide">
+                <HelpCircle className="size-4" />
+                <span>Aide</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <div className="flex w-full items-center gap-2 rounded-md p-2">
               <Avatar className="h-8 w-8 shrink-0">
