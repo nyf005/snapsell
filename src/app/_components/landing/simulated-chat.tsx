@@ -52,15 +52,20 @@ export function SimulatedChat() {
 
         const runSequence = () => {
             const run = ++runCountRef.current;
-            setMessages([]);
-            CHAT_SEQUENCE.forEach((val) => {
+            CHAT_SEQUENCE.forEach((val, index) => {
                 const t = setTimeout(() => {
                     const msg: Message = { ...val, uid: `${run}-${val.id}` };
                     setMessages((prev) => {
+                        // Le fil précédent n'est effacé qu'à l'arrivée de la
+                        // première bulle du nouveau cycle, pas au moment où le
+                        // cycle démarre : vider d'abord laissait le téléphone
+                        // entièrement blanc une seconde toutes les 28, et un
+                        // mockup vide se lit comme une image qui n'a pas chargé.
+                        const base = index === 0 ? [] : prev;
                         if (msg.sender === 'bot' && msg.text !== marketing.demo.typing) {
-                            return [...prev.filter(m => m.text !== marketing.demo.typing), msg];
+                            return [...base.filter(m => m.text !== marketing.demo.typing), msg];
                         }
-                        return [...prev, msg];
+                        return [...base, msg];
                     });
                 }, val.delayMs);
                 timeoutIds.push(t);
@@ -78,8 +83,13 @@ export function SimulatedChat() {
         };
     }, []);
 
+    // Hauteurs revues : le cadre faisait 709px pour une conversation qui
+    // s'arrêtait à 483 — 379px de blanc, soit 53 % du téléphone. Un mockup à
+    // moitié vide se lit comme une image à moitié chargée. Le cadre est
+    // resserré ET le fil ancré en bas (voir `mt-auto` plus bas), comme dans un
+    // vrai WhatsApp où la conversation monte depuis le champ de saisie.
     return (
-        <div className="relative w-[300px] lg:w-[340px] h-[626px] lg:h-[709px] shrink-0 overflow-hidden rounded-[2rem] md:rounded-[2.5rem] border-[10px] md:border-[12px] border-[#1e1e24] bg-background shadow-[0_20px_50px_-12px_rgba(0,0,0,0.8)] flex flex-col font-sans">
+        <div className="relative w-[280px] sm:w-[300px] lg:w-[340px] h-[440px] sm:h-[520px] lg:h-[620px] shrink-0 overflow-hidden rounded-[2rem] md:rounded-[2.5rem] border-[10px] md:border-[12px] border-[#1e1e24] bg-background shadow-[0_20px_50px_-12px_rgba(0,0,0,0.8)] flex flex-col font-sans">
             {/* Dynamic Island / Notch Mockup */}
             <div className="absolute left-1/2 top-1.5 h-[26px] w-[95px] -translate-x-1/2 rounded-full bg-[#1e1e24] z-50 flex items-center justify-between px-2.5">
                 <div className="size-1.5 rounded-full bg-white/10" />
@@ -114,6 +124,15 @@ export function SimulatedChat() {
                 {/* Background Pattern */}
                 <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url('https://i.pinimg.com/736x/8e/46/40/8e46405bc7378fc7bb2fbe21ff7eeb39.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }} />
 
+                {/*
+                    `mt-auto` sur le groupe de bulles : tant que la conversation
+                    est plus courte que le cadre, elle reste collée au champ de
+                    saisie et monte au fur et à mesure. Dès qu'elle dépasse, le
+                    conteneur reprend son défilement normal — d'où le groupe
+                    intermédiaire plutôt qu'un `justify-end` sur le conteneur,
+                    qui rognerait les premiers messages une fois plein.
+                */}
+                <div className="relative z-10 mt-auto flex flex-col gap-3">
                 {messages.map((msg) => (
                     <div
                         key={msg.uid ?? msg.id}
@@ -159,6 +178,7 @@ export function SimulatedChat() {
                         )}
                     </div>
                 ))}
+                </div>
             </div>
 
             {/* Input WhatsApp Mockup - Themed Purple */}

@@ -6,7 +6,7 @@ import { AnimateOnScroll } from "~/app/_components/landing/animate-on-scroll";
 
 export function CtaSection() {
   return (
-    <section className="px-6 py-24">
+    <section className="px-6 py-24 lg:py-32">
       <AnimateOnScroll animation="scale-in">
         <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] bg-primary p-12 text-center shadow-2xl shadow-primary/20 lg:p-20">
           {/* Decorative gradient overlay */}

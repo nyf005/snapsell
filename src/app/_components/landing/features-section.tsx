@@ -1,7 +1,8 @@
 import React from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Clock, Users } from "lucide-react";
 
 import { AnimateOnScroll } from "~/app/_components/landing/animate-on-scroll";
+import { JourneyStrip } from "~/app/_components/landing/journey-strip";
 
 type Feature = {
   number: string;
@@ -36,7 +37,7 @@ function CatalogueVisual() {
             <div className="flex items-center gap-3">
               <span className="text-sm font-bold">{item.price}</span>
               <span
-                className={`text-xs font-bold ${item.stock <= 2 ? "text-destructive" : "text-green-500"}`}
+                className={`text-xs font-bold ${item.stock <= 2 ? "text-destructive" : "text-success"}`}
               >
                 ×{item.stock}
               </span>
@@ -48,35 +49,69 @@ function CatalogueVisual() {
   );
 }
 
+/**
+ * Deux personnes, le même code, à quelques secondes d'écart.
+ *
+ * Cette maquette ne montrait qu'une seule réservation — exactement le même
+ * échange que le téléphone de `HowItWorksSection`, aux mêmes mots. Elle ne
+ * montrait donc pas ce que son titre annonce : le conflit entre deux demandes.
+ * Le cas à deux personnes, qui vivait dans la mauvaise section, revient ici où
+ * il est le sujet.
+ *
+ * Les deux fils sont posés côte à côte plutôt qu'à la suite : c'est la
+ * simultanéité qui fait l'argument, pas la chronologie.
+ */
 function ReservationVisual() {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-xl">
-      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-        Message WhatsApp
-      </p>
-      {/* Customer sends code */}
-      <div className="flex justify-end">
-        <div className="rounded-2xl rounded-br-sm bg-primary/20 px-4 py-2.5">
-          <p className="text-sm font-bold">ABC12</p>
-          <p className="mt-0.5 text-right text-[10px] text-muted-foreground">14:32</p>
-        </div>
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 shadow-xl">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          Même article, même minute
+        </p>
+        <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-bold text-muted-foreground">
+          <Users className="size-3" aria-hidden="true" />2 demandes
+        </span>
       </div>
-      {/* Bot confirms instantly */}
-      <div className="flex justify-start">
-        <div className="rounded-2xl rounded-bl-sm border border-border bg-muted px-4 py-2.5">
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="size-4 text-green-500" />
-            <span className="text-sm font-bold text-green-500">Réservé !</span>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        {/* Arrivée la première : elle emporte l'article. */}
+        <div className="flex flex-col gap-2 rounded-xl border border-success/30 bg-success/5 p-3">
+          <p className="text-[11px] font-bold text-muted-foreground">Aïcha · 14:32:04</p>
+          <div className="self-end rounded-xl rounded-br-sm bg-primary/20 px-3 py-1.5">
+            <p className="text-sm font-bold">ABC12</p>
           </div>
-          <p className="mt-1 text-sm">
-            <span className="font-medium">Robe fleurie S</span> — 15 000 FCFA
-          </p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Paiement sous 30 min pour confirmer.
-          </p>
-          <p className="mt-1 text-right text-[10px] text-muted-foreground">14:32</p>
+          <div className="rounded-xl rounded-bl-sm border border-border bg-muted px-3 py-2">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="size-4 text-success" aria-hidden="true" />
+              <span className="text-sm font-bold text-success">Réservé</span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Paiement sous 30 min pour confirmer.
+            </p>
+          </div>
+        </div>
+
+        {/* Arrivée deux secondes plus tard : elle passe en file d'attente. */}
+        <div className="flex flex-col gap-2 rounded-xl border border-border bg-muted/40 p-3">
+          <p className="text-[11px] font-bold text-muted-foreground">Mariam · 14:32:06</p>
+          <div className="self-end rounded-xl rounded-br-sm bg-primary/20 px-3 py-1.5">
+            <p className="text-sm font-bold">ABC12</p>
+          </div>
+          <div className="rounded-xl rounded-bl-sm border border-border bg-card px-3 py-2">
+            <div className="flex items-center gap-1.5">
+              <Clock className="size-4 text-primary" aria-hidden="true" />
+              <span className="text-sm font-bold text-primary">File d’attente</span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Je te préviens si l’article se libère.
+            </p>
+          </div>
         </div>
       </div>
+
+      <p className="text-xs text-muted-foreground">
+        Les deux ont une réponse. Vous n’avez rien tranché.
+      </p>
     </div>
   );
 }
@@ -117,7 +152,7 @@ function DashboardVisual() {
         <div className="flex flex-col gap-1 rounded-xl bg-muted p-4">
           <span className="text-xs text-muted-foreground">Commandes</span>
           <span className="text-xl font-extrabold">42</span>
-          <span className="text-xs text-green-500">+8 aujourd'hui</span>
+          <span className="text-xs text-success">+8 aujourd'hui</span>
         </div>
         <div className="flex flex-col gap-1 rounded-xl bg-muted p-4">
           <span className="text-xs text-muted-foreground">En attente</span>
@@ -127,7 +162,7 @@ function DashboardVisual() {
         <div className="flex flex-col gap-1 rounded-xl bg-muted p-4">
           <span className="text-xs text-muted-foreground">Expédiées</span>
           <span className="text-xl font-extrabold">28</span>
-          <span className="text-xs text-green-500">cette semaine</span>
+          <span className="text-xs text-success">cette semaine</span>
         </div>
       </div>
     </div>
@@ -175,15 +210,25 @@ const features: Feature[] = [
   },
 ];
 
+/*
+ * Espacements resserrés : la section pesait 2 085px dont 800 de vide, soit 38 %
+ * — 288px de padding, 128 de marge sous le titre et trois écarts de 128 entre
+ * les blocs. Les blocs eux-mêmes (255 à 301px) n'étaient pas en cause.
+ *
+ * Titre changé aussi : « Ce que vous arrêtez de faire » rejouait le mouvement
+ * avant/après déjà servi par le hero ET par la section du désordre. Troisième
+ * fois que le lecteur croisait la même figure. Le nouveau titre annonce ce que
+ * la section fait vraiment — détailler, preuves à l'appui.
+ */
 export function FeaturesSection() {
   return (
-    <section id="fonctionnalites" className="overflow-hidden py-24 lg:py-36">
+    <section id="fonctionnalites" className="overflow-hidden py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6">
-        <AnimateOnScroll className="mx-auto mb-20 max-w-3xl text-center lg:mb-32">
+        <AnimateOnScroll className="mx-auto mb-10 max-w-3xl text-center lg:mb-12">
           <h2 className="mb-6 text-3xl font-extrabold lg:text-5xl">
-            Ce que vous arrêtez de faire{" "}
+            Quatre choses qui se font{" "}
             <br className="hidden lg:block" />
-            dès le premier jour
+            <span className="text-primary">sans vous</span>
           </h2>
           <p className="text-lg text-muted-foreground">
             Du catalogue à la livraison, SnapSell tient le carnet à votre place.
@@ -191,7 +236,16 @@ export function FeaturesSection() {
           </p>
         </AnimateOnScroll>
 
-        <div className="flex flex-col gap-24 lg:gap-32">
+        {/*
+          La frise du parcours ouvre la section : elle donne le trajet complet —
+          message, réponse, commande, paiement — avant que les quatre blocs ne le
+          découpent. Le lecteur sait donc où il est à chaque bloc.
+        */}
+        <AnimateOnScroll animation="fade-up" className="mx-auto mb-16 max-w-5xl lg:mb-24">
+          <JourneyStrip />
+        </AnimateOnScroll>
+
+        <div className="flex flex-col gap-16 lg:gap-20">
           {features.map((feature, i) => (
             <AnimateOnScroll
               key={feature.title}
@@ -203,8 +257,14 @@ export function FeaturesSection() {
                   i % 2 !== 0 ? "lg:flex-row-reverse" : ""
                 }`}
               >
-                {/* Text */}
-                <div className="flex flex-1 flex-col gap-5">
+                {/*
+                  50/50 et non 60/40. La section annonce des preuves ; la
+                  maquette recevait 493px contre 659 au texte, soit la portion
+                  réduite pour l'élément qui porte la démonstration. Les
+                  descriptions font deux à trois lignes, elles n'avaient pas
+                  besoin de cette largeur.
+                */}
+                <div className="flex flex-col gap-5 lg:w-1/2">
                   <span className="text-sm font-bold uppercase tracking-[0.2em] text-primary/60">
                     {feature.number}
                   </span>
@@ -219,8 +279,14 @@ export function FeaturesSection() {
                   </div>
                 </div>
 
-                {/* Visual */}
-                <div className="w-full shrink-0 lg:w-2/5">
+                {/*
+                  Visual — pas de `shrink-0` ici. Les deux moitiés font 616px
+                  pour 1232px de rangée moins 80 de gouttière : avec `shrink-0`
+                  d'un seul côté, tout le rattrapage tombait sur le texte et le
+                  partage devenait 536/616. Les deux se rétractent donc à parts
+                  égales, ce qui donne le 576/576 attendu.
+                */}
+                <div className="w-full lg:w-1/2">
                   {feature.visual}
                 </div>
               </div>

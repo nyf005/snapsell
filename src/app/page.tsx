@@ -40,6 +40,25 @@ export default async function Home() {
       <LandingHeader user={session?.user ? { name: session.user.name, email: session.user.email! } : null} />
       <main id="main-content">
         <HeroSection user={session?.user ? { name: session.user.name ?? undefined } : null} />
+        {/*
+          Ordre du récit, une section = un métier :
+            Hero      → la douleur, la promesse, la démonstration
+            Core      → le même mardi, désordonné puis rangé
+            Features  → le détail, preuves à l'appui (ouvert par la frise du
+                        parcours, qui en est le sommaire)
+            HowItWorks→ la mise en route, côté boutique
+            Cta       → l'inscription
+
+          `JourneySection` a disparu en tant que section : son bloc de titre
+          pesait 152px pour une frise de 82, et sa place entre Core et Features
+          coupait le récit sans rien y ajouter. La frise vit maintenant en tête
+          de Features (`journey-strip.tsx`), où elle annonce les quatre blocs.
+
+          Effet de bord voulu : les fonds alternent désormais sans exception —
+          Core teinté, Features clair, HowItWorks teinté, CTA clair. Journey et
+          Features s'enchaînaient auparavant sur 2 338px du même fond, sans une
+          seule respiration visuelle.
+        */}
         <CoreSection />
         <FeaturesSection />
         <HowItWorksSection />

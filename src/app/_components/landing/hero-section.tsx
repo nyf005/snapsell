@@ -201,8 +201,16 @@ export function HeroSection({ user }: HeroSectionProps) {
           )}
         </div>
 
+        {/*
+          Le téléphone était `hidden lg:block` : sur mobile — l'écran de la
+          quasi-totalité de la cible — le hero n'avait aucun visuel, et la
+          première maquette de la page arrivait après un écran plein de texte.
+          Il est désormais affiché partout, mais APRÈS le bouton dans l'ordre du
+          document : le premier écran reste promesse + action, la démonstration
+          récompense le premier défilement.
+        */}
         {!isLoggedIn && (
-          <AnimateEntrance delay={600} className="hidden lg:block">
+          <AnimateEntrance delay={600}>
             <SimulatedChat />
           </AnimateEntrance>
         )}
