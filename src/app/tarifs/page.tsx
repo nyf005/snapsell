@@ -90,8 +90,11 @@ const comparisonItems: ComparisonItem[] = [
   },
   { kind: "row", label: "Preuves / mois", free: "Illimité", starter: "Illimité", pro: "Illimité" },
   {
+    // `maxAgents` compte les sièges — toute personne invitée, quel que soit son
+    // rôle, la propriétaire exclue (cf. `countOccupiedSeats`). Le libellé disait
+    // « Agents » alors que le quota inclut aussi les Managers.
     kind: "row",
-    label: "Agents",
+    label: "Membres d’équipe",
     free: String(ent("free").maxAgents),
     starter: String(ent("starter").maxAgents),
     pro: String(ent("pro").maxAgents),

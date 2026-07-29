@@ -259,7 +259,7 @@ describe("invitations router", () => {
         }),
       ).rejects.toMatchObject({
         code: "FORBIDDEN",
-        message: expect.stringContaining("Limite d'agents atteinte"),
+        message: expect.stringContaining("Limite de membres atteinte"),
       });
       expect(mockTransaction).not.toHaveBeenCalled();
     });
@@ -571,7 +571,7 @@ describe("invitations router", () => {
         }),
       ).rejects.toMatchObject({
         code: "FORBIDDEN",
-        message: expect.stringContaining("Limite d'agents atteinte"),
+        message: expect.stringContaining("Limite de membres atteinte"),
       });
       expect(mockTransaction).not.toHaveBeenCalled();
     });

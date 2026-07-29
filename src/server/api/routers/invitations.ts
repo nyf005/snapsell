@@ -109,12 +109,13 @@ export const invitationsRouter = createTRPCRouter({
         });
       }
 
-      // Limite d'agents selon l'abonnement (Story 7A.2)
+      // Limite de sièges selon l'abonnement (Story 7A.2). Un siège = une personne
+      // invitée, quel que soit son rôle — le message parle donc de membres.
       const agentsQuota = await checkAgentsQuota(tenantId);
       if (!agentsQuota.allowed) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: `Limite d'agents atteinte (${agentsQuota.currentCount}/${agentsQuota.maxAgents}). Passez à un plan supérieur pour ajouter des agents.`,
+          message: `Limite de membres atteinte (${agentsQuota.currentCount}/${agentsQuota.maxAgents}). Passez à un plan supérieur pour agrandir votre équipe.`,
         });
       }
 
@@ -222,12 +223,12 @@ export const invitationsRouter = createTRPCRouter({
       });
       validateInvitation(inv);
 
-      // Limite d'agents selon l'abonnement (Story 7A.2)
+      // Limite de sièges selon l'abonnement (Story 7A.2)
       const agentsQuota = await checkAgentsQuota(inv!.tenantId);
       if (!agentsQuota.allowed) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Limite d'agents atteinte pour ce compte. L'équipe ne peut plus accepter de nouveaux agents pour le moment.",
+          message: "Limite de membres atteinte pour cette boutique. L'équipe ne peut plus accepter de nouveaux membres pour le moment.",
         });
       }
 

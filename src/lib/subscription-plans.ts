@@ -114,7 +114,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
     },
     features: [
       "70 conversations client / mois",
-      "1 vendeur (pas d'agents)",
+      "Aucun membre d’équipe à inviter",
       "Grille catégories → prix",
       "Réservation, file d’attente et délai",
       "Tableau de bord des commandes",
@@ -161,7 +161,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
       // clientes, remplacée par le nom de la boutique.
       "Messages signés au nom de votre boutique",
       "500 conversations client / mois",
-      "1 vendeur + 1 agent",
+      "1 membre d’équipe à inviter",
       "Suivi complet des preuves de paiement",
       "Export CSV des commandes et du journal",
       "Notifications statut",
@@ -199,7 +199,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, PlanConfig> = {
     },
     features: [
       "1 500 conversations client / mois",
-      "Jusqu'à 5 agents",
+      "Jusqu’à 5 membres d’équipe",
       "Journal d'activité sans limite de durée",
       "Export CSV enrichi (quantité, variante, commune, délais)",
       "Notifications statut",
