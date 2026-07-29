@@ -3,6 +3,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  APP_SHELL_PREFIXES,
+  isAppShellPath,
   navDescription,
   mobilePrimaryItems,
   mobileSheetItems,
@@ -230,6 +232,52 @@ describe("En-têtes d’écran — une seule source", () => {
     // « Gérer · Vente » et « Gérer · Communication » étaient inventées.
     for (const item of NAV_ITEMS) {
       expect(NAV_SECTIONS, item.href).toContain(item.section);
+    }
+  });
+});
+
+/**
+ * Coquilles applicatives et animation d'entrée de page.
+ *
+ * `src/app/template.tsx` enveloppe chaque route dans un div animé, sauf ces
+ * préfixes. L'exclusion n'est pas cosmétique : `page-in` anime `transform`, ce
+ * qui fait de l'élément animé le bloc conteneur de ses descendants
+ * `position: fixed` — la barre mobile et la barre latérale décrochaient du
+ * viewport. Un oubli ici casse silencieusement le positionnement fixe.
+ */
+describe("APP_SHELL_PREFIXES — exclusion de l’animation d’entrée", () => {
+  it("chaque route de la navigation vit sous une coquille déclarée", () => {
+    for (const item of NAV_ITEMS) {
+      expect(
+        isAppShellPath(item.href),
+        `${item.href} n’est couvert par aucun préfixe de APP_SHELL_PREFIXES — ` +
+          `sa barre mobile et sa barre latérale seront mal positionnées.`,
+      ).toBe(true);
+    }
+  });
+
+  it("couvre le préfixe lui-même et ses sous-routes, pas ses homonymes", () => {
+    expect(isAppShellPath("/dashboard")).toBe(true);
+    expect(isAppShellPath("/dashboard/orders")).toBe(true);
+    expect(isAppShellPath("/parametres/prix")).toBe(true);
+    expect(isAppShellPath("/ops/logs")).toBe(true);
+    // « /dashboard-public » n’est pas une sous-route de « /dashboard ».
+    expect(isAppShellPath("/dashboard-public")).toBe(false);
+  });
+
+  it("laisse les pages publiques et d’authentification animées", () => {
+    for (const href of ["/", "/tarifs", "/login", "/signup", "/logout"]) {
+      expect(isAppShellPath(href), href).toBe(false);
+    }
+  });
+
+  it("chaque préfixe déclaré correspond à un groupe de routes réel", () => {
+    for (const prefix of APP_SHELL_PREFIXES) {
+      const segments = prefix.replace(/^\//, "");
+      const found = ["(dashboard)", "(ops)"].some((group) =>
+        existsSync(join(APP_DIR, group, segments)),
+      );
+      expect(found, `Aucun répertoire de routes pour ${prefix}`).toBe(true);
     }
   });
 });

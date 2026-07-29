@@ -49,7 +49,14 @@ export default async function DashboardLayout({
 
   return (
     <FeedbackProvider>
-      <SidebarProvider className="h-screen overflow-hidden">
+      {/*
+        `h-dvh` et non `h-screen` : sur mobile, `100vh` vaut la hauteur du
+        viewport LARGE, barre d'adresse rétractée. La coquille dépassait donc le
+        visible de la hauteur de cette barre, et son dernier élément — la
+        `MobileBottomNav` — se retrouvait dessous. `100dvh` suit la hauteur
+        réellement visible.
+      */}
+      <SidebarProvider className="h-dvh overflow-hidden">
         <a
           href="#main-content"
           className="fixed left-3 top-3 z-[70] -translate-y-20 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform focus:translate-y-0"

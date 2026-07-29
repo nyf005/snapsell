@@ -363,8 +363,22 @@
     transform: translateY(0);
   }
 }
+/*
+ * Pas de `forwards`.
+ *
+ * `animation-fill-mode: forwards` fige la dernière image-clé, ici
+ * `transform: translateY(0)`. Ce n'est PAS `transform: none` : toute valeur de
+ * transform autre que `none` fait de l'élément le bloc conteneur de ses
+ * descendants `position: fixed`, définitivement. Le div de `template.tsx`
+ * cassait ainsi tout positionnement fixe de l'application, bien après la fin de
+ * l'animation.
+ *
+ * Sans `forwards`, l'élément revient à son état de base à la fin — `opacity: 1`
+ * et `transform: none`, soit exactement le rendu de la dernière image-clé.
+ * Aucun changement visuel, et le bloc conteneur disparaît.
+ */
 .animate-page-in {
-  animation: page-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: page-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Smooth scroll for anchor links */

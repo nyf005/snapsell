@@ -224,3 +224,32 @@ export function navDescription(href: string): string {
 export function settingsItems(): NavItem[] {
   return NAV_ITEMS.filter((item) => item.surfaces.includes("settings"));
 }
+
+/**
+ * Racines des coquilles applicatives — celles qui portent une barre latérale ou
+ * une barre mobile, et non un simple contenu de page.
+ *
+ * `/ops` n'apparaît pas dans `NAV_ITEMS` (console interne, hors navigation
+ * boutique) : la liste est donc déclarée, pas dérivée.
+ */
+export const APP_SHELL_PREFIXES = ["/dashboard", "/parametres", "/ops"] as const;
+
+/**
+ * La route est-elle une coquille applicative ?
+ *
+ * Sert à `src/app/template.tsx`, qui doit exclure ces routes de l'animation
+ * d'entrée de page. La raison est subtile et mérite d'être gardée par un test :
+ * `page-in` anime `transform`, et une valeur de transform autre que `none` fait
+ * de l'élément animé le bloc conteneur de ses descendants `position: fixed`.
+ * Envelopper la coquille dans cet élément décrochait donc la barre mobile et la
+ * barre latérale du viewport — mesuré, une sonde `fixed; bottom:0` atterrissait
+ * à 6 200px au lieu du bas de l'écran.
+ *
+ * Si une nouvelle coquille apparaît sans être ajoutée ici, ses éléments fixes
+ * seront silencieusement mal placés. D'où le test.
+ */
+export function isAppShellPath(pathname: string): boolean {
+  return APP_SHELL_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
