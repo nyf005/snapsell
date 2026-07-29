@@ -267,7 +267,14 @@ export default async function TarifsPage(props: TarifsPageProps) {
               Pas de surprise, pas d&apos;engagement
             </div>
 
-            <h1 className="font-display text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+            {/*
+              Même échelle typographique que le hero du landing
+              (src/app/_components/landing/hero-section.tsx) : 30 / 36 / 48 px.
+              Les deux titres se lisaient à des tailles très différentes — 36 px
+              ici contre 60 px là — ce qui donnait l'impression de deux pages
+              conçues séparément.
+            */}
+            <h1 className="font-display text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl">
               Un plan pour chaque{" "}
               <span className="hero-gradient-text">vendeur</span>
             </h1>
