@@ -1,8 +1,15 @@
 import { redirect } from "next/navigation";
+import { canManageGrid } from "~/lib/rbac";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 import { OrdersListContent } from "./_components/orders-list-content";
 
+/**
+ * L'écran est ouvert à tous les rôles tenant — traiter une commande est le
+ * travail de l'Agent et de la Vente, cf. l'en-tête de `routers/orders.ts`.
+ * Seul le bouton d'export reste conditionné au rôle, en miroir du gating
+ * `managerProcedure` que garde `orders.exportCsv`.
+ */
 export default async function OrdersPage() {
   const session = await auth();
 
@@ -10,8 +17,7 @@ export default async function OrdersPage() {
     redirect("/login");
   }
 
-  const role = session.user.role as string | undefined;
-  const canManageRole = role === "OWNER" || role === "MANAGER";
+  const canManageRole = canManageGrid(session.user.role as string);
 
   const tenantId = session.user.tenantId;
   let canExportCsv = false;

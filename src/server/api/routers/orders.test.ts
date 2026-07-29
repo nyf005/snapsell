@@ -68,9 +68,159 @@ describe("orders router", () => {
     },
   };
 
+  const agentSession = {
+    user: {
+      id: "user-agent",
+      email: "agent@example.com",
+      tenantId: "tenant-1",
+      role: "AGENT",
+    },
+  };
+
+  const vendeurSession = {
+    user: {
+      id: "user-vendeur",
+      email: "vendeur@example.com",
+      tenantId: "tenant-1",
+      role: "VENDEUR",
+    },
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockTenantFindUnique.mockResolvedValue({ hasExportCsv: true });
+  });
+
+  /**
+   * Portée des rôles — la dérive que ces tests interdisent.
+   *
+   * `list`, `getById`, `updateStatus` et `bulkUpdateStatus` s'étaient retrouvés en
+   * `managerProcedure` alors que l'entrée « Commandes » de `navigation.ts` n'a pas
+   * `requiresGridRole`. Résultat : un Agent voyait son écran de travail dans le
+   * menu, cliquait, et recevait un FORBIDDEN — en contradiction avec PRODUCT.md
+   * (« les Agents traitent commandes et preuves ») et avec la description que
+   * `roleDescription("AGENT")` affiche à l'écran Équipe.
+   *
+   * Rien dans les tests de structure ne pouvait attraper ça : la navigation et le
+   * router sont cohérents chacun de leur côté, c'est leur accord qui manquait.
+   * D'où une assertion par procédure, sur le rôle le plus étroit.
+   */
+  describe("portée des rôles (accord navigation ↔ router)", () => {
+    /** Commande confirmée + transaction, matériel commun aux mutations. */
+    function mockConfirmedOrder(id: string) {
+      const order = {
+        id,
+        tenantId: "tenant-1",
+        orderNumber: "SS-0042",
+        status: "confirmed",
+        depositStatus: "no_deposit",
+        depositExpiresAt: null,
+        reservationId: "res-1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        reservation: { clientPhone: "+33612345678" },
+      };
+      mockOrderFindFirst.mockResolvedValue(order);
+      mockTransaction.mockImplementation(
+        async (fn: (tx: { order: { update: (arg: unknown) => Promise<unknown> } }) => unknown) =>
+          fn({
+            order: {
+              update: vi.fn().mockResolvedValue({ ...order, status: "preparing" }),
+            },
+          }),
+      );
+      return order;
+    }
+
+    it("list: l'Agent obtient les commandes de son tenant", async () => {
+      mockOrderFindMany.mockResolvedValue([]);
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: agentSession as never,
+      });
+
+      const result = await createCaller(ctx).orders.list();
+
+      expect(result.items).toEqual([]);
+      expect(mockOrderFindMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { tenantId: "tenant-1" } }),
+      );
+    });
+
+    it("list: la Vente obtient les commandes de son tenant", async () => {
+      mockOrderFindMany.mockResolvedValue([]);
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: vendeurSession as never,
+      });
+
+      await expect(createCaller(ctx).orders.list()).resolves.toMatchObject({ items: [] });
+    });
+
+    it("getById: l'Agent peut ouvrir une commande", async () => {
+      mockOrderFindFirst.mockResolvedValue({
+        id: "order-1",
+        orderNumber: "SS-0042",
+        status: "confirmed",
+        depositStatus: "no_deposit",
+        depositExpiresAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        reservationId: "res-1",
+        reservation: { id: "res-1", clientPhone: "+33612345678", liveItem: { code: "A" } },
+      });
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: agentSession as never,
+      });
+
+      await expect(
+        createCaller(ctx).orders.getById({ orderId: "order-1" }),
+      ).resolves.toMatchObject({ orderNumber: "SS-0042" });
+    });
+
+    it("updateStatus: l'Agent peut faire avancer une commande", async () => {
+      mockConfirmedOrder("order-1");
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: agentSession as never,
+      });
+
+      await expect(
+        createCaller(ctx).orders.updateStatus({ orderId: "order-1", status: "preparing" }),
+      ).resolves.toMatchObject({ orderNumber: "SS-0042", status: "preparing" });
+    });
+
+    it("bulkUpdateStatus: l'Agent peut traiter un lot", async () => {
+      mockConfirmedOrder("order-1");
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: agentSession as never,
+      });
+
+      await expect(
+        createCaller(ctx).orders.bulkUpdateStatus({
+          orderIds: ["order-1"],
+          status: "preparing",
+        }),
+      ).resolves.toMatchObject({ updated: 1, skipped: 0 });
+    });
+
+    /**
+     * La contrepartie : sortir le fichier client reste un acte de gestion.
+     * Le cas AGENT est couvert dans le bloc exportCsv ci-dessous.
+     */
+    it("exportCsv: la Vente reste refusée", async () => {
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: vendeurSession as never,
+      });
+
+      await expect(createCaller(ctx).orders.exportCsv({})).rejects.toMatchObject({
+        code: "FORBIDDEN",
+      });
+      expect(mockOrderFindMany).not.toHaveBeenCalled();
+    });
   });
 
   describe("list", () => {
@@ -370,15 +520,6 @@ describe("orders router", () => {
     });
 
     it("throws FORBIDDEN for AGENT role", async () => {
-      const agentSession = {
-        user: {
-          id: "user-agent",
-          email: "agent@example.com",
-          tenantId: "tenant-1",
-          role: "AGENT",
-        },
-      };
-
       const ctx = await createTRPCContext({
         headers: new Headers(),
         session: agentSession as never,

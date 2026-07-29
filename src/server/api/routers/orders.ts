@@ -3,11 +3,28 @@
  * Story 5.4: Notification cliente par WhatsApp sur delivered/cancelled.
  * Story 6.5: Export CSV commandes (manager/owner), même filtres que list.
  * Isolation tenant: tenantId toujours depuis ctx.session.user.tenantId (protectedProcedure).
+ *
+ * Portée des rôles — traiter une commande n'est pas un acte d'administration.
+ * PRODUCT.md : « la Vente pilote les ventes pendant le live, et les Agents
+ * traitent commandes et preuves. » Le router des preuves est en
+ * `protectedProcedure` de bout en bout ; les commandes s'étaient retrouvées en
+ * `managerProcedure`, alors que l'entrée « Commandes » reste visible pour tous
+ * les rôles tenant dans `navigation.ts`. Un Agent voyait donc son propre écran
+ * de travail dans le menu et récoltait un FORBIDDEN en cliquant.
+ *
+ * Le modèle est à deux niveaux, et le seul qui tienne avec la navigation :
+ * « Traiter » ouvert à tous les rôles tenant, « Gérer » réservé à
+ * `canManageGrid`. Seul `exportCsv` reste manager — sortir le fichier client
+ * du produit relève de la gestion, pas du traitement.
  */
 
 import { TRPCError } from "@trpc/server";
 import { db } from "~/server/db";
-import { createTRPCRouter, managerProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  managerProcedure,
+  protectedProcedure,
+} from "~/server/api/trpc";
 import {
   bulkUpdateStatusInputSchema,
   exportCsvOrdersInputSchema,
@@ -75,7 +92,7 @@ function escapeCsvCell(value: string | number | Date | null | undefined): string
 
 
 export const ordersRouter = createTRPCRouter({
-  list: managerProcedure
+  list: protectedProcedure
     .input(listOrdersInputSchema)
     .query(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
@@ -98,7 +115,10 @@ export const ordersRouter = createTRPCRouter({
       return { items, nextCursor };
     }),
 
-  /** Story 6.5: Export CSV commandes. Réservé OWNER/MANAGER. */
+  /**
+   * Story 6.5: Export CSV commandes. Réservé OWNER/MANAGER — seule procédure du
+   * router qui le reste, cf. l'en-tête du fichier.
+   */
   exportCsv: managerProcedure
     .input(exportCsvOrdersInputSchema)
     .query(async ({ ctx, input }) => {
@@ -197,7 +217,7 @@ export const ordersRouter = createTRPCRouter({
       return { csv, filename };
     }),
 
-  getById: managerProcedure
+  getById: protectedProcedure
     .input(getOrderByIdInputSchema)
     .query(async ({ ctx, input }) => {
       const order = await getOrderById(ctx.session.user.tenantId, input.orderId);
@@ -207,7 +227,7 @@ export const ordersRouter = createTRPCRouter({
       return order;
     }),
 
-  updateStatus: managerProcedure
+  updateStatus: protectedProcedure
     .input(updateOrderStatusInputSchema)
     .mutation(async ({ ctx, input }) => {
       const result = await updateOrderStatus({
@@ -231,7 +251,7 @@ export const ordersRouter = createTRPCRouter({
     }),
 
   /** Phase 4.2: Bulk marking de plusieurs commandes vers un même statut (ex: "delivered"). */
-  bulkUpdateStatus: managerProcedure
+  bulkUpdateStatus: protectedProcedure
     .input(bulkUpdateStatusInputSchema)
     .mutation(async ({ ctx, input }) => {
       const tenantId = ctx.session.user.tenantId;
