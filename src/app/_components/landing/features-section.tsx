@@ -200,12 +200,28 @@ const features: Feature[] = [
     highlight: "Zéro commande fantôme",
     visual: <TimerVisual />,
   },
+  /*
+   * Ce bloc annonçait « Le lendemain, tout est déjà trié », et le lendemain
+   * n'existe pas : rien n'est trié en différé, chaque ligne est écrite à la
+   * seconde où la commande se fait. La formulation décrivait un traitement par
+   * lot que le produit ne fait pas — et elle le sous-vendait, en repoussant au
+   * jour suivant un bénéfice disponible immédiatement.
+   *
+   * Elle contredisait aussi les trois blocs précédents, qui promettent tous
+   * l'instantané (« à la seconde près », « verrouillage instantané »), et la
+   * maquette du désordre rangé, qui montre le MÊME mardi et non le suivant.
+   *
+   * Le titre nomme donc la corvée elle-même — recopier — plutôt qu'un moment de
+   * la journée où elle serait déjà faite. Aucune référence temporelle : c'est le
+   * geste qui disparaît, pas son échéance qui avance. « Une seule ligne » répond
+   * au « chaque ligne » de la description.
+   */
   {
     number: "04",
-    title: "Le lendemain, tout est déjà trié",
+    title: "Vous ne recopiez plus une seule ligne",
     description:
-      "Commandes, preuves de paiement, expéditions : plus rien à recopier le soir. Vous ouvrez le tableau de bord, tout y est déjà, à jour.",
-    highlight: "Tout centralisé",
+      "Commandes, preuves de paiement, expéditions : chaque ligne s’écrit à la seconde où elle se passe. À midi comme à minuit, vous ouvrez le tableau de bord et tout y est déjà.",
+    highlight: "Rien à ressaisir",
     visual: <DashboardVisual />,
   },
 ];
