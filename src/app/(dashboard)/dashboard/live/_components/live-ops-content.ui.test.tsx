@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import React from "react";
 
 // Mock next/navigation
@@ -16,12 +17,30 @@ vi.mock("~/app/(dashboard)/_components/dashboard-header", () => ({
 const mockStartLive = vi.fn();
 const mockEndLive = vi.fn();
 const mockReleaseReservation = vi.fn();
+const mockAddFromCatalogue = vi.fn();
 
 vi.mock("~/trpc/react", () => ({
   api: {
     useUtils: () => ({
       live: { getLiveOpsData: { invalidate: vi.fn() } },
+      catalogue: { list: { invalidate: vi.fn() } },
     }),
+    // Le dialogue « Depuis le catalogue » branche `live.addItemFromCatalogue`,
+    // procédure qui existait sans appelant.
+    catalogue: {
+      list: {
+        useQuery: () => ({
+          data: {
+            items: [
+              { id: "cat-1", code: "A12", amount: 500000, availableQty: 3 },
+              { id: "cat-2", code: "B7", amount: null, availableQty: 0 },
+            ],
+            nextCursor: null,
+          },
+          isLoading: false,
+        }),
+      },
+    },
     // Consommé par SetupRequiredBanner ; boutique connectée → bandeau masqué.
     onboarding: {
       getStatus: {
@@ -87,6 +106,16 @@ vi.mock("~/trpc/react", () => ({
           error: null,
         }),
       },
+      addItemFromCatalogue: {
+        useMutation: (opts: { onSuccess?: (item: { code: string }) => void }) => ({
+          mutate: mockAddFromCatalogue.mockImplementation(() =>
+            opts.onSuccess?.({ code: "A12" }),
+          ),
+          isPending: false,
+          isError: false,
+          error: null,
+        }),
+      },
     },
   },
 }));
@@ -123,5 +152,59 @@ describe("LiveOpsContent — active session", () => {
     expect(screen.getByText("Articles du live")).toBeInTheDocument();
     expect(screen.getAllByText("Réservations actives").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/file d'attente/)).toBeInTheDocument();
+  });
+});
+
+/**
+ * `live.addItemFromCatalogue` existait depuis longtemps — il hérite du code, du
+ * stock et de la photo de l'article — et aucune interface ne l'appelait. Pendant
+ * un live, il fallait donc retaper un article déjà enregistré, alors que le
+ * téléphone sert à filmer.
+ *
+ * Il a remplacé deux boutons d'en-tête, « Paramètres » et « Exporter », qui
+ * n'avaient aucun gestionnaire : deux icônes sans action.
+ */
+describe("LiveOpsContent — ajouter depuis le catalogue", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("les anciens boutons sans action ont disparu", () => {
+    render(<LiveOpsContent />);
+    expect(screen.queryByRole("button", { name: "Paramètres" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Exporter" })).not.toBeInTheDocument();
+  });
+
+  it("ouvre le catalogue et ajoute l'article choisi", async () => {
+    const user = userEvent.setup();
+    render(<LiveOpsContent />);
+
+    await user.click(screen.getByRole("button", { name: /Depuis le catalogue/ }));
+    await user.click(await screen.findByRole("button", { name: /A12/ }));
+
+    expect(mockAddFromCatalogue).toHaveBeenCalledWith({ catalogueItemId: "cat-1" });
+  });
+
+  /** Le serveur refuse un stock épuisé : le dire évite de faire cliquer pour rien. */
+  it("n'offre pas un article épuisé", async () => {
+    const user = userEvent.setup();
+    render(<LiveOpsContent />);
+
+    await user.click(screen.getByRole("button", { name: /Depuis le catalogue/ }));
+    expect(await screen.findByRole("button", { name: /B7/ })).toBeDisabled();
+  });
+
+  it("filtre le catalogue par code", async () => {
+    const user = userEvent.setup();
+    render(<LiveOpsContent />);
+
+    await user.click(screen.getByRole("button", { name: /Depuis le catalogue/ }));
+    await user.type(
+      await screen.findByRole("searchbox", { name: /Chercher un article du catalogue/ }),
+      "B7",
+    );
+
+    expect(screen.queryByRole("button", { name: /A12/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /B7/ })).toBeInTheDocument();
   });
 });

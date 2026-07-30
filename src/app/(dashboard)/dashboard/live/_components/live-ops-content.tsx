@@ -6,6 +6,7 @@ import { formatErrorText, formatXof } from "~/lib/copy";
 import { DataList } from "~/components/ui/data-list";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
+import { AddFromCatalogueDialog } from "./add-from-catalogue-dialog";
 import { SetupRequiredBanner } from "~/app/(dashboard)/_components/setup-required-banner";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -32,8 +33,7 @@ import {
   Users,
   BarChart2,
   AlarmClock,
-  Settings,
-  Download,
+  PackageOpen,
   X,
   ChevronDown,
   TrendingUp,
@@ -84,6 +84,8 @@ export function LiveOpsContent() {
   const [releaseTargetClient, setReleaseTargetClient] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showEndLiveDialog, setShowEndLiveDialog] = useState(false);
+  /** Dialogue d'ajout depuis le catalogue — branche `live.addItemFromCatalogue`. */
+  const [showAddFromCatalogue, setShowAddFromCatalogue] = useState(false);
 
   const { data: liveOpsData, isLoading } = api.live.getLiveOpsData.useQuery(undefined, {
     refetchInterval: (query) => {
@@ -163,11 +165,20 @@ export function LiveOpsContent() {
               <>
               {hasSession ? (
                 <>
-                  <Button variant="outline" size="icon" aria-label="Paramètres">
-                    <Settings className="size-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" aria-label="Exporter">
-                    <Download className="size-4" />
+                  {/*
+                    Les deux boutons qui occupaient cette place — « Paramètres » et
+                    « Exporter » — n'avaient aucun gestionnaire : deux icônes sans
+                    action. Celui-ci branche `live.addItemFromCatalogue`, qui
+                    existait depuis longtemps sans qu'aucune interface l'appelle.
+                  */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => setShowAddFromCatalogue(true)}
+                  >
+                    <PackageOpen className="size-4" />
+                    Depuis le catalogue
                   </Button>
                   <Button
                     variant="destructive"
@@ -539,6 +550,15 @@ export function LiveOpsContent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AddFromCatalogueDialog
+        open={showAddFromCatalogue}
+        onOpenChange={setShowAddFromCatalogue}
+        onAdded={(message) => {
+          setSuccessMessage(message);
+          setTimeout(() => setSuccessMessage(null), 4000);
+        }}
+      />
     </>
   );
 }
