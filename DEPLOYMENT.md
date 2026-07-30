@@ -34,6 +34,25 @@ Le webhook Vercel ne fait qu'un `boss.send()` ; tout le traitement métier des m
   - `QSTASH_TOKEN`, `NEXT_PUBLIC_APP_URL` (envoi sortant)
   - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optionnel : rate limiting tRPC)
 
+### Après toute modification de dépendances
+
+```bash
+npm run deps:check
+```
+
+Équivalent à un `npm ci --dry-run` : vérifie que `package.json` et
+`package-lock.json` sont d'accord, **sans** toucher aux `node_modules`.
+
+Ce n'est pas une précaution théorique. Un `npm audit fix` a déjà hissé
+`vite` en 8 alors que `@vitejs/plugin-react` n'acceptait que `^7` en
+peerDependency. En local, les tests passaient — ils tournaient sur un
+`node_modules` déjà installé, qui masquait le désaccord. Le build Railway,
+lui, part d'un `npm ci` et a échoué.
+
+Une suite de tests verte ne dit rien de l'installabilité du lockfile.
+
+---
+
 ### Vulnérabilités connues et acceptées
 
 `npm audit` signale 3 vulnérabilités **hautes** sur `sharp`, héritées de libvips
