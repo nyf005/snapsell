@@ -61,6 +61,30 @@ import {
   hasTrustedAIIntent,
 } from "../messaging/ai-service";
 
+/**
+ * Délimiteur de mot qui connaît les accents.
+ *
+ * `\b` du moteur ne considère que `[A-Za-z0-9_]` : pour « où », il n'y a donc
+ * aucune frontière entre « ù » et l'espace qui suit, tous deux non-alphanumériques
+ * à ses yeux, et `\bo[ùu]\b` ne matche jamais. Ces deux lookarounds tiennent
+ * compte des lettres accentuées du français.
+ */
+const NOT_LETTER_BEFORE = "(?<![a-zà-öø-ÿ0-9])";
+const NOT_LETTER_AFTER = "(?![a-zà-öø-ÿ0-9])";
+
+/** Construit un motif « mot entier » sur une alternative déjà en minuscules. */
+function word(alternatives: string): RegExp {
+  return new RegExp(`${NOT_LETTER_BEFORE}(?:${alternatives})${NOT_LETTER_AFTER}`);
+}
+
+/** Deux termes dans la même phrase, dans un ordre ou l'autre. */
+function near(a: string, b: string): RegExp {
+  return new RegExp(
+    `${NOT_LETTER_BEFORE}(?:${a})[^.!?]*${NOT_LETTER_BEFORE}(?:${b})` +
+      `|${NOT_LETTER_BEFORE}(?:${b})[^.!?]*${NOT_LETTER_BEFORE}(?:${a})`,
+  );
+}
+
 /** Mots-clés STOP (case-insensitive, trim) pour détection opt-out. */
 const STOP_KEYWORDS = ["stop", "arrêt", "arret", "unsubscribe", "optout", "opt-out"];
 
@@ -83,12 +107,12 @@ const STOP_KEYWORDS = ["stop", "arrêt", "arret", "unsubscribe", "optout", "opt-
  * ────────────────────────────────────────────────────────────────────────────
  */
 const HANDOFF_PATTERNS = [
-  /\bagents?\b/,
-  /\bhumain(e|s)?\b/,
-  /\bconseill[eè]re?s?\b/,
-  /\bservice\s+client\b/,
-  /\bparler\s+[àa]\s+(quelqu'?un|une?\s+personne)\b/,
-  /\bvraie?\s+personne\b/,
+  word("agents?"),
+  word("humain|humaine|humains"),
+  word("conseiller|conseillère|conseillere|conseillers"),
+  word("service client"),
+  word("parler à quelqu'un|parler a quelqu'un|parler à une personne|parler a une personne"),
+  word("vraie personne|vrai humain"),
 ];
 
 /** Pattern « code » client : lettre(s) + chiffre(s) ex. A12, B7 (Story 2.6 Option A) */
@@ -173,22 +197,72 @@ export function isHandoffActive(
   return now.getTime() - state.updatedAt.getTime() < HANDOFF_TTL_MS;
 }
 
-/** Phase 5.3: FAQ keyword detection. Returns the FAQ category or null. */
+/**
+ * Phase 5.3 : reconnaissance d'une question fréquente, pour servir la réponse que
+ * la boutique a écrite.
+ *
+ * ── DEUX MOTS TROP LARGES ONT ÉTÉ RESSERRÉS ─────────────────────────────────
+ * « quand » déclenchait à lui seul la réponse sur les délais de livraison :
+ * « c'est quand le live ? » recevait donc les conditions d'expédition. Il ne
+ * compte plus que s'il accompagne un mot de livraison.
+ *
+ * « trouver » déclenchait l'adresse de la boutique : « comment trouver ma taille »
+ * y tombait aussi. Il exige désormais « où » ou « vous » à proximité.
+ *
+ * Les limites de mot (`\b`) évitent par ailleurs qu'un terme se déclenche depuis
+ * l'intérieur d'un autre — le défaut qui avait fait basculer la mise en relation
+ * sur « je t'appelle demain ».
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+const FAQ_PATTERNS: ReadonlyArray<{
+  category: "delivery" | "payment" | "location" | "availability";
+  patterns: readonly RegExp[];
+}> = [
+  {
+    category: "delivery",
+    patterns: [
+      word("livraisons?|livrer|livrez|livré|livrée|livres?"),
+      word("expédition|expedition|expéditions|livraison"),
+      word("délai|delai|délais|delais"),
+      word("recevoir|reçois|recois|reçu|recu"),
+      // « quand » seul servait les délais d'expédition à « c'est quand le live ? ».
+      near("quand", "livr|reç|rec|arriv|expédi|expedi"),
+    ],
+  },
+  {
+    category: "payment",
+    patterns: [
+      word("paiement|paiements|payer|paie|paye"),
+      word("virement|dépôt|depot|acompte"),
+      word("mobile money|momo|wave|orange money"),
+    ],
+  },
+  {
+    category: "location",
+    patterns: [
+      word("où|ou se trouve|adresse|boutique|quartier"),
+      word("localisation|localisé|localise|située|situee|situé|situe"),
+      // « trouver » seul attrapait « comment trouver ma taille ».
+      near("où|vous", "trouver"),
+    ],
+  },
+  {
+    category: "availability",
+    patterns: [
+      word("disponibilité|disponibilite|disponible|disponibles|dispo"),
+      word("stock|rupture|épuisé|epuise|épuisée"),
+      near("reste", "articles?"),
+    ],
+  },
+];
+
 export function detectFaqIntent(
   body: string,
 ): "delivery" | "payment" | "location" | "availability" | null {
   const lower = body.toLowerCase().trim();
-  if (/livrai?s(on)?|expéditi?on|délai|recevoir|arrive|quand/.test(lower)) return "delivery";
-  if (
-    /paiement|payer|virement|dépôt|acompte|moyen.*(paiement|payer)|bank|mobile money|momo|wave|orange money/.test(
-      lower,
-    )
-  )
-    return "payment";
-  if (/où|adresse|boutique|localisa|situé|trouver|localisation|quartier/.test(lower))
-    return "location";
-  if (/disponible|disponibilité|stock|reste.*article|encore.*dispo|rupture|épuisé/.test(lower))
-    return "availability";
+  for (const { category, patterns } of FAQ_PATTERNS) {
+    if (patterns.some((re) => re.test(lower))) return category;
+  }
   return null;
 }
 
@@ -376,7 +450,7 @@ export async function processWebhookJob(
       workerLogger.debug("AI skipped for FREE plan", { tenantId, body: body.substring(0, 50) });
     }
 
-    // 4. Handoff management
+    // 5. Handoff management
     if (messageType === "client" && !isStopMessage(body) && body.trim().length > 0) {
       if (isHandoffRequest(body) || hasTrustedAIIntent(aiAnalysis, "HUMAN_AGENT")) {
         await setHandedOff(tenantId, clientPhoneE164, true);
@@ -401,7 +475,7 @@ export async function processWebhookJob(
       }
     }
 
-    // 4. Commande via panier WA natif (P1 — message type "order")
+    // 6. Commande via panier WA natif (P1 — message type "order")
     if (orderPayload?.items.length) {
       const reserved: Array<{ code: string; qty: number; prix: string }> = [];
       const failed: string[] = [];
@@ -469,7 +543,7 @@ export async function processWebhookJob(
       return buildEnrichedMessage();
     }
 
-    // 5. Interactive Replies Handler
+    // 7. Interactive Replies Handler
     if (interactiveReplyId) {
       if (interactiveReplyId === "cancel_order") {
         const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
@@ -638,7 +712,7 @@ export async function processWebhookJob(
       return buildEnrichedMessage();
     }
 
-    // 5. Session Lookup
+    // 8. Session Lookup
     const trimmedBody = body.trim();
     const isClient = messageType === "client";
     const shouldRead =
@@ -646,7 +720,7 @@ export async function processWebhookJob(
       !isStopMessage(body);
     const liveSessionId = shouldRead ? (await getCurrentSessionReadOnly(tenantId))?.id : null;
 
-    // 6. Client intent
+    // 9. Client intent
     if (isClient) {
       let clientCodeIntent = parseClientCodeIntent(body);
 
@@ -655,7 +729,8 @@ export async function processWebhookJob(
       if (!clientCodeIntent && aiBuyIntent) {
         clientCodeIntent = {
           code: normalizeCode(aiBuyIntent.code),
-          quantity: aiBuyIntent.quantity,
+          // Bornée comme celle du parseur strict : l'IA renvoyait un nombre libre.
+          quantity: clampQuantity(aiBuyIntent.quantity),
           isTypo: false,
         };
       }
@@ -730,7 +805,7 @@ export async function processWebhookJob(
         return buildEnrichedMessage(liveSessionId);
       }
 
-      // 6b. Deposit proof — image sans texte (body vide, mediaUrl présent)
+      // 9b. Deposit proof — image sans texte (body vide, mediaUrl présent)
       if (mediaUrl && !trimmedBody) {
         const pendingDepositOrder = await db.order.findFirst({
           where: {
@@ -854,7 +929,7 @@ export async function processWebhookJob(
           return buildEnrichedMessage(liveSessionId);
         }
 
-        // 6c. Deposit proof — texte (référence paiement) ou image + texte (caption)
+        // 9c. Deposit proof — texte (référence paiement) ou image + texte (caption)
         const pendingDepositOrder = await db.order.findFirst({
           where: {
             tenantId,
@@ -946,7 +1021,7 @@ export async function processWebhookJob(
       }
     }
 
-    // 7. Seller intent
+    // 10. Seller intent
     if (isSeller) {
       const convState = await db.conversationState.findUnique({
         where: { tenantId_phone: { tenantId, phone: clientPhoneE164 } },
@@ -980,7 +1055,7 @@ export async function processWebhookJob(
         if (!intent && aiSellerIntent) {
           intent = {
             code: normalizeCode(aiSellerIntent.code),
-            quantity: aiSellerIntent.quantity,
+            quantity: clampQuantity(aiSellerIntent.quantity),
           };
         }
 

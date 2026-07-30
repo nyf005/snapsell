@@ -10,6 +10,7 @@ import {
   clampQuantity,
   HANDOFF_TTL_MS,
   MAX_ITEM_QUANTITY,
+  detectFaqIntent,
 } from "./webhook-processor";
 import { normalizeIncomingPhone } from "~/lib/validations/phone";
 import type { InboundMessage } from "../messaging/types";
@@ -3372,5 +3373,47 @@ describe("STOP — ne consomme pas de crédit", () => {
     // ouverte, donc aucun crédit consommé.
     expect(vi.mocked(db.conversationWindow.create)).not.toHaveBeenCalled();
     expect(result.messageType).toBe("client");
+  });
+});
+
+/**
+ * La fonction n'avait aucun test, et deux de ses mots étaient trop larges :
+ * « quand » servait à lui seul la réponse sur les délais de livraison, « trouver »
+ * celle sur l'adresse de la boutique.
+ */
+describe("detectFaqIntent", () => {
+  it.each([
+    ["quand est-ce que je reçois ma commande ?", "delivery"],
+    ["vous livrez à Cocody ?", "delivery"],
+    ["quel est le délai ?", "delivery"],
+    ["comment je paie ?", "payment"],
+    ["vous prenez le mobile money ?", "payment"],
+    ["c'est quoi l'acompte ?", "payment"],
+    ["vous êtes où ?", "location"],
+    ["quel quartier ?", "location"],
+    ["où puis-je vous trouver ?", "location"],
+    ["c'est encore disponible ?", "availability"],
+    ["il reste des articles ?", "availability"],
+  ] as const)("classe « %s » en %s", (body, expected) => {
+    expect(detectFaqIntent(body)).toBe(expected);
+  });
+
+  /** Les faux positifs que la version large produisait. */
+  it("ne sert pas les délais de livraison pour « c'est quand le live ? »", () => {
+    expect(detectFaqIntent("c'est quand le live ?")).toBeNull();
+  });
+
+  it("ne sert pas l'adresse pour « comment trouver ma taille »", () => {
+    expect(detectFaqIntent("comment trouver ma taille")).toBeNull();
+  });
+
+  it("ne classe pas un code article", () => {
+    expect(detectFaqIntent("A12")).toBeNull();
+    expect(detectFaqIntent("A12 x2")).toBeNull();
+  });
+
+  it("ne classe pas un message quelconque", () => {
+    expect(detectFaqIntent("bonjour")).toBeNull();
+    expect(detectFaqIntent("merci beaucoup")).toBeNull();
   });
 });
