@@ -3,9 +3,12 @@ import { z } from "zod";
 /** Code catégorie : libre (lettre, mot ou libellé composé, ex. A, Premium, Haut de gamme), 1–50 caractères. */
 const categoryCodeSchema = z
   .string()
+  // `.trim()` avant `.min(1)` : dans l'ordre inverse, la longueur était mesurée
+  // sur la chaîne brute, et un code fait d'espaces devenait une catégorie vide —
+  // or c'est ce code qui décide du prix de tout article commençant par lui.
+  .trim()
   .min(1, "La catégorie est requise")
-  .max(50, "Maximum 50 caractères")
-  .transform((s) => s.trim());
+  .max(50, "Maximum 50 caractères");
 
 export const categoryPriceItemSchema = z.object({
   categoryLetter: categoryCodeSchema,

@@ -1,15 +1,22 @@
 import { z } from "zod";
 
-// Côte d'Ivoire : communes identifiées par nom (pas de code)
+/**
+ * Côte d'Ivoire : communes identifiées par nom (pas de code).
+ *
+ * `.trim()` avant `.min(1)`, et non un `.transform()` après : dans l'ordre
+ * précédent, la longueur était mesurée sur la chaîne brute. Un nom fait
+ * uniquement d'espaces passait donc la validation, puis devenait vide — une
+ * commune sans nom, invisible et impossible à retrouver dans les réglages.
+ */
 const communeNameSchema = z
   .string()
+  .trim()
   .min(1, "Le nom de la commune est requis")
-  .max(200, "Maximum 200 caractères")
-  .transform((s) => s.trim());
+  .max(200, "Maximum 200 caractères");
 
 export const upsertDeliveryZoneInputSchema = z.object({
   id: z.string().optional(), // si fourni = update
-  name: z.string().min(1, "Le nom de la zone est requis").max(100).transform((s) => s.trim()),
+  name: z.string().trim().min(1, "Le nom de la zone est requis").max(100),
   amount: z.number().int().min(0, "Le montant ne peut pas être négatif"),
   /**
    * Plafonné, comme les autres tableaux d'entrée du projet — variantes à 100,

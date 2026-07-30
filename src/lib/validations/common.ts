@@ -10,5 +10,7 @@ export const idSchema = z.string().min(1, "L’identifiant est requis");
  */
 export const phoneStringSchema = z
   .string()
-  .min(1, "Le numéro est requis")
-  .transform((s) => s.trim());
+  // Même ordre que les autres : trim d'abord, longueur ensuite. Sinon un numéro
+  // fait d'espaces passait la validation et devenait vide.
+  .trim()
+  .min(1, "Le numéro est requis");
