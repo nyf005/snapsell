@@ -32,12 +32,18 @@ vi.mock("~/app/(dashboard)/_components/task-page-header", () => ({
 
 const createInvitationMutate = vi.hoisted(() => vi.fn());
 
+/** Sièges renvoyés par `subscription.getUsage`. Réglable par test. */
+const usage = vi.hoisted(() => ({ current: { agents: 1, maxAgents: 5 } }));
+
 vi.mock("~/trpc/react", () => ({
   api: {
     useUtils: () => ({
       invitations: { listInvitations: { invalidate: vi.fn() } },
       team: { listMembers: { invalidate: vi.fn() } },
     }),
+    subscription: {
+      getUsage: { useQuery: () => ({ data: usage.current, isLoading: false }) },
+    },
     invitations: {
       createInvitation: {
         useMutation: () => ({
@@ -96,6 +102,7 @@ async function openInviteDialog() {
 describe("TeamContent — le rôle est choisissable à l'invitation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    usage.current = { agents: 1, maxAgents: 5 };
   });
 
   it("expose un contrôle « Rôle attribué », et non un texte figé", async () => {
@@ -159,9 +166,48 @@ describe("TeamContent — le rôle est choisissable à l'invitation", () => {
   });
 });
 
+/**
+ * Le plan gratuit vend zéro siège : `checkAgentsQuota` refuse toute invitation
+ * (`0 < 0` est faux). Avant, on saisissait l'adresse, on choisissait le rôle, on
+ * envoyait — et seulement là « Limite de membres atteinte (0/0) » tombait. Ça
+ * ressemblait à une panne. L'écran le dit maintenant à l'ouverture.
+ */
+describe("TeamContent — quand le plan n'ouvre aucun siège", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    usage.current = { agents: 0, maxAgents: 0 };
+  });
+
+  it("annonce la limite et désactive l'envoi", async () => {
+    await openInviteDialog();
+
+    expect(screen.getByText(/n’ouvre aucun siège supplémentaire/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /envoyer l'invitation/i })).toBeDisabled();
+  });
+
+  it("propose de changer de plan", async () => {
+    await openInviteDialog();
+
+    expect(screen.getByRole("link", { name: /changer de plan/i })).toHaveAttribute(
+      "href",
+      "/parametres/abonnement",
+    );
+  });
+
+  it("n'appelle jamais createInvitation", async () => {
+    const user = await openInviteDialog();
+
+    await user.type(screen.getByLabelText(/adresse email/i), "nouvelle@example.com");
+    await user.click(screen.getByRole("button", { name: /envoyer l'invitation/i }));
+
+    expect(createInvitationMutate).not.toHaveBeenCalled();
+  });
+});
+
 describe("TeamContent — les libellés de rôle viennent de roleLabel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    usage.current = { agents: 1, maxAgents: 5 };
   });
 
   /**

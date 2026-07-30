@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { MoreVertical, Search, UserPlus, Users } from "lucide-react";
@@ -177,6 +178,22 @@ export function TeamContent() {
 
   const { data: members = [], isLoading: loadingMembers } = api.team.listMembers.useQuery();
   const { data: invitations = [], isLoading: loadingInvitations } = api.invitations.listInvitations.useQuery();
+
+  /**
+   * Sièges restants, pour le dire *avant* de faire remplir le formulaire.
+   *
+   * Sans ça, on saisissait une adresse, on choisissait un rôle, on envoyait — et on
+   * découvrait « Limite de membres atteinte (0/0) ». Le plan gratuit vend zéro
+   * siège : l'invitation y est impossible par construction, ce qui ressemble à une
+   * panne quand rien ne l'annonce.
+   *
+   * Le critère reprend exactement celui du serveur (`checkAgentsQuota` :
+   * `currentCount < maxAgents`), sur les mêmes chiffres — les invitations en attente
+   * ne consomment donc pas de siège tant qu'elles ne sont pas acceptées.
+   */
+  const { data: usage } = api.subscription.getUsage.useQuery();
+  const seatsLeft = usage ? usage.maxAgents - usage.agents : null;
+  const noSeatLeft = seatsLeft !== null && seatsLeft <= 0;
 
   const allMembers = useMemo(() => {
     const activeMembers = members.map((m) => ({
@@ -525,12 +542,26 @@ export function TeamContent() {
                   </SelectContent>
                 </Select>
               </fieldset>
-              <Alert variant="default" className="rounded-lg bg-muted py-4">
-                <Info className="size-5 text-muted-foreground" />
-                <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
-                  {roleDescription(inviteRole)}
-                </AlertDescription>
-              </Alert>
+              {noSeatLeft ? (
+                <Alert variant="destructive" className="rounded-lg py-4">
+                  <Info className="size-5" />
+                  <AlertDescription className="text-xs leading-relaxed">
+                    Votre plan n’ouvre aucun siège supplémentaire
+                    {usage ? ` (${usage.agents}/${usage.maxAgents})` : ""}.{" "}
+                    <Link href="/parametres/abonnement" className="font-semibold underline">
+                      Changer de plan
+                    </Link>{" "}
+                    pour agrandir votre équipe.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Alert variant="default" className="rounded-lg bg-muted py-4">
+                  <Info className="size-5 text-muted-foreground" />
+                  <AlertDescription className="text-xs leading-relaxed text-muted-foreground">
+                    {roleDescription(inviteRole)}
+                  </AlertDescription>
+                </Alert>
+              )}
               <DialogFooter className="flex gap-3 pt-2">
                 <Button
                   type="button"
@@ -541,7 +572,11 @@ export function TeamContent() {
                 >
                   Annuler
                 </Button>
-                <Button type="submit" className="flex-1 shadow-md" disabled={createInvitation.isPending}>
+                <Button
+                  type="submit"
+                  className="flex-1 shadow-md"
+                  disabled={createInvitation.isPending || noSeatLeft}
+                >
                   {createInvitation.isPending ? "Création…" : "Envoyer l'invitation"}
                 </Button>
               </DialogFooter>
