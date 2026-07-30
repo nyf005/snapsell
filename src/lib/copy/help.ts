@@ -537,7 +537,11 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       },
       {
         kind: "note",
-        text: "Une preuve ne disparaît pas quand vous l’avez traitée. Les vues « Validées » et « Refusées » de cet écran gardent tout, et la preuve d’une commande précise se lit aussi depuis « Commandes », en cliquant sur son acompte.",
+        text: "Une preuve ne disparaît pas quand vous l’avez traitée. Les vues « Validées » et « Refusées » de cet écran gardent tout.",
+      },
+      {
+        kind: "text",
+        text: "Cet écran est la file d’attente : ce qui reste à décider, et le seul endroit où traiter plusieurs preuves d’un coup. Pour une commande précise, cliquez sur son acompte depuis « Commandes » : la preuve s’y affiche, et vous pouvez la valider ou la refuser sans quitter la liste.",
       },
       { kind: "screen", href: "/dashboard/proofs", label: "Vérifier les preuves" },
     ],
