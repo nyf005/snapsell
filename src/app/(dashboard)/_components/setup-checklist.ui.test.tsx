@@ -2,7 +2,8 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import React from "react";
 
-import { SetupChecklist } from "./setup-checklist";
+import { SetupChecklist, STEP_META } from "./setup-checklist";
+import { helpTopic } from "~/lib/copy";
 import { SETUP_STEP_IDS } from "~/server/api/routers/onboarding.schema";
 
 vi.mock("next/navigation", () => ({
@@ -116,5 +117,26 @@ describe("SetupChecklist — mode compact", () => {
   it("reste masqué si tout est fait, même en compact", () => {
     const { container } = renderChecklist([...SETUP_STEP_IDS], true);
     expect(container).toBeEmptyDOMElement();
+  });
+});
+
+/**
+ * Chaque étape porte un `helpSlug` qui alimente le lien « Comprendre cette étape ».
+ *
+ * `help.test.ts` garde déjà les liens d'erreur de `errorCopy` de la même façon, mais
+ * pas ceux-ci : renommer un slug dans `help.ts` cassait donc silencieusement six
+ * liens. Le garde vit ici plutôt que dans `help.test.ts` parce que `STEP_META`
+ * appartient à un composant client — ce fichier tourne déjà en jsdom et l'importe.
+ */
+describe("SetupChecklist — les articles rattachés existent", () => {
+  it.each(SETUP_STEP_IDS)("l’étape %s pointe vers un article réel", (id) => {
+    const slug = STEP_META[id].helpSlug;
+    expect(helpTopic(slug), `${id} → ${slug}`).toBeDefined();
+  });
+
+  it("chaque étape déclare un article", () => {
+    for (const id of SETUP_STEP_IDS) {
+      expect(STEP_META[id].helpSlug, id).toBeTruthy();
+    }
   });
 });

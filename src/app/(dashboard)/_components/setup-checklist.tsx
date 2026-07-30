@@ -40,7 +40,13 @@ export type SetupChecklistProps = {
  * lus comme des achats. Le lien « Comprendre cette étape » s'en charge, sans allonger
  * la liste.
  */
-const STEP_META: Record<
+/**
+ * Exporté pour `setup-checklist.ui.test.tsx`, qui vérifie que chaque `helpSlug`
+ * désigne un article réel. Sans ce garde-fou, renommer un slug dans `help.ts`
+ * casserait les liens « Comprendre cette étape » sans qu'aucun test ne bronche —
+ * exactement la dérive que `help.test.ts` interdit déjà pour les liens d'erreur.
+ */
+export const STEP_META: Record<
   SetupStepId,
   {
     icon: LucideIcon;
