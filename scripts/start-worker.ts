@@ -18,6 +18,9 @@
  */
 
 import "./runtime-env";
+// Doit précéder l'import de `queues`, qui lit le rôle au moment de construire
+// l'instance PgBoss.
+import "./worker-role";
 
 import { boss, ensureQueues, QUEUE } from "~/server/workers/queues";
 import { startWebhookProcessorWorker } from "~/server/workers/webhook-processor";

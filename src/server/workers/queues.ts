@@ -4,18 +4,46 @@ import { env } from "~/env";
 /**
  * pg-boss instance — backend de queue sur Postgres (Neon).
  *
- * IMPORTANT : Neon nécessite l'URL directe (non-pooler).
- * L'URL pooler (-pooler.) utilise PgBouncer transaction mode,
- * incompatible avec pg-boss (advisory locks, session state).
- *
  * Contexte serverless (Vercel) : boss.send() requiert boss.start() même en
  * mode producer-only. On utilise une initialisation lazy (ensureBossReady)
  * appelée avant chaque send() dans le webhook route.
  * start() pour work() (consommation de jobs) est appelé dans start-worker.ts (Railway).
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Deux processus, deux configurations.
+ *
+ * Ce module sert Railway et Vercel, et le faisait jusqu'ici avec les mêmes
+ * options — au détriment de Vercel :
+ *
+ * - **Railway** exécute le worker. Il consomme les jobs et porte toute la
+ *   maintenance de pg-boss : migration du schéma, supervision, planification
+ *   des crons. Ces tâches prennent des verrous consultatifs et s'appuient sur
+ *   un état de session. Elles exigent la connexion Neon **directe** — l'URL
+ *   pooler passe par PgBouncer en mode transaction, qui ne préserve ni l'un
+ *   ni l'autre.
+ *
+ * - **Vercel** ne fait que publier. Or `boss.start()` déclenchait cette même
+ *   maintenance depuis chaque instance serverless, à travers le pooler, et
+ *   ouvrait jusqu'à cinq connexions par instance pour de simples insertions.
+ *
+ * Le rôle vient de `PG_BOSS_ROLE`, avec `producer` par défaut : c'est le cas
+ * le plus fréquent et le moins invasif si la variable est oubliée. Guide de
+ * déploiement dans DEPLOYMENT.md.
+ * ─────────────────────────────────────────────────────────────────────────────
  */
+const isWorker = env.PG_BOSS_ROLE === "worker";
+
 export const boss = new PgBoss({
   connectionString: env.DATABASE_URL,
-  max: 5,
+  // Un producteur ne fait qu'écrire, et son instance est éphémère.
+  max: isWorker ? 5 : 2,
+  // Toute la maintenance revient au worker. Conséquence à connaître : sur une
+  // base neuve, le schéma pg-boss n'existe qu'une fois le worker démarré au
+  // moins une fois — démarrer Railway avant d'ouvrir le webhook.
+  supervise: isWorker,
+  schedule: isWorker,
+  migrate: isWorker,
+  createSchema: isWorker,
 });
 
 boss.on("error", (error) => {

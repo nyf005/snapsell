@@ -22,7 +22,14 @@ npx tsx scripts/start-worker.ts
 ```
 
 **Variables d'environnement requises:**
-- `DATABASE_URL` - URL PostgreSQL directe Neon (non-pooler, obligatoire pour pg-boss)
+- `DATABASE_URL` - URL PostgreSQL **directe** Neon (non-pooler). La maintenance
+  pg-boss portée par ce processus s'appuie sur des verrous consultatifs et un
+  état de session que PgBouncer ne préserve pas. Vercel, lui, utilise l'URL
+  pooler : ce n'est pas la même valeur des deux côtés.
+- `PG_BOSS_ROLE=worker` - déclare que ce processus porte la maintenance pg-boss
+  (migration du schéma, supervision, planification des crons). Valeur posée par
+  défaut dans `scripts/worker-role.ts` si la variable est absente, pour qu'un
+  oubli côté plateforme ne donne pas un worker qui consomme sans planifier.
 - `ENCRYPTION_KEY` - requis en production ; doit être **identique** à celle de Vercel (déchiffrement de `metaAccessToken`)
 - `QSTASH_TOKEN` **et** `NEXT_PUBLIC_APP_URL` - requis **ensemble** pour publier les jobs outbox. Si l'un manque, les messages sortants ne partent jamais (voir section Envoi sortant plus bas)
 - `AUTH_SECRET`, `CRON_SECRET` - non utilisés fonctionnellement par le worker, mais exigés par la validation d'environnement en production

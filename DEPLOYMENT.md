@@ -27,10 +27,28 @@ Le webhook Vercel ne fait qu'un `boss.send()` ; tout le traitement métier des m
 - ✅ Compte Upstash (QStash pour l'outbox ; Redis REST optionnel pour le rate limiting tRPC)
 - ✅ Compte Meta Business (WhatsApp Cloud API)
 - ✅ Variables d'environnement — la liste faisant foi est [src/env.js](src/env.js) :
-  - `DATABASE_URL` (Neon PostgreSQL, URL **directe** non-pooler)
+  - `DATABASE_URL` — **la valeur diffère selon la plateforme**, voir le tableau
+    ci-dessous. Ce n'est pas la même chaîne sur Vercel et sur Railway.
+  - `PG_BOSS_ROLE` — `worker` sur Railway, absent (ou `producer`) sur Vercel
   - `AUTH_SECRET`, `ENCRYPTION_KEY`, `CRON_SECRET` (requis en production)
   - `QSTASH_TOKEN`, `NEXT_PUBLIC_APP_URL` (envoi sortant)
   - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optionnel : rate limiting tRPC)
+
+### Quelle URL Neon sur quelle plateforme
+
+Les deux plateformes lisent la même variable `DATABASE_URL`, mais **pas la même
+valeur**. Neon expose deux hôtes, identiques au suffixe près :
+
+| | Hôte Neon | `PG_BOSS_ROLE` | Pourquoi |
+|---|---|---|---|
+| **Vercel** | `…-pooler.<région>.aws.neon.tech` | non défini (`producer`) | Serverless : beaucoup d'instances courtes, c'est exactement ce pour quoi PgBouncer existe. Le producteur ne fait qu'insérer des jobs. |
+| **Railway** | `….<région>.aws.neon.tech` (sans `-pooler`) | `worker` | Le worker porte la maintenance pg-boss : verrous consultatifs, état de session, planification des crons. PgBouncer en mode transaction ne les préserve pas. |
+| **Migrations & tests d'intégration** | directe | — | `prisma migrate deploy` prend des verrous consultatifs. |
+
+Se tromper ne casse rien bruyamment : un worker branché sur le pooler démarre,
+consomme des jobs, puis échoue par intermittence sur des transactions
+(`Unable to start a transaction in the given time`) et peut ne jamais planifier
+les crons. Vérifier l'hôte est le premier réflexe en cas de comportement erratique.
 
 ---
 
@@ -156,7 +174,8 @@ Dans l'onglet **"Variables"** du service, ajouter :
 ```bash
 # --- Requis (la validation env échoue au démarrage sans ces variables en production) ---
 NODE_ENV=production
-DATABASE_URL=<url-neon-DIRECTE>   # NON-pooler : pg-boss est incompatible avec PgBouncer
+DATABASE_URL=<url-neon-DIRECTE>   # NON-pooler : la maintenance pg-boss exige des verrous de session
+PG_BOSS_ROLE=worker               # Ce processus porte la maintenance et les crons pg-boss
 AUTH_SECRET=<secret-nextauth>     # Requis par la validation env en prod. Générer : openssl rand -base64 32
 ENCRYPTION_KEY=<hex-64-caracteres># Requis en prod. Déchiffre metaAccessToken. Doit être IDENTIQUE à Vercel
 CRON_SECRET=<secret-partage>      # Requis en prod par la validation env

@@ -8,6 +8,19 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
+    /**
+     * Rôle de ce processus vis-à-vis de pg-boss.
+     *
+     * `worker` (Railway) : consomme les jobs et porte toute la maintenance —
+     * migration du schéma pg-boss, supervision, planification des crons. Exige
+     * la connexion Neon **directe** (non-pooler) : ces tâches s'appuient sur
+     * des verrous et un état de session que PgBouncer ne préserve pas.
+     *
+     * `producer` (Vercel, défaut) : se contente de publier des jobs. Aucune
+     * maintenance, donc compatible avec l'URL pooler, et bien moins de
+     * connexions ouvertes par instance serverless.
+     */
+    PG_BOSS_ROLE: z.enum(["worker", "producer"]).default("producer"),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -111,6 +124,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
+    PG_BOSS_ROLE: process.env.PG_BOSS_ROLE,
     NODE_ENV: process.env.NODE_ENV,
     AUTH_SECRET: process.env.AUTH_SECRET,
     WEBHOOK_PUBLIC_URL: process.env.WEBHOOK_PUBLIC_URL,
