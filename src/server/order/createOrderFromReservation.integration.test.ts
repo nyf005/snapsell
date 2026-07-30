@@ -34,7 +34,15 @@ vi.mock("~/lib/logger", () => ({
 }));
 
 // L'envoi WhatsApp n'est pas le sujet : on ne veut ni réseau ni file d'attente.
-vi.mock("~/server/messaging/outbox", () => ({ writeToOutbox: vi.fn() }));
+// `vi.fn()` nu rend `undefined`, or le worker enchaîne `.catch()` sur le retour :
+// le mock doit résoudre, sinon on teste un TypeError et non le worker.
+vi.mock("~/server/messaging/outbox", () => ({
+  writeToOutbox: vi.fn().mockResolvedValue(undefined),
+}));
+
+// Chaque test enchaîne des allers-retours vers une base distante ; le défaut
+// de 5 s de Vitest est calibré pour des tests en mémoire.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 const shouldRun =
   process.env.RUN_INTEGRATION_TESTS === "true" && !!process.env.DATABASE_URL;

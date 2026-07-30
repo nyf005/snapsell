@@ -25,7 +25,15 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vites
 vi.mock("~/lib/logger", () => ({
   workerLogger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
-vi.mock("~/server/messaging/outbox", () => ({ writeToOutbox: vi.fn() }));
+// `vi.fn()` nu rend `undefined`, or le worker enchaîne `.catch()` sur le retour :
+// le mock doit résoudre, sinon on teste un TypeError et non le worker.
+vi.mock("~/server/messaging/outbox", () => ({
+  writeToOutbox: vi.fn().mockResolvedValue(undefined),
+}));
+
+// Chaque test enchaîne des allers-retours vers une base distante ; le défaut
+// de 5 s de Vitest est calibré pour des tests en mémoire.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 const shouldRun =
   process.env.RUN_INTEGRATION_TESTS === "true" && !!process.env.DATABASE_URL;
@@ -245,8 +253,9 @@ describe.skipIf(!shouldRun)("runReservationTtlJob — base réelle", () => {
   describe("rappel T-2", () => {
     it("n'envoie le rappel qu'une seule fois", async () => {
       const itemId = await item(1, 1);
+      // La fenêtre de rappel est now+2min → now+3min : 2,5 min tombe dedans.
       await reservation(itemId, {
-        expiresAt: new Date(Date.now() + 90_000),
+        expiresAt: new Date(Date.now() + 150_000),
       });
 
       const first = await runReservationReminderJob();
@@ -259,8 +268,9 @@ describe.skipIf(!shouldRun)("runReservationTtlJob — base réelle", () => {
     /** Deux passes concurrentes du cron ne doivent pas doubler le rappel. */
     it("ne double pas le rappel sous deux passes simultanées", async () => {
       const itemId = await item(1, 1);
+      // La fenêtre de rappel est now+2min → now+3min : 2,5 min tombe dedans.
       await reservation(itemId, {
-        expiresAt: new Date(Date.now() + 90_000),
+        expiresAt: new Date(Date.now() + 150_000),
       });
 
       const [a, b] = await Promise.all([

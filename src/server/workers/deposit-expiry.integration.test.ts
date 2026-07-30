@@ -29,6 +29,10 @@ vi.mock("~/lib/logger", () => ({
 const mockWriteToOutbox = vi.hoisted(() => vi.fn());
 vi.mock("~/server/messaging/outbox", () => ({ writeToOutbox: mockWriteToOutbox }));
 
+// Chaque test enchaîne des allers-retours vers une base distante ; le défaut
+// de 5 s de Vitest est calibré pour des tests en mémoire.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
+
 const shouldRun =
   process.env.RUN_INTEGRATION_TESTS === "true" && !!process.env.DATABASE_URL;
 
@@ -81,8 +85,15 @@ describe.skipIf(!shouldRun)("runDepositExpiryJob — base réelle", () => {
     await db.reservation.deleteMany({ where: { tenantId } });
   });
 
-  /** Une commande en attente d'acompte, dont l'échéance est déjà passée. */
+  /**
+   * Une commande en attente d'acompte, dont l'échéance est déjà passée.
+   *
+   * Le numéro est figé dans une constante locale **avant** le premier `await` :
+   * lu après, trois appels concurrents voyaient tous la valeur finale du
+   * compteur et se heurtaient à l'unicité `(tenant_id, order_number)`.
+   */
   async function pendingOrder(overrides: Record<string, unknown> = {}) {
+    const seq = (orderSeq += 1);
     const reservation = await db.reservation.create({
       data: {
         tenantId,
@@ -91,14 +102,14 @@ describe.skipIf(!shouldRun)("runDepositExpiryJob — base réelle", () => {
         clientPhone: "+2250701020304",
         quantity: 1,
         status: "confirmed",
-        correlationId: `corr-${(orderSeq += 1)}`,
+        correlationId: `corr-${seq}`,
       },
     });
     return db.order.create({
       data: {
         tenantId,
         reservationId: reservation.id,
-        orderNumber: `SS-${String(orderSeq).padStart(4, "0")}`,
+        orderNumber: `SS-${String(seq).padStart(4, "0")}`,
         status: "confirmed_pending_deposit",
         depositStatus: "deposit_pending",
         depositExpiresAt: new Date(Date.now() - 60_000),
