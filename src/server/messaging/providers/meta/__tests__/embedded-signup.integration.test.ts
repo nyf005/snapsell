@@ -7,6 +7,10 @@ import { createTRPCContext } from "~/server/api/trpc";
 const mockFetch = vi.hoisted(() => vi.fn());
 vi.stubGlobal("fetch", mockFetch);
 
+// Chaque test enchaîne des allers-retours vers une base distante ; le défaut
+// de 5 s de Vitest est calibré pour des tests en mémoire.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
+
 const shouldRun =
   process.env.RUN_INTEGRATION_TESTS === "true" &&
   !!process.env.DATABASE_URL &&
@@ -136,6 +140,10 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
     const config = await caller.settings.getWhatsAppConfig();
 
     expect(config).toEqual({
+      // `metaBusinessPhoneNumber` a été ajouté après l'écriture de ce test.
+      // Assertion exacte assumée : ce que rend cette procédure part vers
+      // l'écran de configuration, on veut être prévenu si le contenu change.
+      metaBusinessPhoneNumber: "+33612345678",
       metaPhoneNumberId: "phone-123",
       metaWabaId: "waba-123",
       hasAccessToken: true,
@@ -147,8 +155,16 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
     expect(tenantAfter).toMatchObject({
       metaPhoneNumberId: "phone-123",
       metaWabaId: "waba-123",
-      metaAccessToken: "system-user-token",
     });
+
+    // Le test attendait le jeton en clair. Il est désormais chiffré (AES-256-GCM,
+    // cf. `src/lib/crypto.ts`) — c'est la bonne façon de le stocker : ce jeton
+    // permet d'envoyer des messages au nom de la boutique et de lire son
+    // catalogue. On vérifie donc l'inverse de ce qui était écrit : qu'il
+    // n'apparaisse jamais en clair en base.
+    expect(tenantAfter!.metaAccessToken).not.toBe("system-user-token");
+    expect(tenantAfter!.metaAccessToken).not.toContain("system-user-token");
+    expect(tenantAfter!.metaAccessToken).toMatch(/^enc:/);
     const sellerPhone = await db.sellerPhone.findUnique({
       where: {
         tenantId_phoneNumber: {

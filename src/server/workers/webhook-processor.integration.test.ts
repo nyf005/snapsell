@@ -75,7 +75,16 @@ vi.mock("~/server/db", () => {
       findFirst: vi.fn().mockResolvedValue(null),
       findUnique: vi.fn().mockResolvedValue(null),
     },
-    messageIn: { count: vi.fn().mockResolvedValue(0) },
+    // `count` avait été remplacé par un `findMany` borné à deux lignes : le
+    // processeur cherche seulement à savoir si c'est le premier message de la
+    // cliente, pour lui souhaiter la bienvenue. Le mock avait gardé l'ancienne
+    // méthode, et le test échouait sur un `findMany is not a function` — sans
+    // rapport avec ce qu'il vérifie (le routage vendeur/cliente via pg-boss).
+    // Tableau vide = première prise de contact.
+    messageIn: {
+      count: vi.fn().mockResolvedValue(0),
+      findMany: vi.fn().mockResolvedValue([]),
+    },
     messageOut: {
       findFirst: vi.fn().mockResolvedValue(null),
       create: vi.fn().mockResolvedValue({ id: "msg-out-1" }),
@@ -187,6 +196,10 @@ vi.mock("~/server/order/createOrderFromReservation", () => ({
 vi.mock("~/lib/sentry", () => ({
   captureException: vi.fn().mockResolvedValue(undefined),
 }));
+
+// Chaque test enchaîne des allers-retours vers une base distante ; le défaut
+// de 5 s de Vitest est calibré pour des tests en mémoire.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 const shouldRunIntegrationTests =
   process.env.RUN_INTEGRATION_TESTS === "true" && !!process.env.DATABASE_URL;

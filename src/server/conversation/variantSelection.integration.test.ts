@@ -28,6 +28,10 @@ vi.mock("~/server/reservation/service", () => ({
   createReservation: vi.fn().mockResolvedValue({ success: true }),
 }));
 
+// Chaque test enchaîne des allers-retours vers une base distante ; le défaut
+// de 5 s de Vitest est calibré pour des tests en mémoire.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
+
 const shouldRun = process.env.RUN_INTEGRATION_TESTS === "true" && !!process.env.DATABASE_URL;
 
 describe.skipIf(!shouldRun)("handleVariantChoice — concurrence", () => {
