@@ -36,6 +36,9 @@ vi.mock("~/app/(dashboard)/_components/dashboard-header", () => ({
  * commande porte ses preuves — `ORDER_QUERY_INCLUDE` ne sélectionnait d'ailleurs
  * pas ces adresses, qui valaient donc toujours `null`.
  */
+const mockApprove = vi.hoisted(() => vi.fn());
+const mockReject = vi.hoisted(() => vi.fn());
+
 const EMPTY_DETAIL = {
   depositExpiresAt: null,
   quantity: 1,
@@ -95,12 +98,43 @@ const ORDERS = [
     depositStatus: null,
     createdAt: new Date("2025-01-17T09:00:00Z"),
   },
+  {
+    // Acompte encore à vérifier : c'est la seule qui doit offrir la décision.
+    ...EMPTY_DETAIL,
+    id: "order-4",
+    orderNumber: "CMD-2025-004",
+    liveItemCode: "C3",
+    clientPhone: "+225 ** 15 16",
+    status: "confirmed_pending_deposit",
+    depositStatus: "deposit_pending",
+    createdAt: new Date("2025-01-18T09:00:00Z"),
+    proofs: [
+      {
+        id: "proof-4",
+        kind: "image" as const,
+        status: "pending",
+        text: null,
+        createdAt: new Date("2025-01-18T08:00:00Z"),
+        reviewedAt: null,
+      },
+    ],
+  },
 ];
 
 vi.mock("~/trpc/react", () => ({
   api: {
     useUtils: () => ({
-      orders: { list: { invalidate: vi.fn() }, exportCsv: { fetch: vi.fn() } },
+      orders: {
+        list: { invalidate: vi.fn() },
+        getById: { invalidate: vi.fn() },
+        exportCsv: { fetch: vi.fn() },
+      },
+      // Décider depuis le panneau change aussi le `depositStatus` de la commande :
+      // les quatre lectures concernées sont invalidées.
+      proofs: {
+        listPending: { invalidate: vi.fn() },
+        pendingCount: { invalidate: vi.fn() },
+      },
     }),
     orders: {
       list: {
@@ -128,6 +162,15 @@ vi.mock("~/trpc/react", () => ({
       pendingCount: {
         useQuery: () => ({ data: 2 }),
       },
+      // Le panneau décide désormais sur place : la preuve était visible depuis la
+      // commande sans qu'on puisse agir, ce qui rétablissait l'aller-retour à l'envers.
+      approve: {
+        useMutation: () => ({ mutate: mockApprove, isPending: false, error: null }),
+      },
+      reject: {
+        useMutation: () => ({ mutate: mockReject, isPending: false, error: null }),
+      },
+      listPending: { invalidate: vi.fn() },
     },
   },
 }));
@@ -172,7 +215,8 @@ describe("OrdersListContent", () => {
   it("expose chaque commande dans la composition mobile", async () => {
     render(<OrdersListContent />);
     const list = await screen.findByRole("list", { name: "Liste des commandes" });
-    expect(within(list).getAllByRole("listitem")).toHaveLength(3);
+    // Dérivé du jeu d'essai : ajouter une commande ne doit pas casser ce test.
+    expect(within(list).getAllByRole("listitem")).toHaveLength(ORDERS.length);
   });
 
   it("displays status badges for each order", async () => {
@@ -213,10 +257,13 @@ describe("OrdersListContent — la preuve depuis la commande", () => {
   it("n'offre rien sur une commande sans acompte", () => {
     render(<OrdersListContent />);
 
-    // Une seule des trois commandes porte un acompte — CMD-2025-001 et
-    // CMD-2025-003 ont `depositStatus: null`. `DataList` rend chaque ligne deux
-    // fois, en tableau et en carte mobile, d'où deux déclencheurs pour une commande.
-    expect(screen.getAllByRole("button", { name: /voir la preuve/i })).toHaveLength(2);
+    // `DataList` rend chaque ligne deux fois — tableau et carte mobile — d'où le
+    // facteur 2. Le compte est dérivé du jeu d'essai plutôt qu'écrit en dur.
+    const withDeposit = ORDERS.filter((o) => o.depositStatus).length;
+    expect(screen.getAllByRole("button", { name: /voir la preuve/i })).toHaveLength(
+      withDeposit * 2,
+    );
+    expect(withDeposit).toBeLessThan(ORDERS.length);
   });
 
   it("ouvre le détail de la commande depuis son numéro", async () => {
@@ -229,6 +276,56 @@ describe("OrdersListContent — la preuve depuis la commande", () => {
     expect(within(panel).getByText("Commande CMD-2025-002")).toBeInTheDocument();
     // L'adresse structurée : absente du `select` avant, donc toujours nulle.
     expect(within(panel).getByText("Cocody, Abidjan")).toBeInTheDocument();
+  });
+
+  /**
+   * Le panneau montrait la preuve sans permettre d'agir : on ouvrait une commande
+   * en attente d'acompte, on voyait la pièce, et il fallait repartir sur l'écran
+   * des preuves pour la retrouver. L'aller-retour de départ, à l'envers.
+   */
+  it("permet de valider l'acompte depuis le panneau", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    await user.click((await screen.findAllByRole("button", { name: "CMD-2025-004" }))[0]!);
+    const panel = await screen.findByRole("dialog");
+    await user.click(
+      within(panel).getByRole("button", { name: /Valider la preuve de la commande CMD-2025-004/ }),
+    );
+
+    expect(mockApprove).toHaveBeenCalledWith({ proofId: "proof-4" });
+  });
+
+  it("demande confirmation avant de refuser", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    await user.click((await screen.findAllByRole("button", { name: "CMD-2025-004" }))[0]!);
+    const panel = await screen.findByRole("dialog");
+    await user.click(
+      within(panel).getByRole("button", { name: /Refuser la preuve de la commande CMD-2025-004/ }),
+    );
+
+    // Rien n'est envoyé avant la confirmation.
+    expect(mockReject).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button", { name: "Refuser la preuve" }));
+    expect(mockReject).toHaveBeenCalledWith({ proofId: "proof-4" });
+  });
+
+  /** `approve` et `reject` refuseraient une preuve déjà traitée. */
+  it("n'offre pas de décision sur une preuve déjà validée", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    await user.click((await screen.findAllByRole("button", { name: "CMD-2025-002" }))[0]!);
+    const panel = await screen.findByRole("dialog");
+
+    expect(
+      within(panel).queryByRole("button", { name: /Valider la preuve/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(panel).queryByRole("button", { name: /Refuser la preuve/ }),
+    ).not.toBeInTheDocument();
   });
 
   it("montre la preuve validée dans le panneau, et sa date de traitement", async () => {

@@ -1,8 +1,9 @@
 "use client";
 
-import { FileCheck, ImageOff } from "lucide-react";
+import { FileCheck, ImageOff, X } from "lucide-react";
 
 import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import { formatDateTime } from "~/lib/copy";
 import { proofStatusLabel } from "~/lib/copy/orders";
 import type { OrderOutput } from "~/server/api/routers/orders.schema";
@@ -45,7 +46,26 @@ function ProofStatusBadge({ status }: { status: string }) {
   );
 }
 
-function ProofCard({ proof, orderNumber }: { proof: Proof; orderNumber: string }) {
+/**
+ * Les actions sont optionnelles : sans elles, la vue reste en lecture seule.
+ * Elles ne s'affichent que sur une preuve encore en attente — `approve` et
+ * `reject` refuseraient les autres, et un bouton qui échoue est pire qu'absent.
+ */
+type ProofActions = {
+  onApprove: (proofId: string) => void;
+  onReject: (proofId: string) => void;
+  disabled?: boolean;
+};
+
+function ProofCard({
+  proof,
+  orderNumber,
+  actions,
+}: {
+  proof: Proof;
+  orderNumber: string;
+  actions?: ProofActions;
+}) {
   return (
     <li className="rounded-xl border border-border bg-card p-3">
       <div className="flex flex-wrap items-center justify-between gap-2 pb-2">
@@ -86,6 +106,31 @@ function ProofCard({ proof, orderNumber }: { proof: Proof; orderNumber: string }
           Traitée le {formatDateTime(proof.reviewedAt)}
         </p>
       ) : null}
+
+      {actions && proof.status === "pending" ? (
+        <div className="flex flex-wrap gap-2 pt-3">
+          <Button
+            size="sm"
+            className="flex-1 font-bold"
+            disabled={actions.disabled}
+            aria-label={`Valider la preuve de la commande ${orderNumber}`}
+            onClick={() => actions.onApprove(proof.id)}
+          >
+            Valider l’acompte
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            disabled={actions.disabled}
+            aria-label={`Refuser la preuve de la commande ${orderNumber}`}
+            onClick={() => actions.onReject(proof.id)}
+          >
+            <X className="size-4" aria-hidden />
+            Refuser
+          </Button>
+        </div>
+      ) : null}
     </li>
   );
 }
@@ -93,9 +138,11 @@ function ProofCard({ proof, orderNumber }: { proof: Proof; orderNumber: string }
 export function OrderProofs({
   proofs,
   orderNumber,
+  actions,
 }: {
   proofs: readonly Proof[];
   orderNumber: string;
+  actions?: ProofActions;
 }) {
   if (proofs.length === 0) {
     return (
@@ -109,7 +156,12 @@ export function OrderProofs({
   return (
     <ul className="space-y-3">
       {proofs.map((proof) => (
-        <ProofCard key={proof.id} proof={proof} orderNumber={orderNumber} />
+        <ProofCard
+          key={proof.id}
+          proof={proof}
+          orderNumber={orderNumber}
+          actions={actions}
+        />
       ))}
     </ul>
   );

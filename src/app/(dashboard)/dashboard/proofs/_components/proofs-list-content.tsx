@@ -107,24 +107,37 @@ export function ProofsListContent() {
   const [showBulkReject, setShowBulkReject] = useState(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
+  /**
+   * Traiter une preuve écrit aussi le `depositStatus` — et le `status` — de sa
+   * commande (`proofs.ts`, `tx.order.update`). Seul `proofs.listPending` était
+   * invalidé : la liste des commandes et le compteur de preuves en attente
+   * gardaient donc l'ancienne valeur jusqu'au prochain chargement.
+   */
+  const invalidateAfterDecision = () => {
+    void utils.proofs.listPending.invalidate();
+    void utils.proofs.pendingCount.invalidate();
+    void utils.orders.list.invalidate();
+    void utils.orders.getById.invalidate();
+  };
+
   const approve = api.proofs.approve.useMutation({
     onSuccess: () => {
       setActionMessage("Preuve validée. La commande peut avancer.");
-      void utils.proofs.listPending.invalidate();
+      invalidateAfterDecision();
     },
   });
   const reject = api.proofs.reject.useMutation({
     onSuccess: () => {
       setActionMessage("Preuve refusée. Le message de suite part automatiquement.");
       setRejectTarget(null);
-      void utils.proofs.listPending.invalidate();
+      invalidateAfterDecision();
     },
   });
   const bulkApprove = api.proofs.bulkApprove.useMutation({
     onSuccess: () => {
       setActionMessage(`${selectedIds.size} preuve${selectedIds.size > 1 ? "s" : ""} validée${selectedIds.size > 1 ? "s" : ""}.`);
       setSelectedIds(new Set());
-      void utils.proofs.listPending.invalidate();
+      invalidateAfterDecision();
     },
   });
   const bulkReject = api.proofs.bulkReject.useMutation({
@@ -132,7 +145,7 @@ export function ProofsListContent() {
       setActionMessage(`${selectedIds.size} preuve${selectedIds.size > 1 ? "s" : ""} refusée${selectedIds.size > 1 ? "s" : ""}.`);
       setSelectedIds(new Set());
       setShowBulkReject(false);
-      void utils.proofs.listPending.invalidate();
+      invalidateAfterDecision();
     },
   });
 

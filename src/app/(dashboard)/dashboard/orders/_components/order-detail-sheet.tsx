@@ -1,7 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { MapPin, Package, Phone } from "lucide-react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
 import {
   Sheet,
   SheetContent,
@@ -10,7 +21,7 @@ import {
   SheetTitle,
 } from "~/components/ui/sheet";
 import { Skeleton } from "~/components/ui/skeleton";
-import { formatDateTime } from "~/lib/copy";
+import { formatDateTime, formatErrorText } from "~/lib/copy";
 import { depositStatusLabel, orderStatusLabel } from "~/lib/copy/orders";
 import { api } from "~/trpc/react";
 
@@ -94,6 +105,43 @@ export function OrderDetailSheet({
     { enabled: open && !!orderId },
   );
 
+  const [rejectTargetId, setRejectTargetId] = useState<string | null>(null);
+  const utils = api.useUtils();
+
+  /**
+   * ── DÉCIDER LÀ OÙ EST LA PIÈCE ──────────────────────────────────────────────
+   * Ce panneau montrait la preuve sans permettre d'agir : on ouvrait une commande
+   * en attente d'acompte, on voyait la preuve, on était convaincue — et il fallait
+   * repartir sur l'écran des preuves pour la retrouver. C'était l'aller-retour de
+   * départ, à l'envers.
+   *
+   * L'écran des preuves reste la file de travail et le seul endroit du traitement
+   * en masse. Ici, c'est l'unité : une commande, sa pièce, sa décision.
+   * ────────────────────────────────────────────────────────────────────────────
+   *
+   * L'invalidation couvre les quatre lectures concernées. `approve` et `reject`
+   * écrivent aussi le `depositStatus` de la commande : sans `orders.list`, la liste
+   * derrière le panneau garderait l'ancien badge. L'écran des preuves n'invalidait
+   * que `proofs.listPending` et souffrait donc du même décalage.
+   */
+  const invalidateAll = () => {
+    void utils.orders.list.invalidate();
+    void utils.orders.getById.invalidate();
+    void utils.proofs.listPending.invalidate();
+    void utils.proofs.pendingCount.invalidate();
+  };
+
+  const approve = api.proofs.approve.useMutation({ onSuccess: invalidateAll });
+  const reject = api.proofs.reject.useMutation({
+    onSuccess: () => {
+      setRejectTargetId(null);
+      invalidateAll();
+    },
+  });
+
+  const isActing = approve.isPending || reject.isPending;
+  const actionError = approve.error ?? reject.error;
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full gap-0 overflow-y-auto sm:max-w-md">
@@ -154,7 +202,20 @@ export function OrderDetailSheet({
               <h3 className="pb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Preuves de paiement
               </h3>
-              <OrderProofs proofs={order.proofs} orderNumber={order.orderNumber} />
+              <OrderProofs
+                proofs={order.proofs}
+                orderNumber={order.orderNumber}
+                actions={{
+                  onApprove: (proofId) => approve.mutate({ proofId }),
+                  onReject: (proofId) => setRejectTargetId(proofId),
+                  disabled: isActing,
+                }}
+              />
+              {actionError ? (
+                <p role="alert" className="pt-3 text-sm text-destructive">
+                  {formatErrorText(actionError, "proofs")}
+                </p>
+              ) : null}
             </div>
 
             {order.depositExpiresAt ? (
@@ -165,6 +226,34 @@ export function OrderDetailSheet({
           </div>
         )}
       </SheetContent>
+
+      {/*
+        Le refus demande confirmation, comme sur l'écran des preuves : il prévient
+        la cliente et ferme une porte, là où valider ne fait qu'avancer.
+      */}
+      <AlertDialog
+        open={rejectTargetId !== null}
+        onOpenChange={(o) => !o && setRejectTargetId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Refuser cette preuve ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              La preuve de la commande {order?.orderNumber} sera marquée comme refusée.
+              Une nouvelle preuve pourra être envoyée selon le parcours actuel.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={reject.isPending}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={reject.isPending}
+              onClick={() => rejectTargetId && reject.mutate({ proofId: rejectTargetId })}
+            >
+              {reject.isPending ? "Refus…" : "Refuser la preuve"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Sheet>
   );
 }
