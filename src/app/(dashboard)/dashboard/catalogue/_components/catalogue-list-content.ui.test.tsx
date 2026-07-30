@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import React from "react";
 
 // Mock next/navigation
@@ -27,15 +28,31 @@ const { catalogueItems } = vi.hoisted(() => ({
     attributes: null,
     origin: index === 1 ? "live" : "dashboard",
     createdInLive: index === 1,
-    syncedToMeta: false,
+    // Seul A1 est synchronisé : l'action « envoyer la fiche » ne doit apparaître
+    // que là, `sendProductCard` refusant un article non synchronisé.
+    syncedToMeta: index === 0,
     name: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   })),
 }));
 
+const mockSendProductCard = vi.fn();
+
 vi.mock("~/trpc/react", () => ({
   api: {
+    // `live.sendProductCard` existait sans appelant : le catalogue est le seul
+    // écran qui connaisse le numéro réel d'une cliente.
+    live: {
+      sendProductCard: {
+        useMutation: (opts: { onSuccess?: () => void }) => ({
+          mutate: mockSendProductCard.mockImplementation(() => opts.onSuccess?.()),
+          isPending: false,
+          isError: false,
+          error: null,
+        }),
+      },
+    },
     // Consommé par SetupRequiredBanner ; boutique connectée → bandeau masqué.
     onboarding: {
       getStatus: {
@@ -150,5 +167,63 @@ describe("CatalogueListContent", () => {
     expect(screen.getAllByText("A1").length).toBeGreaterThan(0);
     expect(screen.getAllByText("C21").length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: "Charger la suite" })).toBeDisabled();
+  });
+});
+
+/**
+ * `live.sendProductCard` existait sans appelant. Il envoie la fiche officielle du
+ * catalogue Meta, celle depuis laquelle la cliente commande dans WhatsApp sans
+ * qu'on lui décrive l'article à la main.
+ *
+ * Le catalogue est l'endroit naturel : la procédure exige le numéro réel, et
+ * l'écran live n'expose que des numéros masqués.
+ */
+describe("CatalogueListContent — envoyer la fiche produit", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("n'offre l'action que sur un article synchronisé avec Meta", async () => {
+    render(<CatalogueListContent />);
+
+    // `DataList` rend chaque ligne deux fois — tableau et carte mobile.
+    expect(
+      await screen.findAllByRole("button", { name: /Envoyer la fiche de l’article A1/ }),
+    ).not.toHaveLength(0);
+    expect(
+      screen.queryAllByRole("button", { name: /Envoyer la fiche de l’article B2/ }),
+    ).toHaveLength(0);
+  });
+
+  it("envoie la fiche au numéro saisi", async () => {
+    const user = userEvent.setup();
+    render(<CatalogueListContent />);
+
+    await user.click(
+      (await screen.findAllByRole("button", { name: /Envoyer la fiche de l’article A1/ }))[0]!,
+    );
+    await user.type(screen.getByLabelText(/Numéro de la cliente/), "+2250701020304");
+    await user.click(screen.getByRole("button", { name: "Envoyer la fiche" }));
+
+    expect(mockSendProductCard).toHaveBeenCalledWith({
+      catalogueItemId: "cat-1",
+      clientPhone: "+2250701020304",
+    });
+  });
+
+  /** Validé côté client avec le même prédicat que le serveur : pas d'aller-retour
+   *  réseau pour une faute de frappe. */
+  it("refuse un numéro mal formé sans appeler le serveur", async () => {
+    const user = userEvent.setup();
+    render(<CatalogueListContent />);
+
+    await user.click(
+      (await screen.findAllByRole("button", { name: /Envoyer la fiche de l’article A1/ }))[0]!,
+    );
+    await user.type(screen.getByLabelText(/Numéro de la cliente/), "0701020304");
+    await user.click(screen.getByRole("button", { name: "Envoyer la fiche" }));
+
+    expect(mockSendProductCard).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent(/format international/);
   });
 });

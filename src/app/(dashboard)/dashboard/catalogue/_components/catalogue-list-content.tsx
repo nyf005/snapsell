@@ -24,8 +24,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, PackageOpen, ImageOff } from "lucide-react";
+import { Plus, Pencil, Trash2, PackageOpen, ImageOff, Send } from "lucide-react";
 import { CatalogueItemFormDialog } from "./catalogue-item-form-dialog";
+import { SendProductCardDialog } from "./send-product-card-dialog";
 import { DashboardEmptyState } from "~/app/(dashboard)/_components/dashboard-empty-state";
 
 import type { CatalogueItemOutput } from "~/server/api/routers/catalogue.schema";
@@ -35,6 +36,9 @@ export function CatalogueListContent() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<CatalogueItemOutput | null>(null);
   const [deletingItem, setDeletingItem] = useState<CatalogueItemOutput | null>(null);
+  /** Article dont on envoie la fiche produit. `null` = dialogue fermé. */
+  const [productCardItem, setProductCardItem] = useState<{ id: string; code: string } | null>(null);
+  const [sentMessage, setSentMessage] = useState<string | null>(null);
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [accumulatedItems, setAccumulatedItems] = useState<CatalogueItemOutput[]>([]);
   const itemsPerPage = 20;
@@ -137,6 +141,18 @@ export function CatalogueListContent() {
               </Button>
             }
           />
+
+          {sentMessage ? (
+            <div
+              role="status"
+              className="flex items-center justify-between gap-3 rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm font-medium text-foreground"
+            >
+              <span>{sentMessage}</span>
+              <Button variant="ghost" size="sm" onClick={() => setSentMessage(null)}>
+                Fermer
+              </Button>
+            </div>
+          ) : null}
 
           {isLoading ? (
             <CatalogueListSkeleton />
@@ -250,6 +266,21 @@ export function CatalogueListContent() {
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
+                        {/*
+                          Visible seulement si l'article est synchronisé avec Meta :
+                          `sendProductCard` le refuserait sinon, et proposer un
+                          bouton qui échoue est pire que ne rien proposer.
+                        */}
+                        {item.syncedToMeta ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setProductCardItem({ id: item.id, code: item.code })}
+                            aria-label={`Envoyer la fiche de l’article ${item.code}`}
+                          >
+                            <Send className="h-4 w-4" />
+                          </Button>
+                        ) : null}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -294,6 +325,15 @@ export function CatalogueListContent() {
         item={editingItem}
         onSuccess={handleFormSuccess}
         r2Configured={r2Status?.configured ?? false}
+      />
+
+      <SendProductCardDialog
+        item={productCardItem}
+        onOpenChange={(open) => !open && setProductCardItem(null)}
+        onSent={(message) => {
+          setSentMessage(message);
+          setTimeout(() => setSentMessage(null), 4000);
+        }}
       />
 
       <AlertDialog open={!!deletingItem} onOpenChange={() => setDeletingItem(null)}>
