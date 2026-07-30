@@ -19,6 +19,42 @@ export const botMsg = {
     exhausted: () =>
       `Article épuisé.\n\nIl n’est plus disponible pour le moment.`,
 
+    /**
+     * Redemander l'adresse quand la cliente répond « oui » alors qu'on l'attend.
+     *
+     * Le flux appelait `collectAddress` avec ce « oui » : l'adresse de livraison
+     * devenait littéralement « oui », `collectAddress` ne vérifiant que le non-vide.
+     */
+    /**
+     * Sept messages client vivaient en dur dans `webhook-processor.ts`.
+     *
+     * Ils échappaient donc à `vocabulary.guard.test.ts`, qui ne collecte que les
+     * chaînes de `botMsg` : tout le dispositif de garde du vocabulaire ne les
+     * voyait pas. Les voici, au même endroit que les autres.
+     */
+    reservationCancelled: () =>
+      `❌ Réservation annulée.\n\nN’hésite pas si tu changes d’avis !`,
+
+    itemsUnavailable: (codes: readonly string[]) =>
+      codes.length === 1
+        ? `Désolé, l’article *${codes[0]}* n’est plus disponible 😔`
+        : `Désolé, les articles *${codes.join(", ")}* ne sont plus disponibles 😔`,
+
+    sendNextCode: () => `D’accord ! Envoie-moi simplement le code de l’article suivant 😊`,
+
+    resendCode: () => `Oups, pas de souci ! Renvoie-moi bien le code tel que tu l’as vu 📝`,
+
+    orderNotReady: () =>
+      `Il me manque une étape avant de confirmer : envoie-moi ton adresse de livraison 📍`,
+
+    orderFailed: () =>
+      `Je n’ai pas réussi à enregistrer ta commande. Réessaie dans un instant, ou demande un conseiller.`,
+
+    noOrderYet: () => `Tu n’as pas encore de commande en cours.`,
+
+    addressStillNeeded: () =>
+      `Il me manque encore ton adresse de livraison 📍\n\nÉcris-la simplement, et je te prépare le récapitulatif.`,
+
     waitlist: (code: string, position: number) =>
       `⏳ *${code} est déjà réservé.*\n\nTu es en file d’attente, position *n° ${position}*. Je te préviens automatiquement si l’article se libère.`,
 
@@ -369,6 +405,16 @@ export const botMsg = {
         (opts.helpUrl ? `\n\nTout comprendre : ${opts.helpUrl}` : ``)
       );
     },
+
+    /** Variantes : l'article reste tel quel. Était en dur dans le webhook. */
+    variantsSkipped: () => `✅ D’accord, l’article reste sans variantes. Prêt pour la vente !`,
+
+    /** Configuration des variantes abandonnée. Était en dur dans le webhook. */
+    variantConfigCancelled: () => `❌ Configuration des variantes annulée.`,
+
+    /** Code demandé pour des variantes, mais absent du catalogue. */
+    codeNotFoundForVariants: (code: string) =>
+      `Article *${code}* introuvable dans le catalogue.`,
 
     /** Confirmation ajout catalogue avec bouton Variantes */
     catalogueAddedInteractive: (code: string, qty: number): InteractiveMessage => ({
