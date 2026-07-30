@@ -13,22 +13,40 @@ const mockReject = vi.fn();
 const mockBulkApprove = vi.fn();
 const mockBulkReject = vi.fn();
 
+/**
+ * `kind` remplace `mediaStorageKey` dans la sortie : la clé R2 est un chemin de
+ * stockage interne, et l'image se lit par `/api/proofs/[proofId]/media`.
+ *
+ * `status` devient nécessaire depuis qu'on peut consulter les preuves traitées —
+ * la requête filtrait « en attente » en dur, et valider/refuser ne s'offre donc
+ * plus que sur une preuve encore en attente.
+ */
+/** Dernier `status` demandé à `listPending`, pour vérifier le filtre. */
+const lastQuery = vi.hoisted(() => ({ status: undefined as string | undefined }));
+
+/** Cache par statut : garde une identité de tableau stable entre les rendus. */
+const itemsByStatus = vi.hoisted(() => ({}) as Record<string, unknown[]>);
+
 const PROOFS = [
   {
     id: "proof-1",
     orderNumber: "CMD-001",
     clientPhone: "+225 01 01 02 03 04",
-    mediaStorageKey: "proofs/p1.jpg",
+    status: "pending",
+    kind: "image" as const,
     textPayload: null,
     createdAt: new Date("2025-01-15T10:00:00Z"),
+    reviewedAt: null,
   },
   {
     id: "proof-2",
     orderNumber: "CMD-002",
     clientPhone: "+225 05 06 07 08 09",
-    mediaStorageKey: null,
+    status: "pending",
+    kind: "text" as const,
     textPayload: "Paiement effectué",
     createdAt: new Date("2025-01-16T14:00:00Z"),
+    reviewedAt: null,
   },
 ];
 
@@ -39,7 +57,22 @@ vi.mock("~/trpc/react", () => ({
     }),
     proofs: {
       listPending: {
-        useQuery: () => ({ data: { items: PROOFS, nextCursor: null }, isLoading: false }),
+        /**
+         * Le tableau est mémoïsé par statut. Sans ça, chaque rendu en renvoyait un
+         * nouveau, et l'`useEffect` du composant — qui dépend de `data.items` —
+         * se redéclenchait indéfiniment. react-query garantit cette stabilité de
+         * référence ; un mock naïf, non.
+         */
+        useQuery: (input: { status?: string }) => {
+          const status = input?.status ?? "pending";
+          lastQuery.status = status;
+          itemsByStatus[status] ??=
+            status === "all" ? PROOFS : PROOFS.filter((p) => p.status === status);
+          return {
+            data: { items: itemsByStatus[status], nextCursor: null },
+            isLoading: false,
+          };
+        },
       },
       approve: {
         useMutation: (opts: { onSuccess?: () => void }) => ({
@@ -138,5 +171,62 @@ describe("ProofsListContent", () => {
     await user.click(screen.getByRole("button", { name: "Refuser la preuve" }));
 
     expect(mockReject).toHaveBeenCalledWith({ proofId: "proof-1" });
+  });
+});
+
+/**
+ * Les preuves traitées étaient inatteignables : la requête filtrait « en attente »
+ * en dur, et c'était le seul listing de preuves du produit. Impossible de dire
+ * « qu'ai-je refusé cette semaine », ni de revoir ce qu'on avait validé.
+ */
+describe("ProofsListContent — consulter les preuves traitées", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    lastQuery.status = undefined;
+  });
+
+  it("s'ouvre sur la file de travail", () => {
+    render(<ProofsListContent />);
+
+    expect(screen.getByRole("tab", { name: "À vérifier" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(lastQuery.status).toBe("pending");
+  });
+
+  it("offre les quatre vues", () => {
+    render(<ProofsListContent />);
+
+    for (const label of ["À vérifier", "Validées", "Refusées", "Toutes"]) {
+      expect(screen.getByRole("tab", { name: label })).toBeInTheDocument();
+    }
+  });
+
+  it("demande au serveur le statut de la vue choisie", async () => {
+    const user = userEvent.setup();
+    render(<ProofsListContent />);
+
+    await user.click(screen.getByRole("tab", { name: "Refusées" }));
+
+    expect(lastQuery.status).toBe("rejected");
+  });
+
+  /**
+   * `approve` et `reject` refuseraient une preuve déjà traitée : proposer un bouton
+   * qui échoue est pire que ne rien proposer.
+   */
+  it("n'offre pas valider/refuser sur une preuve déjà traitée", async () => {
+    const user = userEvent.setup();
+    render(<ProofsListContent />);
+
+    await user.click(screen.getByRole("tab", { name: "Validées" }));
+
+    expect(
+      screen.queryAllByRole("button", { name: /Valider la preuve pour la commande/ }),
+    ).toHaveLength(0);
+    expect(
+      screen.queryAllByRole("button", { name: /Refuser la preuve pour la commande/ }),
+    ).toHaveLength(0);
   });
 });

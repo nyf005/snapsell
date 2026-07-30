@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "~/trpc/react";
 import { formatDateTime, formatErrorText } from "~/lib/copy";
+import { proofStatusLabel } from "~/lib/copy/orders";
 import { DataList } from "~/components/ui/data-list";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
@@ -35,15 +36,53 @@ import type { RouterOutputs } from "~/trpc/react";
 
 type ProofOutput = RouterOutputs["proofs"]["listPending"]["items"][number];
 
+/**
+ * Les vues de l'écran. « À vérifier » est la file de travail, et reste le défaut.
+ *
+ * Les trois autres n'existaient pas : la requête filtrait `pending` en dur et
+ * c'était le seul listing de preuves du produit. Une preuve validée ou refusée
+ * sortait donc définitivement de l'interface — impossible de dire « qu'ai-je
+ * refusé cette semaine », ni de revoir une preuve après l'avoir traitée.
+ */
+const PROOF_VIEWS = [
+  { value: "pending", label: "À vérifier" },
+  { value: "approved", label: "Validées" },
+  { value: "rejected", label: "Refusées" },
+  { value: "all", label: "Toutes" },
+] as const;
+
+type ProofView = (typeof PROOF_VIEWS)[number]["value"];
+
+/** Teinte du badge par statut. Le libellé, lui, vient de `proofStatusLabel`. */
+const PROOF_STATUS_TINT: Record<string, string> = {
+  pending: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  approved: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  rejected: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+};
+
 export function ProofsListContent() {
   const utils = api.useUtils();
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [accumulatedProofs, setAccumulatedProofs] = useState<ProofOutput[]>([]);
+  const [view, setView] = useState<ProofView>("pending");
   const itemsPerPage = 20;
 
-  const queryInput = useMemo(() => ({ limit: itemsPerPage, cursor }), [cursor]);
+  const queryInput = useMemo(
+    () => ({ limit: itemsPerPage, cursor, status: view }),
+    [cursor, view],
+  );
 
   const { data, isLoading } = api.proofs.listPending.useQuery(queryInput);
+
+  /**
+   * Changer de vue repart de la première page. Sans ça, le curseur de la vue
+   * précédente s'appliquerait à la nouvelle et empilerait deux listes sans rapport.
+   */
+  const changeView = (next: ProofView) => {
+    setView(next);
+    setCursor(undefined);
+    setAccumulatedProofs([]);
+  };
 
   useEffect(() => {
     if (!data?.items) return;
@@ -143,6 +182,30 @@ export function ProofsListContent() {
             description="Comparez la preuve avec la commande, puis validez-la ou refusez-la. Un refus demande toujours confirmation."
           />
 
+          {/*
+            Les preuves traitées restaient invisibles : la requête filtrait
+            « en attente » en dur, et c'était le seul listing du produit. On ne
+            pouvait donc pas revenir sur un refus ni revoir ce qu'on avait validé.
+          */}
+          <div
+            role="tablist"
+            aria-label="Filtrer les preuves"
+            className="flex flex-wrap gap-2"
+          >
+            {PROOF_VIEWS.map((v) => (
+              <Button
+                key={v.value}
+                role="tab"
+                aria-selected={view === v.value}
+                variant={view === v.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => changeView(v.value)}
+              >
+                {v.label}
+              </Button>
+            ))}
+          </div>
+
           {actionMessage ? (
             <div
               role="status"
@@ -240,7 +303,7 @@ export function ProofsListContent() {
                       "w-24 px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
                     className: "px-6 py-4",
                     cell: (proof) =>
-                      proof.mediaStorageKey ? (
+                      proof.kind === "image" ? (
                         <a
                           href={`/api/proofs/${proof.id}/media`}
                           target="_blank"
@@ -270,11 +333,8 @@ export function ProofsListContent() {
                         <span className="text-sm font-bold text-primary">
                           {proof.orderNumber}
                         </span>
-                        <Badge
-                          variant="secondary"
-                          className="w-fit bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                        >
-                          En attente
+                        <Badge variant="secondary" className={`w-fit ${PROOF_STATUS_TINT[proof.status] ?? ""}`}>
+                          {proofStatusLabel(proof.status)}
                         </Badge>
                       </div>
                     ),
@@ -286,7 +346,7 @@ export function ProofsListContent() {
                     headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
                     className: "px-6 py-4 text-sm font-medium text-muted-foreground",
                     cell: (proof) =>
-                      proof.mediaStorageKey ? "Image" : proof.textPayload ? "Texte" : "—",
+                      proof.kind === "image" ? "Image" : proof.kind === "text" ? "Texte" : "—",
                   },
                   {
                     id: "client",
@@ -310,42 +370,56 @@ export function ProofsListContent() {
                     cell: (proof) => formatDateTime(new Date(proof.createdAt)),
                   },
                 ]}
-                actions={(proof) => (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                      disabled={isPending}
-                      aria-label={`Refuser la preuve pour la commande ${proof.orderNumber}`}
-                      onClick={() =>
-                        setRejectTarget({ id: proof.id, orderNumber: proof.orderNumber })
-                      }
-                    >
-                      <X className="size-4" />
-                      <span className="md:hidden">Refuser</span>
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="rounded-md bg-primary px-3 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/20 hover:brightness-110"
-                      disabled={isPending}
-                      aria-label={`Valider la preuve pour la commande ${proof.orderNumber}`}
-                      onClick={() => approve.mutate({ proofId: proof.id })}
-                    >
-                      Valider
-                    </Button>
-                  </>
-                )}
+                // Valider et refuser ne s'offrent que sur une preuve encore en
+                // attente : `approve` et `reject` refuseraient les autres, et
+                // proposer un bouton qui échoue est pire que ne rien proposer.
+                actions={(proof) =>
+                  proof.status !== "pending" ? null : (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        disabled={isPending}
+                        aria-label={`Refuser la preuve pour la commande ${proof.orderNumber}`}
+                        onClick={() =>
+                          setRejectTarget({ id: proof.id, orderNumber: proof.orderNumber })
+                        }
+                      >
+                        <X className="size-4" />
+                        <span className="md:hidden">Refuser</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="rounded-md bg-primary px-3 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/20 hover:brightness-110"
+                        disabled={isPending}
+                        aria-label={`Valider la preuve pour la commande ${proof.orderNumber}`}
+                        onClick={() => approve.mutate({ proofId: proof.id })}
+                      >
+                        Valider
+                      </Button>
+                    </>
+                  )
+                }
                 empty={
                   <Empty className="mx-auto max-w-sm border-0 p-0">
                     <EmptyHeader>
                       <EmptyMedia variant="icon" className="size-14 rounded-2xl [&_svg]:size-7">
                         <FileCheck />
                       </EmptyMedia>
-                      <EmptyTitle>Aucune preuve en attente</EmptyTitle>
+                      <EmptyTitle>
+                        {view === "pending"
+                          ? "Aucune preuve en attente"
+                          : view === "approved"
+                            ? "Aucune preuve validée"
+                            : view === "rejected"
+                              ? "Aucune preuve refusée"
+                              : "Aucune preuve"}
+                      </EmptyTitle>
                       <EmptyDescription>
-                        Quand une preuve de paiement arrivera sur WhatsApp, elle
-                        apparaîtra ici pour que vous la validiez.
+                        {view === "pending"
+                          ? "Quand une preuve de paiement arrivera sur WhatsApp, elle apparaîtra ici pour que vous la validiez."
+                          : "Rien à afficher pour cette vue. La preuve d’une commande précise se consulte aussi depuis l’écran « Commandes »."}
                       </EmptyDescription>
                     </EmptyHeader>
                   </Empty>

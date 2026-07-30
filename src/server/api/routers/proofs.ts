@@ -5,6 +5,7 @@
 
 import { TRPCError } from "@trpc/server";
 
+import type { Prisma } from "../../../../generated/prisma";
 import { appError } from "~/server/api/errors";
 import { db } from "~/server/db";
 import {
@@ -32,12 +33,24 @@ export const proofsRouter = createTRPCRouter({
         throw appError("UNAUTHORIZED", "session.expired");
       }
       const limit = input.limit ?? 20;
+
+      /**
+       * La file d'attente portait deux conditions : `status: "pending"` et
+       * `order.depositStatus: "deposit_pending"`. La seconde n'a de sens que pour
+       * la file — une preuve traitée a fait bouger le `depositStatus` de sa
+       * commande, et la conjonction rendait alors la preuve introuvable.
+       *
+       * Hors file, on filtre donc sur le statut de la preuve seule.
+       */
+      const where: Prisma.PaymentProofWhereInput =
+        input.status === "pending"
+          ? { tenantId, status: "pending", order: { depositStatus: "deposit_pending" } }
+          : input.status === "all"
+            ? { tenantId }
+            : { tenantId, status: input.status };
+
       const proofs = await db.paymentProof.findMany({
-        where: {
-          tenantId,
-          status: "pending",
-          order: { depositStatus: "deposit_pending" },
-        },
+        where,
         orderBy: { createdAt: "desc" },
         take: limit + 1,
         skip: input.cursor ? 1 : 0,
@@ -62,10 +75,14 @@ export const proofsRouter = createTRPCRouter({
         orderNumber: p.order.orderNumber,
         clientPhone: p.order.reservation.clientPhone,
         status: p.status,
-        mediaStorageKey: p.mediaStorageKey,
+        // `kind` remplace `mediaStorageKey`, qui sortait tel quel. C'est un chemin
+        // de stockage interne, et l'image se lit de toute façon par
+        // `/api/proofs/[proofId]/media`. Même règle que `mapOrderOutput`.
+        kind: p.mediaStorageKey ? ("image" as const) : p.textPayload ? ("text" as const) : ("empty" as const),
         textPayload: p.textPayload,
         correlationId: p.correlationId,
         createdAt: p.createdAt,
+        reviewedAt: p.reviewedAt,
       }));
       const nextCursor = proofs.length > limit ? proofs[limit - 1]?.id : undefined;
       return { items, nextCursor };
