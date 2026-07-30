@@ -84,10 +84,21 @@ export async function runCreditsMonthlyResetJob(): Promise<CreditsMonthlyResetRu
         // L'échéance déduite est dans le futur : on se contente d'amorcer la date.
         // Surtout ne pas recharger les crédits ici, ce serait offrir un cycle entier
         // à tous les tenants existants au premier passage du cron.
-        await db.tenant.update({
+        // `updateMany` et non `update` : la liste a été lue plus haut, et une
+        // boutique peut avoir disparu entre-temps (clôture de compte pendant
+        // que le cron tourne). `update` lèverait P2025 et ferait échouer le job
+        // entier — toutes les boutiques suivantes perdraient leur recharge du
+        // mois. Même raisonnement que pour le plan inconnu, plus bas.
+        const initialized = await db.tenant.updateMany({
           where: { id: tenant.id },
           data: { usageResetDate: nextReset },
         });
+        if (initialized.count === 0) {
+          workerLogger.info("[cron:credits-monthly-reset] Boutique disparue, ignorée", {
+            tenantId: tenant.id,
+          });
+          continue;
+        }
         tenantsInitialized += 1;
         workerLogger.info("[cron:credits-monthly-reset] Cycle initialized (no credit reset)", {
           tenantId: tenant.id,
@@ -119,7 +130,9 @@ export async function runCreditsMonthlyResetJob(): Promise<CreditsMonthlyResetRu
       nextReset = addOneMonth(nextReset);
     }
 
-    await db.tenant.update({
+    // Même garde que ci-dessus : une boutique disparue ne doit pas emporter
+    // la recharge de toutes les suivantes.
+    const renewed = await db.tenant.updateMany({
       where: { id: tenant.id },
       data: {
         creditsBalance: creditsTotalMonthly,
@@ -129,6 +142,12 @@ export async function runCreditsMonthlyResetJob(): Promise<CreditsMonthlyResetRu
         lowCreditsAlerted: false,
       },
     });
+    if (renewed.count === 0) {
+      workerLogger.info("[cron:credits-monthly-reset] Boutique disparue, ignorée", {
+        tenantId: tenant.id,
+      });
+      continue;
+    }
 
     tenantsReset += 1;
     workerLogger.info("[cron:credits-monthly-reset] Credits renewed", {
