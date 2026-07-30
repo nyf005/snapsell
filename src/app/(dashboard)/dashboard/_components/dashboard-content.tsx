@@ -34,6 +34,7 @@ import { HelpHint } from "~/app/(dashboard)/_components/help-hint";
 import { SetupChecklist } from "~/app/(dashboard)/_components/setup-checklist";
 import { CreditsAlertBanner } from "~/app/(dashboard)/_components/credits-alert-banner";
 import { formatError, formatRelativeDate, formatXof, formatXofUnits, type UserError } from "~/lib/copy";
+import { HandedOffConversations } from "./handed-off-conversations";
 import { ErrorAlert } from "~/components/ui/error-alert";
 import { cn } from "~/lib/utils";
 
@@ -281,6 +282,10 @@ export function DashboardContent({
             </CardContent>
           </Card>
         </div>
+
+        {/* Ne s'affiche que s'il y a une conversation à reprendre — sinon la
+            section disparaît et ne prend pas la place du travail du jour. */}
+        <HandedOffConversations />
       </section>
 
       {/* Section: Activité — masquée tant que WhatsApp n'est pas connecté :

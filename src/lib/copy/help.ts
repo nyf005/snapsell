@@ -144,6 +144,10 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
         kind: "text",
         text: "Votre travail commence à la fin : vérifier les preuves de paiement, puis faire avancer les commandes jusqu’à la livraison. L’écran « Aujourd’hui » met toujours en avant ce qui attend une décision.",
       },
+      {
+        kind: "note",
+        text: "Quand une cliente demande à parler à quelqu’un, l’assistant se met en retrait sur ce numéro et vous laissez la main. La conversation apparaît alors sur « Aujourd’hui » : rendez-la à l’assistant quand vous avez terminé, sinon il la reprend seul au bout de vingt-quatre heures.",
+      },
       { kind: "screen", href: "/dashboard", label: "Ouvrir « Aujourd’hui »" },
     ],
     related: ["le-code", "reservation-file-expiration", "mettre-en-route"],
