@@ -5,6 +5,7 @@
 
 import { TRPCError } from "@trpc/server";
 
+import { canManageGrid } from "~/lib/rbac";
 import { appError } from "~/server/api/errors";
 import { db } from "~/server/db";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
@@ -66,8 +67,10 @@ export const eventLogRouter = createTRPCRouter({
   exportCsv: protectedProcedure
     .input(exportCsvEventLogsInputSchema)
     .query(async ({ ctx, input }) => {
-      const role = ctx.session.user.role as string | undefined;
-      if (role !== "OWNER" && role !== "MANAGER") {
+      // `canManageGrid` et non une comparaison à la main : la liste des rôles de
+      // gestion vit dans `~/lib/rbac`, et une copie inline ne suit pas ses
+      // évolutions — c'est ainsi que le sélecteur d'acompte s'était désynchronisé.
+      if (!canManageGrid(ctx.session.user.role as string)) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Seuls les managers ou propriétaires peuvent exporter le journal en CSV.",

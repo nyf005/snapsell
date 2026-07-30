@@ -11,6 +11,7 @@ import { api } from "~/trpc/react";
 import { formatErrorText, roleDescription, roleLabel } from "~/lib/copy";
 import {
   ASSIGNABLE_ROLES,
+  canManageGrid,
   isAssignableRole,
   occupiesSeat,
   type AssignableRole,
@@ -352,7 +353,12 @@ export function TeamContent() {
                       <span className="flex items-center gap-3">
                         <MemberAvatar
                           initials={member.initials}
-                          isPrimary={member.role === "Admin" || member.role === "Manager"}
+                          // Sur le rôle brut, pas sur le libellé : ces conditions
+                          // comparaient à « Admin », ce que renvoyait l'ancien
+                          // `formatRole`. Depuis que le libellé vient de `roleLabel`
+                          // — « Propriétaire » — elles ne s'appliquaient plus, et le
+                          // Propriétaire avait silencieusement perdu sa distinction.
+                          isPrimary={canManageGrid(member.rawRole)}
                         />
                         <span>
                           <p className="text-sm font-medium">{member.name}</p>
@@ -369,13 +375,9 @@ export function TeamContent() {
                     className: "whitespace-nowrap px-6 py-4",
                     cell: (member) => (
                       <Badge
-                        variant={
-                          member.role === "Admin" || member.role === "Manager"
-                            ? "default"
-                            : "secondary"
-                        }
+                        variant={canManageGrid(member.rawRole) ? "default" : "secondary"}
                         className={
-                          member.role === "Admin"
+                          member.rawRole === "OWNER"
                             ? "border-purple-200 bg-purple-100 text-purple-600 dark:border-purple-800 dark:bg-purple-900/30 dark:text-purple-400"
                             : ""
                         }
