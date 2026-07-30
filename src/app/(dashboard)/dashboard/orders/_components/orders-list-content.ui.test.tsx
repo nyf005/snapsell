@@ -38,6 +38,7 @@ vi.mock("~/app/(dashboard)/_components/dashboard-header", () => ({
  */
 const mockApprove = vi.hoisted(() => vi.fn());
 const mockReject = vi.hoisted(() => vi.fn());
+const mockUpdateStatus = vi.hoisted(() => vi.fn());
 
 const EMPTY_DETAIL = {
   depositExpiresAt: null,
@@ -150,7 +151,7 @@ vi.mock("~/trpc/react", () => ({
       },
       updateStatus: {
         useMutation: () => ({
-          mutate: vi.fn(),
+          mutate: mockUpdateStatus,
           isPending: false,
           isError: false,
           error: null,
@@ -328,6 +329,40 @@ describe("OrdersListContent — la preuve depuis la commande", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("permet de faire avancer la commande depuis le panneau", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    await user.click((await screen.findAllByRole("button", { name: "CMD-2025-001" }))[0]!);
+    const panel = await screen.findByRole("dialog");
+
+    await user.click(
+      within(panel).getByRole("combobox", {
+        name: /Changer le statut de la commande CMD-2025-001/,
+      }),
+    );
+    await user.click(screen.getByRole("option", { name: "En préparation" }));
+
+    expect(mockUpdateStatus).toHaveBeenCalledWith({
+      orderId: "order-1",
+      status: "preparing",
+    });
+  });
+
+  /**
+   * Le panneau a la place de dire que la cliente sera prévenue ; le sélecteur en
+   * colonne étroite, non. C'est ce qui distingue les deux, et non un doublon.
+   */
+  it("annonce dans le panneau que la cliente sera prévenue", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    await user.click((await screen.findAllByRole("button", { name: "CMD-2025-001" }))[0]!);
+    const panel = await screen.findByRole("dialog");
+
+    expect(within(panel).getByText(/prévient la cliente sur\s+WhatsApp/i)).toBeInTheDocument();
+  });
+
   it("montre la preuve validée dans le panneau, et sa date de traitement", async () => {
     const user = userEvent.setup();
     render(<OrdersListContent />);
@@ -340,5 +375,70 @@ describe("OrdersListContent — la preuve depuis la commande", () => {
     expect(
       within(panel).getByRole("img", { name: /Preuve de paiement pour la commande CMD-2025-002/ }),
     ).toHaveAttribute("src", "/api/proofs/proof-2/media");
+  });
+});
+
+/**
+ * Trois transitions envoient un message WhatsApp à la cliente : `in_delivery`,
+ * `delivered` et `cancelled`. Le sélecteur ne le disait nulle part — on choisissait
+ * « Annulée » dans une liste déroulante et un message d'annulation partait, sans
+ * confirmation. Seule l'annulation en demande une : les deux autres sont la marche
+ * normale, et confirmer chaque colis qui part transformerait l'après-live en
+ * chapelet de dialogues.
+ */
+describe("OrdersListContent — l'annulation demande confirmation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("n'annule pas avant confirmation, puis annule", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    const selects = await screen.findAllByRole("combobox", {
+      name: /Changer le statut de la commande CMD-2025-001/,
+    });
+    await user.click(selects[0]!);
+    await user.click(screen.getByRole("option", { name: "Annulée" }));
+
+    expect(mockUpdateStatus).not.toHaveBeenCalled();
+    expect(screen.getByText(/sera marquée comme annulée/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Annuler la commande" }));
+    expect(mockUpdateStatus).toHaveBeenCalledWith({
+      orderId: "order-1",
+      status: "cancelled",
+    });
+  });
+
+  it("renonce sans rien envoyer", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    const selects = await screen.findAllByRole("combobox", {
+      name: /Changer le statut de la commande CMD-2025-001/,
+    });
+    await user.click(selects[0]!);
+    await user.click(screen.getByRole("option", { name: "Annulée" }));
+    await user.click(screen.getByRole("button", { name: "Ne pas annuler" }));
+
+    expect(mockUpdateStatus).not.toHaveBeenCalled();
+  });
+
+  /** Les transitions non destructives restent immédiates. */
+  it("passe en préparation sans confirmation", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    const selects = await screen.findAllByRole("combobox", {
+      name: /Changer le statut de la commande CMD-2025-001/,
+    });
+    await user.click(selects[0]!);
+    await user.click(screen.getByRole("option", { name: "En préparation" }));
+
+    expect(mockUpdateStatus).toHaveBeenCalledWith({
+      orderId: "order-1",
+      status: "preparing",
+    });
   });
 });

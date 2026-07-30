@@ -26,6 +26,7 @@ import { depositStatusLabel, orderStatusLabel } from "~/lib/copy/orders";
 import { api } from "~/trpc/react";
 
 import { OrderProofs } from "./order-proofs";
+import { OrderStatusControl } from "./order-status-control";
 
 /**
  * Détail d'une commande.
@@ -196,6 +197,18 @@ export function OrderDetailSheet({
                   );
                 })()}
               </Field>
+            </div>
+
+            <div className="border-t border-border pt-6">
+              <h3 className="pb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Faire avancer
+              </h3>
+              <OrderStatusControl
+                orderId={order.id}
+                orderNumber={order.orderNumber}
+                status={order.status}
+                layout="panel"
+              />
             </div>
 
             <div className="border-t border-border pt-6">

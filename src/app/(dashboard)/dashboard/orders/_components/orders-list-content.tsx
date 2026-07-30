@@ -7,7 +7,6 @@ import { fr } from "react-day-picker/locale";
 import { api } from "~/trpc/react";
 import { formatDateCompact, formatDateTime, formatErrorText } from "~/lib/copy";
 import {
-  ORDER_STATUS_LABEL,
   depositStatusLabel,
   hasDeposit,
   orderFilterOptions,
@@ -17,6 +16,7 @@ import {
   type OrderWorkView,
 } from "~/lib/copy/orders";
 import { OrderDetailSheet } from "./order-detail-sheet";
+import { OrderStatusControl } from "./order-status-control";
 import { DataList } from "~/components/ui/data-list";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
@@ -49,7 +49,6 @@ import {
 } from "~/components/ui/tooltip";
 import { DataPagination } from "~/components/ui/data-pagination";
 import { Package, ListOrdered, Wallet, Truck, XCircle, Search, CalendarIcon, FileCheck, Download, Receipt } from "lucide-react";
-import { getAllowedNextStatuses } from "~/lib/order-status-transitions";
 import type { RouterOutputs } from "~/trpc/react";
 
 type OrderOutput = RouterOutputs["orders"]["list"]["items"][number];
@@ -61,8 +60,6 @@ type OrderStatus =
   | "delivered"
   | "cancelled";
 
-
-/** Story 6.3: transitions depuis ~/lib/order-status-transitions (partagé avec le serveur). */
 
 /**
  * ── LE BADGE D'ACOMPTE EST LA PORTE VERS LA PREUVE ──────────────────────────
@@ -138,9 +135,6 @@ function StatusBadge({
   );
 }
 
-const canChangeStatus = (s: OrderStatus) =>
-  getAllowedNextStatuses(s as Parameters<typeof getAllowedNextStatuses>[0]).length > 0;
-
 export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boolean }) {
   const [workView, setWorkView] = useState<OrderWorkView>("");
   const [dateFrom, setDateFrom] = useState("");
@@ -170,14 +164,9 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
   const { data, isLoading } = api.orders.list.useQuery(queryInput);
   const { data: pendingProofCount = 0 } = api.proofs.pendingCount.useQuery();
 
-  const updateStatus = api.orders.updateStatus.useMutation({
-    onSuccess: () => {
-      void utils.orders.list.invalidate();
-    },
-    onMutate: () => {
-      updateStatus.reset();
-    },
-  });
+  // La mutation de statut et son erreur vivent dans `OrderStatusControl`, partagé
+  // avec le panneau de détail. Ici, une erreur en pied de page était loin du geste
+  // qui l'avait causée ; elle s'affiche désormais sous le sélecteur concerné.
 
   const handleExportCsv = async () => {
     if (!canExportCsv) return;
@@ -560,55 +549,13 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                       cell: (order) => formatDateTime(new Date(order.createdAt)),
                     },
                   ]}
-                  actions={(order) => {
-                    const status = order.status as OrderStatus;
-                    if (canChangeStatus(status)) {
-                      return (
-                        <Select
-                          value=""
-                          onValueChange={(newStatus) => {
-                            if (
-                              newStatus &&
-                              getAllowedNextStatuses(
-                                status as Parameters<typeof getAllowedNextStatuses>[0],
-                              ).includes(newStatus as OrderStatus)
-                            ) {
-                              updateStatus.mutate({
-                                orderId: order.id,
-                                status: newStatus as OrderStatus,
-                              });
-                            }
-                          }}
-                          disabled={updateStatus.isPending}
-                          aria-label={`Changer le statut de la commande ${order.orderNumber}`}
-                        >
-                          <SelectTrigger className="h-9 w-full border-border bg-muted/50 sm:w-[140px]">
-                            <SelectValue placeholder="Nouveau statut" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {getAllowedNextStatuses(
-                              status as Parameters<typeof getAllowedNextStatuses>[0],
-                            ).map((next) => (
-                              <SelectItem key={next} value={next}>
-                                {ORDER_STATUS_LABEL[next]}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      );
-                    }
-                    if (status === "delivered") {
-                      return (
-                        <span className="text-sm text-muted-foreground">Déjà livrée</span>
-                      );
-                    }
-                    if (status === "cancelled") {
-                      return (
-                        <span className="text-sm text-muted-foreground">Commande annulée</span>
-                      );
-                    }
-                    return null;
-                  }}
+                  actions={(order) => (
+                    <OrderStatusControl
+                      orderId={order.id}
+                      orderNumber={order.orderNumber}
+                      status={order.status}
+                    />
+                  )}
                   empty={
                     hasActiveFilters ? (
                       <DashboardEmptyState
@@ -641,15 +588,6 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
               </>
             )}
           </Card>
-
-            {updateStatus.isError && (
-              <p
-                className="text-sm text-destructive"
-                role="alert"
-              >
-                {formatErrorText(updateStatus.error, "orders")}
-              </p>
-            )}
           </div>
         </main>
 
