@@ -1,5 +1,6 @@
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
+import { formatXof } from "~/lib/copy";
 import { captureException } from "~/lib/sentry";
 import { boss, QUEUE, type PgBossJob } from "./queues";
 import type { InboundMessage, EnrichedInboundMessage } from "../messaging/types";
@@ -63,15 +64,31 @@ import {
 /** Mots-clés STOP (case-insensitive, trim) pour détection opt-out. */
 const STOP_KEYWORDS = ["stop", "arrêt", "arret", "unsubscribe", "optout", "opt-out"];
 
-/** Phase 5.2: Keywords that trigger handoff to human agent. */
-const HANDOFF_KEYWORDS = [
-  "agent",
-  "humain",
-  "appel",
-  "parler à quelqu'un",
-  "parler a quelqu'un",
-  "conseiller",
-  "service client",
+/**
+ * Phase 5.2 : demandes de mise en relation avec une personne.
+ *
+ * ── POURQUOI DES LIMITES DE MOT, ET POURQUOI « APPEL » A DISPARU ─────────────
+ * La détection était un `includes` sur une liste qui contenait « appel ». Elle
+ * attrapait donc « je t'appelle demain », « merci pour le rappel », « c'est pour
+ * l'appel de mon mariage » — et un faux positif coupe le bot pour cette cliente.
+ *
+ * Les limites de mot (`\b`) écartent « appelle » et « rappel ». « appel » seul est
+ * retiré : même isolé, le mot désigne rarement une demande de mise en relation en
+ * français ivoirien, et l'analyse d'intention par IA (`HUMAN_AGENT`) couvre les
+ * formulations indirectes sur les plans payants.
+ *
+ * Le reste du fichier est délibérément étroit — `isStopMessage` exige l'égalité ou
+ * un préfixe suivi d'espace, `isSellerHelpRequest` est ancré. Cette fonction était
+ * l'exception.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+const HANDOFF_PATTERNS = [
+  /\bagents?\b/,
+  /\bhumain(e|s)?\b/,
+  /\bconseill[eè]re?s?\b/,
+  /\bservice\s+client\b/,
+  /\bparler\s+[àa]\s+(quelqu'?un|une?\s+personne)\b/,
+  /\bvraie?\s+personne\b/,
 ];
 
 /** Pattern « code » client : lettre(s) + chiffre(s) ex. A12, B7 (Story 2.6 Option A) */
@@ -80,6 +97,27 @@ const HANDOFF_KEYWORDS = [
 const CLIENT_CODE_INTENT_PATTERN = /^([A-Za-z]+\d+)(?:\s*[x\s]?\s*(\d+))?/i;
 
 export type ClientCodeIntent = { code: string; quantity: number; isTypo: boolean };
+
+/**
+ * Bornes sur ce qui arrive de l'extérieur.
+ *
+ * `MAX_ORDER_ITEMS` : le panier natif WhatsApp arrivait tel quel, et chaque article
+ * coûte deux allers-retours base plus une réservation. Meta ne publie pas de limite
+ * de panier, mais plafonne ses propres messages multi-produits à 30 : cent laisse
+ * donc une marge large tout en bornant la boucle.
+ *
+ * `MAX_ITEM_QUANTITY` : la quantité venait du client sans borne haute — le parseur
+ * de codes ne posait qu'un `Math.max(1, …)`. Au-delà de mille exemplaires d'un même
+ * article, c'est une faute de saisie, pas une commande.
+ */
+export const MAX_ORDER_ITEMS = 100;
+export const MAX_ITEM_QUANTITY = 1000;
+
+/** Ramène une quantité venue de l'extérieur dans des bornes défendables. */
+export function clampQuantity(raw: number | null | undefined): number {
+  if (raw == null || !Number.isFinite(raw)) return 1;
+  return Math.min(MAX_ITEM_QUANTITY, Math.max(1, Math.floor(raw)));
+}
 
 /**
  * Parse le body client en intent « code » : strict (A12) ou typo (A12A → A12).
@@ -91,7 +129,7 @@ export function parseClientCodeIntent(body: string): ClientCodeIntent | null {
   if (!match) return null;
   const code = normalizeCode(match[1]!);
   if (!code.length) return null;
-  const quantity = match[2] ? Math.max(1, parseInt(match[2], 10)) : 1;
+  const quantity = match[2] ? clampQuantity(parseInt(match[2], 10)) : 1;
   const matchedText = match[0]!;
   const isStrict = trimmed.toLowerCase() === matchedText.toLowerCase();
   return { code, quantity, isTypo: !isStrict };
@@ -110,7 +148,29 @@ export function isStopMessage(body: string): boolean {
 
 export function isHandoffRequest(body: string): boolean {
   const lower = body.toLowerCase().trim();
-  return HANDOFF_KEYWORDS.some((kw) => lower.includes(kw));
+  return HANDOFF_PATTERNS.some((re) => re.test(lower));
+}
+
+/**
+ * Durée au bout de laquelle une mise en relation cesse de faire taire le bot.
+ *
+ * `setHandedOff` n'était jamais appelé avec `false` : rien, nulle part, ne défaisait
+ * une mise en relation. Un faux positif de détection coupait donc le service à une
+ * cliente **définitivement**, sans que personne le sache et sans moyen de revenir.
+ *
+ * Vingt-quatre heures, comme la fenêtre de conversation WhatsApp sur laquelle tout
+ * le produit est bâti : passé ce délai, si personne n'a repris la main, le bot
+ * reprend le relais plutôt que de laisser la cliente sans réponse.
+ */
+export const HANDOFF_TTL_MS = 24 * 60 * 60 * 1000;
+
+/** La mise en relation est-elle encore active ? */
+export function isHandoffActive(
+  state: { handedOff: boolean; updatedAt: Date } | null,
+  now: Date = new Date(),
+): boolean {
+  if (!state?.handedOff) return false;
+  return now.getTime() - state.updatedAt.getTime() < HANDOFF_TTL_MS;
 }
 
 /** Phase 5.3: FAQ keyword detection. Returns the FAQ category or null. */
@@ -149,9 +209,21 @@ export function isOutsideBusinessHours(
       timeZone: tz,
       hour: "2-digit",
       minute: "2-digit",
-      hour12: false,
+      // `hourCycle: "h23"` et non `hour12: false` : ce dernier laisse certaines
+      // versions d'ICU rendre « 24:00 » à minuit, qui compare mal.
+      hourCycle: "h23",
     });
     const localTime = formatter.format(now); // "HH:MM"
+
+    // Plage à cheval sur minuit — une boutique ouverte de 18:00 à 02:00.
+    // La comparaison simple `< start || >= end` la déclarait fermée en pleine
+    // ouverture : à 20:00, `20 < 18` est faux mais `20 >= 02` est vrai.
+    // Quand la fermeture précède l'ouverture, on est *dedans* si l'on est après
+    // l'ouverture **ou** avant la fermeture.
+    if (end <= start) {
+      return localTime < start && localTime >= end;
+    }
+
     return localTime < start || localTime >= end;
   } catch {
     return false; // En cas de timezone invalide, on ne bloque pas
@@ -190,7 +262,46 @@ export async function processWebhookJob(
     );
     const messageType = isSeller ? "seller" : "client";
 
-    // 1b. Pour les clients: vérifier les credits (Story Credits)
+    const buildEnrichedMessage = (liveSessionId?: string | null): EnrichedInboundMessage => ({
+      ...job.data,
+      tenantId,
+      messageType,
+      liveSessionId: liveSessionId ?? null,
+    });
+
+    /**
+     * ── LE STOP PASSE AVANT LE CONTRÔLE DE CRÉDIT ─────────────────────────────
+     * La détection du STOP venait après `checkAndConsumeCredit` : se désabonner
+     * ouvrait donc une fenêtre de conversation facturée. La boutique payait pour
+     * un désabonnement.
+     *
+     * Elle venait aussi après le message d'absence, qu'une cliente recevait donc
+     * en réponse à son « STOP ».
+     *
+     * On sort tout de suite : en aval, un corps « stop » ne déclenchait plus rien
+     * de toute façon — l'IA, la mise en relation, la lecture de session et les
+     * intentions client l'excluent tous explicitement. Sortir ne retire donc aucun
+     * comportement, et évite d'en ajouter par accident plus tard.
+     * ──────────────────────────────────────────────────────────────────────────
+     */
+    if (messageType === "client" && isStopMessage(body)) {
+      const existing = await db.optOut.findUnique({
+        where: { tenantId_phoneNumber: { tenantId, phoneNumber: clientPhoneE164 } },
+      });
+      if (!existing) {
+        const optOut = await db.optOut.create({
+          data: { tenantId, phoneNumber: clientPhoneE164, optedOutAt: new Date() },
+        });
+        // Un échec d'écriture au journal ne doit pas faire échouer le STOP, mais il
+        // laisse un trou dans la trace : sans log, personne ne le saurait.
+        await logOptOutRecorded(tenantId, optOut.id, correlationId).catch((err) => {
+          workerLogger.error("Journal: opt-out non tracé", { tenantId, correlationId, err });
+        });
+      }
+      return buildEnrichedMessage();
+    }
+
+    // 2. Pour les clients: vérifier les credits (Story Credits)
     if (messageType === "client") {
       const creditCheck = await checkAndConsumeCredit(tenantId, clientPhoneE164);
       if (!creditCheck.allowed) {
@@ -222,14 +333,7 @@ export async function processWebhookJob(
       },
     });
 
-    const buildEnrichedMessage = (liveSessionId?: string | null): EnrichedInboundMessage => ({
-      ...job.data,
-      tenantId,
-      messageType,
-      liveSessionId: liveSessionId ?? null,
-    });
-
-    // 2. Away message — réponse automatique hors horaires (Phase 4)
+    // 3. Away message — réponse automatique hors horaires (Phase 4)
     // Envoyé uniquement aux clients, une seule fois par heure
     if (
       messageType === "client" &&
@@ -262,24 +366,7 @@ export async function processWebhookJob(
       // On continue le traitement normal — le bot répond quand même si possible
     }
 
-    // 3. Détection STOP (Opt-out)
-    if (messageType === "client" && isStopMessage(body)) {
-      const existing = await db.optOut.findUnique({
-        where: { tenantId_phoneNumber: { tenantId, phoneNumber: clientPhoneE164 } },
-      });
-      if (!existing) {
-        const optOut = await db.optOut.create({
-          data: { tenantId, phoneNumber: clientPhoneE164, optedOutAt: new Date() },
-        });
-        // Un échec d'écriture au journal ne doit pas faire échouer le STOP, mais il
-        // laisse un trou dans la trace : sans log, personne ne le saurait.
-        await logOptOutRecorded(tenantId, optOut.id, correlationId).catch((err) => {
-          workerLogger.error("Journal: opt-out non tracé", { tenantId, correlationId, err });
-        });
-      }
-    }
-
-    // 3. AI Intent Analysis - only for paid plans (Starter/Pro)
+    // 4. AI Intent Analysis - only for paid plans (Starter/Pro)
     let aiAnalysis = null;
     const hasAI = tenant?.subscriptionPlan !== "free";
     if (hasAI && !isStopMessage(body) && body.trim().length > 0) {
@@ -302,7 +389,16 @@ export async function processWebhookJob(
         return buildEnrichedMessage();
       }
       const state = await getConversationState(tenantId, clientPhoneE164);
-      if (state?.handedOff) return buildEnrichedMessage();
+      if (isHandoffActive(state)) return buildEnrichedMessage();
+      if (state?.handedOff) {
+        // Passé le délai, on rend la main au bot plutôt que de laisser la cliente
+        // sans réponse : rien ni personne ne remettait `handedOff` à false.
+        await setHandedOff(tenantId, clientPhoneE164, false);
+        workerLogger.info("Mise en relation expirée, le bot reprend", {
+          tenantId,
+          correlationId,
+        });
+      }
     }
 
     // 4. Commande via panier WA natif (P1 — message type "order")
@@ -310,19 +406,37 @@ export async function processWebhookJob(
       const reserved: Array<{ code: string; qty: number; prix: string }> = [];
       const failed: string[] = [];
 
-      for (const item of orderPayload.items) {
+      // Le panier arrivait tel quel de Meta, sans borne : chaque article coûte deux
+      // allers-retours base plus une réservation. Meta ne publie pas de limite de
+      // panier mais plafonne ses messages multi-produits à 30 ; cent laisse donc
+      // large tout en bornant la boucle.
+      const orderItems = orderPayload.items.slice(0, MAX_ORDER_ITEMS);
+      if (orderPayload.items.length > MAX_ORDER_ITEMS) {
+        workerLogger.warn("Panier tronqué au plafond", {
+          tenantId,
+          correlationId,
+          received: orderPayload.items.length,
+          kept: MAX_ORDER_ITEMS,
+        });
+      }
+
+      for (const item of orderItems) {
         const code = item.productRetailerId.toUpperCase();
+        const quantity = clampQuantity(item.quantity);
         const result = await findOrCreateOrderableItemByCode(tenantId, code);
         if (!result) {
           failed.push(code);
           continue;
         }
-        const reservation = await createReservation(tenantId, null, null, clientPhoneE164, correlationId, { catalogueItemId: result.id, quantity: item.quantity });
+        const reservation = await createReservation(tenantId, null, null, clientPhoneE164, correlationId, { catalogueItemId: result.id, quantity });
         if (reservation.success) {
           reserved.push({
             code,
-            qty: item.quantity,
-            prix: `${((result.amount ?? 0) * item.quantity).toLocaleString("fr-FR")} FCFA`,
+            qty: quantity,
+            // `formatXof` et non un `toLocaleString` à la main : `amount` est en
+            // centimes (`amount_cents`), et cette ligne ne divisait pas par 100.
+            // Le panier natif affichait donc des montants cent fois trop grands.
+            prix: formatXof((result.amount ?? 0) * quantity),
           });
         } else {
           failed.push(code);
@@ -347,7 +461,7 @@ export async function processWebhookJob(
         await writeToOutbox({
           tenantId,
           to: clientPhoneE164,
-          body: `Désolé, ${failed.length === 1 ? `l'article *${failed[0]}* n'est` : `les articles *${failed.join(", ")}* ne sont`} plus disponible${failed.length > 1 ? "s" : ""} 😔`,
+          body: botMsg.client.itemsUnavailable(failed),
           correlationId: `${correlationId}:order_partial`,
         });
       }
@@ -365,12 +479,22 @@ export async function processWebhookJob(
         await writeToOutbox({
           tenantId,
           to: clientPhoneE164,
-          body: "❌ Réservation annulée. N'hésite pas si tu changes d'avis !",
+          body: botMsg.client.reservationCancelled(),
           correlationId,
         });
       } else if (interactiveReplyId === "confirm_order") {
+        // Les trois issues répondent quelque chose. Avant, appuyer sur « Confirmer »
+        // hors du bon état — ou une création de commande en échec — ne renvoyait
+        // rien du tout : la cliente restait devant un bouton muet.
         const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
-        if (active?.status === "address_collected") {
+        if (active?.status !== "address_collected") {
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: botMsg.client.orderNotReady(),
+            correlationId,
+          });
+        } else {
           const res = await createOrderFromReservation(
             tenantId,
             active.id,
@@ -387,6 +511,13 @@ export async function processWebhookJob(
               ...(tenant?.requireDeposit
                 ? botMsg.client.orderWithDepositInteractive(15)
                 : botMsg.client.orderConfirmedInteractive()),
+            });
+          } else {
+            await writeToOutbox({
+              tenantId,
+              to: clientPhoneE164,
+              body: botMsg.client.orderFailed(),
+              correlationId,
             });
           }
         }
@@ -448,19 +579,20 @@ export async function processWebhookJob(
           where: { tenantId, reservation: { clientPhone: clientPhoneE164 } },
           orderBy: { createdAt: "desc" },
         });
-        if (order)
-          await writeToOutbox({
-            tenantId,
-            to: clientPhoneE164,
-            body: botMsg.client.orderStatus(order.orderNumber),
-            correlationId,
-          });
+        await writeToOutbox({
+          tenantId,
+          to: clientPhoneE164,
+          body: order
+            ? botMsg.client.orderStatus(order.orderNumber)
+            : botMsg.client.noOrderYet(),
+          correlationId,
+        });
       } else if (interactiveReplyId === "add_item" || interactiveReplyId === "fallback_no") {
         await db.conversationState.deleteMany({ where: { tenantId, phone: clientPhoneE164 } });
         const bodyMsg =
           interactiveReplyId === "add_item"
-            ? "D'accord ! Envoie-moi simplement le code de l'article suivant 😊"
-            : "Oups, pas de souci ! Renvoie-moi bien le code tel que tu l'as vu 📝";
+            ? botMsg.client.sendNextCode()
+            : botMsg.client.resendCode();
         await writeToOutbox({ tenantId, to: clientPhoneE164, body: bodyMsg, correlationId });
       } else if (
         interactiveReplyId === "no_variants" ||
@@ -469,8 +601,8 @@ export async function processWebhookJob(
         await db.conversationState.deleteMany({ where: { tenantId, phone: clientPhoneE164 } });
         const bodyMsg =
           interactiveReplyId === "no_variants"
-            ? "✅ D'accord, l'article reste sans variantes. Prêt pour la vente !"
-            : "❌ Configuration des variantes annulée.";
+            ? botMsg.seller.variantsSkipped()
+            : botMsg.seller.variantConfigCancelled();
         await writeToOutbox({ tenantId, to: clientPhoneE164, body: bodyMsg, correlationId });
       } else if (interactiveReplyId.startsWith("configure_variants:")) {
         const code = normalizeCode(interactiveReplyId.slice("configure_variants:".length));
@@ -491,7 +623,7 @@ export async function processWebhookJob(
           await writeToOutbox({
             tenantId,
             to: clientPhoneE164,
-            body: `Article *${code}* introuvable dans le catalogue.`,
+            body: botMsg.seller.codeNotFoundForVariants(code),
             correlationId,
           });
         }
@@ -610,7 +742,17 @@ export async function processWebhookJob(
           orderBy: { createdAt: "desc" },
         });
         if (pendingDepositOrder) {
-          const key = await uploadProofMedia(tenantId, pendingDepositOrder.id, mediaUrl, correlationId).catch(() => null);
+          // L'échec était avalé sans trace, et la preuve enregistrée en « [image
+          // reçue] » : une panne R2 restait invisible côté boutique comme côté logs.
+          const key = await uploadProofMedia(tenantId, pendingDepositOrder.id, mediaUrl, correlationId).catch((err) => {
+            workerLogger.error("Preuve : upload du média échoué", {
+              tenantId,
+              correlationId,
+              orderId: pendingDepositOrder.id,
+              err,
+            });
+            return null;
+          });
           await createPaymentProof(
             tenantId,
             pendingDepositOrder.id,
@@ -631,7 +773,17 @@ export async function processWebhookJob(
 
       if (trimmedBody.length > 0 && !isStopMessage(body)) {
         const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
-        if (active?.status === "reserved") {
+        if (active?.status === "reserved" && isConfirmOui(body)) {
+          // « oui » alors qu'on attend l'adresse : `collectAddress` ne vérifie que
+          // le non-vide, l'adresse de livraison devenait donc littéralement « oui ».
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: botMsg.client.addressStillNeeded(),
+            correlationId,
+          });
+          return buildEnrichedMessage(liveSessionId);
+        } else if (active?.status === "reserved") {
           const collect = await collectAddress(tenantId, clientPhoneE164, body);
           if (collect.success) {
             const { code, amount, quantity, variantLabel, mediaStorageKey } =
@@ -644,14 +796,14 @@ export async function processWebhookJob(
               collect.reservation.addressCommune,
             );
 
-            const formatFcfa = (cents: number) =>
-              `${Math.round(cents / 100).toLocaleString("fr-FR")} FCFA`;
-
-            const displayPrice = amount ? formatFcfa(amount) : "—";
+            // Formateur unique : `formatFcfa` était défini ici, un second
+            // formateur ad hoc dans le même fichier — c'est par là que l'oubli de
+            // division du panier natif est passé.
+            const displayPrice = amount ? formatXof(amount) : "—";
             const displayDelivery =
-              deliveryFee.amount !== null ? formatFcfa(deliveryFee.amount) : null;
+              deliveryFee.amount !== null ? formatXof(deliveryFee.amount) : null;
             const displayTotal = amount
-              ? formatFcfa(amount * quantity + (deliveryFee.amount ?? 0))
+              ? formatXof(amount * quantity + (deliveryFee.amount ?? 0))
               : "—";
             const label = `${code}${variantLabel ? ` [${variantLabel}]` : ""}${
               quantity > 1 ? ` (x${quantity})` : ""
@@ -691,6 +843,15 @@ export async function processWebhookJob(
             });
             return buildEnrichedMessage(liveSessionId);
           }
+          // Un « oui » resté sans réponse laissait la cliente sans savoir si sa
+          // commande était passée.
+          await writeToOutbox({
+            tenantId,
+            to: clientPhoneE164,
+            body: botMsg.client.orderFailed(),
+            correlationId,
+          });
+          return buildEnrichedMessage(liveSessionId);
         }
 
         // 6c. Deposit proof — texte (référence paiement) ou image + texte (caption)
@@ -705,7 +866,15 @@ export async function processWebhookJob(
         });
         if (pendingDepositOrder) {
           const key = mediaUrl
-            ? await uploadProofMedia(tenantId, pendingDepositOrder.id, mediaUrl, correlationId).catch(() => null)
+            ? await uploadProofMedia(tenantId, pendingDepositOrder.id, mediaUrl, correlationId).catch((err) => {
+                workerLogger.error("Preuve : upload du média échoué", {
+                  tenantId,
+                  correlationId,
+                  orderId: pendingDepositOrder.id,
+                  err,
+                });
+                return null;
+              })
             : null;
           await createPaymentProof(
             tenantId,
@@ -738,8 +907,15 @@ export async function processWebhookJob(
         if (faqAnswer) {
           await writeToOutbox({ tenantId, to: clientPhoneE164, body: faqAnswer, correlationId });
         } else {
-          const msgCount = await db.messageIn.count({ where: { tenantId, from: clientPhoneE164 } });
-          if (msgCount <= 1) {
+          // Un `count` sur tout l'historique tournait à chaque message non reconnu,
+          // et grossissait indéfiniment. Deux lignes suffisent pour savoir si
+          // c'est le premier message.
+          const firstMessages = await db.messageIn.findMany({
+            where: { tenantId, from: clientPhoneE164 },
+            select: { id: true },
+            take: 2,
+          });
+          if (firstMessages.length <= 1) {
             await writeToOutbox({
               tenantId,
               to: clientPhoneE164,

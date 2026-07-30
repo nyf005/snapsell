@@ -5,9 +5,17 @@ import {
   parseClientCodeIntent,
   isConfirmOui,
   isOutsideBusinessHours,
+  isHandoffRequest,
+  isHandoffActive,
+  clampQuantity,
+  HANDOFF_TTL_MS,
+  MAX_ITEM_QUANTITY,
 } from "./webhook-processor";
 import { normalizeIncomingPhone } from "~/lib/validations/phone";
 import type { InboundMessage } from "../messaging/types";
+import { createReservation } from "~/server/reservation/service";
+import { findOrCreateOrderableItemByCode } from "~/server/catalogue/findOrCreateOrderableItemByCode";
+import { formatXof, formatXofUnits } from "~/lib/copy";
 import { db } from "~/server/db";
 import type { PgBossJob } from "./queues";
 import { writeToOutbox } from "~/server/messaging/outbox";
@@ -44,6 +52,9 @@ vi.mock("~/server/db", () => {
       findUnique: vi.fn().mockResolvedValue(null),
     },
     messageIn: {
+      // `findMany` avec `take: 2` a remplacé un `count` sur tout l'historique, qui
+      // tournait à chaque message non reconnu et grossissait indéfiniment.
+      findMany: vi.fn().mockResolvedValue([]),
       count: vi.fn().mockResolvedValue(0),
     },
     order: {
@@ -3122,5 +3133,244 @@ describe("isOutsideBusinessHours", () => {
 
   it("retourne false si timezone invalide (pas de crash)", () => {
     expect(isOutsideBusinessHours("08:00", "20:00", "Invalid/Timezone")).toBe(false);
+  });
+});
+
+/**
+ * La détection était un `includes` sur une liste contenant « appel ». Elle
+ * attrapait donc « je t'appelle demain » — et un faux positif coupait le bot pour
+ * cette cliente, définitivement : `setHandedOff` n'était jamais appelé avec
+ * `false`, rien nulle part ne défaisait une mise en relation.
+ */
+describe("isHandoffRequest — les faux positifs coupaient le service", () => {
+  it.each([
+    "je veux parler à quelqu'un",
+    "parler a quelqu'un svp",
+    "je veux un agent",
+    "passez-moi un humain",
+    "je veux une conseillère",
+    "service client please",
+    "je veux une vraie personne",
+  ])("reconnaît « %s »", (body) => {
+    expect(isHandoffRequest(body)).toBe(true);
+  });
+
+  it.each([
+    "je t'appelle demain",
+    "merci pour le rappel",
+    "c'est pour l'appel de mon mariage",
+    "A12 x2",
+    "c'est urgent",
+    "vous livrez à Cocody ?",
+  ])("ne se déclenche pas sur « %s »", (body) => {
+    expect(isHandoffRequest(body)).toBe(false);
+  });
+});
+
+describe("isHandoffActive — la mise en relation expire", () => {
+  const now = new Date("2026-07-30T12:00:00Z");
+
+  it("reste active juste après sa pose", () => {
+    expect(isHandoffActive({ handedOff: true, updatedAt: now }, now)).toBe(true);
+  });
+
+  it("reste active avant le délai", () => {
+    const updatedAt = new Date(now.getTime() - HANDOFF_TTL_MS + 60_000);
+    expect(isHandoffActive({ handedOff: true, updatedAt }, now)).toBe(true);
+  });
+
+  /** Sans expiration, une cliente restait coupée du bot pour toujours. */
+  it("expire passé le délai, pour que le bot reprenne la main", () => {
+    const updatedAt = new Date(now.getTime() - HANDOFF_TTL_MS - 1);
+    expect(isHandoffActive({ handedOff: true, updatedAt }, now)).toBe(false);
+  });
+
+  it("est inactive si le drapeau est faux ou l'état absent", () => {
+    expect(isHandoffActive({ handedOff: false, updatedAt: now }, now)).toBe(false);
+    expect(isHandoffActive(null, now)).toBe(false);
+  });
+});
+
+describe("clampQuantity — bornes sur ce qui vient du client", () => {
+  it("ramène à 1 ce qui est absent, nul ou négatif", () => {
+    expect(clampQuantity(null)).toBe(1);
+    expect(clampQuantity(undefined)).toBe(1);
+    expect(clampQuantity(0)).toBe(1);
+    expect(clampQuantity(-5)).toBe(1);
+    expect(clampQuantity(Number.NaN)).toBe(1);
+  });
+
+  it("laisse passer une quantité plausible", () => {
+    expect(clampQuantity(3)).toBe(3);
+  });
+
+  it("plafonne l'absurde — au-delà, c'est une faute de saisie", () => {
+    expect(clampQuantity(999_999)).toBe(MAX_ITEM_QUANTITY);
+    expect(clampQuantity(Number.POSITIVE_INFINITY)).toBe(1);
+  });
+
+  it("tronque les décimales", () => {
+    expect(clampQuantity(2.7)).toBe(2);
+  });
+});
+
+/**
+ * `< start || >= end` déclarait fermée une boutique ouverte à cheval sur minuit :
+ * à 20:00 avec 18:00–02:00, `20 < 18` est faux mais `20 >= 02` est vrai.
+ */
+describe("isOutsideBusinessHours — plage à cheval sur minuit", () => {
+  const TZ = "Africa/Abidjan";
+
+  it("est ouverte à 20:00 pour une plage 18:00–02:00", () => {
+    expect(
+      isOutsideBusinessHours("18:00", "02:00", TZ, new Date("2024-01-15T20:00:00Z")),
+    ).toBe(false);
+  });
+
+  it("est ouverte à 01:00 pour une plage 18:00–02:00", () => {
+    expect(
+      isOutsideBusinessHours("18:00", "02:00", TZ, new Date("2024-01-15T01:00:00Z")),
+    ).toBe(false);
+  });
+
+  it("est fermée à 10:00 pour une plage 18:00–02:00", () => {
+    expect(
+      isOutsideBusinessHours("18:00", "02:00", TZ, new Date("2024-01-15T10:00:00Z")),
+    ).toBe(true);
+  });
+
+  it("est fermée à minuit pile pour une plage 08:00–20:00", () => {
+    expect(
+      isOutsideBusinessHours("08:00", "20:00", TZ, new Date("2024-01-15T00:00:00Z")),
+    ).toBe(true);
+  });
+});
+
+/**
+ * Le récapitulatif du panier natif WhatsApp formatait le montant à la main, sans
+ * diviser par 100 — `amount` est mappé sur `amount_cents`. Les clientes voyaient
+ * donc des prix cent fois trop grands.
+ */
+describe("panier natif WhatsApp — montants et plafonds", () => {
+  const tenantId = "tenant-cart";
+  const from = "+2250701020304";
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(db.sellerPhone.findMany).mockResolvedValue([] as never);
+    vi.mocked(db.messageIn.findMany).mockResolvedValue([] as never);
+    vi.mocked(db.optOut.findUnique).mockResolvedValue(null as never);
+    vi.mocked(db.tenant.findUnique).mockResolvedValue({
+      name: "Boutique",
+      subscriptionPlan: "free",
+      requireDeposit: false,
+    } as never);
+    vi.mocked(createReservation).mockResolvedValue({
+      success: true,
+      reservation: { id: "res-1", status: "reserved" },
+    } as never);
+  });
+
+  function cartJob(items: Array<{ productRetailerId: string; quantity: number }>) {
+    return {
+      id: "job-cart",
+      data: {
+        tenantId,
+        providerMessageId: "SM-cart",
+        from,
+        body: "",
+        correlationId: "corr-cart",
+        orderPayload: { catalogId: "cat-1", items },
+      } as InboundMessage,
+    } as PgBossJob<InboundMessage>;
+  }
+
+  it("affiche 5 000 FCFA pour un article à 500 000 centimes", async () => {
+    vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+      id: "cat-a12",
+      code: "A12",
+      amount: 500_000,
+      availableQty: 10,
+      reservedQty: 0,
+    } as never);
+
+    await processWebhookJob(cartJob([{ productRetailerId: "A12", quantity: 1 }]));
+
+    const sent = vi.mocked(writeToOutbox).mock.calls.map((c) => JSON.stringify(c[0])).join(" ");
+    // Comparé via `formatXof` : son séparateur de milliers est une espace fine
+    // insécable, indiscernable d'une espace ordinaire dans le source.
+    expect(sent).toContain(formatXof(500_000));
+    // Le montant non divisé, celui qu'on affichait avant.
+    expect(sent).not.toContain(formatXofUnits(500_000));
+  });
+
+  it("plafonne le nombre d'articles du panier", async () => {
+    vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+      id: "cat-x",
+      code: "X1",
+      amount: 100_000,
+      availableQty: 999,
+      reservedQty: 0,
+    } as never);
+
+    const items = Array.from({ length: 150 }, (_, i) => ({
+      productRetailerId: `X${i}`,
+      quantity: 1,
+    }));
+    await processWebhookJob(cartJob(items));
+
+    expect(vi.mocked(findOrCreateOrderableItemByCode)).toHaveBeenCalledTimes(100);
+  });
+
+  it("borne une quantité absurde venue du panier", async () => {
+    vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+      id: "cat-a12",
+      code: "A12",
+      amount: 100_000,
+      availableQty: 10,
+      reservedQty: 0,
+    } as never);
+
+    await processWebhookJob(cartJob([{ productRetailerId: "A12", quantity: 999_999 }]));
+
+    expect(vi.mocked(createReservation)).toHaveBeenCalledWith(
+      tenantId,
+      null,
+      null,
+      from,
+      "corr-cart",
+      expect.objectContaining({ quantity: MAX_ITEM_QUANTITY }),
+    );
+  });
+});
+
+/**
+ * Le STOP venait après `checkAndConsumeCredit` : se désabonner ouvrait une fenêtre
+ * de conversation facturée. La boutique payait pour un désabonnement.
+ */
+describe("STOP — ne consomme pas de crédit", () => {
+  it("enregistre l'opt-out sans passer par le contrôle de crédit", async () => {
+    vi.clearAllMocks();
+    vi.mocked(db.sellerPhone.findMany).mockResolvedValue([] as never);
+    vi.mocked(db.optOut.findUnique).mockResolvedValue(null as never);
+    vi.mocked(db.optOut.create).mockResolvedValue({ id: "oo-1" } as never);
+
+    const result = await processWebhookJob({
+      id: "job-stop",
+      data: {
+        tenantId: "tenant-stop",
+        providerMessageId: "SM-stop",
+        from: "+2250701020304",
+        body: "STOP",
+        correlationId: "corr-stop",
+      } as InboundMessage,
+    } as PgBossJob<InboundMessage>);
+
+    expect(vi.mocked(db.optOut.create)).toHaveBeenCalled();
+    // `checkAndConsumeCredit` n'est pas mocké ici — des tests voisins exercent le
+    // vrai. On vérifie donc l'effet observable : aucune fenêtre de conversation
+    // ouverte, donc aucun crédit consommé.
+    expect(vi.mocked(db.conversationWindow.create)).not.toHaveBeenCalled();
+    expect(result.messageType).toBe("client");
   });
 });
