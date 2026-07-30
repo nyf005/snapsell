@@ -125,7 +125,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         Object.assign(session.user, {
           id: (token.sub as string) ?? "",
           tenantId: (token.tenantId as string | null) ?? null,
-          role: ((token.role as Role | undefined) ?? "OWNER") as Role,
+          // Repli sur le rôle le plus étroit, et non sur OWNER.
+          //
+          // Un jeton sans rôle est un état anormal : le callback `jwt` ci-dessus le
+          // relit en base dès qu'il manque. S'il manque quand même — utilisateur
+          // supprimé, lecture en échec — accorder l'accès complet est le pire des
+          // choix possibles. AGENT ne donne aucun droit de configuration : la
+          // personne voit moins que prévu au lieu de voir tout.
+          role: ((token.role as Role | undefined) ?? "AGENT") as Role,
         });
       }
       return session;

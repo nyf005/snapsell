@@ -5,6 +5,28 @@ import { ASSIGNABLE_ROLES, canManageGrid } from "~/lib/rbac";
 import { db } from "~/server/db";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
+/**
+ * ── POURQUOI CHAQUE ÉCRITURE ICI INCRÉMENTE `tokenVersion` ───────────────────
+ *
+ * Les sessions sont des JWT de 7 jours (`auth.ts`), et le rôle n'est relu en base
+ * que s'il est absent du jeton — donc jamais, pour un jeton déjà émis. Modifier
+ * `users.role` ou `users.tenantId` n'avait de ce fait **aucun effet** avant
+ * expiration : promouvoir quelqu'un semblait ne rien faire, rétrograder laissait
+ * ses droits une semaine, et `removeMember` laissait la personne retirée avec un
+ * accès complet à la boutique, `enforceTenant` faisant confiance au `tenantId`
+ * du jeton sans le revérifier.
+ *
+ * `auth.ts` porte déjà le remède : une vérification horaire qui compare le
+ * `tokenVersion` du jeton à celui de la base et invalide la session s'ils
+ * diffèrent. Mais rien dans le code ne l'incrémentait — le mécanisme existait
+ * sans producteur. C'est le rôle de ces deux `update`.
+ *
+ * Reste une fenêtre d'au plus une heure, la granularité de cette vérification.
+ * C'est un compromis assumé côté `auth.ts` : la resserrer coûte une requête par
+ * rafraîchissement de jeton, pour tout le monde.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+
 export const teamRouter = createTRPCRouter({
   listMembers: protectedProcedure.query(async ({ ctx }) => {
     if (!canManageGrid(ctx.session.user.role as string)) {
@@ -68,7 +90,7 @@ export const teamRouter = createTRPCRouter({
 
       await db.user.update({
         where: { id: input.userId },
-        data: { role: input.role },
+        data: { role: input.role, tokenVersion: { increment: 1 } },
       });
       return { ok: true };
     }),
@@ -106,7 +128,7 @@ export const teamRouter = createTRPCRouter({
       // Retire l'accès au tenant sans supprimer le compte utilisateur
       await db.user.update({
         where: { id: input.userId },
-        data: { tenantId: null },
+        data: { tenantId: null, tokenVersion: { increment: 1 } },
       });
       return { ok: true };
     }),
