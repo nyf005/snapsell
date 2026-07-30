@@ -34,6 +34,32 @@ Le webhook Vercel ne fait qu'un `boss.send()` ; tout le traitement métier des m
   - `QSTASH_TOKEN`, `NEXT_PUBLIC_APP_URL` (envoi sortant)
   - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optionnel : rate limiting tRPC)
 
+### Sentry
+
+`SENTRY_DSN` est **optionnel**, mais c'est le seul filet des deux chemins où
+personne ne regarde un écran : le webhook Meta et les jobs du worker. Railway
+Hobby ne conserve que 7 jours de logs.
+
+L'initialisation vit à deux endroits, un par runtime :
+
+| Runtime | Fichier |
+|---|---|
+| Vercel (Next.js) | `src/instrumentation.ts` → `register()` |
+| Railway (worker) | `scripts/start-worker.ts` → `initSentry()` au démarrage |
+
+Poser `SENTRY_DSN` sur **les deux** plateformes ; la même valeur convient.
+Au démarrage, le worker journalise `Sentry actif` ou avertit de son absence.
+
+Ce qui part chez Sentry est filtré : `sendDefaultPii: false` (ni IP ni en-têtes)
+et un `beforeSend` qui masque les numéros au format E.164 jusque dans le texte
+des messages d'erreur — le masquage du logger est ancré et ne les verrait pas
+au milieu d'une phrase. Couvert par `src/lib/sentry.test.ts`.
+
+`tracesSampleRate` est à 0 : on ne veut que les erreurs, le traçage consommerait
+le quota sans rien apporter.
+
+---
+
 ### Après toute modification de dépendances
 
 ```bash

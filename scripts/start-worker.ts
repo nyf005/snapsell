@@ -31,6 +31,7 @@ import { runMetaCatalogueSyncJob } from "~/server/workers/meta-catalogue-sync";
 import { runSubscriptionExpiredJob } from "~/server/workers/subscription-expired";
 import { runCreditsMonthlyResetJob } from "~/server/workers/credits-monthly-reset";
 import { workerLogger } from "~/lib/logger";
+import { initSentry } from "~/lib/sentry";
 
 const SCHEDULE = {
   RESERVATION_TTL: QUEUE.CRON_RESERVATION_TTL,
@@ -72,6 +73,17 @@ process.on("unhandledRejection", (reason, promise) => {
 
 async function main(): Promise<void> {
   try {
+    // Avant tout le reste : le worker tourne sans personne devant un écran, et
+    // Railway Hobby ne garde que 7 jours de logs. Sans cette initialisation,
+    // `captureException` s'exécuterait sur un SDK sans client — appelé, mais
+    // sans destination.
+    await initSentry();
+    if (process.env.SENTRY_DSN) {
+      workerLogger.info("Sentry actif");
+    } else {
+      workerLogger.warn("SENTRY_DSN absent — les erreurs ne remonteront nulle part");
+    }
+
     workerLogger.info("Starting pg-boss...");
     await boss.start();
     workerLogger.info("pg-boss started successfully");
