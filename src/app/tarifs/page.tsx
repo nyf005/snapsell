@@ -1,6 +1,6 @@
 import { type Metadata } from "next";
 import { marketing } from "~/lib/copy/marketing";
-import { formatXofUnitsParts } from "~/lib/copy";
+import { formatXofUnits, formatXofUnitsParts } from "~/lib/copy";
 import Link from "next/link";
 import { ArrowRight, Check, Zap, Crown, Users, ShoppingCart, Lock, Shield, ShieldCheck, Sparkles, ChevronDown, AlertCircle } from "lucide-react";
 
@@ -56,7 +56,8 @@ const ent = (id: PlanId) => SUBSCRIPTION_PLANS[id].entitlements;
  */
 const packLabel = (id: PlanId): string | false => {
   const price = SUBSCRIPTION_PLANS[id].creditPackPriceFCFA;
-  return price ? `${price.toLocaleString("fr-FR")} FCFA / 100` : false;
+  // `creditPackPriceFCFA` est déjà en francs, d'où `formatXofUnits`.
+  return price ? `${formatXofUnits(price)} / 100` : false;
 };
 
 const auditLabel = (id: PlanId) => {

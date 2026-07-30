@@ -519,7 +519,7 @@ export function PricingGridContent() {
           />
           <KpiCard
             label="Prix moyen"
-            value={`${Math.round(avgCents / 100).toLocaleString("fr-FR")} FCFA`}
+            value={formatXof(avgCents)}
             icon={DollarSign}
             iconVariant="success"
           />

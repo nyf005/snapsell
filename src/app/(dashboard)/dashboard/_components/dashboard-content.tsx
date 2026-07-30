@@ -33,7 +33,7 @@ import { DashboardStartGuide } from "~/app/(dashboard)/_components/dashboard-sta
 import { HelpHint } from "~/app/(dashboard)/_components/help-hint";
 import { SetupChecklist } from "~/app/(dashboard)/_components/setup-checklist";
 import { CreditsAlertBanner } from "~/app/(dashboard)/_components/credits-alert-banner";
-import { formatError, formatRelativeDate, formatXof, type UserError } from "~/lib/copy";
+import { formatError, formatRelativeDate, formatXof, formatXofUnits, type UserError } from "~/lib/copy";
 import { ErrorAlert } from "~/components/ui/error-alert";
 import { cn } from "~/lib/utils";
 
@@ -362,7 +362,9 @@ export function DashboardContent({
                       content={
                         <ChartTooltipContent
                           formatter={(value) => [
-                            `${Math.round(Number(value)).toLocaleString("fr-FR")} FCFA`,
+                            // La donnée du graphique est déjà en francs (ligne 341),
+                            // d'où `formatXofUnits` et non `formatXof`.
+                            formatXofUnits(Number(value)),
                             "Revenu",
                           ]}
                         />

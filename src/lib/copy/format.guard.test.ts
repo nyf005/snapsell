@@ -66,6 +66,23 @@ describe("Formatage centralisé", () => {
     ).toEqual([]);
   });
 
+  /**
+   * Le garde ne cherchait que `Intl.NumberFormat`. C'est par ce trou qu'un
+   * `toLocaleString("fr-FR")` suivi de « FCFA » est passé dans le webhook — et
+   * celui du panier natif oubliait de diviser par 100, affichant aux clientes des
+   * montants cent fois trop grands.
+   */
+  it("aucun montant n'est formaté à la main avec toLocaleString", () => {
+    const offenders = sourceFiles.filter((f) => {
+      const source = readFileSync(f, "utf8");
+      return /toLocaleString\([^)]*\)[^\n]*FCFA|FCFA[^\n]*toLocaleString\(/.test(source);
+    });
+    expect(
+      offenders,
+      `Utilisez formatXof / formatXofUnits de ~/lib/copy :\n${offenders.join("\n")}`,
+    ).toEqual([]);
+  });
+
   it("aucun composant ne redéfinit un formateur de prix ou de temps", () => {
     const banned = /function\s+(formatPrice|formatRevenueCents|formatRelativeTime|formatProofDate|formatOrderDate|formatEventDate)\b/;
     const offenders = sourceFiles.filter((f) => banned.test(readFileSync(f, "utf8")));
