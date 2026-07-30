@@ -24,6 +24,46 @@ import { logDepositApproved, logDepositRejected } from "~/server/events/eventLog
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { botMsg } from "~/server/messaging/templates";
 
+const ORDER_CANCELLED_MEANWHILE =
+  "Cette commande vient d'être annulée : le délai d'acompte était dépassé et la cliente a déjà reçu le message d'annulation. Contactez-la avant de refaire une commande.";
+
+/**
+ * Marque la preuve approuvée et la commande confirmée — **sous condition**.
+ *
+ * La condition vit dans l'écriture, pas avant elle. Les appelants vérifiaient
+ * bien que la commande était en attente d'acompte, mais *hors* transaction :
+ * `runDepositExpiryJob` pouvait l'annuler dans l'intervalle. L'`update`
+ * inconditionnel qui suivait écrasait alors l'annulation — la commande
+ * redevenait `confirmed` en base alors que la cliente venait de recevoir « votre
+ * commande est annulée ». Le tableau de bord paraissait sain, la cliente non.
+ * Constaté par `deposit-expiry.integration.test.ts`.
+ *
+ * La commande est écrite en premier : si elle n'est plus éligible, la preuve
+ * reste `pending` et la vendeuse la retrouve dans sa liste à traiter, au lieu
+ * d'une preuve « approuvée » rattachée à une commande annulée.
+ *
+ * Rend `false` quand la commande n'était plus en attente d'acompte — l'appelant
+ * doit le dire, pas faire comme si de rien n'était.
+ */
+async function approveProofAndConfirmOrder(
+  proofId: string,
+  orderId: string,
+): Promise<boolean> {
+  return db.$transaction(async (tx) => {
+    const updated = await tx.order.updateMany({
+      where: { id: orderId, status: "confirmed_pending_deposit" },
+      data: { depositStatus: "deposit_approved", status: "confirmed" },
+    });
+    if (updated.count === 0) return false;
+
+    await tx.paymentProof.update({
+      where: { id: proofId },
+      data: { status: "approved", reviewedAt: new Date() },
+    });
+    return true;
+  });
+}
+
 export const proofsRouter = createTRPCRouter({
   listPending: protectedProcedure
     .input(listPendingProofsInputSchema)
@@ -134,19 +174,9 @@ export const proofsRouter = createTRPCRouter({
       }
 
       const correlationId = `proof-${proof.id}-approve-${Date.now()}`;
-      await db.$transaction(async (tx) => {
-        await tx.paymentProof.update({
-          where: { id: input.proofId },
-          data: { status: "approved", reviewedAt: new Date() },
-        });
-        await tx.order.update({
-          where: { id: proof.orderId },
-          data: {
-            depositStatus: "deposit_approved",
-            status: "confirmed",
-          },
-        });
-      });
+      if (!(await approveProofAndConfirmOrder(input.proofId, proof.orderId))) {
+        throw new TRPCError({ code: "CONFLICT", message: ORDER_CANCELLED_MEANWHILE });
+      }
 
       await logDepositApproved(
         tenantId,
@@ -294,19 +324,10 @@ export const proofsRouter = createTRPCRouter({
             continue;
           }
           const correlationId = `proof-${proof.id}-approve-${Date.now()}`;
-          await db.$transaction(async (tx) => {
-            await tx.paymentProof.update({
-              where: { id: proofId },
-              data: { status: "approved", reviewedAt: new Date() },
-            });
-            await tx.order.update({
-              where: { id: proof.orderId },
-              data: {
-                depositStatus: "deposit_approved",
-                status: "confirmed",
-              },
-            });
-          });
+          if (!(await approveProofAndConfirmOrder(proofId, proof.orderId))) {
+            results.push({ proofId, ok: false, error: ORDER_CANCELLED_MEANWHILE });
+            continue;
+          }
           await logDepositApproved(
             tenantId,
             proof.orderId,

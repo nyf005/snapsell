@@ -22,8 +22,25 @@
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
 
+import { createCaller } from "~/server/api/root";
+import { createTRPCContext } from "~/server/api/trpc";
+
+// Ce fichier passe par le vrai routeur tRPC pour rejouer la validation de
+// preuve : le graphe d'import tire donc tout `~/server/api/root`, dont des
+// modules qui utilisent `createLogger`. Le mock doit couvrir les deux exports,
+// sinon la collecte du fichier échoue avant le premier test.
+// `vi.hoisted` est indispensable : la factory de `vi.mock` est remontée en tête
+// de fichier et ne verrait pas une const déclarée normalement.
+const silentLogger = vi.hoisted(() => () => ({
+  debug: () => undefined,
+  info: () => undefined,
+  warn: () => undefined,
+  error: () => undefined,
+}));
 vi.mock("~/lib/logger", () => ({
-  workerLogger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+  workerLogger: silentLogger(),
+  apiLogger: silentLogger(),
+  createLogger: () => silentLogger(),
 }));
 
 const mockWriteToOutbox = vi.hoisted(() => vi.fn());
@@ -81,6 +98,7 @@ describe.skipIf(!shouldRun)("runDepositExpiryJob — base réelle", () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     mockWriteToOutbox.mockResolvedValue(undefined);
+    await db.paymentProof.deleteMany({ where: { tenantId } });
     await db.order.deleteMany({ where: { tenantId } });
     await db.reservation.deleteMany({ where: { tenantId } });
   });
@@ -146,33 +164,65 @@ describe.skipIf(!shouldRun)("runDepositExpiryJob — base réelle", () => {
   });
 
   /**
-   * Le scénario qui justifie le garde. La preuve est validée pendant que le
-   * worker tourne : la commande ne doit ni être annulée, ni déclencher le
-   * message d'annulation. C'est la seule vérification qui distingue « le code
-   * lit bien count: 0 » de « Postgres refuse bien l'écriture ».
+   * Le scénario qui justifie le garde, joué contre le **vrai** chemin de
+   * validation (`proofs.approve`) et non contre un `update` brut : c'est
+   * précisément ce chemin qui écrasait l'annulation.
+   *
+   * Les deux opérations partent ensemble. Peu importe laquelle gagne — ce qui
+   * ne doit jamais arriver, c'est l'état incohérent : une commande `confirmed`
+   * en base alors que la cliente a reçu le message d'annulation.
    */
-  it("n'annule pas une commande dont la preuve vient d'être validée", async () => {
+  it("annulation et validation simultanées ne laissent jamais d'état incohérent", async () => {
     const order = await pendingOrder();
+    const proof = await db.paymentProof.create({
+      data: {
+        orderId: order.id,
+        tenantId,
+        textPayload: "J'ai payé par Wave",
+        status: "pending",
+        correlationId: `proof-corr-${Date.now()}`,
+      },
+    });
 
-    const [result] = await Promise.all([
-      runDepositExpiryJob(),
-      db.order.update({
-        where: { id: order.id },
-        data: { status: "confirmed", depositStatus: "deposit_approved" },
+    const caller = createCaller(
+      await createTRPCContext({
+        headers: new Headers(),
+        session: {
+          user: { id: "u1", email: "o@example.com", tenantId, role: "OWNER" },
+        } as never,
       }),
+    );
+
+    const [jobResult, approval] = await Promise.all([
+      runDepositExpiryJob(),
+      caller.proofs.approve({ proofId: proof.id }).then(
+        () => "approuvée" as const,
+        () => "refusée" as const,
+      ),
     ]);
 
     const after = await db.order.findUniqueOrThrow({ where: { id: order.id } });
+    const afterProof = await db.paymentProof.findUniqueOrThrow({
+      where: { id: proof.id },
+    });
 
-    // L'ordre d'arrivée décide qui gagne, mais les deux issues doivent rester
-    // cohérentes : jamais une annulation par-dessus une preuve acceptée.
-    if (after.depositStatus === "deposit_approved") {
+    if (approval === "approuvée") {
+      // La validation a gagné : le worker n'a rien dû annuler ni notifier.
       expect(after.status).toBe("confirmed");
-      expect(result.expiredCount).toBe(0);
-      expect(mockWriteToOutbox).not.toHaveBeenCalled();
+      expect(after.depositStatus).toBe("deposit_approved");
+      expect(afterProof.status).toBe("approved");
+      expect(jobResult.expiredCount).toBe(0);
+      expect(mockWriteToOutbox).not.toHaveBeenCalledWith(
+        expect.objectContaining({ to: "+2250701020304" }),
+      );
     } else {
+      // Le worker a gagné : la validation doit avoir été refusée proprement,
+      // et la preuve rester à traiter — jamais « approuvée » sur une commande
+      // annulée.
       expect(after.status).toBe("cancelled");
-      expect(result.expiredCount).toBe(1);
+      expect(after.depositStatus).toBe("deposit_rejected");
+      expect(afterProof.status).toBe("pending");
+      expect(jobResult.expiredCount).toBe(1);
     }
   });
 

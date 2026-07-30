@@ -16,6 +16,14 @@ const mockProofFindFirst = vi.hoisted(() => vi.fn());
 const mockProofUpdate = vi.hoisted(() => vi.fn());
 const mockProofCount = vi.hoisted(() => vi.fn());
 const mockOrderUpdate = vi.hoisted(() => vi.fn());
+/**
+ * La validation confirme la commande par un `updateMany` **conditionné** au
+ * statut courant, et non plus par un `update` : le worker d'expiration pouvait
+ * l'annuler entre le contrôle et l'écriture, et l'`update` inconditionnel
+ * écrasait alors l'annulation. Le mock rend `count: 1` — la commande était
+ * encore éligible.
+ */
+const mockOrderUpdateMany = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
 
 vi.mock("~/server/db", () => ({
@@ -86,10 +94,11 @@ describe("proofs router", () => {
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
       const tx = {
         paymentProof: { update: mockProofUpdate },
-        order: { update: mockOrderUpdate },
+        order: { update: mockOrderUpdate, updateMany: mockOrderUpdateMany },
       };
       return fn(tx);
     });
+    mockOrderUpdateMany.mockResolvedValue({ count: 1 });
   });
 
   describe("listPending", () => {
@@ -319,6 +328,30 @@ describe("proofs router", () => {
         message: "La commande n'est pas en attente d'acompte.",
       });
       expect(mockTransaction).not.toHaveBeenCalled();
+    });
+
+    /**
+     * Le contrôle ci-dessus lit la commande *avant* la transaction : le worker
+     * d'expiration d'acompte peut l'annuler dans l'intervalle. La vraie garde
+     * est donc dans l'écriture — un `updateMany` conditionné au statut. Quand il
+     * ne touche aucune ligne, la validation doit être refusée franchement et la
+     * preuve rester à traiter : une preuve « approuvée » accrochée à une
+     * commande annulée serait indéfendable en litige.
+     */
+    it("refuse quand la commande a été annulée entre le contrôle et l'écriture", async () => {
+      mockProofFindFirst.mockResolvedValue(pendingProofWithOrder);
+      mockOrderUpdateMany.mockResolvedValue({ count: 0 });
+
+      const ctx = await createTRPCContext({
+        headers: new Headers(),
+        session: tenant1Session as never,
+      });
+      const caller = createCaller(ctx);
+
+      await expect(caller.proofs.approve({ proofId: "proof-1" })).rejects.toMatchObject({
+        code: "CONFLICT",
+      });
+      expect(mockProofUpdate).not.toHaveBeenCalled();
     });
   });
 
