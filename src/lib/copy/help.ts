@@ -535,6 +535,10 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
         kind: "warning",
         text: "Sans décision de votre part, la commande reste en attente d’acompte et finit par expirer. C’est la première chose que met en avant l’écran « Aujourd’hui ».",
       },
+      {
+        kind: "note",
+        text: "Une preuve ne disparaît pas quand vous l’avez traitée. Les vues « Validées » et « Refusées » de cet écran gardent tout, et la preuve d’une commande précise se lit aussi depuis « Commandes », en cliquant sur son acompte.",
+      },
       { kind: "screen", href: "/dashboard/proofs", label: "Vérifier les preuves" },
     ],
     related: ["une-cliente-dit-avoir-paye", "de-la-reservation-a-la-livraison"],
@@ -566,11 +570,15 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       },
       {
         kind: "text",
-        text: "En cas de contestation, « Historique de l’activité » garde la trace de chaque étape, du code envoyé jusqu’à la livraison, avec l’heure exacte.",
+        text: "Le numéro d’une commande ouvre son détail : l’article, la quantité, l’adresse complète et les preuves de paiement reçues. Quand un acompte a été demandé, son état est cliquable dans la liste et mène directement à la preuve — sans passer par l’écran des preuves.",
+      },
+      {
+        kind: "text",
+        text: "En cas de contestation, « Historique de l’activité » garde la trace de chaque étape, du code envoyé jusqu’à la livraison, avec l’heure exacte. Le détail de la commande, lui, garde l’image de la preuve.",
       },
       { kind: "screen", href: "/dashboard/audit", label: "Ouvrir l’historique" },
     ],
-    related: ["de-la-reservation-a-la-livraison", "une-cliente-dit-avoir-paye"],
+    related: ["de-la-reservation-a-la-livraison", "une-cliente-dit-avoir-paye", "valider-une-preuve"],
   },
   {
     slug: "reponses-automatiques",
