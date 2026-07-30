@@ -129,6 +129,7 @@ function mockTenant(overrides: Partial<Tenant> = {}): Tenant {
     maxProofsPerMonth: 20,
     maxAgents: 0,
     overagePerOrderCents: 0,
+    orderSeq: 0,
     hasAI: false,
     hasExportCsv: false,
     hasAdvancedExports: false,

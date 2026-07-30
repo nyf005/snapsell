@@ -25,13 +25,39 @@ export type CreateOrderFromReservationResult =
 
 /**
  * Génère le prochain numéro de commande pour le tenant (SS-0001, SS-0002, ...). Préfixe SS = SnapSell.
- * Accepte un client transactionnel pour être utilisé à l'intérieur d'une $transaction.
+ *
+ * Le numéro vient d'un compteur porté par la boutique, incrémenté par un
+ * `UPDATE … RETURNING` : l'opération prend un verrou sur la ligne tenant, donc
+ * les transactions concurrentes se sérialisent et chacune repart avec un numéro
+ * distinct.
+ *
+ * Reposait auparavant sur `COUNT(*) + 1`, qui n'est pas atomique. Cinq
+ * confirmations simultanées visaient le même `SS-000N` ; la contrainte unique en
+ * refusait quatre, et le retry finissait par abandonner au bout de trois essais
+ * — la vente était perdue en plein live. `COUNT(*)` réattribuait en prime un
+ * numéro déjà utilisé dès qu'une commande était supprimée. Constaté par
+ * `createOrderFromReservation.integration.test.ts`.
+ *
+ * À n'appeler que dans une transaction : hors transaction, le verrou serait
+ * relâché immédiatement et le numéro pourrait être consommé pour rien.
  */
-async function getNextOrderNumber(tenantId: string, client: PrismaTransactionClient | typeof db = db): Promise<string> {
-  const count = await client.order.count({ where: { tenantId } });
-  const num = count + 1;
-  const padded = String(num).padStart(4, "0");
-  return `SS-${padded}`;
+async function getNextOrderNumber(
+  tenantId: string,
+  tx: PrismaTransactionClient,
+): Promise<string> {
+  const rows = await tx.$queryRaw<{ order_seq: number }[]>(
+    Prisma.sql`
+      UPDATE tenants
+      SET order_seq = order_seq + 1
+      WHERE id = ${tenantId}
+      RETURNING order_seq
+    `,
+  );
+  const next = rows[0]?.order_seq;
+  if (next === undefined) {
+    throw new Error(`Tenant introuvable pour la numérotation : ${tenantId}`);
+  }
+  return `SS-${String(next).padStart(4, "0")}`;
 }
 
 /** Erreur interne pour signaler un échec de confirmReservation dans la transaction. */
@@ -99,7 +125,9 @@ export async function createOrderFromReservation(
 
   // 3. TRANSACTION GLOBALE avec retry sur P2002 (order_number)
   //    Le retry ré-exécute toute la transaction (rollback = stock intact, on recommence).
-  //    Note : le rollback réel (Prisma + Postgres) n'est validable que par test d'intégration.
+  //    Depuis que le numéro vient du compteur `tenants.order_seq`, ce retry n'est
+  //    plus le mécanisme mais un filet : il ne devrait plus se déclencher, sauf
+  //    numéro posé à la main en base. On le garde à ce titre.
   const maxAttempts = 3;
   let orderRecord: { id: string; orderNumber: string; status: string; depositStatus: string } | undefined;
 

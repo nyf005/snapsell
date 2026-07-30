@@ -12,12 +12,12 @@
  *    revenir à son état d'avant. Avec un mock, on observe qu'aucun `create`
  *    n'a eu lieu ; on n'observe pas que la ligne stock est revenue en arrière.
  *
- * 2. **Le numéro de commande.** Il vaut `COUNT(*) + 1`, ce qui n'est pas
- *    atomique : deux commandes simultanées visent le même `SS-000N`. La
- *    contrainte unique `(tenant_id, order_number)` en refuse une, et le code
- *    rejoue toute la transaction — trois fois au plus. Ce mécanisme n'existe
- *    que face à une vraie contrainte : un P2002 simulé prouve qu'on sait
- *    l'attraper, pas qu'il se produit ni que le retry suffit.
+ * 2. **Le numéro de commande.** Il venait de `COUNT(*) + 1`, non atomique :
+ *    cinq confirmations simultanées visaient le même `SS-000N`, la contrainte
+ *    unique en refusait quatre, et le retry — plafonné à trois essais —
+ *    finissait par abandonner. Ces tests l'ont établi sur une vraie base ; le
+ *    numéro vient désormais du compteur `tenants.order_seq`, incrémenté sous
+ *    verrou de ligne.
  *
  * 3. **L'idempotence sur la réservation.** `reservation_id` est unique ; deux
  *    confirmations simultanées de la même réservation doivent rendre la même
@@ -134,7 +134,20 @@ describe.skipIf(!shouldRun)("createOrderFromReservation — base réelle", () =>
   });
 
   describe("numérotation", () => {
-    it("numérote séquentiellement", async () => {
+    /** Extrait le rang numérique de `SS-0042`. */
+    function rank(orderNumber: string): number {
+      const m = orderNumber.match(/^SS-(\d+)$/);
+      if (!m) throw new Error(`Numéro inattendu : ${orderNumber}`);
+      return Number(m[1]);
+    }
+
+    /**
+     * On teste l'incrément, pas les valeurs absolues : le compteur vit sur la
+     * boutique et ne revient jamais en arrière, même quand `beforeEach` efface
+     * les commandes. C'est justement la propriété recherchée — un numéro
+     * attribué ne doit plus jamais être réutilisé.
+     */
+    it("numérote séquentiellement, sans jamais revenir en arrière", async () => {
       const numbers: string[] = [];
       for (let i = 0; i < 3; i++) {
         const { reservationId } = await readyReservation();
@@ -148,15 +161,42 @@ describe.skipIf(!shouldRun)("createOrderFromReservation — base réelle", () =>
         if (r.success) numbers.push(r.order.orderNumber);
       }
 
-      expect(numbers).toEqual(["SS-0001", "SS-0002", "SS-0003"]);
+      expect(numbers).toHaveLength(3);
+      const ranks = numbers.map(rank);
+      expect(ranks[1]).toBe(ranks[0]! + 1);
+      expect(ranks[2]).toBe(ranks[1]! + 1);
     });
 
     /**
-     * `COUNT(*) + 1` n'est pas atomique. Cinq confirmations simultanées visent
-     * le même numéro ; la contrainte unique en refuse quatre, et le code doit
-     * rejouer. Ce qui compte n'est pas *comment* il y arrive, mais qu'aucune
-     * vente ne se perde et qu'aucun numéro ne soit attribué deux fois — un
-     * numéro en double, c'est deux commandes confondues en litige.
+     * Le corollaire du compteur : effacer les commandes ne rend pas les numéros.
+     * Avec `COUNT(*) + 1`, la suivante reprenait un numéro déjà attribué — deux
+     * commandes différentes portant le même identifiant en cas de litige.
+     */
+    it("ne réattribue pas un numéro après suppression", async () => {
+      const first = await readyReservation();
+      const a = await createOrderFromReservation(
+        tenantId, first.reservationId, false, "+2250701020304", "corr-del-1",
+      );
+      await db.order.deleteMany({ where: { tenantId } });
+
+      const second = await readyReservation();
+      const b = await createOrderFromReservation(
+        tenantId, second.reservationId, false, "+2250701020304", "corr-del-2",
+      );
+
+      expect(a.success && b.success).toBe(true);
+      if (a.success && b.success) {
+        expect(rank(b.order.orderNumber)).toBeGreaterThan(rank(a.order.orderNumber));
+      }
+    });
+
+    /**
+     * Le test qui a fait tomber `COUNT(*) + 1` : les cinq confirmations
+     * visaient le même numéro et l'erreur d'unicité remontait après trois
+     * essais — vente perdue en plein live. Ce qui compte n'est pas *comment* le
+     * numéro est obtenu, mais qu'aucune vente ne se perde et qu'aucun numéro ne
+     * soit attribué deux fois : un doublon, c'est deux commandes confondues en
+     * litige.
      */
     it("cinq commandes simultanées : cinq numéros, tous distincts", async () => {
       const reservations = await Promise.all(

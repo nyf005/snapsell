@@ -66,6 +66,13 @@ model Tenant {
   maxAgents                  Int       @default(0) @map("max_agents")               // 0 = pas d'agents
   overagePerOrderCents       Int       @default(0) @map("overage_per_order_cents")  // 0 = blocage (Free)
 
+  /// Compteur des numéros de commande (SS-XXXX), incrémenté atomiquement dans la
+  /// transaction qui crée la commande. Remplace `COUNT(*) + 1`, qui n'était pas
+  /// atomique : des confirmations simultanées visaient le même numéro et le retry
+  /// P2002 finissait par abandonner — vente perdue. Ne jamais le décrémenter :
+  /// un numéro attribué ne doit pas être réutilisé, même commande supprimée.
+  orderSeq                   Int       @default(0) @map("order_seq")
+
   // Entitlements — feature flags
   hasAI                      Boolean   @default(false) @map("has_ai")
   hasExportCsv               Boolean   @default(false) @map("has_export_csv")
@@ -590,7 +597,21 @@ model PaymentProof {
 // File d'attente par article/session (Story 4.3, 9.1)
 // position = ordre d'arrivée (max+1 sous lock)
 // Story 9.1: catalogueItemId nullable, liveSessionId/liveItemId nullable
-// Unicité via partial unique indexes en SQL (Prisma ne supporte pas les index partiels)
+//
+// ⚠️ NE JAMAIS APPLIQUER `prisma db push` SUR CE SCHÉMA.
+//
+// L'unicité de cette table repose sur deux index **partiels** —
+// `waitlist_live_unique` et `waitlist_catalogue_unique` — que Prisma ne sait pas
+// exprimer : ils n'existent que dans le SQL des migrations. `db push` part du
+// schéma, ne les voit pas, et les supprime sans le dire.
+//
+// Sans eux, `addToWaitlist` n'a plus aucune idempotence : son contrôle
+// d'existence précède la transaction, et son rattrapage P2002 devient du code
+// mort. Deux messages rapprochés d'une même cliente lui donnent alors deux
+// places, et une pièce libérée est promise à deux personnes.
+//
+// C'est arrivé : la base de développement les avait perdus, découvert par
+// `addToWaitlist.integration.test.ts`. Déployer avec `prisma migrate deploy`.
 model Waitlist {
   id              String         @id @default(cuid())
   tenantId        String         @map("tenant_id")

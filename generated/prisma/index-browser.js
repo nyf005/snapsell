@@ -146,6 +146,7 @@ exports.Prisma.TenantScalarFieldEnum = {
   maxProofsPerMonth: 'maxProofsPerMonth',
   maxAgents: 'maxAgents',
   overagePerOrderCents: 'overagePerOrderCents',
+  orderSeq: 'orderSeq',
   hasAI: 'hasAI',
   hasExportCsv: 'hasExportCsv',
   hasAdvancedExports: 'hasAdvancedExports',

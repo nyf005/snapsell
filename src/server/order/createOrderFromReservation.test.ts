@@ -8,16 +8,23 @@ import { logEvent, logOrderCreated, logDepositRequested } from "~/server/events/
 
 /**
  * Mock du client transactionnel (tx) passé à la callback de db.$transaction.
- * Toutes les opérations critiques (reservation.update, order.create, order.count)
- * utilisent ce tx au lieu de db directement.
+ * Toutes les opérations critiques (reservation.update, order.create, et
+ * l'incrément du compteur de numéros) utilisent ce tx au lieu de db directement.
  */
 const mockTxReservationUpdate = vi.fn();
 const mockTxOrderCreate = vi.fn();
-const mockTxOrderCount = vi.fn();
+/**
+ * Le numéro de commande venait de `COUNT(*) + 1` ; il vient désormais d'un
+ * `UPDATE tenants SET order_seq = order_seq + 1 … RETURNING`, seul moyen de le
+ * rendre atomique. Le mock rend donc un rang croissant.
+ */
+const mockTxQueryRaw = vi.fn();
+let nextOrderSeq = 1;
 
 const mockTx = {
   reservation: { update: mockTxReservationUpdate },
-  order: { create: mockTxOrderCreate, count: mockTxOrderCount },
+  order: { create: mockTxOrderCreate },
+  $queryRaw: mockTxQueryRaw,
 };
 
 vi.mock("~/server/db", () => ({
@@ -72,7 +79,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
 
       // Default: tx mocks for INSIDE transaction
       mockTxReservationUpdate.mockResolvedValue({} as never);
-      mockTxOrderCount.mockResolvedValue(0);
+      mockTxQueryRaw.mockImplementation(() => Promise.resolve([{ order_seq: nextOrderSeq++ }]));
       mockTxOrderCreate.mockResolvedValue({
         id: "order-1",
         tenantId,
@@ -149,7 +156,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
           depositExpiresAt: null,
         }),
       });
-      expect(mockTxOrderCount).toHaveBeenCalledWith({ where: { tenantId } });
+      expect(mockTxQueryRaw).toHaveBeenCalled();
 
       // Post-transaction : logEvent reservation_confirmed + logOrderCreated
       expect(writeToOutbox).not.toHaveBeenCalled();
@@ -311,8 +318,8 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       expect(callArgs[3]).toEqual(expect.objectContaining({ tx: mockTx }));
     });
 
-    it("getNextOrderNumber uses tx.order.count inside the transaction (not db.order.count)", async () => {
-      mockTxOrderCount.mockResolvedValue(42);
+    it("getNextOrderNumber incrémente le compteur via le client transactionnel", async () => {
+      mockTxQueryRaw.mockResolvedValue([{ order_seq: 43 }]);
       mockTxOrderCreate.mockResolvedValue({
         id: "order-1",
         tenantId,
@@ -330,8 +337,9 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       );
 
       expect(result.success).toBe(true);
-      // tx.order.count utilisé (pas db.order.count)
-      expect(mockTxOrderCount).toHaveBeenCalledWith({ where: { tenantId } });
+      // Le compteur est incrémenté via le client transactionnel, pas via `db` :
+      // hors transaction, le verrou de ligne serait relâché aussitôt.
+      expect(mockTxQueryRaw).toHaveBeenCalled();
       expect(mockTxOrderCreate).toHaveBeenCalledWith({
         data: expect.objectContaining({ orderNumber: "SS-0043" }),
       });
@@ -391,10 +399,10 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
           createdAt: new Date(),
           updatedAt: new Date(),
         } as never);
-      // Second attempt: count returns 1 (first number was taken)
-      mockTxOrderCount
-        .mockResolvedValueOnce(0)
-        .mockResolvedValueOnce(1);
+      // Le retry rejoue toute la transaction : le compteur rend le rang suivant.
+      mockTxQueryRaw
+        .mockResolvedValueOnce([{ order_seq: 1 }])
+        .mockResolvedValueOnce([{ order_seq: 2 }]);
 
       const result = await createOrderFromReservation(
         tenantId, reservationId, false, clientPhone, correlationId,

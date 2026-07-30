@@ -3830,6 +3830,7 @@ export namespace Prisma {
     maxProofsPerMonth: number | null
     maxAgents: number | null
     overagePerOrderCents: number | null
+    orderSeq: number | null
   }
 
   export type TenantSumAggregateOutputType = {
@@ -3840,6 +3841,7 @@ export namespace Prisma {
     maxProofsPerMonth: number | null
     maxAgents: number | null
     overagePerOrderCents: number | null
+    orderSeq: number | null
   }
 
   export type TenantMinAggregateOutputType = {
@@ -3868,6 +3870,7 @@ export namespace Prisma {
     maxProofsPerMonth: number | null
     maxAgents: number | null
     overagePerOrderCents: number | null
+    orderSeq: number | null
     hasAI: boolean | null
     hasExportCsv: boolean | null
     hasAdvancedExports: boolean | null
@@ -3918,6 +3921,7 @@ export namespace Prisma {
     maxProofsPerMonth: number | null
     maxAgents: number | null
     overagePerOrderCents: number | null
+    orderSeq: number | null
     hasAI: boolean | null
     hasExportCsv: boolean | null
     hasAdvancedExports: boolean | null
@@ -3968,6 +3972,7 @@ export namespace Prisma {
     maxProofsPerMonth: number
     maxAgents: number
     overagePerOrderCents: number
+    orderSeq: number
     hasAI: number
     hasExportCsv: number
     hasAdvancedExports: number
@@ -4002,6 +4007,7 @@ export namespace Prisma {
     maxProofsPerMonth?: true
     maxAgents?: true
     overagePerOrderCents?: true
+    orderSeq?: true
   }
 
   export type TenantSumAggregateInputType = {
@@ -4012,6 +4018,7 @@ export namespace Prisma {
     maxProofsPerMonth?: true
     maxAgents?: true
     overagePerOrderCents?: true
+    orderSeq?: true
   }
 
   export type TenantMinAggregateInputType = {
@@ -4040,6 +4047,7 @@ export namespace Prisma {
     maxProofsPerMonth?: true
     maxAgents?: true
     overagePerOrderCents?: true
+    orderSeq?: true
     hasAI?: true
     hasExportCsv?: true
     hasAdvancedExports?: true
@@ -4090,6 +4098,7 @@ export namespace Prisma {
     maxProofsPerMonth?: true
     maxAgents?: true
     overagePerOrderCents?: true
+    orderSeq?: true
     hasAI?: true
     hasExportCsv?: true
     hasAdvancedExports?: true
@@ -4140,6 +4149,7 @@ export namespace Prisma {
     maxProofsPerMonth?: true
     maxAgents?: true
     overagePerOrderCents?: true
+    orderSeq?: true
     hasAI?: true
     hasExportCsv?: true
     hasAdvancedExports?: true
@@ -4277,6 +4287,7 @@ export namespace Prisma {
     maxProofsPerMonth: number
     maxAgents: number
     overagePerOrderCents: number
+    orderSeq: number
     hasAI: boolean
     hasExportCsv: boolean
     hasAdvancedExports: boolean
@@ -4346,6 +4357,7 @@ export namespace Prisma {
     maxProofsPerMonth?: boolean
     maxAgents?: boolean
     overagePerOrderCents?: boolean
+    orderSeq?: boolean
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -4419,6 +4431,7 @@ export namespace Prisma {
     maxProofsPerMonth?: boolean
     maxAgents?: boolean
     overagePerOrderCents?: boolean
+    orderSeq?: boolean
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -4469,6 +4482,7 @@ export namespace Prisma {
     maxProofsPerMonth?: boolean
     maxAgents?: boolean
     overagePerOrderCents?: boolean
+    orderSeq?: boolean
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -4519,6 +4533,7 @@ export namespace Prisma {
     maxProofsPerMonth?: boolean
     maxAgents?: boolean
     overagePerOrderCents?: boolean
+    orderSeq?: boolean
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -4543,7 +4558,7 @@ export namespace Prisma {
     awayMessage?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "creditsBonus" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "hasAI" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "whatsappTemplateName" | "whatsappTemplateLanguage" | "whatsappTemplateCategory" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "creditsBonus" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "orderSeq" | "hasAI" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "whatsappTemplateName" | "whatsappTemplateLanguage" | "whatsappTemplateCategory" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     conversationStates?: boolean | Tenant$conversationStatesArgs<ExtArgs>
@@ -4624,6 +4639,14 @@ export namespace Prisma {
       maxProofsPerMonth: number
       maxAgents: number
       overagePerOrderCents: number
+      /**
+       * Compteur des numéros de commande (SS-XXXX), incrémenté atomiquement dans la
+       * transaction qui crée la commande. Remplace `COUNT(*) + 1`, qui n'était pas
+       * atomique : des confirmations simultanées visaient le même numéro et le retry
+       * P2002 finissait par abandonner — vente perdue. Ne jamais le décrémenter :
+       * un numéro attribué ne doit pas être réutilisé, même commande supprimée.
+       */
+      orderSeq: number
       hasAI: boolean
       hasExportCsv: boolean
       hasAdvancedExports: boolean
@@ -5116,6 +5139,7 @@ export namespace Prisma {
     readonly maxProofsPerMonth: FieldRef<"Tenant", 'Int'>
     readonly maxAgents: FieldRef<"Tenant", 'Int'>
     readonly overagePerOrderCents: FieldRef<"Tenant", 'Int'>
+    readonly orderSeq: FieldRef<"Tenant", 'Int'>
     readonly hasAI: FieldRef<"Tenant", 'Boolean'>
     readonly hasExportCsv: FieldRef<"Tenant", 'Boolean'>
     readonly hasAdvancedExports: FieldRef<"Tenant", 'Boolean'>
@@ -35932,6 +35956,7 @@ export namespace Prisma {
     maxProofsPerMonth: 'maxProofsPerMonth',
     maxAgents: 'maxAgents',
     overagePerOrderCents: 'overagePerOrderCents',
+    orderSeq: 'orderSeq',
     hasAI: 'hasAI',
     hasExportCsv: 'hasExportCsv',
     hasAdvancedExports: 'hasAdvancedExports',
@@ -36606,6 +36631,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFilter<"Tenant"> | number
     maxAgents?: IntFilter<"Tenant"> | number
     overagePerOrderCents?: IntFilter<"Tenant"> | number
+    orderSeq?: IntFilter<"Tenant"> | number
     hasAI?: BoolFilter<"Tenant"> | boolean
     hasExportCsv?: BoolFilter<"Tenant"> | boolean
     hasAdvancedExports?: BoolFilter<"Tenant"> | boolean
@@ -36678,6 +36704,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    orderSeq?: SortOrder
     hasAI?: SortOrder
     hasExportCsv?: SortOrder
     hasAdvancedExports?: SortOrder
@@ -36753,6 +36780,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFilter<"Tenant"> | number
     maxAgents?: IntFilter<"Tenant"> | number
     overagePerOrderCents?: IntFilter<"Tenant"> | number
+    orderSeq?: IntFilter<"Tenant"> | number
     hasAI?: BoolFilter<"Tenant"> | boolean
     hasExportCsv?: BoolFilter<"Tenant"> | boolean
     hasAdvancedExports?: BoolFilter<"Tenant"> | boolean
@@ -36825,6 +36853,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    orderSeq?: SortOrder
     hasAI?: SortOrder
     hasExportCsv?: SortOrder
     hasAdvancedExports?: SortOrder
@@ -36883,6 +36912,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntWithAggregatesFilter<"Tenant"> | number
     maxAgents?: IntWithAggregatesFilter<"Tenant"> | number
     overagePerOrderCents?: IntWithAggregatesFilter<"Tenant"> | number
+    orderSeq?: IntWithAggregatesFilter<"Tenant"> | number
     hasAI?: BoolWithAggregatesFilter<"Tenant"> | boolean
     hasExportCsv?: BoolWithAggregatesFilter<"Tenant"> | boolean
     hasAdvancedExports?: BoolWithAggregatesFilter<"Tenant"> | boolean
@@ -38973,6 +39003,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -39045,6 +39076,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -39117,6 +39149,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -39189,6 +39222,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -39261,6 +39295,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -39311,6 +39346,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -39361,6 +39397,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -41884,6 +41921,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    orderSeq?: SortOrder
     hasAI?: SortOrder
     hasExportCsv?: SortOrder
     hasAdvancedExports?: SortOrder
@@ -41916,6 +41954,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    orderSeq?: SortOrder
   }
 
   export type TenantMaxOrderByAggregateInput = {
@@ -41944,6 +41983,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    orderSeq?: SortOrder
     hasAI?: SortOrder
     hasExportCsv?: SortOrder
     hasAdvancedExports?: SortOrder
@@ -41994,6 +42034,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    orderSeq?: SortOrder
     hasAI?: SortOrder
     hasExportCsv?: SortOrder
     hasAdvancedExports?: SortOrder
@@ -42026,6 +42067,7 @@ export namespace Prisma {
     maxProofsPerMonth?: SortOrder
     maxAgents?: SortOrder
     overagePerOrderCents?: SortOrder
+    orderSeq?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -47415,6 +47457,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -47486,6 +47529,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -47573,6 +47617,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -47644,6 +47689,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -47715,6 +47761,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -47786,6 +47833,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -47893,6 +47941,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -47964,6 +48013,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -48112,6 +48162,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -48183,6 +48234,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -48270,6 +48322,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -48341,6 +48394,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -48412,6 +48466,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -48483,6 +48538,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -48630,6 +48686,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -48701,6 +48758,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -48984,6 +49042,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -49055,6 +49114,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -49142,6 +49202,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -49213,6 +49274,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -49284,6 +49346,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -49355,6 +49418,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -49442,6 +49506,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -49513,6 +49578,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -49584,6 +49650,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -49655,6 +49722,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -49742,6 +49810,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -49813,6 +49882,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -49884,6 +49954,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -49955,6 +50026,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -50042,6 +50114,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -50113,6 +50186,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -50184,6 +50258,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -50255,6 +50330,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -50342,6 +50418,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -50413,6 +50490,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -50484,6 +50562,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -50555,6 +50634,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -50740,6 +50820,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -50811,6 +50892,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -50914,6 +50996,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -50985,6 +51068,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -51191,6 +51275,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -51262,6 +51347,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -51396,6 +51482,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -51467,6 +51554,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -51680,6 +51768,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -51751,6 +51840,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -51870,6 +51960,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -51941,6 +52032,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -52170,6 +52262,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -52241,6 +52334,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -52426,6 +52520,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -52497,6 +52592,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -52757,6 +52853,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -52828,6 +52925,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -53102,6 +53200,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -53173,6 +53272,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -53260,6 +53360,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -53331,6 +53432,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -53402,6 +53504,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -53473,6 +53576,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -53560,6 +53664,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -53631,6 +53736,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -53702,6 +53808,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -53773,6 +53880,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -53945,6 +54053,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -54016,6 +54125,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -54189,6 +54299,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -54260,6 +54371,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -54382,6 +54494,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -54453,6 +54566,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -54524,6 +54638,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -54595,6 +54710,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -54731,6 +54847,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -54802,6 +54919,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -54928,6 +55046,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -54999,6 +55118,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -55086,6 +55206,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -55157,6 +55278,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -55228,6 +55350,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -55299,6 +55422,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -55386,6 +55510,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -55457,6 +55582,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -55528,6 +55654,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -55599,6 +55726,7 @@ export namespace Prisma {
     maxProofsPerMonth?: number
     maxAgents?: number
     overagePerOrderCents?: number
+    orderSeq?: number
     hasAI?: boolean
     hasExportCsv?: boolean
     hasAdvancedExports?: boolean
@@ -55686,6 +55814,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
@@ -55757,6 +55886,7 @@ export namespace Prisma {
     maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
     maxAgents?: IntFieldUpdateOperationsInput | number
     overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
     hasAI?: BoolFieldUpdateOperationsInput | boolean
     hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
     hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
