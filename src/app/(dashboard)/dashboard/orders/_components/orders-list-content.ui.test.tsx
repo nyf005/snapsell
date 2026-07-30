@@ -39,6 +39,7 @@ vi.mock("~/app/(dashboard)/_components/dashboard-header", () => ({
 const mockApprove = vi.hoisted(() => vi.fn());
 const mockReject = vi.hoisted(() => vi.fn());
 const mockUpdateStatus = vi.hoisted(() => vi.fn());
+const mockBulkUpdate = vi.hoisted(() => vi.fn());
 
 const EMPTY_DETAIL = {
   depositExpiresAt: null,
@@ -156,6 +157,16 @@ vi.mock("~/trpc/react", () => ({
           isError: false,
           error: null,
           reset: vi.fn(),
+        }),
+      },
+      // Traitement en masse : la procédure existait sans appelant, alors que
+      // l'aide promettait « plusieurs commandes en une fois ».
+      bulkUpdateStatus: {
+        useMutation: () => ({
+          mutate: mockBulkUpdate,
+          isPending: false,
+          isError: false,
+          error: null,
         }),
       },
     },
@@ -440,5 +451,106 @@ describe("OrdersListContent — l'annulation demande confirmation", () => {
       orderId: "order-1",
       status: "preparing",
     });
+  });
+});
+
+/**
+ * `orders.bulkUpdateStatus` existait côté serveur — plafonné à 200, testé — et
+ * aucune interface ne l'appelait, alors que l'article « preparer-et-livrer »
+ * promettait « plusieurs commandes peuvent changer d'état en une fois ».
+ */
+describe("OrdersListContent — traiter plusieurs commandes", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("n'affiche aucune barre d'action sans sélection", () => {
+    render(<OrdersListContent />);
+    expect(
+      screen.queryByRole("region", { name: "Actions sur la sélection" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("propose un statut commun à la sélection et l'applique à toutes", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    // CMD-2025-001 (confirmed) et CMD-2025-004 (confirmed_pending_deposit).
+    await user.click(
+      (await screen.findAllByRole("button", { name: /Sélectionner la commande CMD-2025-001/ }))[0]!,
+    );
+    await user.click(
+      screen.getAllByRole("button", { name: /Sélectionner la commande CMD-2025-004/ })[0]!,
+    );
+
+    const bar = screen.getByRole("region", { name: "Actions sur la sélection" });
+    expect(bar).toHaveTextContent("2 commandes sélectionnées");
+
+    await user.click(
+      within(bar).getByRole("combobox", { name: "Nouveau statut pour la sélection" }),
+    );
+    await user.click(screen.getByRole("option", { name: "Annulée" }));
+    await user.click(screen.getByRole("button", { name: "Annuler les commandes" }));
+
+    expect(mockBulkUpdate).toHaveBeenCalledWith({
+      orderIds: ["order-1", "order-4"],
+      status: "cancelled",
+    });
+  });
+
+  /**
+   * Les transitions dépendent de l'état de départ. Proposer l'union laisserait le
+   * serveur en ignorer une partie et renvoyer un compte incompréhensible : on
+   * propose donc l'intersection, ou rien.
+   */
+  it("ne propose rien quand la sélection n'a aucun statut commun", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    // CMD-2025-002 est livrée, CMD-2025-003 annulée : deux états terminaux.
+    await user.click(
+      (await screen.findAllByRole("button", { name: /Sélectionner la commande CMD-2025-002/ }))[0]!,
+    );
+    await user.click(
+      screen.getAllByRole("button", { name: /Sélectionner la commande CMD-2025-003/ })[0]!,
+    );
+
+    const bar = screen.getByRole("region", { name: "Actions sur la sélection" });
+    expect(bar).toHaveTextContent(/Aucun changement d’état ne s’applique/);
+    expect(
+      within(bar).queryByRole("combobox", { name: "Nouveau statut pour la sélection" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("l'annulation en masse demande confirmation", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    await user.click(
+      (await screen.findAllByRole("button", { name: /Sélectionner la commande CMD-2025-001/ }))[0]!,
+    );
+    const bar = screen.getByRole("region", { name: "Actions sur la sélection" });
+    await user.click(
+      within(bar).getByRole("combobox", { name: "Nouveau statut pour la sélection" }),
+    );
+    await user.click(screen.getByRole("option", { name: "Annulée" }));
+
+    expect(mockBulkUpdate).not.toHaveBeenCalled();
+    expect(screen.getByText(/Chaque cliente concernée sera prévenue/)).toBeInTheDocument();
+  });
+
+  it("« tout sélectionner » prend les commandes visibles, puis les relâche", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    await user.click((await screen.findAllByRole("button", { name: "Tout sélectionner" }))[0]!);
+    expect(
+      screen.getByRole("region", { name: "Actions sur la sélection" }),
+    ).toHaveTextContent(`${ORDERS.length} commandes sélectionnées`);
+
+    await user.click(screen.getAllByRole("button", { name: "Tout désélectionner" })[0]!);
+    expect(
+      screen.queryByRole("region", { name: "Actions sur la sélection" }),
+    ).not.toBeInTheDocument();
   });
 });

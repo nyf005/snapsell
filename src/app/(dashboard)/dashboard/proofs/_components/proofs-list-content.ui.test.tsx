@@ -53,7 +53,16 @@ const PROOFS = [
 vi.mock("~/trpc/react", () => ({
   api: {
     useUtils: () => ({
-      proofs: { listPending: { invalidate: vi.fn() } },
+      // Traiter une preuve écrit aussi le `depositStatus` de sa commande : les
+      // quatre lectures concernées sont invalidées, pas seulement `listPending`.
+      proofs: {
+        listPending: { invalidate: vi.fn() },
+        pendingCount: { invalidate: vi.fn() },
+      },
+      orders: {
+        list: { invalidate: vi.fn() },
+        getById: { invalidate: vi.fn() },
+      },
     }),
     proofs: {
       listPending: {

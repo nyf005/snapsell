@@ -15,6 +15,7 @@ import {
   statusesForView,
   type OrderWorkView,
 } from "~/lib/copy/orders";
+import { OrderBulkBar } from "./order-bulk-bar";
 import { OrderDetailSheet } from "./order-detail-sheet";
 import { OrderStatusControl } from "./order-status-control";
 import { DataList } from "~/components/ui/data-list";
@@ -48,7 +49,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { DataPagination } from "~/components/ui/data-pagination";
-import { Package, ListOrdered, Wallet, Truck, XCircle, Search, CalendarIcon, FileCheck, Download, Receipt } from "lucide-react";
+import { Package, ListOrdered, Wallet, Truck, XCircle, Search, CalendarIcon, FileCheck, Download, Receipt, Check } from "lucide-react";
 import type { RouterOutputs } from "~/trpc/react";
 
 type OrderOutput = RouterOutputs["orders"]["list"]["items"][number];
@@ -144,6 +145,9 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
   const [accumulatedOrders, setAccumulatedOrders] = useState<OrderOutput[]>([]);
   /** Commande dont le panneau de détail est ouvert. `null` = fermé. */
   const [detailOrderId, setDetailOrderId] = useState<string | null>(null);
+  /** Sélection pour le traitement en masse, comme sur l'écran des preuves. */
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkMessage, setBulkMessage] = useState<string | null>(null);
   const filtersMounted = useRef(false);
   const itemsPerPage = 20;
 
@@ -237,6 +241,34 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
         o.clientPhone.toLowerCase().includes(q),
     );
   }, [orders, search]);
+
+  /**
+   * La sélection ne garde que des commandes encore visibles : filtrer ou paginer
+   * ne doit pas laisser dans la sélection des lignes qu'on ne voit plus, sinon on
+   * agirait à l'aveugle sur elles.
+   */
+  const visibleIds = useMemo(() => filteredBySearch.map((o) => o.id), [filteredBySearch]);
+  const selectedVisible = useMemo(
+    () => filteredBySearch.filter((o) => selectedIds.has(o.id)),
+    [filteredBySearch, selectedIds],
+  );
+  const isAllSelected =
+    visibleIds.length > 0 && visibleIds.every((id) => selectedIds.has(id));
+
+  const toggleAll = () => {
+    setSelectedIds(isAllSelected ? new Set() : new Set(visibleIds));
+  };
+
+  const toggleOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
 
   useEffect(() => {
     if (!filtersMounted.current) {
@@ -483,6 +515,25 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
               </CardContent>
             </Card>
 
+            {bulkMessage ? (
+              <div
+                role="status"
+                className="flex items-center justify-between gap-3 rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm font-medium text-foreground"
+              >
+                <span>{bulkMessage}</span>
+                <Button variant="ghost" size="sm" onClick={() => setBulkMessage(null)}>
+                  Fermer
+                </Button>
+              </div>
+            ) : null}
+
+            <OrderBulkBar
+              selectedIds={selectedVisible.map((o) => o.id)}
+              selectedStatuses={selectedVisible.map((o) => o.status)}
+              onClear={clearSelection}
+              onDone={setBulkMessage}
+            />
+
             {/* Table */}
             <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
               {isLoading ? (
@@ -496,6 +547,36 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                   getKey={(order) => order.id}
                   label="Liste des commandes"
                   columns={[
+                    {
+                      id: "select",
+                      header: (
+                        <button
+                          type="button"
+                          onClick={toggleAll}
+                          className="flex size-5 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                          aria-label={
+                            isAllSelected ? "Tout désélectionner" : "Tout sélectionner"
+                          }
+                        >
+                          {isAllSelected && <Check className="size-3" strokeWidth={3} />}
+                        </button>
+                      ),
+                      role: "hiddenOnMobile",
+                      headerClassName: "w-12 px-4 py-3 text-center",
+                      className: "px-4 py-3 text-center",
+                      cell: (order) => (
+                        <button
+                          type="button"
+                          onClick={() => toggleOne(order.id)}
+                          className="flex size-5 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                          aria-label={`Sélectionner la commande ${order.orderNumber}`}
+                        >
+                          {selectedIds.has(order.id) && (
+                            <Check className="size-3" strokeWidth={3} />
+                          )}
+                        </button>
+                      ),
+                    },
                     {
                       id: "orderNumber",
                       header: "N° commande",

@@ -570,7 +570,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       },
       {
         kind: "note",
-        text: "Plusieurs commandes peuvent changer d’état en une fois, ce qui évite de répéter le même geste après un gros live.",
+        text: "Cochez plusieurs commandes pour les faire avancer ensemble : une barre apparaît au-dessus de la liste. Seuls les états possibles pour toute la sélection sont proposés — après un gros live, cela évite de répéter le même geste.",
       },
       {
         kind: "text",
