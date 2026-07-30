@@ -365,12 +365,18 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
               <CardContent className="space-y-4 p-4">
                 <div className="flex flex-wrap items-end gap-4">
                   <div className="min-w-[200px] flex-1 md:min-w-[280px]">
-                    <label className="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    {/* `htmlFor`/`id` : le champ n'avait qu'un placeholder pour nom,
+                        et un placeholder disparaît dès la première frappe. */}
+                    <label
+                      htmlFor="orders-search"
+                      className="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                    >
                       Recherche
                     </label>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
+                        id="orders-search"
                         className="h-11 border-border bg-muted/50 pl-10 focus-visible:ring-primary"
                         placeholder="N° commande, code article, client..."
                         value={search}
@@ -410,9 +416,9 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                     </Select>
                   </div>
                   <div className="w-full md:w-72">
-                    <label className="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    <span className="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       Période
-                    </label>
+                    </span>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button

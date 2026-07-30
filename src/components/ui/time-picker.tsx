@@ -63,9 +63,19 @@ interface TimePickerProps {
   onChange: (value: string) => void
   disabled?: boolean
   className?: string
+  /** Nom accessible du déclencheur. `TimePickerField` y passe son libellé. */
+  ariaLabel?: string
 }
 
-function TimePicker({ value, onChange, disabled, className }: TimePickerProps) {
+/**
+ * Le nom accessible vient de `ariaLabel`, pas du `<label>` voisin.
+ *
+ * Le déclencheur est un bouton, et un `<label htmlFor>` ne peut pas étiqueter un
+ * bouton. Son nom se réduisait donc à son contenu — « 09:00 », ou « Choisir… » —
+ * si bien que les deux champs adjacents « Ouverture » et « Fermeture » étaient
+ * indistinguables : deux boutons annonçant la même chose.
+ */
+function TimePicker({ value, onChange, disabled, className, ariaLabel }: TimePickerProps) {
   const [open, setOpen] = React.useState(false)
 
   const hours = value.split(":")[0] ?? ""
@@ -80,6 +90,7 @@ function TimePicker({ value, onChange, disabled, className }: TimePickerProps) {
         <Button
           variant="outline"
           disabled={disabled}
+          aria-label={ariaLabel}
           className={cn(
             "h-9 w-full justify-start border-border bg-muted/50 font-normal",
             !value && "text-muted-foreground",
@@ -136,8 +147,15 @@ function TimePickerField({ label, value, onChange, disabled, className }: TimePi
 
   return (
     <div className={cn("min-w-[140px] flex-1", className)}>
-      <label className={fieldLabel}>{label}</label>
-      <TimePicker value={value} onChange={onChange} disabled={disabled} />
+      {/* `<span>` et non `<label>` : un label ne peut pas étiqueter un bouton, et
+          celui-ci n'étiquetait donc rien. Le nom passe par `ariaLabel`. */}
+      <span className={fieldLabel}>{label}</span>
+      <TimePicker
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        ariaLabel={label}
+      />
     </div>
   )
 }

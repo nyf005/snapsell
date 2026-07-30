@@ -115,9 +115,16 @@ export function BusinessHoursCard() {
             disabled={disabled}
           />
           <div className="min-w-[200px] flex-1">
-            <label className={fieldLabel}>Fuseau horaire</label>
+            {/* Label associé au déclencheur : sans `htmlFor`/`id`, le sélecteur
+                n'avait aucun nom accessible. */}
+            <label className={fieldLabel} htmlFor="business-hours-timezone">
+              Fuseau horaire
+            </label>
             <Select value={timezone} onValueChange={setTimezone} disabled={disabled}>
-              <SelectTrigger className="h-9 w-full border-border bg-muted/50">
+              <SelectTrigger
+                id="business-hours-timezone"
+                className="h-9 w-full border-border bg-muted/50"
+              >
                 <SelectValue placeholder="Choisir…" />
               </SelectTrigger>
               <SelectContent>

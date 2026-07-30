@@ -141,13 +141,25 @@ export function WhatsAppAdvancedSections() {
               <div className="space-y-4">
                 <div className="flex flex-wrap items-end gap-4">
                   <div className="min-w-[240px] flex-1">
-                    <label className={fieldLabel}>Catalogue</label>
+                    {/*
+                      `htmlFor` + `id` : le label était visuellement là mais non
+                      associé, et `SelectTrigger` n'avait donc aucun nom accessible.
+                      Un lecteur d'écran annonçait « liste déroulante » sans dire de
+                      quoi. Poser un `aria-label` sur `<Select>` ne marcherait pas —
+                      la racine Radix ne rend aucun élément DOM, l'attribut est perdu.
+                    */}
+                    <label className={fieldLabel} htmlFor="wa-catalog-select">
+                      Catalogue
+                    </label>
                     <Select
                       value={selectedCatalogId}
                       onValueChange={setSelectedCatalogId}
                       disabled={catalogs.length === 0}
                     >
-                      <SelectTrigger className="h-9 w-full border-border bg-muted/50">
+                      <SelectTrigger
+                        id="wa-catalog-select"
+                        className="h-9 w-full border-border bg-muted/50"
+                      >
                         <SelectValue placeholder={catalogs.length === 0 ? "Récupérez d'abord les catalogues" : "— Choisir un catalogue —"} />
                       </SelectTrigger>
                       <SelectContent>
@@ -248,13 +260,18 @@ export function WhatsAppAdvancedSections() {
               <div className="space-y-6">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
                   <div className="min-w-0 flex-1 space-y-2">
-                    <label className={fieldLabel}>Template approuvé</label>
+                    <label className={fieldLabel} htmlFor="wa-template-select">
+                      Template approuvé
+                    </label>
                     <Select
                       value={selectedTemplateKey}
                       onValueChange={setSelectedTemplateKey}
                       disabled={templatesQuery.isLoading || approvedTemplates.length === 0}
                     >
-                      <SelectTrigger className="h-9 w-full border-border bg-muted/50">
+                      <SelectTrigger
+                        id="wa-template-select"
+                        className="h-9 w-full border-border bg-muted/50"
+                      >
                         <SelectValue
                           placeholder={
                             templatesQuery.isLoading
