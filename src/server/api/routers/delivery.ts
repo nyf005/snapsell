@@ -11,14 +11,12 @@ import {
 import {
   deleteDeliveryFeeCommuneInputSchema,
   deleteDeliveryZoneInputSchema,
-  setInteriorDeliveryFeeInputSchema,
   upsertDeliveryFeeCommuneInputSchema,
   upsertDeliveryZoneInputSchema,
   listDeliveryZonesInputSchema,
   listDeliveryCommunesInputSchema,
 } from "./delivery.schema";
 
-const INTERIOR_ZONE_NAME = "Intérieur du pays";
 
 function checkDeliveryAccess(role: string) {
   if (!canManageGrid(role)) {
@@ -113,40 +111,6 @@ export const deliveryRouter = createTRPCRouter({
     }),
 
   /** Tarif unique pour l'intérieur du pays (Côte d'Ivoire). Stocké comme une zone sans communes. */
-  getInteriorDeliveryFee: protectedProcedure.query(async ({ ctx }) => {
-    checkDeliveryAccess(ctx.session.user.role as string);
-    const tenantId = ctx.session.user.tenantId!;
-    const zone = await db.deliveryZone.findFirst({
-      where: { tenantId, name: INTERIOR_ZONE_NAME },
-    });
-    return { amount: zone?.amount ?? null };
-  }),
-
-  setInteriorDeliveryFee: protectedProcedure
-    .input(setInteriorDeliveryFeeInputSchema)
-    .mutation(async ({ ctx, input }) => {
-      checkDeliveryAccess(ctx.session.user.role as string);
-      const tenantId = ctx.session.user.tenantId!;
-      const existing = await db.deliveryZone.findFirst({
-        where: { tenantId, name: INTERIOR_ZONE_NAME },
-      });
-      if (existing) {
-        await db.deliveryZone.update({
-          where: { id: existing.id },
-          data: { amount: input.amount },
-        });
-      } else {
-        await db.deliveryZone.create({
-          data: {
-            tenantId,
-            name: INTERIOR_ZONE_NAME,
-            amount: input.amount,
-          },
-        });
-      }
-      return { ok: true };
-    }),
-
   getDeliveryFeeCommunes: protectedProcedure
     .input(listDeliveryCommunesInputSchema)
     .query(async ({ ctx, input }) => {

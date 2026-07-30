@@ -34,11 +34,6 @@ export const deleteDeliveryFeeCommuneInputSchema = z.object({
   communeName: z.string(),
 });
 
-/** Tarif unique pour l'intérieur du pays (hors Abidjan). */
-export const setInteriorDeliveryFeeInputSchema = z.object({
-  amount: z.number().int().min(0, "Le montant ne peut pas être négatif"),
-});
-
 /** Input pour list paginée zones */
 export const listDeliveryZonesInputSchema = z.object({
   limit: z.number().min(1).max(100).default(20),

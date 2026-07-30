@@ -96,17 +96,6 @@ export const liveRouter = createTRPCRouter({
     };
   }),
 
-  getCurrentSession: protectedProcedure.query(async ({ ctx }) => {
-    const tenantId = ctx.session.user.tenantId;
-    const session = await getCurrentSessionReadOnly(tenantId);
-    if (!session) return null;
-    return {
-      id: session.id,
-      lastActivityAt: session.lastActivityAt,
-    };
-  }),
-
-  /** Story 8.3: Démarrer une session live explicitement (clic bouton dashboard). */
   startLive: protectedProcedure.mutation(async ({ ctx }) => {
     const tenantId = ctx.session.user.tenantId;
     const session = await getOrCreateCurrentSession(tenantId);
@@ -238,50 +227,6 @@ export const liveRouter = createTRPCRouter({
     return { success: true };
   }),
 
-  getSessionItems: protectedProcedure.query(async ({ ctx }) => {
-    const tenantId = ctx.session.user.tenantId;
-    const session = await getCurrentSessionReadOnly(tenantId);
-    if (!session) return [];
-
-    return getSessionInventory(tenantId, session.id);
-  }),
-
-  getSessionReservations: protectedProcedure.query(async ({ ctx }) => {
-    const tenantId = ctx.session.user.tenantId;
-    const session = await getCurrentSessionReadOnly(tenantId);
-    if (!session) return [];
-
-    const reservations = await db.reservation.findMany({
-      where: {
-        tenantId,
-        status: { in: [...ACTIVE_RESERVATION_STATUSES] },
-        OR: [
-          { liveSessionId: session.id },
-          { catalogueItemId: { not: null }, liveSessionId: null },
-        ],
-      },
-      orderBy: { expiresAt: "asc" },
-      include: {
-        liveItem: { select: { code: true } },
-        catalogueItem: { select: { code: true } },
-      },
-    });
-
-    return reservations.map((r) => ({
-      id: r.id,
-      liveItemId: r.liveItemId,
-      catalogueItemId: r.catalogueItemId,
-      code: r.catalogueItem?.code ?? r.liveItem?.code ?? "—",
-      clientPhoneMasked: maskClientPhone(r.clientPhone),
-      status: r.status,
-      expiresAt: r.expiresAt,
-    }));
-  }),
-
-  /**
-   * Envoie une fiche produit WhatsApp interactive à un client (catalog product message).
-   * Requiert que l'article soit synchronisé avec Meta (metaProductId non null).
-   */
   sendProductCard: protectedProcedure
     .input(sendProductCardInputSchema)
     .mutation(async ({ ctx, input }) => {
