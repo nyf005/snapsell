@@ -8,12 +8,15 @@ import { api } from "~/trpc/react";
 import { formatDateCompact, formatDateTime, formatErrorText } from "~/lib/copy";
 import {
   ORDER_STATUS_LABEL,
+  depositStatusLabel,
+  hasDeposit,
   orderFilterOptions,
   orderStatusLabel,
   orderWorkViews,
   statusesForView,
   type OrderWorkView,
 } from "~/lib/copy/orders";
+import { OrderDetailSheet } from "./order-detail-sheet";
 import { DataList } from "~/components/ui/data-list";
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
@@ -45,7 +48,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { DataPagination } from "~/components/ui/data-pagination";
-import { Package, ListOrdered, Wallet, Truck, XCircle, Search, CalendarIcon, FileCheck, Download } from "lucide-react";
+import { Package, ListOrdered, Wallet, Truck, XCircle, Search, CalendarIcon, FileCheck, Download, Receipt } from "lucide-react";
 import { getAllowedNextStatuses } from "~/lib/order-status-transitions";
 import type { RouterOutputs } from "~/trpc/react";
 
@@ -61,12 +64,31 @@ type OrderStatus =
 
 /** Story 6.3: transitions depuis ~/lib/order-status-transitions (partagé avec le serveur). */
 
+/**
+ * ── LE BADGE D'ACOMPTE EST LA PORTE VERS LA PREUVE ──────────────────────────
+ * Vérifier un acompte imposait un aller-retour : lire le numéro sur l'écran des
+ * preuves, revenir aux commandes, le retrouver. Et cet aller-retour n'était
+ * possible que dans une fenêtre étroite — `proofs.listPending` ne liste que les
+ * preuves en attente, donc une fois validée, la preuve devenait introuvable.
+ *
+ * Le badge dit déjà qu'il y a un acompte : c'est donc là que se pose l'affordance
+ * qui mène à la preuve, plutôt que dans une colonne de plus. La table en a déjà
+ * cinq et doit tenir sur un téléphone pendant un live, et la plupart des commandes
+ * n'ont aucun acompte — la colonne serait vide la plupart du temps.
+ *
+ * Le repère apparaît dès qu'un acompte existe, quel que soit l'état de la commande.
+ * Il était conditionné à `confirmed_pending_deposit` seul : une commande livrée
+ * dont l'acompte avait été validé n'en disait donc rien.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
 function StatusBadge({
   status,
   depositStatus,
+  onShowDeposit,
 }: {
   status: OrderStatus;
   depositStatus?: string | null;
+  onShowDeposit?: () => void;
 }) {
   const variant =
     status === "delivered"
@@ -84,23 +106,36 @@ function StatusBadge({
       {label}
     </Badge>
   );
-  if (status === "confirmed_pending_deposit" && depositStatus) {
-    const depositLabel =
-      depositStatus === "deposit_received"
-        ? "reçu"
-        : depositStatus === "no_deposit"
-          ? "aucun"
-          : depositStatus === "pending"
-            ? "en attente"
-            : depositStatus;
+  if (!hasDeposit(depositStatus)) return content;
+
+  const depositLabel = depositStatusLabel(depositStatus);
+
+  // Sans gestionnaire, on garde l'infobulle seule — le badge reste informatif.
+  if (!onShowDeposit) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>{content}</TooltipTrigger>
-        <TooltipContent>Acompte : {depositLabel}</TooltipContent>
+        <TooltipContent>{depositLabel}</TooltipContent>
       </Tooltip>
     );
   }
-  return content;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={onShowDeposit}
+          aria-label={`${depositLabel} — voir la preuve`}
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {content}
+          <Receipt className="size-3.5 text-muted-foreground" aria-hidden />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>{depositLabel} — voir la preuve</TooltipContent>
+    </Tooltip>
+  );
 }
 
 const canChangeStatus = (s: OrderStatus) =>
@@ -113,6 +148,8 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
   const [search, setSearch] = useState("");
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [accumulatedOrders, setAccumulatedOrders] = useState<OrderOutput[]>([]);
+  /** Commande dont le panneau de détail est ouvert. `null` = fermé. */
+  const [detailOrderId, setDetailOrderId] = useState<string | null>(null);
   const filtersMounted = useRef(false);
   const itemsPerPage = 20;
 
@@ -471,7 +508,13 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                       headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
                       className: "px-6 py-4 font-bold text-primary",
                       cell: (order) => (
-                        <span className="font-bold text-primary">{order.orderNumber}</span>
+                        <button
+                          type="button"
+                          onClick={() => setDetailOrderId(order.id)}
+                          className="min-h-11 font-bold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          {order.orderNumber}
+                        </button>
                       ),
                     },
                     {
@@ -484,6 +527,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                         <StatusBadge
                           status={order.status as OrderStatus}
                           depositStatus={order.depositStatus}
+                          onShowDeposit={() => setDetailOrderId(order.id)}
                         />
                       ),
                     },
@@ -608,6 +652,14 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
             )}
           </div>
         </main>
+
+        <OrderDetailSheet
+          orderId={detailOrderId}
+          open={detailOrderId !== null}
+          onOpenChange={(open) => {
+            if (!open) setDetailOrderId(null);
+          }}
+        />
       </TooltipProvider>
     </>
   );

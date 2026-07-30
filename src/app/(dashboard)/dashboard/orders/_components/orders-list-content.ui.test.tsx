@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import React from "react";
 
 // Mock next dependencies
@@ -30,8 +31,28 @@ vi.mock("~/app/(dashboard)/_components/dashboard-header", () => ({
   DashboardHeader: () => <div data-testid="dashboard-header" />,
 }));
 
+/**
+ * `proofs` et les champs d'adresse détaillés font partie de la sortie depuis que la
+ * commande porte ses preuves — `ORDER_QUERY_INCLUDE` ne sélectionnait d'ailleurs
+ * pas ces adresses, qui valaient donc toujours `null`.
+ */
+const EMPTY_DETAIL = {
+  depositExpiresAt: null,
+  quantity: 1,
+  variantLabel: null,
+  deliveryAddress: null,
+  deliveryAddressCity: null,
+  deliveryAddressCommune: null,
+  deliveryAddressZone: null,
+  deliveryAddressDetails: null,
+  updatedAt: new Date("2025-01-15T10:00:00Z"),
+  reservationId: "res-1",
+  proofs: [],
+};
+
 const ORDERS = [
   {
+    ...EMPTY_DETAIL,
     id: "order-1",
     orderNumber: "CMD-2025-001",
     liveItemCode: "A1",
@@ -41,15 +62,31 @@ const ORDERS = [
     createdAt: new Date("2025-01-15T10:00:00Z"),
   },
   {
+    // Livrée **et** acompte validé : le repère vers la preuve doit s'afficher.
+    // Il était conditionné à `confirmed_pending_deposit` seul, donc absent ici.
+    ...EMPTY_DETAIL,
     id: "order-2",
     orderNumber: "CMD-2025-002",
     liveItemCode: "B2",
     clientPhone: "+225 ** 07 08",
     status: "delivered",
-    depositStatus: null,
+    depositStatus: "deposit_approved",
+    deliveryAddressCommune: "Cocody",
+    deliveryAddressCity: "Abidjan",
     createdAt: new Date("2025-01-16T14:00:00Z"),
+    proofs: [
+      {
+        id: "proof-2",
+        kind: "image" as const,
+        status: "approved",
+        text: null,
+        createdAt: new Date("2025-01-16T12:00:00Z"),
+        reviewedAt: new Date("2025-01-16T13:00:00Z"),
+      },
+    ],
   },
   {
+    ...EMPTY_DETAIL,
     id: "order-3",
     orderNumber: "CMD-2025-003",
     liveItemCode: null,
@@ -68,6 +105,14 @@ vi.mock("~/trpc/react", () => ({
     orders: {
       list: {
         useQuery: () => ({ data: { items: ORDERS, nextCursor: null }, isLoading: false }),
+      },
+      // Le panneau de détail interroge `getById`, endpoint qui existait depuis la
+      // story 5.2 sans qu'aucune interface ne l'appelle.
+      getById: {
+        useQuery: ({ orderId }: { orderId: string }) => ({
+          data: ORDERS.find((o) => o.id === orderId) ?? null,
+          isLoading: false,
+        }),
       },
       updateStatus: {
         useMutation: () => ({
@@ -142,5 +187,61 @@ describe("OrdersListContent", () => {
     expect(
       screen.getByText(/2 preuves à valider/),
     ).toBeInTheDocument();
+  });
+});
+
+/**
+ * La preuve se consulte depuis la commande.
+ *
+ * Vérifier un acompte imposait un aller-retour vers l'écran des preuves pour y
+ * lire le numéro de commande — et cet aller-retour n'était possible que tant que
+ * la preuve était en attente, `proofs.listPending` étant le seul listing du
+ * produit. Une fois validée, la preuve devenait introuvable.
+ */
+describe("OrdersListContent — la preuve depuis la commande", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("propose de voir la preuve dès qu'un acompte existe, même sur une commande livrée", async () => {
+    render(<OrdersListContent />);
+
+    const triggers = await screen.findAllByRole("button", { name: /voir la preuve/i });
+    expect(triggers.length).toBeGreaterThan(0);
+  });
+
+  it("n'offre rien sur une commande sans acompte", () => {
+    render(<OrdersListContent />);
+
+    // Une seule des trois commandes porte un acompte — CMD-2025-001 et
+    // CMD-2025-003 ont `depositStatus: null`. `DataList` rend chaque ligne deux
+    // fois, en tableau et en carte mobile, d'où deux déclencheurs pour une commande.
+    expect(screen.getAllByRole("button", { name: /voir la preuve/i })).toHaveLength(2);
+  });
+
+  it("ouvre le détail de la commande depuis son numéro", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    await user.click((await screen.findAllByRole("button", { name: "CMD-2025-002" }))[0]!);
+
+    const panel = await screen.findByRole("dialog");
+    expect(within(panel).getByText("Commande CMD-2025-002")).toBeInTheDocument();
+    // L'adresse structurée : absente du `select` avant, donc toujours nulle.
+    expect(within(panel).getByText("Cocody, Abidjan")).toBeInTheDocument();
+  });
+
+  it("montre la preuve validée dans le panneau, et sa date de traitement", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+
+    await user.click(screen.getAllByRole("button", { name: /voir la preuve/i })[0]!);
+
+    const panel = await screen.findByRole("dialog");
+    expect(within(panel).getByText("Validée")).toBeInTheDocument();
+    expect(within(panel).getByText(/Traitée le/)).toBeInTheDocument();
+    expect(
+      within(panel).getByRole("img", { name: /Preuve de paiement pour la commande CMD-2025-002/ }),
+    ).toHaveAttribute("src", "/api/proofs/proof-2/media");
   });
 });
