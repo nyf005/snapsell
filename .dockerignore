@@ -1,0 +1,43 @@
+# Contexte de build du worker Railway.
+#
+# Sans ce fichier, `COPY . .` embarquait l'historique git, les dépendances de la
+# machine de développement et les artefacts Next.js — d'où une image de 600 Mo
+# pour un worker qui n'exécute que quelques scripts.
+
+# Réinstallé dans l'image par `npm ci` : la version locale est compilée pour la
+# plateforme du poste de développement et n'a rien à faire ici.
+node_modules
+
+# Régénéré par `npm run db:generate` pour la plateforme de l'image.
+generated
+
+# Sortie de build Next.js : le worker ne sert aucune page.
+.next
+out
+
+.git
+.github
+.gitignore
+
+# Les secrets viennent de Railway au démarrage, jamais du contexte de build.
+.env
+.env.*
+!.env.example
+
+# Tests et couverture : rien de tout cela ne tourne dans l'image.
+coverage
+**/*.test.ts
+**/*.test.tsx
+**/__tests__
+vitest.config*.ts
+vitest.setup*.ts
+playwright-report
+test-results
+
+# Documentation et outillage local.
+*.md
+!README.md
+.vscode
+.idea
+.claude
+.DS_Store
