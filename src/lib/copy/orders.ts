@@ -43,6 +43,49 @@ export function orderStatusLabel(status: string): string {
   return ORDER_STATUS_LABEL[status as OrderStatusKey] ?? status;
 }
 
+/**
+ * État de l'acompte d'une commande.
+ *
+ * `StatusBadge` traduisait ces valeurs à la main, et comparait à
+ * « deposit_received » et « pending » — deux clés qui n'existent pas dans l'enum
+ * Prisma (`no_deposit`, `deposit_pending`, `deposit_approved`, `deposit_rejected`).
+ * Le libellé retombait donc sur la valeur brute, et `deposit_pending` s'affichait
+ * tel quel : exactement ce que ce module a pour mission d'empêcher.
+ */
+const DEPOSIT_STATUS_LABEL: Record<string, string> = {
+  no_deposit: "aucun acompte",
+  deposit_pending: "acompte à vérifier",
+  deposit_approved: "acompte validé",
+  deposit_rejected: "acompte refusé",
+};
+
+export function depositStatusLabel(status: string | null | undefined): string {
+  if (!status) return "aucun acompte";
+  return DEPOSIT_STATUS_LABEL[status] ?? "acompte";
+}
+
+/** Le statut décrit-il un acompte dont il y a quelque chose à dire ? */
+export function hasDeposit(status: string | null | undefined): boolean {
+  return !!status && status !== "no_deposit";
+}
+
+/**
+ * État d'une preuve de paiement.
+ *
+ * L'écran des preuves affichait « En attente » en dur, parce qu'il ne listait que
+ * la file d'attente. Depuis qu'on peut consulter les preuves traitées, le libellé
+ * doit suivre le statut réel.
+ */
+const PROOF_STATUS_LABEL: Record<string, string> = {
+  pending: "À vérifier",
+  approved: "Validée",
+  rejected: "Refusée",
+};
+
+export function proofStatusLabel(status: string): string {
+  return PROOF_STATUS_LABEL[status] ?? "Preuve";
+}
+
 /** Options du menu de filtrage — dérivées, jamais réécrites à la main. */
 export const orderFilterOptions: readonly { value: "" | OrderStatusKey; label: string }[] =
   [

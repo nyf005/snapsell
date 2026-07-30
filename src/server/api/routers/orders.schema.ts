@@ -67,21 +67,38 @@ export type ExportCsvOrdersInput = z.infer<typeof exportCsvOrdersInputSchema>;
 export type BulkUpdateStatusInput = z.infer<typeof bulkUpdateStatusInputSchema>;
 
 /** Output pour list paginée */
+/**
+ * Une preuve rattachée à la commande. `kind` remplace la clé de stockage : l'image
+ * se lit par `/api/proofs/[proofId]/media`, qui vérifie session et tenant.
+ */
+export const orderProofOutputSchema = z.object({
+  id: z.string(),
+  kind: z.enum(["image", "text", "empty"]),
+  status: z.string(),
+  text: z.string().nullable(),
+  createdAt: z.date(),
+  reviewedAt: z.date().nullable(),
+});
+
 export const orderOutputSchema = z.object({
   id: z.string(),
   orderNumber: z.string(),
   status: z.string(),
   depositStatus: z.string().nullable(),
+  depositExpiresAt: z.date().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
   reservationId: z.string(),
   clientPhone: z.string(),
+  quantity: z.number().nullable(),
+  variantLabel: z.string().nullable(),
   deliveryAddress: z.string().nullable(),
   deliveryAddressCity: z.string().nullable(),
   deliveryAddressCommune: z.string().nullable(),
   deliveryAddressZone: z.string().nullable(),
   deliveryAddressDetails: z.string().nullable(),
   liveItemCode: z.string().nullable(),
+  proofs: z.array(orderProofOutputSchema),
 });
 
 export type OrderOutput = z.infer<typeof orderOutputSchema>;
