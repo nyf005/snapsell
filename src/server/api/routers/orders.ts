@@ -19,6 +19,7 @@
  */
 
 import { TRPCError } from "@trpc/server";
+import { maskPhone } from "~/lib/validations/phone";
 import { db } from "~/server/db";
 import {
   createTRPCRouter,
@@ -72,13 +73,8 @@ function buildOrdersWhere(
   return where;
 }
 
-/** Masque le téléphone pour PII : ***1234 (4 derniers chiffres). */
-function maskPhone(phone: string | null): string {
-  if (!phone) return "";
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length < 4) return "***";
-  return "***" + digits.slice(-4);
-}
+// `maskPhone` vient de `~/lib/validations/phone` : la copie privée qui vivait ici
+// est désormais partagée avec le logger, qui masque les numéros au même format.
 
 /** Échappe une cellule CSV (virgule, guillemets, retours à la ligne). */
 function escapeCsvCell(value: string | number | Date | null | undefined): string {

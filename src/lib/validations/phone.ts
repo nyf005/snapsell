@@ -26,6 +26,21 @@ export function isValidE164(phoneNumber: string): boolean {
 }
 
 /**
+ * Masque un numéro pour l'affichage ou la journalisation : `***1234`.
+ *
+ * Les quatre derniers chiffres suffisent à rapprocher un numéro d'une conversation
+ * quand on diagnostique, sans conserver la donnée personnelle. C'est le compromis
+ * que l'export CSV avait déjà retenu — la fonction y vivait en copie privée, elle
+ * est désormais partagée avec le logger.
+ */
+export function maskPhone(phone: string | null | undefined): string {
+  if (!phone) return "";
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 4) return "***";
+  return `***${digits.slice(-4)}`;
+}
+
+/**
  * Table de correspondance ARTCI : préfixe 2 chiffres (ancien) → préfixe opérateur (nouveau)
  * Source : annexe ARTCI/UIT — migration nationale CI de 8 à 10 chiffres (2021)
  *
