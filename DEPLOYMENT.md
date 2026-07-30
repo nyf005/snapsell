@@ -34,6 +34,31 @@ Le webhook Vercel ne fait qu'un `boss.send()` ; tout le traitement métier des m
   - `QSTASH_TOKEN`, `NEXT_PUBLIC_APP_URL` (envoi sortant)
   - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optionnel : rate limiting tRPC)
 
+### Vulnérabilités connues et acceptées
+
+`npm audit` signale 3 vulnérabilités **hautes** sur `sharp`, héritées de libvips
+(CVE-2026-33327, -33328, -35590, -35591). Elles ne sont pas corrigées, et c'est
+délibéré :
+
+- `sharp` arrive comme dépendance **optionnelle** de Next, plage `^0.34.3`. La
+  version corrigée est 0.35.3 : la forcer par un `overrides` sortirait de la
+  plage supportée par Next. On échangerait un risque théorique contre un risque
+  réel sur l'optimisation d'images.
+- Ces CVE portent sur le **décodage d'images non fiables**. Or `next/image`
+  n'est utilisé qu'à un seul endroit (`src/components/auth/snapsel-logo.tsx`),
+  pour un logo statique du dépôt. Les photos d'articles et les preuves de
+  paiement envoyées par les clientes transitent par R2 et ne passent jamais par
+  l'optimiseur Next : `sharp` ne voit jamais d'octets contrôlés par un tiers.
+
+**À réévaluer si** une image envoyée par une utilisatrice venait à passer par
+`next/image`, ou dès que Next élargit sa plage à `^0.35`. Dans ce cas, ajouter :
+
+```json
+"overrides": { "sharp": "^0.35.3" }
+```
+
+---
+
 ### Quelle URL Neon sur quelle plateforme
 
 Les deux plateformes lisent la même variable `DATABASE_URL`, mais **pas la même
