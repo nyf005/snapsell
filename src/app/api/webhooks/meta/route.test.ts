@@ -575,8 +575,54 @@ describe("POST /api/webhooks/meta — inbound", () => {
 
     const resp = await callPOST(bodyText, sig);
     expect(resp.status).toBe(200);
-    // No create (idempotent)
+    // Pas de seconde écriture : c'est ça, l'idempotence.
     expect(dbMock.db.messageIn.create).not.toHaveBeenCalled();
-    expect(queueMock.boss.send).not.toHaveBeenCalled();
+
+    // L'enfilage, lui, est bien retenté — et c'est voulu. Ce chemin est le seul
+    // moyen de rattraper un message écrit dont la mise en file avait échoué :
+    // Meta rejoue le lot, on retombe ici, et le job repart. `singletonKey`
+    // garantit qu'un job déjà présent n'est pas dupliqué.
+    expect(queueMock.boss.send).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ providerMessageId: "wamid.dup" }),
+      expect.objectContaining({ singletonKey: "tenant-1-wamid.dup" }),
+    );
+  });
+
+  /**
+   * Le message est en base, mais la file est tombée. Répondre 200 disait à Meta
+   * « bien reçu » : il ne rejouait jamais, et le message restait sans job — donc
+   * sans réponse à la cliente, et sans trace, `MessageIn` n'ayant aucun champ de
+   * statut ni job de rattrapage.
+   */
+  it("répond non-200 quand la mise en file échoue, pour que Meta rejoue", async () => {
+    const payload = makeMetaPayload([
+      { from: "22891234567", id: "wamid.enq-fail", timestamp: "1710000000", type: "text", text: { body: "A4" } },
+    ]);
+    const bodyText = JSON.stringify(payload);
+    const sig = signPayload(bodyText, "test-app-secret");
+
+    vi.mocked(dbMock.db.tenant.findUnique).mockResolvedValue({ id: "tenant-1", metaPhoneNumberId: "PN_ID_123", metaAccessToken: "tok" } as never);
+    vi.mocked(dbMock.db.messageIn.findUnique).mockResolvedValue(null as never);
+    vi.mocked(dbMock.db.messageIn.create).mockResolvedValue({ id: "msg-1", correlationId: "wamid.enq-fail" } as never);
+    vi.mocked(queueMock.boss.send).mockRejectedValue(new Error("queue indisponible"));
+
+    const mockParseInboundBatch = vi.fn().mockResolvedValue([
+      { tenantId: null, providerMessageId: "wamid.enq-fail", from: "+22891234567", body: "A4", correlationId: "wamid.enq-fail" },
+    ]);
+    vi.mocked(adapterModule.MetaCloudAdapter).mockImplementation(function () {
+      return {
+        parseInboundBatch: mockParseInboundBatch,
+        parseInbound: vi.fn(),
+        send: vi.fn(),
+        verifySignature: vi.fn(),
+      };
+    } as never);
+
+    const resp = await callPOST(bodyText, sig);
+
+    expect(resp.status).toBe(503);
+    // Le message reste écrit : au rejeu, le chemin doublon atteindra l'enfilage.
+    expect(dbMock.db.messageIn.create).toHaveBeenCalled();
   });
 });

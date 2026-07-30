@@ -210,6 +210,12 @@ export async function POST(request: Request) {
 
     // 11. Pour CHAQUE message du batch : idempotence → persist → log → validate → enqueue
     // Try/catch per-message pour qu'une erreur sur un message n'avorte pas le reste du batch
+    //
+    // Vrai si au moins un message n'a pas pu être mis en file. On termine quand
+    // même le lot — les autres messages n'ont pas à en pâtir — puis on répond
+    // non-200 pour que Meta rejoue.
+    let enqueueFailed = false;
+
     for (const message of messages) {
       try {
         // Idempotence DB check
@@ -222,7 +228,20 @@ export async function POST(request: Request) {
           },
         });
 
+        // Un message déjà reçu n'est pas re-persisté — mais on ne saute pas
+        // pour autant la suite : l'enfilage doit rester atteignable. C'est le
+        // seul chemin de rattrapage quand le message avait été écrit mais que sa
+        // mise en file avait échoué, et que Meta rejoue le lot après notre
+        // réponse non-200. `singletonKey` rend l'enfilage idempotent : le
+        // rejouer ne crée jamais de travail en double.
+        //
+        // Auparavant ce bloc faisait `continue`, et un message persisté sans
+        // job était perdu définitivement — sans trace, `MessageIn` n'ayant
+        // aucun champ de statut et aucun job de rattrapage n'existant.
+        let isFirstReceipt = true;
+
         if (existingMessage) {
+          isFirstReceipt = false;
           webhookLogger.info("Meta duplicate message detected", {
             correlationId,
             providerMessageId: message.providerMessageId,
@@ -236,12 +255,10 @@ export async function POST(request: Request) {
           ).catch((error) => {
             webhookLogger.error("Error logging idempotent_ignored event", error, { correlationId });
           });
-
-          continue;
         }
 
         // Persist MessageIn
-        const messageIn = await db.messageIn.create({
+        const messageIn = existingMessage ?? await db.messageIn.create({
           data: {
             tenantId: tenant.id,
             providerMessageId: message.providerMessageId,
@@ -267,17 +284,22 @@ export async function POST(request: Request) {
           throw error;
         });
 
+        // `null` = course perdue sur la contrainte unique : un autre traitement
+        // vient de créer la ligne et enfilera le job. Rien à faire ici.
         if (!messageIn) continue;
 
-        // Log webhook_received
-        await logWebhookReceived(
-          tenant.id,
-          messageIn.id,
-          messageIn.correlationId,
-          message.providerMessageId,
-        ).catch((error) => {
-          webhookLogger.error("Error logging webhook_received event", error, { correlationId });
-        });
+        // Journalisé à la première réception seulement : un rejeu de Meta ne
+        // doit pas gonfler le journal d'activité de la vendeuse.
+        if (isFirstReceipt) {
+          await logWebhookReceived(
+            tenant.id,
+            messageIn.id,
+            messageIn.correlationId,
+            message.providerMessageId,
+          ).catch((error) => {
+            webhookLogger.error("Error logging webhook_received event", error, { correlationId });
+          });
+        }
 
         // Validate + enqueue
         const normalizedMessage = {
@@ -289,31 +311,54 @@ export async function POST(request: Request) {
 
         // Story 11.2: Envoyer l'indicateur de frappe IMMEDIATEMENT (avant la queue)
         // via le service centralisé (latence sub-seconde).
-        sendImmediateTyping(tenant, message.from, message.providerMessageId);
-
-        const validatedPayload = inboundMessageForQueueSchema.parse(normalizedMessage);
-
-        await ensureBossReady();
-        const jobId = `${tenant.id}-${message.providerMessageId}`;
-        const sendResult = await boss.send(QUEUE.WEBHOOK_PROCESSING, validatedPayload, { singletonKey: jobId });
-
-        if (sendResult === null) {
-          // singletonKey duplicate — job déjà enqueued, skip silencieusement
-          webhookLogger.info("Meta job already enqueued (singletonKey duplicate)", {
-            correlationId,
-            providerMessageId: message.providerMessageId,
-            tenantId: tenant.id,
-            jobId,
-          });
-          continue;
+        // Uniquement à la première réception : sur un rejeu, la cliente a déjà
+        // vu l'indicateur et le message est peut-être déjà traité.
+        if (isFirstReceipt) {
+          sendImmediateTyping(tenant, message.from, message.providerMessageId);
         }
 
-        webhookLogger.info("Meta job enqueued", {
-          correlationId,
-          providerMessageId: message.providerMessageId,
-          tenantId: tenant.id,
-          jobId,
-        });
+        const validatedPayload = inboundMessageForQueueSchema.parse(normalizedMessage);
+        const jobId = `${tenant.id}-${message.providerMessageId}`;
+
+        // L'enfilage a son propre filet, distinct de celui du message.
+        // Une donnée malformée (le `parse` ci-dessus) n'est pas rejouable : la
+        // rejouer indéfiniment ne servirait à rien. Une file indisponible, si —
+        // et c'est la seule erreur pour laquelle on demande à Meta de revenir.
+        try {
+          await ensureBossReady();
+          const sendResult = await boss.send(QUEUE.WEBHOOK_PROCESSING, validatedPayload, { singletonKey: jobId });
+
+          if (sendResult === null) {
+            // singletonKey duplicate — job déjà enqueued, rien à refaire.
+            webhookLogger.info("Meta job already enqueued (singletonKey duplicate)", {
+              correlationId,
+              providerMessageId: message.providerMessageId,
+              tenantId: tenant.id,
+              jobId,
+            });
+          } else {
+            webhookLogger.info("Meta job enqueued", {
+              correlationId,
+              providerMessageId: message.providerMessageId,
+              tenantId: tenant.id,
+              jobId,
+            });
+          }
+        } catch (enqueueError) {
+          // Le message est en base mais sans job : sans rejeu, il ne sera jamais
+          // traité et la cliente n'aura aucune réponse. On le signale à Meta.
+          enqueueFailed = true;
+          webhookLogger.error(
+            "Meta job enqueue failed — réponse non-200 pour que Meta rejoue le lot",
+            enqueueError,
+            {
+              correlationId,
+              providerMessageId: message.providerMessageId,
+              tenantId: tenant.id,
+              jobId,
+            },
+          );
+        }
       } catch (msgError) {
         // Log per-message error but continue processing remaining messages
         webhookLogger.error("Error processing Meta message in batch", msgError, {
@@ -337,6 +382,13 @@ export async function POST(request: Request) {
       webhookLogger.warn("Meta response time exceeds 1s threshold", { correlationId, elapsedMs: elapsed });
     }
 
+    // Meta ne rejoue un lot que sur une réponse non-2xx. C'est notre seul moyen
+    // de récupérer un message persisté sans job : au rejeu, le chemin doublon
+    // atteint désormais l'enfilage (cf. plus haut), donc le message repart.
+    if (enqueueFailed) {
+      return new NextResponse("Enqueue failed", { status: 503 });
+    }
+
     return new NextResponse("OK", { status: 200 });
   } catch (error) {
     const isCriticalError =
@@ -355,12 +407,19 @@ export async function POST(request: Request) {
         correlationId,
         tags: { component: "webhook-meta", errorType: "critical" },
       }).catch(() => {});
-    } else {
-      webhookLogger.error("Error processing Meta webhook", error, {
-        correlationId,
-        errorType: "expected",
-      });
+
+      // Base ou réseau indisponible : le lot n'a rien pu produire. Répondre 200
+      // revenait à dire à Meta « bien reçu » et à perdre les messages sans
+      // trace. Un 503 les fait rejouer, et le traitement est idempotent.
+      return new NextResponse("Service unavailable", { status: 503 });
     }
+
+    // Erreur attendue (charge malformée, signature, tenant inconnu) : rejouer
+    // n'y changerait rien. On absorbe, comme le veut Meta.
+    webhookLogger.error("Error processing Meta webhook", error, {
+      correlationId,
+      errorType: "expected",
+    });
 
     return new NextResponse("Error", { status: 200 });
   }

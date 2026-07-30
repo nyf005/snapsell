@@ -23,8 +23,14 @@ const { capturedAdapterCtorArgs } = vi.hoisted(() => ({
 // ─── Mocks (hoisted) ───
 
 const mockBossSend = vi.fn().mockResolvedValue("job-id-mock");
+// `ensureBossReady` manquait ici. La route l'appelle juste avant `boss.send` ;
+// absent du mock, l'appel levait, l'erreur était absorbée par le try/catch
+// par message, et le test constatait zéro enfilage. Il exhibait en réalité le
+// défaut de production — un message écrit, aucun job, et 200 rendu à Meta —
+// mais sous les traits d'un test cassé.
 vi.mock("~/server/workers/queues", () => ({
   boss: { send: mockBossSend },
+  ensureBossReady: vi.fn().mockResolvedValue(undefined),
   QUEUE: { WEBHOOK_PROCESSING: "webhook-processing", OUTBOX_SEND: "outbox-send", OUTBOX_DLQ: "outbox-dlq" },
 }));
 
@@ -103,6 +109,10 @@ function makeMetaPayload(
 }
 
 // ─── Test Suite ───
+
+// Chaque test enchaîne des allers-retours vers une base distante ; le défaut
+// de 5 s de Vitest est calibré pour des tests en mémoire.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 const shouldRun =
   process.env.RUN_INTEGRATION_TESTS === "true" && !!process.env.DATABASE_URL;
@@ -298,7 +308,16 @@ describe.skipIf(!shouldRun)(
 
     // ─── AC#4: Idempotence ───
 
-    it("AC#4 — doublon rejete → 0 nouveau messageIn, 0 job, log idempotent_ignored, reponse 200", async () => {
+    /**
+     * L'idempotence porte sur l'**écriture**, pas sur l'enfilage.
+     *
+     * Ce test exigeait « 0 job » sur un doublon. C'était précisément le défaut :
+     * un message écrit dont la mise en file avait échoué ne repartait jamais,
+     * Meta ayant reçu un 200. L'enfilage est maintenant tenté aussi sur un
+     * doublon — `singletonKey` le rend inoffensif s'il existe déjà, et c'est le
+     * seul chemin de rattrapage après un rejeu.
+     */
+    it("AC#4 — doublon rejete → 0 nouveau messageIn, enfilage idempotent, reponse 200", async () => {
       // Pre-insert messageIn to simulate already-processed message
       const existingMessage = await db.messageIn.create({
         data: {
@@ -329,8 +348,15 @@ describe.skipIf(!shouldRun)(
       });
       expect(countAfter).toBe(countBefore);
 
-      // 0 job enqueued
-      expect(mockBossSend).not.toHaveBeenCalled();
+      // L'enfilage est retenté, protégé par `singletonKey` : c'est le chemin
+      // de rattrapage d'un message persisté sans job.
+      expect(mockBossSend).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ providerMessageId: "wamid.e2e-duplicate" }),
+        expect.objectContaining({
+          singletonKey: `${testTenantId}-wamid.e2e-duplicate`,
+        }),
+      );
 
       // idempotent_ignored logged
       const { logIdempotentIgnored } = await import("~/server/events/eventLog");
