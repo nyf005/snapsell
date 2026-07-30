@@ -15,7 +15,9 @@ export const categoryPriceItemSchema = z.object({
 
 export const setCategoryPricesInputSchema = z
   .object({
-    items: z.array(categoryPriceItemSchema),
+    // Plafonné pour la même raison que `communeNames` : une ligne par catégorie.
+    // Une grille de prix se compte en dizaines d'entrées, jamais en milliers.
+    items: z.array(categoryPriceItemSchema).max(200),
   })
   .refine(
     (data) => {

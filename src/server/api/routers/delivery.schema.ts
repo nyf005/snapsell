@@ -11,7 +11,14 @@ export const upsertDeliveryZoneInputSchema = z.object({
   id: z.string().optional(), // si fourni = update
   name: z.string().min(1, "Le nom de la zone est requis").max(100).transform((s) => s.trim()),
   amount: z.number().int().min(0, "Le montant ne peut pas être négatif"),
-  communeNames: z.array(communeNameSchema),
+  /**
+   * Plafonné, comme les autres tableaux d'entrée du projet — variantes à 100,
+   * dimensions à 3, traitement en masse des preuves à 100, des commandes à 200.
+   * Celui-ci ne l'était pas : chaque nom crée une ligne, donc une seule requête
+   * pouvait en écrire autant qu'on voulait. La Côte d'Ivoire compte quelques
+   * centaines de communes ; 300 laisse la place à une zone couvrant tout le pays.
+   */
+  communeNames: z.array(communeNameSchema).max(300),
 });
 
 export const deleteDeliveryZoneInputSchema = z.object({

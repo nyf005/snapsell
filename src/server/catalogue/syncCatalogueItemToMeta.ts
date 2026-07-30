@@ -185,7 +185,16 @@ export async function unsyncCatalogueItemFromMeta(
     }),
   ]);
 
-  if (!item?.metaProductId || !item.syncedToMeta) {
+  // Appartenance vérifiée ici, comme le fait `syncCatalogueItemToMeta`. Les deux
+  // fonctions reçoivent `catalogueItemId` et `tenantId` séparément et lisent
+  // l'article par son seul `id` : sans ce test, un identifiant appartenant à une
+  // autre boutique enverrait son `metaProductId` à Meta, puis remettrait à zéro la
+  // synchro de cet article-là. Aucun appelant actuel ne le permet — tous vérifient
+  // en amont — mais la jumelle se protégeait déjà et celle-ci non.
+  if (!item || item.tenantId !== tenantId) {
+    return { success: false, reason: "not_synced" };
+  }
+  if (!item.metaProductId || !item.syncedToMeta) {
     return { success: false, reason: "not_synced" };
   }
   if (!tenant?.metaAccessToken) {

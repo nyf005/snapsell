@@ -271,7 +271,11 @@ export async function processWebhookJob(
         const optOut = await db.optOut.create({
           data: { tenantId, phoneNumber: clientPhoneE164, optedOutAt: new Date() },
         });
-        await logOptOutRecorded(tenantId, optOut.id, correlationId).catch(() => {});
+        // Un échec d'écriture au journal ne doit pas faire échouer le STOP, mais il
+        // laisse un trou dans la trace : sans log, personne ne le saurait.
+        await logOptOutRecorded(tenantId, optOut.id, correlationId).catch((err) => {
+          workerLogger.error("Journal: opt-out non tracé", { tenantId, correlationId, err });
+        });
       }
     }
 
@@ -834,7 +838,13 @@ export async function processWebhookJob(
                     correlationId,
                   ),
                 )
-                .catch(() => {});
+                .catch((err) => {
+                  workerLogger.error("Journal: photo d'article non tracée", {
+                    tenantId,
+                    correlationId,
+                    err,
+                  });
+                });
 
             if (liveSessionId) {
               const liveRes = await createLiveItem(tenantId, intent.code, {
@@ -870,7 +880,13 @@ export async function processWebhookJob(
                         correlationId,
                       ),
                     )
-                    .catch(() => {});
+                    .catch((err) => {
+                      workerLogger.error("Journal: photo d'article live non tracée", {
+                        tenantId,
+                        correlationId,
+                        err,
+                      });
+                    });
                 }
               } else if ("duplicate" in liveRes) {
                 await logLiveItemDuplicateRejected(tenantId, intent.code, correlationId).catch(
