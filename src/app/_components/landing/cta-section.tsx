@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Check } from "lucide-react";
 import { marketing } from "~/lib/copy/marketing";
 
 import { Button } from "~/components/ui/button";
@@ -42,6 +43,29 @@ export function CtaSection() {
               <Link href="/login">Se connecter</Link>
             </Button>
           </div>
+
+          {/*
+            Les objections arrivent ici, et pas dans le hero.
+
+            Elles y étaient auparavant, juste sous les boutons du premier écran.
+            À cette hauteur, le visiteur n'a pas encore décidé : il se demande
+            pourquoi utiliser le produit, pas ce qui pourrait le bloquer.
+            Répondre à la seconde question avant la première dépensait trois
+            lignes de renfort de promesse pour rassurer sur un doute que
+            personne n'avait encore.
+
+            En bas de page, l'ordre est le bon : la démonstration a convaincu,
+            le bouton est là, et c'est maintenant que « faut-il une carte
+            bancaire ? » se pose vraiment. Voir `marketing.objections`.
+          */}
+          <ul className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-primary-foreground/70">
+            {marketing.objections.map((fact) => (
+              <li key={fact} className="flex items-center gap-2">
+                <Check className="size-4 shrink-0" aria-hidden="true" />
+                {fact}
+              </li>
+            ))}
+          </ul>
         </div>
       </AnimateOnScroll>
     </section>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { marketing } from "~/lib/copy/marketing";
-import { ArrowRight, BadgeCheck, Check, ChevronDown } from "lucide-react";
+import { ArrowDown, ArrowRight, BadgeCheck, ChevronDown, Sparkles } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import { AnimateEntrance } from "~/app/_components/landing/animate-on-scroll";
@@ -27,11 +27,20 @@ export function HeroSection({ user }: HeroSectionProps) {
           : "flex flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-16 max-w-6xl"
       )}>
         <div className={cn(
-          // 47rem (748px) plutôt que 2xl (672px) : les tournures parlées sont
-          // plus longues que les tournures écrites, et 672px les cassait en
-          // trois lignes. Mesuré — la colonne visuelle garde ses 340px et la
-          // page ne déborde pas, la marge venait du `justify-between`.
-          isLoggedIn ? "contents" : "flex flex-1 flex-col gap-8 max-lg:items-center max-lg:text-center text-left lg:max-w-[47rem]"
+          // La colonne de texte est passée de 47rem (748px) à 38rem (608px),
+          // et le téléphone de 340px à 380px.
+          //
+          // 47rem se justifiait par l'ancien titre, dont les tournures parlées
+          // débordaient de toute largeur plus étroite. Le nouveau titre tient
+          // en deux phrases courtes et la chute est passée de 14 mots à 8 :
+          // plus rien n'a besoin de cette largeur, et une ligne de 750px se lit
+          // moins bien qu'une ligne de 600px.
+          //
+          // Le rééquilibrage est le vrai objectif. Le texte occupait 69 % de la
+          // largeur utile contre 31 % au téléphone — la démonstration passait
+          // pour une illustration posée à côté. À 61/39, elle redevient ce
+          // qu'elle est : l'argument principal, que le texte accompagne.
+          isLoggedIn ? "contents" : "flex flex-1 flex-col gap-8 max-lg:items-center max-lg:text-center text-left lg:max-w-[38rem]"
         )}>
           {isLoggedIn ? (
             <>
@@ -75,81 +84,105 @@ export function HeroSection({ user }: HeroSectionProps) {
 
               <AnimateEntrance delay={400}>
                 {/*
-                  Niveau de langue revu après retour de vendeurs : les tournures
-                  d'écrit (infinitif sans sujet, « reconstituer », « réclamer »,
-                  « classer ») ont été remplacées par la langue parlée.
+                  LE BLOC « AUJOURD'HUI » — la douleur.
 
-                  Conséquence assumée : ces formulations sont plus longues. Le
-                  titre occupe trois lignes au lieu de deux — aucune taille
-                  raisonnable ne le tiendrait en deux sans amputer « aux clients »
-                  et « vous cherchez encore », c'est-à-dire exactement ce qui le
-                  rend naturel.
+                  L'angle a changé : ce n'est plus la fatigue de répondre, c'est
+                  le TRAVAIL CACHÉ derrière chaque vente. « Une commande, ce
+                  n'est jamais juste une commande » nomme un écart que la
+                  personne connaît sans l'avoir formulé — elle croyait vendre,
+                  elle passe sa journée à tenir un carnet.
 
-                  Un titre gros et gras se lit comme une promesse, or celui-ci
-                  énonce le PROBLÈME : le repère « Aujourd'hui » le date comme la
-                  situation actuelle, et « Avec SnapSell » plus bas lui répond.
-                  C'est le couple avant/après de `marketing.contrast`.
+                  Deux niveaux typographiques pour deux fonctions. La première
+                  phrase est le titre : elle porte l'idée, elle est en gras et
+                  en 2rem. La seconde énumère les corvées — quatre en enfilade —
+                  et n'a pas besoin du même poids ; en 2rem elle occuperait
+                  quatre lignes et écraserait la promesse plus bas. Elle passe
+                  donc en gris, à la taille du corps de texte.
 
-                  Pas de <br> forcé ni de `text-wrap: balance` : chaque phrase
-                  dépasse la largeur de la colonne, et `balance` égalise les
-                  longueurs au prix d'une ligne supplémentaire (mesuré : 4 lignes
-                  contre 3). On laisse la coupure naturelle remplir les lignes.
-
-                  2rem (32px) : c'est la douleur, elle accroche mais ne doit pas
-                  écraser la promesse. À 44px elle occupait presque deux fois
-                  plus de place visuelle que la chute — un visiteur qui ne lisait
-                  que le plus gros repartait avec le problème, sans la solution.
-                  Bénéfice au passage : le titre tient en deux lignes au lieu de
-                  trois (mesuré : 3 lignes dès 34px).
+                  Le repère « Aujourd'hui » revient et retrouve son rôle : il
+                  date le bloc comme la situation actuelle, et « Avec SnapSell »
+                  plus bas lui répond. C'est le couple avant/après de
+                  `marketing.contrast`, appliqué au premier écran.
                 */}
-                <h1 className="font-display text-2xl font-extrabold leading-[1.15] tracking-tight text-[var(--hero-fg)] sm:text-3xl lg:text-[2rem]">
-                  <span className="mb-3 block text-[13px] font-bold uppercase tracking-[0.2em] text-[var(--hero-fg-subtle)]">
-                    Aujourd’hui
-                  </span>
-                  Toute la journée, vous répondez aux clients. Le soir, vous
-                  cherchez encore qui a commandé quoi.
-                </h1>
-              </AnimateEntrance>
-
-              <AnimateEntrance delay={650}>
-                <div className="flex max-w-xl flex-col gap-4 text-lg leading-relaxed text-[var(--hero-fg-muted)] lg:text-[1.35rem]">
-                  {/*
-                    « Avec SnapSell » devient un repère à part entière, en écho
-                    exact au « Aujourd'hui » du titre : deux étiquettes de même
-                    forme, l'une pour l'avant, l'autre pour l'après.
-                  */}
-                  {/*
-                    « Avec » reste gris, comme le repère « Aujourd'hui » auquel
-                    il répond : ce sont deux mots de structure, ils s'écrivent
-                    pareil. Seul le NOM DU PRODUIT prend le dégradé — le même
-                    que la chute, plus bas. Nom et promesse portent ainsi le
-                    même traitement, sans toucher au logo de l'en-tête.
-                  */}
-                  <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-[var(--hero-fg-subtle)]">
-                    Avec <span className="hero-gradient-text">SnapSell</span>
-                  </p>
-                  <p className="font-medium">
-                    Votre assistant répond aux clients, enregistre chaque
-                    commande et y ajoute l’adresse du client et la capture de son
-                    paiement.
-                  </p>
-                  {/*
-                    Le dégradé porte la promesse ET le nom du produit juste
-                    au-dessus : les deux se répondent. Pas de classe de couleur
-                    ici — `hero-gradient-text` peint le texte lui-même, une
-                    couleur explicite la recouvrirait.
-
-                    Même taille que le titre (2rem) : à poids égal, c'est la
-                    couleur qui fait gagner la promesse. Elle reste sur deux
-                    lignes jusqu'à 36px, la marge est donc confortable.
-                  */}
-                  <p className="hero-gradient-text text-2xl font-extrabold lg:text-[2rem]">
-                    Vous n’avez plus qu’à emballer les colis et les confier au
-                    livreur.
+                <div className="flex max-w-xl flex-col gap-3">
+                  <h1 className="font-display text-2xl font-extrabold leading-[1.15] tracking-tight text-[var(--hero-fg)] sm:text-3xl lg:text-[2rem]">
+                    <span className="mb-3 block text-[13px] font-bold uppercase tracking-[0.2em] text-[var(--hero-fg-subtle)]">
+                      Aujourd’hui
+                    </span>
+                    Une commande sur WhatsApp, ce n’est jamais juste une
+                    commande.
+                  </h1>
+                  <p className="text-lg leading-relaxed text-[var(--hero-fg-muted)] lg:text-[1.2rem]">
+                    Il faut suivre la discussion, retrouver l’adresse, vérifier
+                    le dépôt et ne rien oublier.
                   </p>
                 </div>
               </AnimateEntrance>
 
+              <AnimateEntrance delay={650}>
+                {/*
+                  LE BLOC « AVEC SNAPSELL » — la réponse.
+
+                  Il est bâti en miroir du bloc « Aujourd'hui » : même repère
+                  en petites capitales, puis les deux mêmes niveaux
+                  typographiques, mais dans l'ordre inverse. Là-haut, le gros
+                  posait le problème et le gris détaillait la corvée ; ici le
+                  gris explique le mécanisme et le gros porte la chute. Le poids
+                  visuel bascule d'un bloc à l'autre, comme le propos.
+
+                  L'explication ne nomme aucune fonctionnalité. Elle décrit ce
+                  qui n'a plus lieu — « sans copier-coller ni recherche dans les
+                  conversations » — et c'est le geste exact que la liste du haut
+                  vient d'énumérer. Les deux blocs se répondent ligne à ligne.
+
+                  « Avec » reste gris, comme le repère « Aujourd'hui » auquel il
+                  répond : deux mots de structure, même traitement. Seul le NOM
+                  DU PRODUIT prend le dégradé, celui de la chute juste en
+                  dessous — nom et promesse se peignent pareil, sans toucher au
+                  logo de l'en-tête.
+                */}
+                <div className="flex max-w-xl flex-col gap-4">
+                  <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-[var(--hero-fg-subtle)]">
+                    Avec <span className="hero-gradient-text">SnapSell</span>
+                  </p>
+                  <p className="text-lg leading-relaxed text-[var(--hero-fg-muted)] lg:text-[1.2rem]">
+                    Tout est enregistré automatiquement au bon endroit, sans
+                    copier-coller ni recherche dans les conversations.
+                  </p>
+                  {/*
+                    Trois phrases de deux mots, puis une de quatre. C'est la
+                    ligne que le visiteur doit pouvoir répéter le soir même :
+                    deux impératifs pour ce qui vous reste, une affirmation pour
+                    ce qui part ailleurs.
+
+                    Pas de classe de couleur ici — `hero-gradient-text` peint le
+                    texte lui-même, une couleur explicite la recouvrirait. Même
+                    taille que le titre (2rem) : à poids égal, c'est la couleur
+                    qui fait gagner la promesse.
+                  */}
+                  <p className="hero-gradient-text text-2xl font-extrabold leading-tight lg:text-[2rem]">
+                    Emballez. Livrez. SnapSell gère le reste.
+                  </p>
+                </div>
+              </AnimateEntrance>
+
+              {/*
+                Les deux boutons portaient la même flèche vers la droite. Deux
+                actions de natures opposées se ressemblaient donc à l'œil, et
+                aucune des deux flèches ne disait la vérité sur sa destination.
+
+                Le bouton principal prend l'étincelle, la même qui marque chaque
+                réponse automatique dans le téléphone à côté et chaque bandeau
+                « Avec SnapSell ». Elle est devenue le signe du produit dans
+                cette page : la poser sur l'inscription, c'est dire « obtenir
+                ça » sans l'écrire.
+
+                Le bouton secondaire prend une flèche vers le BAS, parce que
+                c'est où il mène — `#fonctionnement` est une ancre plus bas dans
+                la même page. Une flèche vers la droite promettait un départ
+                ailleurs ; celle-ci annonce un défilement, ce qui est à la fois
+                honnête et utile.
+              */}
               <AnimateEntrance delay={900}>
                 <div className="flex flex-col gap-4 sm:flex-row">
                   <Button
@@ -158,8 +191,8 @@ export function HeroSection({ user }: HeroSectionProps) {
                     className="h-12 rounded-xl px-10 text-base font-bold shadow-2xl shadow-primary/40 transition-all hover:scale-[1.03] hover:shadow-primary/60 active:scale-[0.98]"
                   >
                     <Link href="/login?tab=signup">
+                      <Sparkles className="size-5" />
                       {marketing.cta.signup}
-                      <ArrowRight className="size-5" />
                     </Link>
                   </Button>
                   <Button
@@ -170,33 +203,29 @@ export function HeroSection({ user }: HeroSectionProps) {
                   >
                     <Link href="#fonctionnement">
                       {marketing.cta.how}
-                      <ArrowRight className="size-5" />
+                      <ArrowDown className="size-5" />
                     </Link>
                   </Button>
                 </div>
               </AnimateEntrance>
 
               {/*
-                Les trois avatars « S A M » qui vivaient ici se lisaient comme
-                une preuve sociale — trois boutiques inscrites — alors que
-                `marketing.ts` interdit explicitement les avatars fictifs. Ils
-                sont remplacés par trois faits vérifiables, qui répondent en
-                plus aux objections réelles.
+                Plus rien sous les boutons.
+
+                Trois choses s'y sont succédé : des avatars fictifs (interdits
+                par `marketing.ts`), puis les objections — parties en bas de
+                page dans `CtaSection`, où elles se posent vraiment —, puis une
+                liste de trois bénéfices.
+
+                Cette liste disait les mêmes gestes que la phrase d'explication
+                plus haut, mais en fragments détachés les uns des autres. Entre
+                les deux formes, celle qui se comprend est la phrase : elle
+                garde le lien de cause à effet (« un client écrit : … ») que
+                trois puces perdent. Une seule des deux survit, et ce n'est pas
+                la liste.
+
+                Le premier écran finit donc sur l'action, sans rien après elle.
               */}
-              <AnimateEntrance delay={1150}>
-                <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--hero-fg-subtle)]">
-                  {[
-                    marketing.cta.signupHint,
-                    "Plan gratuit permanent",
-                    "Votre numéro WhatsApp actuel",
-                  ].map((fact) => (
-                    <li key={fact} className="flex items-center gap-2">
-                      <Check className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                      {fact}
-                    </li>
-                  ))}
-                </ul>
-              </AnimateEntrance>
             </>
           )}
         </div>
