@@ -4,24 +4,50 @@
  * Usage :
  *   npx tsx prisma/seed-ops-user.ts
  *
- * Variables d'environnement (ou valeurs par défaut) :
- *   OPS_EMAIL    – email du user ops (défaut: ops@snapsell.com)
- *   OPS_PASSWORD – mot de passe (défaut: opspass123)
+ * Variables d'environnement, toutes **obligatoires** sauf OPS_NAME :
+ *   OPS_EMAIL    – email du user ops
+ *   OPS_PASSWORD – mot de passe, 12 caractères minimum
  *   OPS_NAME     – nom affiché (défaut: Ops SnapSell)
+ *
+ * Ce script portait des identifiants par défaut — ops@snapsell.com /
+ * opspass123. Lancé sans variables contre la base de production, il créait donc
+ * un compte à mot de passe connu, capable de lire les journaux de **toutes** les
+ * boutiques. On les exige désormais explicitement : ce script se lance rarement,
+ * et une commande un peu plus longue vaut mieux qu'une porte ouverte.
  *
  * Le user est créé avec role=OPS et tenantId=null.
  * Si l'email existe déjà, le script met à jour le rôle et supprime le tenant.
  */
 
-import { PrismaClient } from "../generated/prisma";
+// Charge .env, puis réutilise le client déjà configuré par l'application.
+// Un `new PrismaClient()` nu ne fonctionne plus depuis Prisma 7, qui exige un
+// adaptateur de pilote : le script échouait au chargement, avant même d'avoir
+// lu ses arguments. Il n'existait donc plus aucun moyen de créer un compte OPS.
+import "../scripts/runtime-env";
 import { hash } from "bcrypt";
 
-const db = new PrismaClient();
+import { db } from "~/server/db";
 
 async function main() {
-  const email = process.env.OPS_EMAIL ?? "ops@snapsell.com";
-  const password = process.env.OPS_PASSWORD ?? "opspass123";
+  const email = process.env.OPS_EMAIL;
+  const password = process.env.OPS_PASSWORD;
   const name = process.env.OPS_NAME ?? "Ops SnapSell";
+
+  if (!email || !password) {
+    console.error(
+      "❌ OPS_EMAIL et OPS_PASSWORD sont requis.\n\n" +
+        "   OPS_EMAIL=vous@exemple.com OPS_PASSWORD='<mot de passe fort>' \\\n" +
+        "     npx tsx prisma/seed-ops-user.ts",
+    );
+    process.exit(1);
+  }
+
+  // Ce compte lit les journaux de toutes les boutiques : un mot de passe court
+  // n'a pas sa place ici.
+  if (password.length < 12) {
+    console.error("❌ OPS_PASSWORD doit faire au moins 12 caractères.");
+    process.exit(1);
+  }
 
   const passwordHash = await hash(password, 10);
 
@@ -48,7 +74,8 @@ async function main() {
   console.log(`   name:     ${user.name}`);
   console.log(`   role:     ${user.role}`);
   console.log(`   tenantId: ${user.tenantId ?? "null (correct pour OPS)"}`);
-  console.log(`\n🔑 Mot de passe : ${password}`);
+  // Le mot de passe n'est pas réaffiché : il vient de l'appelant, qui le
+  // connaît déjà, et cette sortie finit souvent dans un historique de terminal.
   console.log(`\n🌐 Se connecter sur /login puis aller sur /ops/logs`);
 }
 

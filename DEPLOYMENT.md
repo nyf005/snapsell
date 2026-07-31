@@ -34,6 +34,35 @@ Le webhook Vercel ne fait qu'un `boss.send()` ; tout le traitement métier des m
   - `QSTASH_TOKEN`, `NEXT_PUBLIC_APP_URL` (envoi sortant)
   - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optionnel : rate limiting tRPC)
 
+### Accéder à la console interne /ops
+
+`/ops/logs` et `/ops/errors` donnent une vue multi-boutiques : journaux
+d'événements, messages échoués, jobs en échec. Le layout redirige quiconque
+n'est pas `OPS`.
+
+Un compte OPS a `role="OPS"` et `tenantId=null` — il n'appartient à aucune
+boutique. Aucune interface ne permet d'en créer : cela passe par un script,
+lancé une fois contre la base visée.
+
+```bash
+OPS_EMAIL=vous@exemple.com OPS_PASSWORD='<mot de passe fort>' \
+  npx tsx prisma/seed-ops-user.ts
+```
+
+Puis connexion sur `/login`, et `/ops/logs`.
+
+Les deux variables sont **obligatoires**, le mot de passe fait 12 caractères
+minimum. Le script portait auparavant des identifiants par défaut
+(`ops@snapsell.com` / `opspass123`) : lancé sans arguments contre la production,
+il créait un compte à mot de passe connu donnant accès aux journaux de toutes
+les boutiques.
+
+Ce que la console montre est déjà masqué — `sanitizePayload` sur les journaux,
+numéro destinataire tronqué sur les messages échoués. Garder cette règle en tête
+en ajoutant des vues : un compte OPS voit toutes les boutiques à la fois.
+
+---
+
 ### Support aux vendeuses
 
 `NEXT_PUBLIC_SUPPORT_WHATSAPP_NUMBER` — numéro WhatsApp du support, au format
