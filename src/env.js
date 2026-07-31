@@ -116,6 +116,18 @@ export const env = createEnv({
     NEXT_PUBLIC_META_APP_ID: z.string().optional(),
     NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID: z.string().optional(),
     NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED: z.enum(["true", "false"]).optional(),
+    /**
+     * Numéro WhatsApp du support, au format international sans « + » ni espaces
+     * (ex. 2250701020304) — c'est la forme attendue par les liens wa.me.
+     *
+     * Optionnel : tant qu'il est absent, le bouton d'aide renvoie vers le centre
+     * d'aide au lieu d'ouvrir une conversation. Une vendeuse ne doit jamais
+     * tomber sur un lien mort.
+     */
+    NEXT_PUBLIC_SUPPORT_WHATSAPP_NUMBER: z
+      .string()
+      .regex(/^\d{8,15}$/, "Numéro international sans + ni espaces")
+      .optional(),
   },
 
   /**
@@ -160,6 +172,8 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID,
     NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED:
       process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED,
+    NEXT_PUBLIC_SUPPORT_WHATSAPP_NUMBER:
+      process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP_NUMBER,
     AI_API_KEY: process.env.AI_API_KEY,
     AI_BASE_URL: process.env.AI_BASE_URL,
     AI_MODEL_NAME: process.env.AI_MODEL_NAME,

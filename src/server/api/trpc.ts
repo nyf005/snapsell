@@ -15,6 +15,8 @@ import type { Session } from "next-auth";
 import { db } from "~/server/db";
 import { isOpsUser, canManageGrid } from "~/lib/rbac";
 import { checkTrpcRateLimit } from "~/lib/trpc-rate-limit";
+import { createLogger } from "~/lib/logger";
+import { captureException } from "~/lib/sentry";
 
 /**
  * 1. CONTEXT
@@ -40,6 +42,34 @@ export const createTRPCContext = async (opts: {
 };
 
 /**
+ * Attribue une référence courte à une erreur inattendue, la journalise et
+ * l'attache à Sentry.
+ *
+ * C'est le fil qui rend le support traitable. Sans lui, une vendeuse en plein
+ * live écrit « ça marche pas » et il faut reconstituer ce qui s'est passé à
+ * partir de rien. Avec, elle cite six caractères et la trace complète se
+ * retrouve — dans les journaux comme dans Sentry, où la référence est posée en
+ * étiquette.
+ *
+ * Volontairement court et sans ambiguïté à l'oral : ces références se dictent
+ * au téléphone ou se recopient depuis un écran de téléphone.
+ */
+const apiLogger = createLogger("API");
+
+function referenceForUnexpected(error: unknown): string {
+  const reference = crypto.randomUUID().replace(/-/g, "").slice(0, 6).toUpperCase();
+
+  apiLogger.error("Erreur inattendue", error, { reference });
+  void captureException(error, {
+    tags: { component: "trpc", reference },
+  }).catch(() => {
+    // La remontée d'alerte ne doit jamais casser la réponse d'erreur.
+  });
+
+  return reference;
+}
+
+/**
  * 2. INITIALIZATION
  *
  * This is where the tRPC API is initialized, connecting the context and transformer. We also parse
@@ -53,11 +83,17 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
     // blanche que formatError() consulte côté client : sans clé, rien n'est affiché
     // tel quel, on tombe sur un message générique.
     const userKey = (error as { userKey?: unknown }).userKey;
+    const known = typeof userKey === "string";
+
     return {
       ...shape,
       data: {
         ...shape.data,
-        userKey: typeof userKey === "string" ? userKey : null,
+        userKey: known ? userKey : null,
+        // Une référence n'est posée que sur les erreurs inattendues : celles où
+        // la vendeuse ne voit qu'un message générique. Les erreurs connues
+        // disent déjà quoi faire, une référence n'y ajouterait que du bruit.
+        reference: known ? null : referenceForUnexpected(error),
         zodError:
           error.cause instanceof ZodError ? error.cause.flatten() : null,
       },

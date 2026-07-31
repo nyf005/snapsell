@@ -34,6 +34,27 @@ Le webhook Vercel ne fait qu'un `boss.send()` ; tout le traitement métier des m
   - `QSTASH_TOKEN`, `NEXT_PUBLIC_APP_URL` (envoi sortant)
   - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optionnel : rate limiting tRPC)
 
+### Support aux vendeuses
+
+`NEXT_PUBLIC_SUPPORT_WHATSAPP_NUMBER` — numéro WhatsApp du support, au format
+international **sans `+` ni espaces** (ex. `2250701020304`), la forme attendue
+par les liens `wa.me`. À poser sur Vercel uniquement.
+
+Tant qu'il est absent, le bouton « nous contacter » renvoie vers `/aide` au lieu
+d'ouvrir une conversation : une vendeuse bloquée ne doit jamais tomber sur un
+lien mort.
+
+**Les références d'erreur.** Une erreur inattendue reçoit une référence courte
+(six caractères), affichée à la vendeuse et attachée au message WhatsApp
+pré-rempli. Le serveur la journalise et la pose en étiquette Sentry : la citer
+suffit à retrouver la trace complète, au lieu de reconstituer ce qui s'est passé
+à partir de « ça marche pas ».
+
+Les erreurs **connues** (liste blanche `errorCopy`) n'en portent pas : leur
+message dit déjà quoi faire.
+
+---
+
 ### Sentry
 
 `SENTRY_DSN` est **optionnel**, mais c'est le seul filet des deux chemins où

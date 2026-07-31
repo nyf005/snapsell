@@ -17,6 +17,19 @@ export type UserError = {
   detail?: string;
   /** Comment continuer. */
   action?: { label: string; href: string };
+  /**
+   * Référence à citer au support, présente uniquement sur les erreurs
+   * inattendues — celles où la vendeuse ne voit qu'un message générique et n'a
+   * aucun moyen de s'en sortir seule.
+   *
+   * Le serveur la journalise et l'attache à l'événement Sentry : la citer suffit
+   * à retrouver la trace complète, au lieu de demander « il s'est passé quoi
+   * exactement ? » à quelqu'un en plein live.
+   *
+   * Les erreurs connues (liste blanche `errorCopy`) n'en portent pas : leur
+   * message dit déjà quoi faire, une référence n'y ajouterait que du bruit.
+   */
+  reference?: string;
 };
 
 export type ErrorContext =
@@ -155,12 +168,15 @@ type TrpcLikeError = {
   data?: {
     code?: unknown;
     userKey?: unknown;
+    reference?: unknown;
     zodError?: {
       formErrors?: unknown;
       fieldErrors?: Record<string, unknown>;
     } | null;
   } | null;
-  shape?: { data?: { code?: unknown; userKey?: unknown } | null } | null;
+  shape?: {
+    data?: { code?: unknown; userKey?: unknown; reference?: unknown } | null;
+  } | null;
 };
 
 function readZodError(err: TrpcLikeError): UserError | null {
@@ -232,15 +248,33 @@ export function formatError(err: unknown, ctx: ErrorContext = "generic"): UserEr
   if (message && isPresentable(message)) {
     // Les codes de session/quota ont un message d'accompagnement plus utile.
     const coded = code ? fromTrpcCode(code, ctx) : null;
-    return { title: message, ...(coded?.action ? { action: coded.action } : {}) };
+    return {
+      title: message,
+      ...(coded?.action ? { action: coded.action } : {}),
+      ...withReference(candidate),
+    };
   }
 
   // 4. Générique.
   if (code) {
     const coded = fromTrpcCode(code, ctx);
-    if (coded) return coded;
+    if (coded) return { ...coded, ...withReference(candidate) };
   }
-  return genericFor(ctx);
+  return { ...genericFor(ctx), ...withReference(candidate) };
+}
+
+/**
+ * Extrait la référence posée par le serveur, s'il y en a une.
+ *
+ * Elle n'accompagne que les chemins génériques : au-dessus, la liste blanche a
+ * déjà fourni un message qui dit quoi faire.
+ */
+function withReference(candidate: TrpcLikeError): { reference?: string } {
+  const reference =
+    candidate.data?.reference ?? candidate.shape?.data?.reference;
+  return typeof reference === "string" && reference.length > 0
+    ? { reference }
+    : {};
 }
 
 /** Raccourci pour les endroits qui n'affichent qu'une seule ligne. */
