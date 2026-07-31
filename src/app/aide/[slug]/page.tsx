@@ -8,6 +8,7 @@ import { LandingFooter } from "~/app/_components/landing/landing-footer";
 import { HELP_FAMILIES, HELP_TOPICS, helpTopic } from "~/lib/copy";
 import { auth } from "~/server/auth";
 
+import { ContactSupport } from "../_components/contact-support";
 import { HelpBody } from "../_components/help-body";
 
 type Params = { slug: string };
@@ -102,6 +103,10 @@ export default async function HelpTopicPage({ params }: { params: Promise<Params
               </ul>
             </section>
           ) : null}
+
+          {/* Au bas de l'article : c'est ici qu'on constate que la réponse
+              cherchée n'y était pas. */}
+          <ContactSupport />
         </article>
       </main>
 

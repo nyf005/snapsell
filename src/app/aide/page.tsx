@@ -7,6 +7,7 @@ import { LandingFooter } from "~/app/_components/landing/landing-footer";
 import { HELP_TOPICS } from "~/lib/copy";
 import { auth } from "~/server/auth";
 
+import { ContactSupport } from "./_components/contact-support";
 import { HelpSearch, type HelpCard } from "./_components/help-search";
 
 export const metadata: Metadata = {
@@ -75,6 +76,8 @@ export default async function AidePage() {
           <div className="mt-10">
             <HelpSearch cards={cards} />
           </div>
+
+          <ContactSupport />
 
           {session?.user ? (
             <Link
