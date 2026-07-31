@@ -590,6 +590,34 @@ describe("POST /api/webhooks/meta — inbound", () => {
   });
 
   /**
+   * Le limiteur de débit ne doit plus pouvoir arrêter la réception.
+   *
+   * Il répondait 503 quand Redis était injoignable. La base Upstash ayant été
+   * supprimée, le webhook a rejeté *chaque* message pendant toute la panne —
+   * découvert en interrogeant l'endpoint à la main, faute d'alerte. Une
+   * protection contre les abus ne peut pas mettre la vente à l'arrêt, d'autant
+   * que la signature HMAC vérifiée juste après fait le vrai tri.
+   *
+   * Ici la requête est mal signée : elle doit donc être refusée par la
+   * signature (401), et surtout pas par le limiteur (503).
+   */
+  it("laisse passer le limiteur quand Redis est injoignable", async () => {
+    vi.mocked(rateLimitMock.checkWebhookRateLimit).mockRejectedValueOnce(
+      new Error("shared rate-limit timeout"),
+    );
+
+    const payload = makeMetaPayload([
+      { from: "22891234567", id: "wamid.rl", timestamp: "1710000000", type: "text", text: { body: "A9" } },
+    ]);
+    const bodyText = JSON.stringify(payload);
+
+    const resp = await callPOST(bodyText, "sha256=signature-invalide");
+
+    expect(resp.status).not.toBe(503);
+    expect(resp.status).toBe(401);
+  });
+
+  /**
    * Le message est en base, mais la file est tombée. Répondre 200 disait à Meta
    * « bien reçu » : il ne rejouait jamais, et le message restait sans job — donc
    * sans réponse à la cliente, et sans trace, `MessageIn` n'ayant aucun champ de

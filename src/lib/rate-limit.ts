@@ -1,14 +1,26 @@
 /**
  * Rate limiting partagé pour invitations et webhooks.
  *
- * En production, Upstash Redis est requis pour éviter les compteurs locaux
- * incohérents entre instances. En développement/test, un fallback mémoire
- * reste disponible pour faciliter le travail local.
+ * Redis (Upstash) porte les compteurs, pour qu'ils restent cohérents entre les
+ * instances serverless. Quand il est indisponible, on retombe sur un compteur
+ * mémoire, propre à l'instance.
+ *
+ * Ce repli remplace un `throw`, et l'incident qui a motivé le changement mérite
+ * d'être écrit ici : la base Redis avait disparu, le webhook Meta répondait 503
+ * à *chaque* message, et plus aucune commande ne pouvait entrer. Une protection
+ * contre les abus mettait la vente à l'arrêt.
+ *
+ * Un compteur par instance est imparfait — n instances tolèrent n fois le
+ * plafond. C'est sans commune mesure avec le fait de tout rejeter, d'autant que
+ * le webhook Meta est protégé juste après par sa signature HMAC.
+ *
+ * `trpc-rate-limit.ts` dégradait déjà ainsi ; seul ce chemin ne le faisait pas.
  */
 
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { env } from "~/env";
+import { captureException } from "~/lib/sentry";
 
 type RateLimitEntry = {
   count: number;
@@ -21,7 +33,33 @@ const sharedLimiterCache = new Map<string, Ratelimit>();
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 heure
 const MAX_INVITATIONS_PER_HOUR = 10;
 const WEBHOOK_RATE_LIMIT_KEY_PREFIX = "webhook:";
-const SHARED_RATE_LIMIT_TIMEOUT_MS = 500;
+// 500 ms ne laissait aucune marge à un aller-retour transatlantique ou à une
+// connexion froide. Le budget sert à ne pas retenir le webhook, pas à trancher
+// au plus court : au-delà, on bascule sur le compteur mémoire.
+const SHARED_RATE_LIMIT_TIMEOUT_MS = 2_000;
+
+/** Évite d'inonder Sentry : une alerte par fenêtre, pas une par requête. */
+const DEGRADED_ALERT_INTERVAL_MS = 5 * 60 * 1000;
+let lastDegradedAlertAt = 0;
+
+/**
+ * Signale le passage en mode dégradé, sans jamais faire échouer l'appelant.
+ *
+ * C'est le point aveugle qui a coûté cher : Redis absent, aucune alerte, et la
+ * panne ne se voyait qu'au silence des clientes.
+ */
+function reportDegraded(reason: string, error?: unknown): void {
+  const now = Date.now();
+  if (now - lastDegradedAlertAt < DEGRADED_ALERT_INTERVAL_MS) return;
+  lastDegradedAlertAt = now;
+
+  void captureException(
+    error instanceof Error ? error : new Error(`Rate limiting dégradé : ${reason}`),
+    { tags: { component: "rate-limit", degraded: "memory-fallback", reason } },
+  ).catch(() => {
+    // La remontée d'alerte ne doit jamais casser ce qu'elle observe.
+  });
+}
 
 function isProduction(): boolean {
   return env.NODE_ENV === "production";
@@ -96,9 +134,7 @@ async function runSharedRateLimit(
 
   if (!limiter) {
     if (isProduction()) {
-      throw new Error(
-        "Shared rate limiting requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in production.",
-      );
+      reportDegraded("upstash_not_configured");
     }
     return checkMemoryRateLimit(key, maxRequests, windowMs);
   }
@@ -112,8 +148,10 @@ async function runSharedRateLimit(
     ])) as Awaited<ReturnType<Ratelimit["limit"]>>;
     return result.success;
   } catch (error) {
+    // On ne relève plus en production. Le compteur mémoire prend le relais :
+    // dégradé, mais l'application continue d'encaisser les commandes.
     if (isProduction()) {
-      throw error;
+      reportDegraded("upstash_unreachable", error);
     }
     return checkMemoryRateLimit(key, maxRequests, windowMs);
   }

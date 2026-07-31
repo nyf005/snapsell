@@ -88,11 +88,23 @@ export async function POST(request: Request) {
       return new NextResponse("OK", { status: 200 });
     }
   } catch (error) {
-    webhookLogger.error("Meta webhook rate limit unavailable", error, {
+    // Le limiteur dégrade désormais tout seul (repli mémoire) : ce bloc ne
+    // devrait plus se déclencher. Il reste comme dernier filet, et il laisse
+    // passer.
+    //
+    // Il répondait 503. Quand la base Redis a disparu, le webhook a donc rejeté
+    // *chaque* message pendant toute la panne, sans qu'aucune alerte ne parte —
+    // découvert seulement en interrogeant l'endpoint à la main. Une protection
+    // contre les abus ne doit pas pouvoir arrêter la réception des commandes,
+    // surtout quand la signature HMAC vérifiée juste après fait le vrai tri.
+    webhookLogger.error("Meta webhook rate limit unavailable — on laisse passer", error, {
       correlationId,
       errorType: "rate_limit_unavailable",
     });
-    return new NextResponse("Service Unavailable", { status: 503 });
+    void sendToSentry(error instanceof Error ? error : new Error(String(error)), {
+      correlationId,
+      tags: { component: "webhook-meta", errorType: "rate_limit_unavailable" },
+    }).catch(() => {});
   }
 
   try {
