@@ -34,6 +34,16 @@ import { WhatsAppAdvancedSections } from "./whatsapp-business-config-content";
 import { ErrorAlert } from "~/components/ui/error-alert";
 import { errorCopy, formatError, ui, type UserError } from "~/lib/copy";
 
+/**
+ * Délai au-delà duquel on considère que la fenêtre Meta ne s'est pas ouverte.
+ *
+ * Elle apparaît en une seconde ou deux quand tout va bien — ce qui suit prend
+ * plusieurs minutes, mais se passe *dans* cette fenêtre, pas ici. Douze secondes
+ * laissent donc largement le temps à une ouverture lente sans faire attendre
+ * devant un bouton qui ne bougera plus.
+ */
+const EMBEDDED_SIGNUP_SLOW_HINT_MS = 12_000;
+
 export function WhatsAppConfigContent() {
   const [metaPhoneNumberId, setMetaPhoneNumberId] = useState("");
   const [metaWabaId, setMetaWabaId] = useState("");
@@ -50,6 +60,26 @@ export function WhatsAppConfigContent() {
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [embeddedSignupError, setEmbeddedSignupError] = useState<UserError | null>(null);
+  /**
+   * ── UNE ATTENTE NE DOIT JAMAIS ÊTRE UNE IMPASSE ─────────────────────────────
+   *
+   * Le bouton se désactivait au clic et le restait tant que Meta n'avait pas
+   * répondu. Quand Meta n'ouvrait rien du tout — ce qui est arrivé — la vendeuse
+   * se retrouvait devant « Ouverture de WhatsApp… » indéfiniment, sans message,
+   * sans erreur, sans autre issue que recharger la page. Elle n'avait aucun
+   * moyen de savoir s'il fallait patienter ou renoncer.
+   *
+   * Passé un court délai, on le dit et on rend la main. La tentative en cours
+   * n'est pas annulée pour autant : si Meta finit par répondre, le parcours
+   * aboutit normalement.
+   */
+  const [embeddedSignupSlow, setEmbeddedSignupSlow] = useState(false);
+  /**
+   * Numéro de la tentative en cours. Rendre le bouton cliquable rouvre la
+   * possibilité d'en lancer une seconde ; sans ce compteur, la première —
+   * toujours en vol — écraserait le résultat de la seconde en retombant.
+   */
+  const signupRunRef = useRef(0);
 
   const utils = api.useUtils();
   const { data, isLoading } = api.settings.getWhatsAppConfig.useQuery();
@@ -195,8 +225,17 @@ export function WhatsAppConfigContent() {
   }, [isEmbeddedSignupEnabled, metaAppId, metaEmbeddedConfigId]);
 
   const handleEmbeddedSignup = useCallback(async () => {
+    const runId = ++signupRunRef.current;
+    /** Vrai tant que cette tentative-ci est la plus récente. */
+    const isCurrentRun = () => signupRunRef.current === runId;
+
     setEmbeddedSignupError(null);
     setEmbeddedSignupState("loading");
+    setEmbeddedSignupSlow(false);
+
+    const slowHintTimer = window.setTimeout(() => {
+      if (isCurrentRun()) setEmbeddedSignupSlow(true);
+    }, EMBEDDED_SIGNUP_SLOW_HINT_MS);
 
     // Ces trois cas sont des erreurs de configuration de SnapSell, pas de la
     // vendeuse : elle ne peut rien y faire et n'a pas à lire des noms de variables
@@ -211,6 +250,8 @@ export function WhatsAppConfigContent() {
 
     if (misconfiguration) {
       console.error(`[whatsapp] embedded signup indisponible: ${misconfiguration}`);
+      window.clearTimeout(slowHintTimer);
+      setEmbeddedSignupSlow(false);
       setEmbeddedSignupState("error");
       setEmbeddedSignupError(errorCopy["whatsapp.unavailable"]!);
       return;
@@ -262,10 +303,17 @@ export function WhatsAppConfigContent() {
           ? { phoneNumberId: embeddedSignupEvent.data.phone_number_id }
           : {}),
       });
+      if (!isCurrentRun()) return;
       setEmbeddedSignupState("success");
     } catch (error) {
+      // Une tentative dépassée qui retombe ne doit pas effacer le résultat de
+      // celle qui l'a remplacée.
+      if (!isCurrentRun()) return;
       setEmbeddedSignupError(formatError(error, "whatsapp"));
       setEmbeddedSignupState("error");
+    } finally {
+      window.clearTimeout(slowHintTimer);
+      if (isCurrentRun()) setEmbeddedSignupSlow(false);
     }
   }, [connectEmbedded, isEmbeddedSignupEnabled, metaAppId, metaEmbeddedConfigId]);
 
@@ -325,18 +373,41 @@ export function WhatsAppConfigContent() {
                   <Button
                     type="button"
                     onClick={() => void handleEmbeddedSignup()}
-                    disabled={embeddedSignupState === "loading" || connectEmbedded.isPending}
+                    /*
+                      `embeddedSignupSlow` rouvre le bouton : passé le délai, on
+                      cesse de retenir la vendeuse devant une fenêtre qui ne
+                      s'ouvrira pas. L'envoi du code au serveur, lui, reste
+                      bloquant — c'est une écriture, on ne la relance pas.
+                    */
+                    disabled={
+                      (embeddedSignupState === "loading" && !embeddedSignupSlow) ||
+                      connectEmbedded.isPending
+                    }
                     className="min-h-11 font-semibold"
                   >
-                    {embeddedSignupState === "loading" || connectEmbedded.isPending
-                      ? "Ouverture de WhatsApp…"
-                      : isConnected
-                        ? ui.whatsapp.reconnect
-                        : ui.whatsapp.connect}
+                    {connectEmbedded.isPending
+                      ? "Connexion en cours…"
+                      : embeddedSignupState === "loading" && !embeddedSignupSlow
+                        ? "Ouverture de WhatsApp…"
+                        : embeddedSignupSlow
+                          ? "Réessayer"
+                          : isConnected
+                            ? ui.whatsapp.reconnect
+                            : ui.whatsapp.connect}
                   </Button>
                 </div>
               </div>
 
+              {embeddedSignupSlow && embeddedSignupState === "loading" && (
+                <Alert className="mt-3">
+                  <AlertDescription>
+                    La fenêtre WhatsApp ne s’est pas ouverte. Vérifiez que votre
+                    navigateur n’a pas bloqué les fenêtres surgissantes pour ce site,
+                    puis réessayez. Si le problème persiste, vos identifiants restent
+                    modifiables dans « Configuration avancée ».
+                  </AlertDescription>
+                </Alert>
+              )}
               {embeddedSignupState === "success" && (
                 <Alert className="mt-3 border-success/50 bg-success/10 text-success [&>svg]:text-success">
                   <AlertDescription>

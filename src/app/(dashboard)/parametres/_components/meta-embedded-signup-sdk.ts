@@ -247,9 +247,27 @@ export async function startMetaEmbeddedSignup(
           config_id: cleanConfigId,
           response_type: "code",
           override_default_response_type: true,
+          /**
+           * ── CES CLÉS SUIVENT LE CONTRAT DE META, PAS UNE APPROXIMATION ─────
+           *
+           * `extras` portait `feature: "whatsapp_embedded_signup"`. Ce nom
+           * n'existe pas dans la documentation de Meta : la clé attendue est
+           * `featureType`. Une chaîne vide y demande le parcours complet ;
+           * `"only_waba_sharing"` sauterait l'étape du numéro.
+           *
+           * Meta valide `extras` avant d'ouvrir sa fenêtre. Une clé inconnue
+           * pouvait donc suffire à ce qu'aucune fenêtre ne s'ouvre — sans
+           * erreur ni rappel, symptôme exact observé : SDK chargé, popup
+           * autorisée par le navigateur, et pourtant rien.
+           *
+           * `sessionInfoVersion` reste : c'est lui qui fait remonter `waba_id`
+           * et `phone_number_id` dans le message de fin, que
+           * `connectWhatsAppEmbedded` consomme.
+           * ──────────────────────────────────────────────────────────────────
+           */
           extras: {
             setup: {},
-            feature: "whatsapp_embedded_signup",
+            featureType: "",
             sessionInfoVersion: "3",
           },
         },

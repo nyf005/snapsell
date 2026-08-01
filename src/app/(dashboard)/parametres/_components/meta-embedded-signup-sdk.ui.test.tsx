@@ -47,10 +47,32 @@ describe("meta-embedded-signup-sdk", () => {
     expect(code).toBe("oauth-code-xyz");
   });
 
-  it("uses config_id only for embedded signup", async () => {
-    const login = vi.fn((callback: (response: { code: string }) => void) => {
-      callback({ code: "oauth-code-xyz" });
-    });
+  /**
+   * ── LES PARAMÈTRES SUIVENT LE CONTRAT DE META ──────────────────────────────
+   *
+   * Ce test figeait `extras.feature: "whatsapp_embedded_signup"`. Cette clé
+   * n'existe pas dans la documentation de Meta — la clé attendue est
+   * `featureType`, une chaîne vide demandant le parcours complet. Le test
+   * verrouillait donc une valeur inventée, et l'aurait défendue contre sa propre
+   * correction.
+   *
+   * Meta valide `extras` avant d'ouvrir sa fenêtre : une clé inconnue suffisait
+   * à ce qu'aucune fenêtre ne s'ouvre, sans erreur ni rappel — SDK chargé,
+   * popup autorisée par le navigateur, et pourtant rien.
+   *
+   * `sessionInfoVersion` reste exigé : c'est lui qui fait remonter `waba_id` et
+   * `phone_number_id`, que `connectWhatsAppEmbedded` consomme.
+   */
+  it("passe à Meta les paramètres qu'il documente", async () => {
+    const login = vi.fn(
+      (
+        callback: (response: { code: string }) => void,
+        // Déclaré pour que l'assertion ci-dessous puisse relire les paramètres.
+        _params: Record<string, unknown>,
+      ) => {
+        callback({ code: "oauth-code-xyz" });
+      },
+    );
     const sdk = { init: vi.fn(), login };
 
     await startMetaEmbeddedSignup(sdk, "config-id");
@@ -63,10 +85,13 @@ describe("meta-embedded-signup-sdk", () => {
         override_default_response_type: true,
         extras: expect.objectContaining({
           setup: {},
-          feature: "whatsapp_embedded_signup",
+          featureType: "",
           sessionInfoVersion: "3",
         }),
       }),
     );
+
+    // La clé inventée ne doit pas revenir par inadvertance.
+    expect(login.mock.calls[0]?.[1]?.extras).not.toHaveProperty("feature");
   });
 });
