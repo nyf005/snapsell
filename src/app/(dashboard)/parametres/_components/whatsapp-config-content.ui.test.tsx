@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 const mockConnectEmbeddedMutateAsync = vi.fn();
 const mockLoadSdk = vi.fn();
@@ -105,6 +105,14 @@ import { WhatsAppConfigContent } from "./whatsapp-config-content";
 describe("WhatsAppConfigContent — chemin unique de connexion", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    /**
+     * `loadMetaEmbeddedSignupSdk` est `async` : elle renvoie toujours une
+     * promesse. Un `vi.fn()` nu renvoie `undefined`, ce qui ne correspond à
+     * aucun état réel — et faisait échouer le préchargement au montage sur un
+     * `undefined.then`. Le défaut est posé ici pour que tous les cas partent
+     * d'un mock fidèle ; ceux qui veulent un autre comportement le remplacent.
+     */
+    mockLoadSdk.mockResolvedValue({ login: vi.fn(), init: vi.fn() });
     mockWhatsAppConfig.metaPhoneNumberId = null;
     mockWhatsAppConfig.metaWabaId = null;
     mockWhatsAppConfig.metaBusinessPhoneNumber = null;
@@ -229,5 +237,97 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
     const text = container.textContent ?? "";
     expect(text).not.toContain("tenant");
     expect(text).not.toContain("E.164");
+  });
+
+  /**
+   * ── LA POPUP TIENT À UN DÉTAIL D'ORDONNANCEMENT ──────────────────────────
+   *
+   * Un navigateur n'autorise une popup que pendant l'activation utilisateur
+   * transitoire : la même tâche que le clic. Le SDK Meta était téléchargé
+   * derrière un `await` dans le gestionnaire de clic, si bien qu'au premier clic
+   * l'attente couvrait un aller-retour réseau — activation perdue, popup
+   * refusée, et Meta basculait sur une redirection pleine page. La vendeuse
+   * quittait SnapSell au lieu de voir une fenêtre s'ouvrir.
+   *
+   * Rien dans le typage ni dans les autres tests n'aurait signalé le retour de
+   * cet `await`. Ces deux cas le rendent visible.
+   */
+  describe("ouverture en popup", () => {
+    async function renderWithPreloadedSdk() {
+      mockLoadSdk.mockResolvedValue({ login: vi.fn(), init: vi.fn() });
+      mockStartSignup.mockResolvedValue({
+        status: "connected",
+        authResponse: { code: "oauth-789" },
+      });
+      mockExtractCode.mockReturnValue("oauth-789");
+      mockConnectEmbeddedMutateAsync.mockResolvedValue({ ok: true });
+
+      render(<WhatsAppConfigContent />);
+      await waitFor(() => expect(mockLoadSdk).toHaveBeenCalledWith("meta-app-id"));
+      // Laisse la promesse de préchargement poser la référence du SDK.
+      await act(async () => {});
+    }
+
+    it("charge le SDK Meta au montage, sans attendre le clic", async () => {
+      await renderWithPreloadedSdk();
+      expect(mockLoadSdk).toHaveBeenCalledTimes(1);
+      expect(mockStartSignup).not.toHaveBeenCalled();
+    });
+
+    /**
+     * Le cœur du garde-fou : `fireEvent.click` rend la main dès la fin de la
+     * portion **synchrone** du gestionnaire. Si l'ouverture Meta a déjà eu lieu
+     * à ce moment-là, c'est qu'aucun `await` ne s'est intercalé depuis le clic —
+     * donc que l'activation utilisateur est intacte et la popup autorisée.
+     */
+    it("lance Meta dans la tâche du clic, sans aucune attente intercalée", async () => {
+      await renderWithPreloadedSdk();
+      mockLoadSdk.mockClear();
+
+      fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp" }));
+
+      expect(mockStartSignup).toHaveBeenCalledTimes(1);
+      // Le SDK préchargé est réutilisé : aucun rechargement, donc aucune attente.
+      expect(mockLoadSdk).not.toHaveBeenCalled();
+
+      await waitFor(() => expect(mockConnectEmbeddedMutateAsync).toHaveBeenCalled());
+    });
+
+    /**
+     * Le préchargement fait charger un script Facebook, qui pose ses propres
+     * cookies. Il n'a pas à s'exécuter chez les boutiques qui n'utilisent pas ce
+     * parcours.
+     */
+    it("ne charge rien quand le parcours est désactivé", async () => {
+      process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED = "false";
+      render(<WhatsAppConfigContent />);
+      await act(async () => {});
+      expect(mockLoadSdk).not.toHaveBeenCalled();
+    });
+
+    it("reste utilisable si le préchargement a échoué", async () => {
+      // Premier appel : préchargement en échec. Second : le repli du clic.
+      mockLoadSdk
+        .mockRejectedValueOnce(new Error("réseau indisponible"))
+        .mockResolvedValue({ login: vi.fn(), init: vi.fn() });
+      mockStartSignup.mockResolvedValue({
+        status: "connected",
+        authResponse: { code: "oauth-repli" },
+      });
+      mockExtractCode.mockReturnValue("oauth-repli");
+      mockConnectEmbeddedMutateAsync.mockResolvedValue({ ok: true });
+
+      render(<WhatsAppConfigContent />);
+      await act(async () => {});
+
+      fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp" }));
+
+      // Le parcours aboutit quand même — au prix d'une possible pleine page.
+      await waitFor(() =>
+        expect(mockConnectEmbeddedMutateAsync).toHaveBeenCalledWith({
+          code: "oauth-repli",
+        }),
+      );
+    });
   });
 });

@@ -121,6 +121,26 @@ export async function loadMetaEmbeddedSignupSdk(appId: string): Promise<MetaSDK>
   return initMetaSdk(cleanAppId);
 }
 
+/**
+ * ── À APPELER SYNCHRONEMENT DEPUIS LE GESTIONNAIRE DE CLIC ──────────────────
+ *
+ * `FB.login()` ouvre une popup, et un navigateur n'autorise une popup que
+ * pendant l'« activation utilisateur transitoire » — la fenêtre qui suit
+ * immédiatement un geste, dans la même tâche. Si un `await` s'intercale entre le
+ * clic et cet appel, l'activation est perdue : `window.open` est refusé et le
+ * SDK Meta bascule silencieusement sur une **redirection pleine page**.
+ *
+ * C'est exactement ce qui arrivait : l'appelant faisait
+ * `await loadMetaEmbeddedSignupSdk(...)` juste avant, donc au premier clic
+ * l'attente couvrait le téléchargement du script Meta. Le SDK se charge
+ * désormais au montage de la page, et `sdk` arrive ici déjà prêt.
+ *
+ * Cette fonction est `async` mais son corps s'exécute **synchroniquement**
+ * jusqu'à `sdk.login()` : le corps d'une fonction `async` court jusqu'au premier
+ * `await`, et l'exécuteur d'une `Promise` est synchrone. L'appeler sans `await`
+ * préalable suffit donc — ne pas insérer d'attente avant elle.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
 export async function startMetaEmbeddedSignup(
   sdk: MetaSDK,
   configId: string,

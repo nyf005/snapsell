@@ -8,6 +8,7 @@ import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header"
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import {
   type MetaEmbeddedSignupEvent,
+  type MetaSDK,
   extractOAuthCodeFromMetaLoginResponse,
   getMetaEmbeddedSignupErrorMessage,
   loadMetaEmbeddedSignupSdk,
@@ -151,6 +152,48 @@ export function WhatsAppConfigContent() {
   const isEmbeddedSignupEnabled =
     process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED === "true";
 
+  /**
+   * ── LE SDK META SE CHARGE ICI, PAS AU CLIC ────────────────────────────────
+   *
+   * Il était téléchargé depuis le gestionnaire de clic, derrière un `await`. Au
+   * premier clic, cette attente couvrait donc un aller-retour réseau : le
+   * navigateur considérait l'activation utilisateur comme expirée, refusait la
+   * popup, et le SDK Meta basculait sur une redirection pleine page. La vendeuse
+   * quittait SnapSell au lieu de voir une fenêtre s'ouvrir par-dessus.
+   *
+   * En le chargeant au montage, `sdk.login()` s'exécute dans la même tâche que
+   * le clic et la popup est autorisée. C'est aussi ce que prescrit la
+   * documentation Meta.
+   *
+   * Le chargement est conditionné à une configuration complète : sans cela, on
+   * ferait charger un script Facebook — qui pose ses propres cookies — à toute
+   * personne ouvrant cette page, y compris dans les boutiques qui n'utilisent
+   * pas ce parcours.
+   */
+  const metaSdkRef = useRef<MetaSDK | null>(null);
+
+  useEffect(() => {
+    if (!isEmbeddedSignupEnabled) return;
+    if (!metaAppId.trim() || !metaEmbeddedConfigId.trim()) return;
+    if (metaSdkRef.current) return;
+
+    let cancelled = false;
+    void loadMetaEmbeddedSignupSdk(metaAppId)
+      .then((sdk) => {
+        if (!cancelled && sdk) metaSdkRef.current = sdk;
+      })
+      .catch((error: unknown) => {
+        // Un échec de préchargement n'est pas une erreur à montrer : le clic
+        // retentera le chargement (cf. repli dans `handleEmbeddedSignup`), et
+        // rien n'est encore demandé à ce stade.
+        console.error("[whatsapp] préchargement du SDK Meta échoué", error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isEmbeddedSignupEnabled, metaAppId, metaEmbeddedConfigId]);
+
   const handleEmbeddedSignup = useCallback(async () => {
     setEmbeddedSignupError(null);
     setEmbeddedSignupState("loading");
@@ -174,8 +217,27 @@ export function WhatsAppConfigContent() {
     }
 
     try {
-      const sdk = await loadMetaEmbeddedSignupSdk(metaAppId);
-      const loginResponse = await startMetaEmbeddedSignup(sdk, metaEmbeddedConfigId);
+      /**
+       * Aucune attente avant `startMetaEmbeddedSignup` sur le chemin nominal :
+       * c'est ce qui permet à `FB.login()` de s'exécuter dans la tâche du clic
+       * et donc d'ouvrir une popup plutôt que de rediriger la page entière.
+       *
+       * Le repli couvre les deux cas où le SDK n'est pas encore là : un clic
+       * pendant le préchargement, ou un préchargement en échec. On charge alors
+       * puis on lance quand même — la popup sera peut-être refusée et Meta
+       * basculera en pleine page, ce qui reste très préférable à un bouton sans
+       * effet. C'est le comportement d'avant ce correctif, conservé comme filet.
+       */
+      const preloadedSdk = metaSdkRef.current;
+      let loginResponse;
+      if (preloadedSdk) {
+        loginResponse = await startMetaEmbeddedSignup(preloadedSdk, metaEmbeddedConfigId);
+      } else {
+        const sdk = await loadMetaEmbeddedSignupSdk(metaAppId);
+        metaSdkRef.current = sdk;
+        loginResponse = await startMetaEmbeddedSignup(sdk, metaEmbeddedConfigId);
+      }
+
       const code = extractOAuthCodeFromMetaLoginResponse(loginResponse);
 
       if (!code) {
