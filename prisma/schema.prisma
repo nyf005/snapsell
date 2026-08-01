@@ -209,6 +209,11 @@ model User {
   sessions       Session[]
 
   @@index([tenantId])
+  // Note: un index unique sur lower(email) existe en base
+  // (`users_email_lower_key`, migration 20260801000000). Prisma ne sait pas
+  // exprimer un index sur expression — comme pour `invitations_tenant_email_unique`.
+  // Il interdit deux comptes dont les adresses ne diffèrent que par la casse ;
+  // `email @unique` seul les laisserait coexister. Ne pas le supprimer.
   @@map("users")
 }
 

@@ -10,9 +10,24 @@ import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 import { isR2Configured, createR2Client, getR2BucketName } from "~/server/media/r2-client";
+import {
+  canonicalImageContentType,
+  isAllowedImageContentType,
+} from "~/server/media/image-content-type";
 
+/**
+ * Liste propre au téléversement depuis le dashboard, volontairement plus étroite
+ * que celle du stockage : c'est elle qu'énonce le message d'erreur affiché.
+ */
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+/** Ce qui sort d'ici ne doit pas pouvoir s'exécuter — cf. `/api/media`. */
+const INERT_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "Content-Security-Policy": "default-src 'none'; sandbox",
+  "Content-Disposition": "inline",
+} as const;
 
 type RouteContext = { params: Promise<{ itemId: string }> };
 
@@ -132,12 +147,20 @@ export async function GET(_request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Média vide" }, { status: 404 });
     }
 
+    if (!isAllowedImageContentType(result.ContentType)) {
+      return NextResponse.json(
+        { error: "Média indisponible" },
+        { status: 415, headers: INERT_HEADERS },
+      );
+    }
+
     const bytes = await result.Body.transformToByteArray();
-    const contentType = result.ContentType ?? "application/octet-stream";
+    const contentType = canonicalImageContentType(result.ContentType!);
 
     return new NextResponse(new Uint8Array(bytes), {
       status: 200,
       headers: {
+        ...INERT_HEADERS,
         "Content-Type": contentType,
         "Cache-Control": "private, max-age=300",
       },

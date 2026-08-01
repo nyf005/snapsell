@@ -12,15 +12,16 @@ import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { createQStashReceiver, isQStashMisconfiguredForHttpRoute } from "~/server/qstash/config";
 
+/**
+ * `null` signifie « pas de vérification » et n'est atteignable qu'en dehors de
+ * la production : `isQStashMisconfiguredForHttpRoute()` y verrouille désormais
+ * la route dès que les clés manquent, quel que soit `QSTASH_TOKEN`.
+ */
 function getReceiver(): Receiver | "misconfigured" | null {
   if (isQStashMisconfiguredForHttpRoute()) {
     return "misconfigured";
   }
-  const receiver = createQStashReceiver();
-  if (!receiver) {
-    return null;
-  }
-  return receiver;
+  return createQStashReceiver();
 }
 
 export async function POST(request: Request) {

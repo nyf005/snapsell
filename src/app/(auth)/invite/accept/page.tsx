@@ -35,6 +35,21 @@ function InviteAcceptContent() {
     onSuccess: async (result, variables) => {
       setError(null);
       const email = invitation?.email;
+
+      /**
+       * Compte existant rattaché à la boutique : il n'y a pas eu de mot de passe
+       * saisi, donc rien avec quoi ouvrir une session. On envoie vers la
+       * connexion en le disant — c'est plus honnête qu'un échec d'authentification
+       * automatique présenté comme un incident.
+       */
+      if (result.rejoined) {
+        router.push(
+          "/login?message=rejoined_team" +
+            (email ? "&email=" + encodeURIComponent(email) : ""),
+        );
+        return;
+      }
+
       if (!email || !variables.password) {
         setError("Erreur: email ou mot de passe manquant. Redirection vers la connexion…");
         setTimeout(() => {
@@ -103,6 +118,14 @@ function InviteAcceptContent() {
     },
   });
 
+  /**
+   * Une adresse déjà titulaire d'un compte — typiquement une personne retirée de
+   * l'équipe puis réinvitée — n'a rien à créer. Le serveur rattache le compte
+   * sans jamais toucher au mot de passe ; le formulaire ne doit donc pas en
+   * réclamer un, sous peine de laisser croire qu'il sera pris en compte.
+   */
+  const isRejoin = invitation?.hasExistingAccount === true;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -110,8 +133,12 @@ function InviteAcceptContent() {
       setError("Lien d'invitation invalide.");
       return;
     }
-    // Note: Le cas "existing account" n'est plus géré ici car le serveur refuse
-    // l'invitation si l'utilisateur existe déjà (CONFLICT)
+
+    if (isRejoin) {
+      acceptInvitation.mutate({ token });
+      return;
+    }
+
     const nameTrimmed = name.trim();
     if (!nameTrimmed) {
       setError("Le nom est requis.");
@@ -184,8 +211,9 @@ function InviteAcceptContent() {
           Rejoindre l'équipe {invitation.tenantName}
         </h1>
         <p className="text-muted-foreground">
-          Vous avez reçu une invitation comme agent. Complétez votre inscription ci-dessous pour
-          accéder au tableau de bord.
+          {isRejoin
+            ? "Un compte existe déjà avec cette adresse. Confirmez pour rejoindre l’équipe, puis connectez-vous avec votre mot de passe habituel."
+            : "Vous avez reçu une invitation comme agent. Complétez votre inscription ci-dessous pour accéder au tableau de bord."}
         </p>
       </div>
 
@@ -222,57 +250,61 @@ function InviteAcceptContent() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label
-            htmlFor="invite-name"
-            className="text-sm font-semibold text-foreground"
-          >
-            Votre nom
-          </Label>
-          <Input
-            id="invite-name"
-            type="text"
-            placeholder={marketing.placeholder.name}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={inputClassName}
-            required
-            disabled={acceptInvitation.isPending}
-            aria-invalid={!!error}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label
-            htmlFor="invite-password"
-            className="text-sm font-semibold text-foreground"
-          >
-            Mot de passe
-          </Label>
-          <div className="relative">
-            <Input
-              id="invite-password"
-              type={showPassword ? "text" : "password"}
-              placeholder="Min. 8 caractères"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={inputClassName}
-              required
-              minLength={8}
-              disabled={acceptInvitation.isPending}
-              aria-invalid={!!error}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-9"
-              aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-            >
-              {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
-            </Button>
-          </div>
-        </div>
+        {!isRejoin && (
+          <>
+            <div className="flex flex-col gap-2">
+              <Label
+                htmlFor="invite-name"
+                className="text-sm font-semibold text-foreground"
+              >
+                Votre nom
+              </Label>
+              <Input
+                id="invite-name"
+                type="text"
+                placeholder={marketing.placeholder.name}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={inputClassName}
+                required
+                disabled={acceptInvitation.isPending}
+                aria-invalid={!!error}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label
+                htmlFor="invite-password"
+                className="text-sm font-semibold text-foreground"
+              >
+                Mot de passe
+              </Label>
+              <div className="relative">
+                <Input
+                  id="invite-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Min. 8 caractères"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClassName}
+                  required
+                  minLength={8}
+                  disabled={acceptInvitation.isPending}
+                  aria-invalid={!!error}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-9"
+                  aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                >
+                  {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
 
         <Button
           type="submit"

@@ -207,11 +207,28 @@ export const invitationsRouter = createTRPCRouter({
         include: { tenant: { select: { name: true } } },
       });
       validateInvitation(inv);
+
+      /**
+       * Un compte existe-t-il déjà pour cette adresse ?
+       *
+       * Pilote l'écran d'acceptation : sans compte, on demande un nom et un mot
+       * de passe ; avec, il n'y a rien à créer et les demander serait mensonger.
+       *
+       * Ce n'est pas un oracle d'existence d'adresse : le seul moyen d'obtenir
+       * la réponse est de détenir un jeton d'invitation valide, émis pour cette
+       * adresse précise — que l'appelant connaît donc déjà.
+       */
+      const existingUser = await db.user.findUnique({
+        where: { email: inv!.email },
+        select: { id: true },
+      });
+
       return {
         email: inv!.email,
         role: inv!.role,
         tenantName: inv!.tenant.name,
         tenantId: inv!.tenantId,
+        hasExistingAccount: existingUser != null,
       };
     }),
 
@@ -254,7 +271,63 @@ export const invitationsRouter = createTRPCRouter({
             message: "Vous êtes déjà membre de cette équipe. Connectez-vous pour accéder au dashboard.",
           });
         }
-        // Utilisateur existe dans un autre tenant → refus explicite
+
+        /**
+         * ── RETIRER PUIS RÉINTÉGRER QUELQU'UN DEVAIT REDEVENIR POSSIBLE ───────
+         *
+         * `team.removeMember` ne supprime pas le compte : il met `tenantId` à
+         * `null` pour préserver l'historique. La personne se retrouve donc sans
+         * boutique — et toute réinvitation tombait ici, sur le refus « un compte
+         * existe déjà pour un autre tenant ». Ce n'était pourtant pas le cas :
+         * elle n'appartenait à aucun. Retirer quelqu'un par erreur était sans
+         * retour, et la seule issue passait par la base de données.
+         *
+         * Un compte orphelin est donc rattaché à la boutique qui l'invite.
+         *
+         * Son mot de passe n'est jamais touché — ni ici, ni ailleurs dans ce
+         * chemin. C'est la garantie qui rend l'opération sûre : sans elle, qui
+         * émet une invitation vers l'adresse d'un compte orphelin pourrait en
+         * redéfinir le mot de passe et s'en emparer. La personne se reconnecte
+         * avec ses identifiants habituels.
+         *
+         * `tokenVersion` est incrémenté pour la même raison qu'ailleurs : un
+         * jeton émis avant le rattachement porte encore `tenantId: null`.
+         * ────────────────────────────────────────────────────────────────────
+         */
+        if (existingUser.tenantId === null) {
+          await db.$transaction(async (tx) => {
+            await tx.user.update({
+              where: { id: existingUser.id },
+              data: {
+                tenantId: inv!.tenantId,
+                role: inv!.role,
+                tokenVersion: { increment: 1 },
+              },
+            });
+            await tx.invitation.update({
+              where: { id: inv!.id },
+              data: { consumedAt: new Date() },
+            });
+          });
+
+          logInvitationAction("accept", {
+            tenantId: inv!.tenantId,
+            email: inv!.email,
+            invitationId: inv!.id,
+            role: inv!.role,
+          });
+
+          return {
+            created: false,
+            rejoined: true,
+            alreadyMember: false,
+            userId: existingUser.id,
+            message:
+              "Tu fais de nouveau partie de l'équipe. Connecte-toi avec ton mot de passe habituel.",
+          };
+        }
+
+        // Utilisateur rattaché à un autre tenant → refus explicite
         logInvitationAction("accept", {
           tenantId: inv!.tenantId,
           email: inv!.email,
@@ -268,8 +341,10 @@ export const invitationsRouter = createTRPCRouter({
         });
       }
 
-      // Validation déjà faite par Zod, mais gardons cette vérification pour sécurité
-      if (!input.name.trim() || !input.password) {
+      // Le schéma rend `name` et `password` optionnels — ils ne servent qu'ici,
+      // sur le chemin de création. C'est donc ce chemin qui les exige.
+      const trimmedName = input.name?.trim();
+      if (!trimmedName || !input.password) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Nom et mot de passe requis pour créer le compte.",
@@ -282,7 +357,7 @@ export const invitationsRouter = createTRPCRouter({
           data: {
             tenantId: inv!.tenantId,
             email: inv!.email,
-            name: input.name.trim(),
+            name: trimmedName,
             passwordHash,
             role: inv!.role,
           },
@@ -300,9 +375,10 @@ export const invitationsRouter = createTRPCRouter({
         invitationId: inv!.id,
       });
 
-      return { 
-        created: true, 
-        alreadyMember: false, 
+      return {
+        created: true,
+        rejoined: false,
+        alreadyMember: false,
         userId: user.id,
         message: "Compte créé. La connexion se fait automatiquement.",
       };

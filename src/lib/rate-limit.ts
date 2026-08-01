@@ -130,6 +130,19 @@ async function runSharedRateLimit(
   windowMs: number,
   prefix: string,
 ): Promise<boolean> {
+  /**
+   * Inerte en test — comme `trpc-rate-limit.ts` l'est déjà.
+   *
+   * `vitest.setup.env.ts` charge le vrai `.env` : les identifiants Upstash de
+   * production s'y trouvent. Sans cette sortie, la suite de tests incrémentait
+   * de véritables compteurs distants, qui survivaient d'une exécution à l'autre
+   * — un test finissait donc par échouer non pas à cause du code, mais parce
+   * qu'une exécution précédente avait consommé le quota. Les tests qui veulent
+   * réellement éprouver le limiteur mockent ce module, comme le font déjà
+   * `invitations.test.ts` et le test du webhook Meta.
+   */
+  if (env.NODE_ENV === "test") return true;
+
   const limiter = getSharedRateLimiter(maxRequests, windowMs, prefix);
 
   if (!limiter) {
@@ -195,4 +208,80 @@ export async function checkWebhookRateLimit(
   const ip = getClientIpFromRequest(request);
   const key = `${WEBHOOK_RATE_LIMIT_KEY_PREFIX}${ip}`;
   return runSharedRateLimit(key, maxRequests, windowMs, WEBHOOK_RATE_LIMIT_KEY_PREFIX);
+}
+
+/**
+ * ── FREINS SUR LES PORTES D'ENTRÉE DU COMPTE ─────────────────────────────────
+ *
+ * La connexion et l'inscription n'en avaient aucun. `authorize()` comparait un
+ * bcrypt sans compter les échecs, sans verrouillage, sans plafond par IP : un
+ * mot de passe se testait autant de fois qu'on voulait. Et `auth.signup` est un
+ * `publicProcedure`, donc hors du limiteur tRPC — qui se clé de toute façon sur
+ * un `userId` inexistant avant l'inscription. Chaque appel créait une boutique
+ * et brûlait un `hash(password, 10)`, soit un coût CPU offert à l'inconnu.
+ *
+ * Deux clés pour la connexion, parce qu'elles arrêtent deux attaques
+ * différentes : par email, on bloque l'acharnement sur un compte précis ; par
+ * IP, on bloque le bourrage d'identifiants qui essaie un mot de passe sur mille
+ * comptes. Aucune des deux ne suffit seule.
+ *
+ * Les fenêtres sont volontairement larges (15 min) et les plafonds hauts au
+ * regard d'un usage humain : une vendeuse qui se trompe trois fois de suite ne
+ * doit jamais rencontrer ce mur. Le repli mémoire du limiteur s'applique ici
+ * comme ailleurs — dégradé vaut mieux que porte fermée.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+const AUTH_WINDOW_MS = 15 * 60 * 1000;
+const MAX_LOGIN_ATTEMPTS_PER_EMAIL = 10;
+const MAX_LOGIN_ATTEMPTS_PER_IP = 40;
+const MAX_SIGNUPS_PER_IP = 5;
+
+/** Tentative de connexion autorisée ? Vérifie le compte visé ET l'origine. */
+export async function checkLoginRateLimit(
+  email: string,
+  ip: string,
+): Promise<boolean> {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  // Les deux compteurs sont incrémentés à chaque tentative, y compris quand le
+  // premier a déjà refusé : sinon, une fois un email bloqué, l'attaquant
+  // passerait au suivant sans jamais alimenter le compteur d'IP.
+  const [emailAllowed, ipAllowed] = await Promise.all([
+    runSharedRateLimit(
+      `login:email:${normalizedEmail}`,
+      MAX_LOGIN_ATTEMPTS_PER_EMAIL,
+      AUTH_WINDOW_MS,
+      "auth:rl",
+    ),
+    runSharedRateLimit(
+      `login:ip:${ip}`,
+      MAX_LOGIN_ATTEMPTS_PER_IP,
+      AUTH_WINDOW_MS,
+      "auth:rl",
+    ),
+  ]);
+
+  return emailAllowed && ipAllowed;
+}
+
+/** Création de compte autorisée depuis cette IP ? */
+export async function checkSignupRateLimit(ip: string): Promise<boolean> {
+  return runSharedRateLimit(
+    `signup:ip:${ip}`,
+    MAX_SIGNUPS_PER_IP,
+    AUTH_WINDOW_MS,
+    "auth:rl",
+  );
+}
+
+/** Extrait l'IP client depuis un jeu d'en-têtes déjà lu (contexte tRPC). */
+export function getClientIpFromHeaders(headers: Headers): string {
+  const forwarded = headers.get("x-forwarded-for");
+  if (forwarded) {
+    const first = forwarded.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  const realIp = headers.get("x-real-ip");
+  if (realIp) return realIp;
+  return "unknown";
 }

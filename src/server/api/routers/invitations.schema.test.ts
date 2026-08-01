@@ -64,20 +64,42 @@ describe("invitations schemas", () => {
       expect(acceptInvitationInputSchema.parse(valid)).toEqual(valid);
     });
 
-    it("rejects missing name", () => {
-      expect(() =>
-        acceptInvitationInputSchema.parse({
-          token: "abc123",
-          password: "password123",
-        }),
-      ).toThrow();
+    /**
+     * `name` et `password` ne sont plus exigés par le schéma, et ces deux cas
+     * décrivent désormais pourquoi.
+     *
+     * Ils ne servent qu'à **créer** un compte. Quand l'invitation vise une
+     * adresse qui en possède déjà un — une personne retirée de l'équipe puis
+     * réinvitée — il n'y a rien à créer : le compte est rattaché à la boutique
+     * sans que son mot de passe soit touché. Les exiger ici obligerait l'écran
+     * à réclamer un mot de passe pour un compte existant, donc soit à l'ignorer
+     * en silence, soit à laisser l'émetteur de l'invitation le redéfinir.
+     *
+     * L'exigence n'a pas disparu, elle s'est déplacée là où elle a un sens :
+     * `acceptInvitation` la fait respecter sur le seul chemin de création
+     * (cf. `invitations.test.ts`).
+     */
+    it("accepts a token alone — le rattachement d'un compte existant n'en demande pas plus", () => {
+      expect(
+        acceptInvitationInputSchema.parse({ token: "abc123" }),
+      ).toEqual({ token: "abc123" });
     });
 
-    it("rejects missing password", () => {
-      expect(() =>
+    it("accepts a name without password", () => {
+      expect(
         acceptInvitationInputSchema.parse({
           token: "abc123",
           name: "Jean Dupont",
+        }),
+      ).toEqual({ token: "abc123", name: "Jean Dupont" });
+    });
+
+    it("rejects an empty name when one is provided", () => {
+      expect(() =>
+        acceptInvitationInputSchema.parse({
+          token: "abc123",
+          name: "",
+          password: "password123",
         }),
       ).toThrow();
     });

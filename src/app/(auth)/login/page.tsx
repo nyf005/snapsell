@@ -329,8 +329,30 @@ function SignupTabContent() {
   );
 }
 
+/**
+ * Messages portés par l'URL au retour d'un autre écran.
+ *
+ * Plusieurs chemins redirigeaient déjà vers `/login?message=…` — acceptation
+ * d'invitation, compte déjà membre, connexion automatique échouée — mais rien
+ * ne lisait le paramètre : la personne arrivait sur un formulaire nu, sans
+ * savoir ce qui venait de se passer ni pourquoi on lui redemandait de se
+ * connecter. Les libellés sont ici, à l'endroit qui les affiche.
+ */
+const LOGIN_NOTICES: Record<string, string> = {
+  rejoined_team:
+    "Vous faites de nouveau partie de l’équipe. Connectez-vous avec votre mot de passe habituel.",
+  account_created: "Votre compte est créé. Connectez-vous pour continuer.",
+  already_member:
+    "Vous êtes déjà membre de cette équipe. Connectez-vous pour accéder au tableau de bord.",
+  signin_failed:
+    "La connexion automatique n’a pas abouti. Saisissez vos identifiants ci-dessous.",
+  password_changed:
+    "Mot de passe modifié. Connectez-vous avec votre nouveau mot de passe.",
+};
+
 function LoginPageContent() {
   const searchParams = useSearchParams();
+  const notice = LOGIN_NOTICES[searchParams.get("message") ?? ""];
 
   const tabFromUrl = searchParams.get("tab");
   const initialTab: Tab = useMemo(
@@ -353,6 +375,14 @@ function LoginPageContent() {
 
   return (
     <div className="max-w-[480px] w-full flex flex-col gap-3">
+      {notice && (
+        <p
+          className="animate-entrance animate-fade-up rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-foreground"
+          role="status"
+        >
+          {notice}
+        </p>
+      )}
       {/*
         Masqué sur les écrans courts pour que l'inscription — quatre champs —
         tienne sans défilement : la bascule d'onglets juste en dessous porte

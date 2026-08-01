@@ -199,13 +199,21 @@ const enforceTenant = t.middleware(({ ctx, next }) => {
 });
 
 /**
- * Rate limiting middleware — 20 mutations/min par userId via Upstash Redis.
+ * Rate limiting middleware — compteurs séparés par userId via Upstash Redis.
  * Désactivé silencieusement si UPSTASH_REDIS_REST_URL n'est pas configuré.
+ *
+ * Le `type` de l'appel choisit le compteur. C'est le cœur du correctif : le
+ * plafond unique de 20/min s'appliquait aussi aux lectures, et le sondage de
+ * l'écran du live (toutes les 5 s) le franchissait à lui seul. Voir
+ * `trpc-rate-limit.ts` pour le détail des seuils.
  */
-const rateLimitMiddleware = t.middleware(async ({ ctx, next }) => {
+const rateLimitMiddleware = t.middleware(async ({ ctx, next, type }) => {
   const userId = ctx.session?.user?.id;
+  // `subscription` n'existe pas dans cette application ; le traiter comme une
+  // lecture est le repli le moins susceptible de bloquer un flux légitime.
+  const kind = type === "mutation" ? "mutation" : "query";
   if (userId) {
-    const allowed = await checkTrpcRateLimit(userId);
+    const allowed = await checkTrpcRateLimit(userId, kind);
     if (!allowed) {
       throw new TRPCError({
         code: "TOO_MANY_REQUESTS",
@@ -224,6 +232,23 @@ export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(enforceSession)
   .use(enforceTenant)
+  .use(rateLimitMiddleware);
+
+/**
+ * Procédure authentifiée **sans** exigence de tenant.
+ *
+ * Pour ce qui relève du compte de la personne et non de sa boutique — changer
+ * son mot de passe, par exemple. `protectedProcedure` ne convient pas : il
+ * impose un `tenantId`, ce qui exclurait les utilisateurs OPS, qui n'en ont
+ * pas, et une personne retirée d'une équipe, qui n'en a plus.
+ *
+ * À n'employer que lorsque la donnée touchée n'appartient à aucune boutique.
+ * Pour tout le reste, `protectedProcedure` reste la porte d'entrée : c'est lui
+ * qui garantit l'isolation.
+ */
+export const authedProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(enforceSession)
   .use(rateLimitMiddleware);
 
 /**

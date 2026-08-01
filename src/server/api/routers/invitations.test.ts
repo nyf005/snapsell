@@ -726,5 +726,119 @@ describe("invitations router", () => {
         message: expect.stringContaining("autre tenant"),
       });
     });
+
+    /**
+     * ── RÉINTÉGRER QUELQU'UN QU'ON A RETIRÉ ────────────────────────────────
+     *
+     * `team.removeMember` conserve le compte et met seulement `tenantId` à
+     * `null`. Toute réinvitation tombait alors sur le refus « autre tenant »
+     * ci-dessus — alors que la personne n'appartenait justement à aucun. Un
+     * retrait par erreur était sans retour hors intervention en base.
+     */
+    describe("compte orphelin (personne retirée puis réinvitée)", () => {
+      const orphanInvitation = {
+        id: "inv-1",
+        tenantId: "tenant-1",
+        email: "agent@example.com",
+        role: "MANAGER",
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        consumedAt: null,
+      };
+
+      const orphanUser = {
+        id: "user-orphan",
+        tenantId: null,
+        email: "agent@example.com",
+      };
+
+      function mockRejoinTransaction() {
+        const userUpdate = vi.fn().mockResolvedValue(orphanUser);
+        const invitationUpdate = vi.fn().mockResolvedValue(orphanInvitation);
+        mockTransaction.mockImplementation(
+          async (fn: (tx: unknown) => Promise<unknown>) =>
+            fn({
+              user: { update: userUpdate },
+              invitation: { update: invitationUpdate },
+            }),
+        );
+        return { userUpdate, invitationUpdate };
+      }
+
+      it("rattache le compte à la boutique qui invite", async () => {
+        mockInvitationFindFirst.mockResolvedValue(orphanInvitation);
+        mockUserFindUnique.mockResolvedValue(orphanUser);
+        const { userUpdate, invitationUpdate } = mockRejoinTransaction();
+
+        const ctx = await createTRPCContext({
+          headers: new Headers(),
+          session: null,
+        });
+        const caller = createCaller(ctx);
+
+        const result = await caller.invitations.acceptInvitation({
+          token: "valid-token",
+        });
+
+        expect(result).toMatchObject({
+          created: false,
+          rejoined: true,
+          alreadyMember: false,
+          userId: "user-orphan",
+        });
+
+        expect(userUpdate).toHaveBeenCalledWith({
+          where: { id: "user-orphan" },
+          data: {
+            tenantId: "tenant-1",
+            role: "MANAGER",
+            tokenVersion: { increment: 1 },
+          },
+        });
+        expect(invitationUpdate).toHaveBeenCalled();
+      });
+
+      /**
+       * L'invariant qui rend l'opération sûre. Sans lui, quiconque peut émettre
+       * une invitation vers l'adresse d'un compte orphelin pourrait en
+       * redéfinir le mot de passe et s'en emparer.
+       */
+      it("ne touche jamais au mot de passe, même si un mot de passe est fourni", async () => {
+        mockInvitationFindFirst.mockResolvedValue(orphanInvitation);
+        mockUserFindUnique.mockResolvedValue(orphanUser);
+        const { userUpdate } = mockRejoinTransaction();
+
+        const ctx = await createTRPCContext({
+          headers: new Headers(),
+          session: null,
+        });
+        const caller = createCaller(ctx);
+
+        await caller.invitations.acceptInvitation({
+          token: "valid-token",
+          name: "Usurpateur",
+          password: "mot-de-passe-choisi-par-un-tiers",
+        });
+
+        expect(mockHash).not.toHaveBeenCalled();
+        expect(userUpdate.mock.calls[0]?.[0]?.data).not.toHaveProperty(
+          "passwordHash",
+        );
+      });
+
+      it("exige toujours nom et mot de passe quand il faut créer le compte", async () => {
+        mockInvitationFindFirst.mockResolvedValue(orphanInvitation);
+        mockUserFindUnique.mockResolvedValue(null);
+
+        const ctx = await createTRPCContext({
+          headers: new Headers(),
+          session: null,
+        });
+        const caller = createCaller(ctx);
+
+        await expect(
+          caller.invitations.acceptInvitation({ token: "valid-token" }),
+        ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+      });
+    });
   });
 });

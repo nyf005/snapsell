@@ -8,6 +8,7 @@ import { HelpCircle, Home } from "lucide-react";
 
 import { SnapSellLogo } from "~/components/auth/snapsel-logo";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
+import { ChangePasswordDialog } from "./change-password-dialog";
 import { SignOutButton } from "./sign-out-button";
 import { NAV_ITEMS, NAV_SECTIONS } from "~/lib/navigation";
 import { CreditsAlert } from "./credits-alert";
@@ -288,6 +289,12 @@ export function AppSidebar({
                 </p>
               </div>
               <CreditsAlert canManageSubscription={canManageGrid} />
+              {/*
+                Le mot de passe se change ici et non dans `/parametres` : cet
+                écran est réservé aux Propriétaires et Managers, alors qu'un
+                Agent a les mêmes raisons d'en changer.
+              */}
+              <ChangePasswordDialog />
               <SignOutButton className="shrink-0 text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
             </div>
           </SidebarMenuItem>

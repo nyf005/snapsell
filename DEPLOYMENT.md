@@ -572,7 +572,10 @@ Dashboard Neon → SQL Editor → exécuter :
 INSERT INTO users (id, email, password_hash, name, role, tenant_id, created_at, updated_at)
 VALUES (
   gen_random_uuid(),
-  'ops@snapsell.com',
+  -- `lower()` n'est pas décoratif : l'index `users_email_lower_key` rejette une
+  -- adresse qui n'est pas en minuscules, et l'application ne cherche les comptes
+  -- que sous cette forme. Une majuscule ici créerait un compte impossible à utiliser.
+  lower('ops@snapsell.com'),
   '$2b$10$HASH_GENERE_CI_DESSUS',
   'Ops SnapSell',
   'OPS',

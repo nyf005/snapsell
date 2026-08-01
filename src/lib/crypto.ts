@@ -14,6 +14,15 @@ import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 const ALGORITHM = "aes-256-gcm";
 const PREFIX = "enc:";
 
+/**
+ * Une seule alerte par processus.
+ *
+ * `decrypt()` est appelée sur le chemin chaud de chaque envoi WhatsApp :
+ * signaler à chaque appel noierait les journaux d'un tenant legacy. Une fois
+ * suffit à faire exister le fait — c'est tout ce qui manquait.
+ */
+let plaintextWarningEmitted = false;
+
 function getKey(): Buffer | null {
   const keyHex = process.env.ENCRYPTION_KEY;
   if (!keyHex || keyHex.length !== 64) return null;
@@ -53,7 +62,23 @@ export function encrypt(plaintext: string): string {
  */
 export function decrypt(encrypted: string): string {
   if (!encrypted.startsWith(PREFIX)) {
-    // Valeur non chiffrée (legacy ou dev sans clé) — retourner telle quelle
+    /**
+     * Valeur non chiffrée (legacy ou dev sans clé) — retournée telle quelle.
+     *
+     * Ce repli reste nécessaire : le refuser couperait WhatsApp pour toute
+     * boutique dont le jeton date d'avant le chiffrement. Mais il était
+     * totalement silencieux, donc une ligne en clair pouvait le rester
+     * indéfiniment sans que personne ne l'apprenne. En production, on le dit —
+     * une fois — pour que la migration de ces lignes devienne une décision
+     * plutôt qu'un oubli.
+     */
+    if (process.env.NODE_ENV === "production" && !plaintextWarningEmitted) {
+      plaintextWarningEmitted = true;
+      console.warn(
+        "[SECURITY] Un secret est stocké en clair en base (absence du préfixe 'enc:'). " +
+          "Ces lignes doivent être rechiffrées ; le repli les accepte pour ne pas interrompre le service.",
+      );
+    }
     return encrypted;
   }
   const key = getKey();

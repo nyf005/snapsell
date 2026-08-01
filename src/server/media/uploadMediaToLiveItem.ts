@@ -9,6 +9,11 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { isR2Configured, createR2Client, getR2BucketName } from "~/server/media/r2-client";
+import {
+  MAX_MEDIA_BYTES,
+  canonicalImageContentType,
+  isAllowedImageContentType,
+} from "~/server/media/image-content-type";
 import { getProviderForTenant } from "~/server/messaging/service";
 
 /**
@@ -69,7 +74,37 @@ export async function uploadMediaAndLinkToLiveItem(
       throw new Error(`Failed to fetch media: ${response.status} ${response.statusText}`);
     }
     const buffer = Buffer.from(await response.arrayBuffer());
-    const contentType = response.headers.get("content-type") ?? "application/octet-stream";
+    const rawContentType = response.headers.get("content-type") ?? "application/octet-stream";
+
+    /**
+     * Le type et la taille se vérifient ici, comme du côté catalogue.
+     *
+     * Cette fonction ne le faisait pas : elle recopiait dans R2 le `content-type`
+     * annoncé par Meta, quel qu'il soit. Comme `/api/media` sert ce préfixe sans
+     * authentification en réémettant le type stocké, un document HTML envoyé
+     * pendant un live devenait du script exécutable sur l'origine de
+     * l'application. On sort sans erreur : un média non conforme n'est pas un
+     * incident, l'article existe et reste vendable sans photo.
+     */
+    if (!isAllowedImageContentType(rawContentType)) {
+      workerLogger.warn("Unsupported content-type for live item media, skipping upload", {
+        correlationId,
+        liveItemId,
+        contentType: rawContentType,
+      });
+      return;
+    }
+    const contentType = canonicalImageContentType(rawContentType);
+
+    if (buffer.length > MAX_MEDIA_BYTES) {
+      workerLogger.warn("Media too large for live item upload, skipping", {
+        correlationId,
+        liveItemId,
+        size: buffer.length,
+        maxSize: MAX_MEDIA_BYTES,
+      });
+      return;
+    }
 
     const key = `tenants/${tenantId}/live-items/${liveItemId}/media`;
     const client = createR2Client();

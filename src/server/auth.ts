@@ -3,8 +3,12 @@ import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcrypt";
 
 import { loginInputSchema } from "~/lib/validations/login";
+import { checkLoginRateLimit, getClientIpFromHeaders } from "~/lib/rate-limit";
+import { createLogger } from "~/lib/logger";
 import { db } from "~/server/db";
 import type { Role } from "../../generated/prisma";
+
+const authLogger = createLogger("Auth");
 
 declare module "next-auth" {
   interface Session {
@@ -19,20 +23,35 @@ declare module "next-auth" {
   }
 }
 
-// En production (HTTPS), le cookie doit être sameSite: "none" pour être envoyé
-// quand l'utilisateur revient d'une redirection externe (ex. Paystack).
+/**
+ * ── `lax` SUFFIT AU RETOUR PAYSTACK, `none` NE SE JUSTIFIAIT PAS ─────────────
+ *
+ * Le cookie était posé en `sameSite: "none"` en production, au motif qu'il
+ * fallait le transmettre au retour d'une redirection externe. Le motif est réel
+ * mais la valeur est trop large : `none` envoie le cookie de session sur
+ * **toute** requête inter-site, y compris celles qu'une page tierce déclenche à
+ * l'insu de l'utilisatrice.
+ *
+ * Or ce retour est une navigation de premier niveau en GET — exactement ce que
+ * `lax` laisse passer par définition. Le comportement Paystack est donc
+ * inchangé, et la surface CSRF se referme.
+ *
+ * `secure` reste conditionné à HTTPS : en développement sur http://localhost,
+ * un cookie `secure` ne serait jamais posé et la connexion échouerait.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
-const useSecureCrossSiteCookie =
+const useSecureCookie =
   process.env.NODE_ENV === "production" && appUrl.startsWith("https://");
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt", maxAge: 7 * 24 * 60 * 60 },
   pages: { signIn: "/login" },
-  cookies: useSecureCrossSiteCookie
+  cookies: useSecureCookie
     ? {
         sessionToken: {
           options: {
-            sameSite: "none",
+            sameSite: "lax",
             secure: true,
           },
         },
@@ -46,13 +65,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Mot de passe", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const parsed = loginInputSchema.safeParse({
           email: credentials?.email,
           password: credentials?.password,
         });
         if (!parsed.success) return null;
         const { email, password } = parsed.data;
+
+        /**
+         * Le frein passe **avant** le `compare()` bcrypt, à dessein : c'est lui
+         * qui coûte, et le laisser derrière reviendrait à offrir le calcul à
+         * chaque tentative refusée.
+         *
+         * En cas de dépassement on renvoie `null`, comme pour un mot de passe
+         * faux. Distinguer les deux dirait à l'attaquant que le compte existe et
+         * qu'il a touché juste ; la vendeuse, elle, voit le même message et
+         * réessaie plus tard. Le journal, lui, garde la trace.
+         */
+        const ip = getClientIpFromHeaders(
+          request?.headers ?? new Headers(),
+        );
+        if (!(await checkLoginRateLimit(email, ip))) {
+          authLogger.warn("Tentatives de connexion trop nombreuses", { ip });
+          return null;
+        }
+
         const user = await db.user.findUnique({
           where: { email },
         });

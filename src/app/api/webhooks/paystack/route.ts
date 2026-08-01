@@ -204,6 +204,43 @@ async function handleChargeSuccess(data: PaystackWebhookData) {
   // Update tenant subscription
   if (planId && (planId === "starter" || planId === "pro")) {
     const planConfig = getPlanConfig(planId);
+
+    /**
+     * ── LE PLAN ACCORDÉ DOIT CORRESPONDRE AU MONTANT ENCAISSÉ ────────────────
+     *
+     * Les droits du plan étaient octroyés sur la seule foi de `metadata.plan`,
+     * sans jamais confronter `data.amount` au prix. La signature HMAC protège
+     * l'entrée, et `metadata` est bien posée par notre code à l'initialisation —
+     * mais accorder un plan payant est l'écriture la plus sensible de
+     * l'application, et rien ne vérifiait que l'argent correspondait.
+     *
+     * Un écart signifie que le plan et le paiement ont divergé quelque part :
+     * changement de tarif dans le tableau de bord Paystack, réconciliation qui a
+     * rapproché la mauvaise ligne en attente, montant partiel. On enregistre
+     * alors le paiement — il a bien eu lieu, la ligne doit exister — mais on
+     * n'élève pas le compte, et la trace part dans les journaux pour arbitrage
+     * humain.
+     *
+     * On tolère un montant *supérieur* : proratisation, frais ou arrondi de
+     * Paystack ne doivent pas priver une cliente de ce qu'elle a payé.
+     * ────────────────────────────────────────────────────────────────────────
+     */
+    const expectedSubunits = Math.round(planConfig.price * 100);
+    if (amount < expectedSubunits) {
+      workerLogger.error(
+        "Paystack charge.success : montant inférieur au prix du plan — droits non accordés",
+        new Error("paystack_amount_mismatch"),
+        {
+          reference,
+          tenantId,
+          plan: planId,
+          receivedSubunits: amount,
+          expectedSubunits,
+        },
+      );
+      return;
+    }
+
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // +30 days
 

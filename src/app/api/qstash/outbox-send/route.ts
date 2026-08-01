@@ -12,24 +12,18 @@ import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { processOutboundMessage } from "~/server/workers/outbox-sender";
 import { workerLogger } from "~/lib/logger";
-import { createQStashReceiver, hasQStashSigningKeys, isQStashMisconfiguredForHttpRoute } from "~/server/qstash/config";
+import { createQStashReceiver, isQStashMisconfiguredForHttpRoute } from "~/server/qstash/config";
 
-function isProduction(): boolean {
-  return process.env.NODE_ENV === "production";
-}
-
+/**
+ * `null` signifie « pas de vérification » et n'est atteignable qu'en dehors de
+ * la production : `isQStashMisconfiguredForHttpRoute()` y verrouille désormais
+ * la route dès que les clés manquent, quel que soit `QSTASH_TOKEN`.
+ */
 function getReceiver(): Receiver | "misconfigured" | null {
   if (isQStashMisconfiguredForHttpRoute()) {
     return "misconfigured";
   }
-  const receiver = createQStashReceiver();
-  if (!receiver && isProduction() && hasQStashSigningKeys()) {
-    return "misconfigured";
-  }
-  if (!receiver) {
-    return null;
-  }
-  return receiver;
+  return createQStashReceiver();
 }
 
 export async function POST(request: Request) {

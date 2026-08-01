@@ -9,6 +9,11 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { isR2Configured, createR2Client, getR2BucketName } from "~/server/media/r2-client";
+import {
+  MAX_MEDIA_BYTES,
+  canonicalImageContentType,
+  isAllowedImageContentType,
+} from "~/server/media/image-content-type";
 import { getProviderForTenant } from "~/server/messaging/service";
 
 /**
@@ -70,34 +75,27 @@ export async function uploadMediaToCatalogueItem(
     }
 
     const buffer = Buffer.from(await response.arrayBuffer());
-    const contentType = response.headers.get("content-type") ?? "application/octet-stream";
+    const rawContentType = response.headers.get("content-type") ?? "application/octet-stream";
 
-    // L2: Valider content-type (accepter uniquement images)
-    const ALLOWED_CONTENT_TYPES = [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/gif",
-      "image/heic",
-      "image/heif",
-    ];
-    if (!ALLOWED_CONTENT_TYPES.some((t) => contentType.startsWith(t))) {
+    // L2: Valider content-type (accepter uniquement images) — règle partagée
+    // avec l'upload live et avec ce que `/api/media` accepte de resservir.
+    if (!isAllowedImageContentType(rawContentType)) {
       workerLogger.warn("Unsupported content-type for catalogue media, skipping upload", {
         correlationId,
         catalogueItemId,
-        contentType,
+        contentType: rawContentType,
       });
       return;
     }
+    const contentType = canonicalImageContentType(rawContentType);
 
     // L3: Limiter la taille du buffer (10 Mo max)
-    const MAX_BUFFER_SIZE = 10 * 1024 * 1024;
-    if (buffer.length > MAX_BUFFER_SIZE) {
+    if (buffer.length > MAX_MEDIA_BYTES) {
       workerLogger.warn("Media too large for catalogue upload, skipping", {
         correlationId,
         catalogueItemId,
         size: buffer.length,
-        maxSize: MAX_BUFFER_SIZE,
+        maxSize: MAX_MEDIA_BYTES,
       });
       return;
     }
