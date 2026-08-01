@@ -24,9 +24,9 @@ const isProd = process.env.NODE_ENV === "production";
  * La vraie défense contre le média piégé n'est pas ici mais sur la réponse
  * elle-même — cf. la CSP `sandbox` de `/api/media`.
  *
- * `connect.facebook.net` et `www.facebook.com` sont requis par l'inscription
- * WhatsApp intégrée (`meta-embedded-signup-sdk.ts` : script + iframe + popup).
- * Les retirer casse la connexion d'un compte Meta.
+ * Les domaines Meta autorisés plus bas ne sont pas décoratifs : l'inscription
+ * WhatsApp intégrée cesse de fonctionner sans eux, et elle échoue en silence.
+ * Voir la note sur `connect-src` / `frame-src`.
  * ────────────────────────────────────────────────────────────────────────────
  */
 const csp = [
@@ -38,9 +38,31 @@ const csp = [
   // `data:` et `blob:` : aperçus d'image avant envoi. `https:` : médias R2 servis via le proxy.
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://graph.facebook.com https://connect.facebook.net",
-  // Le SDK Meta ouvre son parcours d'inscription dans une iframe facebook.com.
-  "frame-src 'self' https://www.facebook.com https://connect.facebook.net",
+  /**
+   * ── LE SDK FACEBOOK TOUCHE PLUS DE DOMAINES QUE `graph` ET `connect` ───────
+   *
+   * Cette liste ne contenait que `graph.facebook.com` et `connect.facebook.net`.
+   * C'était trop étroit, et l'effet n'avait rien d'évident : le bouton
+   * « Reconnecter » partait en chargement et n'en revenait jamais.
+   *
+   * Le SDK ne se contente pas d'ouvrir une popup. Il installe une iframe cachée
+   * dite « XD Arbiter », servie depuis `staticxx.facebook.com`, qui est le canal
+   * par lequel la popup renvoie son résultat à la page. Iframe bloquée par
+   * `frame-src`, donc pas de canal, donc le callback de `FB.login()` n'est
+   * jamais appelé — et la promesse qui l'attend ne se résout pas. Le bouton
+   * restait désactivé indéfiniment, sans erreur ni trace visible.
+   * Il interroge aussi `www.facebook.com` en XHR pour l'état de session, ce que
+   * `connect-src` refusait.
+   *
+   * D'où le joker sur les sous-domaines : `staticxx` n'est pas documenté par
+   * Meta comme faisant partie du contrat, et énumérer à la main ce qu'on ne
+   * maîtrise pas nous ramènerait ici au prochain changement de leur
+   * infrastructure. Le domaine reste celui de Meta, et le joker ne couvre pas
+   * `facebook.com` nu — d'où sa présence explicite.
+   * ──────────────────────────────────────────────────────────────────────────
+   */
+  "connect-src 'self' https://facebook.com https://*.facebook.com https://connect.facebook.net",
+  "frame-src 'self' https://facebook.com https://*.facebook.com https://connect.facebook.net",
   "object-src 'none'",
   "base-uri 'self'",
   // Les redirections de paiement sont des navigations, pas des soumissions de

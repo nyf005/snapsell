@@ -3,6 +3,11 @@ const META_SDK_SRC = "https://connect.facebook.net/en_US/sdk.js";
 const META_GRAPH_VERSION = "v21.0";
 const META_SDK_LOAD_TIMEOUT_MS = 10000;
 const META_EMBEDDED_SIGNUP_MESSAGE_WAIT_MS = 250;
+/**
+ * Au-delà, on considère que Meta ne répondra pas. Large à dessein : créer un
+ * compte WhatsApp Business et vérifier un numéro prend plusieurs minutes.
+ */
+const META_EMBEDDED_SIGNUP_ABANDON_MS = 10 * 60 * 1000;
 
 type Dict = Record<string, unknown>;
 
@@ -63,10 +68,25 @@ function initMetaSdk(appId: string): MetaSDK {
   return sdk;
 }
 
+/**
+ * Toujours une balise neuve, jamais celle d'une tentative précédente.
+ *
+ * Cette fonction renvoyait la balise existante si elle en trouvait une. Or on
+ * n'arrive ici que lorsqu'il n'y a ni `window.FB` ni chargement en cours —
+ * c'est-à-dire après un échec. Réutiliser cette balise-là condamnait la
+ * nouvelle tentative : ses événements `load` et `error` ont déjà été émis et ne
+ * le seront pas une seconde fois, donc plus rien ne se déclenchait et l'attente
+ * courait jusqu'au délai d'expiration. Chaque essai suivant échouait de la même
+ * façon, définitivement.
+ *
+ * Le défaut existait avant le préchargement, mais celui-ci le rend bien plus
+ * atteignable : il y a désormais deux tentatives (montage puis clic) là où il
+ * n'y en avait qu'une.
+ */
 function attachScript(): HTMLScriptElement {
-  const existing = document.getElementById(META_SDK_SCRIPT_ID);
-  if (existing instanceof HTMLScriptElement) {
-    return existing;
+  const stale = document.getElementById(META_SDK_SCRIPT_ID);
+  if (stale) {
+    stale.remove();
   }
 
   const script = document.createElement("script");
@@ -155,11 +175,15 @@ export async function startMetaEmbeddedSignup(
     let embeddedSignupEvent: MetaEmbeddedSignupEvent | undefined;
     let resolved = false;
     let finalizeTimer: number | undefined;
+    let abandonTimer: number | undefined;
 
     const cleanup = () => {
       window.removeEventListener("message", handleMessage);
       if (finalizeTimer != null) {
         window.clearTimeout(finalizeTimer);
+      }
+      if (abandonTimer != null) {
+        window.clearTimeout(abandonTimer);
       }
     };
 
@@ -187,6 +211,31 @@ export async function startMetaEmbeddedSignup(
     };
 
     window.addEventListener("message", handleMessage);
+
+    /**
+     * Filet : cette promesse ne doit jamais rester en suspens.
+     *
+     * En marche normale, Meta rappelle toujours — y compris quand la personne
+     * ferme la popup, auquel cas le SDK renvoie `status: "unknown"`. Mais si le
+     * SDK est empêché de communiquer avec sa popup, aucun rappel n'arrive : la
+     * promesse ne se résout pas, et l'écran laisse un bouton désactivé sans
+     * message ni recours, jusqu'au rechargement de la page. C'est exactement ce
+     * qui s'est produit quand la CSP bloquait l'iframe de communication du SDK.
+     *
+     * Le délai est volontairement large : l'inscription Meta demande de créer un
+     * compte WhatsApp Business et de vérifier un numéro, ce qui prend plusieurs
+     * minutes. Ce n'est pas un mécanisme, c'est une porte de sortie.
+     */
+    abandonTimer = window.setTimeout(() => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      reject(
+        new Error(
+          "Meta n'a pas répondu. Ferme la fenêtre WhatsApp si elle est encore ouverte, puis réessaie.",
+        ),
+      );
+    }, META_EMBEDDED_SIGNUP_ABANDON_MS);
 
     try {
       sdk.login(
