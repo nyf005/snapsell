@@ -75,6 +75,8 @@ const sectionOrder = NAV_SECTIONS;
 
 type AppSidebarProps = {
   userName: string;
+  /** Adresse du compte — sert au changement de mot de passe. */
+  userEmail: string;
   tenantName: string;
   canManageGrid: boolean;
   showBranding: boolean;
@@ -82,6 +84,7 @@ type AppSidebarProps = {
 
 export function AppSidebar({
   userName,
+  userEmail,
   tenantName,
   canManageGrid,
   showBranding,
@@ -294,7 +297,7 @@ export function AppSidebar({
                 écran est réservé aux Propriétaires et Managers, alors qu'un
                 Agent a les mêmes raisons d'en changer.
               */}
-              <ChangePasswordDialog />
+              <ChangePasswordDialog email={userEmail} />
               <SignOutButton className="shrink-0 text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
             </div>
           </SidebarMenuItem>

@@ -65,6 +65,10 @@ export default async function DashboardLayout({
         </a>
         <AppSidebar
           userName={session.user.name ?? session.user.email ?? ""}
+          // Distinct de `userName`, qui peut être un prénom : le changement de
+          // mot de passe doit nommer le compte concerné, et les gestionnaires
+          // de mots de passe ont besoin de l'identifiant réel.
+          userEmail={session.user.email ?? ""}
           tenantName={tenant.name}
           canManageGrid={canManageGridRole}
           showBranding={tenant.showBranding}

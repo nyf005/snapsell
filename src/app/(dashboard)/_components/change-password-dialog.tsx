@@ -35,7 +35,7 @@ import { formatErrorText } from "~/lib/copy";
 import { changePasswordInputSchema } from "~/lib/validations/signup";
 import { api } from "~/trpc/react";
 
-export function ChangePasswordDialog() {
+export function ChangePasswordDialog({ email }: { email: string }) {
   const [open, setOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -127,6 +127,34 @@ export function ChangePasswordDialog() {
                 {error}
               </p>
             )}
+
+            {/*
+              ── UN FORMULAIRE DE MOT DE PASSE NOMME LE COMPTE ─────────────────
+              Chrome signalait « Password forms should have (optionally hidden)
+              username fields ». La remarque est juste : sans identifiant, un
+              gestionnaire de mots de passe enregistre un secret orphelin, qu'il
+              ne saura pas reproposer à la bonne connexion.
+
+              Le champ est **visible** plutôt que caché, parce qu'il porte aussi
+              une information utile : savoir quel compte on est en train de
+              modifier. L'écran d'acceptation d'invitation emploie déjà ce motif.
+
+              `readOnly` et non `disabled` : un champ désactivé n'est pas soumis
+              et reste invisible aux gestionnaires de mots de passe, ce qui
+              annulerait tout l'intérêt.
+            */}
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="account-email">Compte</Label>
+              <Input
+                id="account-email"
+                type="email"
+                autoComplete="username"
+                value={email}
+                readOnly
+                tabIndex={-1}
+                className="bg-muted/50"
+              />
+            </div>
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="current-password">Mot de passe actuel</Label>
