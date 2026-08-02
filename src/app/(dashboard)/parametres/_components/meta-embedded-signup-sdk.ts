@@ -200,6 +200,39 @@ export async function loadMetaEmbeddedSignupSdk(appId: string): Promise<MetaSDK>
  * préalable suffit donc — ne pas insérer d'attente avant elle.
  * ────────────────────────────────────────────────────────────────────────────
  */
+/**
+ * ── QUAND DEMANDER UNE FENÊTRE PLUTÔT QU'UNE PAGE ENTIÈRE ──────────────────
+ *
+ * Laissé à lui-même, le SDK choisit `display=touch` dès qu'il croit voir un
+ * appareil tactile — et bascule alors en pleine page, faisant quitter SnapSell.
+ * Beaucoup d'ordinateurs portables ont un écran tactile et se font classer
+ * ainsi, alors qu'une fenêtre par-dessus y est très préférable : la vendeuse
+ * garde son tableau de bord sous les yeux et y revient sans navigation.
+ *
+ * On ne force donc la fenêtre que là où elle a du sens : un pointeur fin
+ * (souris ou pavé tactile) **et** une largeur d'écran suffisante. Sur un
+ * téléphone — pointeur grossier, écran étroit — on laisse Meta faire, et sa
+ * pleine page est le bon choix : une popup y serait à l'étroit et
+ * difficilement refermable.
+ *
+ * En cas de doute — `matchMedia` absent, contexte non navigateur — on ne force
+ * rien. Le comportement par défaut de Meta fonctionne ; c'est le repli sûr.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+function prefersPopupDisplay(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+  try {
+    return (
+      window.matchMedia("(pointer: fine)").matches &&
+      window.matchMedia("(min-width: 768px)").matches
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function startMetaEmbeddedSignup(
   sdk: MetaSDK,
   configId: string,
@@ -285,6 +318,10 @@ export async function startMetaEmbeddedSignup(
         {
           config_id: cleanConfigId,
           response_type: "code",
+          // Sur souris et grand écran seulement — cf. `prefersPopupDisplay`.
+          // Omis ailleurs pour laisser Meta choisir, ce qui donne la pleine page
+          // sur mobile, où c'est le bon comportement.
+          ...(prefersPopupDisplay() ? { display: "popup" } : {}),
           override_default_response_type: true,
           /**
            * ── CES CLÉS SUIVENT LE CONTRAT DE META, PAS UNE APPROXIMATION ─────

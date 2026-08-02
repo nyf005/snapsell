@@ -31,6 +31,63 @@ function setWindowFB(value: unknown) {
  * fenêtre — et les sondes posées sur `window.FB` observaient un objet différent
  * de celui que l'application appelait réellement.
  */
+/**
+ * ── LA FENÊTRE N'EST DEMANDÉE QUE LÀ OÙ ELLE A DU SENS ─────────────────────
+ *
+ * Laissé à lui-même, le SDK bascule en `display=touch` — donc en pleine page —
+ * dès qu'il croit voir un appareil tactile. Beaucoup d'ordinateurs portables
+ * ont un écran tactile et se font classer ainsi, alors que la vendeuse y gagne
+ * à garder son tableau de bord sous les yeux.
+ *
+ * L'inverse compte tout autant : sur téléphone, la pleine page de Meta est le
+ * bon comportement, et forcer une fenêtre y serait une régression.
+ */
+describe("SDK Meta — choix de la fenêtre", () => {
+  function stubPointerAndWidth(pointerFine: boolean, wide: boolean) {
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: query.includes("pointer: fine") ? pointerFine : wide,
+      media: query,
+    }));
+  }
+
+  async function displayParamFor(pointerFine: boolean, wide: boolean) {
+    stubPointerAndWidth(pointerFine, wide);
+    const login = vi.fn(
+      (cb: (r: { code: string }) => void, _p: Record<string, unknown>) => {
+        cb({ code: "c" });
+      },
+    );
+    await startMetaEmbeddedSignup({ init: vi.fn(), login }, "config-id");
+    return (login.mock.calls[0]?.[1] as Record<string, unknown> | undefined)
+      ?.display;
+  }
+
+  it("demande une fenêtre sur souris et grand écran", async () => {
+    expect(await displayParamFor(true, true)).toBe("popup");
+  });
+
+  it("laisse Meta décider sur écran tactile étroit", async () => {
+    expect(await displayParamFor(false, false)).toBeUndefined();
+  });
+
+  it("laisse Meta décider sur grand écran tactile sans souris", async () => {
+    expect(await displayParamFor(false, true)).toBeUndefined();
+  });
+
+  it("laisse Meta décider quand matchMedia est absent", async () => {
+    vi.stubGlobal("matchMedia", undefined);
+    const login = vi.fn(
+      (cb: (r: { code: string }) => void, _p: Record<string, unknown>) => {
+        cb({ code: "c" });
+      },
+    );
+    await startMetaEmbeddedSignup({ init: vi.fn(), login }, "config-id");
+    expect(
+      (login.mock.calls[0]?.[1] as Record<string, unknown> | undefined)?.display,
+    ).toBeUndefined();
+  });
+});
+
 describe("SDK Meta — remplacement de window.FB", () => {
   beforeEach(() => {
     // L'initialisation est mémorisée sur `window` : sans remise à zéro, un cas
