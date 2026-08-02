@@ -491,7 +491,26 @@ export function WhatsAppConfigContent() {
                   {ui.whatsapp.advancedHint}
                 </span>
               </summary>
-              <div className="flex flex-col gap-6 border-t border-border p-4 sm:p-5">
+              {/*
+                Un vrai formulaire, et pas seulement pour faire taire un
+                avertissement : Chrome signale tout champ de type `password`
+                laissé hors formulaire, parce que sans lui la soumission au
+                clavier ne fonctionne pas et que les gestionnaires de mots de
+                passe ne savent pas quoi faire du champ.
+
+                Ici les deux comptent. La touche Entrée enregistre désormais les
+                identifiants, ce qu'on attend de trois champs saisis à la suite ;
+                et `autoComplete="off"` sur le jeton dit clairement qu'il ne
+                s'agit pas d'un mot de passe à retenir, mais d'un secret d'API.
+              */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (isLocked || setConfig.isPending || isLoading) return;
+                  handleSave();
+                }}
+                className="flex flex-col gap-6 border-t border-border p-4 sm:p-5"
+              >
                 {/* Phone Number ID */}
                 <div className="space-y-2">
                   <Label
@@ -551,6 +570,14 @@ export function WhatsAppConfigContent() {
                     <Input
                       id="meta-access-token"
                       type={showToken ? "text" : "password"}
+                      /*
+                        Ce champ porte un secret d'API, pas un mot de passe de
+                        compte. `off` évite qu'un gestionnaire de mots de passe
+                        propose de l'enregistrer sous l'identité de la vendeuse —
+                        il n'a rien à voir avec sa connexion à SnapSell, et il
+                        change à chaque renouvellement côté Meta.
+                      */
+                      autoComplete="off"
                       placeholder={serverHasToken ? "Token configuré — laisser vide pour conserver" : "EAAxxxxxxx..."}
                       value={metaAccessToken}
                       onChange={(e) => setMetaAccessToken(e.target.value)}
@@ -600,9 +627,14 @@ export function WhatsAppConfigContent() {
                           Annuler
                         </Button>
                       )}
+                      {/*
+                        `submit` et non `button` : c'est lui qui donne son sens
+                        au formulaire, et qui rend la touche Entrée équivalente
+                        au clic. Les boutons voisins restent en `button`, sous
+                        peine d'enregistrer quand on veut annuler.
+                      */}
                       <Button
-                        type="button"
-                        onClick={handleSave}
+                        type="submit"
                         disabled={setConfig.isPending || isLoading}
                         className="font-semibold shadow-lg shadow-primary/20"
                       >
@@ -623,7 +655,7 @@ export function WhatsAppConfigContent() {
                     «&nbsp;{ui.whatsapp.connect}&nbsp;» ci-dessus fait tout à votre place.
                   </AlertDescription>
                 </Alert>
-              </div>
+              </form>
             </details>
           </CardContent>
         </Card>

@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 const mockConnectEmbeddedMutateAsync = vi.fn();
+/** Enregistrement des identifiants manuels — déclenché par le formulaire. */
+const mockSetConfigMutate = vi.fn();
 const mockLoadSdk = vi.fn();
 /**
  * Le SDK vivant, relu à chaque clic. Il n'est plus retenu dans une référence :
@@ -66,7 +68,7 @@ vi.mock("~/trpc/react", () => ({
         }),
       },
       setWhatsAppConfig: {
-        useMutation: () => ({ mutate: vi.fn(), isPending: false }),
+        useMutation: () => ({ mutate: mockSetConfigMutate, isPending: false }),
       },
       testWhatsAppConnection: {
         useMutation: () => ({ mutate: vi.fn(), isPending: false }),
@@ -241,6 +243,61 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
     expect(text).not.toContain("BSP");
     expect(text).not.toContain("Tech Provider");
     expect(text).not.toContain("backend");
+  });
+
+  /**
+   * ── LES IDENTIFIANTS MANUELS S'ENREGISTRENT PAR SOUMISSION ────────────────
+   *
+   * Le champ « Access Token » est de type `password` et vivait hors formulaire.
+   * Chrome le signalait, à raison : sans formulaire, la touche Entrée n'a aucun
+   * effet, alors qu'on vient de saisir trois champs à la suite.
+   *
+   * L'enveloppant, l'enregistrement dépend désormais de la soumission — et le
+   * bouton doit rester en `type="submit"`. Le repasser en `button` sans
+   * gestionnaire le rendrait totalement inerte, en silence : c'est ce que ce
+   * cas empêche.
+   */
+  it("enregistre les identifiants à la soumission du formulaire", () => {
+    mockWhatsAppConfig.metaPhoneNumberId = "phone-123";
+    mockWhatsAppConfig.metaWabaId = "waba-123";
+    mockWhatsAppConfig.hasAccessToken = true;
+
+    render(<WhatsAppConfigContent />);
+
+    // Les champs sont verrouillés tant qu'on n'a pas demandé à les modifier.
+    fireEvent.click(screen.getByRole("button", { name: "Modifier les identifiants" }));
+    fireEvent.click(screen.getByRole("button", { name: "Mettre à jour" }));
+
+    expect(mockSetConfigMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metaPhoneNumberId: "phone-123",
+        metaWabaId: "waba-123",
+        // Champ laissé vide : le jeton existant doit être conservé côté serveur.
+        metaAccessToken: null,
+      }),
+    );
+  });
+
+  it("laisse le jeton hors des gestionnaires de mots de passe", () => {
+    render(<WhatsAppConfigContent />);
+    // C'est un secret d'API, pas le mot de passe de la vendeuse : rien à retenir.
+    expect(screen.getByLabelText("Access Token")).toHaveAttribute(
+      "autocomplete",
+      "off",
+    );
+  });
+
+  /**
+   * Condition exacte que Chrome contrôle avant d'émettre « Password field is
+   * not contained in a form ». `input.form` est la propriété que le navigateur
+   * consulte : la vérifier ici évite d'avoir à ouvrir une page authentifiée
+   * pour constater la disparition de l'avertissement.
+   */
+  it("rattache le champ masqué à un formulaire", () => {
+    render(<WhatsAppConfigContent />);
+    const token = screen.getByLabelText("Access Token") as HTMLInputElement;
+    expect(token.type).toBe("password");
+    expect(token.form).not.toBeNull();
   });
 
   it("n’emploie ni « tenant » ni « E.164 »", () => {
