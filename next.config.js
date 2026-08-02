@@ -65,9 +65,28 @@ const csp = [
   "frame-src 'self' https://facebook.com https://*.facebook.com https://connect.facebook.net",
   "object-src 'none'",
   "base-uri 'self'",
-  // Les redirections de paiement sont des navigations, pas des soumissions de
-  // formulaire : les restreindre à l'origine ne gêne pas le retour Paystack.
-  "form-action 'self'",
+  /**
+   * ── LE SDK META SOUMET UN FORMULAIRE, IL NE FAIT PAS QUE REDIRIGER ─────────
+   *
+   * Cette directive valait `'self'` seul, au motif — écrit ici même — que les
+   * redirections de paiement sont des navigations et non des soumissions de
+   * formulaire. C'est exact pour Paystack, et c'est passé à côté du SDK Meta.
+   *
+   * Pour ouvrir son parcours d'inscription, le SDK **poste un formulaire** vers
+   * `facebook.com/.../dialog/oauth`. `'self'` le refusait, sans erreur visible
+   * et sans que rien ne se passe : ni fenêtre, ni navigation. C'est ce qui a
+   * cassé l'inscription WhatsApp intégrée, qui fonctionnait auparavant en
+   * pleine page.
+   *
+   * Vérifié en sondant la directive dans le navigateur : la soumission vers
+   * `facebook.com` déclenchait bien une violation `form-action`.
+   *
+   * La restriction garde tout son sens pour le reste : elle empêche un
+   * formulaire injecté dans nos pages d'expédier des données vers un domaine
+   * arbitraire.
+   * ──────────────────────────────────────────────────────────────────────────
+   */
+  "form-action 'self' https://facebook.com https://*.facebook.com",
   "frame-ancestors 'none'",
   ...(isProd ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
