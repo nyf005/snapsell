@@ -41,11 +41,34 @@ declare global {
     FB?: MetaSDK;
     __snapsellMetaSdkPromise?: Promise<MetaSDK>;
     __snapsellMetaSdkInitAppId?: string;
+    /** L'objet SDK exact qui a reçu `init()` — voir `initMetaSdk`. */
+    __snapsellMetaSdkInitialized?: MetaSDK;
   }
 }
 
-function hasInitForApp(appId: string): boolean {
-  return window.__snapsellMetaSdkInitAppId === appId;
+/**
+ * ── L'INITIALISATION SE SUIT PAR OBJET, PAS PAR DRAPEAU GLOBAL ───────────────
+ *
+ * Ce garde ne comparait que l'identifiant d'app, mémorisé dans une variable
+ * globale. Il supposait donc qu'un `window.FB` initialisé le reste — ce qui est
+ * faux : le SDK Facebook **réassigne `window.FB`** à chaque chargement de son
+ * script, et le nouvel objet arrive vierge.
+ *
+ * Après un second chargement, le drapeau disait encore « déjà initialisé pour
+ * cette app », `init()` était donc sauté, et l'on appelait `login()` sur un SDK
+ * qui n'avait jamais été configuré. Un SDK non initialisé n'ouvre rien,
+ * ne lève rien et ne rappelle jamais — silence total, exactement le symptôme
+ * qui a rendu ce défaut si long à cerner.
+ *
+ * On mémorise donc **l'objet lui-même**. Si `window.FB` change, la comparaison
+ * échoue et l'initialisation est refaite, ce qui est le comportement correct.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+function hasInitForApp(appId: string, sdk: MetaSDK): boolean {
+  return (
+    window.__snapsellMetaSdkInitAppId === appId &&
+    window.__snapsellMetaSdkInitialized === sdk
+  );
 }
 
 function initMetaSdk(appId: string): MetaSDK {
@@ -54,7 +77,7 @@ function initMetaSdk(appId: string): MetaSDK {
     throw new Error("SDK Meta indisponible.");
   }
 
-  if (!hasInitForApp(appId)) {
+  if (!hasInitForApp(appId, sdk)) {
     sdk.init({
       appId,
       autoLogAppEvents: true,
@@ -63,9 +86,25 @@ function initMetaSdk(appId: string): MetaSDK {
       version: META_GRAPH_VERSION,
     });
     window.__snapsellMetaSdkInitAppId = appId;
+    window.__snapsellMetaSdkInitialized = sdk;
   }
 
   return sdk;
+}
+
+/**
+ * Le SDK vivant, initialisé, ou `null` s'il n'est pas encore chargé.
+ *
+ * Synchrone à dessein : appelée depuis un gestionnaire de clic, elle ne doit
+ * introduire aucune attente, sous peine de faire perdre l'activation
+ * utilisateur et donc l'ouverture de la fenêtre Meta.
+ *
+ * C'est le seul point d'entrée correct pour obtenir le SDK au moment de s'en
+ * servir : il relit `window.FB` et garantit que **cet** objet-là est initialisé.
+ */
+export function getInitializedMetaSdk(appId: string): MetaSDK | null {
+  if (typeof window === "undefined" || !window.FB) return null;
+  return initMetaSdk(appId.trim());
 }
 
 /**

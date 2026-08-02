@@ -8,8 +8,8 @@ import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header"
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import {
   type MetaEmbeddedSignupEvent,
-  type MetaSDK,
   extractOAuthCodeFromMetaLoginResponse,
+  getInitializedMetaSdk,
   getMetaEmbeddedSignupErrorMessage,
   loadMetaEmbeddedSignupSdk,
   startMetaEmbeddedSignup,
@@ -200,17 +200,25 @@ export function WhatsAppConfigContent() {
    * personne ouvrant cette page, y compris dans les boutiques qui n'utilisent
    * pas ce parcours.
    */
-  const metaSdkRef = useRef<MetaSDK | null>(null);
+  /**
+   * Marque un préchargement déjà lancé — **pas** l'objet SDK.
+   *
+   * Retenir l'objet était le défaut : le SDK réassigne `window.FB` à chaque
+   * chargement de son script, et une référence capturée ici pouvait désigner un
+   * objet périmé qu'on appelait ensuite dans le vide. Le SDK vivant se lit au
+   * moment du clic ; ce drapeau ne sert qu'à ne pas relancer le chargement.
+   */
+  const metaSdkPreloadedRef = useRef(false);
 
   useEffect(() => {
     if (!isEmbeddedSignupEnabled) return;
     if (!metaAppId.trim() || !metaEmbeddedConfigId.trim()) return;
-    if (metaSdkRef.current) return;
+    if (metaSdkPreloadedRef.current) return;
 
     let cancelled = false;
     void loadMetaEmbeddedSignupSdk(metaAppId)
-      .then((sdk) => {
-        if (!cancelled && sdk) metaSdkRef.current = sdk;
+      .then(() => {
+        if (!cancelled) metaSdkPreloadedRef.current = true;
       })
       .catch((error: unknown) => {
         // Un échec de préchargement n'est pas une erreur à montrer : le clic
@@ -269,10 +277,30 @@ export function WhatsAppConfigContent() {
        * basculera en pleine page, ce qui reste très préférable à un bouton sans
        * effet. C'est le comportement d'avant ce correctif, conservé comme filet.
        */
-      const preloadedSdk = metaSdkRef.current;
+      /**
+       * ── ON LIT `window.FB` MAINTENANT, ON NE LE RETIENT PAS ────────────────
+       *
+       * Le SDK préchargé était conservé dans une référence, et c'est elle qu'on
+       * appelait au clic. C'était faux : le SDK Facebook **réassigne
+       * `window.FB`** à chaque chargement de son script. Une référence capturée
+       * au montage peut donc désigner un objet périmé — celui d'une balise
+       * retirée du DOM — pendant que le SDK vivant est ailleurs.
+       *
+       * Appeler l'objet périmé n'a aucun effet visible : pas de fenêtre, pas
+       * d'erreur, pas de rappel. C'est exactement le symptôme qu'on a chassé,
+       * et il a en prime faussé le diagnostic, une sonde posée sur
+       * `window.FB.login` n'observant pas l'objet réellement appelé.
+       *
+       * Lire la valeur vivante au moment du clic supprime la classe entière de
+       * ce défaut. Le préchargement garde tout son rôle — charger le script tôt
+       * pour que l'appel reste dans la tâche du clic — mais il ne décide plus
+       * *quel* objet on appelle.
+       * ──────────────────────────────────────────────────────────────────────
+       */
+      const liveSdk = getInitializedMetaSdk(metaAppId);
       let loginResponse;
-      if (preloadedSdk) {
-        loginResponse = await startMetaEmbeddedSignup(preloadedSdk, metaEmbeddedConfigId);
+      if (liveSdk) {
+        loginResponse = await startMetaEmbeddedSignup(liveSdk, metaEmbeddedConfigId);
       } else {
         /*
           Ce chemin est dégradé et doit se voir : l'attente ci-dessous fait
@@ -283,8 +311,15 @@ export function WhatsAppConfigContent() {
         console.warn(
           "[whatsapp] SDK Meta non préchargé au moment du clic — ouverture dégradée",
         );
-        const sdk = await loadMetaEmbeddedSignupSdk(metaAppId);
-        metaSdkRef.current = sdk;
+        await loadMetaEmbeddedSignupSdk(metaAppId);
+        metaSdkPreloadedRef.current = true;
+        // Même règle qu'au-dessus : on relit le SDK vivant après le chargement
+        // plutôt que d'utiliser la valeur retournée, qui peut déjà être périmée
+        // si un second chargement du script est intervenu entre-temps.
+        const sdk = getInitializedMetaSdk(metaAppId);
+        if (!sdk) {
+          throw new Error("SDK Meta indisponible après chargement.");
+        }
         loginResponse = await startMetaEmbeddedSignup(sdk, metaEmbeddedConfigId);
       }
 

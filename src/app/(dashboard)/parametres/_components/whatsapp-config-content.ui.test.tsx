@@ -3,6 +3,13 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 const mockConnectEmbeddedMutateAsync = vi.fn();
 const mockLoadSdk = vi.fn();
+/**
+ * Le SDK vivant, relu à chaque clic. Il n'est plus retenu dans une référence :
+ * le SDK Facebook réassigne `window.FB` à chaque chargement de son script, et
+ * appeler une référence capturée plus tôt revenait à parler à un objet périmé —
+ * qui n'ouvre rien et ne rappelle jamais.
+ */
+const mockGetInitializedSdk = vi.fn();
 const mockStartSignup = vi.fn();
 const mockExtractCode = vi.fn();
 const mockErrorMessage = vi.fn();
@@ -19,6 +26,7 @@ vi.mock("~/app/(dashboard)/_components/dashboard-header", () => ({
 
 vi.mock("~/app/(dashboard)/parametres/_components/meta-embedded-signup-sdk", () => ({
   loadMetaEmbeddedSignupSdk: (...args: unknown[]) => mockLoadSdk(...args),
+  getInitializedMetaSdk: (...args: unknown[]) => mockGetInitializedSdk(...args),
   startMetaEmbeddedSignup: (...args: unknown[]) => mockStartSignup(...args),
   extractOAuthCodeFromMetaLoginResponse: (...args: unknown[]) => mockExtractCode(...args),
   getMetaEmbeddedSignupErrorMessage: (...args: unknown[]) => mockErrorMessage(...args),
@@ -113,6 +121,9 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
      * d'un mock fidèle ; ceux qui veulent un autre comportement le remplacent.
      */
     mockLoadSdk.mockResolvedValue({ login: vi.fn(), init: vi.fn() });
+    // SDK déjà chargé et initialisé : c'est le cas nominal, celui où `FB.login`
+    // part dans la tâche du clic et où Meta peut donc ouvrir sa fenêtre.
+    mockGetInitializedSdk.mockReturnValue({ login: vi.fn(), init: vi.fn() });
     mockWhatsAppConfig.metaPhoneNumberId = null;
     mockWhatsAppConfig.metaWabaId = null;
     mockWhatsAppConfig.metaBusinessPhoneNumber = null;

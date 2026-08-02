@@ -3,9 +3,82 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   META_SDK_SCRIPT_ID,
   extractOAuthCodeFromMetaLoginResponse,
+  getInitializedMetaSdk,
   loadMetaEmbeddedSignupSdk,
   startMetaEmbeddedSignup,
 } from "./meta-embedded-signup-sdk";
+
+function setWindowFB(value: unknown) {
+  Object.defineProperty(window, "FB", {
+    configurable: true,
+    writable: true,
+    value,
+  });
+}
+
+/**
+ * ── LE SDK FACEBOOK REMPLACE `window.FB` À CHAQUE CHARGEMENT ────────────────
+ *
+ * L'initialisation n'était suivie que par un identifiant d'app rangé dans une
+ * variable globale. Le raisonnement supposait qu'un `window.FB` initialisé le
+ * reste — faux : un second chargement du script y installe un objet neuf,
+ * vierge de toute configuration.
+ *
+ * Le drapeau disait alors « déjà initialisé pour cette app », `init()` était
+ * sauté, et `login()` s'exécutait sur un SDK jamais configuré. Un tel SDK
+ * n'ouvre rien, ne lève rien, ne rappelle jamais. Ce silence a rendu la panne
+ * très difficile à cerner : aucune erreur, aucune violation CSP, aucune
+ * fenêtre — et les sondes posées sur `window.FB` observaient un objet différent
+ * de celui que l'application appelait réellement.
+ */
+describe("SDK Meta — remplacement de window.FB", () => {
+  beforeEach(() => {
+    // L'initialisation est mémorisée sur `window` : sans remise à zéro, un cas
+    // hériterait de l'état du précédent.
+    window.__snapsellMetaSdkInitAppId = undefined;
+    window.__snapsellMetaSdkInitialized = undefined;
+  });
+
+  it("réinitialise le nouvel objet SDK", () => {
+    const premier = { init: vi.fn(), login: vi.fn() };
+    setWindowFB(premier);
+    expect(getInitializedMetaSdk("app-id")).toBe(premier);
+    expect(premier.init).toHaveBeenCalledTimes(1);
+
+    // Le SDK recharge et installe un objet neuf, vierge.
+    const second = { init: vi.fn(), login: vi.fn() };
+    setWindowFB(second);
+
+    expect(getInitializedMetaSdk("app-id")).toBe(second);
+    expect(second.init).toHaveBeenCalledTimes(1);
+  });
+
+  it("n'initialise pas deux fois le même objet", () => {
+    const sdk = { init: vi.fn(), login: vi.fn() };
+    setWindowFB(sdk);
+
+    getInitializedMetaSdk("app-id");
+    getInitializedMetaSdk("app-id");
+
+    expect(sdk.init).toHaveBeenCalledTimes(1);
+  });
+
+  it("rend le SDK vivant, jamais une référence capturée plus tôt", () => {
+    const ancien = { init: vi.fn(), login: vi.fn() };
+    setWindowFB(ancien);
+    getInitializedMetaSdk("app-id");
+
+    const nouveau = { init: vi.fn(), login: vi.fn() };
+    setWindowFB(nouveau);
+
+    expect(getInitializedMetaSdk("app-id")).not.toBe(ancien);
+  });
+
+  it("rend null tant que le script n'est pas chargé", () => {
+    setWindowFB(undefined);
+    expect(getInitializedMetaSdk("app-id")).toBeNull();
+  });
+});
 
 describe("meta-embedded-signup-sdk", () => {
   beforeEach(() => {
