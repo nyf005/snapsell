@@ -274,6 +274,15 @@ export function WhatsAppConfigContent() {
       if (preloadedSdk) {
         loginResponse = await startMetaEmbeddedSignup(preloadedSdk, metaEmbeddedConfigId);
       } else {
+        /*
+          Ce chemin est dégradé et doit se voir : l'attente ci-dessous fait
+          perdre l'activation utilisateur, donc Meta n'ouvrira pas de fenêtre
+          par-dessus. Sans cette trace, rien ne distingue « le préchargement
+          n'avait pas fini » de « le SDK a échoué » quand on dépanne.
+        */
+        console.warn(
+          "[whatsapp] SDK Meta non préchargé au moment du clic — ouverture dégradée",
+        );
         const sdk = await loadMetaEmbeddedSignupSdk(metaAppId);
         metaSdkRef.current = sdk;
         loginResponse = await startMetaEmbeddedSignup(sdk, metaEmbeddedConfigId);
@@ -306,6 +315,25 @@ export function WhatsAppConfigContent() {
       if (!isCurrentRun()) return;
       setEmbeddedSignupState("success");
     } catch (error) {
+      /**
+       * ── LA CAUSE RÉELLE PART DANS LA CONSOLE, PAS SEULEMENT À L'ÉCRAN ──────
+       *
+       * Ce bloc ne faisait que traduire l'erreur en message pour la vendeuse.
+       * C'est ce qu'il faut lui montrer — mais la cause technique disparaissait
+       * alors totalement : ni trace, ni pile d'appels, rien.
+       *
+       * Ce silence a coûté cher. En diagnostiquant une connexion WhatsApp qui
+       * n'aboutissait pas, tout indiquait que le SDK Meta n'était jamais appelé,
+       * sans qu'aucun relevé ne dise pourquoi — parce qu'une exception levée
+       * avant l'appel produisait exactement ces symptômes, en silence.
+       *
+       * Le message à l'écran reste inchangé : il s'adresse à la vendeuse, qui
+       * n'a que faire d'une pile d'appels. Celle-ci part dans la console, où la
+       * cherchera quelqu'un qui dépanne.
+       * ──────────────────────────────────────────────────────────────────────
+       */
+      console.error("[whatsapp] échec de la connexion Meta", error);
+
       // Une tentative dépassée qui retombe ne doit pas effacer le résultat de
       // celle qui l'a remplacée.
       if (!isCurrentRun()) return;
