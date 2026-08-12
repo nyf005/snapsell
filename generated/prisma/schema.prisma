@@ -29,6 +29,15 @@ model Tenant {
   metaPhoneNumberId     String?   @unique @map("meta_phone_number_id")
   metaWabaId            String?   @map("meta_waba_id")
   metaAccessToken       String?   @map("meta_access_token") // Chiffré AES-256-GCM via src/lib/crypto.ts
+  // Coexistence — numéro partagé entre l'app WhatsApp Business et la Cloud API.
+  // Confirmé par Meta (`is_on_biz_app` + `platform_type`) à la connexion, jamais
+  // déduit du choix fait à l'écran : celui-ci n'est qu'une intention.
+  metaCoexistence       Boolean   @default(false) @map("meta_coexistence")
+  // "requested" | "in_progress" | "completed" | "declined" | "failed"
+  // Meta n'accorde que 24 h après l'intégration pour lancer la synchronisation ;
+  // passé ce délai l'historique est perdu sans reprise possible.
+  metaHistorySyncStatus String?   @map("meta_history_sync_status")
+  metaHistorySyncAt     DateTime? @map("meta_history_sync_at")
   requireDeposit        Boolean   @default(false) @map("require_deposit") // Story 4.5: acompte activé → TTL locked, demande preuve
   createdAt             DateTime  @default(now()) @map("created_at")
   updatedAt             DateTime  @updatedAt @map("updated_at")
@@ -114,6 +123,7 @@ model Tenant {
   messagesIn           MessageIn[]
   messagesOut          MessageOut[]
   sellerPhones         SellerPhone[]
+  whatsappContacts     WhatsAppContact[]
   eventLogs            EventLog[]
   deadLetterJobs       DeadLetterJob[]
   optOuts              OptOut[]
@@ -287,6 +297,26 @@ model MessageIn {
   @@index([tenantId, providerMessageId])
   @@index([tenantId])
   @@map("messages_in")
+}
+
+// Contacts remontés par l'application WhatsApp Business en Coexistence.
+//
+// Meta les envoie via le webhook `smb_app_state_sync` dans les minutes qui
+// suivent l'intégration, puis à chaque ajout ou retrait. Ils ne servent qu'à
+// afficher un nom à la place d'un numéro : aucune automatisation ne s'y branche.
+model WhatsAppContact {
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  phone     String // E.164 normalisé
+  fullName  String?  @map("full_name")
+  firstName String?  @map("first_name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, phone])
+  @@index([tenantId])
+  @@map("whatsapp_contacts")
 }
 
 // Numéro de téléphone vendeur par tenant (Story 2.2)

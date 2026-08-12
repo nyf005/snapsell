@@ -650,6 +650,13 @@ describe("settings router — connectWhatsAppEmbedded", () => {
             }),
         });
       }
+      if (url.includes("is_on_biz_app")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({ is_on_biz_app: false, platform_type: "CLOUD_API" }),
+        });
+      }
       if (url.includes("/subscribed_apps")) {
         return Promise.resolve({
           ok: true,
@@ -687,13 +694,16 @@ describe("settings router — connectWhatsAppEmbedded", () => {
     const result = await caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-success" });
 
     expect(result).toEqual({ ok: true });
-    expect(mockFetch).toHaveBeenCalledTimes(4);
+    expect(mockFetch).toHaveBeenCalledTimes(5);
     expect(mockTenantUpdate).toHaveBeenCalledWith({
       where: { id: "tenant-1" },
       data: {
         metaPhoneNumberId: "phone-123",
         metaWabaId: "waba-123",
         metaAccessToken: expect.stringMatching(/^enc:/),
+        metaCoexistence: false,
+        metaHistorySyncStatus: null,
+        metaHistorySyncAt: null,
       },
     });
     expect(mockSellerPhoneUpsert).toHaveBeenCalledWith({

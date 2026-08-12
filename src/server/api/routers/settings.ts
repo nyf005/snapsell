@@ -380,6 +380,15 @@ export const settingsRouter = createTRPCRouter({
               metaPhoneNumberId: credentials.phoneNumberId,
               metaWabaId: credentials.wabaId,
               metaAccessToken: encrypt(credentials.accessToken),
+              /*
+                Ce que Meta a confirmé sur le numéro, pas le mode demandé à
+                l'écran. La date sert de repère à la fenêtre de 24 h : sans
+                elle, on ne saurait pas dire si une synchronisation restée en
+                « requested » est en cours ou définitivement manquée.
+              */
+              metaCoexistence: credentials.coexistence,
+              metaHistorySyncStatus: credentials.historySyncStatus,
+              metaHistorySyncAt: credentials.historySyncStatus ? new Date() : null,
             },
           });
 

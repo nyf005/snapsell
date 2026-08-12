@@ -1,3 +1,5 @@
+import { workerLogger } from "~/lib/logger";
+
 const META_GRAPH_VERSION = "v21.0";
 const META_REQUEST_TIMEOUT_MS = 10_000;
 
@@ -51,22 +53,57 @@ type PhoneNumbersResponse = {
   data?: Array<{ id?: string; display_phone_number?: string }>;
 };
 
+type PhoneNumberPlatformResponse = {
+  is_on_biz_app?: boolean;
+  platform_type?: string;
+};
+
+type SmbAppDataResponse = {
+  request_id?: string;
+};
+
+/**
+ * État de la synchronisation d'historique, tel qu'il part en base.
+ *
+ * `declined` n'est pas un échec : la boutique a le droit de refuser de partager
+ * ses conversations pendant le parcours Meta. C'est `failed` qui demande une
+ * intervention — et il faut la voir vite, la fenêtre étant de 24 h.
+ */
+export type HistorySyncStatus = "requested" | "declined" | "failed";
+
 export type EmbeddedSignupConnectionResult = {
   accessToken: string;
   wabaId: string;
   phoneNumberId: string;
   businessPhoneNumber: string;
+  /** Confirmé par Meta, pas par le choix fait à l'écran. */
+  coexistence: boolean;
+  /** `null` hors Coexistence : il n'y a alors aucun historique à reprendre. */
+  historySyncStatus: HistorySyncStatus | null;
 };
 
 export class MetaEmbeddedSignupError extends Error {
   readonly kind: "BAD_REQUEST" | "UPSTREAM_ERROR" | "CONFIG_ERROR";
+  /** Code d'erreur Meta, quand il en fournit un. Voir `HISTORY_DECLINED_CODE`. */
+  readonly metaErrorCode?: number;
 
-  constructor(kind: "BAD_REQUEST" | "UPSTREAM_ERROR" | "CONFIG_ERROR", message: string) {
+  constructor(
+    kind: "BAD_REQUEST" | "UPSTREAM_ERROR" | "CONFIG_ERROR",
+    message: string,
+    metaErrorCode?: number,
+  ) {
     super(message);
     this.name = "MetaEmbeddedSignupError";
     this.kind = kind;
+    this.metaErrorCode = metaErrorCode;
   }
 }
+
+/**
+ * Meta renvoie ce code quand la boutique a refusé de partager son historique
+ * pendant le parcours. Ce n'est pas une panne : c'est une réponse.
+ */
+const HISTORY_DECLINED_CODE = 2593109;
 
 function withTimeout(signal?: AbortSignal): AbortSignal {
   if (signal) return signal;
@@ -109,13 +146,27 @@ async function requestJson(url: string, init: RequestInit, badRequestMessage: st
         ? upstreamError.message
         : "";
 
+    /**
+     * Le code de Meta est conservé sur l'erreur. Sans lui, un refus de partage
+     * d'historique (`2593109`) serait indiscernable d'une vraie panne — et
+     * traité comme telle, alors que c'est un choix légitime de la boutique.
+     */
+    const upstreamCode =
+      typeof upstreamError === "object" &&
+      upstreamError !== null &&
+      "code" in upstreamError &&
+      typeof upstreamError.code === "number"
+        ? upstreamError.code
+        : undefined;
+
     if (status >= 400 && status < 500) {
-      throw new MetaEmbeddedSignupError("BAD_REQUEST", badRequestMessage);
+      throw new MetaEmbeddedSignupError("BAD_REQUEST", badRequestMessage, upstreamCode);
     }
 
     throw new MetaEmbeddedSignupError(
       "UPSTREAM_ERROR",
       upstreamMessage || "Echec de communication avec Meta Graph.",
+      upstreamCode,
     );
   }
 
@@ -312,6 +363,112 @@ async function subscribeAppToWaba(params: {
 }
 
 /**
+ * La Coexistence se constate chez Meta, elle ne se déduit pas de l'écran.
+ *
+ * Le mode choisi par la boutique n'est qu'une intention : elle a pu demander la
+ * Coexistence et voir Meta lui faire déclarer un numéro neuf, ou l'inverse.
+ * Enregistrer l'intention ferait lancer une synchronisation d'historique sur un
+ * numéro qui n'en a pas, ou — bien pire — l'omettre sur un numéro qui en a un,
+ * avec 24 h pour s'en apercevoir.
+ *
+ * Meta répond sur le numéro lui-même : `is_on_biz_app` vrai *et*
+ * `platform_type` à `CLOUD_API` signifient que l'application et l'API partagent
+ * ce numéro.
+ */
+async function detectCoexistence(params: {
+  phoneNumberId: string;
+  accessToken: string;
+}): Promise<boolean> {
+  try {
+    const payload = (await requestJson(
+      `https://graph.facebook.com/${META_GRAPH_VERSION}/${encodeURIComponent(params.phoneNumberId)}?fields=is_on_biz_app,platform_type&access_token=${encodeURIComponent(params.accessToken)}`,
+      { method: "GET" },
+      "Impossible de lire la configuration du numero WhatsApp.",
+    )) as PhoneNumberPlatformResponse;
+
+    return payload.is_on_biz_app === true && payload.platform_type === "CLOUD_API";
+  } catch (error) {
+    /*
+      Ne pas faire échouer une connexion par ailleurs valide pour une question
+      d'étiquette. On retombe sur « pas de Coexistence », ce qui n'entreprend
+      aucune synchronisation — le défaut prudent.
+    */
+    workerLogger.error(
+      "Meta: lecture de la plateforme du numéro échouée",
+      error instanceof Error ? error : new Error(String(error)),
+      { phoneNumberId: params.phoneNumberId },
+    );
+    return false;
+  }
+}
+
+/**
+ * ── LA SYNCHRONISATION SE LANCE ICI, ET NULLE PART AILLEURS ────────────────
+ *
+ * Meta n'accorde que 24 h après l'intégration pour la demander. Passé ce délai,
+ * l'historique et les contacts sont perdus sans reprise possible — et c'est
+ * exactement ce que la Coexistence promet de conserver. La demande part donc
+ * dans la foulée de la connexion, pas depuis un réglage que personne n'ouvrira.
+ *
+ * Aucun de ces deux appels ne fait échouer la connexion : un numéro connecté
+ * sans historique reste utilisable, alors qu'une connexion refusée ne l'est pas.
+ * L'état part en base pour que l'écran puisse le dire.
+ */
+async function startCoexistenceSync(params: {
+  phoneNumberId: string;
+  accessToken: string;
+}): Promise<HistorySyncStatus> {
+  const requestSync = async (syncType: "smb_app_state_sync" | "history") => {
+    const payload = (await requestJson(
+      `https://graph.facebook.com/${META_GRAPH_VERSION}/${encodeURIComponent(params.phoneNumberId)}/smb_app_data`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messaging_product: "whatsapp", sync_type: syncType }),
+      },
+      "Meta a refuse la demande de synchronisation.",
+    )) as SmbAppDataResponse;
+    return payload.request_id;
+  };
+
+  // Les contacts d'abord : ils arrivent en quelques minutes et permettent
+  // d'afficher un nom plutôt qu'un numéro dès les premières conversations.
+  try {
+    await requestSync("smb_app_state_sync");
+  } catch (error) {
+    // Sans conséquence sur l'historique, qui se demande séparément juste après.
+    workerLogger.error(
+      "Meta: synchronisation des contacts non demandée",
+      error instanceof Error ? error : new Error(String(error)),
+      { phoneNumberId: params.phoneNumberId },
+    );
+  }
+
+  try {
+    await requestSync("history");
+    return "requested";
+  } catch (error) {
+    if (
+      error instanceof MetaEmbeddedSignupError &&
+      error.metaErrorCode === HISTORY_DECLINED_CODE
+    ) {
+      // Choix de la boutique pendant le parcours Meta, pas une panne.
+      workerLogger.info("Meta: partage de l'historique refusé par la boutique", {
+        phoneNumberId: params.phoneNumberId,
+      });
+      return "declined";
+    }
+
+    workerLogger.error(
+      "Meta: synchronisation de l'historique non demandée — fenêtre de 24 h",
+      error instanceof Error ? error : new Error(String(error)),
+      { phoneNumberId: params.phoneNumberId },
+    );
+    return "failed";
+  }
+}
+
+/**
  * ── LE JETON DE L'ÉCHANGE EST LE BON, ON NE LE TRANSFORME PLUS ──────────────
  *
  * Cette fonction faisait trois choses de trop après l'échange du code : elle
@@ -425,10 +582,19 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
    */
   await subscribeAppToWaba({ wabaId, accessToken: businessToken });
 
+  const coexistence = await detectCoexistence({
+    phoneNumberId,
+    accessToken: businessToken,
+  });
+
   return {
     accessToken: businessToken,
     wabaId,
     phoneNumberId,
     businessPhoneNumber,
+    coexistence,
+    historySyncStatus: coexistence
+      ? await startCoexistenceSync({ phoneNumberId, accessToken: businessToken })
+      : null,
   };
 }

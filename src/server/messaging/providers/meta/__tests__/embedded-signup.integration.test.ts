@@ -73,6 +73,13 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
             }),
         });
       }
+      if (url.includes("is_on_biz_app")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({ is_on_biz_app: false, platform_type: "CLOUD_API" }),
+        });
+      }
       if (url.includes("/subscribed_apps")) {
         return Promise.resolve({
           ok: true,

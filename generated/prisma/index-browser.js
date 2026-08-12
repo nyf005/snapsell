@@ -126,6 +126,9 @@ exports.Prisma.TenantScalarFieldEnum = {
   metaPhoneNumberId: 'metaPhoneNumberId',
   metaWabaId: 'metaWabaId',
   metaAccessToken: 'metaAccessToken',
+  metaCoexistence: 'metaCoexistence',
+  metaHistorySyncStatus: 'metaHistorySyncStatus',
+  metaHistorySyncAt: 'metaHistorySyncAt',
   requireDeposit: 'requireDeposit',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -267,6 +270,16 @@ exports.Prisma.MessageInScalarFieldEnum = {
   mediaUrl: 'mediaUrl',
   correlationId: 'correlationId',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.WhatsAppContactScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  phone: 'phone',
+  fullName: 'fullName',
+  firstName: 'firstName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SellerPhoneScalarFieldEnum = {
@@ -568,6 +581,7 @@ exports.Prisma.ModelName = {
   VerificationToken: 'VerificationToken',
   CategoryPrice: 'CategoryPrice',
   MessageIn: 'MessageIn',
+  WhatsAppContact: 'WhatsAppContact',
   SellerPhone: 'SellerPhone',
   EventLog: 'EventLog',
   OptOut: 'OptOut',

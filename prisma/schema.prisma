@@ -2,12 +2,12 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
-    output   = "../generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
-    provider = "postgresql"
+  provider = "postgresql"
 }
 
 // Roles for RBAC (Owner = vendeur créateur du tenant, OPS = accès console ops sans tenant)
@@ -23,76 +23,85 @@ enum Role {
 }
 
 model Tenant {
-  id                    String                @id @default(cuid())
+  id                    String    @id @default(cuid())
   name                  String
   // Meta WhatsApp Cloud API (Story 10.1)
-  metaPhoneNumberId     String?               @unique @map("meta_phone_number_id")
-  metaWabaId            String?               @map("meta_waba_id")
-  metaAccessToken       String?               @map("meta_access_token") // Chiffré AES-256-GCM via src/lib/crypto.ts
-  requireDeposit        Boolean               @default(false) @map("require_deposit") // Story 4.5: acompte activé → TTL locked, demande preuve
-  createdAt             DateTime              @default(now()) @map("created_at")
-  updatedAt             DateTime              @updatedAt @map("updated_at")
+  metaPhoneNumberId     String?   @unique @map("meta_phone_number_id")
+  metaWabaId            String?   @map("meta_waba_id")
+  metaAccessToken       String?   @map("meta_access_token") // Chiffré AES-256-GCM via src/lib/crypto.ts
+  // Coexistence — numéro partagé entre l'app WhatsApp Business et la Cloud API.
+  // Confirmé par Meta (`is_on_biz_app` + `platform_type`) à la connexion, jamais
+  // déduit du choix fait à l'écran : celui-ci n'est qu'une intention.
+  metaCoexistence       Boolean   @default(false) @map("meta_coexistence")
+  // "requested" | "in_progress" | "completed" | "declined" | "failed"
+  // Meta n'accorde que 24 h après l'intégration pour lancer la synchronisation ;
+  // passé ce délai l'historique est perdu sans reprise possible.
+  metaHistorySyncStatus String?   @map("meta_history_sync_status")
+  metaHistorySyncAt     DateTime? @map("meta_history_sync_at")
+  requireDeposit        Boolean   @default(false) @map("require_deposit") // Story 4.5: acompte activé → TTL locked, demande preuve
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
   // Subscription (Story 7A.2)
-  subscriptionPlan           String    @default("free") @map("subscription_plan")
-    // "free" | "starter" | "pro"
-  subscriptionStatus         String    @default("active") @map("subscription_status")
-    // "active" | "attention" | "non_renewing" | "expired" | "cancelled"
-  subscriptionExpiresAt      DateTime? @map("subscription_expires_at")
-    // null = Free (pas d'expiration) ; set à +30j après paiement pour Starter/Pro
-  cycleStartedAt             DateTime? @map("cycle_started_at")
-    // Début du cycle courant (pour compter l'usage). null = Free
+  subscriptionPlan      String    @default("free") @map("subscription_plan")
+  // "free" | "starter" | "pro"
+  subscriptionStatus    String    @default("active") @map("subscription_status")
+  // "active" | "attention" | "non_renewing" | "expired" | "cancelled"
+  subscriptionExpiresAt DateTime? @map("subscription_expires_at")
+  // null = Free (pas d'expiration) ; set à +30j après paiement pour Starter/Pro
+  cycleStartedAt        DateTime? @map("cycle_started_at")
+  // Début du cycle courant (pour compter l'usage). null = Free
 
   // Credits système (Story Credits)
-  creditsBalance       Int       @default(70) @map("credits_balance")
-    // Credits disponibles. Default 70 pour Free (plan gratuit).
-  creditsTotalMonthly  Int       @default(70) @map("credits_total_monthly")
-    // Credits inclus par mois selon le plan.
-  creditsBonus         Int       @default(0) @map("credits_bonus")
-    // Credits achetés (packs) — ne se remettent pas à zéro au reset mensuel.
-  usageResetDate       DateTime? @map("usage_reset_date")
-    // Date de reset mensuel des credits.
-  lowCreditsAlerted    Boolean   @default(false) @map("low_credits_alerted")
-    // Flag pour éviter les alertes multiples.
+  creditsBalance      Int       @default(70) @map("credits_balance")
+  // Credits disponibles. Default 70 pour Free (plan gratuit).
+  creditsTotalMonthly Int       @default(70) @map("credits_total_monthly")
+  // Credits inclus par mois selon le plan.
+  creditsBonus        Int       @default(0) @map("credits_bonus")
+  // Credits achetés (packs) — ne se remettent pas à zéro au reset mensuel.
+  usageResetDate      DateTime? @map("usage_reset_date")
+  // Date de reset mensuel des credits.
+  lowCreditsAlerted   Boolean   @default(false) @map("low_credits_alerted")
+  // Flag pour éviter les alertes multiples.
 
   // Paystack references
-  paystackCustomerCode       String?   @unique @map("paystack_customer_code")
-  paystackSubscriptionCode   String?   @unique @map("paystack_subscription_code")
-  paystackEmailToken         String?   @map("paystack_email_token")
-  paystackAuthorizationCode  String?   @map("paystack_authorization_code")
+  paystackCustomerCode      String? @unique @map("paystack_customer_code")
+  paystackSubscriptionCode  String? @unique @map("paystack_subscription_code")
+  paystackEmailToken        String? @map("paystack_email_token")
+  paystackAuthorizationCode String? @map("paystack_authorization_code")
 
   // Entitlements — quotas numériques
-  maxConfirmedOrdersPerMonth Int       @default(50) @map("max_confirmed_orders_per_month")
-  maxProofsPerMonth          Int       @default(20) @map("max_proofs_per_month")    // -1 = illimité
-  maxAgents                  Int       @default(0) @map("max_agents")               // 0 = pas d'agents
-  overagePerOrderCents       Int       @default(0) @map("overage_per_order_cents")  // 0 = blocage (Free)
+  maxConfirmedOrdersPerMonth Int @default(50) @map("max_confirmed_orders_per_month")
+  maxProofsPerMonth          Int @default(20) @map("max_proofs_per_month") // -1 = illimité
+  maxAgents                  Int @default(0) @map("max_agents") // 0 = pas d'agents
+  overagePerOrderCents       Int @default(0) @map("overage_per_order_cents") // 0 = blocage (Free)
 
   /// Compteur des numéros de commande (SS-XXXX), incrémenté atomiquement dans la
   /// transaction qui crée la commande. Remplace `COUNT(*) + 1`, qui n'était pas
   /// atomique : des confirmations simultanées visaient le même numéro et le retry
   /// P2002 finissait par abandonner — vente perdue. Ne jamais le décrémenter :
   /// un numéro attribué ne doit pas être réutilisé, même commande supprimée.
-  orderSeq                   Int       @default(0) @map("order_seq")
+  orderSeq Int @default(0) @map("order_seq")
 
   // Entitlements — feature flags
-  hasAI                      Boolean   @default(false) @map("has_ai")
-  hasExportCsv               Boolean   @default(false) @map("has_export_csv")
-  hasAdvancedExports         Boolean   @default(false) @map("has_advanced_exports")
-  hasNotificationsOutside24h Boolean   @default(false) @map("has_notifications_outside_24h")
-  hasDepositRecommended      Boolean   @default(false) @map("has_deposit_recommended")
-  hasAdvancedFilters         Boolean   @default(false) @map("has_advanced_filters")
-  hasPrioritySupport         Boolean   @default(false) @map("has_priority_support")
-  showBranding               Boolean   @default(true) @map("show_branding")          // Free = true
-  showUpgradeBanner          Boolean   @default(true) @map("show_upgrade_banner")     // Free = true
+  hasAI                      Boolean @default(false) @map("has_ai")
+  hasExportCsv               Boolean @default(false) @map("has_export_csv")
+  hasAdvancedExports         Boolean @default(false) @map("has_advanced_exports")
+  hasNotificationsOutside24h Boolean @default(false) @map("has_notifications_outside_24h")
+  hasDepositRecommended      Boolean @default(false) @map("has_deposit_recommended")
+  hasAdvancedFilters         Boolean @default(false) @map("has_advanced_filters")
+  hasPrioritySupport         Boolean @default(false) @map("has_priority_support")
+  showBranding               Boolean @default(true) @map("show_branding") // Free = true
+  showUpgradeBanner          Boolean @default(true) @map("show_upgrade_banner") // Free = true
 
   // FAQ bot — réponses configurables par le vendeur (Phase 5.3)
-  faqDelivery     String?   @map("faq_delivery") @db.Text
-  faqPayment      String?   @map("faq_payment") @db.Text
-  faqLocation     String?   @map("faq_location") @db.Text
-  faqAvailability String?   @map("faq_availability") @db.Text
+  faqDelivery     String? @map("faq_delivery") @db.Text
+  faqPayment      String? @map("faq_payment") @db.Text
+  faqLocation     String? @map("faq_location") @db.Text
+  faqAvailability String? @map("faq_availability") @db.Text
 
   // WhatsApp Business — catalogue Meta Commerce Manager
-  metaCatalogId         String?  @map("meta_catalog_id")
-  hasMetaCatalogSync    Boolean  @default(false) @map("has_meta_catalog_sync") // Entitlement Starter/Pro
+  metaCatalogId      String? @map("meta_catalog_id")
+  hasMetaCatalogSync Boolean @default(false) @map("has_meta_catalog_sync") // Entitlement Starter/Pro
 
   // WhatsApp Business — selected approved message template for tenant workflows
   whatsappTemplateName     String? @map("whatsapp_template_name")
@@ -100,33 +109,34 @@ model Tenant {
   whatsappTemplateCategory String? @map("whatsapp_template_category")
 
   // Away message — réponse automatique hors horaires d'ouverture
-  businessHoursStart String?  @map("business_hours_start") // ex: "08:00"
-  businessHoursEnd   String?  @map("business_hours_end")   // ex: "20:00"
-  businessTimezone   String?  @map("business_timezone")    // ex: "Africa/Abidjan"
-  awayMessage        String?  @map("away_message") @db.Text
+  businessHoursStart String? @map("business_hours_start") // ex: "08:00"
+  businessHoursEnd   String? @map("business_hours_end") // ex: "20:00"
+  businessTimezone   String? @map("business_timezone") // ex: "Africa/Abidjan"
+  awayMessage        String? @map("away_message") @db.Text
 
-  users                 User[]
-  conversationStates    ConversationState[]
-  categoryPrices        CategoryPrice[]
-  deliveryZones         DeliveryZone[]
-  deliveryFeeCommune    DeliveryFeeCommune[]
-  invitations           Invitation[]
-  messagesIn            MessageIn[]
-  messagesOut           MessageOut[]
-  sellerPhones          SellerPhone[]
-  eventLogs             EventLog[]
-  deadLetterJobs        DeadLetterJob[]
-  optOuts               OptOut[]
-  liveSessions          LiveSession[]
-  liveItems             LiveItem[]
-  catalogueItems        CatalogueItem[]
-  conversationWindows   ConversationWindow[]
-  reservations          Reservation[]
-  waitlists             Waitlist[]
-  orders                Order[]
-  paymentProofs         PaymentProof[]
-  subscriptionPayments  SubscriptionPayment[]
-  itemVariants          ItemVariant[]
+  users                User[]
+  conversationStates   ConversationState[]
+  categoryPrices       CategoryPrice[]
+  deliveryZones        DeliveryZone[]
+  deliveryFeeCommune   DeliveryFeeCommune[]
+  invitations          Invitation[]
+  messagesIn           MessageIn[]
+  messagesOut          MessageOut[]
+  sellerPhones         SellerPhone[]
+  whatsappContacts     WhatsAppContact[]
+  eventLogs            EventLog[]
+  deadLetterJobs       DeadLetterJob[]
+  optOuts              OptOut[]
+  liveSessions         LiveSession[]
+  liveItems            LiveItem[]
+  catalogueItems       CatalogueItem[]
+  conversationWindows  ConversationWindow[]
+  reservations         Reservation[]
+  waitlists            Waitlist[]
+  orders               Order[]
+  paymentProofs        PaymentProof[]
+  subscriptionPayments SubscriptionPayment[]
+  itemVariants         ItemVariant[]
 
   @@map("tenants")
 }
@@ -152,14 +162,14 @@ model Invitation {
 
 // Zone regroupant plusieurs communes (ex. Abidjan, Intérieur du pays)
 model DeliveryZone {
-  id           String                 @id @default(cuid())
-  tenantId     String                 @map("tenant_id")
-  tenant       Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  name         String                 // ex. "Abidjan", "Intérieur du pays"
-  amount       Int                    @map("amount_cents")
-  communes     DeliveryZoneCommune[]
-  createdAt    DateTime               @default(now()) @map("created_at")
-  updatedAt    DateTime               @updatedAt @map("updated_at")
+  id        String                @id @default(cuid())
+  tenantId  String                @map("tenant_id")
+  tenant    Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String // ex. "Abidjan", "Intérieur du pays"
+  amount    Int                   @map("amount_cents")
+  communes  DeliveryZoneCommune[]
+  createdAt DateTime              @default(now()) @map("created_at")
+  updatedAt DateTime              @updatedAt @map("updated_at")
 
   @@index([tenantId])
   @@map("delivery_zones")
@@ -179,13 +189,13 @@ model DeliveryZoneCommune {
 
 // Prix par commune (hors zone ou surcharge), identifié par nom
 model DeliveryFeeCommune {
-  id           String   @id @default(cuid())
-  tenantId     String   @map("tenant_id")
-  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  communeName  String   @map("commune_name") // ex. "Cocody", "Bouaké"
-  amount       Int      @map("amount_cents")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  communeName String   @map("commune_name") // ex. "Cocody", "Bouaké"
+  amount      Int      @map("amount_cents")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@unique([tenantId, communeName])
   @@index([tenantId])
@@ -193,20 +203,20 @@ model DeliveryFeeCommune {
 }
 
 model User {
-  id             String    @id @default(cuid())
-  tenantId       String?   @map("tenant_id") // Nullable : null pour les users OPS (pas de tenant)
-  tenant         Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  email          String    @unique
-  emailVerified  DateTime? @map("email_verified")
-  name           String?
-  image          String?
-  passwordHash   String?   @map("password_hash")
-  role           Role      @default(OWNER)
-  tokenVersion   Int       @default(0) @map("token_version") // Révocation JWT : incrémenter pour invalider toutes les sessions actives
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-  accounts       Account[]
-  sessions       Session[]
+  id            String    @id @default(cuid())
+  tenantId      String?   @map("tenant_id") // Nullable : null pour les users OPS (pas de tenant)
+  tenant        Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  name          String?
+  image         String?
+  passwordHash  String?   @map("password_hash")
+  role          Role      @default(OWNER)
+  tokenVersion  Int       @default(0) @map("token_version") // Révocation JWT : incrémenter pour invalider toutes les sessions actives
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  accounts      Account[]
+  sessions      Session[]
 
   @@index([tenantId])
   // Note: un index unique sur lower(email) existe en base
@@ -275,9 +285,9 @@ model CategoryPrice {
 model MessageIn {
   id                String   @id @default(cuid())
   tenantId          String?  @map("tenant_id") // nullable si tenant non résolu
-  tenant            Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  tenant            Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
   providerMessageId String   @map("provider_message_id") // ex. wamid Meta
-  from              String   // numéro WhatsApp expéditeur
+  from              String // numéro WhatsApp expéditeur
   body              String   @db.Text
   mediaUrl          String?  @map("media_url")
   correlationId     String   @map("correlation_id") // UUID ou message_sid pour traçabilité
@@ -287,6 +297,26 @@ model MessageIn {
   @@index([tenantId, providerMessageId])
   @@index([tenantId])
   @@map("messages_in")
+}
+
+// Contacts remontés par l'application WhatsApp Business en Coexistence.
+//
+// Meta les envoie via le webhook `smb_app_state_sync` dans les minutes qui
+// suivent l'intégration, puis à chaque ajout ou retrait. Ils ne servent qu'à
+// afficher un nom à la place d'un numéro : aucune automatisation ne s'y branche.
+model WhatsAppContact {
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  phone     String // E.164 normalisé
+  fullName  String?  @map("full_name")
+  firstName String?  @map("first_name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, phone])
+  @@index([tenantId])
+  @@map("whatsapp_contacts")
 }
 
 // Numéro de téléphone vendeur par tenant (Story 2.2)
@@ -315,7 +345,7 @@ model EventLog {
   entityId      String?  @map("entity_id") // ID de l'entité concernée (nullable si pas d'entité)
   correlationId String   @map("correlation_id") // UUID ou message_sid pour traçabilité bout en bout
   actorType     String   @map("actor_type") // system, seller, client
-  payload       Json     // JSON structuré, pas de PII (Architecture §430)
+  payload       Json // JSON structuré, pas de PII (Architecture §430)
   createdAt     DateTime @default(now()) @map("created_at")
 
   @@index([tenantId, correlationId]) // Lookup rapide par flux
@@ -326,13 +356,13 @@ model EventLog {
 
 // Opt-out STOP par tenant (Story 2.5) - scope tenant, isolation stricte
 model OptOut {
-  id           String   @id @default(cuid())
-  tenantId     String   @map("tenant_id") // NOT NULL: isolation tenant stricte
-  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  phoneNumber  String   @map("phone_number") // Format E.164 normalisé
-  optedOutAt   DateTime @default(now()) @map("opted_out_at")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id") // NOT NULL: isolation tenant stricte
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  phoneNumber String   @map("phone_number") // Format E.164 normalisé
+  optedOutAt  DateTime @default(now()) @map("opted_out_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@unique([tenantId, phoneNumber]) // index unique implicite pour lookup rapide
   @@map("opt_outs")
@@ -342,7 +372,6 @@ model OptOut {
 // Architecture §4.5: Outbound messaging via outbox + retries + DLQ
 // Tout envoi sortant écrit d'abord dans MessageOut (outbox) avec statut pending
 
-
 // Session live par tenant - création/fermeture auto (Story 2.6)
 // Une seule session active par tenant à la fois (contrainte applicative)
 enum LiveSessionStatus {
@@ -351,15 +380,15 @@ enum LiveSessionStatus {
 }
 
 model LiveSession {
-  id              String           @id @default(cuid())
-  tenantId        String           @map("tenant_id")
-  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  status          LiveSessionStatus @default(active)
-  lastActivityAt  DateTime         @map("last_activity_at")
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt @map("updated_at")
-  liveItems       LiveItem[]
-  reservations    Reservation[]
+  id             String            @id @default(cuid())
+  tenantId       String            @map("tenant_id")
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  status         LiveSessionStatus @default(active)
+  lastActivityAt DateTime          @map("last_activity_at")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+  liveItems      LiveItem[]
+  reservations   Reservation[]
 
   @@index([tenantId, status])
   @@map("live_sessions")
@@ -368,23 +397,23 @@ model LiveSession {
 // Item live par session — unicité (tenant_id, live_session_id, code) (Story 3.2)
 // Story 3.4: availableQty / reservedQty pour stock préparé ; mediaStorageKey pour photo optionnelle
 model LiveItem {
-  id               String     @id @default(cuid())
-  tenantId         String     @map("tenant_id")
-  tenant           Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  liveSessionId    String     @map("live_session_id")
-  liveSession      LiveSession @relation(fields: [liveSessionId], references: [id], onDelete: Cascade)
-  code             String     // normalisé trim + uppercase
-  amount           Int?       @map("amount_cents") // optionnel, dérivé grille (Story 3.1)
-  quantity         Int        @default(1) // total (availableQty + reservedQty) pour affichage
-  availableQty     Int        @default(0) @map("available_qty") // stock préparé (Story 3.4)
-  reservedQty      Int        @default(0) @map("reserved_qty") // réservé, décrément à confirmation (Story 3.6)
-  mediaStorageKey  String?    @map("media_storage_key") // clé R2 pour photo optionnelle (Story 3.4)
-  attributes       Json?      // Noms des dimensions (ex: ["Taille", "Couleur"])
-  createdAt        DateTime   @default(now()) @map("created_at")
-  updatedAt        DateTime   @updatedAt @map("updated_at")
+  id              String      @id @default(cuid())
+  tenantId        String      @map("tenant_id")
+  tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  liveSessionId   String      @map("live_session_id")
+  liveSession     LiveSession @relation(fields: [liveSessionId], references: [id], onDelete: Cascade)
+  code            String // normalisé trim + uppercase
+  amount          Int?        @map("amount_cents") // optionnel, dérivé grille (Story 3.1)
+  quantity        Int         @default(1) // total (availableQty + reservedQty) pour affichage
+  availableQty    Int         @default(0) @map("available_qty") // stock préparé (Story 3.4)
+  reservedQty     Int         @default(0) @map("reserved_qty") // réservé, décrément à confirmation (Story 3.6)
+  mediaStorageKey String?     @map("media_storage_key") // clé R2 pour photo optionnelle (Story 3.4)
+  attributes      Json? // Noms des dimensions (ex: ["Taille", "Couleur"])
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
 
-  reservations    Reservation[]
-  variants        ItemVariant[]
+  reservations Reservation[]
+  variants     ItemVariant[]
 
   @@unique([tenantId, liveSessionId, code])
   @@index([tenantId])
@@ -395,25 +424,25 @@ model LiveItem {
 // Story 8.1: Article catalogue persistant — seule source d'articles commandables
 // Unicité (tenantId, code) — le code = étiquette persistante de l'article
 model CatalogueItem {
-  id              String   @id @default(cuid())
-  tenantId        String   @map("tenant_id")
-  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  code            String   // normalisé trim + uppercase
-  name            String?  // Nom lisible (requis pour synchro Meta)
-  amount          Int?     @map("amount_cents")
-  quantity        Int      @default(1)
-  availableQty    Int      @default(1) @map("available_qty")
-  reservedQty     Int      @default(0) @map("reserved_qty")
-  mediaStorageKey String?  @map("media_storage_key")
-  attributes      Json?    // Noms des dimensions (ex: ["Taille", "Couleur"])
+  id              String              @id @default(cuid())
+  tenantId        String              @map("tenant_id")
+  tenant          Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  code            String // normalisé trim + uppercase
+  name            String? // Nom lisible (requis pour synchro Meta)
+  amount          Int?                @map("amount_cents")
+  quantity        Int                 @default(1)
+  availableQty    Int                 @default(1) @map("available_qty")
+  reservedQty     Int                 @default(0) @map("reserved_qty")
+  mediaStorageKey String?             @map("media_storage_key")
+  attributes      Json? // Noms des dimensions (ex: ["Taille", "Couleur"])
   origin          CatalogueItemOrigin @default(dashboard)
-  createdInLive   Boolean  @default(false) @map("created_in_live")
+  createdInLive   Boolean             @default(false) @map("created_in_live")
   // Synchro WhatsApp Business catalogue Meta
-  metaProductId   String?  @map("meta_product_id")   // ID retourné par Meta après synchro
-  syncedToMeta    Boolean  @default(false) @map("synced_to_meta")
-  metaSyncedAt    DateTime? @map("meta_synced_at")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  metaProductId   String?             @map("meta_product_id") // ID retourné par Meta après synchro
+  syncedToMeta    Boolean             @default(false) @map("synced_to_meta")
+  metaSyncedAt    DateTime?           @map("meta_synced_at")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
 
   reservations Reservation[]
   waitlist     Waitlist[]
@@ -438,21 +467,21 @@ model ItemVariant {
   catalogueItem   CatalogueItem? @relation(fields: [catalogueItemId], references: [id], onDelete: Cascade)
   liveItemId      String?        @map("live_item_id")
   liveItem        LiveItem?      @relation(fields: [liveItemId], references: [id], onDelete: Cascade)
-  
+
   // Label combiné pour affichage (ex: "Rouge / XL")
-  label           String   
-  
+  label String
+
   // Valeurs structurées (ex: {"Couleur": "Rouge", "Taille": "XL"})
-  values          Json     
-  
-  quantity        Int      @default(0)
-  availableQty    Int      @default(0) @map("available_qty")
-  reservedQty     Int      @default(0) @map("reserved_qty")
-  
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-  
-  reservations    Reservation[]
+  values Json
+
+  quantity     Int @default(0)
+  availableQty Int @default(0) @map("available_qty")
+  reservedQty  Int @default(0) @map("reserved_qty")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  reservations Reservation[]
 
   @@index([tenantId])
   @@index([catalogueItemId])
@@ -507,14 +536,14 @@ model Reservation {
 
 // État de conversation par client (Phase 5.1) — handoff + contexte bot
 model ConversationState {
-  id              String   @id @default(cuid())
-  tenantId        String   @map("tenant_id")
-  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  phone           String
-  handedOff       Boolean  @default(false) @map("handed_off")
-  state           String?  // 'choosing_variant', 'collected_address', etc.
-  metadata        Json?    // { catalogueItemId: '...', quantity: 3, attributes: { "Couleur": "Bleu" } }
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  phone     String
+  handedOff Boolean  @default(false) @map("handed_off")
+  state     String? // 'choosing_variant', 'collected_address', etc.
+  metadata  Json? // { catalogueItemId: '...', quantity: 3, attributes: { "Couleur": "Bleu" } }
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([tenantId, phone])
   @@index([tenantId])
@@ -539,7 +568,7 @@ model ConversationWindow {
 enum OrderStatus {
   confirmed
   confirmed_pending_deposit
-  preparing   // prépa (Story 6.3)
+  preparing // prépa (Story 6.3)
   in_delivery // livraison (Story 6.3)
   delivered
   cancelled
@@ -553,18 +582,18 @@ enum DepositStatus {
 }
 
 model Order {
-  id                String         @id @default(cuid())
-  tenantId          String         @map("tenant_id")
-  tenant            Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  reservationId     String         @unique @map("reservation_id")
-  reservation       Reservation    @relation(fields: [reservationId], references: [id], onDelete: Cascade)
-  orderNumber       String         @map("order_number") // SS-XXXX (SnapSell)
-  status            OrderStatus
-  depositStatus     DepositStatus  @map("deposit_status")
-  depositExpiresAt  DateTime?      @map("deposit_expires_at")
-  createdAt         DateTime       @default(now()) @map("created_at")
-  updatedAt         DateTime       @updatedAt @map("updated_at")
-  paymentProofs     PaymentProof[]
+  id               String         @id @default(cuid())
+  tenantId         String         @map("tenant_id")
+  tenant           Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  reservationId    String         @unique @map("reservation_id")
+  reservation      Reservation    @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  orderNumber      String         @map("order_number") // SS-XXXX (SnapSell)
+  status           OrderStatus
+  depositStatus    DepositStatus  @map("deposit_status")
+  depositExpiresAt DateTime?      @map("deposit_expires_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  paymentProofs    PaymentProof[]
 
   @@unique([tenantId, orderNumber])
   @@index([tenantId])
@@ -580,18 +609,18 @@ enum PaymentProofStatus {
 }
 
 model PaymentProof {
-  id               String             @id @default(cuid())
-  orderId          String              @map("order_id")
-  order            Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  tenantId         String              @map("tenant_id")
-  tenant           Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  mediaStorageKey  String?             @map("media_storage_key") // clé R2 (signed URL dérivée)
-  textPayload      String?             @db.Text @map("text_payload") // preuve texte
-  status           PaymentProofStatus  @default(pending)
-  reviewedAt       DateTime?          @map("reviewed_at")
-  correlationId    String              @map("correlation_id")
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
+  id              String             @id @default(cuid())
+  orderId         String             @map("order_id")
+  order           Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  tenantId        String             @map("tenant_id")
+  tenant          Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  mediaStorageKey String?            @map("media_storage_key") // clé R2 (signed URL dérivée)
+  textPayload     String?            @map("text_payload") @db.Text // preuve texte
+  status          PaymentProofStatus @default(pending)
+  reviewedAt      DateTime?          @map("reviewed_at")
+  correlationId   String             @map("correlation_id")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
 
   @@index([tenantId])
   @@index([orderId])
@@ -626,7 +655,7 @@ model Waitlist {
   catalogueItemId String?        @map("catalogue_item_id")
   catalogueItem   CatalogueItem? @relation(fields: [catalogueItemId], references: [id], onDelete: Cascade)
   clientPhone     String         @map("client_phone")
-  position        Int            // ordre d'arrivée
+  position        Int // ordre d'arrivée
   correlationId   String         @map("correlation_id")
   createdAt       DateTime       @default(now()) @map("created_at")
 
@@ -639,15 +668,15 @@ model Waitlist {
 // Dead Letter Queue pour messages échoués après N retries (Story 2.4)
 // Architecture §4.5: DLQ après échec répété pour traçabilité ops
 model DeadLetterJob {
-  id          String    @id @default(cuid())
-  tenantId    String    @map("tenant_id") // NOT NULL: isolation tenant stricte
-  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  jobType     String    @map("job_type") // ex. 'message_out'
-  payload     Json      // Payload original (JSON)
-  errorMessage String?  @db.Text @map("error_message")
-  errorStack   String?  @db.Text @map("error_stack")
-  attempts     Int      @default(0)
-  createdAt    DateTime @default(now()) @map("created_at")
+  id           String    @id @default(cuid())
+  tenantId     String    @map("tenant_id") // NOT NULL: isolation tenant stricte
+  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  jobType      String    @map("job_type") // ex. 'message_out'
+  payload      Json // Payload original (JSON)
+  errorMessage String?   @map("error_message") @db.Text
+  errorStack   String?   @map("error_stack") @db.Text
+  attempts     Int       @default(0)
+  createdAt    DateTime  @default(now()) @map("created_at")
   resolvedAt   DateTime? @map("resolved_at") // null si non résolu
 
   @@index([tenantId, jobType, resolvedAt]) // Filtrage ops
@@ -656,22 +685,22 @@ model DeadLetterJob {
 }
 
 model MessageOut {
-  id                String   @id @default(cuid())
-  tenantId           String   @map("tenant_id") // NOT NULL: isolation tenant stricte
-  tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  to                 String   // destinataire (format E.164 normalisé)
-  body               String?  @db.Text
-  mediaUrl           String?  @map("media_url") @db.Text // Story 9.4: URL média (photo article) pour MMS WhatsApp
-  interactivePayload Json?    @map("interactive_payload") // Payload boutons/liste pour messages interactifs WhatsApp
-  isTypingIndicator  Boolean  @default(false) @map("is_typing_indicator") // Story 11.2
-  status             String   // pending | sending | sent | failed | blocked (STOP)
-  attempts           Int      @default(0)
+  id                 String    @id @default(cuid())
+  tenantId           String    @map("tenant_id") // NOT NULL: isolation tenant stricte
+  tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  to                 String // destinataire (format E.164 normalisé)
+  body               String?   @db.Text
+  mediaUrl           String?   @map("media_url") @db.Text // Story 9.4: URL média (photo article) pour MMS WhatsApp
+  interactivePayload Json?     @map("interactive_payload") // Payload boutons/liste pour messages interactifs WhatsApp
+  isTypingIndicator  Boolean   @default(false) @map("is_typing_indicator") // Story 11.2
+  status             String // pending | sending | sent | failed | blocked (STOP)
+  attempts           Int       @default(0)
   nextAttemptAt      DateTime? @map("next_attempt_at")
-  lastError          String?  @db.Text @map("last_error")
-  correlationId      String   @map("correlation_id") // UUID ou message_sid pour traçabilité
-  providerMessageId  String?  @map("provider_message_id") // wamid Meta après envoi réussi
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
+  lastError          String?   @map("last_error") @db.Text
+  correlationId      String    @map("correlation_id") // UUID ou message_sid pour traçabilité
+  providerMessageId  String?   @map("provider_message_id") // wamid Meta après envoi réussi
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
 
   @@unique([tenantId, correlationId, to]) // Anti-doublon : même message pas écrit deux fois (optionnel Story 2.4)
   @@index([tenantId, status]) // Lookup rapide des messages pending
@@ -686,15 +715,15 @@ model SubscriptionPayment {
   tenantId          String   @map("tenant_id")
   tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   paystackReference String   @unique @map("paystack_reference") // Idempotence
-  type              String   // "subscription" | "overage"
-  plan              String?  // "starter" | "pro" (null si overage seul)
-  amount            Int      // Montant en FCFA
+  type              String // "subscription" | "overage"
+  plan              String? // "starter" | "pro" (null si overage seul)
+  amount            Int // Montant en FCFA
   currency          String   @default("XOF")
-  status            String   // "pending" | "success" | "failed"
-  channel           String?  // "card" | "mobile_money"
+  status            String // "pending" | "success" | "failed"
+  channel           String? // "card" | "mobile_money"
   cardLast4         String?  @map("card_last4")
   overageDetails    Json?    @map("overage_details")
-    // { ordersOverQuota: 12, ratePerOrder: 75, totalAmount: 900 }
+  // { ordersOverQuota: 12, ratePerOrder: 75, totalAmount: 900 }
   metadata          Json?
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
