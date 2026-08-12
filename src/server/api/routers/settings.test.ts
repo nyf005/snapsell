@@ -332,6 +332,8 @@ describe("settings router — getWhatsAppConfig (Meta)", () => {
       metaWabaId: "456",
       metaBusinessPhoneNumber: "+33612345678",
       hasAccessToken: true,
+      coexistence: false,
+      historySyncStatus: null,
     });
   });
 

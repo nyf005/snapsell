@@ -201,6 +201,30 @@ export function WhatsAppConfigContent() {
     (embeddedSignupState === "loading" && !embeddedSignupSlow) ||
     connectEmbedded.isPending;
 
+  /**
+   * Ce que la boutique doit lire sur la reprise de ses conversations.
+   *
+   * `declined` n'est pas une panne : elle a refusé le partage dans la fenêtre
+   * Meta, et le dire évite qu'elle cherche un défaut inexistant. `failed`, si —
+   * et comme la fenêtre de Meta est de 24 h, il faut le voir vite.
+   */
+  const historySyncNotice = (() => {
+    if (!data?.coexistence) return null;
+    switch (data.historySyncStatus) {
+      case "requested":
+      case "in_progress":
+        return "Reprise de vos anciennes conversations en cours. Elles apparaissent par tranches, comptez plusieurs minutes.";
+      case "completed":
+        return "Vos anciennes conversations ont été reprises.";
+      case "declined":
+        return "Vos anciennes conversations n’ont pas été reprises : le partage a été refusé pendant la connexion. Tout le reste fonctionne normalement.";
+      case "failed":
+        return "La reprise de vos anciennes conversations n’a pas pu démarrer. Les nouveaux messages arrivent normalement — contactez le support si vous tenez à retrouver l’historique.";
+      default:
+        return null;
+    }
+  })();
+
   /** Même progression d'état sur tous les boutons de connexion. */
   const signupButtonLabel = (idleLabel: string) =>
     connectEmbedded.isPending
@@ -548,6 +572,21 @@ export function WhatsAppConfigContent() {
                   <AlertDescription>
                     WhatsApp est connecté. Votre clientèle peut vous écrire.
                   </AlertDescription>
+                </Alert>
+              )}
+
+              {/**
+                * ── DIRE OÙ EN EST LA REPRISE DES CONVERSATIONS ──────────────
+                *
+                * L'écran annonçait « Connecté » et s'arrêtait là. En Coexistence,
+                * la reprise de l'historique arrive par tranches et prend du
+                * temps : sans cet état, une boutique qui ne retrouve pas encore
+                * ses conversations ne peut pas savoir s'il faut patienter ou
+                * s'inquiéter.
+                */}
+              {historySyncNotice && (
+                <Alert className="mt-3">
+                  <AlertDescription>{historySyncNotice}</AlertDescription>
                 </Alert>
               )}
               {embeddedSignupError && (

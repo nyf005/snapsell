@@ -20,6 +20,8 @@ const mockWhatsAppConfig = {
   metaWabaId: null as string | null,
   metaBusinessPhoneNumber: null as string | null,
   hasAccessToken: false,
+  coexistence: false,
+  historySyncStatus: null as string | null,
 };
 
 vi.mock("~/app/(dashboard)/_components/dashboard-header", () => ({
@@ -489,5 +491,73 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     expect(
       screen.queryByRole("button", { name: "Connecter ce numéro" }),
     ).not.toBeInTheDocument();
+  });
+});
+
+
+/**
+ * ── UNE REPRISE EN COURS DOIT SE VOIR ──────────────────────────────────────
+ *
+ * L'écran annonçait « Connecté » et s'arrêtait là. En Coexistence, l'historique
+ * revient par tranches : sans cet état, une boutique qui ne retrouve pas encore
+ * ses conversations ne peut pas savoir s'il faut patienter ou s'inquiéter.
+ */
+describe("WhatsAppConfigContent — reprise de l’historique", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockLoadSdk.mockResolvedValue({ login: vi.fn(), init: vi.fn() });
+    mockGetInitializedSdk.mockReturnValue({ login: vi.fn(), init: vi.fn() });
+    mockWhatsAppConfig.metaPhoneNumberId = "phone-123";
+    mockWhatsAppConfig.metaWabaId = "waba-123";
+    mockWhatsAppConfig.metaBusinessPhoneNumber = "+2250701020304";
+    mockWhatsAppConfig.hasAccessToken = true;
+    mockWhatsAppConfig.coexistence = true;
+    mockWhatsAppConfig.historySyncStatus = null;
+    process.env.NEXT_PUBLIC_META_APP_ID = "meta-app-id";
+    process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID = "meta-config-id";
+    process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED = "true";
+  });
+
+  afterEach(() => {
+    mockWhatsAppConfig.coexistence = false;
+    mockWhatsAppConfig.historySyncStatus = null;
+  });
+
+  it("annonce la reprise en cours", () => {
+    mockWhatsAppConfig.historySyncStatus = "in_progress";
+
+    render(<WhatsAppConfigContent />);
+
+    expect(screen.getByText(/Reprise de vos anciennes conversations en cours/)).toBeInTheDocument();
+  });
+
+  /**
+   * Un refus est un choix fait dans la fenêtre Meta, pas une panne. Le dire
+   * évite de faire chercher un défaut inexistant.
+   */
+  it("distingue un refus de partage d’une panne", () => {
+    mockWhatsAppConfig.historySyncStatus = "declined";
+
+    render(<WhatsAppConfigContent />);
+
+    expect(screen.getByText(/le partage a été refusé/)).toBeInTheDocument();
+    expect(screen.getByText(/Tout le reste fonctionne normalement/)).toBeInTheDocument();
+  });
+
+  it("signale un échec de démarrage", () => {
+    mockWhatsAppConfig.historySyncStatus = "failed";
+
+    render(<WhatsAppConfigContent />);
+
+    expect(screen.getByText(/n’a pas pu démarrer/)).toBeInTheDocument();
+  });
+
+  it("ne dit rien d’un historique hors Coexistence", () => {
+    mockWhatsAppConfig.coexistence = false;
+    mockWhatsAppConfig.historySyncStatus = "in_progress";
+
+    render(<WhatsAppConfigContent />);
+
+    expect(screen.queryByText(/anciennes conversations/)).not.toBeInTheDocument();
   });
 });

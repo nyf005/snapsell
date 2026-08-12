@@ -245,6 +245,8 @@ export const settingsRouter = createTRPCRouter({
           metaPhoneNumberId: true,
           metaWabaId: true,
           metaAccessToken: true,
+          metaCoexistence: true,
+          metaHistorySyncStatus: true,
         },
       }),
       db.sellerPhone.findFirst({
@@ -258,6 +260,9 @@ export const settingsRouter = createTRPCRouter({
       metaWabaId: tenant?.metaWabaId ?? null,
       metaBusinessPhoneNumber: primarySellerPhone?.phoneNumber ?? null,
       hasAccessToken: !!(tenant?.metaAccessToken),
+      coexistence: tenant?.metaCoexistence ?? false,
+      // "requested" | "in_progress" | "completed" | "declined" | "failed"
+      historySyncStatus: tenant?.metaHistorySyncStatus ?? null,
     };
   }),
 
