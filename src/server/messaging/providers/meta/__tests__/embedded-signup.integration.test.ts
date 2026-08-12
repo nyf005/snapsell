@@ -37,10 +37,10 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
   }
 
   /**
-   * Routage par URL : le parcours ne fait plus que trois appels — échange du
-   * code, `debug_token`, numéros de la WABA — et les enchaînements de
-   * `mockResolvedValueOnce` qui décrivaient l'ancien détour par un utilisateur
-   * système n'avaient plus de sens.
+   * Routage par URL : le parcours enchaîne l'échange du code, `debug_token`,
+   * les numéros de la WABA puis l'abonnement aux notifications — et les
+   * enchaînements de `mockResolvedValueOnce` qui décrivaient l'ancien détour
+   * par un utilisateur système n'avaient plus de sens.
    */
   function mockMetaFlow(
     overrides: { scopes?: string[]; phoneNumbers?: unknown[] } = {},
@@ -71,6 +71,12 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
                 })),
               },
             }),
+        });
+      }
+      if (url.includes("/subscribed_apps")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ success: true }),
         });
       }
       if (url.includes("/phone_numbers")) {
@@ -159,8 +165,8 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
     // permet d'envoyer des messages au nom de la boutique et de lire son
     // catalogue. On vérifie donc l'inverse de ce qui était écrit : qu'il
     // n'apparaisse jamais en clair en base.
-    expect(tenantAfter!.metaAccessToken).not.toBe("system-user-token");
-    expect(tenantAfter!.metaAccessToken).not.toContain("system-user-token");
+    expect(tenantAfter!.metaAccessToken).not.toBe("business-token");
+    expect(tenantAfter!.metaAccessToken).not.toContain("business-token");
     expect(tenantAfter!.metaAccessToken).toMatch(/^enc:/);
     const sellerPhone = await db.sellerPhone.findUnique({
       where: {

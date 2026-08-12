@@ -269,6 +269,49 @@ async function resolvePhoneNumber(params: {
 }
 
 /**
+ * ── SANS CET ABONNEMENT, RIEN N'ARRIVE ──────────────────────────────────────
+ *
+ * Meta ne pousse les évènements d'une WABA vers notre webhook que si l'app y
+ * est explicitement abonnée. Cet appel n'existait nulle part dans le dépôt : une
+ * boutique pouvait s'afficher « Connectée », envoyer des messages, et ne jamais
+ * recevoir la moindre réponse de sa clientèle. C'est le genre de panne qu'on ne
+ * découvre que par une cliente restée sans réponse.
+ *
+ * SnapSell l'a pourtant déclaré à Meta dans sa demande de revue pour
+ * `whatsapp_business_management` (`docs/meta-app-review-descriptions.md`) : cet
+ * appel remet le code en accord avec ce qui a été promis.
+ *
+ * L'opération est idempotente côté Meta — réabonner une WABA déjà abonnée
+ * réussit — ce qui permet de la rejouer à chaque reconnexion sans précaution.
+ */
+async function subscribeAppToWaba(params: {
+  wabaId: string;
+  accessToken: string;
+}): Promise<void> {
+  const payload = await requestJson(
+    `https://graph.facebook.com/${META_GRAPH_VERSION}/${encodeURIComponent(params.wabaId)}/subscribed_apps`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ access_token: params.accessToken }).toString(),
+    },
+    "Impossible d'abonner SnapSell aux notifications de ce compte WhatsApp Business.",
+  );
+
+  /**
+   * Meta répond `200` avec `{"success": false}` dans certains refus. Traiter la
+   * réussite HTTP comme une réussite fonctionnelle laisserait passer une
+   * boutique définitivement muette.
+   */
+  if (payload.success !== true) {
+    throw new MetaEmbeddedSignupError(
+      "UPSTREAM_ERROR",
+      "Meta a refuse l'abonnement aux notifications du compte WhatsApp Business.",
+    );
+  }
+}
+
+/**
  * ── LE JETON DE L'ÉCHANGE EST LE BON, ON NE LE TRANSFORME PLUS ──────────────
  *
  * Cette fonction faisait trois choses de trop après l'échange du code : elle
@@ -373,6 +416,14 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
     accessToken: businessToken,
     requestedPhoneNumberId: params.phoneNumberId,
   });
+
+  /**
+   * Dernier avant de rendre la main, donc avant toute écriture en base : une
+   * boutique n'est enregistrée comme connectée que si elle recevra vraiment les
+   * messages de sa clientèle. Un échec ici laisse le tenant inchangé, et
+   * « Connecté » — qui se déduit des identifiants stockés — reste donc faux.
+   */
+  await subscribeAppToWaba({ wabaId, accessToken: businessToken });
 
   return {
     accessToken: businessToken,

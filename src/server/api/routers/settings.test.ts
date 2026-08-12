@@ -650,6 +650,12 @@ describe("settings router — connectWhatsAppEmbedded", () => {
             }),
         });
       }
+      if (url.includes("/subscribed_apps")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ success: true }),
+        });
+      }
       if (url.includes("/phone_numbers")) {
         return Promise.resolve({
           ok: true,
@@ -681,7 +687,7 @@ describe("settings router — connectWhatsAppEmbedded", () => {
     const result = await caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-success" });
 
     expect(result).toEqual({ ok: true });
-    expect(mockFetch).toHaveBeenCalledTimes(3);
+    expect(mockFetch).toHaveBeenCalledTimes(4);
     expect(mockTenantUpdate).toHaveBeenCalledWith({
       where: { id: "tenant-1" },
       data: {

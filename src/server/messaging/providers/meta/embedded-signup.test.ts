@@ -34,6 +34,7 @@ type Handlers = {
   exchange?: () => Response;
   debugToken?: () => Response;
   phoneNumbers?: () => Response;
+  subscribedApps?: () => Response;
 };
 
 /**
@@ -60,6 +61,11 @@ function routeFetch(handlers: Handlers) {
               ],
             },
           }),
+      );
+    }
+    if (url.includes("/subscribed_apps")) {
+      return Promise.resolve(
+        handlers.subscribedApps?.() ?? jsonResponse({ success: true }),
       );
     }
     if (url.includes("/phone_numbers")) {
@@ -266,6 +272,42 @@ describe("resolveMetaEmbeddedSignupCredentials", () => {
     });
 
     await expect(connect({ wabaId: "waba-1" })).rejects.toThrow(/Plusieurs numeros/);
+  });
+
+  it("abonne la WABA aux notifications avant de rendre la main", async () => {
+    routeFetch({});
+
+    await connect({ wabaId: "waba-1", phoneNumberId: "phone-1" });
+
+    const subscribeCall = mockFetch.mock.calls.find((call) =>
+      String(call[0]).includes("/subscribed_apps"),
+    );
+    expect(subscribeCall).toBeDefined();
+    expect(String(subscribeCall![0])).toContain("waba-1/subscribed_apps");
+    expect((subscribeCall![1] as RequestInit).method).toBe("POST");
+  });
+
+  /**
+   * Sans abonnement, la boutique n'aurait jamais recu un message de sa
+   * clientele tout en s'affichant « Connectee ». On echoue donc franchement
+   * plutot que de laisser enregistrer des identifiants trompeurs.
+   */
+  it("echoue si Meta refuse l'abonnement aux notifications", async () => {
+    routeFetch({
+      subscribedApps: () => jsonResponse({ success: false }),
+    });
+
+    await expect(connect({ wabaId: "waba-1" })).rejects.toThrow(/abonnement/i);
+  });
+
+  it("echoue si l'abonnement renvoie une erreur HTTP", async () => {
+    routeFetch({
+      subscribedApps: () => jsonResponse({ error: { message: "nope" } }, false, 400),
+    });
+
+    await expect(connect({ wabaId: "waba-1" })).rejects.toBeInstanceOf(
+      MetaEmbeddedSignupError,
+    );
   });
 
   it("signale un code OAuth expire comme une erreur de requete", async () => {
