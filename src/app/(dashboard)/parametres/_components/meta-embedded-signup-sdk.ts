@@ -233,9 +233,39 @@ function prefersPopupDisplay(): boolean {
   }
 }
 
+/**
+ * ── DEUX PARCOURS, SELON QUE LE NUMÉRO EXISTE DÉJÀ ─────────────────────────
+ *
+ * `"cloud_api"` est le parcours complet : Meta fait créer un compte WhatsApp
+ * Business et déclarer un numéro. Il suppose un numéro **neuf**.
+ *
+ * C'était le seul proposé, et c'est la mauvaise porte pour la majorité des
+ * boutiques : leur numéro est déjà utilisé dans l'application WhatsApp
+ * Business. Meta leur demandait alors de supprimer ce compte — donc de perdre
+ * historique et contacts — ce qui fait abandonner au milieu du parcours.
+ *
+ * `"coexistence"` demande le parcours prévu pour ce cas. Le numéro existant est
+ * conservé, l'application reste utilisable, les contacts et jusqu'à six mois de
+ * conversations suivent. La personne reçoit un code dans son application
+ * WhatsApp Business et le recopie ; elle ne crée rien.
+ * ──────────────────────────────────────────────────────────────────────────
+ */
+export type MetaSignupMode = "coexistence" | "cloud_api";
+
+/**
+ * Meta a renommé cette valeur : `"coexistence"` n'est plus acceptée, c'est
+ * `"whatsapp_business_app_onboarding"` qui déclenche le parcours. Le nom
+ * interne reste parlant ; seule la valeur envoyée suit le contrat de Meta.
+ */
+const META_FEATURE_TYPE_BY_MODE: Record<MetaSignupMode, string> = {
+  coexistence: "whatsapp_business_app_onboarding",
+  cloud_api: "",
+};
+
 export async function startMetaEmbeddedSignup(
   sdk: MetaSDK,
   configId: string,
+  mode: MetaSignupMode = "cloud_api",
 ): Promise<MetaLoginResponse> {
   const cleanConfigId = configId.trim();
   if (!cleanConfigId) {
@@ -343,7 +373,7 @@ export async function startMetaEmbeddedSignup(
            */
           extras: {
             setup: {},
-            featureType: "",
+            featureType: META_FEATURE_TYPE_BY_MODE[mode],
             sessionInfoVersion: "3",
           },
         },

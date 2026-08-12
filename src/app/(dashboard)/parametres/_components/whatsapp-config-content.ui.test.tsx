@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 const mockConnectEmbeddedMutateAsync = vi.fn();
@@ -397,5 +397,97 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
         }),
       );
     });
+  });
+});
+
+/**
+ * ── LE CHOIX DU PARCOURS EST POSÉ AVANT D'OUVRIR QUOI QUE CE SOIT ───────────
+ *
+ * Un seul bouton menait au parcours « nouveau numéro ». C'est la mauvaise porte
+ * pour la majorité des boutiques, dont le numéro sert déjà dans l'application
+ * WhatsApp Business : Meta leur demandait alors de supprimer ce compte, donc de
+ * perdre historique et contacts.
+ */
+describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockLoadSdk.mockResolvedValue({ login: vi.fn(), init: vi.fn() });
+    mockGetInitializedSdk.mockReturnValue({ login: vi.fn(), init: vi.fn() });
+    mockWhatsAppConfig.metaPhoneNumberId = null;
+    mockWhatsAppConfig.metaWabaId = null;
+    mockWhatsAppConfig.metaBusinessPhoneNumber = null;
+    mockWhatsAppConfig.hasAccessToken = false;
+    process.env.NEXT_PUBLIC_META_APP_ID = "meta-app-id";
+    process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID = "meta-config-id";
+    process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED = "true";
+    process.env.NEXT_PUBLIC_META_COEXISTENCE_ENABLED = "true";
+  });
+
+  afterEach(() => {
+    process.env.NEXT_PUBLIC_META_COEXISTENCE_ENABLED = "false";
+  });
+
+  it("propose de garder le numéro existant, et de déclarer un numéro neuf", () => {
+    render(<WhatsAppConfigContent />);
+
+    expect(
+      screen.getByRole("button", { name: "Connecter ce numéro" }),
+    ).toBeEnabled();
+    expect(
+      screen.getByRole("button", { name: "Déclarer un numéro" }),
+    ).toBeEnabled();
+    expect(
+      screen.getByText(/Je garde mon numéro WhatsApp Business/),
+    ).toBeInTheDocument();
+  });
+
+  it("demande la Coexistence pour le numéro déjà utilisé", async () => {
+    mockStartSignup.mockResolvedValue({
+      status: "connected",
+      authResponse: { code: "oauth-123" },
+    });
+    render(<WhatsAppConfigContent />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Connecter ce numéro" }));
+
+    await waitFor(() => expect(mockStartSignup).toHaveBeenCalled());
+    expect(mockStartSignup).toHaveBeenCalledWith(
+      expect.anything(),
+      "meta-config-id",
+      "coexistence",
+    );
+  });
+
+  it("demande le parcours complet pour un numéro neuf", async () => {
+    mockStartSignup.mockResolvedValue({
+      status: "connected",
+      authResponse: { code: "oauth-123" },
+    });
+    render(<WhatsAppConfigContent />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Déclarer un numéro" }));
+
+    await waitFor(() => expect(mockStartSignup).toHaveBeenCalled());
+    expect(mockStartSignup).toHaveBeenCalledWith(
+      expect.anything(),
+      "meta-config-id",
+      "cloud_api",
+    );
+  });
+
+  /**
+   * La Coexistence dépend du statut Tech Provider et de la disponibilité du
+   * parcours dans le pays du numéro. Tant que ce n'est pas confirmé, le code
+   * se livre sans exposer un choix qui échouerait.
+   */
+  it("garde le bouton unique tant que la Coexistence n’est pas activée", () => {
+    process.env.NEXT_PUBLIC_META_COEXISTENCE_ENABLED = "false";
+
+    render(<WhatsAppConfigContent />);
+
+    expect(screen.getByRole("button", { name: "Connecter WhatsApp" })).toBeEnabled();
+    expect(
+      screen.queryByRole("button", { name: "Connecter ce numéro" }),
+    ).not.toBeInTheDocument();
   });
 });

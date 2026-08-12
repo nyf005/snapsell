@@ -224,4 +224,57 @@ describe("meta-embedded-signup-sdk", () => {
     // La clé inventée ne doit pas revenir par inadvertance.
     expect(login.mock.calls[0]?.[1]?.extras).not.toHaveProperty("feature");
   });
+
+  /**
+   * ── LE MODE DÉCIDE DU PARCOURS QUE META OUVRE ──────────────────────────────
+   *
+   * Une chaîne vide demande le parcours complet, qui suppose un numéro neuf. Un
+   * numéro déjà utilisé dans l'application WhatsApp Business y est refusé sans
+   * suppression préalable du compte — perte de l'historique et des contacts, et
+   * abandon au milieu du parcours.
+   *
+   * `whatsapp_business_app_onboarding` demande le parcours de Coexistence, prévu
+   * pour ce cas. Meta a renommé cette valeur : `"coexistence"` n'est plus
+   * acceptée, et l'envoyer rouvrirait la panne.
+   */
+  function captureExtras() {
+    const login = vi.fn(
+      (
+        callback: (response: { code: string }) => void,
+        _params: Record<string, unknown>,
+      ) => {
+        callback({ code: "oauth-code-xyz" });
+      },
+    );
+    return { login, sdk: { init: vi.fn(), login } };
+  }
+
+  it("demande le parcours Coexistence pour un numéro déjà sur WhatsApp Business", async () => {
+    const { login, sdk } = captureExtras();
+
+    await startMetaEmbeddedSignup(sdk, "config-id", "coexistence");
+
+    expect(login.mock.calls[0]?.[1]?.extras).toMatchObject({
+      featureType: "whatsapp_business_app_onboarding",
+      sessionInfoVersion: "3",
+    });
+  });
+
+  it("demande le parcours complet pour un numéro neuf", async () => {
+    const { login, sdk } = captureExtras();
+
+    await startMetaEmbeddedSignup(sdk, "config-id", "cloud_api");
+
+    expect(login.mock.calls[0]?.[1]?.extras).toMatchObject({ featureType: "" });
+  });
+
+  it("n'envoie jamais l'ancienne valeur « coexistence », que Meta refuse", async () => {
+    const { login, sdk } = captureExtras();
+
+    await startMetaEmbeddedSignup(sdk, "config-id", "coexistence");
+
+    expect(login.mock.calls[0]?.[1]?.extras).not.toMatchObject({
+      featureType: "coexistence",
+    });
+  });
 });

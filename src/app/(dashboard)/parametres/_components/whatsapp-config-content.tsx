@@ -8,6 +8,7 @@ import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header"
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import {
   type MetaEmbeddedSignupEvent,
+  type MetaSignupMode,
   extractOAuthCodeFromMetaLoginResponse,
   getInitializedMetaSdk,
   getMetaEmbeddedSignupErrorMessage,
@@ -181,6 +182,34 @@ export function WhatsAppConfigContent() {
     process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID ?? "";
   const isEmbeddedSignupEnabled =
     process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED === "true";
+  /**
+   * La Coexistence dépend de deux choses que SnapSell ne contrôle pas : le
+   * statut Tech Provider de l'app Meta, et la disponibilité du parcours dans le
+   * pays du numéro. Tant que ce n'est pas confirmé sur un vrai numéro, le
+   * drapeau laisse livrer le code sans exposer un choix qui échouerait.
+   */
+  const isCoexistenceEnabled =
+    isEmbeddedSignupEnabled &&
+    process.env.NEXT_PUBLIC_META_COEXISTENCE_ENABLED === "true";
+
+  /*
+    `embeddedSignupSlow` rouvre les boutons : passé le délai, on cesse de retenir
+    la personne devant une fenêtre qui ne s'ouvrira pas. L'envoi du code au
+    serveur, lui, reste bloquant — c'est une écriture, on ne la relance pas.
+  */
+  const signupBusy =
+    (embeddedSignupState === "loading" && !embeddedSignupSlow) ||
+    connectEmbedded.isPending;
+
+  /** Même progression d'état sur tous les boutons de connexion. */
+  const signupButtonLabel = (idleLabel: string) =>
+    connectEmbedded.isPending
+      ? "Connexion en cours…"
+      : embeddedSignupState === "loading" && !embeddedSignupSlow
+        ? "Ouverture de WhatsApp…"
+        : embeddedSignupSlow
+          ? "Réessayer"
+          : idleLabel;
 
   /**
    * ── LE SDK META SE CHARGE ICI, PAS AU CLIC ────────────────────────────────
@@ -232,7 +261,7 @@ export function WhatsAppConfigContent() {
     };
   }, [isEmbeddedSignupEnabled, metaAppId, metaEmbeddedConfigId]);
 
-  const handleEmbeddedSignup = useCallback(async () => {
+  const handleEmbeddedSignup = useCallback(async (mode: MetaSignupMode) => {
     const runId = ++signupRunRef.current;
     /** Vrai tant que cette tentative-ci est la plus récente. */
     const isCurrentRun = () => signupRunRef.current === runId;
@@ -300,7 +329,7 @@ export function WhatsAppConfigContent() {
       const liveSdk = getInitializedMetaSdk(metaAppId);
       let loginResponse;
       if (liveSdk) {
-        loginResponse = await startMetaEmbeddedSignup(liveSdk, metaEmbeddedConfigId);
+        loginResponse = await startMetaEmbeddedSignup(liveSdk, metaEmbeddedConfigId, mode);
       } else {
         /*
           Ce chemin est dégradé et doit se voir : l'attente ci-dessous fait
@@ -320,7 +349,7 @@ export function WhatsAppConfigContent() {
         if (!sdk) {
           throw new Error("SDK Meta indisponible après chargement.");
         }
-        loginResponse = await startMetaEmbeddedSignup(sdk, metaEmbeddedConfigId);
+        loginResponse = await startMetaEmbeddedSignup(sdk, metaEmbeddedConfigId, mode);
       }
 
       const code = extractOAuthCodeFromMetaLoginResponse(loginResponse);
@@ -433,33 +462,76 @@ export function WhatsAppConfigContent() {
                       {testConnection.isPending ? "Test en cours…" : ui.whatsapp.test}
                     </Button>
                   )}
-                  <Button
-                    type="button"
-                    onClick={() => void handleEmbeddedSignup()}
-                    /*
-                      `embeddedSignupSlow` rouvre le bouton : passé le délai, on
-                      cesse de retenir la vendeuse devant une fenêtre qui ne
-                      s'ouvrira pas. L'envoi du code au serveur, lui, reste
-                      bloquant — c'est une écriture, on ne la relance pas.
-                    */
-                    disabled={
-                      (embeddedSignupState === "loading" && !embeddedSignupSlow) ||
-                      connectEmbedded.isPending
-                    }
-                    className="min-h-11 font-semibold"
-                  >
-                    {connectEmbedded.isPending
-                      ? "Connexion en cours…"
-                      : embeddedSignupState === "loading" && !embeddedSignupSlow
-                        ? "Ouverture de WhatsApp…"
-                        : embeddedSignupSlow
-                          ? "Réessayer"
-                          : isConnected
-                            ? ui.whatsapp.reconnect
-                            : ui.whatsapp.connect}
-                  </Button>
+                  {!isCoexistenceEnabled && (
+                    <Button
+                      type="button"
+                      onClick={() => void handleEmbeddedSignup("cloud_api")}
+                      disabled={signupBusy}
+                      className="min-h-11 font-semibold"
+                    >
+                      {signupButtonLabel(isConnected ? ui.whatsapp.reconnect : ui.whatsapp.connect)}
+                    </Button>
+                  )}
                 </div>
               </div>
+
+              {/**
+                * ── DEUX PORTES, ET LA BONNE EN PREMIER ──────────────────────
+                *
+                * Un seul bouton menait au parcours « nouveau numéro ». C'est la
+                * mauvaise porte pour la majorité des boutiques, dont le numéro
+                * sert déjà dans l'application WhatsApp Business : Meta leur
+                * demandait alors de supprimer ce compte, donc de perdre
+                * historique et contacts. Beaucoup abandonnaient là.
+                *
+                * Le choix est désormais posé avant d'ouvrir quoi que ce soit, et
+                * le cas courant est mis en avant.
+                */}
+              {isCoexistenceEnabled && (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="flex flex-col justify-between gap-3 rounded-lg border border-primary/40 bg-background p-4">
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-foreground">
+                        Je garde mon numéro WhatsApp Business
+                      </p>
+                      <p className="text-xs leading-5 text-muted-foreground">
+                        Recommandé. Vous conservez l’application, vos contacts et vos
+                        conversations. Un code vous sera envoyé dans WhatsApp Business,
+                        vous n’avez rien à créer.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => void handleEmbeddedSignup("coexistence")}
+                      disabled={signupBusy}
+                      className="min-h-11 w-full font-semibold"
+                    >
+                      {signupButtonLabel("Connecter ce numéro")}
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-col justify-between gap-3 rounded-lg border border-border bg-background p-4">
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-foreground">
+                        J’utilise un nouveau numéro
+                      </p>
+                      <p className="text-xs leading-5 text-muted-foreground">
+                        Pour un numéro qui n’est encore relié à aucun compte WhatsApp.
+                        Meta vous guidera pour le déclarer et le vérifier.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => void handleEmbeddedSignup("cloud_api")}
+                      disabled={signupBusy}
+                      className="min-h-11 w-full font-semibold"
+                    >
+                      {signupButtonLabel("Déclarer un numéro")}
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {embeddedSignupSlow && embeddedSignupState === "loading" && (
                 <Alert className="mt-3">
