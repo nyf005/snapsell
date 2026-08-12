@@ -159,6 +159,9 @@ async function validateMetaCredentials(opts: {
   }
 }
 
+/** Fenêtre accordée par Meta pour lancer la reprise après l'intégration. */
+const HISTORY_SYNC_WINDOW_MS = 24 * 60 * 60 * 1000;
+
 export const settingsRouter = createTRPCRouter({
   getCategoryPrices: managerProcedure
     .input(listCategoryPricesInputSchema)
@@ -265,6 +268,61 @@ export const settingsRouter = createTRPCRouter({
       // "requested" | "in_progress" | "completed" | "declined" | "failed"
       historySyncStatus: tenant?.metaHistorySyncStatus ?? null,
     };
+  }),
+
+  /**
+   * ── UNE PANNE PASSAGÈRE NE DOIT PAS COÛTER L'HISTORIQUE ──────────────────
+   *
+   * Un échec marquait la synchronisation `failed` sans aucun recours : l'écran
+   * ne proposait que d'écrire au support, alors que la fenêtre de 24 h continue
+   * de courir. Une base momentanément indisponible chez Meta suffisait donc à
+   * perdre définitivement les conversations d'une boutique.
+   *
+   * Cette reprise ne vaut que dans la fenêtre. Passé 24 h, Meta refuse — mieux
+   * vaut le dire franchement que de laisser réessayer un bouton sans effet.
+   */
+  retryHistorySync: managerProcedure.mutation(async ({ ctx }) => {
+    const tenantId = ctx.session.user.tenantId;
+    const tenant = await db.tenant.findUnique({
+      where: { id: tenantId },
+      select: {
+        metaPhoneNumberId: true,
+        metaAccessToken: true,
+        metaHistorySyncAt: true,
+      },
+    });
+
+    if (!tenant?.metaPhoneNumberId || !tenant.metaAccessToken) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "WhatsApp n'est pas connecté.",
+      });
+    }
+
+    const startedAt = tenant.metaHistorySyncAt;
+    const elapsedMs = startedAt ? Date.now() - startedAt.getTime() : Number.POSITIVE_INFINITY;
+    if (elapsedMs > HISTORY_SYNC_WINDOW_MS) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message:
+          "Le délai de 24 heures accordé par WhatsApp est dépassé : vos anciennes conversations ne peuvent plus être récupérées.",
+      });
+    }
+
+    const historySyncStatus = await startCoexistenceSync({
+      phoneNumberId: tenant.metaPhoneNumberId,
+      accessToken: decrypt(tenant.metaAccessToken),
+    });
+
+    await db.tenant.update({
+      where: { id: tenantId },
+      // `metaHistorySyncAt` n'est pas touché : la fenêtre part de l'intégration
+      // chez Meta, pas de nos tentatives. La repousser mentirait sur le délai
+      // restant et ferait réessayer bien après que Meta ait cessé d'accepter.
+      data: { metaHistorySyncStatus: historySyncStatus },
+    });
+
+    return { historySyncStatus };
   }),
 
   setWhatsAppConfig: managerProcedure

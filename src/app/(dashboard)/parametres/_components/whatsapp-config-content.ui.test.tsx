@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 const mockConnectEmbeddedMutateAsync = vi.fn();
+const mockRetryHistorySync = vi.fn();
 /** Enregistrement des identifiants manuels — déclenché par le formulaire. */
 const mockSetConfigMutate = vi.fn();
 const mockLoadSdk = vi.fn();
@@ -64,13 +65,18 @@ vi.mock("~/trpc/react", () => ({
         useMutation: () => ({ mutate: vi.fn(), isPending: false }),
       },
       getWhatsAppConfig: {
-        useQuery: () => ({
+        // Accepte (input, options) : le composant passe un `refetchInterval`
+        // pour suivre la reprise d'historique sans rechargement manuel.
+        useQuery: (_input?: unknown, _options?: unknown) => ({
           data: mockWhatsAppConfig,
           isLoading: false,
         }),
       },
       setWhatsAppConfig: {
         useMutation: () => ({ mutate: mockSetConfigMutate, isPending: false }),
+      },
+      retryHistorySync: {
+        useMutation: () => ({ mutate: mockRetryHistorySync, isPending: false }),
       },
       testWhatsAppConnection: {
         useMutation: () => ({ mutate: vi.fn(), isPending: false }),
@@ -550,6 +556,29 @@ describe("WhatsAppConfigContent — reprise de l’historique", () => {
     render(<WhatsAppConfigContent />);
 
     expect(screen.getByText(/n’a pas pu démarrer/)).toBeInTheDocument();
+  });
+
+  /**
+   * Un échec marquait la reprise perdue sans recours, l'écran ne proposant que
+   * d'écrire au support — alors que la fenêtre de 24 h court toujours et qu'une
+   * panne passagère chez Meta se rattrape en un clic.
+   */
+  it("offre de relancer une reprise en échec", () => {
+    mockWhatsAppConfig.historySyncStatus = "failed";
+
+    render(<WhatsAppConfigContent />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Réessayer" }));
+
+    expect(mockRetryHistorySync).toHaveBeenCalledTimes(1);
+  });
+
+  it("n’offre pas de relance quand la reprise avance normalement", () => {
+    mockWhatsAppConfig.historySyncStatus = "in_progress";
+
+    render(<WhatsAppConfigContent />);
+
+    expect(screen.queryByRole("button", { name: "Réessayer" })).not.toBeInTheDocument();
   });
 
   it("ne dit rien d’un historique hors Coexistence", () => {

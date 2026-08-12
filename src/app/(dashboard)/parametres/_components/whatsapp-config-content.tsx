@@ -61,6 +61,7 @@ export function WhatsAppConfigContent() {
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [embeddedSignupError, setEmbeddedSignupError] = useState<UserError | null>(null);
+  const [historySyncError, setHistorySyncError] = useState<UserError | null>(null);
   /**
    * ── UNE ATTENTE NE DOIT JAMAIS ÊTRE UNE IMPASSE ─────────────────────────────
    *
@@ -83,7 +84,22 @@ export function WhatsAppConfigContent() {
   const signupRunRef = useRef(0);
 
   const utils = api.useUtils();
-  const { data, isLoading } = api.settings.getWhatsAppConfig.useQuery();
+  /**
+   * ── UNE REPRISE EN COURS DOIT AVANCER SOUS LES YEUX ─────────────────────
+   *
+   * L'état n'était relu qu'après la connexion. Une boutique restant sur la page
+   * voyait donc « en cours » indéfiniment, même une fois la reprise terminée —
+   * elle n'avait aucune raison de deviner qu'il fallait recharger.
+   *
+   * On n'interroge que pendant la reprise, et pas au-delà : inutile de tenir
+   * une requête toutes les dix secondes sur une page ouverte toute la journée.
+   */
+  const { data, isLoading } = api.settings.getWhatsAppConfig.useQuery(undefined, {
+    refetchInterval: (query) => {
+      const status = query.state.data?.historySyncStatus;
+      return status === "requested" || status === "in_progress" ? 10_000 : false;
+    },
+  });
   const { data: sellerPhones = [], isLoading: sellerPhonesLoading } =
     api.sellerPhones.list.useQuery();
   const addSellerPhone = api.sellerPhones.add.useMutation({
@@ -116,6 +132,10 @@ export function WhatsAppConfigContent() {
       setTimeout(() => setSaveSuccess(false), 3000);
     },
     onError: (e) => setSaveError(formatError(e, "whatsapp")),
+  });
+  const retryHistorySync = api.settings.retryHistorySync.useMutation({
+    onSuccess: () => void utils.settings.getWhatsAppConfig.invalidate(),
+    onError: (e) => setHistorySyncError(formatError(e, "whatsapp")),
   });
   const connectEmbedded = api.settings.connectWhatsAppEmbedded.useMutation({
     onSuccess: () => {
@@ -219,7 +239,7 @@ export function WhatsAppConfigContent() {
       case "declined":
         return "Vos anciennes conversations n’ont pas été reprises : le partage a été refusé pendant la connexion. Tout le reste fonctionne normalement.";
       case "failed":
-        return "La reprise de vos anciennes conversations n’a pas pu démarrer. Les nouveaux messages arrivent normalement — contactez le support si vous tenez à retrouver l’historique.";
+        return "La reprise de vos anciennes conversations n’a pas pu démarrer. Les nouveaux messages arrivent normalement.";
       default:
         return null;
     }
@@ -586,8 +606,28 @@ export function WhatsAppConfigContent() {
                 */}
               {historySyncNotice && (
                 <Alert className="mt-3">
-                  <AlertDescription>{historySyncNotice}</AlertDescription>
+                  <AlertDescription>
+                    {historySyncNotice}
+                    {data?.historySyncStatus === "failed" && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="ml-3"
+                        onClick={() => {
+                          setHistorySyncError(null);
+                          retryHistorySync.mutate();
+                        }}
+                        disabled={retryHistorySync.isPending}
+                      >
+                        {retryHistorySync.isPending ? "Reprise…" : "Réessayer"}
+                      </Button>
+                    )}
+                  </AlertDescription>
                 </Alert>
+              )}
+              {historySyncError && (
+                <ErrorAlert error={historySyncError} className="mt-3" />
               )}
               {embeddedSignupError && (
                 <ErrorAlert error={embeddedSignupError} className="mt-3" />
