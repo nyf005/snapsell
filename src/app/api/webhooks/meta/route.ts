@@ -10,15 +10,9 @@ import {
   inboundMessageForQueueSchema,
 } from "~/lib/zod/webhook";
 import {
-  META_WEBHOOK_FIELDS,
   classifyMetaWebhookField,
   isInboundMessageField,
 } from "~/server/messaging/providers/meta/webhook-fields";
-import {
-  handleAppStateSync,
-  handleHistory,
-  handleMessageEchoes,
-} from "~/server/messaging/providers/meta/coexistence-handlers";
 import { env } from "~/env";
 import { webhookLogger } from "~/lib/logger";
 import { checkWebhookRateLimit, getClientIpFromRequest } from "~/lib/rate-limit";
@@ -52,14 +46,19 @@ function verifyMetaSignature(bodyText: string, signatureHeader: string | null, s
 }
 
 /**
- * Traite les évènements de Coexistence, chacun avec son propre handler.
+ * Enfile les évènements de Coexistence — sans les traiter ici.
  *
- * Le tenant se résout ici, par `phone_number_id` — comme pour un message
- * entrant, mais sans rien enfiler ensuite. Un échec est journalisé et n'arrête
- * pas les autres changements du lot : perdre l'import d'un contact ne doit pas
- * emporter l'historique qui l'accompagne.
+ * L'import se faisait dans cette requête : chaque contact et chaque message
+ * d'historique produisait une requête SQL, en série, pendant que Meta attendait.
+ * Un historique de six mois représente des milliers de messages, la réponse
+ * dépassait donc largement la seconde visée, Meta rejouait le lot, et le rejeu
+ * relançait le même import.
+ *
+ * On résout la boutique — c'est rapide et ça évite d'enfiler pour rien — puis on
+ * confie le travail au worker. Un échec est journalisé et n'arrête pas les
+ * autres changements du lot.
  */
-async function handleCoexistenceChanges(
+async function enqueueCoexistenceChanges(
   changes: Array<{ field: string; value?: Record<string, unknown> }>,
   correlationId: string,
 ) {
@@ -91,35 +90,24 @@ async function handleCoexistenceChanges(
     }
 
     try {
-      if (change.field === META_WEBHOOK_FIELDS.MESSAGE_ECHOES) {
-        const written = await handleMessageEchoes({ tenantId: tenant.id, value, correlationId });
-        webhookLogger.info("Coexistence: échos enregistrés", {
-          correlationId,
-          tenantId: tenant.id,
-          count: written,
-        });
-      } else if (change.field === META_WEBHOOK_FIELDS.APP_STATE_SYNC) {
-        const applied = await handleAppStateSync({ tenantId: tenant.id, value, correlationId });
-        webhookLogger.info("Coexistence: contacts synchronisés", {
-          correlationId,
-          tenantId: tenant.id,
-          count: applied,
-        });
-      } else if (change.field === META_WEBHOOK_FIELDS.HISTORY) {
-        const { imported, progress } = await handleHistory({
-          tenantId: tenant.id,
-          value,
-          correlationId,
-        });
-        webhookLogger.info("Coexistence: historique importé", {
-          correlationId,
-          tenantId: tenant.id,
-          count: imported,
-          progress: progress ?? "",
-        });
-      }
+      await ensureBossReady();
+      await boss.send(QUEUE.COEXISTENCE_SYNC, {
+        tenantId: tenant.id,
+        field: change.field,
+        value,
+        correlationId,
+      });
+      webhookLogger.info("Coexistence: évènement enfilé", {
+        correlationId,
+        field: change.field,
+        tenantId: tenant.id,
+      });
     } catch (error) {
-      webhookLogger.error("Coexistence: traitement échoué", error, {
+      /*
+        On ne demande pas de rejeu à Meta pour autant : le lot peut contenir un
+        message client déjà traité plus bas, et le rejouer le dupliquerait.
+      */
+      webhookLogger.error("Coexistence: mise en file échouée", error, {
         correlationId,
         field: change.field,
         tenantId: tenant.id,
@@ -271,12 +259,12 @@ export async function POST(request: Request) {
     }
 
     /**
-     * Les évènements de Coexistence sont traités ici, hors du pipeline entrant.
+     * Les évènements de Coexistence partent sur leur propre file, hors du
+     * pipeline entrant.
      *
      * Ils décrivent le passé ou l'activité propre de la boutique — ce qu'elle a
      * envoyé depuis son téléphone, ses contacts, ses anciennes conversations —
-     * et aucun n'appelle de réponse. `handleCoexistenceChanges` n'écrit donc
-     * jamais dans l'outbox ni dans la file.
+     * et aucun n'appelle de réponse.
      */
     const coexistenceChanges = envelope.entry.flatMap((entry) =>
       entry.changes.filter((change) => {
@@ -286,7 +274,7 @@ export async function POST(request: Request) {
     );
 
     if (coexistenceChanges.length > 0) {
-      await handleCoexistenceChanges(coexistenceChanges, correlationId);
+      await enqueueCoexistenceChanges(coexistenceChanges, correlationId);
     }
 
     if (!fields.some(isInboundMessageField)) {

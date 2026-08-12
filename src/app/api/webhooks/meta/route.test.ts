@@ -42,6 +42,7 @@ vi.mock("~/server/workers/queues", () => ({
   ensureBossReady: vi.fn().mockResolvedValue(undefined),
   QUEUE: {
     WEBHOOK_PROCESSING: "webhook-processing",
+    COEXISTENCE_SYNC: "coexistence-sync",
     OUTBOX_SEND: "outbox-send",
     OUTBOX_DLQ: "outbox-dlq",
   },
@@ -741,19 +742,22 @@ describe("POST /api/webhooks/meta — champs Coexistence", () => {
     const resp = await callPOST(body);
 
     expect(resp.status).toBe(200);
-    // Rien n'entre dans le pipeline : ni message client persisté, ni tâche enfilée.
+    // Rien n'entre dans le pipeline entrant : pas de message client persisté,
+    // pas d'adaptateur instancié, et surtout aucun job sur sa file.
     expect(dbMock.db.messageIn.create).not.toHaveBeenCalled();
-    expect(queueMock.boss.send).not.toHaveBeenCalled();
     expect(adapterModule.MetaCloudAdapter).not.toHaveBeenCalled();
-    // Mais l'écho est bien conservé, du bon côté de la conversation.
-    expect(dbMock.db.messageOut.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        create: expect.objectContaining({
-          providerMessageId: "wamid.echo",
-          status: "sent",
-        }),
-      }),
+    const inboundJobs = vi
+      .mocked(queueMock.boss.send)
+      .mock.calls.filter((call) => call[0] === "webhook-processing");
+    expect(inboundJobs).toHaveLength(0);
+
+    // L'écho part sur sa propre file, pour être importé hors de cette requête.
+    expect(queueMock.boss.send).toHaveBeenCalledWith(
+      "coexistence-sync",
+      expect.objectContaining({ field: "smb_message_echoes", tenantId: "tenant-1" }),
     );
+    // L'import lui-même appartient au worker, plus à la route.
+    expect(dbMock.db.messageOut.upsert).not.toHaveBeenCalled();
   });
 
   it("journalise l'echo en le nommant, au lieu d'un rejet muet", async () => {
@@ -771,7 +775,10 @@ describe("POST /api/webhooks/meta — champs Coexistence", () => {
       const resp = await callPOST(makeFieldPayload(field));
 
       expect(resp.status).toBe(200);
-      expect(queueMock.boss.send).not.toHaveBeenCalled();
+      const inboundJobs = vi
+        .mocked(queueMock.boss.send)
+        .mock.calls.filter((call) => call[0] === "webhook-processing");
+      expect(inboundJobs).toHaveLength(0);
       expect(mockWebhookLoggerInfo).toHaveBeenCalledWith(
         "Meta webhook field hors pipeline entrant",
         expect.objectContaining({ field, kind: "coexistence-sync" }),

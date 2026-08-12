@@ -66,6 +66,14 @@ export function ensureBossReady(): Promise<void> {
 /** Noms de queues (centralisés pour éviter les typos) */
 export const QUEUE = {
   WEBHOOK_PROCESSING: "webhook-processing",
+  /**
+   * Import des évènements de Coexistence (historique, contacts, échos).
+   *
+   * Sur sa propre file : un historique de six mois peut représenter des
+   * milliers de messages, et l'importer dans la requête webhook ferait dépasser
+   * la seconde que Meta attend — donc rejeu du lot, donc réimport, en boucle.
+   */
+  COEXISTENCE_SYNC: "coexistence-sync",
   // Compatibilité : OUTBOX_SEND conservé pour le fallback pg-boss en développement local
   OUTBOX_SEND: "outbox-send",
   // Crons pg-boss (schedule names)
@@ -88,6 +96,17 @@ export async function ensureQueues(): Promise<void> {
     retryDelay: 2,
     retryBackoff: true,
     deleteAfterSeconds: 3600,
+  });
+
+  /*
+    Rétention plus longue que le webhook : ces jobs sont volumineux et l'import
+    complet s'étale sur plusieurs tranches envoyées par Meta.
+  */
+  await boss.createQueue(QUEUE.COEXISTENCE_SYNC, {
+    retryLimit: 3,
+    retryDelay: 5,
+    retryBackoff: true,
+    deleteAfterSeconds: 86400,
   });
 
   // Fallback dev uniquement

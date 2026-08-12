@@ -24,6 +24,7 @@ import "./worker-role";
 
 import { boss, ensureQueues, QUEUE } from "~/server/workers/queues";
 import { startWebhookProcessorWorker } from "~/server/workers/webhook-processor";
+import { startCoexistenceSyncWorker } from "~/server/workers/coexistence-sync";
 import { runReservationReminderJob, runReservationTtlJob } from "~/server/workers/reservation-ttl";
 import { runCloseInactiveLiveSessions } from "~/server/workers/close-inactive-live-sessions";
 import { runDepositExpiryJob } from "~/server/workers/deposit-expiry";
@@ -94,6 +95,10 @@ async function main(): Promise<void> {
     workerLogger.info("Starting webhook processor worker...");
     await startWebhookProcessorWorker();
     workerLogger.info("Webhook processor worker started successfully");
+
+    workerLogger.info("Starting coexistence sync worker...");
+    await startCoexistenceSyncWorker();
+    workerLogger.info("Coexistence sync worker started successfully");
 
     // Schedules pg-boss : verrou distribué en DB, safe si redémarrage ou scale
     await boss.schedule(SCHEDULE.RESERVATION_TTL, "* * * * *", {});
