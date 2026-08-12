@@ -611,67 +611,65 @@ describe("settings router — connectWhatsAppEmbedded", () => {
     return createCaller(ctx);
   }
 
-  function mockMetaExchangeSuccess() {
-    mockFetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "short-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "long-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "biz-123" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "sys-user-123", name: "SnapSell Embedded Signup" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            access_token: "system-user-token",
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: {
-              is_valid: true,
-              scopes: [
-                "business_management",
-                "whatsapp_business_management",
-                "whatsapp_business_messaging",
-              ],
-            },
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [
-              {
-                id: "waba-123",
-                phone_numbers: [{ id: "phone-123", display_phone_number: "33612345678" }],
+  /**
+   * Routage par URL plutôt qu'enchaînement de `mockResolvedValueOnce`.
+   *
+   * L'ancienne version alignait sept réponses dans l'ordre exact des appels du
+   * parcours, dont cinq pour le détour par un utilisateur système désormais
+   * supprimé. Toute variation du nombre ou de l'ordre des appels cassait ces
+   * tests sans rien dire du comportement réellement attendu.
+   */
+  function mockMetaFlow(
+    overrides: { scopes?: string[]; displayPhoneNumber?: string } = {},
+  ) {
+    const scopes = overrides.scopes ?? [
+      "whatsapp_business_management",
+      "whatsapp_business_messaging",
+    ];
+
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes("/oauth/access_token")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ access_token: "business-token" }),
+        });
+      }
+      if (url.includes("/debug_token")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              data: {
+                is_valid: true,
+                scopes,
+                granular_scopes: scopes.map((scope) => ({
+                  scope,
+                  target_ids: ["waba-123"],
+                })),
               },
-            ],
-          }),
-      });
+            }),
+        });
+      }
+      if (url.includes("/phone_numbers")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              data: [
+                {
+                  id: "phone-123",
+                  display_phone_number: overrides.displayPhoneNumber ?? "33612345678",
+                },
+              ],
+            }),
+        });
+      }
+      throw new Error(`Appel Meta inattendu: ${url}`);
+    });
   }
 
   it("connecte WhatsApp Embedded pour OWNER et persiste les credentials resolves", async () => {
-    mockMetaExchangeSuccess();
+    mockMetaFlow();
     mockTenantUpdate.mockResolvedValue({});
     mockSellerPhoneUpsert.mockResolvedValue({
       id: "sp-1",
@@ -683,7 +681,7 @@ describe("settings router — connectWhatsAppEmbedded", () => {
     const result = await caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-success" });
 
     expect(result).toEqual({ ok: true });
-    expect(mockFetch).toHaveBeenCalledTimes(7);
+    expect(mockFetch).toHaveBeenCalledTimes(3);
     expect(mockTenantUpdate).toHaveBeenCalledWith({
       where: { id: "tenant-1" },
       data: {
@@ -730,46 +728,7 @@ describe("settings router — connectWhatsAppEmbedded", () => {
   });
 
   it("rejette permissions manquantes avec BAD_REQUEST", async () => {
-    mockFetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "short-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "long-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "biz-123" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "sys-user-123", name: "SnapSell Embedded Signup" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            access_token: "system-user-token",
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: {
-              is_valid: true,
-              scopes: ["public_profile"],
-            },
-          }),
-      });
+    mockMetaFlow({ scopes: ["public_profile"] });
 
     const caller = await makeCaller(ownerSession);
     await expect(
@@ -780,7 +739,7 @@ describe("settings router — connectWhatsAppEmbedded", () => {
   });
 
   it("rejette conflit unicite metaPhoneNumberId avec CONFLICT", async () => {
-    mockMetaExchangeSuccess();
+    mockMetaFlow();
     // Simulate a Prisma unique constraint violation on meta_phone_number_id
     const prismaError = new Prisma.PrismaClientKnownRequestError("Unique constraint fail", {
       code: "P2002",
@@ -798,7 +757,7 @@ describe("settings router — connectWhatsAppEmbedded", () => {
   });
 
   it("n ajoute pas de doublon seller phone si le numero existe deja", async () => {
-    mockMetaExchangeSuccess();
+    mockMetaFlow();
     mockTenantUpdate.mockResolvedValue({});
     mockSellerPhoneUpsert.mockResolvedValue({
       id: "sp-1",
@@ -814,62 +773,7 @@ describe("settings router — connectWhatsAppEmbedded", () => {
   });
 
   it("echoue avec INTERNAL_SERVER_ERROR si numero business non normalisable", async () => {
-    mockFetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "short-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "long-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "biz-123" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "sys-user-123", name: "SnapSell Embedded Signup" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            access_token: "system-user-token",
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: {
-              is_valid: true,
-              scopes: [
-                "business_management",
-                "whatsapp_business_management",
-                "whatsapp_business_messaging",
-              ],
-            },
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [
-              {
-                id: "waba-123",
-                phone_numbers: [{ id: "phone-123", display_phone_number: "invalid_phone" }],
-              },
-            ],
-          }),
-      });
+    mockMetaFlow({ displayPhoneNumber: "invalid_phone" });
 
     const caller = await makeCaller(ownerSession);
     await expect(
@@ -882,7 +786,7 @@ describe("settings router — connectWhatsAppEmbedded", () => {
 
 
   it("rejette reutilisation du meme code OAuth pour le meme tenant", async () => {
-    mockMetaExchangeSuccess();
+    mockMetaFlow();
     mockTenantUpdate.mockResolvedValue({});
 
     const caller = await makeCaller(ownerSession);

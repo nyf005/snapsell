@@ -36,64 +36,61 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
     return createCaller(ctx);
   }
 
-  function mockMetaExchangeSuccess() {
-    mockFetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "short-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "long-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "biz-123" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "sys-user-123", name: "SnapSell Embedded Signup" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            access_token: "system-user-token",
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: {
-              is_valid: true,
-              scopes: [
-                "business_management",
-                "whatsapp_business_management",
-                "whatsapp_business_messaging",
-              ],
-            },
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [
-              {
-                id: "waba-123",
-                phone_numbers: [{ id: "phone-123", display_phone_number: "33612345678" }],
+  /**
+   * Routage par URL : le parcours ne fait plus que trois appels — échange du
+   * code, `debug_token`, numéros de la WABA — et les enchaînements de
+   * `mockResolvedValueOnce` qui décrivaient l'ancien détour par un utilisateur
+   * système n'avaient plus de sens.
+   */
+  function mockMetaFlow(
+    overrides: { scopes?: string[]; phoneNumbers?: unknown[] } = {},
+  ) {
+    const scopes = overrides.scopes ?? [
+      "whatsapp_business_management",
+      "whatsapp_business_messaging",
+    ];
+
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes("/oauth/access_token")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ access_token: "business-token" }),
+        });
+      }
+      if (url.includes("/debug_token")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              data: {
+                is_valid: true,
+                scopes,
+                granular_scopes: scopes.map((scope) => ({
+                  scope,
+                  target_ids: ["waba-123"],
+                })),
               },
-            ],
-          }),
-      });
+            }),
+        });
+      }
+      if (url.includes("/phone_numbers")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              data:
+                overrides.phoneNumbers ??
+                [{ id: "phone-123", display_phone_number: "33612345678" }],
+            }),
+        });
+      }
+      throw new Error(`Appel Meta inattendu: ${url}`);
+    });
   }
+
+  const mockMetaExchangeSuccess = () => mockMetaFlow();
+  const mockMetaFlowWithScopes = (scopes: string[]) => mockMetaFlow({ scopes });
+  const mockMetaFlowWithNoPhoneNumbers = () => mockMetaFlow({ phoneNumbers: [] });
 
   beforeAll(async () => {
     const tenant = await db.tenant.create({
@@ -199,46 +196,7 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
   });
 
   it("retourne BAD_REQUEST si les permissions/scopes sont insuffisants", async () => {
-    mockFetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "short-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "long-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "biz-123" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "sys-user-123", name: "SnapSell Embedded Signup" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            access_token: "system-user-token",
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: {
-              is_valid: true,
-              scopes: ["public_profile"],
-            },
-          }),
-      });
+    mockMetaFlowWithScopes(["public_profile"]);
 
     const caller = await makeCaller(ownerSession);
     await expect(
@@ -247,57 +205,7 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
   });
 
   it("retourne BAD_REQUEST si aucun WABA/numero utilisable n'est resolu (sandbox suspendu/inexploitable)", async () => {
-    mockFetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "short-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ access_token: "long-lived-token" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "biz-123" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [{ id: "sys-user-123", name: "SnapSell Embedded Signup" }],
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            access_token: "system-user-token",
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: {
-              is_valid: true,
-              scopes: [
-                "business_management",
-                "whatsapp_business_management",
-                "whatsapp_business_messaging",
-              ],
-            },
-          }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            data: [],
-          }),
-      });
+    mockMetaFlowWithNoPhoneNumbers();
 
     const caller = await makeCaller(ownerSession);
     await expect(

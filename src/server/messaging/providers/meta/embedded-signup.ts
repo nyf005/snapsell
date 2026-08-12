@@ -1,7 +1,25 @@
 const META_GRAPH_VERSION = "v21.0";
 const META_REQUEST_TIMEOUT_MS = 10_000;
+
+/**
+ * ── DEUX PERMISSIONS, PAS TROIS ─────────────────────────────────────────────
+ *
+ * `business_management` figurait ici. Elle n'a jamais été accordée à l'app Meta
+ * de SnapSell, et ce contrôle rejetait donc toute connexion d'une vendeuse
+ * n'ayant aucun rôle sur l'app — c'est-à-dire toutes les vraies vendeuses.
+ *
+ * Elle n'était requise que par le détour supprimé plus bas : SnapSell fabriquait
+ * un second jeton en créant un utilisateur système dans le portefeuille de la
+ * vendeuse. Meta remet déjà le bon jeton — un *Business Integration System User
+ * access token* — en échange du code d'Embedded Signup. C'est d'ailleurs ce que
+ * SnapSell a déclaré faire dans sa demande de revue Meta
+ * (`docs/meta-app-review-descriptions.md`).
+ *
+ * Ces deux permissions-ci sont accordées, et sont celles que Meta demande à un
+ * Tech Provider : l'une gère le compte, l'autre les messages.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
 const REQUIRED_SCOPES = [
-  "business_management",
   "whatsapp_business_management",
   "whatsapp_business_messaging",
 ] as const;
@@ -12,34 +30,25 @@ type OAuthAccessTokenResponse = {
   access_token?: string;
 };
 
+/**
+ * `granular_scopes` dit *sur quels actifs* une permission porte, là où `scopes`
+ * ne dit que si elle est présente. C'est ce qui permet de vérifier que la WABA
+ * qu'on s'apprête à enregistrer fait bien partie de ce que la vendeuse a
+ * réellement partagé, plutôt que de le supposer.
+ */
 type DebugTokenResponse = {
   data?: {
     is_valid?: boolean;
     scopes?: string[];
+    granular_scopes?: Array<{
+      scope?: string;
+      target_ids?: string[];
+    }>;
   };
 };
 
-type MeBusinessesResponse = {
-  data?: Array<{ id?: string }>;
-};
-
-type SystemUsersResponse = {
-  data?: Array<{ id?: string; name?: string }>;
-};
-
-type CreatedSystemUserResponse = {
-  id?: string;
-};
-
-type SystemUserAccessTokenResponse = {
-  access_token?: string;
-};
-
-type WabaAccountsResponse = {
-  data?: Array<{
-    id?: string;
-    phone_numbers?: Array<{ id?: string; display_phone_number?: string }>;
-  }>;
+type PhoneNumbersResponse = {
+  data?: Array<{ id?: string; display_phone_number?: string }>;
 };
 
 export type EmbeddedSignupConnectionResult = {
@@ -117,45 +126,6 @@ function requireString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
 
-function extractFirstWabaAndPhone(
-  payload: WabaAccountsResponse,
-  preferred?: { wabaId?: string; phoneNumberId?: string },
-): { wabaId: string; phoneNumberId: string; businessPhoneNumber: string } | null {
-  const pairs: Array<{ wabaId: string; phoneNumberId: string; businessPhoneNumber: string }> = [];
-  const accounts = payload.data ?? [];
-
-  for (const account of accounts) {
-    const wabaId = requireString(account.id);
-    if (!wabaId) continue;
-
-    const phoneNumbers = account.phone_numbers ?? [];
-    for (const phone of phoneNumbers) {
-      const phoneNumberId = requireString(phone.id);
-      const businessPhoneNumber = requireString(phone.display_phone_number);
-      if (phoneNumberId && businessPhoneNumber) {
-        pairs.push({ wabaId, phoneNumberId, businessPhoneNumber });
-      }
-    }
-  }
-
-  const preferredWabaId = requireString(preferred?.wabaId);
-  const preferredPhoneNumberId = requireString(preferred?.phoneNumberId);
-  if (preferredWabaId || preferredPhoneNumberId) {
-    const matched = pairs.find(
-      (pair) =>
-        (preferredWabaId == null || pair.wabaId === preferredWabaId) &&
-        (preferredPhoneNumberId == null || pair.phoneNumberId === preferredPhoneNumberId),
-    );
-    return matched ?? null;
-  }
-
-  if (pairs.length !== 1) {
-    return null;
-  }
-
-  return pairs[0]!;
-}
-
 const USED_CODE_TTL_MS = 10 * 60 * 1000;
 const usedOAuthCodes = new Map<string, number>();
 
@@ -176,84 +146,146 @@ function assertOAuthCodeNotReplayed(tenantId: string, code: string) {
   usedOAuthCodes.set(replayKey, now + USED_CODE_TTL_MS);
 }
 
-async function generateSystemUserToken(params: {
-  userAccessToken: string;
-  appId: string;
-}): Promise<string> {
-  const businesses = (await requestJson(
-    `https://graph.facebook.com/${META_GRAPH_VERSION}/me/businesses?fields=id&access_token=${encodeURIComponent(params.userAccessToken)}&limit=25`,
-    { method: "GET" },
-    "Impossible de recuperer le Business Meta associe au compte.",
-  )) as MeBusinessesResponse;
+/**
+ * Les WABA sur lesquelles le jeton porte réellement, d'après Meta.
+ *
+ * On croise les deux permissions : une WABA que la vendeuse aurait partagée
+ * pour la gestion mais pas pour la messagerie ne nous servirait à rien, et
+ * l'enregistrer produirait un échec plus tard, à l'envoi du premier message —
+ * loin d'ici, et bien plus difficile à relier à sa cause.
+ */
+function extractAuthorizedWabaIds(debugData: DebugTokenResponse["data"]): string[] {
+  const granular = debugData?.granular_scopes ?? [];
 
-  const businessId = requireString(businesses.data?.[0]?.id);
-  if (!businessId) {
-    throw new MetaEmbeddedSignupError(
-      "BAD_REQUEST",
-      "Aucun Business Meta associe au compte connecte.",
-    );
-  }
+  const idsForScope = (scope: string): string[] => {
+    const entry = granular.find((item) => item.scope === scope);
+    return (entry?.target_ids ?? []).filter((id): id is string => requireString(id) != null);
+  };
 
-  const existingSystemUsers = (await requestJson(
-    `https://graph.facebook.com/${META_GRAPH_VERSION}/${encodeURIComponent(businessId)}/system_users?fields=id,name&access_token=${encodeURIComponent(params.userAccessToken)}&limit=25`,
-    { method: "GET" },
-    "Impossible de recuperer les system users Meta.",
-  )) as SystemUsersResponse;
+  const managementIds = idsForScope("whatsapp_business_management");
+  const messagingIds = idsForScope("whatsapp_business_messaging");
 
-  let systemUserId = requireString(existingSystemUsers.data?.[0]?.id);
+  /**
+   * Meta omet `target_ids` quand la permission porte sur tous les actifs. Dans
+   * ce cas on ne peut rien croiser, et exiger une intersection reviendrait à
+   * tout rejeter. On se rabat alors sur l'autre liste, et si les deux sont
+   * vides, on laisse la résolution se faire sans filtre — le contrôle
+   * d'appartenance de `resolvePhoneNumber` reste, lui, toujours en place.
+   */
+  if (managementIds.length === 0) return messagingIds;
+  if (messagingIds.length === 0) return managementIds;
 
-  if (!systemUserId) {
-    const body = new URLSearchParams({
-      name: "SnapSell Embedded Signup",
-      role: "ADMIN",
-      access_token: params.userAccessToken,
-    });
-    const createdSystemUser = (await requestJson(
-      `https://graph.facebook.com/${META_GRAPH_VERSION}/${encodeURIComponent(businessId)}/system_users`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: body.toString(),
-      },
-      "Impossible de creer un system user Meta pour ce Business.",
-    )) as CreatedSystemUserResponse;
-
-    systemUserId = requireString(createdSystemUser.id);
-  }
-
-  if (!systemUserId) {
-    throw new MetaEmbeddedSignupError(
-      "BAD_REQUEST",
-      "System user Meta introuvable pour generer le token WhatsApp.",
-    );
-  }
-
-  const accessTokenBody = new URLSearchParams({
-    app_id: params.appId,
-    scope: REQUIRED_SCOPES.join(","),
-    access_token: params.userAccessToken,
-  });
-  const systemTokenPayload = (await requestJson(
-    `https://graph.facebook.com/${META_GRAPH_VERSION}/${encodeURIComponent(systemUserId)}/access_tokens`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: accessTokenBody.toString(),
-    },
-    "Impossible de generer le System User Token Meta.",
-  )) as SystemUserAccessTokenResponse;
-
-  const systemUserToken = requireString(systemTokenPayload.access_token);
-  if (!systemUserToken) {
-    throw new MetaEmbeddedSignupError(
-      "BAD_REQUEST",
-      "Meta n'a pas retourne de System User Token exploitable.",
-    );
-  }
-
-  return systemUserToken;
+  return managementIds.filter((id) => messagingIds.includes(id));
 }
 
+function resolveWabaId(params: {
+  authorizedWabaIds: string[];
+  requestedWabaId?: string;
+}): string {
+  const requested = requireString(params.requestedWabaId);
+  const authorized = params.authorizedWabaIds;
+
+  if (requested) {
+    /**
+     * La fenêtre Meta nous a annoncé cette WABA-là. On la retient, mais on
+     * refuse de l'enregistrer si le jeton ne porte pas dessus : le message de
+     * la fenêtre vient du navigateur, le jeton vient de Meta. C'est le second
+     * qui fait foi.
+     */
+    if (authorized.length > 0 && !authorized.includes(requested)) {
+      throw new MetaEmbeddedSignupError(
+        "BAD_REQUEST",
+        "Le compte WhatsApp Business selectionne n'est pas autorise par le token Meta.",
+      );
+    }
+    return requested;
+  }
+
+  if (authorized.length === 1) {
+    return authorized[0]!;
+  }
+
+  throw new MetaEmbeddedSignupError(
+    "BAD_REQUEST",
+    authorized.length === 0
+      ? "Aucun compte WhatsApp Business autorise pour ce token Meta."
+      : "Plusieurs comptes WhatsApp Business autorises : impossible de choisir sans indication.",
+  );
+}
+
+/**
+ * Le numéro se lit sur la WABA, pas sur `me/whatsapp_business_accounts`.
+ *
+ * Cet ancien appel partait du jeton pour découvrir les comptes ; il supposait un
+ * jeton utilisateur. Passer par la WABA a deux avantages : c'est compatible avec
+ * un business token, et ça **vérifie l'appartenance** — un `phone_number_id`
+ * annoncé par la fenêtre Meta mais absent de cette WABA est rejeté ici plutôt
+ * qu'enregistré.
+ *
+ * C'est aussi le repli nécessaire lorsque la fenêtre ne renvoie pas de
+ * `phone_number_id`, ce qui peut arriver.
+ */
+async function resolvePhoneNumber(params: {
+  wabaId: string;
+  accessToken: string;
+  requestedPhoneNumberId?: string;
+}): Promise<{ phoneNumberId: string; businessPhoneNumber: string }> {
+  const payload = (await requestJson(
+    `https://graph.facebook.com/${META_GRAPH_VERSION}/${encodeURIComponent(params.wabaId)}/phone_numbers?fields=id,display_phone_number&limit=100&access_token=${encodeURIComponent(params.accessToken)}`,
+    { method: "GET" },
+    "Impossible de recuperer les numeros du compte WhatsApp Business.",
+  )) as PhoneNumbersResponse;
+
+  const numbers = (payload.data ?? []).flatMap((entry) => {
+    const phoneNumberId = requireString(entry.id);
+    const businessPhoneNumber = requireString(entry.display_phone_number);
+    return phoneNumberId && businessPhoneNumber
+      ? [{ phoneNumberId, businessPhoneNumber }]
+      : [];
+  });
+
+  const requested = requireString(params.requestedPhoneNumberId);
+  if (requested) {
+    const matched = numbers.find((entry) => entry.phoneNumberId === requested);
+    if (!matched) {
+      throw new MetaEmbeddedSignupError(
+        "BAD_REQUEST",
+        "Le numero selectionne n'appartient pas au compte WhatsApp Business autorise.",
+      );
+    }
+    return matched;
+  }
+
+  if (numbers.length === 1) {
+    return numbers[0]!;
+  }
+
+  throw new MetaEmbeddedSignupError(
+    "BAD_REQUEST",
+    numbers.length === 0
+      ? "Aucun numero utilisable sur ce compte WhatsApp Business."
+      : "Plusieurs numeros disponibles : impossible de choisir sans indication.",
+  );
+}
+
+/**
+ * ── LE JETON DE L'ÉCHANGE EST LE BON, ON NE LE TRANSFORME PLUS ──────────────
+ *
+ * Cette fonction faisait trois choses de trop après l'échange du code : elle
+ * prolongeait le jeton avec `fb_exchange_token`, cherchait le portefeuille
+ * Business de la vendeuse via `me/businesses`, puis y créait un utilisateur
+ * système pour en tirer un second jeton.
+ *
+ * Chacune de ces étapes suppose un jeton *utilisateur*. Or l'échange du code
+ * d'Embedded Signup renvoie déjà un jeton d'intégration business, cadré sur la
+ * seule cliente qui vient de terminer le parcours. Le détour ne servait donc à
+ * rien — et il exigeait `business_management`, jamais accordée, ce qui rendait
+ * la connexion impossible pour toute vendeuse extérieure.
+ *
+ * Il imposait en prime à la vendeuse d'être **administratrice** d'un
+ * portefeuille Business préexistant, ce que beaucoup ne sont pas.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
 export async function resolveMetaEmbeddedSignupCredentials(params: {
   tenantId: string;
   code: string;
@@ -300,35 +332,16 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
     "Code OAuth Meta invalide ou expire. Relance la connexion WhatsApp.",
   )) as OAuthAccessTokenResponse;
 
-  const shortLivedToken = requireString(codeExchangePayload.access_token);
-  if (!shortLivedToken) {
+  const businessToken = requireString(codeExchangePayload.access_token);
+  if (!businessToken) {
     throw new MetaEmbeddedSignupError(
       "BAD_REQUEST",
       "Meta n'a pas retourne de token pour ce code OAuth.",
     );
   }
 
-  const longLivedPayload = (await requestJson(
-    `https://graph.facebook.com/${META_GRAPH_VERSION}/oauth/access_token?grant_type=fb_exchange_token&client_id=${encodeURIComponent(appId)}&client_secret=${encodeURIComponent(appSecret)}&fb_exchange_token=${encodeURIComponent(shortLivedToken)}`,
-    { method: "GET" },
-    "Impossible de prolonger le token Meta. Relance la connexion WhatsApp.",
-  )) as OAuthAccessTokenResponse;
-
-  const longLivedToken = requireString(longLivedPayload.access_token);
-  if (!longLivedToken) {
-    throw new MetaEmbeddedSignupError(
-      "BAD_REQUEST",
-      "Meta n'a pas retourne de token longue duree.",
-    );
-  }
-
-  const systemUserToken = await generateSystemUserToken({
-    userAccessToken: longLivedToken,
-    appId,
-  });
-
   const debugTokenPayload = (await requestJson(
-    `https://graph.facebook.com/debug_token?input_token=${encodeURIComponent(systemUserToken)}&access_token=${encodeURIComponent(`${appId}|${appSecret}`)}`,
+    `https://graph.facebook.com/debug_token?input_token=${encodeURIComponent(businessToken)}&access_token=${encodeURIComponent(`${appId}|${appSecret}`)}`,
     { method: "GET" },
     "Le token Meta retourne est invalide ou incomplet.",
   )) as DebugTokenResponse;
@@ -346,34 +359,25 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
   if (missingScopes.length > 0) {
     throw new MetaEmbeddedSignupError(
       "BAD_REQUEST",
-      "Permissions Meta insuffisantes pour connecter WhatsApp Business.",
+      `Permissions Meta insuffisantes pour connecter WhatsApp Business (manquant: ${missingScopes.join(", ")}).`,
     );
   }
 
-  const wabaPayload = (await requestJson(
-    `https://graph.facebook.com/${META_GRAPH_VERSION}/me/whatsapp_business_accounts?fields=id,phone_numbers{id,display_phone_number}&access_token=${encodeURIComponent(systemUserToken)}&limit=25`,
-    { method: "GET" },
-    "Impossible de recuperer les ressources WhatsApp Business du compte Meta.",
-  )) as WabaAccountsResponse;
+  const wabaId = resolveWabaId({
+    authorizedWabaIds: extractAuthorizedWabaIds(debugData),
+    requestedWabaId: params.wabaId,
+  });
 
-  const preferredResource = {
-    wabaId: params.wabaId,
-    phoneNumberId: params.phoneNumberId,
-  };
-  const resolved = extractFirstWabaAndPhone(wabaPayload, preferredResource);
-  if (!resolved) {
-    throw new MetaEmbeddedSignupError(
-      "BAD_REQUEST",
-      preferredResource.wabaId || preferredResource.phoneNumberId
-        ? "Le compte WhatsApp Business selectionne n'a pas pu etre resolu dans les ressources Meta accessibles."
-        : "Aucun compte WhatsApp Business utilisable trouve pour ce compte Meta.",
-    );
-  }
+  const { phoneNumberId, businessPhoneNumber } = await resolvePhoneNumber({
+    wabaId,
+    accessToken: businessToken,
+    requestedPhoneNumberId: params.phoneNumberId,
+  });
 
   return {
-    accessToken: systemUserToken,
-    wabaId: resolved.wabaId,
-    phoneNumberId: resolved.phoneNumberId,
-    businessPhoneNumber: resolved.businessPhoneNumber,
+    accessToken: businessToken,
+    wabaId,
+    phoneNumberId,
+    businessPhoneNumber,
   };
 }
