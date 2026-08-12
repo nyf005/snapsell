@@ -26,6 +26,7 @@ import {
 } from "./settings.schema";
 import {
   MetaEmbeddedSignupError,
+  startCoexistenceSync,
   resolveMetaEmbeddedSignupCredentials,
 } from "~/server/messaging/providers/meta/embedded-signup";
 
@@ -387,13 +388,10 @@ export const settingsRouter = createTRPCRouter({
               metaAccessToken: encrypt(credentials.accessToken),
               /*
                 Ce que Meta a confirmé sur le numéro, pas le mode demandé à
-                l'écran. La date sert de repère à la fenêtre de 24 h : sans
-                elle, on ne saurait pas dire si une synchronisation restée en
-                « requested » est en cours ou définitivement manquée.
+                l'écran. `null` = indéterminé, ce qui fait quand même tenter la
+                synchronisation plus bas.
               */
               metaCoexistence: credentials.coexistence,
-              metaHistorySyncStatus: credentials.historySyncStatus,
-              metaHistorySyncAt: credentials.historySyncStatus ? new Date() : null,
             },
           });
 
@@ -415,6 +413,38 @@ export const settingsRouter = createTRPCRouter({
             phoneNumber: normalizedBusinessPhone,
           });
         });
+
+        /**
+         * ── LA SYNCHRONISATION PART APRÈS L'ÉCRITURE, JAMAIS AVANT ────────
+         *
+         * Elle était déclenchée pendant la résolution des identifiants, donc
+         * avant que `metaPhoneNumberId` n'existe en base. Meta pouvait alors
+         * renvoyer un `history` ou un `smb_app_state_sync` sur une boutique
+         * que le webhook ne savait pas encore résoudre — évènement jeté, et
+         * rien pour le rattraper dans la fenêtre de 24 h.
+         *
+         * Ici, la transaction est validée : le webhook trouvera la boutique.
+         *
+         * `null` (indéterminé) déclenche quand même la tentative. Les deux
+         * erreurs n'ont pas le même prix : un appel refusé sur un numéro
+         * ordinaire ne coûte rien, une synchronisation omise coûte
+         * l'historique.
+         */
+        if (credentials.coexistence !== false) {
+          const historySyncStatus = await startCoexistenceSync({
+            phoneNumberId: credentials.phoneNumberId,
+            accessToken: credentials.accessToken,
+          });
+          await db.tenant.update({
+            where: { id: tenantId },
+            data: {
+              metaHistorySyncStatus: historySyncStatus,
+              // Repère de la fenêtre de 24 h : sans lui, impossible de dire si
+              // une reprise restée en cours est encore rattrapable.
+              metaHistorySyncAt: new Date(),
+            },
+          });
+        }
       } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
           const target = Array.isArray(error.meta?.target)

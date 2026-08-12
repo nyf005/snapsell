@@ -32,7 +32,9 @@ model Tenant {
   // Coexistence — numéro partagé entre l'app WhatsApp Business et la Cloud API.
   // Confirmé par Meta (`is_on_biz_app` + `platform_type`) à la connexion, jamais
   // déduit du choix fait à l'écran : celui-ci n'est qu'une intention.
-  metaCoexistence       Boolean   @default(false) @map("meta_coexistence")
+  // `null` = indéterminé. Une erreur de lecture ne vaut pas « non » : conclure
+  // « non » ferait sauter la synchronisation et perdre l'historique.
+  metaCoexistence       Boolean?  @map("meta_coexistence")
   // "requested" | "in_progress" | "completed" | "declined" | "failed"
   // Meta n'accorde que 24 h après l'intégration pour lancer la synchronisation ;
   // passé ce délai l'historique est perdu sans reprise possible.

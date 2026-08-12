@@ -704,8 +704,6 @@ describe("settings router — connectWhatsAppEmbedded", () => {
         metaWabaId: "waba-123",
         metaAccessToken: expect.stringMatching(/^enc:/),
         metaCoexistence: false,
-        metaHistorySyncStatus: null,
-        metaHistorySyncAt: null,
       },
     });
     expect(mockSellerPhoneUpsert).toHaveBeenCalledWith({

@@ -1,7 +1,10 @@
 -- Coexistence : le numéro est partagé entre l'application WhatsApp Business et
 -- la Cloud API. Confirmé par Meta à la connexion, jamais déduit du choix fait à
 -- l'écran.
-ALTER TABLE "tenants" ADD COLUMN "meta_coexistence" BOOLEAN NOT NULL DEFAULT false;
+-- Nullable a dessein : NULL = indetermine. Une erreur de lecture chez Meta ne
+-- vaut pas « non », sous peine de sauter la synchronisation et de perdre
+-- l'historique dans la fenetre de 24 h.
+ALTER TABLE "tenants" ADD COLUMN "meta_coexistence" BOOLEAN;
 
 -- Suivi de la synchronisation d'historique. Meta n'accorde que 24 h après
 -- l'intégration pour la lancer ; sans trace de son état, on ne saurait ni la

@@ -4417,7 +4417,7 @@ export namespace Prisma {
     metaPhoneNumberId: string | null
     metaWabaId: string | null
     metaAccessToken: string | null
-    metaCoexistence: boolean
+    metaCoexistence: boolean | null
     metaHistorySyncStatus: string | null
     metaHistorySyncAt: Date | null
     requireDeposit: boolean
@@ -4787,7 +4787,7 @@ export namespace Prisma {
       metaPhoneNumberId: string | null
       metaWabaId: string | null
       metaAccessToken: string | null
-      metaCoexistence: boolean
+      metaCoexistence: boolean | null
       metaHistorySyncStatus: string | null
       metaHistorySyncAt: Date | null
       requireDeposit: boolean
@@ -38050,7 +38050,7 @@ export namespace Prisma {
     metaPhoneNumberId?: StringNullableFilter<"Tenant"> | string | null
     metaWabaId?: StringNullableFilter<"Tenant"> | string | null
     metaAccessToken?: StringNullableFilter<"Tenant"> | string | null
-    metaCoexistence?: BoolFilter<"Tenant"> | boolean
+    metaCoexistence?: BoolNullableFilter<"Tenant"> | boolean | null
     metaHistorySyncStatus?: StringNullableFilter<"Tenant"> | string | null
     metaHistorySyncAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     requireDeposit?: BoolFilter<"Tenant"> | boolean
@@ -38127,7 +38127,7 @@ export namespace Prisma {
     metaPhoneNumberId?: SortOrderInput | SortOrder
     metaWabaId?: SortOrderInput | SortOrder
     metaAccessToken?: SortOrderInput | SortOrder
-    metaCoexistence?: SortOrder
+    metaCoexistence?: SortOrderInput | SortOrder
     metaHistorySyncStatus?: SortOrderInput | SortOrder
     metaHistorySyncAt?: SortOrderInput | SortOrder
     requireDeposit?: SortOrder
@@ -38209,7 +38209,7 @@ export namespace Prisma {
     name?: StringFilter<"Tenant"> | string
     metaWabaId?: StringNullableFilter<"Tenant"> | string | null
     metaAccessToken?: StringNullableFilter<"Tenant"> | string | null
-    metaCoexistence?: BoolFilter<"Tenant"> | boolean
+    metaCoexistence?: BoolNullableFilter<"Tenant"> | boolean | null
     metaHistorySyncStatus?: StringNullableFilter<"Tenant"> | string | null
     metaHistorySyncAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     requireDeposit?: BoolFilter<"Tenant"> | boolean
@@ -38284,7 +38284,7 @@ export namespace Prisma {
     metaPhoneNumberId?: SortOrderInput | SortOrder
     metaWabaId?: SortOrderInput | SortOrder
     metaAccessToken?: SortOrderInput | SortOrder
-    metaCoexistence?: SortOrder
+    metaCoexistence?: SortOrderInput | SortOrder
     metaHistorySyncStatus?: SortOrderInput | SortOrder
     metaHistorySyncAt?: SortOrderInput | SortOrder
     requireDeposit?: SortOrder
@@ -38346,7 +38346,7 @@ export namespace Prisma {
     metaPhoneNumberId?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     metaWabaId?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     metaAccessToken?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
-    metaCoexistence?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    metaCoexistence?: BoolNullableWithAggregatesFilter<"Tenant"> | boolean | null
     metaHistorySyncStatus?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     metaHistorySyncAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
     requireDeposit?: BoolWithAggregatesFilter<"Tenant"> | boolean
@@ -40506,7 +40506,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -40583,7 +40583,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -40660,7 +40660,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -40737,7 +40737,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -40814,7 +40814,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -40868,7 +40868,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -40922,7 +40922,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -43249,9 +43249,9 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
+  export type BoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
   }
 
   export type DateTimeNullableFilter<$PrismaModel = never> = {
@@ -43263,6 +43263,11 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type DateTimeFilter<$PrismaModel = never> = {
@@ -43742,12 +43747,12 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
+  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -43762,6 +43767,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -45589,12 +45602,16 @@ export namespace Prisma {
     set?: string | null
   }
 
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -47375,9 +47392,9 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
+  export type NestedBoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
   }
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
@@ -47389,6 +47406,11 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -47458,12 +47480,12 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
+  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -47478,6 +47500,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -49221,7 +49251,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -49297,7 +49327,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -49389,7 +49419,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -49465,7 +49495,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -49541,7 +49571,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -49617,7 +49647,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -49729,7 +49759,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -49805,7 +49835,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -49958,7 +49988,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -50034,7 +50064,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -50126,7 +50156,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -50202,7 +50232,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -50278,7 +50308,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -50354,7 +50384,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -50506,7 +50536,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -50582,7 +50612,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -50870,7 +50900,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -50946,7 +50976,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -51038,7 +51068,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -51114,7 +51144,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -51190,7 +51220,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -51266,7 +51296,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -51358,7 +51388,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -51434,7 +51464,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -51510,7 +51540,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -51586,7 +51616,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -51678,7 +51708,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -51754,7 +51784,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -51830,7 +51860,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -51906,7 +51936,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -51998,7 +52028,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -52074,7 +52104,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -52150,7 +52180,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -52226,7 +52256,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -52318,7 +52348,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -52394,7 +52424,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -52470,7 +52500,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -52546,7 +52576,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -52638,7 +52668,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -52714,7 +52744,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -52790,7 +52820,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -52866,7 +52896,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -53056,7 +53086,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -53132,7 +53162,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -53240,7 +53270,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -53316,7 +53346,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -53527,7 +53557,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -53603,7 +53633,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -53742,7 +53772,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -53818,7 +53848,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -54036,7 +54066,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -54112,7 +54142,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -54236,7 +54266,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -54312,7 +54342,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -54546,7 +54576,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -54622,7 +54652,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -54812,7 +54842,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -54888,7 +54918,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -55153,7 +55183,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -55229,7 +55259,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -55508,7 +55538,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -55584,7 +55614,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -55676,7 +55706,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -55752,7 +55782,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -55828,7 +55858,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -55904,7 +55934,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -55996,7 +56026,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -56072,7 +56102,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -56148,7 +56178,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -56224,7 +56254,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -56401,7 +56431,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -56477,7 +56507,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -56655,7 +56685,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -56731,7 +56761,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -56858,7 +56888,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -56934,7 +56964,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -57010,7 +57040,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -57086,7 +57116,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -57227,7 +57257,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -57303,7 +57333,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -57434,7 +57464,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -57510,7 +57540,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -57602,7 +57632,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -57678,7 +57708,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -57754,7 +57784,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -57830,7 +57860,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -57922,7 +57952,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -57998,7 +58028,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -58074,7 +58104,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -58150,7 +58180,7 @@ export namespace Prisma {
     metaPhoneNumberId?: string | null
     metaWabaId?: string | null
     metaAccessToken?: string | null
-    metaCoexistence?: boolean
+    metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
@@ -58242,7 +58272,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
@@ -58318,7 +58348,7 @@ export namespace Prisma {
     metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
     metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
-    metaCoexistence?: BoolFieldUpdateOperationsInput | boolean
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean

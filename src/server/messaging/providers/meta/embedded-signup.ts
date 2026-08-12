@@ -76,10 +76,11 @@ export type EmbeddedSignupConnectionResult = {
   wabaId: string;
   phoneNumberId: string;
   businessPhoneNumber: string;
-  /** Confirmé par Meta, pas par le choix fait à l'écran. */
-  coexistence: boolean;
-  /** `null` hors Coexistence : il n'y a alors aucun historique à reprendre. */
-  historySyncStatus: HistorySyncStatus | null;
+  /**
+   * Confirmé par Meta, pas par le choix fait à l'écran.
+   * `null` = indéterminé (Meta n'a pas répondu) — voir `detectCoexistence`.
+   */
+  coexistence: boolean | null;
 };
 
 export class MetaEmbeddedSignupError extends Error {
@@ -375,31 +376,44 @@ async function subscribeAppToWaba(params: {
  * `platform_type` à `CLOUD_API` signifient que l'application et l'API partagent
  * ce numéro.
  */
-async function detectCoexistence(params: {
+export async function detectCoexistence(params: {
   phoneNumberId: string;
   accessToken: string;
-}): Promise<boolean> {
-  try {
-    const payload = (await requestJson(
-      `https://graph.facebook.com/${META_GRAPH_VERSION}/${encodeURIComponent(params.phoneNumberId)}?fields=is_on_biz_app,platform_type&access_token=${encodeURIComponent(params.accessToken)}`,
-      { method: "GET" },
-      "Impossible de lire la configuration du numero WhatsApp.",
-    )) as PhoneNumberPlatformResponse;
+}): Promise<boolean | null> {
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      const payload = (await requestJson(
+        `https://graph.facebook.com/${META_GRAPH_VERSION}/${encodeURIComponent(params.phoneNumberId)}?fields=is_on_biz_app,platform_type&access_token=${encodeURIComponent(params.accessToken)}`,
+        { method: "GET" },
+        "Impossible de lire la configuration du numero WhatsApp.",
+      )) as PhoneNumberPlatformResponse;
 
-    return payload.is_on_biz_app === true && payload.platform_type === "CLOUD_API";
-  } catch (error) {
-    /*
-      Ne pas faire échouer une connexion par ailleurs valide pour une question
-      d'étiquette. On retombe sur « pas de Coexistence », ce qui n'entreprend
-      aucune synchronisation — le défaut prudent.
-    */
-    workerLogger.error(
-      "Meta: lecture de la plateforme du numéro échouée",
-      error instanceof Error ? error : new Error(String(error)),
-      { phoneNumberId: params.phoneNumberId },
-    );
-    return false;
+      return payload.is_on_biz_app === true && payload.platform_type === "CLOUD_API";
+    } catch (error) {
+      workerLogger.error(
+        `Meta: lecture de la plateforme du numéro échouée (tentative ${attempt}/2)`,
+        error instanceof Error ? error : new Error(String(error)),
+        { phoneNumberId: params.phoneNumberId },
+      );
+    }
   }
+
+  /**
+   * ── « JE NE SAIS PAS » N'EST PAS « NON » ────────────────────────────────
+   *
+   * Cette fonction renvoyait `false` sur erreur, ce qui passait pour prudent.
+   * Ça ne l'était pas : un délai réseau suffisait alors à classer
+   * définitivement une boutique hors Coexistence, donc à ne lancer aucune
+   * synchronisation, donc à laisser la fenêtre de 24 h s'écouler et l'historique
+   * disparaître — sans reprise possible.
+   *
+   * Les deux erreurs n'ont pas le même prix. Se tromper en tentant une
+   * synchronisation sur un numéro ordinaire coûte un appel refusé ; se tromper
+   * en s'abstenant coûte les conversations de la boutique. On rend donc
+   * l'incertitude telle quelle, et l'appelant tente malgré tout.
+   * ────────────────────────────────────────────────────────────────────────
+   */
+  return null;
 }
 
 /**
@@ -414,7 +428,7 @@ async function detectCoexistence(params: {
  * sans historique reste utilisable, alors qu'une connexion refusée ne l'est pas.
  * L'état part en base pour que l'écran puisse le dire.
  */
-async function startCoexistenceSync(params: {
+export async function startCoexistenceSync(params: {
   phoneNumberId: string;
   accessToken: string;
 }): Promise<HistorySyncStatus> {
@@ -423,7 +437,17 @@ async function startCoexistenceSync(params: {
       `https://graph.facebook.com/${META_GRAPH_VERSION}/${encodeURIComponent(params.phoneNumberId)}/smb_app_data`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          /*
+            Le jeton manquait ici, et nulle part ailleurs : les autres appels le
+            passent en paramètre d'URL ou dans un corps encodé, celui-ci envoie
+            du JSON et n'avait donc aucun endroit où le glisser. Meta aurait
+            refusé chaque demande de synchronisation, et la fenêtre de 24 h se
+            serait écoulée sans que rien ne soit repris.
+          */
+          Authorization: `Bearer ${params.accessToken}`,
+        },
         body: JSON.stringify({ messaging_product: "whatsapp", sync_type: syncType }),
       },
       "Meta a refuse la demande de synchronisation.",
@@ -582,19 +606,26 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
    */
   await subscribeAppToWaba({ wabaId, accessToken: businessToken });
 
-  const coexistence = await detectCoexistence({
-    phoneNumberId,
-    accessToken: businessToken,
-  });
-
+  /**
+   * ── LA SYNCHRONISATION NE PART PAS D'ICI ───────────────────────────────
+   *
+   * Elle était lancée à cet endroit, avant que l'appelant n'ait écrit le
+   * `metaPhoneNumberId` en base. Meta pouvait donc renvoyer un `history` ou un
+   * `smb_app_state_sync` pendant que la boutique n'était pas encore
+   * enregistrée : le webhook ne résolvait aucun tenant et jetait l'évènement.
+   *
+   * On se contente donc de constater la Coexistence. C'est au routeur de
+   * déclencher la synchronisation, une fois la transaction validée.
+   * ────────────────────────────────────────────────────────────────────────
+   */
   return {
     accessToken: businessToken,
     wabaId,
     phoneNumberId,
     businessPhoneNumber,
-    coexistence,
-    historySyncStatus: coexistence
-      ? await startCoexistenceSync({ phoneNumberId, accessToken: businessToken })
-      : null,
+    coexistence: await detectCoexistence({
+      phoneNumberId,
+      accessToken: businessToken,
+    }),
   };
 }

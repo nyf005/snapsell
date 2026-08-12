@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   MetaEmbeddedSignupError,
   resolveMetaEmbeddedSignupCredentials,
+  startCoexistenceSync,
 } from "./embedded-signup";
 
 const mockFetch = vi.hoisted(() => vi.fn());
@@ -123,7 +124,6 @@ describe("resolveMetaEmbeddedSignupCredentials", () => {
       phoneNumberId: "phone-1",
       businessPhoneNumber: "+225 07 01 02 03 04",
       coexistence: false,
-      historySyncStatus: null,
     });
   });
 
@@ -385,7 +385,7 @@ describe("resolveMetaEmbeddedSignupCredentials", () => {
  * exactement ce que la Coexistence promet de conserver. La demande part donc
  * dans la foulée de la connexion, jamais depuis un réglage.
  */
-describe("Coexistence — détection et synchronisation", () => {
+describe("Coexistence — détection", () => {
   beforeEach(() => {
     mockFetch.mockReset();
   });
@@ -401,80 +401,129 @@ describe("Coexistence — détection et synchronisation", () => {
     expect(result.coexistence).toBe(true);
   });
 
-  it("demande contacts puis historique des que la Coexistence est confirmee", async () => {
-    const syncTypes: string[] = [];
-    routeFetch({
-      platform: coexistingPlatform,
-      smbAppData: () => jsonResponse({ request_id: "req-1" }),
-    });
+  it("ne lance aucune synchronisation pendant la resolution des identifiants", async () => {
+    routeFetch({ platform: coexistingPlatform });
 
     await connect({ wabaId: "waba-1" });
 
-    for (const call of mockFetch.mock.calls) {
-      const url = String(call[0]);
-      if (!url.includes("/smb_app_data")) continue;
-      const body = (call[1] as RequestInit | undefined)?.body;
-      syncTypes.push(JSON.parse(String(body)).sync_type);
-    }
-
-    expect(syncTypes).toEqual(["smb_app_state_sync", "history"]);
-  });
-
-  it("ne demande aucune synchronisation hors Coexistence", async () => {
-    routeFetch({});
-
-    const result = await connect({ wabaId: "waba-1" });
-
-    expect(result.historySyncStatus).toBeNull();
+    /*
+      La synchronisation partait d'ici, avant que le routeur n'ait ecrit le
+      numero en base : un webhook Meta arrivant tot ne resolvait alors aucune
+      boutique et l'evenement etait jete.
+    */
     expect(calledUrls().some((url) => url.includes("/smb_app_data"))).toBe(false);
   });
 
   /**
-   * Refuser de partager son historique est un choix légitime, offert par Meta
-   * pendant le parcours. Le traiter comme une panne ferait chercher un défaut
-   * inexistant — et pousserait à relancer une connexion qui va très bien.
+   * ── « JE NE SAIS PAS » N'EST PAS « NON » ────────────────────────────────
+   *
+   * Renvoyer `false` sur erreur passait pour prudent. Ça ne l'était pas : un
+   * délai réseau suffisait à classer la boutique hors Coexistence, donc à ne
+   * lancer aucune synchronisation, donc à laisser l'historique disparaître.
+   */
+  it("rend l'incertitude plutot que de conclure « pas de Coexistence »", async () => {
+    routeFetch({
+      platform: () => jsonResponse({ error: { message: "timeout" } }, false, 503),
+    });
+
+    const result = await connect({ wabaId: "waba-1" });
+
+    expect(result.coexistence).toBeNull();
+  });
+
+  it("reessaie une fois avant de rendre l'incertitude", async () => {
+    routeFetch({
+      platform: () => jsonResponse({ error: { message: "timeout" } }, false, 503),
+    });
+
+    await connect({ wabaId: "waba-1" });
+
+    const platformCalls = calledUrls().filter((url) => url.includes("is_on_biz_app"));
+    expect(platformCalls).toHaveLength(2);
+  });
+});
+
+describe("startCoexistenceSync", () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
+  });
+
+  function routeSync(handler?: (url: string, init?: RequestInit) => Response) {
+    mockFetch.mockImplementation((url: string, init?: RequestInit) =>
+      Promise.resolve(handler?.(url, init) ?? jsonResponse({ request_id: "req-1" })),
+    );
+  }
+
+  const run = () =>
+    startCoexistenceSync({ phoneNumberId: "phone-1", accessToken: "business-token" });
+
+  /**
+   * Le jeton manquait sur ces deux appels — et nulle part ailleurs, les autres
+   * le passant en paramètre d'URL ou dans un corps encodé. Meta aurait refusé
+   * chaque demande, et la fenêtre de 24 h se serait écoulée sans reprise.
+   */
+  it("authentifie les demandes de synchronisation", async () => {
+    routeSync();
+
+    await run();
+
+    const syncCalls = mockFetch.mock.calls.filter((call) =>
+      String(call[0]).includes("/smb_app_data"),
+    );
+    expect(syncCalls).toHaveLength(2);
+    for (const call of syncCalls) {
+      const headers = (call[1] as RequestInit).headers as Record<string, string>;
+      expect(headers.Authorization).toBe("Bearer business-token");
+    }
+  });
+
+  it("demande les contacts puis l'historique", async () => {
+    const syncTypes: string[] = [];
+    routeSync((url, init) => {
+      if (url.includes("/smb_app_data")) {
+        syncTypes.push(JSON.parse(String(init?.body)).sync_type);
+      }
+      return jsonResponse({ request_id: "req-1" });
+    });
+
+    await run();
+
+    expect(syncTypes).toEqual(["smb_app_state_sync", "history"]);
+  });
+
+  /**
+   * Refuser de partager son historique est un choix offert par Meta pendant le
+   * parcours. Le traiter comme une panne ferait chercher un défaut inexistant.
    */
   it("distingue un refus de partage d'une panne", async () => {
-    routeFetch({
-      platform: coexistingPlatform,
-      smbAppData: (url) =>
-        url.includes("smb_app_data")
-          ? jsonResponse(
-              { error: { message: "history declined", code: 2593109 } },
-              false,
-              400,
-            )
-          : jsonResponse({ request_id: "req-1" }),
+    routeSync((url, init) => {
+      const isHistory =
+        url.includes("/smb_app_data") &&
+        JSON.parse(String(init?.body)).sync_type === "history";
+      return isHistory
+        ? jsonResponse({ error: { message: "declined", code: 2593109 } }, false, 400)
+        : jsonResponse({ request_id: "req-1" });
     });
 
-    const result = await connect({ wabaId: "waba-1" });
-
-    expect(result.historySyncStatus).toBe("declined");
+    await expect(run()).resolves.toBe("declined");
   });
 
-  it("signale une synchronisation en echec sans casser la connexion", async () => {
-    routeFetch({
-      platform: coexistingPlatform,
-      smbAppData: () =>
-        jsonResponse({ error: { message: "boom", code: 500 } }, false, 503),
-    });
+  it("signale un echec sans lever", async () => {
+    routeSync(() => jsonResponse({ error: { message: "boom", code: 500 } }, false, 503));
 
-    const result = await connect({ wabaId: "waba-1" });
-
-    // La connexion reste valide : un numero connecte sans historique sert,
-    // une connexion refusee ne sert a rien.
-    expect(result.phoneNumberId).toBe("phone-1");
-    expect(result.historySyncStatus).toBe("failed");
+    await expect(run()).resolves.toBe("failed");
   });
 
-  it("retombe hors Coexistence si Meta ne repond pas sur la plateforme", async () => {
-    routeFetch({
-      platform: () => jsonResponse({ error: { message: "nope" } }, false, 400),
+  it("n'abandonne pas l'historique si les contacts echouent", async () => {
+    routeSync((url, init) => {
+      const syncType = url.includes("/smb_app_data")
+        ? JSON.parse(String(init?.body)).sync_type
+        : null;
+      return syncType === "smb_app_state_sync"
+        ? jsonResponse({ error: { message: "boom" } }, false, 503)
+        : jsonResponse({ request_id: "req-1" });
     });
 
-    const result = await connect({ wabaId: "waba-1" });
-
-    expect(result.coexistence).toBe(false);
-    expect(result.historySyncStatus).toBeNull();
+    await expect(run()).resolves.toBe("requested");
   });
 });
