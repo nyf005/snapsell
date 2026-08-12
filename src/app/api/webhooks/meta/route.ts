@@ -191,10 +191,31 @@ export async function POST(request: Request) {
       return new NextResponse("OK", { status: 200 });
     }
 
-    // 4b. Le payload porte bien des messages entrants : valider strictement.
+    /**
+     * 4b. Ne garder que les changements `messages`, puis valider strictement.
+     *
+     * Le filtrage n'est pas un détail : `metaWebhookSchema` exige que **chaque**
+     * changement soit `messages`. Appliqué au payload entier, il fait échouer en
+     * bloc un lot où Meta groupe un message client avec un `history` ou un écho
+     * — et la cliente n'a alors jamais de réponse, pour un évènement qui ne la
+     * concernait même pas.
+     *
+     * Le corps filtré sert aussi à l'adaptateur plus bas, pour qu'il ne voie
+     * jamais autre chose que ce qui a été validé ici.
+     */
+    const inboundBodyText = JSON.stringify({
+      object: envelope.object,
+      entry: envelope.entry
+        .map((entry) => ({
+          ...entry,
+          changes: entry.changes.filter((change) => isInboundMessageField(change.field)),
+        }))
+        .filter((entry) => entry.changes.length > 0),
+    });
+
     let payload: ReturnType<typeof metaWebhookSchema.parse>;
     try {
-      payload = metaWebhookSchema.parse(JSON.parse(bodyText));
+      payload = metaWebhookSchema.parse(JSON.parse(inboundBodyText));
     } catch (parseError) {
       webhookLogger.warn("Invalid Meta webhook payload", { correlationId, error: String(parseError) });
       return new NextResponse("OK", { status: 200 });
@@ -244,7 +265,7 @@ export async function POST(request: Request) {
     const requestClone = new Request(request.url, {
       method: "POST",
       headers: request.headers,
-      body: bodyText,
+      body: inboundBodyText,
     });
 
     // 9. Instancier adapter via le service (DRY)
@@ -260,7 +281,7 @@ export async function POST(request: Request) {
       webhookLogger.debug("Meta webhook status-only — processing statuses", { correlationId });
       const metaAdapter = adapter as MetaCloudAdapter;
       if (typeof metaAdapter.parseStatusUpdates === "function") {
-        const statusUpdates = metaAdapter.parseStatusUpdates(JSON.parse(bodyText));
+        const statusUpdates = metaAdapter.parseStatusUpdates(JSON.parse(inboundBodyText));
         if (statusUpdates.length > 0) {
           await Promise.allSettled(
             statusUpdates.map(({ providerMessageId: wamid, status }) =>

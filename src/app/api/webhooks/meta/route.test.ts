@@ -766,6 +766,58 @@ describe("POST /api/webhooks/meta — champs Coexistence", () => {
     );
   });
 
+  /**
+   * ── UN LOT MIXTE NE DOIT PAS EMPORTER LE MESSAGE CLIENT ────────────────────
+   *
+   * L'aiguillage repère bien la présence de `messages`, mais la validation
+   * stricte qui suit s'applique au payload **entier** et exige que chaque
+   * changement soit `messages`. Un lot où Meta groupe un message client avec un
+   * `history` échoue donc en bloc, et la cliente n'a jamais de réponse.
+   */
+  it("traite le message client meme groupe avec un evenement Coexistence", async () => {
+    const body = JSON.stringify({
+      object: "whatsapp_business_account",
+      entry: [
+        {
+          id: "WABA_ID",
+          changes: [
+            {
+              field: "messages",
+              value: {
+                messaging_product: "whatsapp",
+                metadata: {
+                  display_phone_number: "15551234567",
+                  phone_number_id: "PN_ID_123",
+                },
+                messages: [
+                  { from: "22891234567", id: "wamid.mixte", timestamp: "1710000000", type: "text", text: { body: "A3" } },
+                ],
+              },
+            },
+            { field: "history", value: { messaging_product: "whatsapp" } },
+          ],
+        },
+      ],
+    });
+    vi.mocked(dbMock.db.messageIn.findUnique).mockResolvedValue(null);
+    vi.mocked(dbMock.db.messageIn.create).mockResolvedValue({ id: "msg-1", correlationId: "wamid.mixte" } as never);
+    vi.mocked(adapterModule.MetaCloudAdapter).mockImplementation(function () {
+      return {
+        parseInboundBatch: vi.fn().mockResolvedValue([
+          { tenantId: null, providerMessageId: "wamid.mixte", from: "+22891234567", body: "A3", correlationId: "wamid.mixte" },
+        ]),
+        parseInbound: vi.fn(),
+        send: vi.fn(),
+        verifySignature: vi.fn(),
+      };
+    } as never);
+
+    const resp = await callPOST(body);
+
+    expect(resp.status).toBe(200);
+    expect(queueMock.boss.send).toHaveBeenCalledTimes(1);
+  });
+
   it("traite toujours normalement un payload messages", async () => {
     const body = JSON.stringify(
       makeMetaPayload([
