@@ -3,7 +3,16 @@ import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { MetaCloudAdapter } from "~/server/messaging/providers/meta/adapter";
 import { boss, ensureBossReady, QUEUE } from "~/server/workers/queues";
-import { metaWebhookSchema, inboundMessageForQueueSchema } from "~/lib/zod/webhook";
+import {
+  metaWebhookSchema,
+  metaWebhookEnvelopeSchema,
+  extractMetaWebhookFields,
+  inboundMessageForQueueSchema,
+} from "~/lib/zod/webhook";
+import {
+  classifyMetaWebhookField,
+  isInboundMessageField,
+} from "~/server/messaging/providers/meta/webhook-fields";
 import { env } from "~/env";
 import { webhookLogger } from "~/lib/logger";
 import { checkWebhookRateLimit, getClientIpFromRequest } from "~/lib/rate-limit";
@@ -132,7 +141,57 @@ export async function POST(request: Request) {
       webhookLogger.debug("Development mode: continuing despite invalid Meta signature", { correlationId });
     }
 
-    // 4. Parser JSON + valider avec metaWebhookSchema
+    /**
+     * 4. Aiguiller par `field` AVANT de valider le contenu.
+     *
+     * Le schéma des messages était appliqué à tout ce qui arrivait ; un webhook
+     * portant un autre champ échouait donc à la validation et se perdait avec un
+     * avertissement muet sur son type. On lit désormais l'enveloppe d'abord —
+     * elle ne préjuge pas du contenu — puis on ne fait passer au pipeline
+     * entrant que ce qui en relève vraiment.
+     */
+    let envelope: ReturnType<typeof metaWebhookEnvelopeSchema.parse>;
+    try {
+      envelope = metaWebhookEnvelopeSchema.parse(JSON.parse(bodyText));
+    } catch (parseError) {
+      webhookLogger.warn("Invalid Meta webhook envelope", {
+        correlationId,
+        error: String(parseError),
+      });
+      return new NextResponse("OK", { status: 200 });
+    }
+
+    const fields = extractMetaWebhookFields(envelope);
+
+    /**
+     * Les champs hors pipeline sont journalisés nommément. C'est ce qui manquait :
+     * l'ancien avertissement ne disait pas *quel* type d'évènement était perdu,
+     * donc on voyait passer des rejets sans pouvoir les relier à quoi que ce soit.
+     */
+    for (const field of fields.filter((candidate) => !isInboundMessageField(candidate))) {
+      const kind = classifyMetaWebhookField(field);
+      webhookLogger.info("Meta webhook field hors pipeline entrant", {
+        correlationId,
+        field,
+        kind,
+        /*
+          Dit explicitement pourquoi rien ne partira en réponse. Un écho traité
+          comme une entrée ferait répondre SnapSell à la vendeuse elle-même.
+        */
+        reason:
+          kind === "echo"
+            ? "message émis par la boutique — jamais traité comme une entrée cliente"
+            : kind === "coexistence-sync"
+              ? "évènement de synchronisation Coexistence — traitement à venir"
+              : "champ inconnu de SnapSell",
+      });
+    }
+
+    if (!fields.some(isInboundMessageField)) {
+      return new NextResponse("OK", { status: 200 });
+    }
+
+    // 4b. Le payload porte bien des messages entrants : valider strictement.
     let payload: ReturnType<typeof metaWebhookSchema.parse>;
     try {
       payload = metaWebhookSchema.parse(JSON.parse(bodyText));

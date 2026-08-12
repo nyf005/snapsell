@@ -53,6 +53,54 @@ export const metaWebhookMessageSchema = z.object({
 });
 
 /**
+ * ── L'ENVELOPPE SE VALIDE SANS PRÉJUGER DU CONTENU ──────────────────────────
+ *
+ * `metaWebhookSchema` ci-dessous exige `field: "messages"`. C'est juste pour un
+ * message entrant, mais c'était **le seul** schéma appliqué : tout webhook
+ * portant un autre champ échouait à la validation et était jeté, avec un simple
+ * avertissement et un `200` renvoyé à Meta.
+ *
+ * Ça n'avait pas de conséquence tant que SnapSell ne recevait que des messages.
+ * Ça en aurait à l'activation de la Coexistence, qui ajoute `history`,
+ * `smb_app_state_sync` et `smb_message_echoes` : les réponses envoyées par la
+ * vendeuse depuis son téléphone auraient disparu sans que rien ne le signale
+ * clairement.
+ *
+ * Cette enveloppe-ci ne valide que ce qui est commun à tous les évènements, et
+ * laisse `field` libre. C'est elle qui permet d'aiguiller vers le bon
+ * traitement — et de dire précisément ce qu'on ignore, plutôt que de tout
+ * refuser en bloc.
+ * ────────────────────────────────────────────────────────────────────────────
+ */
+export const metaWebhookEnvelopeSchema = z.object({
+  object: z.literal("whatsapp_business_account"),
+  entry: z.array(
+    z.object({
+      id: z.string(),
+      changes: z.array(
+        z.object({
+          field: z.string(),
+          value: z.record(z.string(), z.unknown()).optional(),
+        }),
+      ),
+    }),
+  ),
+});
+
+export type MetaWebhookEnvelope = z.infer<typeof metaWebhookEnvelopeSchema>;
+
+/** Les `field` distincts portés par un payload, dans l'ordre d'apparition. */
+export function extractMetaWebhookFields(envelope: MetaWebhookEnvelope): string[] {
+  const seen = new Set<string>();
+  for (const entry of envelope.entry) {
+    for (const change of entry.changes) {
+      seen.add(change.field);
+    }
+  }
+  return [...seen];
+}
+
+/**
  * Schema Zod pour le payload complet du webhook Meta WhatsApp Cloud API
  * Valide la structure: object "whatsapp_business_account", entry[].changes[].value
  * messages[] est optionnel (payloads status-only possibles)

@@ -654,3 +654,140 @@ describe("POST /api/webhooks/meta — inbound", () => {
     expect(dbMock.db.messageIn.create).toHaveBeenCalled();
   });
 });
+
+/**
+ * ── LES ÉVÈNEMENTS DE COEXISTENCE NE SONT PLUS JETÉS EN SILENCE ─────────────
+ *
+ * Le schéma des messages était appliqué à tout ce qui arrivait, `field` compris.
+ * Un webhook `smb_message_echoes`, `history` ou `smb_app_state_sync` échouait
+ * donc à la validation et se perdait avec un avertissement qui ne disait même
+ * pas de quel type d'évènement il s'agissait.
+ *
+ * Le risque le plus sérieux est l'écho : il porte les messages envoyés par la
+ * vendeuse depuis son téléphone. S'il atteignait le pipeline entrant, SnapSell
+ * y répondrait automatiquement — dans la conversation, devant la cliente.
+ */
+describe("POST /api/webhooks/meta — champs Coexistence", () => {
+  let dbMock: typeof import("~/server/db");
+  let queueMock: typeof import("~/server/workers/queues");
+  let adapterModule: typeof import("~/server/messaging/providers/meta/adapter");
+  let rateLimitMock: typeof import("~/lib/rate-limit");
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    dbMock = await import("~/server/db");
+    queueMock = await import("~/server/workers/queues");
+    adapterModule = await import("~/server/messaging/providers/meta/adapter");
+    rateLimitMock = await import("~/lib/rate-limit");
+    vi.mocked(rateLimitMock.checkWebhookRateLimit).mockResolvedValue(true);
+    /*
+      `vi.clearAllMocks()` efface les appels, pas les implémentations : un test
+      antérieur qui met `boss.send` en échec pour vérifier le 503 laisse cette
+      implémentation en place. On la rétablit explicitement plutôt que de
+      dépendre de l'ordre des blocs.
+    */
+    vi.mocked(queueMock.boss.send).mockResolvedValue("job-id-mock" as never);
+    vi.mocked(dbMock.db.tenant.findUnique).mockResolvedValue({
+      id: "tenant-1",
+      metaPhoneNumberId: "PN_ID_123",
+      metaAccessToken: "tok",
+    } as never);
+  });
+
+  async function callPOST(body: string) {
+    const { POST } = await import("./route");
+    return POST(
+      new Request("http://localhost:3000/api/webhooks/meta", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Hub-Signature-256": signPayload(body, "test-app-secret"),
+        },
+        body,
+      }),
+    );
+  }
+
+  function makeFieldPayload(field: string, value: Record<string, unknown> = {}) {
+    return JSON.stringify({
+      object: "whatsapp_business_account",
+      entry: [{ id: "WABA_ID", changes: [{ field, value }] }],
+    });
+  }
+
+  it("un echo ne declenche aucune reponse automatique", async () => {
+    const body = makeFieldPayload("smb_message_echoes", {
+      messaging_product: "whatsapp",
+      metadata: { display_phone_number: "15551234567", phone_number_id: "PN_ID_123" },
+      message_echoes: [
+        { from: "15551234567", to: "22891234567", id: "wamid.echo", type: "text", text: { body: "Bonjour" } },
+      ],
+    });
+
+    const resp = await callPOST(body);
+
+    expect(resp.status).toBe(200);
+    // Rien n'entre dans le pipeline : ni message persisté, ni tâche enfilée.
+    expect(dbMock.db.messageIn.create).not.toHaveBeenCalled();
+    expect(queueMock.boss.send).not.toHaveBeenCalled();
+    expect(adapterModule.MetaCloudAdapter).not.toHaveBeenCalled();
+  });
+
+  it("journalise l'echo en le nommant, au lieu d'un rejet muet", async () => {
+    await callPOST(makeFieldPayload("smb_message_echoes"));
+
+    expect(mockWebhookLoggerInfo).toHaveBeenCalledWith(
+      "Meta webhook field hors pipeline entrant",
+      expect.objectContaining({ field: "smb_message_echoes", kind: "echo" }),
+    );
+  });
+
+  it.each(["history", "smb_app_state_sync"])(
+    "accepte %s sans le traiter comme un message",
+    async (field) => {
+      const resp = await callPOST(makeFieldPayload(field));
+
+      expect(resp.status).toBe(200);
+      expect(queueMock.boss.send).not.toHaveBeenCalled();
+      expect(mockWebhookLoggerInfo).toHaveBeenCalledWith(
+        "Meta webhook field hors pipeline entrant",
+        expect.objectContaining({ field, kind: "coexistence-sync" }),
+      );
+    },
+  );
+
+  it("nomme un champ inconnu au lieu de le perdre", async () => {
+    const resp = await callPOST(makeFieldPayload("champ_invente_par_meta"));
+
+    expect(resp.status).toBe(200);
+    expect(mockWebhookLoggerInfo).toHaveBeenCalledWith(
+      "Meta webhook field hors pipeline entrant",
+      expect.objectContaining({ field: "champ_invente_par_meta", kind: "unknown" }),
+    );
+  });
+
+  it("traite toujours normalement un payload messages", async () => {
+    const body = JSON.stringify(
+      makeMetaPayload([
+        { from: "22891234567", id: "wamid.abc", timestamp: "1710000000", type: "text", text: { body: "A3" } },
+      ]),
+    );
+    vi.mocked(dbMock.db.messageIn.findUnique).mockResolvedValue(null);
+    vi.mocked(dbMock.db.messageIn.create).mockResolvedValue({ id: "msg-1", correlationId: "wamid.abc" } as never);
+    vi.mocked(adapterModule.MetaCloudAdapter).mockImplementation(function () {
+      return {
+        parseInboundBatch: vi.fn().mockResolvedValue([
+          { tenantId: null, providerMessageId: "wamid.abc", from: "+22891234567", body: "A3", correlationId: "wamid.abc" },
+        ]),
+        parseInbound: vi.fn(),
+        send: vi.fn(),
+        verifySignature: vi.fn(),
+      };
+    } as never);
+
+    const resp = await callPOST(body);
+
+    expect(resp.status).toBe(200);
+    expect(queueMock.boss.send).toHaveBeenCalledTimes(1);
+  });
+});
