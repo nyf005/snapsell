@@ -383,14 +383,18 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       {
         kind: "steps",
         steps: [
-          "Un numéro de téléphone qui n’est pas déjà utilisé dans l’application WhatsApp ordinaire. Si c’est le cas, supprimez d’abord ce compte, ou prenez un autre numéro.",
+          "Le numéro que votre clientèle connaît déjà. S’il est utilisé dans l’application WhatsApp Business, gardez-le : vous conservez l’application, vos contacts et vos conversations.",
           "L’accès à ce numéro pour recevoir le code de vérification, par message ou par appel.",
-          "Un compte Facebook, qui servira à créer votre compte WhatsApp Business.",
+          "Un compte Facebook, qui servira à relier votre compte WhatsApp Business.",
         ],
       },
       {
         kind: "text",
-        text: "Ensuite, le parcours tient en trois gestes : ouvrez « Connexion WhatsApp », appuyez sur « Connecter WhatsApp », puis suivez la fenêtre de Meta jusqu’au bout sans la fermer. Au retour, la page affiche « Connecté » et le numéro que votre clientèle utilisera.",
+        text: "Ensuite, le parcours tient en trois gestes : ouvrez « Connexion WhatsApp », choisissez si vous gardez votre numéro actuel ou si vous en déclarez un nouveau, puis suivez la fenêtre de Meta jusqu’au bout sans la fermer. Au retour, la page affiche « Connecté » et le numéro que votre clientèle utilisera.",
+      },
+      {
+        kind: "note",
+        text: "Si vous gardez votre numéro actuel, Meta vous envoie un code dans votre application WhatsApp Business : recopiez-le, vous n’avez aucun compte à créer ni à supprimer.",
       },
       {
         kind: "note",
