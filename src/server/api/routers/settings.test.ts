@@ -332,7 +332,7 @@ describe("settings router — getWhatsAppConfig (Meta)", () => {
       metaWabaId: "456",
       metaBusinessPhoneNumber: "+33612345678",
       hasAccessToken: true,
-      coexistence: false,
+      coexistence: null,
       historySyncStatus: null,
     });
   });
@@ -704,6 +704,9 @@ describe("settings router — connectWhatsAppEmbedded", () => {
         metaWabaId: "waba-123",
         metaAccessToken: expect.stringMatching(/^enc:/),
         metaCoexistence: false,
+        // Une nouvelle connexion repart d'une reprise vierge.
+        metaHistorySyncStatus: null,
+        metaHistorySyncAt: null,
       },
     });
     expect(mockSellerPhoneUpsert).toHaveBeenCalledWith({

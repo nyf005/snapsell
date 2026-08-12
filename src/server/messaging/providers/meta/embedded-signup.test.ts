@@ -514,7 +514,13 @@ describe("startCoexistenceSync", () => {
     await expect(run()).resolves.toBe("failed");
   });
 
-  it("n'abandonne pas l'historique si les contacts echouent", async () => {
+  /**
+   * L'échec des contacts était avalé : si l'historique partait ensuite, le
+   * statut devenait « demandé » et rien n'indiquait que les noms manquaient —
+   * ni état, ni bouton pour les rattraper, alors que la fenêtre vaut aussi
+   * pour eux.
+   */
+  it("signale « partiel » quand seuls les contacts echouent", async () => {
     routeSync((url, init) => {
       const syncType = url.includes("/smb_app_data")
         ? JSON.parse(String(init?.body)).sync_type
@@ -524,6 +530,22 @@ describe("startCoexistenceSync", () => {
         : jsonResponse({ request_id: "req-1" });
     });
 
-    await expect(run()).resolves.toBe("requested");
+    await expect(run()).resolves.toBe("partial");
+  });
+
+  it("demande quand meme l'historique si les contacts echouent", async () => {
+    const syncTypes: string[] = [];
+    routeSync((url, init) => {
+      if (!url.includes("/smb_app_data")) return jsonResponse({});
+      const syncType = JSON.parse(String(init?.body)).sync_type;
+      syncTypes.push(syncType);
+      return syncType === "smb_app_state_sync"
+        ? jsonResponse({ error: { message: "boom" } }, false, 503)
+        : jsonResponse({ request_id: "req-1" });
+    });
+
+    await run();
+
+    expect(syncTypes).toContain("history");
   });
 });

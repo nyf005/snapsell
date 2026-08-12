@@ -264,7 +264,13 @@ export const settingsRouter = createTRPCRouter({
       metaWabaId: tenant?.metaWabaId ?? null,
       metaBusinessPhoneNumber: primarySellerPhone?.phoneNumber ?? null,
       hasAccessToken: !!(tenant?.metaAccessToken),
-      coexistence: tenant?.metaCoexistence ?? false,
+      /*
+        `null` (indéterminé) est transmis tel quel. L'écrasait en `false`, ce qui
+        faisait disparaître de l'écran l'état de la reprise — donc l'erreur, donc
+        le bouton « Réessayer » — précisément dans le cas où la détection avait
+        échoué et où la reprise avait le plus de chances d'avoir mal tourné.
+      */
+      coexistence: tenant?.metaCoexistence ?? null,
       // "requested" | "in_progress" | "completed" | "declined" | "failed"
       historySyncStatus: tenant?.metaHistorySyncStatus ?? null,
     };
@@ -450,6 +456,13 @@ export const settingsRouter = createTRPCRouter({
                 synchronisation plus bas.
               */
               metaCoexistence: credentials.coexistence,
+              /*
+                Une nouvelle connexion repart d'une reprise vierge : sans ça,
+                le statut d'une connexion précédente survivrait et le garde
+                ci-dessous prendrait une ancienne valeur pour une avance.
+              */
+              metaHistorySyncStatus: null,
+              metaHistorySyncAt: null,
             },
           });
 
@@ -493,8 +506,13 @@ export const settingsRouter = createTRPCRouter({
             phoneNumberId: credentials.phoneNumberId,
             accessToken: credentials.accessToken,
           });
-          await db.tenant.update({
-            where: { id: tenantId },
+          /*
+            `updateMany` avec garde : Meta peut avoir déjà envoyé une première
+            tranche d'historique pendant que cet appel revenait. Écrire
+            « demandé » par-dessus « en cours » ferait reculer l'écran.
+          */
+          await db.tenant.updateMany({
+            where: { id: tenantId, metaHistorySyncStatus: null },
             data: {
               metaHistorySyncStatus: historySyncStatus,
               // Repère de la fenêtre de 24 h : sans lui, impossible de dire si

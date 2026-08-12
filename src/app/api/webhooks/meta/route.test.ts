@@ -824,7 +824,20 @@ describe("POST /api/webhooks/meta — champs Coexistence", () => {
                 ],
               },
             },
-            { field: "history", value: { messaging_product: "whatsapp" } },
+            {
+              field: "history",
+              // `metadata.phone_number_id` est indispensable : sans lui, la
+              // route ne résout aucune boutique et l'évènement n'est jamais
+              // enfilé — le test passait alors sans rien prouver des deux files.
+              value: {
+                messaging_product: "whatsapp",
+                metadata: {
+                  display_phone_number: "15551234567",
+                  phone_number_id: "PN_ID_123",
+                },
+                history: [],
+              },
+            },
           ],
         },
       ],
@@ -842,10 +855,73 @@ describe("POST /api/webhooks/meta — champs Coexistence", () => {
       };
     } as never);
 
+    vi.mocked(dbMock.db.tenant.findUnique).mockResolvedValue({
+      id: "tenant-1",
+      metaPhoneNumberId: "PN_ID_123",
+      metaAccessToken: "tok",
+    } as never);
+
     const resp = await callPOST(body);
 
     expect(resp.status).toBe(200);
-    expect(queueMock.boss.send).toHaveBeenCalledTimes(1);
+    // Les deux évènements partent, chacun sur sa file : le message client vers
+    // le pipeline entrant, l'historique vers l'import Coexistence.
+    const queues = vi.mocked(queueMock.boss.send).mock.calls.map((call) => call[0]);
+    expect(queues).toContain("webhook-processing");
+    expect(queues).toContain("coexistence-sync");
+  });
+
+  /**
+   * ── UN ÉVÈNEMENT PERDU ICI NE REVIENT JAMAIS ──────────────────────────────
+   *
+   * On répondait `200` malgré l'échec d'enfilage. Meta ne rejoue que sur une
+   * réponse non-2xx : l'historique manqué l'était donc définitivement, et la
+   * fenêtre de 24 h ne laisse pas de seconde chance.
+   */
+  it("demande un rejeu a Meta si l'enfilage echoue", async () => {
+    vi.mocked(queueMock.boss.send).mockRejectedValue(new Error("file indisponible"));
+
+    const resp = await callPOST(makeFieldPayload("history", {
+      messaging_product: "whatsapp",
+      metadata: { display_phone_number: "15551234567", phone_number_id: "PN_ID_123" },
+    }));
+
+    expect(resp.status).toBe(503);
+  });
+
+  it("finit le lot avant de demander le rejeu", async () => {
+    vi.mocked(queueMock.boss.send).mockRejectedValue(new Error("file indisponible"));
+
+    const body = JSON.stringify({
+      object: "whatsapp_business_account",
+      entry: [
+        {
+          id: "WABA_ID",
+          changes: [
+            {
+              field: "history",
+              value: {
+                messaging_product: "whatsapp",
+                metadata: { display_phone_number: "1", phone_number_id: "PN_ID_123" },
+              },
+            },
+            {
+              field: "smb_app_state_sync",
+              value: {
+                messaging_product: "whatsapp",
+                metadata: { display_phone_number: "1", phone_number_id: "PN_ID_123" },
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const resp = await callPOST(body);
+
+    // Les deux tentatives ont eu lieu : un échec n'interrompt pas le reste.
+    expect(resp.status).toBe(503);
+    expect(queueMock.boss.send).toHaveBeenCalledTimes(2);
   });
 
   it("traite toujours normalement un payload messages", async () => {

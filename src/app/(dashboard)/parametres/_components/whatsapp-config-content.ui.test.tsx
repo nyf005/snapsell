@@ -21,7 +21,7 @@ const mockWhatsAppConfig = {
   metaWabaId: null as string | null,
   metaBusinessPhoneNumber: null as string | null,
   hasAccessToken: false,
-  coexistence: false,
+  coexistence: false as boolean | null,
   historySyncStatus: null as string | null,
 };
 
@@ -581,9 +581,32 @@ describe("WhatsAppConfigContent — reprise de l’historique", () => {
     expect(screen.queryByRole("button", { name: "Réessayer" })).not.toBeInTheDocument();
   });
 
-  it("ne dit rien d’un historique hors Coexistence", () => {
+  /**
+   * `coexistence` peut valoir `null` — Meta n'ayant pas répondu — alors qu'une
+   * reprise a bien été tentée. S'y fier masquait l'échec et son bouton.
+   */
+  it("montre l’état même quand la détection est restée indéterminée", () => {
+    mockWhatsAppConfig.coexistence = null;
+    mockWhatsAppConfig.historySyncStatus = "failed";
+
+    render(<WhatsAppConfigContent />);
+
+    expect(screen.getByText(/n’a pas pu démarrer/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Réessayer" })).toBeInTheDocument();
+  });
+
+  it("signale des contacts manquants et propose de les reprendre", () => {
+    mockWhatsAppConfig.historySyncStatus = "partial";
+
+    render(<WhatsAppConfigContent />);
+
+    expect(screen.getByText(/contacts n’ont pas pu être récupérés/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Réessayer" })).toBeInTheDocument();
+  });
+
+  it("ne dit rien quand aucune reprise n’a été tentée", () => {
     mockWhatsAppConfig.coexistence = false;
-    mockWhatsAppConfig.historySyncStatus = "in_progress";
+    mockWhatsAppConfig.historySyncStatus = null;
 
     render(<WhatsAppConfigContent />);
 

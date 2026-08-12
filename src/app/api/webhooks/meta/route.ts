@@ -61,7 +61,9 @@ function verifyMetaSignature(bodyText: string, signatureHeader: string | null, s
 async function enqueueCoexistenceChanges(
   changes: Array<{ field: string; value?: Record<string, unknown> }>,
   correlationId: string,
-) {
+): Promise<{ enqueueFailed: boolean }> {
+  let enqueueFailed = false;
+
   for (const change of changes) {
     const value = change.value;
     if (!value) continue;
@@ -103,17 +105,34 @@ async function enqueueCoexistenceChanges(
         tenantId: tenant.id,
       });
     } catch (error) {
-      /*
-        On ne demande pas de rejeu à Meta pour autant : le lot peut contenir un
-        message client déjà traité plus bas, et le rejouer le dupliquerait.
-      */
-      webhookLogger.error("Coexistence: mise en file échouée", error, {
-        correlationId,
-        field: change.field,
-        tenantId: tenant.id,
-      });
+      /**
+       * ── UN ÉVÈNEMENT PERDU ICI NE REVIENT JAMAIS ────────────────────────
+       *
+       * On répondait `200` malgré l'échec, en craignant qu'un rejeu ne
+       * duplique un message client présent dans le même lot. Cette crainte
+       * était infondée : le chemin entrant est protégé par l'unicité
+       * `(tenantId, providerMessageId)` en base **et** par un `singletonKey`
+       * pg-boss, et les handlers de Coexistence n'écrivent que par `upsert`.
+       * Un rejeu est donc sans effet de bord.
+       *
+       * La perte, elle, était définitive : Meta ne rejoue que sur une réponse
+       * non-2xx. Un historique manqué ici l'était pour de bon, et la fenêtre
+       * de 24 h ne laisse pas de seconde chance.
+       *
+       * On mémorise donc l'échec et on finit le lot — les autres changements
+       * n'ont pas à en souffrir — puis l'appelant répondra `503`.
+       * ────────────────────────────────────────────────────────────────────
+       */
+      enqueueFailed = true;
+      webhookLogger.error(
+        "Coexistence: mise en file échouée — réponse non-200 pour que Meta rejoue",
+        error,
+        { correlationId, field: change.field, tenantId: tenant.id },
+      );
     }
   }
+
+  return { enqueueFailed };
 }
 
 /**
@@ -273,12 +292,20 @@ export async function POST(request: Request) {
       }),
     );
 
+    let coexistenceEnqueueFailed = false;
     if (coexistenceChanges.length > 0) {
-      await enqueueCoexistenceChanges(coexistenceChanges, correlationId);
+      ({ enqueueFailed: coexistenceEnqueueFailed } = await enqueueCoexistenceChanges(
+        coexistenceChanges,
+        correlationId,
+      ));
     }
 
     if (!fields.some(isInboundMessageField)) {
-      return new NextResponse("OK", { status: 200 });
+      // Meta ne rejoue que sur une réponse non-2xx : c'est notre seul moyen de
+      // récupérer un évènement de Coexistence qu'on n'a pas su enfiler.
+      return coexistenceEnqueueFailed
+        ? new NextResponse("Enqueue failed", { status: 503 })
+        : new NextResponse("OK", { status: 200 });
     }
 
     /**
@@ -567,7 +594,7 @@ export async function POST(request: Request) {
     // Meta ne rejoue un lot que sur une réponse non-2xx. C'est notre seul moyen
     // de récupérer un message persisté sans job : au rejeu, le chemin doublon
     // atteint désormais l'enfilage (cf. plus haut), donc le message repart.
-    if (enqueueFailed) {
+    if (enqueueFailed || coexistenceEnqueueFailed) {
       return new NextResponse("Enqueue failed", { status: 503 });
     }
 

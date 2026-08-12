@@ -5,6 +5,7 @@ const mockMessageInUpsert = vi.hoisted(() => vi.fn());
 const mockContactUpsert = vi.hoisted(() => vi.fn());
 const mockContactDeleteMany = vi.hoisted(() => vi.fn());
 const mockTenantUpdate = vi.hoisted(() => vi.fn());
+const mockTenantUpdateMany = vi.hoisted(() => vi.fn());
 const mockOutboxWrite = vi.hoisted(() => vi.fn());
 const mockBossSend = vi.hoisted(() => vi.fn());
 
@@ -13,7 +14,7 @@ vi.mock("~/server/db", () => ({
     messageOut: { upsert: mockMessageOutUpsert },
     messageIn: { upsert: mockMessageInUpsert },
     whatsAppContact: { upsert: mockContactUpsert, deleteMany: mockContactDeleteMany },
-    tenant: { update: mockTenantUpdate },
+    tenant: { update: mockTenantUpdate, updateMany: mockTenantUpdateMany },
   },
 }));
 
@@ -228,7 +229,7 @@ describe("handleHistory", () => {
       value: historyValue("40", []),
     });
 
-    expect(mockTenantUpdate).toHaveBeenCalledWith(
+    expect(mockTenantUpdateMany).toHaveBeenCalledWith(
       expect.objectContaining({ data: { metaHistorySyncStatus: "in_progress" } }),
     );
   });
@@ -240,7 +241,7 @@ describe("handleHistory", () => {
       value: historyValue("100", []),
     });
 
-    expect(mockTenantUpdate).toHaveBeenCalledWith(
+    expect(mockTenantUpdateMany).toHaveBeenCalledWith(
       expect.objectContaining({ data: { metaHistorySyncStatus: "completed" } }),
     );
   });
@@ -257,7 +258,7 @@ describe("handleHistory", () => {
       value: historyValue("presque fini", []),
     });
 
-    expect(mockTenantUpdate).toHaveBeenCalledWith(
+    expect(mockTenantUpdateMany).toHaveBeenCalledWith(
       expect.objectContaining({ data: { metaHistorySyncStatus: "in_progress" } }),
     );
   });
@@ -282,5 +283,35 @@ describe("handleHistory", () => {
         create: expect.objectContaining({ body: "Le sac bleu" }),
       }),
     );
+  });
+});
+
+
+/**
+ * ── L'ÉTAT NE RECULE JAMAIS ────────────────────────────────────────────────
+ *
+ * Meta envoie l'historique par tranches et le worker en traite deux à la fois :
+ * la tranche à 100 % peut être écrite avant une tranche à 50 % restée en route.
+ * Sans garde, une reprise terminée repassait « en cours ».
+ */
+describe("handleHistory — monotonie du statut", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("n'ecrase jamais un statut deja « completed »", async () => {
+    await handleHistory({
+      tenantId: TENANT,
+      correlationId: CORRELATION,
+      value: {
+        metadata: { display_phone_number: "+2250700000000" },
+        history: [{ metadata: { progress: "50" }, threads: [] }],
+      },
+    });
+
+    const call = mockTenantUpdateMany.mock.calls[0]![0] as {
+      where: Record<string, unknown>;
+    };
+    expect(call.where).toMatchObject({
+      metaHistorySyncStatus: { not: "completed" },
+    });
   });
 });

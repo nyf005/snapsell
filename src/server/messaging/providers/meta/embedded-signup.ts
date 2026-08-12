@@ -66,10 +66,11 @@ type SmbAppDataResponse = {
  * État de la synchronisation d'historique, tel qu'il part en base.
  *
  * `declined` n'est pas un échec : la boutique a le droit de refuser de partager
- * ses conversations pendant le parcours Meta. C'est `failed` qui demande une
- * intervention — et il faut la voir vite, la fenêtre étant de 24 h.
+ * ses conversations pendant le parcours Meta. `partial` signale que l'historique
+ * est parti mais pas les contacts. `failed` demande une intervention — et il
+ * faut la voir vite, la fenêtre étant de 24 h.
  */
-export type HistorySyncStatus = "requested" | "declined" | "failed";
+export type HistorySyncStatus = "requested" | "partial" | "declined" | "failed";
 
 export type EmbeddedSignupConnectionResult = {
   accessToken: string;
@@ -457,10 +458,17 @@ export async function startCoexistenceSync(params: {
 
   // Les contacts d'abord : ils arrivent en quelques minutes et permettent
   // d'afficher un nom plutôt qu'un numéro dès les premières conversations.
+  let contactsRequested = true;
   try {
     await requestSync("smb_app_state_sync");
   } catch (error) {
-    // Sans conséquence sur l'historique, qui se demande séparément juste après.
+    /**
+     * L'échec était avalé sans laisser de trace exploitable : si l'historique
+     * partait ensuite, le statut devenait « demandé » et rien n'indiquait que
+     * les contacts manquaient — ni état, ni bouton pour les rattraper, alors
+     * que la fenêtre de 24 h vaut aussi pour eux.
+     */
+    contactsRequested = false;
     workerLogger.error(
       "Meta: synchronisation des contacts non demandée",
       error instanceof Error ? error : new Error(String(error)),
@@ -470,7 +478,7 @@ export async function startCoexistenceSync(params: {
 
   try {
     await requestSync("history");
-    return "requested";
+    return contactsRequested ? "requested" : "partial";
   } catch (error) {
     if (
       error instanceof MetaEmbeddedSignupError &&

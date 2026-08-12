@@ -259,8 +259,21 @@ export async function handleHistory(params: {
   const status =
     Number.isFinite(numericProgress) && numericProgress >= 100 ? "completed" : "in_progress";
 
-  await db.tenant.update({
-    where: { id: params.tenantId },
+  /**
+   * ── L'ÉTAT NE RECULE JAMAIS ────────────────────────────────────────────
+   *
+   * Meta envoie l'historique par tranches, et le worker en traite deux à la
+   * fois : la tranche à 100 % peut donc être écrite avant une tranche à 50 %
+   * restée en route. Une écriture inconditionnelle faisait alors repasser une
+   * reprise terminée en « en cours », et la boutique voyait sa page revenir en
+   * arrière sans raison — voire attendre indéfiniment une fin déjà survenue.
+   *
+   * Le même garde protège de la course avec le routeur, qui écrit `requested`
+   * après le retour de Meta : un premier webhook peut le devancer.
+   */
+  await db.tenant.updateMany({
+    // `completed` est terminal : rien ne le remplace.
+    where: { id: params.tenantId, metaHistorySyncStatus: { not: "completed" } },
     data: { metaHistorySyncStatus: status },
   });
 

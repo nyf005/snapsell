@@ -229,11 +229,17 @@ export function WhatsAppConfigContent() {
    * et comme la fenêtre de Meta est de 24 h, il faut le voir vite.
    */
   const historySyncNotice = (() => {
-    if (!data?.coexistence) return null;
-    switch (data.historySyncStatus) {
+    /*
+      Conditionné à l'existence d'un statut, et non à `coexistence`. Ce dernier
+      peut valoir `null` — Meta n'ayant pas répondu — alors qu'une reprise a bien
+      été tentée : s'y fier masquait l'échec et son bouton de reprise.
+    */
+    switch (data?.historySyncStatus) {
       case "requested":
       case "in_progress":
         return "Reprise de vos anciennes conversations en cours. Elles apparaissent par tranches, comptez plusieurs minutes.";
+      case "partial":
+        return "Vos anciennes conversations sont en cours de reprise, mais vos contacts n’ont pas pu être récupérés : leurs noms n’apparaîtront pas.";
       case "completed":
         return "Vos anciennes conversations ont été reprises.";
       case "declined":
@@ -608,7 +614,8 @@ export function WhatsAppConfigContent() {
                 <Alert className="mt-3">
                   <AlertDescription>
                     {historySyncNotice}
-                    {data?.historySyncStatus === "failed" && (
+                    {(data?.historySyncStatus === "failed" ||
+                      data?.historySyncStatus === "partial") && (
                       <Button
                         type="button"
                         variant="outline"
