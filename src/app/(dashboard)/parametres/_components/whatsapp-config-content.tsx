@@ -506,7 +506,7 @@ export function WhatsAppConfigContent() {
                       disabled={signupBusy}
                       className="min-h-11 w-full font-semibold"
                     >
-                      {signupButtonLabel("Connecter ce numéro")}
+                      {signupButtonLabel(isConnected ? "Reconnecter ce numéro" : "Connecter ce numéro")}
                     </Button>
                   </div>
 
@@ -527,7 +527,7 @@ export function WhatsAppConfigContent() {
                       disabled={signupBusy}
                       className="min-h-11 w-full font-semibold"
                     >
-                      {signupButtonLabel("Déclarer un numéro")}
+                      {signupButtonLabel(isConnected ? "Basculer sur un autre numéro" : "Déclarer un numéro")}
                     </Button>
                   </div>
                 </div>
