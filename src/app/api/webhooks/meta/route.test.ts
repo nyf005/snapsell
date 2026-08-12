@@ -13,10 +13,24 @@ vi.mock("~/server/db", () => ({
   db: {
     tenant: {
       findUnique: vi.fn(),
+      update: vi.fn(),
     },
     messageIn: {
       findUnique: vi.fn(),
       create: vi.fn(),
+      upsert: vi.fn(),
+    },
+    /*
+      Utilisés par les handlers de Coexistence. Sans eux, l'appel levait une
+      erreur avalée par le `try/catch` de la route : les tests passaient au vert
+      sans jamais exercer le chemin qu'ils prétendaient couvrir.
+    */
+    messageOut: {
+      upsert: vi.fn(),
+    },
+    whatsAppContact: {
+      upsert: vi.fn(),
+      deleteMany: vi.fn(),
     },
   },
 }));
@@ -727,10 +741,19 @@ describe("POST /api/webhooks/meta — champs Coexistence", () => {
     const resp = await callPOST(body);
 
     expect(resp.status).toBe(200);
-    // Rien n'entre dans le pipeline : ni message persisté, ni tâche enfilée.
+    // Rien n'entre dans le pipeline : ni message client persisté, ni tâche enfilée.
     expect(dbMock.db.messageIn.create).not.toHaveBeenCalled();
     expect(queueMock.boss.send).not.toHaveBeenCalled();
     expect(adapterModule.MetaCloudAdapter).not.toHaveBeenCalled();
+    // Mais l'écho est bien conservé, du bon côté de la conversation.
+    expect(dbMock.db.messageOut.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          providerMessageId: "wamid.echo",
+          status: "sent",
+        }),
+      }),
+    );
   });
 
   it("journalise l'echo en le nommant, au lieu d'un rejet muet", async () => {

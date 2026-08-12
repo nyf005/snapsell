@@ -10,9 +10,15 @@ import {
   inboundMessageForQueueSchema,
 } from "~/lib/zod/webhook";
 import {
+  META_WEBHOOK_FIELDS,
   classifyMetaWebhookField,
   isInboundMessageField,
 } from "~/server/messaging/providers/meta/webhook-fields";
+import {
+  handleAppStateSync,
+  handleHistory,
+  handleMessageEchoes,
+} from "~/server/messaging/providers/meta/coexistence-handlers";
 import { env } from "~/env";
 import { webhookLogger } from "~/lib/logger";
 import { checkWebhookRateLimit, getClientIpFromRequest } from "~/lib/rate-limit";
@@ -42,6 +48,83 @@ function verifyMetaSignature(bodyText: string, signatureHeader: string | null, s
     return crypto.timingSafeEqual(a, b);
   } catch {
     return false;
+  }
+}
+
+/**
+ * Traite les évènements de Coexistence, chacun avec son propre handler.
+ *
+ * Le tenant se résout ici, par `phone_number_id` — comme pour un message
+ * entrant, mais sans rien enfiler ensuite. Un échec est journalisé et n'arrête
+ * pas les autres changements du lot : perdre l'import d'un contact ne doit pas
+ * emporter l'historique qui l'accompagne.
+ */
+async function handleCoexistenceChanges(
+  changes: Array<{ field: string; value?: Record<string, unknown> }>,
+  correlationId: string,
+) {
+  for (const change of changes) {
+    const value = change.value;
+    if (!value) continue;
+
+    const metadata = value.metadata as { phone_number_id?: string } | undefined;
+    const phoneNumberId = metadata?.phone_number_id;
+    if (!phoneNumberId) {
+      webhookLogger.warn("Coexistence: phone_number_id absent", {
+        correlationId,
+        field: change.field,
+      });
+      continue;
+    }
+
+    const tenant = await db.tenant.findUnique({
+      where: { metaPhoneNumberId: phoneNumberId },
+      select: { id: true },
+    });
+    if (!tenant) {
+      webhookLogger.warn("Coexistence: boutique introuvable", {
+        correlationId,
+        field: change.field,
+        phoneNumberId,
+      });
+      continue;
+    }
+
+    try {
+      if (change.field === META_WEBHOOK_FIELDS.MESSAGE_ECHOES) {
+        const written = await handleMessageEchoes({ tenantId: tenant.id, value, correlationId });
+        webhookLogger.info("Coexistence: échos enregistrés", {
+          correlationId,
+          tenantId: tenant.id,
+          count: written,
+        });
+      } else if (change.field === META_WEBHOOK_FIELDS.APP_STATE_SYNC) {
+        const applied = await handleAppStateSync({ tenantId: tenant.id, value, correlationId });
+        webhookLogger.info("Coexistence: contacts synchronisés", {
+          correlationId,
+          tenantId: tenant.id,
+          count: applied,
+        });
+      } else if (change.field === META_WEBHOOK_FIELDS.HISTORY) {
+        const { imported, progress } = await handleHistory({
+          tenantId: tenant.id,
+          value,
+          correlationId,
+        });
+        webhookLogger.info("Coexistence: historique importé", {
+          correlationId,
+          tenantId: tenant.id,
+          count: imported,
+          progress: progress ?? "",
+        });
+      }
+    } catch (error) {
+      webhookLogger.error("Coexistence: traitement échoué", error, {
+        correlationId,
+        field: change.field,
+        tenantId: tenant.id,
+      });
+    }
   }
 }
 
@@ -176,15 +259,34 @@ export async function POST(request: Request) {
         kind,
         /*
           Dit explicitement pourquoi rien ne partira en réponse. Un écho traité
-          comme une entrée ferait répondre SnapSell à la vendeuse elle-même.
+          comme une entrée ferait répondre SnapSell à la boutique elle-même.
         */
         reason:
           kind === "echo"
             ? "message émis par la boutique — jamais traité comme une entrée cliente"
             : kind === "coexistence-sync"
-              ? "évènement de synchronisation Coexistence — traitement à venir"
+              ? "évènement de synchronisation Coexistence"
               : "champ inconnu de SnapSell",
       });
+    }
+
+    /**
+     * Les évènements de Coexistence sont traités ici, hors du pipeline entrant.
+     *
+     * Ils décrivent le passé ou l'activité propre de la boutique — ce qu'elle a
+     * envoyé depuis son téléphone, ses contacts, ses anciennes conversations —
+     * et aucun n'appelle de réponse. `handleCoexistenceChanges` n'écrit donc
+     * jamais dans l'outbox ni dans la file.
+     */
+    const coexistenceChanges = envelope.entry.flatMap((entry) =>
+      entry.changes.filter((change) => {
+        const kind = classifyMetaWebhookField(change.field);
+        return kind === "echo" || kind === "coexistence-sync";
+      }),
+    );
+
+    if (coexistenceChanges.length > 0) {
+      await handleCoexistenceChanges(coexistenceChanges, correlationId);
     }
 
     if (!fields.some(isInboundMessageField)) {
