@@ -96,8 +96,12 @@ export function WhatsAppConfigContent() {
    */
   const { data, isLoading } = api.settings.getWhatsAppConfig.useQuery(undefined, {
     refetchInterval: (query) => {
-      const status = query.state.data?.historySyncStatus;
-      return status === "requested" || status === "in_progress" ? 10_000 : false;
+      const historyStatus = query.state.data?.historySyncStatus;
+      const contactsStatus = query.state.data?.contactsSyncStatus;
+      const historyPending =
+        historyStatus === "requested" || historyStatus === "in_progress";
+      const contactsPending = contactsStatus === "requested";
+      return historyPending || contactsPending ? 10_000 : false;
     },
   });
   const { data: sellerPhones = [], isLoading: sellerPhonesLoading } =

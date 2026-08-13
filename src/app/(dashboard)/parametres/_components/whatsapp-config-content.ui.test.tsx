@@ -16,6 +16,7 @@ const mockGetInitializedSdk = vi.fn();
 const mockStartSignup = vi.fn();
 const mockExtractCode = vi.fn();
 const mockErrorMessage = vi.fn();
+let capturedWhatsAppQueryOptions: { refetchInterval?: (query: unknown) => number | false } | undefined;
 const mockWhatsAppConfig = {
   metaPhoneNumberId: null as string | null,
   metaWabaId: null as string | null,
@@ -68,10 +69,15 @@ vi.mock("~/trpc/react", () => ({
       getWhatsAppConfig: {
         // Accepte (input, options) : le composant passe un `refetchInterval`
         // pour suivre la reprise d'historique sans rechargement manuel.
-        useQuery: (_input?: unknown, _options?: unknown) => ({
-          data: mockWhatsAppConfig,
-          isLoading: false,
-        }),
+        useQuery: (_input?: unknown, options?: unknown) => {
+          if (options) {
+            capturedWhatsAppQueryOptions = options as typeof capturedWhatsAppQueryOptions;
+          }
+          return {
+            data: mockWhatsAppConfig,
+            isLoading: false,
+          };
+        },
       },
       setWhatsAppConfig: {
         useMutation: () => ({ mutate: mockSetConfigMutate, isPending: false }),
@@ -521,6 +527,7 @@ describe("WhatsAppConfigContent — reprise de l’historique", () => {
     mockWhatsAppConfig.coexistence = true;
     mockWhatsAppConfig.historySyncStatus = null;
     mockWhatsAppConfig.contactsSyncStatus = null;
+    capturedWhatsAppQueryOptions = undefined;
     process.env.NEXT_PUBLIC_META_APP_ID = "meta-app-id";
     process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID = "meta-config-id";
     process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED = "true";
@@ -630,6 +637,18 @@ describe("WhatsAppConfigContent — reprise de l’historique", () => {
     render(<WhatsAppConfigContent />);
 
     expect(screen.queryByRole("button", { name: "Réessayer" })).not.toBeInTheDocument();
+  });
+
+  it("continue de rafraichir tant que les contacts sont demandes", () => {
+    mockWhatsAppConfig.historySyncStatus = "completed";
+    mockWhatsAppConfig.contactsSyncStatus = "requested";
+
+    render(<WhatsAppConfigContent />);
+
+    const interval = capturedWhatsAppQueryOptions?.refetchInterval?.({
+      state: { data: mockWhatsAppConfig },
+    });
+    expect(interval).toBe(10_000);
   });
 
   it("ne dit rien quand aucune reprise n’a été tentée", () => {

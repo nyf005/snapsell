@@ -8,11 +8,13 @@ import { createTRPCContext } from "~/server/api/trpc";
 const mockTenantFindUnique = vi.hoisted(() => vi.fn());
 const mockTenantFindFirst = vi.hoisted(() => vi.fn());
 const mockTenantUpdate = vi.hoisted(() => vi.fn());
+const mockTenantUpdateMany = vi.hoisted(() => vi.fn());
 const mockSellerPhoneFindFirst = vi.hoisted(() => vi.fn());
 const mockSellerPhoneUpsert = vi.hoisted(() => vi.fn());
 const mockDbTransaction = vi.hoisted(() => vi.fn());
 const mockFetch = vi.hoisted(() => vi.fn());
 const mockGetProviderForTenant = vi.hoisted(() => vi.fn());
+const mockEnqueueCoexistenceSync = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.stubGlobal("fetch", mockFetch);
 
@@ -23,6 +25,7 @@ vi.mock("~/server/db", () => ({
       findUnique: mockTenantFindUnique,
       findFirst: mockTenantFindFirst,
       update: mockTenantUpdate,
+      updateMany: mockTenantUpdateMany,
     },
     categoryPrice: {
       findMany: vi.fn().mockResolvedValue([]),
@@ -42,6 +45,11 @@ vi.mock("~/lib/trpc-rate-limit", () => ({
 
 vi.mock("~/server/messaging/service", () => ({
   getProviderForTenant: mockGetProviderForTenant,
+}));
+
+vi.mock("~/server/messaging/providers/meta/coexistence-sync-request", () => ({
+  enqueueCoexistenceSyncRequest: mockEnqueueCoexistenceSync,
+  HISTORY_SYNC_WINDOW_MS: 24 * 60 * 60 * 1_000,
 }));
 
 function setupTransactionMock() {
@@ -623,7 +631,11 @@ describe("settings router — connectWhatsAppEmbedded", () => {
    * tests sans rien dire du comportement réellement attendu.
    */
   function mockMetaFlow(
-    overrides: { scopes?: string[]; displayPhoneNumber?: string } = {},
+    overrides: {
+      scopes?: string[];
+      displayPhoneNumber?: string;
+      isOnBizApp?: boolean;
+    } = {},
   ) {
     const scopes = overrides.scopes ?? [
       "whatsapp_business_management",
@@ -657,7 +669,10 @@ describe("settings router — connectWhatsAppEmbedded", () => {
         return Promise.resolve({
           ok: true,
           json: () =>
-            Promise.resolve({ is_on_biz_app: false, platform_type: "CLOUD_API" }),
+            Promise.resolve({
+              is_on_biz_app: overrides.isOnBizApp ?? false,
+              platform_type: "CLOUD_API",
+            }),
         });
       }
       if (url.includes("/subscribed_apps")) {
@@ -723,6 +738,29 @@ describe("settings router — connectWhatsAppEmbedded", () => {
         phoneNumber: "+33612345678",
       },
       update: {},
+    });
+  });
+
+  it("persiste la fenetre puis enfile la synchronisation Coexistence", async () => {
+    mockMetaFlow({ isOnBizApp: true });
+    mockTenantUpdate.mockResolvedValue({});
+    mockSellerPhoneUpsert.mockResolvedValue({});
+
+    const caller = await makeCaller(ownerSession);
+    await caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-coexistence" });
+
+    expect(mockTenantUpdate).toHaveBeenCalledWith({
+      where: { id: "tenant-1" },
+      data: expect.objectContaining({
+        metaCoexistence: true,
+        metaHistorySyncStatus: "requested",
+        metaContactsSyncStatus: "requested",
+        metaHistorySyncAt: expect.any(Date),
+      }),
+    });
+    expect(mockEnqueueCoexistenceSync).toHaveBeenCalledWith({
+      tenantId: "tenant-1",
+      correlationId: expect.any(String),
     });
   });
 

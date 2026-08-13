@@ -26,9 +26,12 @@ import {
 } from "./settings.schema";
 import {
   MetaEmbeddedSignupError,
-  startCoexistenceSync,
   resolveMetaEmbeddedSignupCredentials,
 } from "~/server/messaging/providers/meta/embedded-signup";
+import {
+  enqueueCoexistenceSyncRequest,
+  HISTORY_SYNC_WINDOW_MS,
+} from "~/server/messaging/providers/meta/coexistence-sync-request";
 
 import { env } from "~/env";
 
@@ -160,8 +163,6 @@ async function validateMetaCredentials(opts: {
 }
 
 /** Fenêtre accordée par Meta pour lancer la reprise après l'intégration. */
-const HISTORY_SYNC_WINDOW_MS = 24 * 60 * 60 * 1000;
-
 export const settingsRouter = createTRPCRouter({
   getCategoryPrices: managerProcedure
     .input(listCategoryPricesInputSchema)
@@ -318,33 +319,50 @@ export const settingsRouter = createTRPCRouter({
       });
     }
 
-    const sync = await startCoexistenceSync({
-      phoneNumberId: tenant.metaPhoneNumberId,
-      accessToken: decrypt(tenant.metaAccessToken),
+    // La date d'origine n'est pas touchée : la fenêtre part de l'intégration,
+    // pas de cette tentative. Les états terminaux restent terminaux.
+    await db.tenant.updateMany({
+      where: {
+        id: tenantId,
+        OR: [
+          { metaContactsSyncStatus: null },
+          { metaContactsSyncStatus: { not: "completed" } },
+        ],
+      },
+      data: { metaContactsSyncStatus: "requested" },
     });
-
-    await db.tenant.update({
-      where: { id: tenantId },
-      // `metaHistorySyncAt` n'est pas touché : la fenêtre part de l'intégration
-      // chez Meta, pas de nos tentatives. La repousser mentirait sur le délai
-      // restant et ferait réessayer bien après que Meta ait cessé d'accepter.
-      data: { metaContactsSyncStatus: sync.contacts },
-    });
-
-    /*
-      Même règle monotone qu'ailleurs : un webhook retardé peut avoir marqué la
-      reprise terminée pendant que l'appel à Meta était en vol. Écrire
-      « demandé » par-dessus ferait revenir l'écran en arrière.
-    */
     await db.tenant.updateMany({
       where: {
         id: tenantId,
         OR: [{ metaHistorySyncStatus: null }, { metaHistorySyncStatus: { not: "completed" } }],
       },
-      data: { metaHistorySyncStatus: sync.history },
+      data: { metaHistorySyncStatus: "requested" },
     });
 
-    return { historySyncStatus: sync.history, contactsSyncStatus: sync.contacts };
+    try {
+      await enqueueCoexistenceSyncRequest({
+        tenantId,
+        correlationId: crypto.randomUUID(),
+      });
+    } catch (error) {
+      await Promise.all([
+        db.tenant.updateMany({
+          where: { id: tenantId, metaContactsSyncStatus: { not: "completed" } },
+          data: { metaContactsSyncStatus: "failed" },
+        }),
+        db.tenant.updateMany({
+          where: { id: tenantId, metaHistorySyncStatus: { not: "completed" } },
+          data: { metaHistorySyncStatus: "failed" },
+        }),
+      ]);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "La reprise n'a pas pu être mise en file. Réessayez dans quelques instants.",
+        cause: error,
+      });
+    }
+
+    return { historySyncStatus: "requested", contactsSyncStatus: "requested" };
   }),
 
   setWhatsAppConfig: managerProcedure
@@ -459,6 +477,8 @@ export const settingsRouter = createTRPCRouter({
           credentials.businessPhoneNumber,
         );
 
+        const syncStartedAt = credentials.coexistence !== false ? new Date() : null;
+
         await db.$transaction(async (tx) => {
           await tx.tenant.update({
             where: { id: tenantId },
@@ -477,9 +497,9 @@ export const settingsRouter = createTRPCRouter({
                 le statut d'une connexion précédente survivrait et le garde
                 ci-dessous prendrait une ancienne valeur pour une avance.
               */
-              metaHistorySyncStatus: null,
-              metaContactsSyncStatus: null,
-              metaHistorySyncAt: null,
+              metaHistorySyncStatus: syncStartedAt ? "requested" : null,
+              metaContactsSyncStatus: syncStartedAt ? "requested" : null,
+              metaHistorySyncAt: syncStartedAt,
             },
           });
 
@@ -518,35 +538,26 @@ export const settingsRouter = createTRPCRouter({
          * ordinaire ne coûte rien, une synchronisation omise coûte
          * l'historique.
          */
-        if (credentials.coexistence !== false) {
-          const sync = await startCoexistenceSync({
-            phoneNumberId: credentials.phoneNumberId,
-            accessToken: credentials.accessToken,
-          });
-          /*
-            La date part sans garde. Elle était écrite dans le même `updateMany`
-            que le statut : quand un webhook rapide avait déjà pris la main, la
-            garde sautait l'écriture entière et `metaHistorySyncAt` restait nul —
-            la reprise devenait alors impossible à relancer, le contrôle des 24 h
-            n'ayant plus de point de départ.
-          */
-          await db.tenant.update({
-            where: { id: tenantId },
-            data: {
-              metaHistorySyncAt: new Date(),
-              metaContactsSyncStatus: sync.contacts,
-            },
-          });
-
-          /*
-            Le statut d'historique, lui, garde sa garde : Meta peut avoir déjà
-            envoyé une première tranche pendant que cet appel revenait, et écrire
-            « demandé » par-dessus « en cours » ferait reculer l'écran.
-          */
-          await db.tenant.updateMany({
-            where: { id: tenantId, metaHistorySyncStatus: null },
-            data: { metaHistorySyncStatus: sync.history },
-          });
+        if (syncStartedAt) {
+          try {
+            await enqueueCoexistenceSyncRequest({
+              tenantId,
+              correlationId: crypto.randomUUID(),
+            });
+          } catch (error) {
+            // La connexion WhatsApp reste valable. Rendre l'échec visible permet
+            // de relancer dans les 24 h sans forcer une nouvelle connexion Meta.
+            await db.tenant.update({
+              where: { id: tenantId },
+              data: {
+                metaHistorySyncStatus: "failed",
+                metaContactsSyncStatus: "failed",
+              },
+            });
+            workerLogger.error("Coexistence: demande initiale non mise en file", error, {
+              tenantId,
+            });
+          }
         }
       } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {

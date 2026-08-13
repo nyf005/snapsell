@@ -74,6 +74,7 @@ describe("handleMessageEchoes", () => {
           // nous. L'outbox ne doit surtout pas le reprendre pour l'envoyer.
           status: "sent",
           providerMessageId: "wamid.echo1",
+          createdAt: new Date(1739321024 * 1_000),
         }),
       }),
     );
@@ -172,6 +173,7 @@ describe("handleAppStateSync", () => {
     expect(applied).toBe(0);
     expect(mockContactUpsert).not.toHaveBeenCalled();
     expect(mockContactDeleteMany).not.toHaveBeenCalled();
+    expect(mockTenantUpdateMany).not.toHaveBeenCalled();
   });
 });
 
@@ -284,6 +286,30 @@ describe("handleHistory", () => {
       }),
     );
   });
+
+  it("conserve la date originale des messages importes", async () => {
+    await handleHistory({
+      tenantId: TENANT,
+      correlationId: CORRELATION,
+      value: historyValue("50", [
+        {
+          from: "+2250701020304",
+          to: "+2250700000000",
+          id: "wamid.dated",
+          timestamp: "1739321024",
+          type: "text",
+          text: { body: "Ancien message" },
+        },
+      ]),
+    });
+
+    expect(mockMessageInUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({ createdAt: new Date(1739321024 * 1_000) }),
+        update: { createdAt: new Date(1739321024 * 1_000) },
+      }),
+    );
+  });
 });
 
 
@@ -356,6 +382,13 @@ describe("import incomplet — rejeu", () => {
         },
       }),
     ).rejects.toThrow(/incomplet/);
+
+    expect(mockTenantUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { metaHistorySyncStatus: "failed" } }),
+    );
+    expect(mockTenantUpdateMany).not.toHaveBeenCalledWith(
+      expect.objectContaining({ data: { metaHistorySyncStatus: "completed" } }),
+    );
   });
 
   it("leve si un contact n'a pas pu etre ecrit", async () => {
@@ -372,6 +405,10 @@ describe("import incomplet — rejeu", () => {
         },
       }),
     ).rejects.toThrow(/incomplet/);
+
+    expect(mockTenantUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { metaContactsSyncStatus: "failed" } }),
+    );
   });
 
   it("marque les contacts « completed » quand tout passe", async () => {
@@ -386,7 +423,15 @@ describe("import incomplet — rejeu", () => {
     });
 
     expect(mockTenantUpdateMany).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { metaContactsSyncStatus: "completed" } }),
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: [
+            { metaContactsSyncStatus: null },
+            { metaContactsSyncStatus: { not: "completed" } },
+          ],
+        }),
+        data: { metaContactsSyncStatus: "completed" },
+      }),
     );
   });
 });

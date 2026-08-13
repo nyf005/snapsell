@@ -6,6 +6,7 @@ const mockHandleHistory = vi.hoisted(() =>
   vi.fn().mockResolvedValue({ imported: 3, progress: "50" }),
 );
 const mockLoggerWarn = vi.hoisted(() => vi.fn());
+const mockProcessSyncRequest = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock("~/server/messaging/providers/meta/coexistence-handlers", () => ({
   handleMessageEchoes: mockHandleEchoes,
@@ -24,6 +25,10 @@ vi.mock("~/lib/logger", () => ({
 
 vi.mock("~/lib/sentry", () => ({ captureException: vi.fn() }));
 
+vi.mock("~/server/messaging/providers/meta/coexistence-sync-request", () => ({
+  processCoexistenceSyncRequest: mockProcessSyncRequest,
+}));
+
 import { processCoexistenceSyncJob } from "./coexistence-sync";
 
 const base = { tenantId: "tenant-1", value: {}, correlationId: "corr-1" };
@@ -35,6 +40,20 @@ describe("processCoexistenceSyncJob", () => {
     await processCoexistenceSyncJob({ ...base, field: "smb_message_echoes" });
 
     expect(mockHandleEchoes).toHaveBeenCalledTimes(1);
+    expect(mockHandleContacts).not.toHaveBeenCalled();
+    expect(mockHandleHistory).not.toHaveBeenCalled();
+  });
+
+  it("route une demande initiale durable vers Meta", async () => {
+    await processCoexistenceSyncJob({
+      kind: "request",
+      tenantId: "tenant-1",
+      correlationId: "corr-request",
+    });
+
+    expect(mockProcessSyncRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: "request", tenantId: "tenant-1" }),
+    );
     expect(mockHandleContacts).not.toHaveBeenCalled();
     expect(mockHandleHistory).not.toHaveBeenCalled();
   });

@@ -7,6 +7,10 @@ import {
   handleMessageEchoes,
 } from "~/server/messaging/providers/meta/coexistence-handlers";
 import { META_WEBHOOK_FIELDS } from "~/server/messaging/providers/meta/webhook-fields";
+import {
+  processCoexistenceSyncRequest,
+  type CoexistenceSyncRequestPayload,
+} from "~/server/messaging/providers/meta/coexistence-sync-request";
 
 /**
  * ── L'IMPORT NE SE FAIT PAS DANS LA REQUÊTE WEBHOOK ────────────────────────
@@ -23,14 +27,24 @@ import { META_WEBHOOK_FIELDS } from "~/server/messaging/providers/meta/webhook-f
  * s'impatiente.
  * ────────────────────────────────────────────────────────────────────────────
  */
-export type CoexistenceSyncPayload = {
+export type CoexistenceWebhookSyncPayload = {
+  kind?: "webhook";
   tenantId: string;
   field: string;
   value: Record<string, unknown>;
   correlationId: string;
 };
 
+export type CoexistenceSyncPayload =
+  | CoexistenceWebhookSyncPayload
+  | CoexistenceSyncRequestPayload;
+
 export async function processCoexistenceSyncJob(payload: CoexistenceSyncPayload): Promise<void> {
+  if (payload.kind === "request") {
+    await processCoexistenceSyncRequest(payload);
+    return;
+  }
+
   const { tenantId, field, value, correlationId } = payload;
 
   if (field === META_WEBHOOK_FIELDS.MESSAGE_ECHOES) {

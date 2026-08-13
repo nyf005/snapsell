@@ -31,6 +31,17 @@ function asDict(value: unknown): Dict | null {
   return typeof value === "object" && value !== null ? (value as Dict) : null;
 }
 
+/** Convertit l'horodatage Unix fourni par Meta sans rendre l'import fragile. */
+function metaTimestamp(value: unknown): Date | null {
+  const raw = typeof value === "number" ? value : Number.parseFloat(asString(value) ?? "");
+  if (!Number.isFinite(raw) || raw <= 0) return null;
+
+  // Les payloads WhatsApp utilisent des secondes. Accepter aussi des
+  // millisecondes rend le parseur tolérant sans modifier les dates valides.
+  const date = new Date(raw >= 1_000_000_000_000 ? raw : raw * 1_000);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 /**
  * Le texte affichable d'un message, quel que soit son type.
  *
@@ -101,6 +112,7 @@ export async function handleMessageEchoes(params: {
     const wamid = asString(echo.id);
     const to = safeNormalize(asString(echo.to));
     if (!wamid || !to) continue;
+    const sentAt = metaTimestamp(echo.timestamp);
 
     try {
       await db.messageOut.upsert({
@@ -116,8 +128,9 @@ export async function handleMessageEchoes(params: {
           status: "sent",
           correlationId: wamid,
           providerMessageId: wamid,
+          ...(sentAt ? { createdAt: sentAt } : {}),
         },
-        update: {},
+        update: sentAt ? { createdAt: sentAt } : {},
       });
       written += 1;
     } catch (error) {
@@ -148,6 +161,7 @@ export async function handleAppStateSync(params: {
   const entries = asArray(params.value.state_sync);
   let applied = 0;
   let failures = 0;
+  let sawContactChange = false;
 
   for (const entry of entries) {
     if (asString(entry.type) !== "contact") continue;
@@ -160,10 +174,12 @@ export async function handleAppStateSync(params: {
 
     try {
       if (action === "remove") {
+        sawContactChange = true;
         await db.whatsAppContact.deleteMany({
           where: { tenantId: params.tenantId, phone },
         });
       } else if (action === "add") {
+        sawContactChange = true;
         await db.whatsAppContact.upsert({
           where: { tenantId_phone: { tenantId: params.tenantId, phone } },
           create: {
@@ -191,16 +207,36 @@ export async function handleAppStateSync(params: {
     }
   }
 
-  throwIfIncomplete("contacts", failures, params);
+  if (failures > 0) {
+    await db.tenant.updateMany({
+      where: {
+        id: params.tenantId,
+        OR: [
+          { metaContactsSyncStatus: null },
+          { metaContactsSyncStatus: { not: "completed" } },
+        ],
+      },
+      data: { metaContactsSyncStatus: "failed" },
+    });
+    throwIfIncomplete("contacts", failures, params);
+  }
 
   /*
     Les contacts sont arrivés : on lève l'éventuel « échec » posé à la demande.
     C'est ce qui retire de l'écran l'avertissement sur les noms manquants.
   */
-  await db.tenant.updateMany({
-    where: { id: params.tenantId, metaContactsSyncStatus: { not: "completed" } },
-    data: { metaContactsSyncStatus: "completed" },
-  });
+  if (sawContactChange) {
+    await db.tenant.updateMany({
+      where: {
+        id: params.tenantId,
+        OR: [
+          { metaContactsSyncStatus: null },
+          { metaContactsSyncStatus: { not: "completed" } },
+        ],
+      },
+      data: { metaContactsSyncStatus: "completed" },
+    });
+  }
 
   return applied;
 }
@@ -237,6 +273,7 @@ export async function handleHistory(params: {
         const from = safeNormalize(asString(message.from));
         const to = safeNormalize(asString(message.to));
         if (!wamid || !from) continue;
+        const sentAt = metaTimestamp(message.timestamp);
 
         const isFromBusiness = businessPhone != null && from === businessPhone;
 
@@ -258,8 +295,9 @@ export async function handleHistory(params: {
                 status: "sent",
                 correlationId: wamid,
                 providerMessageId: wamid,
+                ...(sentAt ? { createdAt: sentAt } : {}),
               },
-              update: {},
+              update: sentAt ? { createdAt: sentAt } : {},
             });
           } else {
             await db.messageIn.upsert({
@@ -275,8 +313,9 @@ export async function handleHistory(params: {
                 from,
                 body: extractBody(message),
                 correlationId: wamid,
+                ...(sentAt ? { createdAt: sentAt } : {}),
               },
-              update: {},
+              update: sentAt ? { createdAt: sentAt } : {},
             });
           }
           imported += 1;
@@ -326,6 +365,20 @@ export async function handleHistory(params: {
    *
    * Le `OR` explicite lève l'ambiguïté quelle que soit la traduction de Prisma.
    */
+  if (failures > 0) {
+    await db.tenant.updateMany({
+      where: {
+        id: params.tenantId,
+        OR: [
+          { metaHistorySyncStatus: null },
+          { metaHistorySyncStatus: { not: "completed" } },
+        ],
+      },
+      data: { metaHistorySyncStatus: "failed" },
+    });
+    throwIfIncomplete("historique", failures, params);
+  }
+
   await db.tenant.updateMany({
     where: {
       id: params.tenantId,
@@ -334,10 +387,6 @@ export async function handleHistory(params: {
     },
     data: { metaHistorySyncStatus: status },
   });
-
-  // Après la mise à jour du statut : un import incomplet doit être rejoué, mais
-  // la progression déjà constatée n'a pas à être perdue pour autant.
-  throwIfIncomplete("historique", failures, params);
 
   return { imported, progress };
 }
