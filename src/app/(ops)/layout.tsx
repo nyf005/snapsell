@@ -21,7 +21,12 @@ export default async function OpsLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <OpsNav />
+      <OpsNav
+        user={{
+          email: session.user.email,
+          name: session.user.name,
+        }}
+      />
       {children}
     </div>
   );
