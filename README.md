@@ -13,7 +13,7 @@ Trois runtimes, chacun avec un rôle précis :
 | Runtime | Rôle |
 |---|---|
 | **Vercel** | App Next.js, dashboard, tRPC, webhook Meta entrant, callbacks QStash |
-| **Railway** (`webhook-worker`) | Process long-running : consomme la queue pg-boss + exécute les 5 crons métier |
+| **Railway** (`webhook-worker`) | Process long-running : consomme les queues pg-boss des messages et de la Coexistence + exécute les crons métier |
 | **Upstash QStash** | Envoi des messages sortants (retries, backoff, DLQ) |
 
 ```
@@ -22,13 +22,14 @@ Client WhatsApp
       ▼
 Meta Cloud API ──▶ POST /api/webhooks/meta          (Vercel, < 1 s)
                         │  vérif signature → resolve tenant
-                        │  → persist MessageIn → boss.send()
+                        │  → messages : persist MessageIn → webhook-processing
+                        │  → historique/contacts/échos : coexistence-sync
                         ▼
-                  queue pg-boss  (dans Postgres/Neon)
+                  queues pg-boss (dans Postgres/Neon)
                         │
                         ▼
-                  worker Railway                     (métier complet)
-                        │  réservations, commandes, variantes, IA, médias
+                  worker Railway
+                        │  métier entrant + import Coexistence sans automatisation
                         ▼
                   writeToOutbox() ──▶ QStash ──▶ /api/qstash/outbox-send
                                                         │

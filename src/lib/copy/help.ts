@@ -368,7 +368,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     title: "Connecter WhatsApp",
     question: "Comment je branche mon numéro ?",
     summary:
-      "Un seul bouton, qui ouvre la fenêtre de Meta. Prévoyez un numéro qui n’est pas déjà utilisé sur l’application WhatsApp, et de quoi recevoir un code de vérification.",
+      "Gardez votre numéro WhatsApp Business actuel ou déclarez-en un nouveau. SnapSell ouvre le parcours Meta adapté sans vous demander de supprimer votre compte.",
     route: "/parametres/whatsapp",
     roles: ["OWNER", "MANAGER"],
     body: [
@@ -384,7 +384,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
         kind: "steps",
         steps: [
           "Le numéro que votre clientèle connaît déjà. S’il est utilisé dans l’application WhatsApp Business, gardez-le : vous conservez l’application, vos contacts et vos conversations.",
-          "L’accès à ce numéro pour recevoir le code de vérification, par message ou par appel.",
+          "Votre téléphone avec WhatsApp Business à jour et l’application ouverte. Pour garder un numéro existant, le code arrive directement dans l’application ; pour un nouveau numéro, Meta peut le vérifier par message ou par appel.",
           "Un compte Facebook, qui servira à relier votre compte WhatsApp Business.",
         ],
       },
@@ -395,6 +395,28 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       {
         kind: "note",
         text: "Si vous gardez votre numéro actuel, Meta vous envoie un code dans votre application WhatsApp Business : recopiez-le, vous n’avez aucun compte à créer ni à supprimer.",
+      },
+      {
+        kind: "warning",
+        text: "Quand Meta vous propose de partager vos anciennes conversations, choisissez pendant la connexion : la reprise doit être demandée dans les vingt-quatre heures. Gardez WhatsApp Business ouvert pendant les premières minutes.",
+      },
+      {
+        kind: "text",
+        text: "Après la connexion, SnapSell reprend séparément vos conversations récentes et vos contacts. Les nouveaux messages fonctionnent tout de suite, même si vous refusez l’historique ou si sa reprise prend encore quelques minutes.",
+      },
+      {
+        kind: "table",
+        head: ["État affiché", "Ce qu’il faut faire"],
+        rows: [
+          ["Reprise en cours", "Attendez quelques minutes : les conversations arrivent par tranches."],
+          ["Terminée", "Rien. Les conversations disponibles ont été reprises."],
+          ["Partage refusé", "Rien si c’était votre choix. Les nouveaux messages continuent de fonctionner."],
+          ["Échouée ou contacts manquants", "Utilisez « Réessayer » avant la fin des vingt-quatre heures."],
+        ],
+      },
+      {
+        kind: "note",
+        text: "Meta déconnecte les appareils liés pendant la connexion d’un numéro existant. Vous pourrez ensuite reconnecter les appareils compatibles depuis WhatsApp Business.",
       },
       {
         kind: "note",

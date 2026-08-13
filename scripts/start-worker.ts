@@ -4,6 +4,7 @@
  *
  * Workers démarrés:
  *   - webhook-processor: Traite les messages entrants (routing vendeur vs client) — pg-boss
+ *   - coexistence-sync: Demande et importe historique, contacts et échos WhatsApp Business
  *   - crons métier: reservation-ttl, close-sessions, deposit-expiry, meta-catalogue-sync,
  *     subscription-expired, credits-monthly-reset
  *

@@ -149,6 +149,19 @@ describe("HELP_TOPICS — l’aide suit le produit", () => {
       expect(helpForRoute(href), `Aucun article ne déclare route: "${href}"`).toBeDefined();
     },
   );
+
+  it("décrit le parcours Coexistence sans reprendre l’ancienne interdiction", () => {
+    const topic = helpTopic("connecter-whatsapp");
+    expect(topic).toBeDefined();
+
+    const copy = JSON.stringify(topic);
+    expect(copy).toContain("gardez-le");
+    expect(copy).toContain("vingt-quatre heures");
+    expect(copy).toContain("Réessayer");
+    expect(copy).toContain("contacts manquants");
+    expect(copy).not.toContain("numéro qui n’est pas déjà utilisé");
+    expect(copy).not.toContain("supprimez votre compte");
+  });
 });
 
 describe("Registre — les extraits de conversation citent le robot", () => {

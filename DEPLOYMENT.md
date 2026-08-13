@@ -33,6 +33,7 @@ Le webhook Vercel ne fait qu'un `boss.send()` ; tout le traitement métier des m
   - `AUTH_SECRET`, `ENCRYPTION_KEY`, `CRON_SECRET` (requis en production)
   - `QSTASH_TOKEN`, `NEXT_PUBLIC_APP_URL` (envoi sortant)
   - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optionnel : rate limiting tRPC)
+  - `NEXT_PUBLIC_META_COEXISTENCE_ENABLED` — Vercel uniquement ; voir la section Coexistence
 
 ### Accéder à la console interne /ops
 
@@ -322,6 +323,14 @@ Depuis le 2026-07-28, cet état n'est plus silencieux : en production, une erreu
 - l'envoi passe par **Meta WhatsApp Cloud API**, avec des credentials **par tenant stockés en base** (`metaPhoneNumberId`, `metaAccessToken` chiffré) — il n'y a donc pas de variable d'environnement de provider à définir sur Railway
 - `META_APP_ID` / `META_APP_SECRET` / `META_VERIFY_TOKEN` servent au webhook et à l'embedded signup, côté Vercel
 
+**Note Coexistence WhatsApp Business:**
+- `NEXT_PUBLIC_META_COEXISTENCE_ENABLED=true` expose le choix « Je garde mon numéro WhatsApp Business » ; cette variable est définie sur **Vercel uniquement**
+- les variables `NEXT_PUBLIC_*` sont intégrées au build : toute modification exige un nouveau déploiement Vercel
+- Vercel enfile les demandes initiales et les webhooks `history`, `smb_app_state_sync`, `smb_message_echoes` dans la queue pg-boss `coexistence-sync`
+- Railway doit être déployé sur le **même commit** : son worker `coexistence-sync` effectue les demandes Meta et importe les données sans les envoyer au pipeline d'automatisation entrant
+- les migrations `20260812230000_add_coexistence_sync_and_contacts` et `20260813090000_split_contacts_sync_status` doivent être appliquées avant d'activer le drapeau
+- la demande de reprise doit partir dans les 24 h suivant l'intégration ; un statut `failed` dans `tenants.meta_history_sync_status` ou `tenants.meta_contacts_sync_status` doit être traité avant la fin de cette fenêtre
+
 **Note QStash:**
 - le worker Railway n'a besoin que de `QSTASH_TOKEN` (+ `NEXT_PUBLIC_APP_URL`) pour publier les jobs outbox
 - `QSTASH_CURRENT_SIGNING_KEY` et `QSTASH_NEXT_SIGNING_KEY` sont requises sur les routes HTTP QStash (`/api/qstash/*`), donc côté Vercel uniquement
@@ -355,14 +364,17 @@ Railway détectera automatiquement les changements et déploiera. Sinon, cliquer
 [INFO] [Worker] pg-boss queues created
 [INFO] [Worker] Starting webhook processor worker...
 [INFO] [Worker] Webhook processor worker started successfully
+[INFO] [Worker] Starting coexistence sync worker...
+[INFO] [Worker] Coexistence sync worker started successfully
 [INFO] [Worker] Periodic jobs scheduled via pg-boss (reservation-ttl: 1min, close-sessions: 10min, deposit-expiry: 5min, meta-catalogue-sync: 1h, credits-monthly-reset: 1h, subscription-expired: daily)
 ```
 
 > ℹ️ Il n'y a **pas** de ligne « Outbox sender worker started » : l'envoi sortant ne tourne plus sur Railway (voir section Story 2.4 ci-dessous).
 
 **Vérifications externes:**
-- Base de données : table `pgboss.job` — la profondeur de la queue `webhook-processing` doit redescendre
-- Base de données : tables `seller_phones`, `messages_out`, `dead_letter_jobs` existent
+- Base de données : table `pgboss.job` — les profondeurs des queues `webhook-processing` et `coexistence-sync` doivent redescendre
+- Base de données : tables `seller_phones`, `messages_out`, `dead_letter_jobs`, `whatsapp_contacts` existent
+- Coexistence : après un test réel, vérifier les deux statuts indépendants `meta_history_sync_status` et `meta_contacts_sync_status`
 - Base de données : aucun `messages_out` ne doit rester bloqué en `status = 'pending'` (symptôme typique de `NEXT_PUBLIC_APP_URL` ou `QSTASH_TOKEN` manquant sur le worker)
 
 ---

@@ -241,12 +241,13 @@ BSP (futur)   1 000    28 325 000 FCFA  9 362 000 FCFA  66,9%
 - Revenus à ce stade : >4 500 000 FCFA/mois
 - **Ratio infra/revenus : <0,7%**
 
-### Long terme (200–500 tenants) → **Évaluer candidature BSP Meta**
-- Contacter Meta Partner Program (nécessite 1 000+ utilisateurs actifs sur WABA)
-- Préparer l'Epic BSP : nouveau onboarding, System User Token, re-facturation usage
+### Long terme (200–500 tenants) → **Évaluer le modèle Solution Partner**
+- SnapSell est déjà vérifié comme Tech Provider ; évaluer ensuite l'intérêt d'un Solution Partner ou d'une ligne de crédit partagée selon les volumes
+- Faire évoluer l'Embedded Signup existant et ses tokens d'intégration business, sans recréer manuellement un utilisateur système dans le portefeuille des boutiques
+- Préparer la refacturation de l'usage et le support opérationnel à plus grande échelle
 
 ### Levier de croissance WhatsApp : **BYOW simplifié**
-- Créer un guide d'onboarding WABA pour les tenants (réduire la friction)
+- Maintenir le guide d'onboarding WABA et Coexistence dans l'aide produit, puis le valider régulièrement avec de vraies boutiques
 - Une documentation claire = plus de tenants = plus de revenus sans coût WhatsApp
 
 ---

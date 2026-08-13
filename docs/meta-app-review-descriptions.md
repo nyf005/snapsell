@@ -38,11 +38,13 @@ Toutes les identifiants (Phone Number ID, Access Token) sont stockés par tenant
 
 SnapSell utilise la permission `whatsapp_business_management` pour gérer les actifs des comptes WhatsApp Business au nom des vendeurs intégrés. Plus précisément :
 
-1. **Intégration des nouveaux vendeurs via l'Embedded Signup** — lorsqu'un vendeur clique sur "Connecter WhatsApp" dans la page des paramètres SnapSell, le flux Embedded Signup s'ouvre. Une fois complété, SnapSell échange le code retourné contre un token d'intégration business, stocke le WABA ID et le Phone Number ID, et abonne l'application aux webhooks du compte WABA du vendeur.
+1. **Intégration des vendeurs via l'Embedded Signup** — lorsqu'un vendeur clique sur "Connecter WhatsApp" dans la page des paramètres SnapSell, il choisit soit de conserver un numéro déjà actif dans l'application WhatsApp Business (parcours Coexistence), soit de déclarer un nouveau numéro. Une fois le parcours complété, SnapSell échange le code retourné contre un token d'intégration business, stocke le WABA ID et le Phone Number ID, et abonne l'application aux webhooks du compte WABA du vendeur. Le parcours Coexistence ne demande ni de supprimer le compte WhatsApp Business ni de changer de numéro.
 
 2. **Stockage et gestion de la configuration par tenant** — le compte WhatsApp Business (WABA ID) et le Phone Number ID de chaque vendeur sont stockés de manière sécurisée en base de données, isolés par tenant. Les vendeurs peuvent consulter et mettre à jour leur statut de connexion WhatsApp depuis la page des paramètres.
 
 3. **Abonnement aux webhooks** — après l'intégration, SnapSell s'abonne au champ webhook `messages` sur le WABA de chaque vendeur afin que les messages entrants soient transmis à l'endpoint webhook de SnapSell.
+
+4. **Synchronisation Coexistence** — pour un numéro conservé dans l'application WhatsApp Business, SnapSell traite séparément les évènements `history`, `smb_app_state_sync` et `smb_message_echoes`. L'historique et les contacts sont importés sans déclencher les automatisations réservées aux nouveaux messages clients ; les messages envoyés manuellement depuis l'application sont enregistrés comme sortants.
 
 Cette permission n'est jamais utilisée pour accéder aux données de comptes WABA que le vendeur n'a pas explicitement connectés à SnapSell via le flux Embedded Signup.
 
