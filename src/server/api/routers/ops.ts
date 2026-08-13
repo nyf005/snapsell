@@ -14,6 +14,7 @@ import {
   AUDIT_RETENTION_UNLIMITED,
   buildEventLogWhere,
 } from "~/server/events/buildEventLogWhere";
+import { opsWhatsappRouter } from "./ops-whatsapp";
 
 const dateOptionalSchema = z
   .string()
@@ -147,6 +148,7 @@ async function assertTenantExists(tenantId: string) {
 }
 
 export const opsRouter = createTRPCRouter({
+  whatsapp: opsWhatsappRouter,
   /** Liste des tenants (pour filtre ops console). */
   tenants: createTRPCRouter({
     list: opsProcedure.query(async () => {

@@ -76,7 +76,7 @@ async function main() {
   console.log(`   tenantId: ${user.tenantId ?? "null (correct pour OPS)"}`);
   // Le mot de passe n'est pas réaffiché : il vient de l'appelant, qui le
   // connaît déjà, et cette sortie finit souvent dans un historique de terminal.
-  console.log(`\n🌐 Se connecter sur /login puis aller sur /ops/logs`);
+  console.log(`\n🌐 Se connecter sur /login puis aller sur /ops/whatsapp`);
 }
 
 main()

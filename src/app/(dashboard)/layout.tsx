@@ -21,7 +21,7 @@ export default async function DashboardLayout({
 
   // Un user OPS n'a pas de tenant → le rediriger vers la console ops
   if (isOpsUser(session.user.role)) {
-    redirect("/ops/logs");
+    redirect("/ops/whatsapp");
   }
 
   const userId = session.user.id;

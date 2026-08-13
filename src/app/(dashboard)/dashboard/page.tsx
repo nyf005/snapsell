@@ -19,7 +19,7 @@ export default async function DashboardPage() {
 
   // Un user OPS n'a pas de tenant → rediriger vers la console ops
   if (isOpsUser(session.user.role) || !session.user.tenantId) {
-    redirect("/ops/logs");
+    redirect("/ops/whatsapp");
   }
 
   const role = session.user.role as string;

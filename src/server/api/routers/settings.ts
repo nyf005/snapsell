@@ -28,6 +28,7 @@ import {
   MetaEmbeddedSignupError,
   resolveMetaEmbeddedSignupCredentials,
 } from "~/server/messaging/providers/meta/embedded-signup";
+import { validateMetaCredentials } from "~/server/messaging/providers/meta/credentials";
 import {
   enqueueCoexistenceSyncRequest,
   HISTORY_SYNC_WINDOW_MS,
@@ -106,61 +107,6 @@ async function fetchWhatsAppTemplatesFromMeta(opts: {
     category: template.category,
     status: template.status,
   }));
-}
-
-/**
- * Valide les identifiants Meta auprès de l'API Graph.
- * Centralise la logique utilisée par setWhatsAppConfig et testWhatsAppConnection.
- */
-async function validateMetaCredentials(opts: {
-  phoneId: string;
-  wabaId: string | null;
-  accessToken: string;
-}): Promise<void> {
-  const { phoneId, wabaId, accessToken } = opts;
-  try {
-    if (wabaId) {
-      // Validation stricte : le phoneId doit figurer dans la liste des numéros du WABA
-      const metaRes = await fetch(
-        `https://graph.facebook.com/v20.0/${encodeURIComponent(wabaId)}/phone_numbers?limit=100`,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
-      );
-      if (!metaRes.ok) {
-        throw appError("BAD_REQUEST", "whatsapp.invalidCredentials", {
-          logMessage: "meta phone_numbers lookup refused",
-        });
-      }
-      const body = (await metaRes.json()) as { data?: Array<{ id: string }> };
-      if (!(body.data ?? []).some((p) => p.id === phoneId)) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Le Phone Number ID ne correspond pas à ce compte WABA. Vérifie tes identifiants Meta.",
-        });
-      }
-    } else {
-      // Fallback si wabaId absent : valide juste token + phoneId
-      const metaRes = await fetch(
-        `https://graph.facebook.com/v20.0/${encodeURIComponent(phoneId)}`,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
-      );
-      if (!metaRes.ok) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Credentials WhatsApp invalides. Vérifie ton Phone Number ID et ton Access Token Meta.",
-        });
-      }
-    }
-  } catch (err) {
-    if (err instanceof TRPCError) throw err;
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Impossible de contacter l'API Meta. Réessaie dans quelques instants.",
-    });
-  }
 }
 
 /** Fenêtre accordée par Meta pour lancer la reprise après l'intégration. */
