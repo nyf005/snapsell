@@ -442,28 +442,31 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     process.env.NEXT_PUBLIC_META_COEXISTENCE_ENABLED = "false";
   });
 
-  it("propose de garder le numéro existant, et de déclarer un numéro neuf", () => {
+  it("propose d’abord de garder le numéro existant, ou d’utiliser un numéro neuf", () => {
     render(<WhatsAppConfigContent />);
 
     expect(
-      screen.getByRole("button", { name: "Connecter ce numéro" }),
+      screen.getByRole("button", { name: /Oui, je garde mon numéro actuel/ }),
     ).toBeEnabled();
     expect(
-      screen.getByRole("button", { name: "Déclarer un numéro" }),
+      screen.getByRole("button", { name: /Non, j’utilise un nouveau numéro/ }),
     ).toBeEnabled();
-    expect(
-      screen.getByText(/Je garde mon numéro WhatsApp Business/),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Étape 1 sur 2")).toBeInTheDocument();
   });
 
-  it("demande la Coexistence pour le numéro déjà utilisé", async () => {
+  it("prépare puis demande la Coexistence pour le numéro déjà utilisé", async () => {
     mockStartSignup.mockResolvedValue({
       status: "connected",
       authResponse: { code: "oauth-123" },
     });
     render(<WhatsAppConfigContent />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Connecter ce numéro" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /Oui, je garde mon numéro actuel/ }),
+    );
+    expect(mockStartSignup).not.toHaveBeenCalled();
+    expect(screen.getByText("Étape 2 sur 2")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
 
     await waitFor(() => expect(mockStartSignup).toHaveBeenCalled());
     expect(mockStartSignup).toHaveBeenCalledWith(
@@ -473,14 +476,20 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     );
   });
 
-  it("demande le parcours complet pour un numéro neuf", async () => {
+  it("prépare puis demande le parcours complet pour un numéro neuf", async () => {
     mockStartSignup.mockResolvedValue({
       status: "connected",
       authResponse: { code: "oauth-123" },
     });
     render(<WhatsAppConfigContent />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Déclarer un numéro" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /Non, j’utilise un nouveau numéro/ }),
+    );
+    expect(mockStartSignup).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Déclarer ce numéro avec Meta" }),
+    );
 
     await waitFor(() => expect(mockStartSignup).toHaveBeenCalled());
     expect(mockStartSignup).toHaveBeenCalledWith(
@@ -504,6 +513,18 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     expect(
       screen.queryByRole("button", { name: "Connecter ce numéro" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("replie le parcours pour un numéro déjà connecté", () => {
+    mockWhatsAppConfig.metaPhoneNumberId = "phone-123";
+    mockWhatsAppConfig.metaWabaId = "waba-123";
+    mockWhatsAppConfig.hasAccessToken = true;
+
+    render(<WhatsAppConfigContent />);
+
+    expect(screen.queryByText("Étape 1 sur 2")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Modifier la connexion" }));
+    expect(screen.getByText("Étape 1 sur 2")).toBeInTheDocument();
   });
 });
 

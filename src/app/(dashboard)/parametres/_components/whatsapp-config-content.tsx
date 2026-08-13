@@ -32,6 +32,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { api } from "~/trpc/react";
 import { WhatsAppAdvancedSections } from "./whatsapp-business-config-content";
+import { WhatsAppConnectionGuide } from "./whatsapp-connection-guide";
 import { ErrorAlert } from "~/components/ui/error-alert";
 import { errorCopy, formatError, ui, type UserError } from "~/lib/copy";
 
@@ -557,49 +558,22 @@ export function WhatsAppConfigContent() {
                 * le cas courant est mis en avant.
                 */}
               {isCoexistenceEnabled && (
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="flex flex-col justify-between gap-3 rounded-lg border border-primary/40 bg-background p-4">
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold text-foreground">
-                        Je garde mon numéro WhatsApp Business
-                      </p>
-                      <p className="text-xs leading-5 text-muted-foreground">
-                        Recommandé. Vous conservez l’application, vos contacts et vos
-                        conversations. Un code vous sera envoyé dans WhatsApp Business,
-                        vous n’avez rien à créer.
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      onClick={() => void handleEmbeddedSignup("coexistence")}
-                      disabled={signupBusy}
-                      className="min-h-11 w-full font-semibold"
-                    >
-                      {signupButtonLabel(isConnected ? "Reconnecter ce numéro" : "Connecter ce numéro")}
-                    </Button>
-                  </div>
-
-                  <div className="flex flex-col justify-between gap-3 rounded-lg border border-border bg-background p-4">
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold text-foreground">
-                        J’utilise un nouveau numéro
-                      </p>
-                      <p className="text-xs leading-5 text-muted-foreground">
-                        Pour un numéro qui n’est encore relié à aucun compte WhatsApp.
-                        Meta vous guidera pour le déclarer et le vérifier.
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => void handleEmbeddedSignup("cloud_api")}
-                      disabled={signupBusy}
-                      className="min-h-11 w-full font-semibold"
-                    >
-                      {signupButtonLabel(isConnected ? "Basculer sur un autre numéro" : "Déclarer un numéro")}
-                    </Button>
-                  </div>
-                </div>
+                <WhatsAppConnectionGuide
+                  isConnected={isConnected}
+                  busy={signupBusy}
+                  actionLabel={(mode) =>
+                    signupButtonLabel(
+                      mode === "coexistence"
+                        ? isConnected
+                          ? "Reconnecter ce numéro"
+                          : "Continuer avec Meta"
+                        : isConnected
+                          ? "Basculer sur ce numéro"
+                          : "Déclarer ce numéro avec Meta",
+                    )
+                  }
+                  onConnect={(mode) => void handleEmbeddedSignup(mode)}
+                />
               )}
 
               {embeddedSignupSlow && embeddedSignupState === "loading" && (

@@ -34,10 +34,12 @@ function renderChecklist(doneIds: string[] = [], compact = false) {
 }
 
 describe("SetupChecklist — compte neuf", () => {
-  it("affiche les six étapes", () => {
+  it("affiche une seule action principale et garde les six étapes dans la vue d’ensemble", () => {
     renderChecklist();
     const list = screen.getByRole("list");
     expect(within(list).getAllByRole("listitem")).toHaveLength(6);
+    expect(screen.getByRole("link", { name: /^Connecter WhatsApp$/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^Définir les prix$/i })).not.toBeInTheDocument();
   });
 
   it("met la connexion WhatsApp en premier", () => {
@@ -52,10 +54,10 @@ describe("SetupChecklist — compte neuf", () => {
     expect(link).toHaveAttribute("href", "/parametres/whatsapp");
   });
 
-  it("distingue les étapes nécessaires des optionnelles", () => {
+  it("présente l’étape courante comme nécessaire", () => {
     renderChecklist();
-    expect(screen.getAllByText("Nécessaire")).toHaveLength(3);
-    expect(screen.getAllByText("Optionnel")).toHaveLength(3);
+    expect(screen.getByText("Nécessaire")).toBeInTheDocument();
+    expect(screen.getAllByText("Recommandée")).toHaveLength(3);
   });
 
   it("annonce la progression", () => {
@@ -63,8 +65,8 @@ describe("SetupChecklist — compte neuf", () => {
     expect(screen.getByText("0 étape sur 6 terminée")).toBeInTheDocument();
   });
 
-  it("propose le catalogue comme alternative au live", () => {
-    renderChecklist();
+  it("propose le catalogue quand la première vente devient l’étape courante", () => {
+    renderChecklist(["whatsapp", "prices", "delivery", "replies", "sellerPhone"]);
     const link = screen.getByRole("link", { name: /Ouvrir le catalogue/i });
     expect(link).toHaveAttribute("href", "/dashboard/catalogue");
   });
@@ -89,7 +91,7 @@ describe("SetupChecklist — compte neuf", () => {
 describe("SetupChecklist — progression", () => {
   it("marque les étapes faites comme terminées et retire leur bouton", () => {
     renderChecklist(["whatsapp"]);
-    expect(screen.getAllByText("Terminé")).toHaveLength(1);
+    expect(screen.getByText("Terminée")).toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: /^Connecter WhatsApp$/i }),
     ).not.toBeInTheDocument();
@@ -107,11 +109,11 @@ describe("SetupChecklist — progression", () => {
 });
 
 describe("SetupChecklist — mode compact", () => {
-  it("se réduit à une progression et à la prochaine étape", () => {
+  it("conserve une seule prochaine action dans un habillage plus discret", () => {
     renderChecklist(["whatsapp"], true);
-    expect(screen.queryByRole("list")).not.toBeInTheDocument();
     expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "1");
-    expect(screen.getByText(/Prochaine étape : Définir vos prix/)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Définir vos prix" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Définir les prix" })).toBeInTheDocument();
   });
 
   it("reste masqué si tout est fait, même en compact", () => {

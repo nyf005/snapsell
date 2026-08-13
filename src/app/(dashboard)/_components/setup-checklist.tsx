@@ -4,13 +4,14 @@ import Link from "next/link";
 import {
   ArrowRight,
   Check,
+  ChevronDown,
   CircleDashed,
   MessageCircle,
   PackageOpen,
+  Phone,
   Radio,
   Tags,
   Truck,
-  Phone,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -28,23 +29,13 @@ export type SetupChecklistProps = {
   steps: Step[];
   doneCount: number;
   totalCount: number;
-  /** Affichage réduit à une barre de progression, une fois WhatsApp connecté. */
+  /** Style plus discret une fois WhatsApp connecté, sans changer le parcours. */
   compact?: boolean;
 };
 
 /**
- * `helpSlug` : l'article qui explique *pourquoi* cette étape existe.
- *
- * Le libellé d'une étape dit quoi faire en une ligne ; il ne peut pas expliquer que
- * le début du code choisit le prix, ni qu'un numéro non déclaré voit ses messages
- * lus comme des achats. Le lien « Comprendre cette étape » s'en charge, sans allonger
- * la liste.
- */
-/**
- * Exporté pour `setup-checklist.ui.test.tsx`, qui vérifie que chaque `helpSlug`
- * désigne un article réel. Sans ce garde-fou, renommer un slug dans `help.ts`
- * casserait les liens « Comprendre cette étape » sans qu'aucun test ne bronche —
- * exactement la dérive que `help.test.ts` interdit déjà pour les liens d'erreur.
+ * Métadonnées d'affichage de chaque étape. L'état, lui, reste entièrement dérivé
+ * côté serveur dans `src/server/api/routers/onboarding.ts`.
  */
 export const STEP_META: Record<
   SetupStepId,
@@ -108,10 +99,9 @@ export const STEP_META: Record<
 };
 
 /**
- * Parcours de mise en route, entièrement dérivé de l'état réel de la boutique.
- *
- * Il n'y a délibérément pas de bouton « masquer » : la checklist s'efface d'elle-même
- * quand tout est fait. Voir src/server/api/routers/onboarding.ts.
+ * Mise en route progressive : une seule prochaine action est mise en avant.
+ * La vue d'ensemble reste disponible pour comprendre le chemin et reprendre une
+ * étape antérieure, mais elle ne concurrence jamais l'action du moment.
  */
 export function SetupChecklist({
   steps,
@@ -119,161 +109,188 @@ export function SetupChecklist({
   totalCount,
   compact = false,
 }: SetupChecklistProps) {
-  const remaining = steps.filter((s) => !s.done);
-  const progressPercent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+  const currentIndex = steps.findIndex((step) => !step.done);
+  const current = currentIndex >= 0 ? steps[currentIndex] : null;
+  const progressPercent =
+    totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
 
-  if (remaining.length === 0) return null;
+  if (!current) return null;
 
-  // Une fois l'essentiel branché, on ne garde qu'une bande de progression discrète.
-  if (compact) {
-    const next = remaining[0];
-    const meta = next ? STEP_META[next.id] : null;
-    return (
-      <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-foreground">
-            {ui.setup.progress(doneCount, totalCount)}
-          </p>
-          {meta && (
-            <p className="mt-0.5 truncate text-sm text-muted-foreground">
-              Prochaine étape : {meta.title}
-            </p>
-          )}
-          <div
-            className="mt-2 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-muted"
-            role="progressbar"
-            aria-valuenow={doneCount}
-            aria-valuemin={0}
-            aria-valuemax={totalCount}
-            aria-label={ui.setup.progress(doneCount, totalCount)}
-          >
-            <div
-              className="h-full rounded-full bg-primary transition-all"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-        </div>
-        {meta && (
-          <Link
-            href={meta.href}
-            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-md border border-border px-4 text-sm font-semibold transition-colors hover:bg-muted"
-          >
-            {meta.action}
-            <ArrowRight className="size-4" />
-          </Link>
-        )}
-      </div>
-    );
-  }
+  const meta = STEP_META[current.id];
+  const Icon = meta.icon;
 
   return (
     <section
       aria-labelledby="setup-checklist-heading"
-      className="overflow-hidden rounded-2xl border border-primary/20 bg-primary/5"
+      className={cn(
+        "overflow-hidden rounded-2xl border",
+        compact
+          ? "border-border bg-surface"
+          : "border-primary/20 bg-primary/5",
+      )}
     >
-      <div className="border-b border-primary/20 px-5 py-4 sm:px-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
-          {ui.setup.progress(doneCount, totalCount)}
-        </p>
-        <h2 id="setup-checklist-heading" className="mt-1 text-lg font-bold text-foreground">
-          {ui.setup.title}
-        </h2>
-        <p className="mt-1 max-w-[65ch] text-sm leading-6 text-muted-foreground">
-          {ui.setup.subtitle}
-        </p>
+      <div className="px-5 py-5 sm:px-6 sm:py-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+              Mise en route
+            </p>
+            <h2
+              id="setup-checklist-heading"
+              className="mt-1 text-lg font-bold text-foreground sm:text-xl"
+            >
+              {ui.setup.title}
+            </h2>
+          </div>
+          <p className="text-sm font-medium text-muted-foreground">
+            {ui.setup.progress(doneCount, totalCount)}
+          </p>
+        </div>
+
+        <div
+          className="mt-3 h-1.5 overflow-hidden rounded-full bg-primary/10"
+          role="progressbar"
+          aria-valuenow={doneCount}
+          aria-valuemin={0}
+          aria-valuemax={totalCount}
+          aria-label={ui.setup.progress(doneCount, totalCount)}
+        >
+          <div
+            className="h-full rounded-full bg-primary transition-[width] duration-200 motion-reduce:transition-none"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+
+        <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-start">
+          <span
+            className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
+            aria-hidden="true"
+          >
+            <Icon className="size-5" />
+          </span>
+
+          <div className="min-w-0 flex-1">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+              Étape {currentIndex + 1} sur {totalCount}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3
+                className="text-lg font-bold text-foreground sm:text-xl"
+              >
+                {meta.title}
+              </h3>
+              <span
+                className={cn(
+                  "rounded-full px-2 py-0.5 text-xs font-medium",
+                  current.required
+                    ? "bg-warning/15 text-warning-foreground"
+                    : "bg-muted text-muted-foreground",
+                )}
+              >
+                {current.required ? "Nécessaire" : "Recommandé"}
+              </span>
+            </div>
+            <p className="mt-1.5 max-w-[60ch] text-sm leading-6 text-muted-foreground">
+              {meta.description}
+            </p>
+            <Link
+              href={`/aide/${meta.helpSlug}`}
+              className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-primary hover:underline"
+            >
+              Comprendre cette étape
+            </Link>
+          </div>
+
+          <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto">
+            <Link
+              href={meta.href}
+              className="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
+            >
+              {meta.action}
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+            {current.id === "firstSale" && (
+              <Link
+                href="/dashboard/catalogue"
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+              >
+                <PackageOpen className="size-4" aria-hidden="true" />
+                {ui.setup.firstSale.actionCatalogue}
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
 
-      <ol className="divide-y divide-border">
-        {steps.map((step) => {
-          const meta = STEP_META[step.id];
-          const Icon = meta.icon;
+      <details className="group border-t border-border bg-surface/70">
+        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-6 [&::-webkit-details-marker]:hidden">
+          Voir toutes les étapes
+          <ChevronDown
+            className="size-4 text-muted-foreground transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+            aria-hidden="true"
+          />
+        </summary>
+        <ol className="divide-y divide-border border-t border-border">
+          {steps.map((step, index) => {
+            const stepMeta = STEP_META[step.id];
+            const isCurrent = index === currentIndex;
 
-          return (
-            <li key={step.id}>
-              <div
+            return (
+              <li
+                key={step.id}
                 className={cn(
-                  "flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5",
-                  step.done && "opacity-60",
+                  "flex min-h-14 items-center gap-3 px-5 py-3 sm:px-6",
+                  isCurrent && "bg-primary/5",
                 )}
               >
                 <span
                   className={cn(
-                    "flex size-9 shrink-0 items-center justify-center rounded-full",
+                    "flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold tabular-nums",
                     step.done
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border bg-background text-muted-foreground",
+                      ? "bg-success/15 text-success"
+                      : isCurrent
+                        ? "bg-primary text-primary-foreground"
+                        : "border border-border bg-background text-muted-foreground",
                   )}
                   aria-hidden="true"
                 >
-                  {step.done ? <Check className="size-4" /> : <Icon className="size-4" />}
+                  {step.done ? <Check className="size-3.5" /> : index + 1}
                 </span>
-
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3
-                      className={cn(
-                        "font-semibold text-foreground",
-                        step.done && "line-through decoration-1",
-                      )}
-                    >
-                      {meta.title}
-                    </h3>
-                    {step.done ? (
-                      <span className="text-xs font-medium text-primary">Terminé</span>
-                    ) : step.required ? (
-                      <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-400">
-                        Nécessaire
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        <CircleDashed className="size-3" />
-                        Optionnel
-                      </span>
+                  <p
+                    className={cn(
+                      "text-sm font-medium",
+                      step.done ? "text-muted-foreground" : "text-foreground",
                     )}
-                  </div>
-                  {!step.done && (
-                    <>
-                      <p className="mt-1 max-w-[60ch] text-sm leading-5 text-muted-foreground">
-                        {meta.description}
-                      </p>
-                      <Link
-                        href={`/aide/${meta.helpSlug}`}
-                        className="mt-1.5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-                      >
-                        Comprendre cette étape
-                        <ArrowRight className="size-3.5" aria-hidden="true" />
-                      </Link>
-                    </>
-                  )}
-                </div>
-
-                {!step.done && (
-                  <Link
-                    href={meta.href}
-                    className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-1.5 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
                   >
-                    {meta.action}
-                    <ArrowRight className="size-4" />
+                    {stepMeta.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {step.done
+                      ? "Terminée"
+                      : isCurrent
+                        ? "À faire en priorité"
+                        : step.required
+                          ? "À venir"
+                          : "Recommandée"}
+                  </p>
+                </div>
+                {!step.done && !isCurrent && (
+                  <Link
+                    href={stepMeta.href}
+                    className="inline-flex min-h-11 items-center px-2 text-sm font-medium text-primary hover:underline"
+                  >
+                    Ouvrir
                   </Link>
                 )}
-              </div>
-
-              {/* Le catalogue est une alternative légitime au live pour démarrer. */}
-              {step.id === "firstSale" && !step.done && (
-                <div className="px-4 pb-4 sm:px-5 sm:pb-5">
-                  <Link
-                    href="/dashboard/catalogue"
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
-                  >
-                    <PackageOpen className="size-4" />
-                    {ui.setup.firstSale.actionCatalogue}
-                  </Link>
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ol>
+                {!step.done && isCurrent && (
+                  <CircleDashed className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </details>
     </section>
   );
 }
