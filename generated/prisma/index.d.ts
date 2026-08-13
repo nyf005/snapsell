@@ -3984,6 +3984,7 @@ export namespace Prisma {
     metaAccessToken: string | null
     metaCoexistence: boolean | null
     metaHistorySyncStatus: string | null
+    metaContactsSyncStatus: string | null
     metaHistorySyncAt: Date | null
     requireDeposit: boolean | null
     createdAt: Date | null
@@ -4038,6 +4039,7 @@ export namespace Prisma {
     metaAccessToken: string | null
     metaCoexistence: boolean | null
     metaHistorySyncStatus: string | null
+    metaContactsSyncStatus: string | null
     metaHistorySyncAt: Date | null
     requireDeposit: boolean | null
     createdAt: Date | null
@@ -4092,6 +4094,7 @@ export namespace Prisma {
     metaAccessToken: number
     metaCoexistence: number
     metaHistorySyncStatus: number
+    metaContactsSyncStatus: number
     metaHistorySyncAt: number
     requireDeposit: number
     createdAt: number
@@ -4170,6 +4173,7 @@ export namespace Prisma {
     metaAccessToken?: true
     metaCoexistence?: true
     metaHistorySyncStatus?: true
+    metaContactsSyncStatus?: true
     metaHistorySyncAt?: true
     requireDeposit?: true
     createdAt?: true
@@ -4224,6 +4228,7 @@ export namespace Prisma {
     metaAccessToken?: true
     metaCoexistence?: true
     metaHistorySyncStatus?: true
+    metaContactsSyncStatus?: true
     metaHistorySyncAt?: true
     requireDeposit?: true
     createdAt?: true
@@ -4278,6 +4283,7 @@ export namespace Prisma {
     metaAccessToken?: true
     metaCoexistence?: true
     metaHistorySyncStatus?: true
+    metaContactsSyncStatus?: true
     metaHistorySyncAt?: true
     requireDeposit?: true
     createdAt?: true
@@ -4419,6 +4425,7 @@ export namespace Prisma {
     metaAccessToken: string | null
     metaCoexistence: boolean | null
     metaHistorySyncStatus: string | null
+    metaContactsSyncStatus: string | null
     metaHistorySyncAt: Date | null
     requireDeposit: boolean
     createdAt: Date
@@ -4492,6 +4499,7 @@ export namespace Prisma {
     metaAccessToken?: boolean
     metaCoexistence?: boolean
     metaHistorySyncStatus?: boolean
+    metaContactsSyncStatus?: boolean
     metaHistorySyncAt?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
@@ -4570,6 +4578,7 @@ export namespace Prisma {
     metaAccessToken?: boolean
     metaCoexistence?: boolean
     metaHistorySyncStatus?: boolean
+    metaContactsSyncStatus?: boolean
     metaHistorySyncAt?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
@@ -4624,6 +4633,7 @@ export namespace Prisma {
     metaAccessToken?: boolean
     metaCoexistence?: boolean
     metaHistorySyncStatus?: boolean
+    metaContactsSyncStatus?: boolean
     metaHistorySyncAt?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
@@ -4678,6 +4688,7 @@ export namespace Prisma {
     metaAccessToken?: boolean
     metaCoexistence?: boolean
     metaHistorySyncStatus?: boolean
+    metaContactsSyncStatus?: boolean
     metaHistorySyncAt?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
@@ -4724,7 +4735,7 @@ export namespace Prisma {
     awayMessage?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "metaCoexistence" | "metaHistorySyncStatus" | "metaHistorySyncAt" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "creditsBonus" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "orderSeq" | "hasAI" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "whatsappTemplateName" | "whatsappTemplateLanguage" | "whatsappTemplateCategory" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "metaCoexistence" | "metaHistorySyncStatus" | "metaContactsSyncStatus" | "metaHistorySyncAt" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "creditsBonus" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "orderSeq" | "hasAI" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "whatsappTemplateName" | "whatsappTemplateLanguage" | "whatsappTemplateCategory" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     conversationStates?: boolean | Tenant$conversationStatesArgs<ExtArgs>
@@ -4789,6 +4800,7 @@ export namespace Prisma {
       metaAccessToken: string | null
       metaCoexistence: boolean | null
       metaHistorySyncStatus: string | null
+      metaContactsSyncStatus: string | null
       metaHistorySyncAt: Date | null
       requireDeposit: boolean
       createdAt: Date
@@ -5293,6 +5305,7 @@ export namespace Prisma {
     readonly metaAccessToken: FieldRef<"Tenant", 'String'>
     readonly metaCoexistence: FieldRef<"Tenant", 'Boolean'>
     readonly metaHistorySyncStatus: FieldRef<"Tenant", 'String'>
+    readonly metaContactsSyncStatus: FieldRef<"Tenant", 'String'>
     readonly metaHistorySyncAt: FieldRef<"Tenant", 'DateTime'>
     readonly requireDeposit: FieldRef<"Tenant", 'Boolean'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
@@ -37361,6 +37374,7 @@ export namespace Prisma {
     metaAccessToken: 'metaAccessToken',
     metaCoexistence: 'metaCoexistence',
     metaHistorySyncStatus: 'metaHistorySyncStatus',
+    metaContactsSyncStatus: 'metaContactsSyncStatus',
     metaHistorySyncAt: 'metaHistorySyncAt',
     requireDeposit: 'requireDeposit',
     createdAt: 'createdAt',
@@ -38052,6 +38066,7 @@ export namespace Prisma {
     metaAccessToken?: StringNullableFilter<"Tenant"> | string | null
     metaCoexistence?: BoolNullableFilter<"Tenant"> | boolean | null
     metaHistorySyncStatus?: StringNullableFilter<"Tenant"> | string | null
+    metaContactsSyncStatus?: StringNullableFilter<"Tenant"> | string | null
     metaHistorySyncAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
@@ -38129,6 +38144,7 @@ export namespace Prisma {
     metaAccessToken?: SortOrderInput | SortOrder
     metaCoexistence?: SortOrderInput | SortOrder
     metaHistorySyncStatus?: SortOrderInput | SortOrder
+    metaContactsSyncStatus?: SortOrderInput | SortOrder
     metaHistorySyncAt?: SortOrderInput | SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
@@ -38211,6 +38227,7 @@ export namespace Prisma {
     metaAccessToken?: StringNullableFilter<"Tenant"> | string | null
     metaCoexistence?: BoolNullableFilter<"Tenant"> | boolean | null
     metaHistorySyncStatus?: StringNullableFilter<"Tenant"> | string | null
+    metaContactsSyncStatus?: StringNullableFilter<"Tenant"> | string | null
     metaHistorySyncAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
@@ -38286,6 +38303,7 @@ export namespace Prisma {
     metaAccessToken?: SortOrderInput | SortOrder
     metaCoexistence?: SortOrderInput | SortOrder
     metaHistorySyncStatus?: SortOrderInput | SortOrder
+    metaContactsSyncStatus?: SortOrderInput | SortOrder
     metaHistorySyncAt?: SortOrderInput | SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
@@ -38348,6 +38366,7 @@ export namespace Prisma {
     metaAccessToken?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     metaCoexistence?: BoolNullableWithAggregatesFilter<"Tenant"> | boolean | null
     metaHistorySyncStatus?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    metaContactsSyncStatus?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     metaHistorySyncAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
     requireDeposit?: BoolWithAggregatesFilter<"Tenant"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
@@ -40508,6 +40527,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -40585,6 +40605,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -40662,6 +40683,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40739,6 +40761,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40816,6 +40839,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -40870,6 +40894,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40924,6 +40949,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43535,6 +43561,7 @@ export namespace Prisma {
     metaAccessToken?: SortOrder
     metaCoexistence?: SortOrder
     metaHistorySyncStatus?: SortOrder
+    metaContactsSyncStatus?: SortOrder
     metaHistorySyncAt?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
@@ -43600,6 +43627,7 @@ export namespace Prisma {
     metaAccessToken?: SortOrder
     metaCoexistence?: SortOrder
     metaHistorySyncStatus?: SortOrder
+    metaContactsSyncStatus?: SortOrder
     metaHistorySyncAt?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
@@ -43654,6 +43682,7 @@ export namespace Prisma {
     metaAccessToken?: SortOrder
     metaCoexistence?: SortOrder
     metaHistorySyncStatus?: SortOrder
+    metaContactsSyncStatus?: SortOrder
     metaHistorySyncAt?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
@@ -49253,6 +49282,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -49329,6 +49359,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -49421,6 +49452,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49497,6 +49529,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49573,6 +49606,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -49649,6 +49683,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -49761,6 +49796,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49837,6 +49873,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49990,6 +50027,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -50066,6 +50104,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -50158,6 +50197,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50234,6 +50274,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50310,6 +50351,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -50386,6 +50428,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -50538,6 +50581,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50614,6 +50658,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50902,6 +50947,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -50978,6 +51024,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -51070,6 +51117,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51146,6 +51194,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51222,6 +51271,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -51298,6 +51348,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -51390,6 +51441,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51466,6 +51518,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51542,6 +51595,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -51618,6 +51672,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -51710,6 +51765,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51786,6 +51842,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51862,6 +51919,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -51938,6 +51996,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -52030,6 +52089,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52106,6 +52166,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52182,6 +52243,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -52258,6 +52320,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -52350,6 +52413,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52426,6 +52490,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52502,6 +52567,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -52578,6 +52644,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -52670,6 +52737,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52746,6 +52814,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52822,6 +52891,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -52898,6 +52968,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -53088,6 +53159,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53164,6 +53236,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53272,6 +53345,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -53348,6 +53422,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -53559,6 +53634,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53635,6 +53711,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53774,6 +53851,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -53850,6 +53928,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -54068,6 +54147,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54144,6 +54224,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54268,6 +54349,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -54344,6 +54426,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -54578,6 +54661,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54654,6 +54738,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54844,6 +54929,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -54920,6 +55006,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -55185,6 +55272,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55261,6 +55349,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55540,6 +55629,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -55616,6 +55706,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -55708,6 +55799,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55784,6 +55876,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55860,6 +55953,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -55936,6 +56030,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -56028,6 +56123,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56104,6 +56200,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56180,6 +56277,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -56256,6 +56354,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -56433,6 +56532,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56509,6 +56609,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56687,6 +56788,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -56763,6 +56865,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -56890,6 +56993,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56966,6 +57070,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57042,6 +57147,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -57118,6 +57224,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -57259,6 +57366,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57335,6 +57443,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57466,6 +57575,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -57542,6 +57652,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -57634,6 +57745,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57710,6 +57822,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57786,6 +57899,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -57862,6 +57976,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -57954,6 +58069,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58030,6 +58146,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58106,6 +58223,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -58182,6 +58300,7 @@ export namespace Prisma {
     metaAccessToken?: string | null
     metaCoexistence?: boolean | null
     metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
@@ -58274,6 +58393,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58350,6 +58470,7 @@ export namespace Prisma {
     metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

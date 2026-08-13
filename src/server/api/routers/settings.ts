@@ -251,6 +251,7 @@ export const settingsRouter = createTRPCRouter({
           metaAccessToken: true,
           metaCoexistence: true,
           metaHistorySyncStatus: true,
+          metaContactsSyncStatus: true,
         },
       }),
       db.sellerPhone.findFirst({
@@ -273,6 +274,8 @@ export const settingsRouter = createTRPCRouter({
       coexistence: tenant?.metaCoexistence ?? null,
       // "requested" | "in_progress" | "completed" | "declined" | "failed"
       historySyncStatus: tenant?.metaHistorySyncStatus ?? null,
+      // "requested" | "completed" | "failed" — indépendant de l'historique.
+      contactsSyncStatus: tenant?.metaContactsSyncStatus ?? null,
     };
   }),
 
@@ -315,7 +318,7 @@ export const settingsRouter = createTRPCRouter({
       });
     }
 
-    const historySyncStatus = await startCoexistenceSync({
+    const sync = await startCoexistenceSync({
       phoneNumberId: tenant.metaPhoneNumberId,
       accessToken: decrypt(tenant.metaAccessToken),
     });
@@ -325,10 +328,23 @@ export const settingsRouter = createTRPCRouter({
       // `metaHistorySyncAt` n'est pas touché : la fenêtre part de l'intégration
       // chez Meta, pas de nos tentatives. La repousser mentirait sur le délai
       // restant et ferait réessayer bien après que Meta ait cessé d'accepter.
-      data: { metaHistorySyncStatus: historySyncStatus },
+      data: { metaContactsSyncStatus: sync.contacts },
     });
 
-    return { historySyncStatus };
+    /*
+      Même règle monotone qu'ailleurs : un webhook retardé peut avoir marqué la
+      reprise terminée pendant que l'appel à Meta était en vol. Écrire
+      « demandé » par-dessus ferait revenir l'écran en arrière.
+    */
+    await db.tenant.updateMany({
+      where: {
+        id: tenantId,
+        OR: [{ metaHistorySyncStatus: null }, { metaHistorySyncStatus: { not: "completed" } }],
+      },
+      data: { metaHistorySyncStatus: sync.history },
+    });
+
+    return { historySyncStatus: sync.history, contactsSyncStatus: sync.contacts };
   }),
 
   setWhatsAppConfig: managerProcedure
@@ -462,6 +478,7 @@ export const settingsRouter = createTRPCRouter({
                 ci-dessous prendrait une ancienne valeur pour une avance.
               */
               metaHistorySyncStatus: null,
+              metaContactsSyncStatus: null,
               metaHistorySyncAt: null,
             },
           });
@@ -502,23 +519,33 @@ export const settingsRouter = createTRPCRouter({
          * l'historique.
          */
         if (credentials.coexistence !== false) {
-          const historySyncStatus = await startCoexistenceSync({
+          const sync = await startCoexistenceSync({
             phoneNumberId: credentials.phoneNumberId,
             accessToken: credentials.accessToken,
           });
           /*
-            `updateMany` avec garde : Meta peut avoir déjà envoyé une première
-            tranche d'historique pendant que cet appel revenait. Écrire
+            La date part sans garde. Elle était écrite dans le même `updateMany`
+            que le statut : quand un webhook rapide avait déjà pris la main, la
+            garde sautait l'écriture entière et `metaHistorySyncAt` restait nul —
+            la reprise devenait alors impossible à relancer, le contrôle des 24 h
+            n'ayant plus de point de départ.
+          */
+          await db.tenant.update({
+            where: { id: tenantId },
+            data: {
+              metaHistorySyncAt: new Date(),
+              metaContactsSyncStatus: sync.contacts,
+            },
+          });
+
+          /*
+            Le statut d'historique, lui, garde sa garde : Meta peut avoir déjà
+            envoyé une première tranche pendant que cet appel revenait, et écrire
             « demandé » par-dessus « en cours » ferait reculer l'écran.
           */
           await db.tenant.updateMany({
             where: { id: tenantId, metaHistorySyncStatus: null },
-            data: {
-              metaHistorySyncStatus: historySyncStatus,
-              // Repère de la fenêtre de 24 h : sans lui, impossible de dire si
-              // une reprise restée en cours est encore rattrapable.
-              metaHistorySyncAt: new Date(),
-            },
+            data: { metaHistorySyncStatus: sync.history },
           });
         }
       } catch (error) {

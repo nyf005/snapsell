@@ -45,6 +45,32 @@ function extractBody(message: Dict): string {
   return asString(content.body) ?? asString(content.caption) ?? "";
 }
 
+/**
+ * ── UN IMPORT INCOMPLET N'EST PAS UN IMPORT RÉUSSI ────────────────────────
+ *
+ * Les erreurs d'écriture étaient capturées ligne par ligne puis oubliées : le
+ * job se terminait normalement, pg-boss le considérait réussi et ne le rejouait
+ * jamais. Une base momentanément indisponible pouvait donc laisser une reprise
+ * marquée « terminée » alors qu'il manquait des messages ou des contacts.
+ *
+ * On laisse volontairement remonter après avoir parcouru tout le lot : les
+ * écritures se font par `upsert`, donc le rejeu ne duplique rien et reprend
+ * seulement ce qui manque.
+ */
+function throwIfIncomplete(
+  what: string,
+  failures: number,
+  params: { correlationId: string; tenantId: string },
+): void {
+  if (failures === 0) return;
+  webhookLogger.error(
+    `Coexistence: import ${what} incomplet — rejeu demandé`,
+    new Error(`${failures} écriture(s) en échec`),
+    { correlationId: params.correlationId, tenantId: params.tenantId },
+  );
+  throw new Error(`Import ${what} incomplet: ${failures} écriture(s) en échec`);
+}
+
 function safeNormalize(phone: string | null): string | null {
   if (!phone) return null;
   try {
@@ -69,6 +95,7 @@ export async function handleMessageEchoes(params: {
 }): Promise<number> {
   const echoes = asArray(params.value.message_echoes);
   let written = 0;
+  let failures = 0;
 
   for (const echo of echoes) {
     const wamid = asString(echo.id);
@@ -94,6 +121,7 @@ export async function handleMessageEchoes(params: {
       });
       written += 1;
     } catch (error) {
+      failures += 1;
       webhookLogger.error(
         "Coexistence: écho non enregistré",
         error instanceof Error ? error : new Error(String(error)),
@@ -102,6 +130,7 @@ export async function handleMessageEchoes(params: {
     }
   }
 
+  throwIfIncomplete("échos", failures, params);
   return written;
 }
 
@@ -118,6 +147,7 @@ export async function handleAppStateSync(params: {
 }): Promise<number> {
   const entries = asArray(params.value.state_sync);
   let applied = 0;
+  let failures = 0;
 
   for (const entry of entries) {
     if (asString(entry.type) !== "contact") continue;
@@ -152,6 +182,7 @@ export async function handleAppStateSync(params: {
       }
       applied += 1;
     } catch (error) {
+      failures += 1;
       webhookLogger.error(
         "Coexistence: contact non synchronisé",
         error instanceof Error ? error : new Error(String(error)),
@@ -159,6 +190,17 @@ export async function handleAppStateSync(params: {
       );
     }
   }
+
+  throwIfIncomplete("contacts", failures, params);
+
+  /*
+    Les contacts sont arrivés : on lève l'éventuel « échec » posé à la demande.
+    C'est ce qui retire de l'écran l'avertissement sur les noms manquants.
+  */
+  await db.tenant.updateMany({
+    where: { id: params.tenantId, metaContactsSyncStatus: { not: "completed" } },
+    data: { metaContactsSyncStatus: "completed" },
+  });
 
   return applied;
 }
@@ -183,6 +225,7 @@ export async function handleHistory(params: {
     asString(asDict(params.value.metadata)?.display_phone_number),
   );
   let imported = 0;
+  let failures = 0;
   let progress: string | null = null;
 
   for (const chunk of asArray(params.value.history)) {
@@ -238,6 +281,7 @@ export async function handleHistory(params: {
           }
           imported += 1;
         } catch (error) {
+          failures += 1;
           webhookLogger.error(
             "Coexistence: message d'historique non importé",
             error instanceof Error ? error : new Error(String(error)),
@@ -271,11 +315,29 @@ export async function handleHistory(params: {
    * Le même garde protège de la course avec le routeur, qui écrit `requested`
    * après le retour de Meta : un premier webhook peut le devancer.
    */
+  /**
+   * ── LA GARDE DOIT COUVRIR `NULL`, PAS SEULEMENT LES AUTRES VALEURS ──────
+   *
+   * `{ not: "completed" }` seul ne sélectionne pas les lignes où la colonne
+   * vaut `NULL` — c'est la logique SQL des valeurs nulles, et c'est exactement
+   * l'état juste après une connexion. Un webhook rapide importait donc les
+   * messages puis n'écrivait rien : la reprise restait invisible, et le routeur
+   * n'y posait ensuite que « demandé ».
+   *
+   * Le `OR` explicite lève l'ambiguïté quelle que soit la traduction de Prisma.
+   */
   await db.tenant.updateMany({
-    // `completed` est terminal : rien ne le remplace.
-    where: { id: params.tenantId, metaHistorySyncStatus: { not: "completed" } },
+    where: {
+      id: params.tenantId,
+      // `completed` est terminal : rien ne le remplace.
+      OR: [{ metaHistorySyncStatus: null }, { metaHistorySyncStatus: { not: "completed" } }],
+    },
     data: { metaHistorySyncStatus: status },
   });
+
+  // Après la mise à jour du statut : un import incomplet doit être rejoué, mais
+  // la progression déjà constatée n'a pas à être perdue pour autant.
+  throwIfIncomplete("historique", failures, params);
 
   return { imported, progress };
 }

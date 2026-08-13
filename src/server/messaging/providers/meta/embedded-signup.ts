@@ -66,11 +66,24 @@ type SmbAppDataResponse = {
  * État de la synchronisation d'historique, tel qu'il part en base.
  *
  * `declined` n'est pas un échec : la boutique a le droit de refuser de partager
- * ses conversations pendant le parcours Meta. `partial` signale que l'historique
- * est parti mais pas les contacts. `failed` demande une intervention — et il
- * faut la voir vite, la fenêtre étant de 24 h.
+ * ses conversations pendant le parcours Meta. `failed` demande une intervention
+ * — et il faut la voir vite, la fenêtre étant de 24 h.
  */
-export type HistorySyncStatus = "requested" | "partial" | "declined" | "failed";
+export type HistorySyncStatus = "requested" | "declined" | "failed";
+export type ContactsSyncStatus = "requested" | "failed";
+
+/**
+ * Les deux synchronisations sont indépendantes et échouent séparément.
+ *
+ * Elles partageaient un statut unique, avec une valeur `partial` pour dire
+ * « historique parti, contacts non ». Ça ne tenait pas : le premier webhook
+ * d'historique écrasait ce statut, les contacts manquants disparaissaient de
+ * l'écran, et le bouton de reprise avec eux.
+ */
+export type CoexistenceSyncResult = {
+  history: HistorySyncStatus;
+  contacts: ContactsSyncStatus;
+};
 
 export type EmbeddedSignupConnectionResult = {
   accessToken: string;
@@ -432,7 +445,7 @@ export async function detectCoexistence(params: {
 export async function startCoexistenceSync(params: {
   phoneNumberId: string;
   accessToken: string;
-}): Promise<HistorySyncStatus> {
+}): Promise<CoexistenceSyncResult> {
   const requestSync = async (syncType: "smb_app_state_sync" | "history") => {
     const payload = (await requestJson(
       `https://graph.facebook.com/${META_GRAPH_VERSION}/${encodeURIComponent(params.phoneNumberId)}/smb_app_data`,
@@ -458,7 +471,7 @@ export async function startCoexistenceSync(params: {
 
   // Les contacts d'abord : ils arrivent en quelques minutes et permettent
   // d'afficher un nom plutôt qu'un numéro dès les premières conversations.
-  let contactsRequested = true;
+  let contacts: ContactsSyncStatus = "requested";
   try {
     await requestSync("smb_app_state_sync");
   } catch (error) {
@@ -468,7 +481,7 @@ export async function startCoexistenceSync(params: {
      * les contacts manquaient — ni état, ni bouton pour les rattraper, alors
      * que la fenêtre de 24 h vaut aussi pour eux.
      */
-    contactsRequested = false;
+    contacts = "failed";
     workerLogger.error(
       "Meta: synchronisation des contacts non demandée",
       error instanceof Error ? error : new Error(String(error)),
@@ -478,7 +491,7 @@ export async function startCoexistenceSync(params: {
 
   try {
     await requestSync("history");
-    return contactsRequested ? "requested" : "partial";
+    return { history: "requested", contacts };
   } catch (error) {
     if (
       error instanceof MetaEmbeddedSignupError &&
@@ -488,7 +501,7 @@ export async function startCoexistenceSync(params: {
       workerLogger.info("Meta: partage de l'historique refusé par la boutique", {
         phoneNumberId: params.phoneNumberId,
       });
-      return "declined";
+      return { history: "declined", contacts };
     }
 
     workerLogger.error(
@@ -496,7 +509,7 @@ export async function startCoexistenceSync(params: {
       error instanceof Error ? error : new Error(String(error)),
       { phoneNumberId: params.phoneNumberId },
     );
-    return "failed";
+    return { history: "failed", contacts };
   }
 }
 

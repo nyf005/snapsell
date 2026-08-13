@@ -308,10 +308,85 @@ describe("handleHistory — monotonie du statut", () => {
     });
 
     const call = mockTenantUpdateMany.mock.calls[0]![0] as {
-      where: Record<string, unknown>;
+      where: { OR?: unknown[] };
     };
-    expect(call.where).toMatchObject({
-      metaHistorySyncStatus: { not: "completed" },
+    /*
+      `{ not: "completed" }` seul ne selectionne pas les lignes NULL — l'etat
+      exact juste apres une connexion. Le OR explicite couvre les deux.
+    */
+    expect(call.where.OR).toEqual([
+      { metaHistorySyncStatus: null },
+      { metaHistorySyncStatus: { not: "completed" } },
+    ]);
+  });
+});
+
+/**
+ * ── UN IMPORT INCOMPLET N'EST PAS UN IMPORT RÉUSSI ────────────────────────
+ *
+ * Les erreurs d'écriture étaient capturées ligne par ligne puis oubliées : le
+ * job se terminait normalement et pg-boss ne le rejouait jamais. Une reprise
+ * pouvait donc être marquée « terminée » avec des messages manquants.
+ */
+describe("import incomplet — rejeu", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("leve si une ecriture d'historique a echoue", async () => {
+    mockMessageInUpsert.mockRejectedValueOnce(new Error("base indisponible"));
+
+    await expect(
+      handleHistory({
+        tenantId: TENANT,
+        correlationId: CORRELATION,
+        value: {
+          metadata: { display_phone_number: "+2250700000000" },
+          history: [
+            {
+              metadata: { progress: "50" },
+              threads: [
+                {
+                  id: "+2250701020304",
+                  messages: [
+                    { from: "+2250701020304", to: "+2250700000000", id: "wamid.x", type: "text", text: { body: "A" } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      }),
+    ).rejects.toThrow(/incomplet/);
+  });
+
+  it("leve si un contact n'a pas pu etre ecrit", async () => {
+    mockContactUpsert.mockRejectedValueOnce(new Error("base indisponible"));
+
+    await expect(
+      handleAppStateSync({
+        tenantId: TENANT,
+        correlationId: CORRELATION,
+        value: {
+          state_sync: [
+            { type: "contact", contact: { phone_number: "+2250701020304" }, action: "add" },
+          ],
+        },
+      }),
+    ).rejects.toThrow(/incomplet/);
+  });
+
+  it("marque les contacts « completed » quand tout passe", async () => {
+    await handleAppStateSync({
+      tenantId: TENANT,
+      correlationId: CORRELATION,
+      value: {
+        state_sync: [
+          { type: "contact", contact: { phone_number: "+2250701020304" }, action: "add" },
+        ],
+      },
     });
+
+    expect(mockTenantUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { metaContactsSyncStatus: "completed" } }),
+    );
   });
 });

@@ -228,18 +228,19 @@ export function WhatsAppConfigContent() {
    * Meta, et le dire évite qu'elle cherche un défaut inexistant. `failed`, si —
    * et comme la fenêtre de Meta est de 24 h, il faut le voir vite.
    */
-  const historySyncNotice = (() => {
-    /*
-      Conditionné à l'existence d'un statut, et non à `coexistence`. Ce dernier
-      peut valoir `null` — Meta n'ayant pas répondu — alors qu'une reprise a bien
-      été tentée : s'y fier masquait l'échec et son bouton de reprise.
-    */
+  /**
+   * Ce que la boutique doit lire sur la reprise de ses conversations.
+   *
+   * Deux états, pas un : historique et contacts se synchronisent séparément et
+   * échouent séparément. Les fondre dans un seul statut faisait disparaître les
+   * contacts manquants dès la première tranche d'historique — l'écran annonçait
+   * alors que tout allait bien alors que les noms n'arriveraient jamais.
+   */
+  const historyNotice = (() => {
     switch (data?.historySyncStatus) {
       case "requested":
       case "in_progress":
         return "Reprise de vos anciennes conversations en cours. Elles apparaissent par tranches, comptez plusieurs minutes.";
-      case "partial":
-        return "Vos anciennes conversations sont en cours de reprise, mais vos contacts n’ont pas pu être récupérés : leurs noms n’apparaîtront pas.";
       case "completed":
         return "Vos anciennes conversations ont été reprises.";
       case "declined":
@@ -250,6 +251,20 @@ export function WhatsAppConfigContent() {
         return null;
     }
   })();
+
+  const contactsNotice =
+    data?.contactsSyncStatus === "failed"
+      ? "Vos contacts n’ont pas pu être récupérés : les noms de votre clientèle n’apparaîtront pas."
+      : null;
+
+  const historySyncNotice = [historyNotice, contactsNotice].filter(Boolean).join(" ");
+
+  /*
+    La reprise se relance tant qu'une des deux moitiés a échoué — y compris
+    quand l'historique est parti et que seuls les contacts manquent.
+  */
+  const canRetrySync =
+    data?.historySyncStatus === "failed" || data?.contactsSyncStatus === "failed";
 
   /** Même progression d'état sur tous les boutons de connexion. */
   const signupButtonLabel = (idleLabel: string) =>
@@ -610,12 +625,11 @@ export function WhatsAppConfigContent() {
                 * ses conversations ne peut pas savoir s'il faut patienter ou
                 * s'inquiéter.
                 */}
-              {historySyncNotice && (
+              {historySyncNotice !== "" && (
                 <Alert className="mt-3">
                   <AlertDescription>
                     {historySyncNotice}
-                    {(data?.historySyncStatus === "failed" ||
-                      data?.historySyncStatus === "partial") && (
+                    {canRetrySync && (
                       <Button
                         type="button"
                         variant="outline"

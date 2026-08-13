@@ -111,6 +111,7 @@ function mockTenant(overrides: Partial<Tenant> = {}): Tenant {
     metaAccessToken: null,
     metaCoexistence: false,
     metaHistorySyncStatus: null,
+    metaContactsSyncStatus: null,
     metaHistorySyncAt: null,
     requireDeposit: false,
     createdAt: new Date(),

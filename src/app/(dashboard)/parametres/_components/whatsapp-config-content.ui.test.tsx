@@ -23,6 +23,7 @@ const mockWhatsAppConfig = {
   hasAccessToken: false,
   coexistence: false as boolean | null,
   historySyncStatus: null as string | null,
+  contactsSyncStatus: null as string | null,
 };
 
 vi.mock("~/app/(dashboard)/_components/dashboard-header", () => ({
@@ -519,6 +520,7 @@ describe("WhatsAppConfigContent — reprise de l’historique", () => {
     mockWhatsAppConfig.hasAccessToken = true;
     mockWhatsAppConfig.coexistence = true;
     mockWhatsAppConfig.historySyncStatus = null;
+    mockWhatsAppConfig.contactsSyncStatus = null;
     process.env.NEXT_PUBLIC_META_APP_ID = "meta-app-id";
     process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID = "meta-config-id";
     process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_ENABLED = "true";
@@ -527,6 +529,7 @@ describe("WhatsAppConfigContent — reprise de l’historique", () => {
   afterEach(() => {
     mockWhatsAppConfig.coexistence = false;
     mockWhatsAppConfig.historySyncStatus = null;
+    mockWhatsAppConfig.contactsSyncStatus = null;
   });
 
   it("annonce la reprise en cours", () => {
@@ -596,12 +599,37 @@ describe("WhatsAppConfigContent — reprise de l’historique", () => {
   });
 
   it("signale des contacts manquants et propose de les reprendre", () => {
-    mockWhatsAppConfig.historySyncStatus = "partial";
+    mockWhatsAppConfig.contactsSyncStatus = "failed";
 
     render(<WhatsAppConfigContent />);
 
     expect(screen.getByText(/contacts n’ont pas pu être récupérés/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Réessayer" })).toBeInTheDocument();
+  });
+
+  /**
+   * Le cas qui a motivé la séparation des deux états : un statut unique était
+   * écrasé par la première tranche d'historique, les contacts manquants
+   * disparaissaient de l'écran et le bouton de reprise avec eux.
+   */
+  it("garde l’alerte contacts même quand l’historique est terminé", () => {
+    mockWhatsAppConfig.historySyncStatus = "completed";
+    mockWhatsAppConfig.contactsSyncStatus = "failed";
+
+    render(<WhatsAppConfigContent />);
+
+    expect(screen.getByText(/anciennes conversations ont été reprises/)).toBeInTheDocument();
+    expect(screen.getByText(/contacts n’ont pas pu être récupérés/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Réessayer" })).toBeInTheDocument();
+  });
+
+  it("ne propose rien quand les deux moitiés vont bien", () => {
+    mockWhatsAppConfig.historySyncStatus = "completed";
+    mockWhatsAppConfig.contactsSyncStatus = "completed";
+
+    render(<WhatsAppConfigContent />);
+
+    expect(screen.queryByRole("button", { name: "Réessayer" })).not.toBeInTheDocument();
   });
 
   it("ne dit rien quand aucune reprise n’a été tentée", () => {

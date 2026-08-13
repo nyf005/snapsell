@@ -128,6 +128,7 @@ exports.Prisma.TenantScalarFieldEnum = {
   metaAccessToken: 'metaAccessToken',
   metaCoexistence: 'metaCoexistence',
   metaHistorySyncStatus: 'metaHistorySyncStatus',
+  metaContactsSyncStatus: 'metaContactsSyncStatus',
   metaHistorySyncAt: 'metaHistorySyncAt',
   requireDeposit: 'requireDeposit',
   createdAt: 'createdAt',

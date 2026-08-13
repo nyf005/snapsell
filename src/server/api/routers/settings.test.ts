@@ -334,6 +334,7 @@ describe("settings router — getWhatsAppConfig (Meta)", () => {
       hasAccessToken: true,
       coexistence: null,
       historySyncStatus: null,
+      contactsSyncStatus: null,
     });
   });
 
@@ -706,6 +707,7 @@ describe("settings router — connectWhatsAppEmbedded", () => {
         metaCoexistence: false,
         // Une nouvelle connexion repart d'une reprise vierge.
         metaHistorySyncStatus: null,
+        metaContactsSyncStatus: null,
         metaHistorySyncAt: null,
       },
     });

@@ -505,13 +505,13 @@ describe("startCoexistenceSync", () => {
         : jsonResponse({ request_id: "req-1" });
     });
 
-    await expect(run()).resolves.toBe("declined");
+    await expect(run()).resolves.toMatchObject({ history: "declined" });
   });
 
   it("signale un echec sans lever", async () => {
     routeSync(() => jsonResponse({ error: { message: "boom", code: 500 } }, false, 503));
 
-    await expect(run()).resolves.toBe("failed");
+    await expect(run()).resolves.toMatchObject({ history: "failed" });
   });
 
   /**
@@ -520,7 +520,7 @@ describe("startCoexistenceSync", () => {
    * ni état, ni bouton pour les rattraper, alors que la fenêtre vaut aussi
    * pour eux.
    */
-  it("signale « partiel » quand seuls les contacts echouent", async () => {
+  it("suit les contacts separement de l'historique", async () => {
     routeSync((url, init) => {
       const syncType = url.includes("/smb_app_data")
         ? JSON.parse(String(init?.body)).sync_type
@@ -530,7 +530,12 @@ describe("startCoexistenceSync", () => {
         : jsonResponse({ request_id: "req-1" });
     });
 
-    await expect(run()).resolves.toBe("partial");
+    /*
+      Deux etats distincts : l'historique est parti, les contacts non. Un statut
+      unique aurait ete ecrase par la premiere tranche d'historique, et les
+      contacts manquants auraient disparu de l'ecran.
+    */
+    await expect(run()).resolves.toEqual({ history: "requested", contacts: "failed" });
   });
 
   it("demande quand meme l'historique si les contacts echouent", async () => {

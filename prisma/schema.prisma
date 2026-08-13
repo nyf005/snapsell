@@ -23,34 +23,39 @@ enum Role {
 }
 
 model Tenant {
-  id                    String    @id @default(cuid())
-  name                  String
+  id                     String    @id @default(cuid())
+  name                   String
   // Meta WhatsApp Cloud API (Story 10.1)
-  metaPhoneNumberId     String?   @unique @map("meta_phone_number_id")
-  metaWabaId            String?   @map("meta_waba_id")
-  metaAccessToken       String?   @map("meta_access_token") // Chiffré AES-256-GCM via src/lib/crypto.ts
+  metaPhoneNumberId      String?   @unique @map("meta_phone_number_id")
+  metaWabaId             String?   @map("meta_waba_id")
+  metaAccessToken        String?   @map("meta_access_token") // Chiffré AES-256-GCM via src/lib/crypto.ts
   // Coexistence — numéro partagé entre l'app WhatsApp Business et la Cloud API.
   // Confirmé par Meta (`is_on_biz_app` + `platform_type`) à la connexion, jamais
   // déduit du choix fait à l'écran : celui-ci n'est qu'une intention.
   // `null` = indéterminé. Une erreur de lecture ne vaut pas « non » : conclure
   // « non » ferait sauter la synchronisation et perdre l'historique.
-  metaCoexistence       Boolean?  @map("meta_coexistence")
+  metaCoexistence        Boolean?  @map("meta_coexistence")
   // "requested" | "in_progress" | "completed" | "declined" | "failed"
   // Meta n'accorde que 24 h après l'intégration pour lancer la synchronisation ;
   // passé ce délai l'historique est perdu sans reprise possible.
-  metaHistorySyncStatus String?   @map("meta_history_sync_status")
-  metaHistorySyncAt     DateTime? @map("meta_history_sync_at")
-  requireDeposit        Boolean   @default(false) @map("require_deposit") // Story 4.5: acompte activé → TTL locked, demande preuve
-  createdAt             DateTime  @default(now()) @map("created_at")
-  updatedAt             DateTime  @updatedAt @map("updated_at")
+  metaHistorySyncStatus  String?   @map("meta_history_sync_status")
+  // Les contacts se synchronisent séparément de l'historique et peuvent échouer
+  // seuls. Un statut unique ne pouvait pas porter les deux : le premier webhook
+  // d'historique effaçait la trace de contacts manquants.
+  // "requested" | "completed" | "failed"
+  metaContactsSyncStatus String?   @map("meta_contacts_sync_status")
+  metaHistorySyncAt      DateTime? @map("meta_history_sync_at")
+  requireDeposit         Boolean   @default(false) @map("require_deposit") // Story 4.5: acompte activé → TTL locked, demande preuve
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
   // Subscription (Story 7A.2)
-  subscriptionPlan      String    @default("free") @map("subscription_plan")
+  subscriptionPlan       String    @default("free") @map("subscription_plan")
   // "free" | "starter" | "pro"
-  subscriptionStatus    String    @default("active") @map("subscription_status")
+  subscriptionStatus     String    @default("active") @map("subscription_status")
   // "active" | "attention" | "non_renewing" | "expired" | "cancelled"
-  subscriptionExpiresAt DateTime? @map("subscription_expires_at")
+  subscriptionExpiresAt  DateTime? @map("subscription_expires_at")
   // null = Free (pas d'expiration) ; set à +30j après paiement pour Starter/Pro
-  cycleStartedAt        DateTime? @map("cycle_started_at")
+  cycleStartedAt         DateTime? @map("cycle_started_at")
   // Début du cycle courant (pour compter l'usage). null = Free
 
   // Credits système (Story Credits)
