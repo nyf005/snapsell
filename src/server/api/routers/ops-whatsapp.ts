@@ -6,6 +6,10 @@ import { decrypt, encrypt } from "~/lib/crypto";
 import { createTRPCRouter, opsProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { validateMetaCredentials } from "~/server/messaging/providers/meta/credentials";
+import {
+  enqueueCoexistenceSyncRequest,
+  HISTORY_SYNC_WINDOW_MS,
+} from "~/server/messaging/providers/meta/coexistence-sync-request";
 
 const tenantIdSchema = z.object({ tenantId: z.string().cuid() });
 
@@ -150,6 +154,101 @@ export const opsWhatsappRouter = createTRPCRouter({
         },
       });
       return { ok: true };
+    }),
+
+  retryHistorySync: opsProcedure
+    .input(tenantIdSchema)
+    .mutation(async ({ ctx, input }) => {
+      const tenant = await getWhatsAppTenant(input.tenantId);
+      if (!tenant.metaPhoneNumberId || !tenant.metaAccessToken) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "WhatsApp n’est pas suffisamment configuré pour relancer la reprise.",
+        });
+      }
+
+      const startedAt = tenant.metaHistorySyncAt;
+      const elapsedMs = startedAt
+        ? Date.now() - startedAt.getTime()
+        : Number.POSITIVE_INFINITY;
+      if (elapsedMs > HISTORY_SYNC_WINDOW_MS) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Le délai de 24 heures est dépassé. Les anciennes conversations ne peuvent plus être récupérées.",
+        });
+      }
+
+      await Promise.all([
+        db.tenant.updateMany({
+          where: {
+            id: input.tenantId,
+            OR: [
+              { metaContactsSyncStatus: null },
+              { metaContactsSyncStatus: { not: "completed" } },
+            ],
+          },
+          data: { metaContactsSyncStatus: "requested" },
+        }),
+        db.tenant.updateMany({
+          where: {
+            id: input.tenantId,
+            OR: [
+              { metaHistorySyncStatus: null },
+              { metaHistorySyncStatus: { not: "completed" } },
+            ],
+          },
+          data: { metaHistorySyncStatus: "requested" },
+        }),
+      ]);
+
+      const correlationId = crypto.randomUUID();
+      try {
+        await enqueueCoexistenceSyncRequest({
+          tenantId: input.tenantId,
+          correlationId,
+        });
+      } catch (error) {
+        await Promise.all([
+          db.tenant.updateMany({
+            where: {
+              id: input.tenantId,
+              metaContactsSyncStatus: { not: "completed" },
+            },
+            data: { metaContactsSyncStatus: "failed" },
+          }),
+          db.tenant.updateMany({
+            where: {
+              id: input.tenantId,
+              metaHistorySyncStatus: { not: "completed" },
+            },
+            data: { metaHistorySyncStatus: "failed" },
+          }),
+        ]);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            "La reprise n’a pas pu être relancée. Attendez un instant puis réessayez.",
+          cause: error,
+        });
+      }
+
+      await db.eventLog.create({
+        data: {
+          tenantId: input.tenantId,
+          eventType: "ops.whatsapp_sync_retried",
+          entityType: "tenant",
+          entityId: input.tenantId,
+          correlationId,
+          actorType: "ops",
+          payload: { actorUserId: ctx.session.user.id },
+        },
+      });
+
+      return {
+        historySyncStatus: "requested",
+        contactsSyncStatus: "requested",
+      };
     }),
 
   updateConfig: opsProcedure

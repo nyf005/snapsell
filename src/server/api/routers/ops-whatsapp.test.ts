@@ -6,17 +6,20 @@ import { createTRPCContext } from "~/server/api/trpc";
 const mockTenantFindMany = vi.hoisted(() => vi.fn());
 const mockTenantFindUnique = vi.hoisted(() => vi.fn());
 const mockTenantUpdate = vi.hoisted(() => vi.fn());
+const mockTenantUpdateMany = vi.hoisted(() => vi.fn());
 const mockEventLogFindMany = vi.hoisted(() => vi.fn());
 const mockEventLogCreate = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
 const mockValidateMetaCredentials = vi.hoisted(() => vi.fn());
 const mockIsOpsUser = vi.hoisted(() => vi.fn());
+const mockEnqueueCoexistenceSync = vi.hoisted(() => vi.fn());
 
 vi.mock("~/server/db", () => ({
   db: {
     tenant: {
       findMany: (...args: unknown[]) => mockTenantFindMany(...args),
       findUnique: (...args: unknown[]) => mockTenantFindUnique(...args),
+      updateMany: (...args: unknown[]) => mockTenantUpdateMany(...args),
     },
     eventLog: {
       findMany: (...args: unknown[]) => mockEventLogFindMany(...args),
@@ -29,6 +32,12 @@ vi.mock("~/server/db", () => ({
 vi.mock("~/server/messaging/providers/meta/credentials", () => ({
   validateMetaCredentials: (...args: unknown[]) =>
     mockValidateMetaCredentials(...args),
+}));
+
+vi.mock("~/server/messaging/providers/meta/coexistence-sync-request", () => ({
+  enqueueCoexistenceSyncRequest: (...args: unknown[]) =>
+    mockEnqueueCoexistenceSync(...args),
+  HISTORY_SYNC_WINDOW_MS: 24 * 60 * 60 * 1_000,
 }));
 
 vi.mock("~/lib/rbac", async () => {
@@ -91,6 +100,8 @@ describe("ops.whatsapp", () => {
     mockValidateMetaCredentials.mockResolvedValue(undefined);
     mockTenantUpdate.mockResolvedValue({ id: tenantId });
     mockEventLogCreate.mockResolvedValue({ id: "event-1" });
+    mockTenantUpdateMany.mockResolvedValue({ count: 1 });
+    mockEnqueueCoexistenceSync.mockResolvedValue(undefined);
     mockTransaction.mockImplementation(
       async (callback: (tx: unknown) => Promise<unknown>) =>
         callback({
@@ -261,5 +272,50 @@ describe("ops.whatsapp", () => {
         },
       }),
     );
+  });
+
+  it("permet au support de relancer une reprise encore dans la fenêtre", async () => {
+    mockTenantFindUnique.mockResolvedValue(
+      tenant({
+        metaHistorySyncStatus: "failed",
+        metaContactsSyncStatus: "failed",
+        metaHistorySyncAt: new Date(Date.now() - 60 * 60 * 1_000),
+      }),
+    );
+    const caller = await callerFor(opsSession);
+
+    const result = await caller.ops.whatsapp.retryHistorySync({ tenantId });
+
+    expect(result).toEqual({
+      historySyncStatus: "requested",
+      contactsSyncStatus: "requested",
+    });
+    expect(mockEnqueueCoexistenceSync).toHaveBeenCalledWith({
+      tenantId,
+      correlationId: expect.any(String),
+    });
+    expect(mockEventLogCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        tenantId,
+        eventType: "ops.whatsapp_sync_retried",
+        actorType: "ops",
+        payload: { actorUserId: opsSession.user.id },
+      }),
+    });
+  });
+
+  it("refuse une reprise après la fenêtre Meta de 24 heures", async () => {
+    mockTenantFindUnique.mockResolvedValue(
+      tenant({
+        metaHistorySyncStatus: "failed",
+        metaHistorySyncAt: new Date(Date.now() - 25 * 60 * 60 * 1_000),
+      }),
+    );
+    const caller = await callerFor(opsSession);
+
+    await expect(
+      caller.ops.whatsapp.retryHistorySync({ tenantId }),
+    ).rejects.toThrow("Le délai de 24 heures est dépassé");
+    expect(mockEnqueueCoexistenceSync).not.toHaveBeenCalled();
   });
 });
