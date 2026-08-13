@@ -30,6 +30,9 @@ export type EventType =
   | "order.status_changed"
   | "deposit_approved"
   | "deposit_rejected"
+  | "assistant.activated"
+  | "assistant.paused"
+  | "assistant.message_suppressed"
   | "catalogue_item.photo_linked";
 
 /**
@@ -44,12 +47,13 @@ export type EntityType =
   | "opt_out"
   | "live_item"
   | "catalogue_item"
-  | "payment_proof";
+  | "payment_proof"
+  | "tenant";
 
 /**
  * Types d'acteurs pour Event Log
  */
-export type ActorType = "system" | "seller" | "client";
+export type ActorType = "system" | "seller" | "client" | "ops";
 
 /**
  * Schéma Zod pour validation du payload event_log
@@ -117,6 +121,9 @@ const logEventInputSchema = z.object({
     "order.status_changed",
     "deposit_approved",
     "deposit_rejected",
+    "assistant.activated",
+    "assistant.paused",
+    "assistant.message_suppressed",
     "catalogue_item.photo_linked",
   ]),
   entityType: z.enum([
@@ -129,10 +136,11 @@ const logEventInputSchema = z.object({
     "live_item",
     "catalogue_item",
     "payment_proof",
+    "tenant",
   ]),
   entityId: z.string().optional(),
   correlationId: z.string().min(1), // UUID ou message_sid
-  actorType: z.enum(["system", "seller", "client"]),
+  actorType: z.enum(["system", "seller", "client", "ops"]),
   payload: eventLogPayloadSchema,
 });
 

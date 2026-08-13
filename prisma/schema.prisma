@@ -45,6 +45,12 @@ model Tenant {
   // "requested" | "completed" | "failed"
   metaContactsSyncStatus String?   @map("meta_contacts_sync_status")
   metaHistorySyncAt      DateTime? @map("meta_history_sync_at")
+  // Interrupteur global des réponses automatiques destinées à la clientèle.
+  // Une connexion WhatsApp valide ne l'active jamais implicitement.
+  assistantEnabled       Boolean   @default(false) @map("assistant_enabled")
+  assistantUpdatedAt     DateTime? @map("assistant_updated_at")
+  assistantUpdatedBy     String?   @map("assistant_updated_by")
+  assistantActivatedAt   DateTime? @map("assistant_activated_at")
   requireDeposit         Boolean   @default(false) @map("require_deposit") // Story 4.5: acompte activé → TTL locked, demande preuve
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
@@ -700,7 +706,7 @@ model MessageOut {
   mediaUrl           String?   @map("media_url") @db.Text // Story 9.4: URL média (photo article) pour MMS WhatsApp
   interactivePayload Json?     @map("interactive_payload") // Payload boutons/liste pour messages interactifs WhatsApp
   isTypingIndicator  Boolean   @default(false) @map("is_typing_indicator") // Story 11.2
-  status             String // pending | sending | sent | failed | blocked (STOP)
+  status             String // pending | sending | sent | failed | blocked (STOP) | suppressed (assistant en pause)
   attempts           Int       @default(0)
   nextAttemptAt      DateTime? @map("next_attempt_at")
   lastError          String?   @map("last_error") @db.Text

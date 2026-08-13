@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  Bot,
   ChevronDown,
   MessageCircle,
   PackageOpen,
@@ -71,6 +72,14 @@ export const STEP_META: Record<
     href: "/parametres/livraison",
     action: ui.setup.delivery.action,
     helpSlug: "prix-et-livraison",
+  },
+  assistant: {
+    icon: Bot,
+    title: ui.setup.assistant.title,
+    description: ui.setup.assistant.description,
+    href: "/dashboard#assistant-control",
+    action: ui.setup.assistant.action,
+    helpSlug: "comment-ca-marche",
   },
   replies: {
     icon: MessageCircle,

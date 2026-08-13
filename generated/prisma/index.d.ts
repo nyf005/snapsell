@@ -3986,6 +3986,10 @@ export namespace Prisma {
     metaHistorySyncStatus: string | null
     metaContactsSyncStatus: string | null
     metaHistorySyncAt: Date | null
+    assistantEnabled: boolean | null
+    assistantUpdatedAt: Date | null
+    assistantUpdatedBy: string | null
+    assistantActivatedAt: Date | null
     requireDeposit: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4041,6 +4045,10 @@ export namespace Prisma {
     metaHistorySyncStatus: string | null
     metaContactsSyncStatus: string | null
     metaHistorySyncAt: Date | null
+    assistantEnabled: boolean | null
+    assistantUpdatedAt: Date | null
+    assistantUpdatedBy: string | null
+    assistantActivatedAt: Date | null
     requireDeposit: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4096,6 +4104,10 @@ export namespace Prisma {
     metaHistorySyncStatus: number
     metaContactsSyncStatus: number
     metaHistorySyncAt: number
+    assistantEnabled: number
+    assistantUpdatedAt: number
+    assistantUpdatedBy: number
+    assistantActivatedAt: number
     requireDeposit: number
     createdAt: number
     updatedAt: number
@@ -4175,6 +4187,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: true
     metaContactsSyncStatus?: true
     metaHistorySyncAt?: true
+    assistantEnabled?: true
+    assistantUpdatedAt?: true
+    assistantUpdatedBy?: true
+    assistantActivatedAt?: true
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
@@ -4230,6 +4246,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: true
     metaContactsSyncStatus?: true
     metaHistorySyncAt?: true
+    assistantEnabled?: true
+    assistantUpdatedAt?: true
+    assistantUpdatedBy?: true
+    assistantActivatedAt?: true
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
@@ -4285,6 +4305,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: true
     metaContactsSyncStatus?: true
     metaHistorySyncAt?: true
+    assistantEnabled?: true
+    assistantUpdatedAt?: true
+    assistantUpdatedBy?: true
+    assistantActivatedAt?: true
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
@@ -4427,6 +4451,10 @@ export namespace Prisma {
     metaHistorySyncStatus: string | null
     metaContactsSyncStatus: string | null
     metaHistorySyncAt: Date | null
+    assistantEnabled: boolean
+    assistantUpdatedAt: Date | null
+    assistantUpdatedBy: string | null
+    assistantActivatedAt: Date | null
     requireDeposit: boolean
     createdAt: Date
     updatedAt: Date
@@ -4501,6 +4529,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: boolean
     metaContactsSyncStatus?: boolean
     metaHistorySyncAt?: boolean
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: boolean
+    assistantUpdatedBy?: boolean
+    assistantActivatedAt?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4580,6 +4612,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: boolean
     metaContactsSyncStatus?: boolean
     metaHistorySyncAt?: boolean
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: boolean
+    assistantUpdatedBy?: boolean
+    assistantActivatedAt?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4635,6 +4671,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: boolean
     metaContactsSyncStatus?: boolean
     metaHistorySyncAt?: boolean
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: boolean
+    assistantUpdatedBy?: boolean
+    assistantActivatedAt?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4690,6 +4730,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: boolean
     metaContactsSyncStatus?: boolean
     metaHistorySyncAt?: boolean
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: boolean
+    assistantUpdatedBy?: boolean
+    assistantActivatedAt?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4735,7 +4779,7 @@ export namespace Prisma {
     awayMessage?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "metaCoexistence" | "metaHistorySyncStatus" | "metaContactsSyncStatus" | "metaHistorySyncAt" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "creditsBonus" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "orderSeq" | "hasAI" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "whatsappTemplateName" | "whatsappTemplateLanguage" | "whatsappTemplateCategory" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "metaCoexistence" | "metaHistorySyncStatus" | "metaContactsSyncStatus" | "metaHistorySyncAt" | "assistantEnabled" | "assistantUpdatedAt" | "assistantUpdatedBy" | "assistantActivatedAt" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "creditsBonus" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "orderSeq" | "hasAI" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "whatsappTemplateName" | "whatsappTemplateLanguage" | "whatsappTemplateCategory" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     conversationStates?: boolean | Tenant$conversationStatesArgs<ExtArgs>
@@ -4802,6 +4846,10 @@ export namespace Prisma {
       metaHistorySyncStatus: string | null
       metaContactsSyncStatus: string | null
       metaHistorySyncAt: Date | null
+      assistantEnabled: boolean
+      assistantUpdatedAt: Date | null
+      assistantUpdatedBy: string | null
+      assistantActivatedAt: Date | null
       requireDeposit: boolean
       createdAt: Date
       updatedAt: Date
@@ -5307,6 +5355,10 @@ export namespace Prisma {
     readonly metaHistorySyncStatus: FieldRef<"Tenant", 'String'>
     readonly metaContactsSyncStatus: FieldRef<"Tenant", 'String'>
     readonly metaHistorySyncAt: FieldRef<"Tenant", 'DateTime'>
+    readonly assistantEnabled: FieldRef<"Tenant", 'Boolean'>
+    readonly assistantUpdatedAt: FieldRef<"Tenant", 'DateTime'>
+    readonly assistantUpdatedBy: FieldRef<"Tenant", 'String'>
+    readonly assistantActivatedAt: FieldRef<"Tenant", 'DateTime'>
     readonly requireDeposit: FieldRef<"Tenant", 'Boolean'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
@@ -37376,6 +37428,10 @@ export namespace Prisma {
     metaHistorySyncStatus: 'metaHistorySyncStatus',
     metaContactsSyncStatus: 'metaContactsSyncStatus',
     metaHistorySyncAt: 'metaHistorySyncAt',
+    assistantEnabled: 'assistantEnabled',
+    assistantUpdatedAt: 'assistantUpdatedAt',
+    assistantUpdatedBy: 'assistantUpdatedBy',
+    assistantActivatedAt: 'assistantActivatedAt',
     requireDeposit: 'requireDeposit',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -38068,6 +38124,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: StringNullableFilter<"Tenant"> | string | null
     metaContactsSyncStatus?: StringNullableFilter<"Tenant"> | string | null
     metaHistorySyncAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    assistantEnabled?: BoolFilter<"Tenant"> | boolean
+    assistantUpdatedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    assistantUpdatedBy?: StringNullableFilter<"Tenant"> | string | null
+    assistantActivatedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
@@ -38146,6 +38206,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: SortOrderInput | SortOrder
     metaContactsSyncStatus?: SortOrderInput | SortOrder
     metaHistorySyncAt?: SortOrderInput | SortOrder
+    assistantEnabled?: SortOrder
+    assistantUpdatedAt?: SortOrderInput | SortOrder
+    assistantUpdatedBy?: SortOrderInput | SortOrder
+    assistantActivatedAt?: SortOrderInput | SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -38229,6 +38293,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: StringNullableFilter<"Tenant"> | string | null
     metaContactsSyncStatus?: StringNullableFilter<"Tenant"> | string | null
     metaHistorySyncAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    assistantEnabled?: BoolFilter<"Tenant"> | boolean
+    assistantUpdatedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    assistantUpdatedBy?: StringNullableFilter<"Tenant"> | string | null
+    assistantActivatedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
@@ -38305,6 +38373,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: SortOrderInput | SortOrder
     metaContactsSyncStatus?: SortOrderInput | SortOrder
     metaHistorySyncAt?: SortOrderInput | SortOrder
+    assistantEnabled?: SortOrder
+    assistantUpdatedAt?: SortOrderInput | SortOrder
+    assistantUpdatedBy?: SortOrderInput | SortOrder
+    assistantActivatedAt?: SortOrderInput | SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -38368,6 +38440,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     metaContactsSyncStatus?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     metaHistorySyncAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+    assistantEnabled?: BoolWithAggregatesFilter<"Tenant"> | boolean
+    assistantUpdatedAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+    assistantUpdatedBy?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    assistantActivatedAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
     requireDeposit?: BoolWithAggregatesFilter<"Tenant"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
@@ -40529,6 +40605,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -40607,6 +40687,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -40685,6 +40769,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40763,6 +40851,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40841,6 +40933,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -40896,6 +40992,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40951,6 +41051,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43563,6 +43667,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: SortOrder
     metaContactsSyncStatus?: SortOrder
     metaHistorySyncAt?: SortOrder
+    assistantEnabled?: SortOrder
+    assistantUpdatedAt?: SortOrder
+    assistantUpdatedBy?: SortOrder
+    assistantActivatedAt?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -43629,6 +43737,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: SortOrder
     metaContactsSyncStatus?: SortOrder
     metaHistorySyncAt?: SortOrder
+    assistantEnabled?: SortOrder
+    assistantUpdatedAt?: SortOrder
+    assistantUpdatedBy?: SortOrder
+    assistantActivatedAt?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -43684,6 +43796,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: SortOrder
     metaContactsSyncStatus?: SortOrder
     metaHistorySyncAt?: SortOrder
+    assistantEnabled?: SortOrder
+    assistantUpdatedAt?: SortOrder
+    assistantUpdatedBy?: SortOrder
+    assistantActivatedAt?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -49284,6 +49400,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49361,6 +49481,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49454,6 +49578,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49531,6 +49659,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49608,6 +49740,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49685,6 +49821,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49798,6 +49938,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49875,6 +50019,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50029,6 +50177,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -50106,6 +50258,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -50199,6 +50355,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50276,6 +50436,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50353,6 +50517,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -50430,6 +50598,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -50583,6 +50755,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50660,6 +50836,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50949,6 +51129,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -51026,6 +51210,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -51119,6 +51307,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51196,6 +51388,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51273,6 +51469,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -51350,6 +51550,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -51443,6 +51647,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51520,6 +51728,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51597,6 +51809,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -51674,6 +51890,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -51767,6 +51987,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51844,6 +52068,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51921,6 +52149,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -51998,6 +52230,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52091,6 +52327,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52168,6 +52408,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52245,6 +52489,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52322,6 +52570,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52415,6 +52667,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52492,6 +52748,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52569,6 +52829,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52646,6 +52910,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52739,6 +53007,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52816,6 +53088,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52893,6 +53169,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52970,6 +53250,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -53161,6 +53445,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53238,6 +53526,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53347,6 +53639,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -53424,6 +53720,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -53636,6 +53936,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53713,6 +54017,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53853,6 +54161,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -53930,6 +54242,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -54149,6 +54465,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54226,6 +54546,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54351,6 +54675,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -54428,6 +54756,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -54663,6 +54995,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54740,6 +55076,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54931,6 +55271,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55008,6 +55352,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55274,6 +55622,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55351,6 +55703,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55631,6 +55987,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55708,6 +56068,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55801,6 +56165,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55878,6 +56246,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55955,6 +56327,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56032,6 +56408,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56125,6 +56505,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56202,6 +56586,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56279,6 +56667,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56356,6 +56748,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56534,6 +56930,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56611,6 +57011,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56790,6 +57194,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56867,6 +57275,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56995,6 +57407,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57072,6 +57488,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57149,6 +57569,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -57226,6 +57650,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -57368,6 +57796,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57445,6 +57877,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57577,6 +58013,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -57654,6 +58094,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -57747,6 +58191,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57824,6 +58272,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57901,6 +58353,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -57978,6 +58434,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -58071,6 +58531,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58148,6 +58612,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58225,6 +58693,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -58302,6 +58774,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: string | null
     metaContactsSyncStatus?: string | null
     metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -58395,6 +58871,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58472,6 +58952,10 @@ export namespace Prisma {
     metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
     metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

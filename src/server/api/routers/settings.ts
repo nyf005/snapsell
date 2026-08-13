@@ -363,9 +363,12 @@ export const settingsRouter = createTRPCRouter({
       }
 
       // H1-fix: ne pas écraser le token existant si l'utilisateur n'en a pas saisi un nouveau
-      const data: Record<string, string | null> = {
+      const data: Prisma.TenantUpdateInput = {
         metaPhoneNumberId: phoneId,
         metaWabaId: input.metaWabaId,
+        assistantEnabled: false,
+        assistantUpdatedAt: new Date(),
+        assistantUpdatedBy: ctx.session.user.id,
       };
       if (input.metaAccessToken != null) {
         data.metaAccessToken = encrypt(input.metaAccessToken);
@@ -454,6 +457,12 @@ export const settingsRouter = createTRPCRouter({
               metaHistorySyncStatus: syncStartedAt ? "requested" : null,
               metaContactsSyncStatus: syncStartedAt ? "requested" : null,
               metaHistorySyncAt: syncStartedAt,
+              // Une connexion valide ouvre le canal, elle n'autorise jamais les
+              // réponses automatiques. La boutique active l'assistant séparément
+              // après avoir vérifié ses articles.
+              assistantEnabled: false,
+              assistantUpdatedAt: new Date(),
+              assistantUpdatedBy: ctx.session.user.id,
             },
           });
 

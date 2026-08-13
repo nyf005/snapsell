@@ -4,10 +4,13 @@ const META_GRAPH_VERSION = "v21.0";
 const META_SDK_LOAD_TIMEOUT_MS = 10000;
 const META_EMBEDDED_SIGNUP_MESSAGE_WAIT_MS = 250;
 /**
- * Au-delà, on considère que Meta ne répondra pas. Large à dessein : créer un
- * compte WhatsApp Business et vérifier un numéro prend plusieurs minutes.
+ * Le parcours Coexistence est humain : vérification du compte, saisie du
+ * numéro, ouverture de WhatsApp Business puis scan du QR. Dix minutes étaient
+ * insuffisantes lors d'un accompagnement réel et SnapSell cessait alors
+ * d'écouter juste avant la validation. On garde un filet, mais assez large pour
+ * ne pas couper un parcours légitime.
  */
-const META_EMBEDDED_SIGNUP_ABANDON_MS = 10 * 60 * 1000;
+const META_EMBEDDED_SIGNUP_ABANDON_MS = 30 * 60 * 1000;
 
 type Dict = Record<string, unknown>;
 
@@ -266,6 +269,7 @@ export async function startMetaEmbeddedSignup(
   sdk: MetaSDK,
   configId: string,
   mode: MetaSignupMode = "cloud_api",
+  options: { signal?: AbortSignal } = {},
 ): Promise<MetaLoginResponse> {
   const cleanConfigId = configId.trim();
   if (!cleanConfigId) {
@@ -281,8 +285,16 @@ export async function startMetaEmbeddedSignup(
     // eslint-disable-next-line prefer-const
     let abandonTimer: number | undefined;
 
+    const abort = () => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      reject(new DOMException("Connexion Meta annulée.", "AbortError"));
+    };
+
     const cleanup = () => {
       window.removeEventListener("message", handleMessage);
+      options.signal?.removeEventListener("abort", abort);
       if (finalizeTimer != null) {
         window.clearTimeout(finalizeTimer);
       }
@@ -315,6 +327,12 @@ export async function startMetaEmbeddedSignup(
     };
 
     window.addEventListener("message", handleMessage);
+    options.signal?.addEventListener("abort", abort, { once: true });
+
+    if (options.signal?.aborted) {
+      abort();
+      return;
+    }
 
     /**
      * Filet : cette promesse ne doit jamais rester en suspens.

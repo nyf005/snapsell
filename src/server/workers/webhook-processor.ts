@@ -23,11 +23,9 @@ import { getCurrentSessionReadOnly } from "~/server/live-session/service";
 import {
   createLiveItem,
   messageCodeAlreadyUsed,
-  messageCodeUnknown,
   normalizeCode,
 } from "~/server/live-item/createLiveItem";
 import { findOrderableItemByCode } from "~/server/catalogue/findOrderableItemByCode";
-import { findOrCreateOrderableItemByCode } from "~/server/catalogue/findOrCreateOrderableItemByCode";
 import { uploadMediaAndLinkToLiveItem } from "~/server/media/uploadMediaToLiveItem";
 import { uploadMediaToCatalogueItem } from "~/server/media/uploadMediaToCatalogueItem";
 import { uploadProofMedia } from "~/server/media/uploadProofMedia";
@@ -375,6 +373,35 @@ export async function processWebhookJob(
       return buildEnrichedMessage();
     }
 
+    const tenant = await db.tenant.findUnique({
+      where: { id: tenantId },
+      select: {
+        name: true,
+        subscriptionPlan: true,
+        requireDeposit: true,
+        assistantEnabled: true,
+        faqDelivery: true,
+        faqPayment: true,
+        faqLocation: true,
+        faqAvailability: true,
+        businessHoursStart: true,
+        businessHoursEnd: true,
+        businessTimezone: true,
+        awayMessage: true,
+      },
+    });
+
+    // La pause globale passe avant les crédits, l'IA et toute automatisation.
+    // Les messages vendeurs restent actifs : ils servent à préparer le catalogue
+    // et le live, ils ne sont pas des réponses automatiques à la clientèle.
+    if (messageType === "client" && tenant?.assistantEnabled === false) {
+      workerLogger.info("Assistant paused, inbound client message stored without reply", {
+        tenantId,
+        correlationId,
+      });
+      return buildEnrichedMessage();
+    }
+
     // 2. Pour les clients: vérifier les credits (Story Credits)
     if (messageType === "client") {
       const creditCheck = await checkAndConsumeCredit(tenantId, clientPhoneE164);
@@ -388,24 +415,6 @@ export async function processWebhookJob(
         return { ...job.data, tenantId, messageType, liveSessionId: null };
       }
     }
-
-    const tenant = await db.tenant.findUnique({
-      where: { id: tenantId },
-      select: {
-        name: true,
-        subscriptionPlan: true,
-        requireDeposit: true,
-        faqDelivery: true,
-        faqPayment: true,
-        faqLocation: true,
-        faqAvailability: true,
-        // Away message
-        businessHoursStart: true,
-        businessHoursEnd: true,
-        businessTimezone: true,
-        awayMessage: true,
-      },
-    });
 
     // 3. Away message — réponse automatique hors horaires (Phase 4)
     // Envoyé uniquement aux clients, une seule fois par heure
@@ -479,6 +488,7 @@ export async function processWebhookJob(
     if (orderPayload?.items.length) {
       const reserved: Array<{ code: string; qty: number; prix: string }> = [];
       const failed: string[] = [];
+      const unknown: string[] = [];
 
       // Le panier arrivait tel quel de Meta, sans borne : chaque article coûte deux
       // allers-retours base plus une réservation. Meta ne publie pas de limite de
@@ -497,9 +507,9 @@ export async function processWebhookJob(
       for (const item of orderItems) {
         const code = item.productRetailerId.toUpperCase();
         const quantity = clampQuantity(item.quantity);
-        const result = await findOrCreateOrderableItemByCode(tenantId, code);
+        const result = await findOrderableItemByCode(tenantId, code);
         if (!result) {
-          failed.push(code);
+          unknown.push(code);
           continue;
         }
         const reservation = await createReservation(tenantId, null, null, clientPhoneE164, correlationId, { catalogueItemId: result.id, quantity });
@@ -537,6 +547,16 @@ export async function processWebhookJob(
           to: clientPhoneE164,
           body: botMsg.client.itemsUnavailable(failed),
           correlationId: `${correlationId}:order_partial`,
+        });
+      }
+
+      if (unknown.length > 0) {
+        await setHandedOff(tenantId, clientPhoneE164, true);
+        await writeToOutbox({
+          tenantId,
+          to: clientPhoneE164,
+          body: botMsg.client.unknownArticleHandedOff(),
+          correlationId: `${correlationId}:order_unknown`,
         });
       }
 
@@ -599,10 +619,11 @@ export async function processWebhookJob(
         const code = interactiveReplyId.slice("retry_code:".length).toUpperCase();
         const item = await findOrderableItemByCode(tenantId, code);
         if (!item) {
+          await setHandedOff(tenantId, clientPhoneE164, true);
           await writeToOutbox({
             tenantId,
             to: clientPhoneE164,
-            body: botMsg.client.codeUnknown(code),
+            body: botMsg.client.unknownArticleHandedOff(),
             correlationId,
           });
         } else if (item.availableQty - item.reservedQty <= 0) {
@@ -736,15 +757,16 @@ export async function processWebhookJob(
       }
 
       if (clientCodeIntent) {
-        const item = liveSessionId
-          ? await findOrCreateOrderableItemByCode(tenantId, clientCodeIntent.code)
-          : await findOrderableItemByCode(tenantId, clientCodeIntent.code);
+        // Une grille de prix ne prouve pas que l'article existe. Le chemin client
+        // ne crée donc jamais un article implicitement, même pendant un live.
+        const item = await findOrderableItemByCode(tenantId, clientCodeIntent.code);
 
         if (!item) {
+          await setHandedOff(tenantId, clientPhoneE164, true);
           await writeToOutbox({
             tenantId,
             to: clientPhoneE164,
-            body: messageCodeUnknown(clientCodeIntent.code),
+            body: botMsg.client.unknownArticleHandedOff(),
             correlationId,
           });
         } else if (clientCodeIntent.isTypo) {

@@ -86,6 +86,12 @@ export const ui = {
         "L’assistant ajoute automatiquement ces frais au total annoncé sur WhatsApp.",
       action: "Définir la livraison",
     },
+    assistant: {
+      title: "Activer l’assistant WhatsApp",
+      description:
+        "Vous gardez la main : SnapSell ne répond qu’après votre activation et uniquement pour les articles enregistrés.",
+      action: "Préparer l’activation",
+    },
     replies: {
       title: "Préparer vos réponses automatiques",
       description:

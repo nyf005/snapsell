@@ -16,6 +16,7 @@ import { getProviderForTenant } from "~/server/messaging/service";
 import type { OutboundMessage, ProviderSendResult, InteractivePayload } from "~/server/messaging/types";
 import { generateSignedR2Url } from "~/server/media/r2-signed-url";
 import { boss, QUEUE, type PgBossJob } from "./queues";
+import { normalizeIncomingPhone } from "~/lib/validations/phone";
 
 /** Payload du job outbox-send */
 export interface OutboxSendPayload {
@@ -50,6 +51,66 @@ export async function processOutboundMessage(messageOut: {
   });
 
   try {
+    // Dernière barrière, exécutée au moment réel de l'envoi. Elle neutralise aussi
+    // les tâches créées avant une mise en pause. Les confirmations adressées aux
+    // numéros vendeurs restent actives afin de permettre la préparation du live.
+    const tenant = await db.tenant.findUnique({
+      where: { id: tenantId },
+      select: {
+        id: true,
+        assistantEnabled: true,
+        metaPhoneNumberId: true,
+        metaAccessToken: true,
+        sellerPhones: { select: { phoneNumber: true } },
+      },
+    });
+
+    let recipientIsSeller = false;
+    try {
+      const normalizedTo = normalizeIncomingPhone(to);
+      recipientIsSeller = Boolean(
+        tenant?.sellerPhones?.some(
+          (seller) => normalizeIncomingPhone(seller.phoneNumber) === normalizedTo,
+        ),
+      );
+    } catch {
+      // Un destinataire non normalisable n'est jamais considéré comme vendeur.
+    }
+
+    if (tenant?.assistantEnabled === false && !recipientIsSeller) {
+      await db.messageOut.update({
+        where: { id },
+        data: {
+          status: "suppressed",
+          lastError: "assistant_paused",
+          updatedAt: new Date(),
+        },
+      });
+      await db.eventLog.create({
+        data: {
+          tenantId,
+          eventType: "assistant.message_suppressed",
+          entityType: "message_out",
+          entityId: id,
+          correlationId,
+          actorType: "system",
+          payload: { reason: "assistant_paused" },
+        },
+      }).catch((error) => {
+        workerLogger.warn("Assistant suppression event could not be logged", {
+          tenantId,
+          messageOutId: id,
+          error,
+        });
+      });
+      workerLogger.info("Message suppressed because assistant is paused", {
+        messageOutId: id,
+        tenantId,
+        correlationId,
+      });
+      return { success: true };
+    }
+
     // Story 2.5 + 7B.3 (FR46) : Politique STOP explicite — scope = tenant (tenant_id, phone_number).
     const optedOut = await checkOptOut(tenantId, to);
     if (optedOut) {
@@ -77,11 +138,6 @@ export async function processOutboundMessage(messageOut: {
     }
 
     // Story 10.4: Résolution per-tenant du provider Meta
-    const tenant = await db.tenant.findUnique({
-      where: { id: tenantId },
-      select: { id: true, metaPhoneNumberId: true, metaAccessToken: true },
-    });
-
     if (!tenant?.metaPhoneNumberId || !tenant?.metaAccessToken) {
       const errorMsg = !tenant
         ? "tenant_not_found"

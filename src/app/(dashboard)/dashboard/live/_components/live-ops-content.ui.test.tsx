@@ -13,6 +13,9 @@ vi.mock("next/navigation", () => ({
 vi.mock("~/app/(dashboard)/_components/dashboard-header", () => ({
   DashboardHeader: () => <div data-testid="dashboard-header" />,
 }));
+vi.mock("~/app/(dashboard)/_components/assistant-control", () => ({
+  AssistantControl: () => <div data-testid="assistant-control" />,
+}));
 
 const mockStartLive = vi.fn();
 const mockEndLive = vi.fn();
@@ -23,6 +26,7 @@ vi.mock("~/trpc/react", () => ({
   api: {
     useUtils: () => ({
       live: { getLiveOpsData: { invalidate: vi.fn() } },
+      assistant: { getStatus: { invalidate: vi.fn() } },
       catalogue: { list: { invalidate: vi.fn() } },
     }),
     // Le dialogue « Depuis le catalogue » branche `live.addItemFromCatalogue`,
@@ -45,6 +49,14 @@ vi.mock("~/trpc/react", () => ({
     onboarding: {
       getStatus: {
         useQuery: () => ({ data: { whatsappConnected: true }, isLoading: false }),
+      },
+    },
+    assistant: {
+      getStatus: {
+        useQuery: () => ({ data: { state: "active", enabled: true } }),
+      },
+      setEnabled: {
+        useMutation: () => ({ mutateAsync: vi.fn(), isPending: false }),
       },
     },
     live: {

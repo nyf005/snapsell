@@ -67,6 +67,12 @@ const EVENT_TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: "order.status_changed", label: "Statut commande" },
   { value: "deposit_approved", label: "Acompte approuvé" },
   { value: "deposit_rejected", label: "Acompte refusé" },
+  { value: "assistant.activated", label: "Assistant activé" },
+  { value: "assistant.paused", label: "Assistant mis en pause" },
+  {
+    value: "assistant.message_suppressed",
+    label: "Réponse automatique bloquée",
+  },
 ];
 
 function formatEventDate(date: Date) {

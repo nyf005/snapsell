@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const mockMessageOutUpdate = vi.fn();
 const mockTenantFindUnique = vi.fn();
 const mockSend = vi.fn();
+const mockEventLogCreate = vi.hoisted(() => vi.fn());
 let lastAdapterArgs: { phoneNumberId: string; accessToken: string } | null = null;
 
 vi.mock("~/server/db", () => ({
@@ -18,6 +19,7 @@ vi.mock("~/server/db", () => ({
         return mockTenantFindUnique;
       },
     },
+    eventLog: { create: mockEventLogCreate },
   },
 }));
 
@@ -75,14 +77,79 @@ describe("outbox-sender worker", () => {
     lastAdapterArgs = null;
     mockCheckOptOut.mockResolvedValue(false); // par défaut pas d'opt-out
     mockGenerateSignedR2Url.mockReset();
+    mockEventLogCreate.mockReset();
     // Task 2.2: mock tenant valide par défaut
     mockTenantFindUnique.mockResolvedValue({
       metaPhoneNumberId: "123456",
       metaAccessToken: "token-test",
+      assistantEnabled: true,
+      sellerPhones: [],
     });
   });
 
   describe("processOutboundMessage", () => {
+    it("supprime définitivement un message client en attente quand l’assistant est en pause", async () => {
+      mockTenantFindUnique.mockResolvedValue({
+        metaPhoneNumberId: "123456",
+        metaAccessToken: "token-test",
+        assistantEnabled: false,
+        sellerPhones: [{ phoneNumber: "+2250700000000" }],
+      });
+      mockMessageOutUpdate.mockResolvedValue({});
+      mockEventLogCreate.mockResolvedValue({});
+
+      const result = await processOutboundMessage({
+        id: "msg-paused",
+        tenantId: "tenant-123",
+        to: "+2250500000000",
+        body: "Rappel",
+        status: "pending",
+        attempts: 0,
+        correlationId: "corr-paused",
+      });
+
+      expect(result.success).toBe(true);
+      expect(mockSend).not.toHaveBeenCalled();
+      expect(mockMessageOutUpdate).toHaveBeenCalledWith({
+        where: { id: "msg-paused" },
+        data: expect.objectContaining({
+          status: "suppressed",
+          lastError: "assistant_paused",
+        }),
+      });
+      expect(mockEventLogCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          eventType: "assistant.message_suppressed",
+          entityId: "msg-paused",
+        }),
+      });
+    });
+
+    it("laisse partir une confirmation destinée au numéro vendeur pendant la pause", async () => {
+      mockTenantFindUnique.mockResolvedValue({
+        metaPhoneNumberId: "123456",
+        metaAccessToken: "token-test",
+        assistantEnabled: false,
+        sellerPhones: [{ phoneNumber: "+2250700000000" }],
+      });
+      mockSend.mockResolvedValue({ success: true, providerMessageId: "wamid.seller" });
+      mockMessageOutUpdate.mockResolvedValue({});
+      vi.mocked(logMessageSent).mockResolvedValue();
+
+      const result = await processOutboundMessage({
+        id: "msg-seller",
+        tenantId: "tenant-123",
+        to: "+2250700000000",
+        body: "Article enregistré",
+        status: "pending",
+        attempts: 0,
+        correlationId: "corr-seller",
+      });
+
+      expect(result.success).toBe(true);
+      expect(mockSend).toHaveBeenCalledOnce();
+    });
+
     it("should block message when OptOut exists (Story 2.5)", async () => {
       const messageOut = {
         id: "msg-out-blocked",
@@ -141,10 +208,10 @@ describe("outbox-sender worker", () => {
       expect(result.success).toBe(true);
       expect(result.providerMessageId).toBe("wamid.abc123");
       // Verify tenant lookup (AC #1)
-      expect(mockTenantFindUnique).toHaveBeenCalledWith({
+      expect(mockTenantFindUnique).toHaveBeenCalledWith(expect.objectContaining({
         where: { id: messageOut.tenantId },
-        select: { id: true, metaPhoneNumberId: true, metaAccessToken: true },
-      });
+        select: expect.objectContaining({ id: true, metaPhoneNumberId: true, metaAccessToken: true }),
+      }));
       expect(mockCheckOptOut).toHaveBeenCalledWith(messageOut.tenantId, messageOut.to);
       expect(mockSend).toHaveBeenCalledWith({
         tenantId: messageOut.tenantId,

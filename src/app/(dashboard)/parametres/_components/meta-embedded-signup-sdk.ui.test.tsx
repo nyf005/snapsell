@@ -277,4 +277,22 @@ describe("meta-embedded-signup-sdk", () => {
       featureType: "coexistence",
     });
   });
+
+  it("cesse proprement d'écouter quand la tentative est annulée", async () => {
+    const controller = new AbortController();
+    const login = vi.fn();
+    const removeListener = vi.spyOn(window, "removeEventListener");
+
+    const signup = startMetaEmbeddedSignup(
+      { init: vi.fn(), login },
+      "config-id",
+      "coexistence",
+      { signal: controller.signal },
+    );
+
+    controller.abort();
+
+    await expect(signup).rejects.toMatchObject({ name: "AbortError" });
+    expect(removeListener).toHaveBeenCalledWith("message", expect.any(Function));
+  });
 });

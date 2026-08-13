@@ -10,6 +10,7 @@ import {
   enqueueCoexistenceSyncRequest,
   HISTORY_SYNC_WINDOW_MS,
 } from "~/server/messaging/providers/meta/coexistence-sync-request";
+import { getAssistantStatus, setAssistantEnabled } from "~/server/assistant/service";
 
 const tenantIdSchema = z.object({ tenantId: z.string().cuid() });
 
@@ -90,21 +91,27 @@ export const opsWhatsappRouter = createTRPCRouter({
 
   diagnostic: opsProcedure.input(tenantIdSchema).query(async ({ input }) => {
     const tenant = await getWhatsAppTenant(input.tenantId);
-    const recentInterventions = await db.eventLog.findMany({
-      where: {
-        tenantId: input.tenantId,
-        eventType: { startsWith: "ops.whatsapp_" },
-      },
-      select: {
-        id: true,
-        eventType: true,
-        actorType: true,
-        payload: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-    });
+    const [recentInterventions, assistant] = await Promise.all([
+      db.eventLog.findMany({
+        where: {
+          tenantId: input.tenantId,
+          OR: [
+            { eventType: { startsWith: "ops.whatsapp_" } },
+            { eventType: { startsWith: "assistant." } },
+          ],
+        },
+        select: {
+          id: true,
+          eventType: true,
+          actorType: true,
+          payload: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+      }),
+      getAssistantStatus(input.tenantId),
+    ]);
 
     return {
       id: tenant.id,
@@ -122,9 +129,21 @@ export const opsWhatsappRouter = createTRPCRouter({
       contactsSyncStatus: tenant.metaContactsSyncStatus,
       historySyncAt: tenant.metaHistorySyncAt,
       updatedAt: tenant.updatedAt,
+      assistant,
       recentInterventions,
     };
   }),
+
+  pauseAssistant: opsProcedure
+    .input(tenantIdSchema)
+    .mutation(async ({ ctx, input }) =>
+      setAssistantEnabled({
+        tenantId: input.tenantId,
+        enabled: false,
+        actorUserId: ctx.session.user.id,
+        actorType: "ops",
+      }),
+    ),
 
   testConnection: opsProcedure
     .input(tenantIdSchema)

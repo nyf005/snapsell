@@ -35,6 +35,7 @@ const CONNECTED = {
   metaPhoneNumberId: "phone-1",
   metaWabaId: "waba-1",
   metaAccessToken: "token-1",
+  assistantEnabled: false,
   faqDelivery: null,
   faqPayment: null,
   faqLocation: null,
@@ -61,6 +62,7 @@ describe("onboarding.getStatus", () => {
       metaPhoneNumberId: null,
       metaWabaId: null,
       metaAccessToken: null,
+      assistantEnabled: false,
       faqDelivery: null,
       faqPayment: null,
       faqLocation: null,
@@ -82,12 +84,12 @@ describe("onboarding.getStatus", () => {
     return step;
   }
 
-  it("part de six étapes, aucune faite", async () => {
+  it("part de sept étapes, aucune faite", async () => {
     const caller = await callerFor();
 
     const result = await caller.onboarding.getStatus();
 
-    expect(result.totalCount).toBe(6);
+    expect(result.totalCount).toBe(7);
     expect(result.doneCount).toBe(0);
     expect(result.isComplete).toBe(false);
     expect(result.whatsappConnected).toBe(false);
@@ -107,6 +109,7 @@ describe("onboarding.getStatus", () => {
       "whatsapp",
       "prices",
       "delivery",
+      "assistant",
       "replies",
       "sellerPhone",
       "firstSale",
@@ -115,6 +118,7 @@ describe("onboarding.getStatus", () => {
       "whatsapp",
       "prices",
       "delivery",
+      "assistant",
     ]);
   });
 
@@ -196,8 +200,12 @@ describe("onboarding.getStatus", () => {
     });
   });
 
-  it("compte la boutique comme prête quand les six étapes sont faites", async () => {
-    mockTenantFindUnique.mockResolvedValue({ ...CONNECTED, faqDelivery: "Sous 24h" });
+  it("compte la boutique comme prête quand les sept étapes sont faites", async () => {
+    mockTenantFindUnique.mockResolvedValue({
+      ...CONNECTED,
+      assistantEnabled: true,
+      faqDelivery: "Sous 24h",
+    });
     mockCategoryCount.mockResolvedValue(4);
     mockZoneCount.mockResolvedValue(2);
     mockSellerPhoneCount.mockResolvedValue(1);
@@ -206,7 +214,7 @@ describe("onboarding.getStatus", () => {
 
     const result = await caller.onboarding.getStatus();
 
-    expect(result.doneCount).toBe(6);
+    expect(result.doneCount).toBe(7);
     expect(result.isComplete).toBe(true);
   });
 

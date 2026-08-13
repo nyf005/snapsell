@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mockUpdateConfig = vi.hoisted(() => vi.fn());
 const mockTestConnection = vi.hoisted(() => vi.fn());
 const mockRetryHistorySync = vi.hoisted(() => vi.fn());
+const mockPauseAssistant = vi.hoisted(() => vi.fn());
 const mockInvalidateDiagnostic = vi.hoisted(() => vi.fn());
 const mockInvalidateList = vi.hoisted(() => vi.fn());
 const mutationCallbacks = vi.hoisted(() => ({
@@ -25,6 +26,18 @@ const diagnostic = {
   contactsSyncStatus: "completed",
   historySyncAt: new Date("2026-08-12T20:00:00Z"),
   updatedAt: new Date("2026-08-12T21:00:00Z"),
+  assistant: {
+    enabled: false,
+    state: "paused",
+    connected: true,
+    ready: true,
+    blockers: [],
+    warnings: [],
+    sellableItemCount: 3,
+    updatedAt: null,
+    updatedBy: null,
+    activatedAt: null,
+  },
   recentInterventions: [
     {
       id: "event-1",
@@ -84,6 +97,9 @@ vi.mock("~/trpc/react", () => ({
             mutationCallbacks.retry = callbacks;
             return { mutate: mockRetryHistorySync, isPending: false };
           },
+        },
+        pauseAssistant: {
+          useMutation: () => ({ mutate: mockPauseAssistant, isPending: false }),
         },
       },
     },

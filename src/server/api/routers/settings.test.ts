@@ -133,6 +133,9 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
         metaPhoneNumberId: "123456",
         metaWabaId: "789",
         metaAccessToken: expect.stringMatching(/^enc:/),
+        assistantEnabled: false,
+        assistantUpdatedAt: expect.any(Date),
+        assistantUpdatedBy: "user-1",
       },
     });
   });
@@ -732,6 +735,9 @@ describe("settings router — connectWhatsAppEmbedded", () => {
     expect(mockTenantUpdate).toHaveBeenCalledWith({
       where: { id: "tenant-1" },
       data: {
+        assistantEnabled: false,
+        assistantUpdatedAt: expect.any(Date),
+        assistantUpdatedBy: "user-1",
         metaPhoneNumberId: "phone-123",
         metaWabaId: "waba-123",
         metaAccessToken: expect.stringMatching(/^enc:/),

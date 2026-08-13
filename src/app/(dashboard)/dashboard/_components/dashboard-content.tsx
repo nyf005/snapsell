@@ -36,6 +36,7 @@ import {
 import { HelpHint } from "~/app/(dashboard)/_components/help-hint";
 import { SetupChecklist } from "~/app/(dashboard)/_components/setup-checklist";
 import { CreditsAlertBanner } from "~/app/(dashboard)/_components/credits-alert-banner";
+import { AssistantControl } from "~/app/(dashboard)/_components/assistant-control";
 import { formatError, formatRelativeDate, formatXof, formatXofUnits, type UserError } from "~/lib/copy";
 import { HandedOffConversations } from "./handed-off-conversations";
 import { ErrorAlert } from "~/components/ui/error-alert";
@@ -151,6 +152,7 @@ export function DashboardContent({
     <div className="space-y-8">
       {/* Sur mobile, c'est le seul endroit où le solde est visible. */}
       <CreditsAlertBanner canManageSubscription={canManageSubscription} />
+      <AssistantControl canManage={canManageSubscription} />
       {dailyPriority && (
         <section aria-label="Action prioritaire">
           <DashboardStartGuide

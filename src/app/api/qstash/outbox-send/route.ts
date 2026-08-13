@@ -69,7 +69,11 @@ export async function POST(request: Request) {
   }
 
   // Idempotence : si déjà traité, ne pas renvoyer
-  if (messageOut.status === "sent" || messageOut.status === "blocked") {
+  if (
+    messageOut.status === "sent" ||
+    messageOut.status === "blocked" ||
+    messageOut.status === "suppressed"
+  ) {
     workerLogger.debug("QStash outbox-send: MessageOut déjà traité", {
       messageOutId,
       status: messageOut.status,

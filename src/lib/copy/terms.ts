@@ -94,6 +94,12 @@ export function roleDescription(role: string | null | undefined): string {
  * de laisser le snake_case brut à l'écran.
  */
 export function humanizeEventType(eventType: string): string {
+  const labels: Record<string, string> = {
+    "assistant.activated": "Assistant activé",
+    "assistant.paused": "Assistant mis en pause",
+    "assistant.message_suppressed": "Réponse automatique bloquée",
+  };
+  if (labels[eventType]) return labels[eventType];
   const spaced = eventType.replace(/[_.]+/g, " ").trim();
   if (spaced.length === 0) return "Événement";
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);

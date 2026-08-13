@@ -52,6 +52,9 @@ vi.mock("~/trpc/react", () => ({
 vi.mock("~/app/(dashboard)/_components/credits-alert-banner", () => ({
   CreditsAlertBanner: () => null,
 }));
+vi.mock("~/app/(dashboard)/_components/assistant-control", () => ({
+  AssistantControl: () => <div data-testid="assistant-control" />,
+}));
 vi.mock("./handed-off-conversations", () => ({
   HandedOffConversations: () => null,
 }));
@@ -75,12 +78,13 @@ function setup(overrides: Record<string, unknown> = {}) {
       { id: "whatsapp", done: true, required: true },
       { id: "prices", done: true, required: true },
       { id: "delivery", done: true, required: true },
+      { id: "assistant", done: true, required: true },
       { id: "replies", done: true, required: false },
       { id: "sellerPhone", done: true, required: false },
       { id: "firstSale", done: true, required: false },
     ],
-    doneCount: 6,
-    totalCount: 6,
+    doneCount: 7,
+    totalCount: 7,
     isComplete: true,
     whatsappConnected: true,
     ...overrides,

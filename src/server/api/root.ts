@@ -1,4 +1,5 @@
 import { authRouter } from "~/server/api/routers/auth";
+import { assistantRouter } from "~/server/api/routers/assistant";
 import { catalogueRouter } from "~/server/api/routers/catalogue";
 import { conversationsRouter } from "~/server/api/routers/conversations";
 import { dashboardRouter } from "~/server/api/routers/dashboard";
@@ -22,6 +23,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  assistant: assistantRouter,
   auth: authRouter,
   catalogue: catalogueRouter,
   conversations: conversationsRouter,

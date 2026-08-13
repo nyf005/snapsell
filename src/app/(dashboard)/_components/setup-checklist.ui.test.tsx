@@ -16,7 +16,8 @@ function makeSteps(doneIds: string[] = []) {
   return SETUP_STEP_IDS.map((id) => ({
     id,
     done: doneIds.includes(id),
-    required: id === "whatsapp" || id === "prices" || id === "delivery",
+    required:
+      id === "whatsapp" || id === "prices" || id === "delivery" || id === "assistant",
   }));
 }
 
@@ -34,10 +35,10 @@ function renderChecklist(doneIds: string[] = [], compact = false) {
 }
 
 describe("SetupChecklist — compte neuf", () => {
-  it("affiche une seule action principale et garde les six étapes dans la vue d’ensemble", () => {
+  it("affiche une seule action principale et garde les sept étapes dans la vue d’ensemble", () => {
     renderChecklist();
     const list = screen.getByRole("list", { name: /Toutes les étapes/i });
-    expect(within(list).getAllByRole("listitem")).toHaveLength(6);
+    expect(within(list).getAllByRole("listitem")).toHaveLength(7);
     expect(screen.getByRole("link", { name: /^Connecter WhatsApp$/i })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /^Définir les prix$/i })).not.toBeInTheDocument();
   });
@@ -46,12 +47,12 @@ describe("SetupChecklist — compte neuf", () => {
    * Le rail donne la position dans le parcours sans en exposer le contenu : six
    * étapes annoncées, aucune description ouverte en plus de celle du moment.
    */
-  it("montre le chemin complet en pastilles, sans ouvrir les six étapes", () => {
+  it("montre le chemin complet en pastilles, sans ouvrir les sept étapes", () => {
     renderChecklist(["whatsapp", "prices"]);
     const rail = screen.getByRole("list", { name: "Étapes de la mise en route" });
     const stops = within(rail).getAllByRole("listitem");
 
-    expect(stops).toHaveLength(6);
+    expect(stops).toHaveLength(7);
     expect(stops.filter((stop) => stop.getAttribute("aria-current") === "step"))
       .toHaveLength(1);
     // Seule l'étape du moment est décrite ; les autres ne le sont nulle part.
@@ -76,7 +77,7 @@ describe("SetupChecklist — compte neuf", () => {
     const rail = screen.getByRole("list", { name: "Étapes de la mise en route" });
 
     expect(within(rail).getAllByText("terminée")).toHaveLength(1);
-    expect(within(rail).getAllByText("à venir")).toHaveLength(4);
+    expect(within(rail).getAllByText("à venir")).toHaveLength(5);
   });
 
   it("met la connexion WhatsApp en premier", () => {
@@ -104,13 +105,13 @@ describe("SetupChecklist — compte neuf", () => {
   it("annonce la progression", () => {
     renderChecklist();
     expect(
-      screen.getByRole("progressbar", { name: "0 étape sur 6 terminée" }),
+      screen.getByRole("progressbar", { name: "0 étape sur 7 terminée" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("0 sur 6")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByText("0 sur 7")).toHaveAttribute("aria-hidden", "true");
   });
 
   it("propose le catalogue quand la première vente devient l’étape courante", () => {
-    renderChecklist(["whatsapp", "prices", "delivery", "replies", "sellerPhone"]);
+    renderChecklist(["whatsapp", "prices", "delivery", "assistant", "replies", "sellerPhone"]);
     const link = screen.getByRole("link", { name: /Ouvrir le catalogue/i });
     expect(link).toHaveAttribute("href", "/dashboard/catalogue");
   });
@@ -144,7 +145,7 @@ describe("SetupChecklist — progression", () => {
   it("accorde le libellé de progression au pluriel", () => {
     renderChecklist(["whatsapp", "prices"]);
     expect(
-      screen.getByRole("progressbar", { name: "2 étapes sur 6 terminées" }),
+      screen.getByRole("progressbar", { name: "2 étapes sur 7 terminées" }),
     ).toBeInTheDocument();
   });
 

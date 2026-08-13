@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "~/server/auth";
+import { canManageGrid } from "~/lib/rbac";
 import { LiveOpsContent } from "./_components/live-ops-content";
 
 export default async function LivePage() {
@@ -9,5 +10,5 @@ export default async function LivePage() {
     redirect("/login");
   }
 
-  return <LiveOpsContent />;
+  return <LiveOpsContent canManageAssistant={canManageGrid(session.user.role as string)} />;
 }

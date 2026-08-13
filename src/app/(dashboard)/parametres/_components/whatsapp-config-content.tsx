@@ -33,6 +33,7 @@ import { Label } from "~/components/ui/label";
 import { api } from "~/trpc/react";
 import { WhatsAppAdvancedSections } from "./whatsapp-business-config-content";
 import { WhatsAppConnectionGuide } from "./whatsapp-connection-guide";
+import { AssistantControl } from "~/app/(dashboard)/_components/assistant-control";
 import { ErrorAlert } from "~/components/ui/error-alert";
 import { errorCopy, formatError, ui, type UserError } from "~/lib/copy";
 
@@ -67,26 +68,26 @@ export function WhatsAppConfigContent({
   >("idle");
   const [embeddedSignupError, setEmbeddedSignupError] = useState<UserError | null>(null);
   const [historySyncError, setHistorySyncError] = useState<UserError | null>(null);
-  /**
-   * ── UNE ATTENTE NE DOIT JAMAIS ÊTRE UNE IMPASSE ─────────────────────────────
-   *
-   * Le bouton se désactivait au clic et le restait tant que Meta n'avait pas
-   * répondu. Quand Meta n'ouvrait rien du tout — ce qui est arrivé — la vendeuse
-   * se retrouvait devant « Ouverture de WhatsApp… » indéfiniment, sans message,
-   * sans erreur, sans autre issue que recharger la page. Elle n'avait aucun
-   * moyen de savoir s'il fallait patienter ou renoncer.
-   *
-   * Passé un court délai, on le dit et on rend la main. La tentative en cours
-   * n'est pas annulée pour autant : si Meta finit par répondre, le parcours
-   * aboutit normalement.
-   */
+  /** Après quelques secondes, préciser où terminer sans rouvrir une session. */
   const [embeddedSignupSlow, setEmbeddedSignupSlow] = useState(false);
   /**
-   * Numéro de la tentative en cours. Rendre le bouton cliquable rouvre la
-   * possibilité d'en lancer une seconde ; sans ce compteur, la première —
-   * toujours en vol — écraserait le résultat de la seconde en retombant.
+   * Une seule session Meta à la fois. Le contrôleur permet une annulation
+   * explicite après fermeture de la fenêtre, au lieu de laisser deux QR et deux
+   * callbacks concurrents décider lequel gagnera.
    */
   const signupRunRef = useRef(0);
+  const signupAbortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      // Une navigation interne démonte le composant sans fermer forcément la
+      // popup Meta. Nettoyer ici évite de conserver son listener et son timer
+      // pendant trente minutes dans la page suivante.
+      signupRunRef.current += 1;
+      signupAbortControllerRef.current?.abort();
+      signupAbortControllerRef.current = null;
+    };
+  }, []);
 
   const utils = api.useUtils();
   /**
@@ -221,13 +222,8 @@ export function WhatsAppConfigContent({
     isEmbeddedSignupEnabled &&
     process.env.NEXT_PUBLIC_META_COEXISTENCE_ENABLED === "true";
 
-  /*
-    `embeddedSignupSlow` rouvre les boutons : passé le délai, on cesse de retenir
-    la personne devant une fenêtre qui ne s'ouvrira pas. L'envoi du code au
-    serveur, lui, reste bloquant — c'est une écriture, on ne la relance pas.
-  */
   const signupBusy =
-    (embeddedSignupState === "loading" && !embeddedSignupSlow) ||
+    embeddedSignupState === "loading" ||
     connectEmbedded.isPending;
 
   /**
@@ -279,11 +275,11 @@ export function WhatsAppConfigContent({
   const signupButtonLabel = (idleLabel: string) =>
     connectEmbedded.isPending
       ? "Connexion en cours…"
-      : embeddedSignupState === "loading" && !embeddedSignupSlow
-        ? "Ouverture de WhatsApp…"
-        : embeddedSignupSlow
-          ? "Réessayer"
-          : idleLabel;
+      : embeddedSignupState === "loading"
+        ? embeddedSignupSlow
+          ? "Terminez dans Meta…"
+          : "Ouverture de Meta…"
+        : idleLabel;
 
   /**
    * ── LE SDK META SE CHARGE ICI, PAS AU CLIC ────────────────────────────────
@@ -336,6 +332,10 @@ export function WhatsAppConfigContent({
   }, [isEmbeddedSignupEnabled, metaAppId, metaEmbeddedConfigId]);
 
   const handleEmbeddedSignup = useCallback(async (mode: MetaSignupMode) => {
+    // Un double clic ou un bouton réapparu trop tôt ne doit jamais créer deux
+    // QR concurrents. Il faut d'abord terminer ou annuler la session courante.
+    if (signupAbortControllerRef.current) return;
+
     const runId = ++signupRunRef.current;
     /** Vrai tant que cette tentative-ci est la plus récente. */
     const isCurrentRun = () => signupRunRef.current === runId;
@@ -367,6 +367,9 @@ export function WhatsAppConfigContent({
       setEmbeddedSignupError(errorCopy["whatsapp.unavailable"]!);
       return;
     }
+
+    const abortController = new AbortController();
+    signupAbortControllerRef.current = abortController;
 
     try {
       /**
@@ -403,7 +406,12 @@ export function WhatsAppConfigContent({
       const liveSdk = getInitializedMetaSdk(metaAppId);
       let loginResponse;
       if (liveSdk) {
-        loginResponse = await startMetaEmbeddedSignup(liveSdk, metaEmbeddedConfigId, mode);
+        loginResponse = await startMetaEmbeddedSignup(
+          liveSdk,
+          metaEmbeddedConfigId,
+          mode,
+          { signal: abortController.signal },
+        );
       } else {
         /*
           Ce chemin est dégradé et doit se voir : l'attente ci-dessous fait
@@ -423,7 +431,12 @@ export function WhatsAppConfigContent({
         if (!sdk) {
           throw new Error("SDK Meta indisponible après chargement.");
         }
-        loginResponse = await startMetaEmbeddedSignup(sdk, metaEmbeddedConfigId, mode);
+        loginResponse = await startMetaEmbeddedSignup(
+          sdk,
+          metaEmbeddedConfigId,
+          mode,
+          { signal: abortController.signal },
+        );
       }
 
       const code = extractOAuthCodeFromMetaLoginResponse(loginResponse);
@@ -453,6 +466,7 @@ export function WhatsAppConfigContent({
       if (!isCurrentRun()) return;
       setEmbeddedSignupState("success");
     } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       /**
        * ── LA CAUSE RÉELLE PART DANS LA CONSOLE, PAS SEULEMENT À L'ÉCRAN ──────
        *
@@ -479,9 +493,26 @@ export function WhatsAppConfigContent({
       setEmbeddedSignupState("error");
     } finally {
       window.clearTimeout(slowHintTimer);
+      if (signupAbortControllerRef.current === abortController) {
+        signupAbortControllerRef.current = null;
+      }
       if (isCurrentRun()) setEmbeddedSignupSlow(false);
     }
   }, [connectEmbedded, isEmbeddedSignupEnabled, metaAppId, metaEmbeddedConfigId]);
+
+  const cancelEmbeddedSignup = useCallback(() => {
+    const controller = signupAbortControllerRef.current;
+    if (!controller) return;
+
+    // Invalider la tentative avant d'interrompre sa promesse : son `catch` ne
+    // doit pas transformer cette action volontaire en erreur à l'écran.
+    signupRunRef.current += 1;
+    signupAbortControllerRef.current = null;
+    controller.abort();
+    setEmbeddedSignupSlow(false);
+    setEmbeddedSignupError(null);
+    setEmbeddedSignupState("idle");
+  }, []);
 
   return (
     <>
@@ -498,6 +529,8 @@ export function WhatsAppConfigContent({
             </Badge>
           }
         />
+
+        {isConnected && <AssistantControl />}
 
         <Card className="border-border shadow-sm">
           <CardHeader className="border-b border-border pb-6">
@@ -582,11 +615,19 @@ export function WhatsAppConfigContent({
 
               {embeddedSignupSlow && embeddedSignupState === "loading" && (
                 <Alert className="mt-3">
-                  <AlertDescription>
-                    La fenêtre WhatsApp ne s’est pas ouverte. Vérifiez que votre
-                    navigateur n’a pas bloqué les fenêtres surgissantes pour ce site,
-                    puis réessayez. Si le problème persiste, vos identifiants restent
-                    modifiables dans « Configuration avancée ».
+                  <AlertDescription className="space-y-3">
+                    <p>
+                      Le parcours est toujours en cours dans Meta. Terminez la
+                      validation et le scan du QR sans fermer cet onglet SnapSell.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={cancelEmbeddedSignup}
+                    >
+                      J’ai fermé Meta, recommencer
+                    </Button>
                   </AlertDescription>
                 </Alert>
               )}

@@ -5,6 +5,7 @@ export const SETUP_STEP_IDS = [
   "whatsapp",
   "prices",
   "delivery",
+  "assistant",
   "replies",
   "sellerPhone",
   "firstSale",

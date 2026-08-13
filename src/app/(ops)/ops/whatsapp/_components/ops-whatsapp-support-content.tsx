@@ -13,6 +13,7 @@ import {
   Info,
   MessageCircle,
   MessageSquareWarning,
+  PauseCircle,
   PlugZap,
   RefreshCw,
   Search,
@@ -98,6 +99,9 @@ function syncLabel(value: string | null) {
 }
 
 function interventionLabel(eventType: string) {
+  if (eventType === "assistant.paused") return "Assistant mis en pause";
+  if (eventType === "assistant.activated") return "Assistant activé par la boutique";
+  if (eventType === "assistant.message_suppressed") return "Réponse automatique bloquée";
   if (eventType === "ops.whatsapp_connection_tested") {
     return "Connexion Meta testée";
   }
@@ -297,6 +301,17 @@ function TechnicalDetails({
           <dl className="mt-2 border-y border-border">
             <StatusRow label="Abonnement" value={diagnostic.subscriptionPlan} />
             <StatusRow
+              label="Assistant"
+              value={
+                diagnostic.assistant.state === "active"
+                  ? "Actif"
+                  : diagnostic.assistant.state === "unavailable"
+                    ? "Indisponible"
+                    : "En pause"
+              }
+              tone={diagnostic.assistant.state === "active" ? "success" : "warning"}
+            />
+            <StatusRow
               label="Phone Number ID"
               value={diagnostic.phoneNumberId ?? "Absent"}
               tone={diagnostic.phoneNumberId ? "success" : "warning"}
@@ -464,6 +479,13 @@ function GuidedDiagnostic({ diagnostic }: { diagnostic: Diagnostic }) {
     },
     onError: (error) => setActionMessage(error.message),
   });
+  const pauseAssistant = api.ops.whatsapp.pauseAssistant.useMutation({
+    onSuccess: async () => {
+      setActionMessage("L’assistant a été mis en pause. La boutique devra le réactiver elle-même.");
+      await utils.ops.whatsapp.diagnostic.invalidate({ tenantId: diagnostic.id });
+    },
+    onError: (error) => setActionMessage(error.message),
+  });
 
   const diagnosis = useMemo(
     () =>
@@ -550,7 +572,7 @@ function GuidedDiagnostic({ diagnostic }: { diagnostic: Diagnostic }) {
     });
   };
 
-  const isBusy = testConnection.isPending || retrySync.isPending;
+  const isBusy = testConnection.isPending || retrySync.isPending || pauseAssistant.isPending;
 
   return (
     <div className="space-y-6">
@@ -563,11 +585,27 @@ function GuidedDiagnostic({ diagnostic }: { diagnostic: Diagnostic }) {
             <Badge variant={diagnostic.connected ? "success" : "destructive"}>
               {diagnostic.connected ? "Connectée" : "Connexion incomplète"}
             </Badge>
+            <Badge variant={diagnostic.assistant.state === "active" ? "success" : "outline"}>
+              Assistant {diagnostic.assistant.state === "active" ? "actif" : "en pause"}
+            </Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {diagnostic.ownerEmail ?? "Propriétaire non identifié"}
           </p>
         </div>
+        <div className="flex flex-col gap-2 sm:items-end">
+        {diagnostic.assistant.enabled && (
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11"
+            onClick={() => pauseAssistant.mutate({ tenantId: diagnostic.id })}
+            disabled={pauseAssistant.isPending}
+          >
+            <PauseCircle className="size-4" aria-hidden="true" />
+            {pauseAssistant.isPending ? "Mise en pause…" : "Mettre en pause"}
+          </Button>
+        )}
         {issue && (
           <Button
             type="button"
@@ -582,6 +620,7 @@ function GuidedDiagnostic({ diagnostic }: { diagnostic: Diagnostic }) {
             Changer de problème
           </Button>
         )}
+        </div>
       </div>
 
       <div className="space-y-2 sm:hidden">

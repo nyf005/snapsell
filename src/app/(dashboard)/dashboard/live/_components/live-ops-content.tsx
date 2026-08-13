@@ -8,6 +8,7 @@ import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header"
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import { AddFromCatalogueDialog } from "./add-from-catalogue-dialog";
 import { SetupRequiredBanner } from "~/app/(dashboard)/_components/setup-required-banner";
+import { AssistantControl } from "~/app/(dashboard)/_components/assistant-control";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -77,13 +78,15 @@ function getStockLevel(availableQty: number, quantity: number): StockLevel {
   return "full";
 }
 
-export function LiveOpsContent() {
+export function LiveOpsContent({ canManageAssistant = true }: { canManageAssistant?: boolean }) {
   const utils = api.useUtils();
   const [releaseTargetId, setReleaseTargetId] = useState<string | null>(null);
   const [releaseTargetCode, setReleaseTargetCode] = useState<string>("");
   const [releaseTargetClient, setReleaseTargetClient] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showEndLiveDialog, setShowEndLiveDialog] = useState(false);
+  const [showStartLiveDialog, setShowStartLiveDialog] = useState(false);
+  const [startLiveError, setStartLiveError] = useState<string | null>(null);
   /** Dialogue d'ajout depuis le catalogue — branche `live.addItemFromCatalogue`. */
   const [showAddFromCatalogue, setShowAddFromCatalogue] = useState(false);
 
@@ -98,12 +101,44 @@ export function LiveOpsContent() {
       return POLL_INTERVAL_ACTIVE_MS;
     },
   });
+  const { data: assistantStatus } = api.assistant.getStatus.useQuery();
 
   const startLiveMutation = api.live.startLive.useMutation({
     onSuccess: () => {
       void utils.live.getLiveOpsData.invalidate();
     },
   });
+  const enableAssistantMutation = api.assistant.setEnabled.useMutation();
+
+  const startLiveNow = async () => {
+    try {
+      setStartLiveError(null);
+      await startLiveMutation.mutateAsync();
+      setShowStartLiveDialog(false);
+    } catch (error) {
+      setStartLiveError(formatErrorText(error, "live"));
+    }
+  };
+
+  const requestStartLive = () => {
+    if (assistantStatus?.state === "active") {
+      startLiveMutation.mutate();
+      return;
+    }
+    setStartLiveError(null);
+    setShowStartLiveDialog(true);
+  };
+
+  const enableAndStartLive = async () => {
+    try {
+      setStartLiveError(null);
+      await enableAssistantMutation.mutateAsync({ enabled: true });
+      await utils.assistant.getStatus.invalidate();
+      await startLiveNow();
+    } catch (error) {
+      setStartLiveError(formatErrorText(error, "live"));
+    }
+  };
 
   const endLiveMutation = api.live.endLive.useMutation({
     onSuccess: () => {
@@ -157,6 +192,7 @@ export function LiveOpsContent() {
       <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
         <div className="space-y-8 p-6 md:p-8">
           <SetupRequiredBanner />
+          <AssistantControl canManage={canManageAssistant} compact />
           <TaskPageHeader
             href="/dashboard/live"
             description={
@@ -198,7 +234,7 @@ export function LiveOpsContent() {
                 <Button
                   size="sm"
                   className="gap-1.5 font-bold"
-                  onClick={() => startLiveMutation.mutate()}
+                  onClick={requestStartLive}
                   disabled={startLiveMutation.isPending}
                 >
                   <Play className="size-4" />
@@ -262,7 +298,7 @@ export function LiveOpsContent() {
                         action={!hasSession ? (
                           <Button
                             size="sm"
-                            onClick={() => startLiveMutation.mutate()}
+                            onClick={requestStartLive}
                             disabled={startLiveMutation.isPending}
                           >
                             {startLiveMutation.isPending ? "Démarrage..." : "Lancer le live"}
@@ -405,7 +441,7 @@ export function LiveOpsContent() {
                         action={!hasSession ? (
                           <Button
                             size="sm"
-                            onClick={() => startLiveMutation.mutate()}
+                            onClick={requestStartLive}
                             disabled={startLiveMutation.isPending}
                           >
                             {startLiveMutation.isPending ? "Démarrage..." : "Lancer le live"}
@@ -500,6 +536,47 @@ export function LiveOpsContent() {
           )}
         </div>
       </main>
+
+      <AlertDialog
+        open={showStartLiveDialog}
+        onOpenChange={(open) => !open && setShowStartLiveDialog(false)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>L’assistant est en pause</AlertDialogTitle>
+            <AlertDialogDescription>
+              Le live peut démarrer, mais SnapSell ne répondra pas automatiquement aux nouveaux messages de votre clientèle.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {startLiveError && (
+            <p role="alert" className="text-sm text-destructive">
+              {startLiveError}
+            </p>
+          )}
+          <AlertDialogFooter className="sm:flex-col sm:items-stretch">
+            <AlertDialogCancel>Continuer à préparer</AlertDialogCancel>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void startLiveNow()}
+              disabled={startLiveMutation.isPending || enableAssistantMutation.isPending}
+            >
+              Démarrer sans l’assistant
+            </Button>
+            {canManageAssistant && (
+              <Button
+                type="button"
+                onClick={() => void enableAndStartLive()}
+                disabled={startLiveMutation.isPending || enableAssistantMutation.isPending}
+              >
+                {enableAssistantMutation.isPending
+                  ? "Activation…"
+                  : "Activer et démarrer le live"}
+              </Button>
+            )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog
         open={showEndLiveDialog}

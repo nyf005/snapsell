@@ -335,7 +335,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     title: "Mettre votre boutique en route",
     question: "Par où je commence ?",
     summary:
-      "Trois réglages conditionnent le fonctionnement de l’assistant : WhatsApp, vos prix, vos frais de livraison. Trois autres sont utiles mais peuvent attendre.",
+      "Préparez WhatsApp et au moins un article vendable, puis activez vous-même l’assistant. La connexion seule ne lui donne jamais le droit de répondre.",
     route: "/parametres",
     body: [
       {
@@ -351,12 +351,13 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
           ["Définir vos frais de livraison", "Nécessaire. Sinon la livraison est annoncée « à confirmer »."],
           ["Préparer vos réponses automatiques", "Utile. L’assistant répond à votre place aux questions courantes."],
           ["Déclarer votre numéro", "Utile. Vos propres messages ne seront plus lus comme des achats."],
+          ["Activer l’assistant", "Nécessaire. Faites-le seulement quand les articles que vous annoncez sont prêts."],
           ["Faire votre première vente", "Le reste suit tout seul."],
         ],
       },
       {
         kind: "note",
-        text: "Préparer votre catalogue et vos prix avant de connecter WhatsApp est parfaitement possible. Rien n’est bloqué, mais rien ne part non plus.",
+        text: "La connexion WhatsApp et l’activation sont séparées. Tant que l’assistant est en pause, il ne répond pas, ne consomme pas de crédit et les messages bloqués ne sont pas renvoyés plus tard.",
       },
       { kind: "screen", href: "/parametres", label: "Ouvrir les paramètres" },
     ],
@@ -402,7 +403,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       },
       {
         kind: "text",
-        text: "Après la connexion, SnapSell reprend séparément vos conversations récentes et vos contacts. Les nouveaux messages fonctionnent tout de suite, même si vous refusez l’historique ou si sa reprise prend encore quelques minutes.",
+        text: "Après la connexion, SnapSell reprend séparément vos conversations récentes et vos contacts. L’assistant reste en pause : vérifiez votre catalogue, puis activez-le depuis Aujourd’hui ou Connexion WhatsApp.",
       },
       {
         kind: "table",
@@ -693,11 +694,12 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     title: "Personne ne reçoit mes messages",
     question: "L’assistant ne répond plus à personne, pourquoi ?",
     summary:
-      "Trois causes, dans cet ordre : WhatsApp n’est pas connecté, le solde de conversations est à zéro, ou la connexion a été révoquée du côté de Meta.",
+      "Commencez par vérifier si l’assistant est en pause. Contrôlez ensuite WhatsApp, votre solde de conversations et l’accès accordé par Meta.",
     body: [
       {
         kind: "steps",
         steps: [
+          "Sur « Aujourd’hui », vérifiez l’état de l’assistant. S’il est en pause, un Propriétaire ou un Manager peut l’activer après avoir préparé le catalogue.",
           "Ouvrez « Connexion WhatsApp ». Si l’état affiche « Non connecté », c’est là que tout s’arrête : reprenez la connexion.",
           "Si l’état affiche « Connecté », appuyez sur « Tester la connexion ». Un échec signale que l’accès a été révoqué du côté de Meta : reconnectez.",
           "Vérifiez votre solde de conversations. À zéro, l’assistant cesse de répondre aux nouvelles conversations, sans autre signe visible.",
@@ -706,7 +708,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       },
       {
         kind: "note",
-        text: "Un bandeau non masquable s’affiche sur le live et le catalogue tant que WhatsApp n’est pas connecté. C’est le seul indice, et il est volontairement impossible à cacher.",
+        text: "Mettre l’assistant en pause n’interrompt pas la réception des messages ni le travail manuel. Les réponses automatiques déjà en attente sont bloquées et ne repartiront pas à la réactivation.",
       },
       { kind: "screen", href: "/parametres/whatsapp", label: "Vérifier la connexion" },
     ],

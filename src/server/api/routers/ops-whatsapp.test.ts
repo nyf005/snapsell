@@ -13,6 +13,9 @@ const mockTransaction = vi.hoisted(() => vi.fn());
 const mockValidateMetaCredentials = vi.hoisted(() => vi.fn());
 const mockIsOpsUser = vi.hoisted(() => vi.fn());
 const mockEnqueueCoexistenceSync = vi.hoisted(() => vi.fn());
+const mockCatalogueCount = vi.hoisted(() => vi.fn());
+const mockDeliveryZoneCount = vi.hoisted(() => vi.fn());
+const mockDeliveryCommuneCount = vi.hoisted(() => vi.fn());
 
 vi.mock("~/server/db", () => ({
   db: {
@@ -25,6 +28,9 @@ vi.mock("~/server/db", () => ({
       findMany: (...args: unknown[]) => mockEventLogFindMany(...args),
       create: (...args: unknown[]) => mockEventLogCreate(...args),
     },
+    catalogueItem: { count: (...args: unknown[]) => mockCatalogueCount(...args) },
+    deliveryZone: { count: (...args: unknown[]) => mockDeliveryZoneCount(...args) },
+    deliveryFeeCommune: { count: (...args: unknown[]) => mockDeliveryCommuneCount(...args) },
     $transaction: (...args: unknown[]) => mockTransaction(...args),
   },
 }));
@@ -78,6 +84,16 @@ function tenant(overrides: Record<string, unknown> = {}) {
     metaHistorySyncStatus: "completed",
     metaContactsSyncStatus: "completed",
     metaHistorySyncAt: new Date("2026-08-12T20:00:00Z"),
+    assistantEnabled: false,
+    assistantUpdatedAt: null,
+    assistantUpdatedBy: null,
+    assistantActivatedAt: null,
+    faqDelivery: null,
+    faqPayment: null,
+    faqLocation: null,
+    faqAvailability: null,
+    businessHoursStart: null,
+    businessHoursEnd: null,
     updatedAt: new Date("2026-08-12T21:00:00Z"),
     users: [{ email: "awa@example.com" }],
     ...overrides,
@@ -102,6 +118,9 @@ describe("ops.whatsapp", () => {
     mockEventLogCreate.mockResolvedValue({ id: "event-1" });
     mockTenantUpdateMany.mockResolvedValue({ count: 1 });
     mockEnqueueCoexistenceSync.mockResolvedValue(undefined);
+    mockCatalogueCount.mockResolvedValue(0);
+    mockDeliveryZoneCount.mockResolvedValue(0);
+    mockDeliveryCommuneCount.mockResolvedValue(0);
     mockTransaction.mockImplementation(
       async (callback: (tx: unknown) => Promise<unknown>) =>
         callback({
@@ -170,7 +189,10 @@ describe("ops.whatsapp", () => {
       expect.objectContaining({
         where: {
           tenantId,
-          eventType: { startsWith: "ops.whatsapp_" },
+          OR: [
+            { eventType: { startsWith: "ops.whatsapp_" } },
+            { eventType: { startsWith: "assistant." } },
+          ],
         },
       }),
     );
@@ -200,6 +222,32 @@ describe("ops.whatsapp", () => {
     expect(JSON.stringify(mockEventLogCreate.mock.calls)).not.toContain(
       "secret-never-logged",
     );
+  });
+
+  it("permet au support de mettre en pause sans pouvoir activer", async () => {
+    mockTenantFindUnique.mockResolvedValue(
+      tenant({ assistantEnabled: true, assistantActivatedAt: new Date("2026-08-12T19:00:00Z") }),
+    );
+    mockCatalogueCount.mockResolvedValue(2);
+    const caller = await callerFor(opsSession);
+
+    const result = await caller.ops.whatsapp.pauseAssistant({ tenantId });
+
+    expect(result.enabled).toBe(false);
+    expect(mockTenantUpdate).toHaveBeenCalledWith({
+      where: { id: tenantId },
+      data: expect.objectContaining({
+        assistantEnabled: false,
+        assistantUpdatedBy: opsSession.user.id,
+      }),
+    });
+    expect(mockEventLogCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        eventType: "assistant.paused",
+        actorType: "ops",
+      }),
+    });
+    expect(caller.ops.whatsapp).not.toHaveProperty("activateAssistant");
   });
 
   it("valide chez Meta avant une écriture auditée et atomique", async () => {

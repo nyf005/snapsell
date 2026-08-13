@@ -69,6 +69,9 @@ export const botMsg = {
     codeUnknown: (code: string) =>
       `🔍 *Code ${code} introuvable.*\n\nVérifie le code affiché pendant le live, puis renvoie-le.`,
 
+    unknownArticleHandedOff: () =>
+      `Je ne reconnais pas encore cet article. La boutique va te répondre directement.`,
+
     codeSuggestion: (code: string) =>
       `🔍 *Code introuvable.*\n\nTu voulais dire *${code}* ?`,
 

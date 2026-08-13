@@ -35,6 +35,9 @@ export const eventTypeEnumSchema = z.enum([
   "order.status_changed",
   "deposit_approved",
   "deposit_rejected",
+  "assistant.activated",
+  "assistant.paused",
+  "assistant.message_suppressed",
 ]);
 
 export const listEventLogsInputSchema = z

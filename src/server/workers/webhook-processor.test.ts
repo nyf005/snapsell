@@ -15,7 +15,7 @@ import {
 import { normalizeIncomingPhone } from "~/lib/validations/phone";
 import type { InboundMessage } from "../messaging/types";
 import { createReservation } from "~/server/reservation/service";
-import { findOrCreateOrderableItemByCode } from "~/server/catalogue/findOrCreateOrderableItemByCode";
+import { findOrderableItemByCode } from "~/server/catalogue/findOrderableItemByCode";
 import { formatXof, formatXofUnits } from "~/lib/copy";
 import { db } from "~/server/db";
 import type { PgBossJob } from "./queues";
@@ -113,6 +113,10 @@ function mockTenant(overrides: Partial<Tenant> = {}): Tenant {
     metaHistorySyncStatus: null,
     metaContactsSyncStatus: null,
     metaHistorySyncAt: null,
+    assistantEnabled: true,
+    assistantUpdatedAt: null,
+    assistantUpdatedBy: null,
+    assistantActivatedAt: null,
     requireDeposit: false,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -183,10 +187,6 @@ vi.mock("~/server/live-session/service", () => ({
 
 vi.mock("~/server/catalogue/findOrderableItemByCode", () => ({
   findOrderableItemByCode: vi.fn(),
-}));
-
-vi.mock("~/server/catalogue/findOrCreateOrderableItemByCode", () => ({
-  findOrCreateOrderableItemByCode: vi.fn(),
 }));
 
 vi.mock("~/server/catalogue/upsertCatalogueItemFromWebhook", () => ({
@@ -364,6 +364,29 @@ describe("webhook-processor", () => {
 
 
   describe("processWebhookJob", () => {
+    it("en pause, conserve un message client sans crédit, IA ni réponse", async () => {
+      vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
+      vi.mocked(db.tenant.findUnique).mockResolvedValue(
+        mockTenant({ assistantEnabled: false }),
+      );
+
+      const result = await processWebhookJob({
+        id: "job-paused",
+        data: {
+          tenantId: "tenant-123",
+          providerMessageId: "SM-paused",
+          from: "+2250500000000",
+          body: "A12",
+          correlationId: "corr-paused",
+        },
+      } as PgBossJob<InboundMessage>);
+
+      expect(result.messageType).toBe("client");
+      expect(db.$transaction).not.toHaveBeenCalled();
+      expect(findOrderableItemByCode).not.toHaveBeenCalled();
+      expect(writeToOutbox).not.toHaveBeenCalled();
+    });
+
     it("starts seller variant config when WhatsApp button payload targets configure_variants", async () => {
       const tenantId = "tenant-123";
       const from = "+22509542783";
@@ -739,7 +762,7 @@ describe("webhook-processor", () => {
       expect(getCurrentSessionReadOnly).toHaveBeenCalledWith(tenantId);
     });
 
-    it("Story 8.1: when client sends code A12 and catalogue item exists (session active), findOrCreateOrderableItemByCode then createReservation, sends Réservé", async () => {
+    it("Story 8.1: when client sends code A12 and catalogue item exists (session active), findOrderableItemByCode then createReservation, sends Réservé", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
@@ -751,8 +774,8 @@ describe("webhook-processor", () => {
         lastActivityAt: new Date(),
       createdAt: new Date(),
       });
-      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
-      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+      const { findOrderableItemByCode } = await import("~/server/catalogue/findOrderableItemByCode");
+      vi.mocked(findOrderableItemByCode).mockResolvedValue({
         id: "cat-item-1",
         tenantId,
         code: "A12",
@@ -778,7 +801,7 @@ describe("webhook-processor", () => {
 
       await processWebhookJob(job);
 
-      expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
+      expect(findOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const { createReservation } = await import("~/server/reservation/service");
       expect(createReservation).toHaveBeenCalledWith(
@@ -799,7 +822,7 @@ describe("webhook-processor", () => {
       );
     });
 
-    it("Story 8.1: when client sends code and catalogue item already exists, findOrCreateOrderableItemByCode then createReservation", async () => {
+    it("Story 8.1: when client sends code and catalogue item already exists, findOrderableItemByCode then createReservation", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
@@ -811,8 +834,8 @@ describe("webhook-processor", () => {
         lastActivityAt: new Date(),
       createdAt: new Date(),
       });
-      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
-      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+      const { findOrderableItemByCode } = await import("~/server/catalogue/findOrderableItemByCode");
+      vi.mocked(findOrderableItemByCode).mockResolvedValue({
         id: "cat-item-existing",
         tenantId,
         code: "A12",
@@ -838,7 +861,7 @@ describe("webhook-processor", () => {
 
       await processWebhookJob(job);
 
-      expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
+      expect(findOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const { createReservation } = await import("~/server/reservation/service");
       expect(createReservation).toHaveBeenCalledWith(
@@ -866,8 +889,8 @@ describe("webhook-processor", () => {
         lastActivityAt: new Date(),
       createdAt: new Date(),
       });
-      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
-      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+      const { findOrderableItemByCode } = await import("~/server/catalogue/findOrderableItemByCode");
+      vi.mocked(findOrderableItemByCode).mockResolvedValue({
         id: "cat-item-exhausted",
         tenantId,
         code: "A12",
@@ -929,8 +952,8 @@ describe("webhook-processor", () => {
         lastActivityAt: new Date(),
       createdAt: new Date(),
       });
-      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
-      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+      const { findOrderableItemByCode } = await import("~/server/catalogue/findOrderableItemByCode");
+      vi.mocked(findOrderableItemByCode).mockResolvedValue({
         id: "cat-item-b7",
         tenantId,
         code: "B7",
@@ -969,7 +992,7 @@ describe("webhook-processor", () => {
       );
     });
 
-    it("Story 8.1: client sends valid code A12 but catalogue item not found → Code inconnu, no create", async () => {
+    it("transfère à la boutique un code absent sans inventer sa disponibilité", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
@@ -981,8 +1004,8 @@ describe("webhook-processor", () => {
         lastActivityAt: new Date(),
       createdAt: new Date(),
       });
-      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
-      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue(null);
+      const { findOrderableItemByCode } = await import("~/server/catalogue/findOrderableItemByCode");
+      vi.mocked(findOrderableItemByCode).mockResolvedValue(null);
 
       const job = {
         id: "job-unknown-code",
@@ -997,20 +1020,20 @@ describe("webhook-processor", () => {
 
       await processWebhookJob(job);
 
-      expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
+      expect(findOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       const { createReservation } = await import("~/server/reservation/service");
       expect(createReservation).not.toHaveBeenCalled();
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Code inconnu (ex: A12). Vérifie et renvoie.",
+          body: "Je ne reconnais pas encore cet article. La boutique va te répondre directement.",
           to: from,
           correlationId: "corr-uk",
         }),
       );
     });
 
-    it("Story 8.1: client sends typo A12A, catalogue item A12 not found → Code inconnu (ex: A12)", async () => {
+    it("transfère aussi une saisie ambiguë quand aucune suggestion sûre n’existe", async () => {
       const tenantId = "tenant-123";
       const from = "+33612345678";
 
@@ -1022,8 +1045,8 @@ describe("webhook-processor", () => {
         lastActivityAt: new Date(),
       createdAt: new Date(),
       });
-      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
-      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue(null);
+      const { findOrderableItemByCode } = await import("~/server/catalogue/findOrderableItemByCode");
+      vi.mocked(findOrderableItemByCode).mockResolvedValue(null);
 
       const job = {
         id: "job-typo-no-suggestion",
@@ -1038,11 +1061,11 @@ describe("webhook-processor", () => {
 
       await processWebhookJob(job);
 
-      expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
+      expect(findOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Code inconnu (ex: A12). Vérifie et renvoie.",
+          body: "Je ne reconnais pas encore cet article. La boutique va te répondre directement.",
           correlationId: "corr-typo",
         }),
       );
@@ -1060,8 +1083,8 @@ describe("webhook-processor", () => {
         lastActivityAt: new Date(),
       createdAt: new Date(),
       });
-      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
-      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+      const { findOrderableItemByCode } = await import("~/server/catalogue/findOrderableItemByCode");
+      vi.mocked(findOrderableItemByCode).mockResolvedValue({
         id: "cat-item-a12",
         tenantId,
         code: "A12",
@@ -1088,7 +1111,7 @@ describe("webhook-processor", () => {
 
       await processWebhookJob(job);
 
-      expect(findOrCreateOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
+      expect(findOrderableItemByCode).toHaveBeenCalledWith(tenantId, "A12");
       expect(createReservation).not.toHaveBeenCalled();
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       expect(writeToOutbox).toHaveBeenCalledWith(
@@ -1114,8 +1137,8 @@ describe("webhook-processor", () => {
         lastActivityAt: new Date(),
       createdAt: new Date(),
       });
-      const { findOrCreateOrderableItemByCode } = await import("~/server/catalogue/findOrCreateOrderableItemByCode");
-      vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue(null);
+      const { findOrderableItemByCode } = await import("~/server/catalogue/findOrderableItemByCode");
+      vi.mocked(findOrderableItemByCode).mockResolvedValue(null);
 
       const job = {
         id: "job-no-epuise",
@@ -1134,7 +1157,7 @@ describe("webhook-processor", () => {
       const outboxCalls = vi.mocked(writeToOutbox).mock.calls;
       const bodies = outboxCalls.map((c) => c[0].body);
       expect(bodies).not.toContain("Oh non, cet article vient d'être épuisé 😔");
-      expect(bodies.some((b) => b?.includes("Code inconnu"))).toBe(true);
+      expect(bodies.some((b) => b?.includes("boutique va te répondre"))).toBe(true);
     });
 
     it("Story 8.1: when client sends address and has reserved reservation, collects address and sends récap + OUI", async () => {
@@ -3292,7 +3315,7 @@ describe("panier natif WhatsApp — montants et plafonds", () => {
   }
 
   it("affiche 5 000 FCFA pour un article à 500 000 centimes", async () => {
-    vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+    vi.mocked(findOrderableItemByCode).mockResolvedValue({
       id: "cat-a12",
       code: "A12",
       amount: 500_000,
@@ -3311,7 +3334,7 @@ describe("panier natif WhatsApp — montants et plafonds", () => {
   });
 
   it("plafonne le nombre d'articles du panier", async () => {
-    vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+    vi.mocked(findOrderableItemByCode).mockResolvedValue({
       id: "cat-x",
       code: "X1",
       amount: 100_000,
@@ -3325,11 +3348,11 @@ describe("panier natif WhatsApp — montants et plafonds", () => {
     }));
     await processWebhookJob(cartJob(items));
 
-    expect(vi.mocked(findOrCreateOrderableItemByCode)).toHaveBeenCalledTimes(100);
+    expect(vi.mocked(findOrderableItemByCode)).toHaveBeenCalledTimes(100);
   });
 
   it("borne une quantité absurde venue du panier", async () => {
-    vi.mocked(findOrCreateOrderableItemByCode).mockResolvedValue({
+    vi.mocked(findOrderableItemByCode).mockResolvedValue({
       id: "cat-a12",
       code: "A12",
       amount: 100_000,

@@ -37,6 +37,9 @@ const mockWhatsAppConfig = {
 vi.mock("~/app/(dashboard)/_components/dashboard-header", () => ({
   DashboardHeader: () => <div data-testid="dashboard-header" />,
 }));
+vi.mock("~/app/(dashboard)/_components/assistant-control", () => ({
+  AssistantControl: () => <div data-testid="assistant-control" />,
+}));
 
 vi.mock("~/app/(dashboard)/parametres/_components/meta-embedded-signup-sdk", () => ({
   loadMetaEmbeddedSignupSdk: (...args: unknown[]) => mockLoadSdk(...args),
@@ -502,7 +505,72 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
       expect.anything(),
       "meta-config-id",
       "coexistence",
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
+  });
+
+  it("garde une seule session Meta active pendant la validation du QR", async () => {
+    vi.useFakeTimers();
+    mockStartSignup.mockReturnValue(new Promise(() => {}));
+
+    render(<WhatsAppConfigContent />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Oui, je garde mon numéro actuel/ }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
+
+    expect(mockStartSignup).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      vi.advanceTimersByTime(12_000);
+    });
+
+    expect(
+      screen.getByRole("button", { name: "Terminez dans Meta…" }),
+    ).toBeDisabled();
+    expect(
+      screen.getByText(/Le parcours est toujours en cours dans Meta/),
+    ).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: "Terminez dans Meta…" }));
+    expect(mockStartSignup).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
+  });
+
+  it("autorise une nouvelle tentative seulement après une annulation explicite", async () => {
+    vi.useFakeTimers();
+    let firstSignal: AbortSignal | undefined;
+    mockStartSignup.mockImplementation(
+      (_sdk, _config, _mode, options: { signal?: AbortSignal }) => {
+        firstSignal ??= options.signal;
+        return new Promise((_resolve, reject) => {
+          options.signal?.addEventListener("abort", () => {
+            reject(new DOMException("annulée", "AbortError"));
+          });
+        });
+      },
+    );
+
+    render(<WhatsAppConfigContent />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Oui, je garde mon numéro actuel/ }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
+    await act(async () => {
+      vi.advanceTimersByTime(12_000);
+    });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "J’ai fermé Meta, recommencer" }),
+    );
+    expect(firstSignal?.aborted).toBe(true);
+    expect(screen.getByRole("button", { name: "Continuer avec Meta" })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
+    expect(mockStartSignup).toHaveBeenCalledTimes(2);
+
+    vi.useRealTimers();
   });
 
   it("prépare puis demande le parcours complet pour un numéro neuf", async () => {
@@ -525,6 +593,7 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
       expect.anything(),
       "meta-config-id",
       "cloud_api",
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
   });
 
