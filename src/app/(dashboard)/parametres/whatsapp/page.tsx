@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { canManageGrid } from "~/lib/rbac";
+import { isWhatsAppSupportEmail } from "~/lib/support-access";
 import { auth } from "~/server/auth";
 
 import { SettingsAccessDenied } from "../_components/settings-access-denied";
@@ -23,5 +24,9 @@ export default async function WhatsAppParametresPage() {
     return <SettingsAccessDenied />;
   }
 
-  return <WhatsAppConfigContent />;
+  return (
+    <WhatsAppConfigContent
+      showSupportConfiguration={isWhatsAppSupportEmail(session.user.email)}
+    />
+  );
 }

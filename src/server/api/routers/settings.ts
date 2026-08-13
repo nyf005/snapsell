@@ -34,6 +34,7 @@ import {
 } from "~/server/messaging/providers/meta/coexistence-sync-request";
 
 import { env } from "~/env";
+import { isWhatsAppSupportEmail } from "~/lib/support-access";
 
 type WhatsAppTemplate = {
   id?: string;
@@ -368,6 +369,13 @@ export const settingsRouter = createTRPCRouter({
   setWhatsAppConfig: managerProcedure
     .input(setMetaConfigInputSchema)
     .mutation(async ({ ctx, input }) => {
+      if (!isWhatsAppSupportEmail(ctx.session.user.email)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Cette configuration est réservée au support SnapSell.",
+        });
+      }
+
       const tenantId = ctx.session.user.tenantId;
       const phoneId = input.metaPhoneNumberId;
 

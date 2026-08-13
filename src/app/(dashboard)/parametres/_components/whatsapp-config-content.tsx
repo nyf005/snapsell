@@ -46,7 +46,11 @@ import { errorCopy, formatError, ui, type UserError } from "~/lib/copy";
  */
 const EMBEDDED_SIGNUP_SLOW_HINT_MS = 12_000;
 
-export function WhatsAppConfigContent() {
+export function WhatsAppConfigContent({
+  showSupportConfiguration = false,
+}: {
+  showSupportConfiguration?: boolean;
+}) {
   const [metaPhoneNumberId, setMetaPhoneNumberId] = useState("");
   const [metaWabaId, setMetaWabaId] = useState("");
   const [metaAccessToken, setMetaAccessToken] = useState("");
@@ -633,34 +637,35 @@ export function WhatsAppConfigContent() {
               )}
             </div>
 
-            {/* Saisie manuelle : dépannage uniquement. */}
-            <details className="mt-6 rounded-xl border border-border">
-              <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-foreground [&::-webkit-details-marker]:hidden">
-                {ui.whatsapp.advanced}
-                <span className="ml-2 font-normal text-muted-foreground">
-                  {ui.whatsapp.advancedHint}
-                </span>
-              </summary>
-              {/*
-                Un vrai formulaire, et pas seulement pour faire taire un
-                avertissement : Chrome signale tout champ de type `password`
-                laissé hors formulaire, parce que sans lui la soumission au
-                clavier ne fonctionne pas et que les gestionnaires de mots de
-                passe ne savent pas quoi faire du champ.
+            {/* Saisie manuelle : réservée aux comptes support autorisés côté serveur. */}
+            {showSupportConfiguration && (
+              <details className="mt-6 rounded-xl border border-border">
+                <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-foreground [&::-webkit-details-marker]:hidden">
+                  {ui.whatsapp.advanced}
+                  <span className="ml-2 font-normal text-muted-foreground">
+                    {ui.whatsapp.advancedHint}
+                  </span>
+                </summary>
+                {/*
+                  Un vrai formulaire, et pas seulement pour faire taire un
+                  avertissement : Chrome signale tout champ de type `password`
+                  laissé hors formulaire, parce que sans lui la soumission au
+                  clavier ne fonctionne pas et que les gestionnaires de mots de
+                  passe ne savent pas quoi faire du champ.
 
-                Ici les deux comptent. La touche Entrée enregistre désormais les
-                identifiants, ce qu'on attend de trois champs saisis à la suite ;
-                et `autoComplete="off"` sur le jeton dit clairement qu'il ne
-                s'agit pas d'un mot de passe à retenir, mais d'un secret d'API.
-              */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (isLocked || setConfig.isPending || isLoading) return;
-                  handleSave();
-                }}
-                className="flex flex-col gap-6 border-t border-border p-4 sm:p-5"
-              >
+                  Ici les deux comptent. La touche Entrée enregistre désormais les
+                  identifiants, ce qu'on attend de trois champs saisis à la suite ;
+                  et `autoComplete="off"` sur le jeton dit clairement qu'il ne
+                  s'agit pas d'un mot de passe à retenir, mais d'un secret d'API.
+                */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (isLocked || setConfig.isPending || isLoading) return;
+                    handleSave();
+                  }}
+                  className="flex flex-col gap-6 border-t border-border p-4 sm:p-5"
+                >
                 {/* Phone Number ID */}
                 <div className="space-y-2">
                   <Label
@@ -805,8 +810,9 @@ export function WhatsAppConfigContent() {
                     «&nbsp;{ui.whatsapp.connect}&nbsp;» ci-dessus fait tout à votre place.
                   </AlertDescription>
                 </Alert>
-              </form>
-            </details>
+                </form>
+              </details>
+            )}
           </CardContent>
         </Card>
 

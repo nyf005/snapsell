@@ -95,6 +95,9 @@ export const env = createEnv({
     META_APP_ID: z.string().min(1).optional(),
     META_APP_SECRET: z.string().min(1).optional(),
     META_VERIFY_TOKEN: z.string().min(1).optional(),
+    // Comptes autorisés à manipuler les identifiants Meta manuellement.
+    // Liste d'adresses séparées par des virgules, jamais exposée au navigateur.
+    WHATSAPP_SUPPORT_EMAILS: z.string().min(1).optional(),
     // AI Configuration (Gemma 4 integration)
     AI_API_KEY: z.string().min(1).optional(),
     AI_BASE_URL: z.string().url().default("https://api.groq.com/openai/v1"),
@@ -166,6 +169,7 @@ export const env = createEnv({
     META_APP_ID: process.env.META_APP_ID,
     META_APP_SECRET: process.env.META_APP_SECRET,
     META_VERIFY_TOKEN: process.env.META_VERIFY_TOKEN,
+    WHATSAPP_SUPPORT_EMAILS: process.env.WHATSAPP_SUPPORT_EMAILS,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_META_APP_ID: process.env.NEXT_PUBLIC_META_APP_ID,
     NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID:

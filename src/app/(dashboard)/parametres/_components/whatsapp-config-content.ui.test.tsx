@@ -157,8 +157,15 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
     expect(screen.getByText("WhatsApp n’est pas connecté")).toBeInTheDocument();
   });
 
-  it("range les identifiants Meta derrière « Configuration avancée »", () => {
+  it("masque les identifiants Meta pour une boutique ordinaire", () => {
     render(<WhatsAppConfigContent />);
+
+    expect(screen.queryByText("Configuration avancée")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Access Token")).not.toBeInTheDocument();
+  });
+
+  it("réserve les identifiants Meta au support", () => {
+    render(<WhatsAppConfigContent showSupportConfiguration />);
 
     const disclosure = screen.getByText("Configuration avancée").closest("details");
     expect(disclosure).not.toBeNull();
@@ -277,7 +284,7 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
     mockWhatsAppConfig.metaWabaId = "waba-123";
     mockWhatsAppConfig.hasAccessToken = true;
 
-    render(<WhatsAppConfigContent />);
+    render(<WhatsAppConfigContent showSupportConfiguration />);
 
     // Les champs sont verrouillés tant qu'on n'a pas demandé à les modifier.
     fireEvent.click(screen.getByRole("button", { name: "Modifier les identifiants" }));
@@ -294,7 +301,7 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
   });
 
   it("laisse le jeton hors des gestionnaires de mots de passe", () => {
-    render(<WhatsAppConfigContent />);
+    render(<WhatsAppConfigContent showSupportConfiguration />);
     // C'est un secret d'API, pas le mot de passe de la vendeuse : rien à retenir.
     expect(screen.getByLabelText("Access Token")).toHaveAttribute(
       "autocomplete",
@@ -309,7 +316,7 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
    * pour constater la disparition de l'avertissement.
    */
   it("rattache le champ masqué à un formulaire", () => {
-    render(<WhatsAppConfigContent />);
+    render(<WhatsAppConfigContent showSupportConfiguration />);
     const token = screen.getByLabelText("Access Token") as HTMLInputElement;
     expect(token.type).toBe("password");
     expect(token.form).not.toBeNull();

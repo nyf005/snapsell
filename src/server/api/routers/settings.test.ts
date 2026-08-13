@@ -65,6 +65,7 @@ function setupTransactionMock() {
 
 describe("settings router — setWhatsAppConfig (Meta)", () => {
   beforeEach(() => {
+    vi.stubEnv("WHATSAPP_SUPPORT_EMAILS", "owner@example.com");
     mockFetch.mockReset();
     mockGetProviderForTenant.mockReset();
     vi.clearAllMocks();
@@ -270,6 +271,21 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
         metaAccessToken: null,
       }),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("refuse la saisie manuelle à un propriétaire qui n’est pas le support", async () => {
+    vi.stubEnv("WHATSAPP_SUPPORT_EMAILS", "support@snapsell.ci");
+    const caller = await makeCaller(ownerSession);
+
+    await expect(
+      caller.settings.setWhatsAppConfig({
+        metaPhoneNumberId: "123",
+        metaWabaId: "456",
+        metaAccessToken: "token",
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+
+    expect(mockTenantUpdate).not.toHaveBeenCalled();
   });
 
   it("rejects duplicate metaPhoneNumberId with CONFLICT", async () => {
