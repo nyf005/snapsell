@@ -238,7 +238,7 @@ export function AuditTrailContent({
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
-  const allItems = data?.items ?? [];
+  const allItems = useMemo(() => data?.items ?? [], [data?.items]);
   const items = useMemo(() => {
     if (!category || categoryTypes.length === 0) return allItems;
     return allItems.filter((e) =>

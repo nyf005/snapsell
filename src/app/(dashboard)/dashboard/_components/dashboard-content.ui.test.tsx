@@ -14,7 +14,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
@@ -87,6 +87,14 @@ function setup(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function setupSteps(doneCount: number) {
+  return (setup().steps as Array<{
+    id: string;
+    done: boolean;
+    required: boolean;
+  }>).map((step, index) => ({ ...step, done: index < doneCount }));
+}
+
 describe("DashboardContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -120,7 +128,11 @@ describe("DashboardContent", () => {
     });
 
     it("affiche la liste tant qu'il reste une étape", () => {
-      state.setup = setup({ isComplete: false, doneCount: 5 });
+      state.setup = setup({
+        isComplete: false,
+        doneCount: 5,
+        steps: setupSteps(5),
+      });
       renderScreen();
 
       expect(screen.getByLabelText("Mise en route")).toBeInTheDocument();
@@ -132,7 +144,12 @@ describe("DashboardContent", () => {
      * n'a alors rien à dire et laisse la place à la mise en route.
      */
     it("masque l'activité tant que WhatsApp n'est pas connecté", () => {
-      state.setup = setup({ isComplete: false, whatsappConnected: false });
+      state.setup = setup({
+        isComplete: false,
+        whatsappConnected: false,
+        doneCount: 0,
+        steps: setupSteps(0),
+      });
       renderScreen();
 
       expect(screen.getByLabelText("Mise en route")).toBeInTheDocument();
@@ -143,6 +160,41 @@ describe("DashboardContent", () => {
       renderScreen();
 
       expect(screen.getByText("Résultats du jour")).toBeInTheDocument();
+    });
+
+    it("conserve le travail existant si WhatsApp se déconnecte", () => {
+      state.setup = setup({
+        isComplete: false,
+        whatsappConnected: false,
+        doneCount: 0,
+        steps: setupSteps(0),
+      });
+      state.summary = summary({ pendingProofsCount: 2 });
+      renderScreen();
+
+      expect(
+        screen.getByRole("heading", { name: "2 preuves à vérifier" }),
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText("Mise en route")).toBeInTheDocument();
+      expect(screen.queryByText("Résultats du jour")).not.toBeInTheDocument();
+    });
+
+    it("réduit la mise en route à un résumé quand le travail du jour est prioritaire", () => {
+      state.setup = setup({
+        isComplete: false,
+        doneCount: 3,
+        steps: setupSteps(3),
+      });
+      state.summary = summary({ ordersPreparingCount: 1 });
+      renderScreen();
+
+      expect(
+        screen.getByRole("heading", { name: "1 commande à préparer" }),
+      ).toBeInTheDocument();
+      const setupRegion = screen.getByLabelText("Mise en route");
+      expect(within(setupRegion).getByRole("link", { name: "Reprendre" })).toBeInTheDocument();
+      expect(within(setupRegion).queryByText("Voir toutes les étapes")).not.toBeInTheDocument();
+      expect(within(setupRegion).queryByText("Comprendre cette étape")).not.toBeInTheDocument();
     });
   });
 

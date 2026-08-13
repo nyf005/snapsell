@@ -113,7 +113,10 @@ export function LiveOpsContent() {
   });
 
   const session = liveOpsData?.session ?? null;
-  const items = liveOpsData?.items ?? [];
+  const items = useMemo(
+    () => liveOpsData?.items ?? [],
+    [liveOpsData?.items],
+  );
   const reservations = liveOpsData?.reservations ?? [];
   const waitlistCount = liveOpsData?.waitlistCount ?? 0;
   const hasSession = !!session;

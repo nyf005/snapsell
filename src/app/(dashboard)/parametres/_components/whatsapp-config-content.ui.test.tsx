@@ -1,5 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 
 const mockConnectEmbeddedMutateAsync = vi.fn();
 const mockRetryHistorySync = vi.fn();
@@ -458,7 +465,12 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     expect(
       screen.getByRole("button", { name: /Non, j’utilise un nouveau numéro/ }),
     ).toBeEnabled();
-    expect(screen.getByText("Étape 1 sur 2")).toBeInTheDocument();
+    const rail = screen.getByRole("list", { name: "Connexion WhatsApp" });
+    const stops = within(rail).getAllByRole("listitem");
+    expect(stops).toHaveLength(2);
+    expect(stops[0]).toHaveAttribute("aria-current", "step");
+    expect(stops[0]).toHaveTextContent("Votre situation");
+    expect(stops[1]).toHaveTextContent("Préparation");
   });
 
   it("prépare puis demande la Coexistence pour le numéro déjà utilisé", async () => {
@@ -472,7 +484,17 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
       screen.getByRole("button", { name: /Oui, je garde mon numéro actuel/ }),
     );
     expect(mockStartSignup).not.toHaveBeenCalled();
-    expect(screen.getByText("Étape 2 sur 2")).toBeInTheDocument();
+
+    const stops = within(
+      screen.getByRole("list", { name: "Connexion WhatsApp" }),
+    ).getAllByRole("listitem");
+    expect(stops[0]).toHaveTextContent("terminée");
+    expect(stops[1]).toHaveAttribute("aria-current", "step");
+    // Le choix reste sous les yeux pendant la préparation.
+    expect(
+      screen.getByText(/Numéro WhatsApp Business actuel/),
+    ).toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
 
     await waitFor(() => expect(mockStartSignup).toHaveBeenCalled());
@@ -529,9 +551,13 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
 
     render(<WhatsAppConfigContent />);
 
-    expect(screen.queryByText("Étape 1 sur 2")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("list", { name: "Connexion WhatsApp" }),
+    ).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Modifier la connexion" }));
-    expect(screen.getByText("Étape 1 sur 2")).toBeInTheDocument();
+    expect(
+      screen.getByRole("list", { name: "Connexion WhatsApp" }),
+    ).toBeInTheDocument();
   });
 });
 

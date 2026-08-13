@@ -18,13 +18,19 @@ type DashboardStartGuideProps = {
   ordersPreparingCount: number;
 };
 
-export function DashboardStartGuide({
+/**
+ * Le travail du jour, s'il y en a — sinon `null`.
+ *
+ * Exporté parce que l'écran doit trancher entre ce bandeau et la mise en route
+ * **avant** de les rendre : deux bandeaux d'égale importance côte à côte ne
+ * disent plus par où commencer.
+ */
+export function getDailyPriority({
   hasLiveSession,
   pendingProofsCount,
   ordersPreparingCount,
 }: DashboardStartGuideProps) {
-  const priority =
-    pendingProofsCount > 0
+  return pendingProofsCount > 0
       ? {
           href: "/dashboard/proofs",
           icon: CheckCircle2,
@@ -52,6 +58,10 @@ export function DashboardStartGuide({
               action: "Suivre le live",
             }
           : null;
+}
+
+export function DashboardStartGuide(props: DashboardStartGuideProps) {
+  const priority = getDailyPriority(props);
 
   // Rien d'urgent : la place revient à SetupChecklist si la boutique n'est pas prête,
   // sinon aux indicateurs du jour.

@@ -277,6 +277,8 @@ export async function startMetaEmbeddedSignup(
     let embeddedSignupEvent: MetaEmbeddedSignupEvent | undefined;
     let resolved = false;
     let finalizeTimer: number | undefined;
+    // Affecté après l'installation du listener, puis lu par cleanup().
+    // eslint-disable-next-line prefer-const
     let abandonTimer: number | undefined;
 
     const cleanup = () => {

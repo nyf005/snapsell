@@ -15,7 +15,7 @@
     "postinstall": "prisma generate",
     "preview": "next build && next start",
     "start": "next start",
-    "lint": "npm run typecheck",
+    "lint": "eslint .",
     "test": "vitest run",
     "test:ui": "vitest run --config vitest.config.ui.ts",
     "typecheck": "tsc --noEmit",
@@ -56,6 +56,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.6",
     "@tailwindcss/postcss": "^4.0.15",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -66,6 +67,8 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.5",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.22",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.25",
     "prisma": "^7.9.1",

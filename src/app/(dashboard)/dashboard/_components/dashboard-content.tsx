@@ -29,7 +29,10 @@ import {
   Wallet,
   Zap,
 } from "lucide-react";
-import { DashboardStartGuide } from "~/app/(dashboard)/_components/dashboard-start-guide";
+import {
+  DashboardStartGuide,
+  getDailyPriority,
+} from "~/app/(dashboard)/_components/dashboard-start-guide";
 import { HelpHint } from "~/app/(dashboard)/_components/help-hint";
 import { SetupChecklist } from "~/app/(dashboard)/_components/setup-checklist";
 import { CreditsAlertBanner } from "~/app/(dashboard)/_components/credits-alert-banner";
@@ -107,10 +110,34 @@ export function DashboardContent({
     return null;
   }
 
-  // Tant que WhatsApp n'est pas connecté, aucun message ne peut arriver : les
-  // indicateurs valent zéro par construction et le graphique est vide. La place
-  // revient entièrement à la mise en route.
+  // Sans connexion WhatsApp, les nouveaux messages n'arrivent plus et l'activité
+  // courante n'est pas mise en avant. Le travail déjà créé reste toutefois traité
+  // séparément par `dailyPriority` ci-dessous.
   const setupBlocking = setup ? !setup.whatsappConnected : false;
+
+  /**
+   * ── QUI TIENT LE HAUT DE L'ÉCRAN ───────────────────────────────────────
+   *
+   * Les deux bandeaux ont longtemps partagé le même habillage et pouvaient
+   * s'empiler. La règle est désormais explicite, dans cet ordre :
+   *
+   * 1. Il y a du travail du jour → il passe devant, même si WhatsApp vient de se
+   *    déconnecter. Une cliente qui attend son
+   *    acompte prime sur une étape de configuration.
+   * 2. Sinon → la mise en route reprend la tête.
+   *
+   * La mise en route ne disparaît jamais tant qu'elle est incomplète ; quand elle
+   * cède la première place, elle passe en variante discrète.
+   */
+  // Une déconnexion WhatsApp n'efface pas le travail déjà créé. Une boutique
+  // précédemment active peut encore avoir des preuves ou des commandes à traiter :
+  // ces données réelles gardent donc la priorité sur l'état de la connexion.
+  const dailyPriority = getDailyPriority({
+    hasLiveSession: summary.hasLiveSession,
+    pendingProofsCount: summary.pendingProofsCount,
+    ordersPreparingCount: summary.ordersPreparingCount,
+  });
+  const showSetup = Boolean(setup && !setup.isComplete);
 
   const handleStartLive = async () => {
     await startLiveMutation.mutateAsync();
@@ -124,23 +151,25 @@ export function DashboardContent({
     <div className="space-y-8">
       {/* Sur mobile, c'est le seul endroit où le solde est visible. */}
       <CreditsAlertBanner canManageSubscription={canManageSubscription} />
-      {setup && !setup.isComplete && (
+      {dailyPriority && (
+        <section aria-label="Action prioritaire">
+          <DashboardStartGuide
+            hasLiveSession={summary.hasLiveSession}
+            pendingProofsCount={summary.pendingProofsCount}
+            ordersPreparingCount={summary.ordersPreparingCount}
+          />
+        </section>
+      )}
+      {showSetup && setup && (
         <section aria-label="Mise en route">
           <SetupChecklist
             steps={setup.steps}
             doneCount={setup.doneCount}
             totalCount={setup.totalCount}
-            compact={setup.whatsappConnected}
+            compact={dailyPriority !== null}
           />
         </section>
       )}
-      <section aria-label="Action prioritaire">
-        <DashboardStartGuide
-          hasLiveSession={summary.hasLiveSession}
-          pendingProofsCount={summary.pendingProofsCount}
-          ordersPreparingCount={summary.ordersPreparingCount}
-        />
-      </section>
       {/* Section: À traiter */}
       <section aria-labelledby="a-traiter-heading">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">

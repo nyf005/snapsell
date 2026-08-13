@@ -3,7 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import React from "react";
 
 import { SetupChecklist, STEP_META } from "./setup-checklist";
-import { helpTopic } from "~/lib/copy";
+import { helpTopic, ui } from "~/lib/copy";
 import { SETUP_STEP_IDS } from "~/server/api/routers/onboarding.schema";
 
 vi.mock("next/navigation", () => ({
@@ -36,15 +36,53 @@ function renderChecklist(doneIds: string[] = [], compact = false) {
 describe("SetupChecklist — compte neuf", () => {
   it("affiche une seule action principale et garde les six étapes dans la vue d’ensemble", () => {
     renderChecklist();
-    const list = screen.getByRole("list");
+    const list = screen.getByRole("list", { name: /Toutes les étapes/i });
     expect(within(list).getAllByRole("listitem")).toHaveLength(6);
     expect(screen.getByRole("link", { name: /^Connecter WhatsApp$/i })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /^Définir les prix$/i })).not.toBeInTheDocument();
   });
 
+  /**
+   * Le rail donne la position dans le parcours sans en exposer le contenu : six
+   * étapes annoncées, aucune description ouverte en plus de celle du moment.
+   */
+  it("montre le chemin complet en pastilles, sans ouvrir les six étapes", () => {
+    renderChecklist(["whatsapp", "prices"]);
+    const rail = screen.getByRole("list", { name: "Étapes de la mise en route" });
+    const stops = within(rail).getAllByRole("listitem");
+
+    expect(stops).toHaveLength(6);
+    expect(stops.filter((stop) => stop.getAttribute("aria-current") === "step"))
+      .toHaveLength(1);
+    // Seule l'étape du moment est décrite ; les autres ne le sont nulle part.
+    expect(
+      screen.queryByText(ui.setup.replies.description),
+    ).not.toBeInTheDocument();
+  });
+
+  it("désigne l’étape du moment dans le rail", () => {
+    renderChecklist(["whatsapp"]);
+    const rail = screen.getByRole("list", { name: "Étapes de la mise en route" });
+    const current = within(rail)
+      .getAllByRole("listitem")
+      .find((stop) => stop.getAttribute("aria-current") === "step");
+
+    expect(current).toHaveTextContent("Définir vos prix");
+    expect(current).toHaveTextContent("étape en cours");
+  });
+
+  it("dit l’état de chaque étape sans dépendre de la couleur", () => {
+    renderChecklist(["whatsapp"]);
+    const rail = screen.getByRole("list", { name: "Étapes de la mise en route" });
+
+    expect(within(rail).getAllByText("terminée")).toHaveLength(1);
+    expect(within(rail).getAllByText("à venir")).toHaveLength(4);
+  });
+
   it("met la connexion WhatsApp en premier", () => {
     renderChecklist();
-    const items = screen.getAllByRole("listitem");
+    const list = screen.getByRole("list", { name: /Toutes les étapes/i });
+    const items = within(list).getAllByRole("listitem");
     expect(items[0]).toHaveTextContent("Connecter WhatsApp");
   });
 
@@ -60,9 +98,15 @@ describe("SetupChecklist — compte neuf", () => {
     expect(screen.getAllByText("Recommandée")).toHaveLength(3);
   });
 
+  /**
+   * La barre conserve sa sémantique native ; le rail décrit séparément le chemin.
+   */
   it("annonce la progression", () => {
     renderChecklist();
-    expect(screen.getByText("0 étape sur 6 terminée")).toBeInTheDocument();
+    expect(
+      screen.getByRole("progressbar", { name: "0 étape sur 6 terminée" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("0 sur 6")).toHaveAttribute("aria-hidden", "true");
   });
 
   it("propose le catalogue quand la première vente devient l’étape courante", () => {
@@ -99,7 +143,9 @@ describe("SetupChecklist — progression", () => {
 
   it("accorde le libellé de progression au pluriel", () => {
     renderChecklist(["whatsapp", "prices"]);
-    expect(screen.getByText("2 étapes sur 6 terminées")).toBeInTheDocument();
+    expect(
+      screen.getByRole("progressbar", { name: "2 étapes sur 6 terminées" }),
+    ).toBeInTheDocument();
   });
 
   it("disparaît complètement quand tout est fait", () => {
@@ -109,11 +155,15 @@ describe("SetupChecklist — progression", () => {
 });
 
 describe("SetupChecklist — mode compact", () => {
-  it("conserve une seule prochaine action dans un habillage plus discret", () => {
+  it("devient un résumé secondaire sans description ni vue d’ensemble", () => {
     renderChecklist(["whatsapp"], true);
-    expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "1");
+    expect(
+      screen.getByRole("list", { name: "Étapes de la mise en route" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Définir vos prix" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Définir les prix" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Reprendre" })).toBeInTheDocument();
+    expect(screen.queryByText(ui.setup.prices.description)).not.toBeInTheDocument();
+    expect(screen.queryByText("Voir toutes les étapes")).not.toBeInTheDocument();
   });
 
   it("reste masqué si tout est fait, même en compact", () => {
