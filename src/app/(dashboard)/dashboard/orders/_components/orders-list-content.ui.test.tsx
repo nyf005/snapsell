@@ -221,7 +221,7 @@ describe("OrdersListContent", () => {
     expect(screen.queryByText("À préparer")).not.toBeInTheDocument();
     expect(screen.queryByText("Prépa")).not.toBeInTheDocument();
     // La seule vue transversale reste, sans équivalent en badge.
-    expect(screen.getByText("À traiter")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "À traiter" })).toBeInTheDocument();
   });
 
   it("expose chaque commande dans la composition mobile", async () => {
@@ -241,7 +241,7 @@ describe("OrdersListContent", () => {
   it("shows pending proofs link when proofs exist", () => {
     render(<OrdersListContent />);
     expect(
-      screen.getByText(/2 preuves à valider/),
+      screen.getByText(/Paiements à vérifier \(2\)/),
     ).toBeInTheDocument();
   });
 });

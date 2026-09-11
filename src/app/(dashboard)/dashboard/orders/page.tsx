@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { canManageGrid } from "~/lib/rbac";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
+import { ORDER_WORK_VIEW_STATUSES, type OrderWorkView } from "~/lib/copy/orders";
 import { OrdersListContent } from "./_components/orders-list-content";
 
 /**
@@ -10,7 +11,9 @@ import { OrdersListContent } from "./_components/orders-list-content";
  * Seul le bouton d'export reste conditionné au rôle, en miroir du gating
  * `managerProcedure` que garde `orders.exportCsv`.
  */
-export default async function OrdersPage() {
+export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
+  const requestedView = (await searchParams).view;
+  const initialView: OrderWorkView = requestedView && Object.hasOwn(ORDER_WORK_VIEW_STATUSES, requestedView) ? requestedView as OrderWorkView : "to_process";
   const session = await auth();
 
   if (!session?.user) {
@@ -29,5 +32,5 @@ export default async function OrdersPage() {
     canExportCsv = tenant?.hasExportCsv ?? false;
   }
 
-  return <OrdersListContent canExportCsv={canExportCsv} />;
+  return <OrdersListContent canExportCsv={canExportCsv} initialView={initialView} />;
 }

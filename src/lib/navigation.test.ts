@@ -4,10 +4,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   APP_SHELL_PREFIXES,
+  boutiqueGroupsFor,
   isAppShellPath,
   navDescription,
   mobilePrimaryItems,
-  mobileSheetItems,
+  primaryHrefFor,
   navItemsFor,
   NAV_ITEMS,
   NAV_SECTIONS,
@@ -77,8 +78,8 @@ describe("NAV_ITEMS — cohérence", () => {
 });
 
 describe("Surfaces", () => {
-  it("la barre mobile a exactement 3 destinations principales (4ᵉ = « Plus »)", () => {
-    expect(mobilePrimaryItems()).toHaveLength(3);
+  it("la barre mobile a exactement 4 destinations principales", () => {
+    expect(mobilePrimaryItems().map((item) => item.label)).toEqual(["Aujourd’hui", "Live", "Commandes", "Boutique"]);
   });
 
   it("les entrées principales du mobile sont aussi dans la barre latérale", () => {
@@ -102,12 +103,6 @@ describe("Surfaces", () => {
     }
   });
 
-  it("la feuille « Plus » exclut les destinations principales", () => {
-    const primary = new Set(mobilePrimaryItems().map((i) => i.href));
-    for (const item of mobileSheetItems(true)) {
-      expect(primary.has(item.href)).toBe(false);
-    }
-  });
 
   it("chaque entrée de l’index des paramètres porte une description", () => {
     const items = settingsItems();
@@ -128,9 +123,13 @@ describe("Charge de la navigation", () => {
    * capacité possède une entrée de navigation de même importance ». « Gérer » comptait
    * huit entrées à plat ; ces tests empêchent la section de regonfler.
    */
-  it("« Gérer » tient en deux entrées dans la barre latérale", () => {
-    const gerer = navItemsFor("sidebar", true).filter((i) => i.section === "Gérer");
-    expect(gerer.map((i) => i.href)).toEqual(["/parametres", "/dashboard/audit"]);
+  it("les pages secondaires gardent leur destination principale active", () => {
+    expect(primaryHrefFor("/dashboard/proofs")).toBe("/dashboard/orders");
+    expect(primaryHrefFor("/dashboard/orders/123")).toBe("/dashboard/orders");
+    for (const path of ["/dashboard/catalogue", "/dashboard/audit", "/parametres/team"]) {
+      expect(primaryHrefFor(path)).toBe("/dashboard/boutique");
+    }
+    expect(primaryHrefFor("/dashboard/orders-other")).toBeUndefined();
   });
 
   it("la barre latérale reste sous dix entrées", () => {
@@ -158,9 +157,7 @@ describe("Charge de la navigation", () => {
     }
   });
 
-  it("la feuille « Plus » du mobile reste courte", () => {
-    expect(mobileSheetItems(true).length).toBeLessThanOrEqual(5);
-  });
+
 });
 
 
@@ -279,5 +276,16 @@ describe("APP_SHELL_PREFIXES — exclusion de l’animation d’entrée", () => 
       );
       expect(found, `Aucun répertoire de routes pour ${prefix}`).toBe(true);
     }
+  });
+});
+
+
+describe("Boutique — accès préservés", () => {
+  it("conserve chaque réglage, le catalogue et l’historique pour les responsables", () => {
+    const routes = boutiqueGroupsFor(true).flatMap((group) => group.items.map((item) => item.href));
+    expect(routes).toEqual(expect.arrayContaining([...settingsItems().map((item) => item.href), "/dashboard/catalogue", "/dashboard/audit"]));
+  });
+  it("conserve le catalogue et l’historique pour les agents sans exposer les réglages", () => {
+    expect(boutiqueGroupsFor(false).flatMap((group) => group.items.map((item) => item.href))).toEqual(["/dashboard/catalogue", "/dashboard/audit"]);
   });
 });

@@ -1,7 +1,8 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { helpForRoute } from "~/lib/copy";
-import { NAV_ITEMS } from "~/lib/navigation";
+import { NAV_ITEMS, primaryHrefFor } from "~/lib/navigation";
 import { cn } from "~/lib/utils";
 
 import { HelpHint } from "./help-hint";
@@ -56,6 +57,7 @@ export function TaskPageHeader({
     );
   }
 
+  const parent = NAV_ITEMS.find((entry) => entry.href === primaryHrefFor(href));
   const text = description ?? item.description;
   const topic = help === false ? undefined : helpForRoute(href);
 
@@ -68,7 +70,7 @@ export function TaskPageHeader({
     >
       <div className="min-w-0 max-w-3xl">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
-          {item.section}
+          {parent && parent.href !== href ? <Link href={parent.href} className="inline-flex min-h-11 items-center underline underline-offset-4">Retour à {parent.label}</Link> : item.section}
         </p>
         <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
           {item.label}

@@ -67,3 +67,47 @@ test("le mot de passe oublié explique comment contacter l’assistance", async 
   await expect(page.getByRole("link", { name: "Contacter l’assistance par email" })).toHaveAttribute("href", /^mailto:contact@snapsell.app/);
   await expect(page.getByRole("button", { name: "Se connecter", exact: true })).toBeVisible();
 });
+
+test("les quatre destinations conservent les accès aux paiements et aux réglages", async ({ page }) => {
+  await login(page);
+  const primary = page.getByRole("navigation", { name: "Navigation mobile" });
+  const navigation = await primary.isVisible() ? primary : page.getByLabel("Navigation principale");
+  await expect(navigation.getByRole("link")).toHaveCount(4);
+  for (const name of ["Aujourd’hui", "Live", "Commandes", "Boutique"]) {
+    await expect(navigation.getByRole("link", { name, exact: true })).toBeVisible();
+  }
+  await navigation.getByRole("link", { name: "Commandes", exact: true }).click();
+  await page.getByRole("link", { name: "Paiements à vérifier", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Paiements à vérifier" })).toBeVisible();
+  await expect(navigation.getByRole("link", { name: "Commandes", exact: true })).toHaveAttribute("aria-current", "page");
+  await page.getByRole("link", { name: "Retour à Commandes" }).click();
+  await expect(page.getByRole("button", { name: "À traiter", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "En cours", exact: true }).click();
+  await expect(page.getByRole("button", { name: "En cours", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await navigation.getByRole("link", { name: "Boutique", exact: true }).click();
+  const main = page.getByRole("main");
+  for (const href of ["/dashboard/catalogue", "/parametres/prix", "/parametres/livraison", "/parametres/whatsapp", "/parametres/reponses", "/parametres/team", "/parametres/abonnement", "/dashboard/audit"]) {
+    await expect(main.locator(`a[href="${href}"]`)).toBeVisible();
+  }
+  await main.locator('a[href="/dashboard/catalogue"]').click();
+  await expect(navigation.getByRole("link", { name: "Boutique", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "Retour à Boutique" })).toBeVisible();
+});
+
+test("un agent conserve catalogue et historique, les réglages restent protégés", async ({ page }) => {
+  const agentEmail = `agent-${randomUUID()}@example.test`;
+  await db.user.create({ data: { tenantId, email: agentEmail, passwordHash: await hash(password, 10), role: "AGENT" } });
+  await page.goto("/login");
+  await page.getByLabel("Adresse email", { exact: true }).fill(agentEmail);
+  await page.getByLabel("Mot de passe", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.getByRole("link", { name: "Boutique", exact: true }).filter({ visible: true }).first().click();
+  const main = page.getByRole("main");
+  await expect(main.locator('a[href="/dashboard/catalogue"]')).toBeVisible();
+  await expect(main.locator('a[href="/dashboard/audit"]')).toBeVisible();
+  await expect(main.locator('a[href^="/parametres"]')).toHaveCount(0);
+  await page.goto("/parametres");
+  await expect(page.getByText("Page réservée", { exact: true })).toBeVisible();
+  await expect(main.locator('a[href="/parametres/prix"]')).toHaveCount(0);
+});

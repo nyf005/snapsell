@@ -129,7 +129,7 @@ describe("ProofsListContent", () => {
   it("renders the page title", () => {
     render(<ProofsListContent />);
     expect(
-      screen.getByRole("heading", { name: "Preuves de paiement" }),
+      screen.getByRole("heading", { name: "Paiements à vérifier" }),
     ).toBeInTheDocument();
   });
 

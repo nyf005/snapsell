@@ -49,21 +49,11 @@ describe("Statuts de commande — vues dérivées", () => {
     }
   });
 
-  it("chaque onglet d’état porte le libellé de son badge", () => {
-    // C'est le cœur de la régression : cliquer « À préparer » montrait « Confirmée ».
-    for (const view of orderWorkViews) {
-      if (view.value === "" || view.value === "to_process") continue;
-      expect(view.label, view.value).toBe(ORDER_STATUS_LABEL[view.value]);
-    }
-  });
-
-  it("une seule vue transversale, et elle n’a pas d’équivalent en badge", () => {
-    const crossCutting = orderWorkViews.filter(
-      (v) => v.value !== "" && ORDER_WORK_VIEW_STATUSES[v.value].length > 1,
-    );
-    expect(crossCutting).toHaveLength(1);
-    expect(crossCutting[0]!.value).toBe("to_process");
-    expect(Object.values(ORDER_STATUS_LABEL)).not.toContain(crossCutting[0]!.label);
+  it("les trois vues couvrent chaque état une fois sans changer les badges", () => {
+    expect(orderWorkViews.map((v) => v.label)).toEqual(["À traiter", "En cours", "Terminées"]);
+    const statuses = orderWorkViews.flatMap((view) => [...ORDER_WORK_VIEW_STATUSES[view.value]]);
+    expect(statuses.sort()).toEqual([...ORDER_STATUS_FLOW].sort());
+    for (const view of orderWorkViews) expect(Object.values(ORDER_STATUS_LABEL)).not.toContain(view.label);
   });
 
   it("« À traiter » couvre bien ce qui attend une action", () => {

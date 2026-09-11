@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { HelpCircle } from "lucide-react";
 import { DashboardSidebarTrigger } from "~/app/(dashboard)/_components/sidebar-trigger";
 import { ThemeToggle } from "~/components/ui/theme";
 
@@ -25,6 +27,7 @@ export function DashboardHeader({ left, right }: DashboardHeaderProps) {
       {/* Le sélecteur d'apparence remplace le bouton de notifications mort. */}
       <div className="flex shrink-0 items-center gap-2">
         {right}
+        <Link href="/aide" aria-label="Aide" className="inline-flex size-11 items-center justify-center rounded-md hover:bg-muted focus-visible:outline-2 focus-visible:outline-primary"><HelpCircle className="size-5" aria-hidden="true" /></Link>
         <ThemeToggle />
       </div>
     </header>

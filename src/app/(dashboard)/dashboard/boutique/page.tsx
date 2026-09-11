@@ -1,0 +1,40 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { ArrowRight } from "lucide-react";
+import { auth } from "~/server/auth";
+import { canManageGrid } from "~/lib/rbac";
+import { boutiqueGroupsFor } from "~/lib/navigation";
+import { DashboardHeader } from "../../_components/dashboard-header";
+import { TaskPageHeader } from "../../_components/task-page-header";
+
+export const metadata = { title: "Boutique | SnapSell" };
+
+export default async function BoutiquePage() {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+  const canManage = canManageGrid(session.user.role ?? "");
+  return <>
+    <DashboardHeader />
+    <main className="min-h-0 flex-1 overflow-y-auto bg-background">
+      <div className="space-y-8 p-4 md:p-8">
+        <TaskPageHeader href="/dashboard/boutique" />
+        {boutiqueGroupsFor(canManage).map((group) => {
+          const items = group.items;
+          return <section key={group.title} aria-label={group.title} className="space-y-2">
+            <h2 className="text-lg font-semibold">{group.title}</h2>
+            <ul className="divide-y divide-border">
+              {items.map((item) => {
+                const Icon = item.icon;
+                return <li key={item.href}><Link href={item.href} className="flex min-h-16 items-center gap-3 rounded-lg py-4 pr-3 hover:bg-muted focus-visible:outline-2 focus-visible:outline-primary">
+                  <Icon className="size-5 shrink-0 text-primary" aria-hidden="true" />
+                  <span className="flex-1"><span className="block font-medium">{item.label}</span><span className="block text-sm text-muted-foreground">{item.description}</span></span>
+                  <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
+                </Link></li>;
+              })}
+            </ul>
+          </section>;
+        })}
+      </div>
+    </main>
+  </>;
+}

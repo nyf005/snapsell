@@ -81,7 +81,7 @@ export default async function DashboardLayout({
             {children}
           </div>
         </SidebarInset>
-        <MobileBottomNav canManageGrid={canManageGridRole} />
+        <MobileBottomNav />
       </SidebarProvider>
     </FeedbackProvider>
   );

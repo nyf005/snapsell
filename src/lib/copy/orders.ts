@@ -97,13 +97,15 @@ export const orderFilterOptions: readonly { value: "" | OrderStatusKey; label: s
  * Identifiant de la vue de travail : soit un état, soit `""` (toutes),
  * soit la seule vue transversale.
  */
-export type OrderWorkView = "" | "to_process" | OrderStatusKey;
+export type OrderWorkView = "" | "to_process" | "in_progress" | "completed" | OrderStatusKey;
 
 /** Les états que couvre une vue. Vide = aucun filtre. */
 export const ORDER_WORK_VIEW_STATUSES: Record<OrderWorkView, readonly OrderStatusKey[]> = {
   "": [],
   // La file de travail : ce qui attend une action.
   to_process: ["confirmed_pending_deposit", "confirmed"],
+  in_progress: ["preparing", "in_delivery"],
+  completed: ["delivered", "cancelled"],
   confirmed_pending_deposit: ["confirmed_pending_deposit"],
   confirmed: ["confirmed"],
   preparing: ["preparing"],
@@ -115,8 +117,8 @@ export const ORDER_WORK_VIEW_STATUSES: Record<OrderWorkView, readonly OrderStatu
 /** Onglets, dans l'ordre : la file de travail d'abord, puis le flux. */
 export const orderWorkViews: readonly { value: OrderWorkView; label: string }[] = [
   { value: "to_process", label: "À traiter" },
-  { value: "", label: "Toutes" },
-  ...ORDER_STATUS_FLOW.map((value) => ({ value, label: ORDER_STATUS_LABEL[value] })),
+  { value: "in_progress", label: "En cours" },
+  { value: "completed", label: "Terminées" },
 ];
 
 /**

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { api } from "~/trpc/react";
 import { formatErrorText, formatXof } from "~/lib/copy";
@@ -202,6 +203,7 @@ export function LiveOpsContent({ canManageAssistant = true }: { canManageAssista
             }
             actions={
               <>
+              {!hasSession && <Button asChild variant="outline"><Link href="/dashboard/catalogue">Choisir les articles</Link></Button>}
               {hasSession ? (
                 <>
                   {/*

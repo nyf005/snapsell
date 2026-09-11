@@ -39,14 +39,14 @@ Les couleurs sont définies en OKLCH dans les tokens globaux.
 
 ## Navigation
 
-- **Aujourd’hui** : tableau de bord.
-- **Vendre** : live et catalogue.
-- **Traiter** : commandes et preuves.
-- **Gérer** : prix, livraison, WhatsApp, FAQ, équipe, abonnement et audit.
-- Mobile : barre inférieure avec Aujourd’hui, Live, Commandes et Plus.
-- Les routes et permissions existantes sont conservées.
+Quatre destinations identiques sur mobile et ordinateur : **Aujourd’hui**, **Live**, **Commandes**, **Boutique**.
 
-L’**aide** n’est pas une cinquième section : ce n’est pas une tâche métier. Elle vit dans le pied de la barre latérale et de la feuille « Plus », hors du modèle de navigation, pour ne pas regonfler « Gérer ». Elle se lit sur deux surfaces : la page publique `/aide`, et un panneau contextuel ouvert depuis l’en-tête de chaque écran. Son contenu a une source unique, `src/lib/copy/help.ts`.
+- Aujourd’hui présente les urgences et les raccourcis métier.
+- Live donne accès à la préparation des articles et aux réservations.
+- Commandes regroupe les vues À traiter, En cours et Terminées. Les statuts précis, la vue Toutes, les exports et les preuves de paiement restent accessibles.
+- Boutique regroupe Catalogue, Réglages de vente, Assistant WhatsApp et Gestion de la boutique. Les réglages conservent leurs permissions OWNER / MANAGER ; Catalogue et Historique restent accessibles aux agents.
+- Aide et compte restent accessibles hors des quatre destinations métier.
+- Les routes existantes sont conservées. Les sous-pages gardent leur destination principale sélectionnée et un lien de retour explicite.
 
 ## Components
 

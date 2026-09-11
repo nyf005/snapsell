@@ -41,7 +41,7 @@ export function getDailyPriority({
         }
       : ordersPreparingCount > 0
         ? {
-            href: "/dashboard/orders",
+            href: "/dashboard/orders?view=preparing",
             icon: ShoppingCart,
             eyebrow: "Prochaine étape",
             title: `${ordersPreparingCount} commande${ordersPreparingCount > 1 ? "s" : ""} à préparer`,

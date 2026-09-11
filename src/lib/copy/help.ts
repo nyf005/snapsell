@@ -122,7 +122,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
           "Il demande l’adresse de livraison, puis calcule les frais correspondants.",
           "Il envoie un récapitulatif — article, prix, livraison, total — avec un bouton pour confirmer.",
           "Si votre boutique demande un acompte, il réclame la preuve de paiement et garde l’article le temps de la recevoir.",
-          "La commande arrive dans « Commandes », et la preuve à vérifier dans « Preuves de paiement ».",
+          "La commande arrive dans « Commandes », et la preuve à vérifier dans « Commandes → Paiements à vérifier ».",
         ],
       },
       {
@@ -221,7 +221,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       },
       {
         kind: "text",
-        text: "Vous pouvez libérer une réservation à la main depuis « Live du moment » — utile quand quelqu’un vous dit de vive voix qu’il renonce, sans attendre la fin du délai.",
+        text: "Vous pouvez libérer une réservation à la main depuis « Live » — utile quand quelqu’un vous dit de vive voix qu’il renonce, sans attendre la fin du délai.",
       },
       { kind: "screen", href: "/dashboard/live", label: "Suivre les réservations" },
     ],
@@ -442,7 +442,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     body: [
       {
         kind: "text",
-        text: "Un article du catalogue est permanent : vous le réutilisez d’un live à l’autre sans le ressaisir. Les articles improvisés pendant un live, eux, sont suivis dans « Live du moment ».",
+        text: "Un article du catalogue est permanent : vous le réutilisez d’un live à l’autre sans le ressaisir. Les articles improvisés pendant un live, eux, sont suivis dans « Live ».",
       },
       {
         kind: "steps",
@@ -508,13 +508,13 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     title: "Tenir un live",
     question: "Comment se déroule un live, du début à la fin ?",
     summary:
-      "Ouvrez le live, annoncez vos codes, laissez l’assistant réserver. « Live du moment » vous montre en direct qui a réservé quoi et ce qui va expirer.",
+      "Ouvrez le live, annoncez vos codes, laissez l’assistant réserver. « Live » vous montre en direct qui a réservé quoi et ce qui va expirer.",
     route: "/dashboard/live",
     body: [
       {
         kind: "steps",
         steps: [
-          "Ouvrez « Live du moment » et démarrez le live. À partir de là, un code envoyé par un numéro déclaré crée un article.",
+          "Ouvrez « Live » et démarrez le live. À partir de là, un code envoyé par un numéro déclaré crée un article.",
           "Annoncez vos codes à voix haute pendant votre diffusion, un par article présenté.",
           "Piochez dans le catalogue pour les articles déjà connus : le code, le prix et la photo suivent, sans ressaisie.",
           "Surveillez les réservations qui arrivent, et libérez celles qui n’aboutiront pas.",
@@ -548,7 +548,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     body: [
       {
         kind: "text",
-        text: "Quand votre boutique demande un acompte, l’assistant réclame une preuve de paiement et garde l’article de côté le temps de la recevoir. La preuve arrive dans « Preuves de paiement », en attente de votre décision.",
+        text: "Quand votre boutique demande un acompte, l’assistant réclame une preuve de paiement et garde l’article de côté le temps de la recevoir. La preuve arrive dans « Commandes → Paiements à vérifier », en attente de votre décision.",
       },
       {
         kind: "text",
@@ -763,7 +763,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       {
         kind: "steps",
         steps: [
-          "Ouvrez « Preuves de paiement » et cherchez le numéro concerné.",
+          "Ouvrez « Commandes → Paiements à vérifier » et cherchez le numéro concerné.",
           "S’il n’y est pas, demandez depuis quel numéro l’image est partie : la preuve se rattache à la commande du numéro qui l’envoie, pas au nom de la personne.",
           "Vérifiez que la commande est bien en attente d’acompte. Une preuve envoyée alors qu’aucune commande n’attend n’est rattachée à rien.",
           "Ouvrez « Historique de l’activité » et cherchez le numéro : tout message reçu y figure, avec l’heure.",

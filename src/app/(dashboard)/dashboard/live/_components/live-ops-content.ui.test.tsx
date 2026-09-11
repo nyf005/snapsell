@@ -141,7 +141,7 @@ describe("LiveOpsContent — active session", () => {
 
   it("renders the page title", () => {
     render(<LiveOpsContent />);
-    expect(screen.getByRole("heading", { name: "Live du moment" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Live" })).toBeInTheDocument();
   });
 
   it("shows item codes in the inventory table", () => {

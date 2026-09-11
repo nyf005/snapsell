@@ -136,8 +136,9 @@ function StatusBadge({
   );
 }
 
-export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boolean }) {
-  const [workView, setWorkView] = useState<OrderWorkView>("");
+export function OrdersListContent({ canExportCsv = false, initialView = "to_process" }: { canExportCsv?: boolean; initialView?: OrderWorkView }) {
+  const [workView, setWorkView] = useState<OrderWorkView>(initialView);
+  useEffect(() => { setWorkView(initialView); }, [initialView]);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [search, setSearch] = useState("");
@@ -304,16 +305,16 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
               description="Avancez chaque commande jusqu’à la livraison. Les vues ci-dessous suivent votre rythme de travail."
               actions={
                 <>
-                {pendingProofCount > 0 && (
+                {(
                   <Link
                     href="/dashboard/proofs"
                     prefetch
                     className="inline-flex items-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                    aria-label={`${pendingProofCount} preuve(s) à valider`}
+                    aria-label="Paiements à vérifier"
                   >
                     <FileCheck className="size-4" />
                     <span>
-                      {pendingProofCount} preuve{pendingProofCount > 1 ? "s" : ""} à valider
+                      Paiements à vérifier{pendingProofCount > 0 ? ` (${pendingProofCount})` : ""}
                     </span>
                   </Link>
                 )}
@@ -421,12 +422,12 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                       htmlFor="orders-status-filter"
                       className="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground"
                     >
-                      Statut
+                      Vue ou statut
                     </label>
                     <Select
                       value={workView || "all"}
                       onValueChange={(v) =>
-                        setWorkView((v === "all" ? "" : v) as "" | OrderStatus)
+                        setWorkView((v === "all" ? "" : v) as OrderWorkView)
                       }
                     >
                       <SelectTrigger
@@ -436,6 +437,7 @@ export function OrdersListContent({ canExportCsv = false }: { canExportCsv?: boo
                         <SelectValue placeholder="Tous les statuts" />
                       </SelectTrigger>
                       <SelectContent>
+                        {orderWorkViews.map((view) => <SelectItem key={view.value} value={view.value}>{view.label}</SelectItem>)}
                         {orderFilterOptions.map((opt) => (
                           <SelectItem
                             key={opt.value || "all"}

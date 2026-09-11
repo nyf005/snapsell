@@ -18,6 +18,7 @@ import {
   Radio,
   ScrollText,
   Settings,
+  Store,
   ShoppingCart,
   Tags,
   Users,
@@ -25,11 +26,11 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 /** Les quatre sections de l'IA définie dans DESIGN.md. */
-export const NAV_SECTIONS = ["Aujourd’hui", "Vendre", "Traiter", "Gérer"] as const;
+export const NAV_SECTIONS = ["Aujourd’hui", "Live", "Commandes", "Boutique"] as const;
 export type NavSection = (typeof NAV_SECTIONS)[number];
 
 /** Surfaces où une entrée peut apparaître. */
-export type NavSurface = "sidebar" | "mobile" | "settings";
+export type NavSurface = "sidebar" | "mobile" | "settings" | "boutique" | "orders";
 
 export type NavItem = {
   href: string;
@@ -73,9 +74,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
   },
   {
     href: "/dashboard/live",
-    label: "Live du moment",
+    label: "Live",
     icon: Radio,
-    section: "Vendre",
+    section: "Live",
     surfaces: ALL,
     prefetch: true,
     mobilePrimary: true,
@@ -84,25 +85,31 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: "/dashboard/orders",
     label: "Commandes",
     icon: ShoppingCart,
-    section: "Traiter",
+    section: "Commandes",
     surfaces: ALL,
     prefetch: true,
     mobilePrimary: true,
   },
   {
+    href: "/dashboard/boutique", label: "Boutique", icon: Store,
+    section: "Boutique", surfaces: ALL, mobilePrimary: true,
+    description: "Vos articles, vos réglages et l’historique de votre boutique.",
+  },
+  {
     href: "/dashboard/catalogue",
     label: "Catalogue",
+    description: "Préparez et retrouvez vos articles.",
     icon: PackageOpen,
-    section: "Vendre",
-    surfaces: ALL,
+    section: "Boutique",
+    surfaces: ["boutique"],
     prefetch: true,
   },
   {
     href: "/dashboard/proofs",
-    label: "Preuves de paiement",
+    label: "Paiements à vérifier",
     icon: CheckCircle2,
-    section: "Traiter",
-    surfaces: ALL,
+    section: "Commandes",
+    surfaces: ["orders"],
     prefetch: true,
   },
 
@@ -112,8 +119,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: "Paramètres",
     description: "Vos prix, vos frais de livraison, vos réponses automatiques.",
     icon: Settings,
-    section: "Gérer",
-    surfaces: ALL,
+    section: "Boutique",
+    surfaces: ["boutique"],
     requiresGridRole: true,
   },
   {
@@ -122,7 +129,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     description:
       "A12 prend le prix de la catégorie A. Définissez vos catégories une fois, elles s’appliquent à tous vos codes.",
     icon: Tags,
-    section: "Gérer",
+    section: "Boutique",
     surfaces: SETTINGS_ONLY,
     requiresGridRole: true,
   },
@@ -132,7 +139,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     description:
       "Le tarif ajouté au total, selon la commune où vous livrez.",
     icon: Package,
-    section: "Gérer",
+    section: "Boutique",
     surfaces: SETTINGS_ONLY,
     requiresGridRole: true,
   },
@@ -141,7 +148,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: "Réponses automatiques",
     description: "Ce que l’assistant répond quand vous n’êtes pas disponible.",
     icon: HelpCircle,
-    section: "Gérer",
+    section: "Boutique",
     surfaces: SETTINGS_ONLY,
     requiresGridRole: true,
   },
@@ -151,7 +158,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     description:
       "Le numéro qui reçoit les codes et envoie les confirmations.",
     icon: MessageCircle,
-    section: "Gérer",
+    section: "Boutique",
     surfaces: SETTINGS_ONLY,
     requiresGridRole: true,
   },
@@ -161,7 +168,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     description:
       "Invitez des personnes pour vous aider à vendre pendant le live ou à préparer les commandes.",
     icon: Users,
-    section: "Gérer",
+    section: "Boutique",
     surfaces: SETTINGS_ONLY,
     requiresGridRole: true,
   },
@@ -171,7 +178,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     description:
       "Changez de plan, achetez des conversations, consultez vos paiements.",
     icon: CreditCard,
-    section: "Gérer",
+    section: "Boutique",
     surfaces: SETTINGS_ONLY,
     requiresGridRole: true,
   },
@@ -181,8 +188,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
     description:
       "Tout ce qui s’est passé, du plus récent au plus ancien. Utile quand une commande est contestée.",
     icon: ScrollText,
-    section: "Gérer",
-    surfaces: ALL,
+    section: "Boutique",
+    surfaces: ["boutique"],
   },
 ];
 
@@ -194,14 +201,9 @@ export function navItemsFor(surface: NavSurface, canManageGrid: boolean): NavIte
   );
 }
 
-/** Les trois destinations de la barre mobile (le 4ᵉ emplacement est « Plus »). */
+/** Les quatre destinations sont identiques sur mobile et ordinateur. */
 export function mobilePrimaryItems(): NavItem[] {
   return NAV_ITEMS.filter((item) => item.mobilePrimary);
-}
-
-/** Entrées secondaires de la feuille « Plus ». */
-export function mobileSheetItems(canManageGrid: boolean): NavItem[] {
-  return navItemsFor("mobile", canManageGrid).filter((item) => !item.mobilePrimary);
 }
 
 /**
@@ -252,4 +254,31 @@ export function isAppShellPath(pathname: string): boolean {
   return APP_SHELL_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
+}
+
+/** Destination principale qui porte une page secondaire. */
+export function primaryHrefFor(pathname: string): string | undefined {
+  if (pathname === "/dashboard") return "/dashboard";
+  if (pathname === "/dashboard/live" || pathname.startsWith("/dashboard/live/")) return "/dashboard/live";
+  if (["/dashboard/orders", "/dashboard/proofs"].some((root) => pathname === root || pathname.startsWith(`${root}/`))) return "/dashboard/orders";
+  if (["/dashboard/boutique", "/dashboard/catalogue", "/dashboard/audit", "/parametres"].some((root) => pathname === root || pathname.startsWith(`${root}/`))) return "/dashboard/boutique";
+  return undefined;
+}
+
+/** Liens de Boutique : même source pour la page et les contrôles d’accès. */
+export const BOUTIQUE_GROUPS = [
+  { title: "Catalogue", routes: ["/dashboard/catalogue"] },
+  { title: "Réglages de vente", routes: ["/parametres/prix", "/parametres/livraison"] },
+  { title: "Assistant WhatsApp", routes: ["/parametres/whatsapp", "/parametres/reponses"] },
+  { title: "Gestion de la boutique", routes: ["/parametres/team", "/parametres/abonnement", "/dashboard/audit"] },
+] as const;
+
+export function boutiqueGroupsFor(canManage: boolean) {
+  return BOUTIQUE_GROUPS.map((group) => ({
+    title: group.title,
+    items: group.routes.flatMap((href) => {
+      const item = NAV_ITEMS.find((entry) => entry.href === href);
+      return item && (!item.requiresGridRole || canManage) ? [item] : [];
+    }),
+  })).filter((group) => group.items.length > 0);
 }

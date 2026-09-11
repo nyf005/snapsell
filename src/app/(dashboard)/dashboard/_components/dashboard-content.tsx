@@ -252,7 +252,7 @@ export function DashboardContent({
                 À préparer avant la mise en livraison
               </p>
               <Link
-                href="/dashboard/orders"
+                href="/dashboard/orders?view=preparing"
                 prefetch
                 className="text-sm font-extrabold text-primary inline-flex min-h-11 items-center gap-1 mt-2 group-hover:gap-2 transition-all"
               >
