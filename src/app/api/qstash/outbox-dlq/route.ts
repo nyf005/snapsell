@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { z } from "zod";
 /**
  * POST /api/qstash/outbox-dlq — Callback QStash en cas d'échec total après tous les retries.
  *
@@ -48,18 +50,20 @@ export async function POST(request: Request) {
   let messageOutId: string;
   let errorMessage: string;
   try {
-    const parsed = JSON.parse(bodyText) as { messageOutId?: string };
-    if (!parsed.messageOutId) throw new Error("messageOutId manquant");
-    messageOutId = parsed.messageOutId;
-    // QStash transmet l'erreur finale dans le header x-upstash-error si disponible
-    errorMessage = request.headers.get("upstash-failure-callback-last-message") ?? "Max retries QStash épuisés";
+    // QStash enveloppe le message original dans sourceBody encodé en base64.
+    const callback = z.object({ sourceBody: z.string().min(1), status: z.number().optional() }).parse(JSON.parse(bodyText));
+    const source = z.object({ messageOutId: z.string().min(1) }).parse(
+      JSON.parse(Buffer.from(callback.sourceBody, "base64").toString("utf8")),
+    );
+    messageOutId = source.messageOutId;
+    errorMessage = `Max retries QStash épuisés (HTTP ${callback.status ?? "inconnu"})`;
   } catch {
     return new NextResponse("Bad Request", { status: 400 });
   }
 
   const messageOut = await db.messageOut.findUnique({
     where: { id: messageOutId },
-    select: { tenantId: true, id: true, to: true, body: true, attempts: true, lastError: true, correlationId: true },
+    select: { status: true, tenantId: true, id: true, to: true, body: true, attempts: true, lastError: true, correlationId: true },
   });
 
   if (!messageOut) {
@@ -67,9 +71,18 @@ export async function POST(request: Request) {
     return new NextResponse("OK", { status: 200 });
   }
 
+  if (["sent", "blocked", "suppressed"].includes(messageOut.status)) {
+    return new NextResponse("Already processed", { status: 200 });
+  }
+
+  const deadLetterId = `c${createHash("sha256").update(`outbox:${messageOut.id}`).digest("hex").slice(0, 24)}`;
   try {
-    await db.deadLetterJob.create({
-      data: {
+    // Un id déterministe évite plusieurs incidents pour le rejeu du même callback.
+    await db.deadLetterJob.upsert({
+      where: { id: deadLetterId },
+      update: {},
+      create: {
+        id: deadLetterId,
         tenantId: messageOut.tenantId,
         jobType: "message_out",
         payload: {

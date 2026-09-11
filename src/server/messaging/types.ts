@@ -94,6 +94,7 @@ export type InteractivePayload =
  * Le métier ne dépend jamais des types SDK BSP
  */
 export interface OutboundMessage {
+  purpose?: "order_confirmation";
   tenantId: string;
   to: string; // destinataire (format E.164 normalisé)
   body?: string;

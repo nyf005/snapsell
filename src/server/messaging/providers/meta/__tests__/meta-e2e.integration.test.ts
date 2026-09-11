@@ -135,7 +135,7 @@ describe.skipIf(!shouldRun)(
 
       const tenant = await db.tenant.create({
         data: {
-          name: "Test Tenant Meta E2E",
+          assistantEnabled: true, name: "Test Tenant Meta E2E",
           metaPhoneNumberId: "e2e-phone-id",
           metaWabaId: "e2e-waba-id",
           metaAccessToken: "e2e-access-token",
@@ -371,7 +371,7 @@ describe.skipIf(!shouldRun)(
 
     it("AC#5 — tenant sans config Meta → failed + lastError meta_config_missing (pg-boss handles DLQ)", async () => {
       const tenantNoMeta = await db.tenant.create({
-        data: { name: "Test Tenant No Meta Config E2E" },
+        data: { assistantEnabled: true, name: "Test Tenant No Meta Config E2E" },
       });
 
       try {

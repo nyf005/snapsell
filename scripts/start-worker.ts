@@ -33,6 +33,11 @@ import { runMetaCatalogueSyncJob } from "~/server/workers/meta-catalogue-sync";
 import { runSubscriptionExpiredJob } from "~/server/workers/subscription-expired";
 import { runCreditsMonthlyResetJob } from "~/server/workers/credits-monthly-reset";
 import { workerLogger } from "~/lib/logger";
+import { runOutboxRecovery } from "~/server/workers/outbox-recovery";
+import { recordWorkerHeartbeat } from "~/server/workers/health";
+import { createShutdownHandler } from "~/server/workers/shutdown";
+import { startOutboxSenderWorker } from "~/server/workers/outbox-sender";
+import { env } from "~/env";
 import { initSentry } from "~/lib/sentry";
 
 const SCHEDULE = {
@@ -44,33 +49,20 @@ const SCHEDULE = {
   CREDITS_MONTHLY_RESET: QUEUE.CRON_CREDITS_MONTHLY_RESET,
 } as const;
 
-/**
- * Gestion graceful shutdown
- */
-async function gracefulShutdown(signal: string): Promise<void> {
-  workerLogger.info(`Received ${signal}, starting graceful shutdown...`);
-
-  try {
-    await boss.stop({ graceful: true, timeout: 30000 });
-    workerLogger.info("pg-boss stopped gracefully");
-  } catch (error) {
-    workerLogger.error("Error stopping pg-boss", error);
-  }
-
-  setTimeout(() => {
-    process.exit(0);
-  }, 1000);
-}
-
-process.on("SIGTERM", () => { void gracefulShutdown("SIGTERM"); });
-process.on("SIGINT", () => { void gracefulShutdown("SIGINT"); });
+const shutdown = createShutdownHandler({
+  stop: () => boss.stop({ graceful: true, timeout: 30000 }),
+  exit: (code) => process.exit(code),
+  onError: (error) => workerLogger.error("Worker shutdown failed", error),
+});
+process.on("SIGTERM", () => { void shutdown(); });
+process.on("SIGINT", () => { void shutdown(); });
 process.on("uncaughtException", (error) => {
   workerLogger.error("Uncaught exception", error);
-  void gracefulShutdown("uncaughtException");
+  void shutdown(true);
 });
-process.on("unhandledRejection", (reason, promise) => {
-  workerLogger.error("Unhandled rejection", reason, { promise });
-  void gracefulShutdown("unhandledRejection");
+process.on("unhandledRejection", (reason) => {
+  workerLogger.error("Unhandled rejection", reason);
+  void shutdown(true);
 });
 
 async function main(): Promise<void> {
@@ -100,6 +92,17 @@ async function main(): Promise<void> {
     workerLogger.info("Starting coexistence sync worker...");
     await startCoexistenceSyncWorker();
     workerLogger.info("Coexistence sync worker started successfully");
+
+    // Le consommateur local rend le mode sans QStash utilisable en développement.
+    if (env.NODE_ENV !== "production" && !(env.QSTASH_TOKEN && env.NEXT_PUBLIC_APP_URL)) {
+      await startOutboxSenderWorker();
+    }
+    await boss.schedule(QUEUE.CRON_OUTBOX_RECOVERY, "* * * * *", {});
+    await boss.work(QUEUE.CRON_OUTBOX_RECOVERY, async () => {
+      await runOutboxRecovery();
+      await recordWorkerHeartbeat();
+    });
+    await recordWorkerHeartbeat();
 
     // Schedules pg-boss : verrou distribué en DB, safe si redémarrage ou scale
     await boss.schedule(SCHEDULE.RESERVATION_TTL, "* * * * *", {});
@@ -142,7 +145,7 @@ async function main(): Promise<void> {
     );
   } catch (error) {
     workerLogger.error("Failed to start workers", error);
-    process.exit(1);
+    await shutdown(true);
   }
 }
 

@@ -69,7 +69,7 @@ describe.skipIf(!shouldRun)(
 
       const tenant = await db.tenant.create({
         data: {
-          name: "Test Tenant Outbox Integration",
+          assistantEnabled: true, name: "Test Tenant Outbox Integration",
           metaPhoneNumberId: "integration-test-phone-id",
           metaAccessToken: "integration-test-access-token",
         },

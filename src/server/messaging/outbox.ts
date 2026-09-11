@@ -6,62 +6,14 @@
  */
 
 import { z } from "zod";
-import { Client as QStashClient } from "@upstash/qstash";
 import { Prisma } from "../../../generated/prisma";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
-import { boss, QUEUE } from "~/server/workers/queues";
+import { publishOutboxMessage } from "./outbox-publisher";
 import { env } from "~/env";
 import type { OutboundMessage } from "./types";
 
 const PRISMA_UNIQUE_VIOLATION = "P2002";
-
-/**
- * Enqueue via QStash (production) ou pg-boss (dev/fallback).
- * QStash est event-driven, serverless-native, et gère les retries automatiquement.
- *
- * ⚠️ Le fallback pg-boss `outbox-send` n'a AUCUN consommateur : `startOutboxSenderWorker()`
- * n'est démarré par aucun entrypoint. Il ne sert donc qu'à ne pas faire échouer le flux
- * métier en développement local. En production, l'absence de configuration QStash
- * signifie que plus aucun message ne part — on refuse de le laisser passer en silence.
- */
-async function enqueueOutboxSend(messageOutId: string): Promise<void> {
-  if (env.QSTASH_TOKEN && env.NEXT_PUBLIC_APP_URL) {
-    const client = new QStashClient({ token: env.QSTASH_TOKEN });
-    const callbackUrl = `${env.NEXT_PUBLIC_APP_URL}/api/qstash/outbox-send`;
-    const failureCallbackUrl = `${env.NEXT_PUBLIC_APP_URL}/api/qstash/outbox-dlq`;
-    await client.publishJSON({
-      url: callbackUrl,
-      body: { messageOutId },
-      retries: 5,
-      failureCallback: failureCallbackUrl,
-    });
-    return;
-  }
-
-  // Configuration incomplète : diagnostiquer précisément laquelle des deux manque.
-  const missing = [
-    !env.QSTASH_TOKEN ? "QSTASH_TOKEN" : null,
-    !env.NEXT_PUBLIC_APP_URL ? "NEXT_PUBLIC_APP_URL" : null,
-  ].filter(Boolean);
-
-  if (env.NODE_ENV === "production") {
-    // En production, la bascule silencieuse sur une queue sans consommateur
-    // laissait les messages en `pending` indéfiniment, sans la moindre erreur.
-    throw new Error(
-      `Outbox non configuré : ${missing.join(" et ")} manquant(s). ` +
-        `Les deux sont requis ensemble pour publier vers QStash. ` +
-        `Le message ${messageOutId} reste en statut 'pending' et ne partira pas.`,
-    );
-  }
-
-  workerLogger.warn(
-    "QStash non configuré — fallback pg-boss `outbox-send`, qui n'a aucun consommateur. " +
-      "Le message ne sera PAS envoyé. Configurer QSTASH_TOKEN + NEXT_PUBLIC_APP_URL pour un envoi réel.",
-    { messageOutId, missing },
-  );
-  await boss.send(QUEUE.OUTBOX_SEND, { messageOutId }, { singletonKey: messageOutId });
-}
 
 /**
  * Schéma Zod pour validation OutboundMessage
@@ -110,6 +62,7 @@ const interactivePayloadSchema = z.discriminatedUnion("type", [
 ]);
 
 const outboundMessageSchema = z.object({
+  purpose: z.literal("order_confirmation").optional(),
   tenantId: z.string().min(1),
   to: z.string().min(1), // Format E.164 normalisé
   body: z.string().optional(), // Story 11.2: Optionnel pour les typing indicators
@@ -182,6 +135,7 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
         mediaUrl: validatedMessage.mediaUrl ?? null,
         interactivePayload: validatedMessage.interactive ?? undefined,
         isTypingIndicator: validatedMessage.isTypingIndicator ?? false,
+        ...(validatedMessage.purpose ? { purpose: validatedMessage.purpose } : {}),
         status: "pending",
         attempts: 0,
         correlationId: validatedMessage.correlationId,
@@ -202,11 +156,10 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
     // On ne propage volontairement pas l'échec : le MessageOut est déjà persisté en
     // `pending` et ne doit pas être perdu, ni faire échouer le flux métier appelant.
     //
-    // En revanche l'échec est journalisé en `error` en production : quelle qu'en soit la
-    // cause (QStash indisponible ou mal configuré), le message ne partira pas tant que
-    // personne n'intervient. C'est un incident, pas un avertissement.
+    // Un échec est journalisé ; la tâche périodique reprend la publication depuis
+    // la ligne persistée, sans dépendre du rejeu du traitement métier.
     try {
-      await enqueueOutboxSend(messageOut.id);
+      await publishOutboxMessage(messageOut.id);
     } catch (enqueueError) {
       const context = {
         messageOutId: messageOut.id,
@@ -217,7 +170,7 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
 
       if (env.NODE_ENV === "production") {
         workerLogger.error(
-          "Failed to enqueue outbox-send job — message stuck in 'pending', will NOT be delivered",
+          "Failed to enqueue outbox-send job — message pending, recovery will retry publication",
           enqueueError,
           context,
         );

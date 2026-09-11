@@ -58,7 +58,10 @@ boss.on("error", (error) => {
 let _bossReady: Promise<void> | null = null;
 export function ensureBossReady(): Promise<void> {
   if (!_bossReady) {
-    _bossReady = boss.start().then(() => undefined);
+    _bossReady = boss.start().then(() => undefined).catch((error: unknown) => {
+      _bossReady = null;
+      throw error;
+    });
   }
   return _bossReady;
 }
@@ -76,6 +79,7 @@ export const QUEUE = {
   COEXISTENCE_SYNC: "coexistence-sync",
   // Compatibilité : OUTBOX_SEND conservé pour le fallback pg-boss en développement local
   OUTBOX_SEND: "outbox-send",
+  CRON_OUTBOX_RECOVERY: "cron-outbox-recovery",
   // Crons pg-boss (schedule names)
   CRON_RESERVATION_TTL: "cron-reservation-ttl",
   CRON_CLOSE_SESSIONS: "cron-close-sessions",
@@ -91,6 +95,7 @@ export const QUEUE = {
  * Note: OUTBOX_SEND est uniquement créé pour le fallback dev (QStash en production).
  */
 export async function ensureQueues(): Promise<void> {
+  await boss.createQueue(QUEUE.CRON_OUTBOX_RECOVERY, { retryLimit: 2, retryDelay: 5 });
   await boss.createQueue(QUEUE.WEBHOOK_PROCESSING, {
     retryLimit: 2,
     retryDelay: 2,

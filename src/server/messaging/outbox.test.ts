@@ -14,6 +14,7 @@ vi.mock("~/server/db", () => ({
     messageOut: {
       create: vi.fn(),
       findUnique: vi.fn(),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
   },
 }));
@@ -30,6 +31,7 @@ vi.mock("~/lib/logger", () => ({
 
 // Mock queues (pg-boss)
 vi.mock("~/server/workers/queues", () => ({
+  ensureBossReady: vi.fn().mockResolvedValue(undefined),
   boss: { send: vi.fn().mockResolvedValue("job-id-mock") },
   QUEUE: { OUTBOX_SEND: "outbox-send" },
 }));

@@ -73,7 +73,7 @@ describe.skipIf(!shouldRun)(
       processOutboundMessage = osMod.processOutboundMessage;
 
       const tenant = await db.tenant.create({
-        data: { name: "Test Tenant STOP Integration" },
+        data: { assistantEnabled: true, name: "Test Tenant STOP Integration" },
       });
       testTenantId = tenant.id;
     });

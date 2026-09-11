@@ -397,7 +397,7 @@ writeToOutbox()                    → INSERT messages_out (status = 'pending')
 - **Provider :** Meta WhatsApp Cloud API, credentials **par tenant en base** (`metaPhoneNumberId`, `metaAccessToken` chiffré via `ENCRYPTION_KEY`)
 - **Rôle de Railway :** uniquement **publier** le job QStash depuis le webhook-processor — d'où la nécessité de `QSTASH_TOKEN` et `NEXT_PUBLIC_APP_URL` sur le service
 
-> ⚠️ **Code résiduel :** `startOutboxSenderWorker()` ([outbox-sender.ts](src/server/workers/outbox-sender.ts)) et la queue pg-boss `outbox-send` existent encore comme fallback de développement local, mais **`start-worker.ts` ne les démarre jamais**. En pratique, si QStash n'est pas configuré, les jobs `outbox-send` s'empilent sans consommateur. Voir la section Développement local ci-dessous.
+> **Développement local :** `start-worker.ts` démarre `startOutboxSenderWorker()` si QStash est absent hors production. En production, QStash reste obligatoire. La tâche de reprise republie les messages dont la publication a échoué.
 
 ### 1. Migration Base de Données (OBLIGATOIRE)
 
@@ -613,3 +613,20 @@ Se connecter sur `/login` avec l'email/mot de passe → redirection automatique 
 - **Sentry:** `@sentry/nextjs` est **déjà installé** (voir `package.json`). Si `SENTRY_DSN` est défini, les erreurs critiques du webhook et des workers sont remontées via [`src/lib/sentry.ts`](src/lib/sentry.ts). L'initialisation complète (traces, erreurs non gérées, source maps) n'est **pas** en place : elle nécessiterait `src/instrumentation.ts` et une config client/serveur selon la [doc Sentry Next.js](https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/). En l'état, seule la capture explicite via `captureException()` fonctionne.
 - **Scaling:** Augmenter les instances Railway selon la profondeur de la queue `webhook-processing` (`pgboss.job`). ⚠️ Le worker tourne en `localConcurrency: 5` et les machines à états conversationnelles (`ConversationState`, sélection de variantes) font du read-modify-write sans verrou : augmenter la concurrence ou le nombre d'instances accroît le risque de course sur un même couple `tenantId + phone`. Monter en charge en gardant ce point en tête.
 - **Envoi sortant:** ne se scale pas via Railway — il passe par QStash + les fonctions Vercel.
+
+
+## Fiabilité et mesures (septembre 2026)
+
+Appliquer toutes les migrations avant de démarrer cette version sur Vercel et Railway.
+La migration `20260911050300_restore_missing_schema_migrations` rétablit de façon additive
+les champs historiques manquants (crédits, fenêtres, adresses, attributs, saisie). Elle
+conserve les indexes partiels métier et accepte les colonnes déjà créées par `db push`.
+
+Le worker publie un signal de vie chaque minute via sa tâche `cron-outbox-recovery`.
+Configurer le moniteur externe sur `/api/healthz` (200 sain, 503 dégradé), avec un délai
+de démarrage de trois minutes. Cette route est servie par Next.js sur Vercel, pas par
+le process Railway. Les erreurs fatales du worker sortent avec le code 1 et déclenchent
+la politique `ON_FAILURE` de Railway.
+
+Les opérations locales réalisées pour cette correction ne déploient aucun service.
+Voir [le guide de reprise et les définitions des indicateurs](docs/reliability-and-metrics.md).

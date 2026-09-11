@@ -485,6 +485,7 @@ export class MetaCloudAdapter implements MessagingProvider {
     const requestBody = this.buildRequestBody(message, recipient);
 
     const response = await fetch(apiUrl, {
+      signal: AbortSignal.timeout(30_000),
       method: "POST",
       headers: {
         "Authorization": `Bearer ${this.accessToken}`,
@@ -573,6 +574,7 @@ export class MetaCloudAdapter implements MessagingProvider {
       };
 
       const response = await fetch(apiUrl, {
+      signal: AbortSignal.timeout(30_000),
         method: "POST",
         headers: {
           "Authorization": `Bearer ${this.accessToken}`,

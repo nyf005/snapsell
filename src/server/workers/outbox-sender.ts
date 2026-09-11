@@ -28,7 +28,36 @@ export interface OutboxSendPayload {
  * @param messageOut - MessageOut à traiter
  * @returns true si succès, false si échec (pour retry)
  */
-export async function processOutboundMessage(messageOut: {
+/** Les callbacks concurrents et les rejeux partagent le même verrou en base. */
+export async function processOutboundMessage(
+  messageOut: Parameters<typeof sendClaimedMessage>[0],
+): Promise<{ success: boolean; providerMessageId?: string; error?: string }> {
+  const now = new Date();
+  const leaseUntil = new Date(now.getTime() + 5 * 60_000);
+  const claim = await db.messageOut.updateMany({
+    where: {
+      id: messageOut.id,
+      status: { in: ["pending", "failed"] },
+      OR: [{ sendLeaseUntil: null }, { sendLeaseUntil: { lte: now } }],
+    },
+    data: { sendLeaseUntil: leaseUntil },
+  });
+  if (claim.count === 0) {
+    const current = await db.messageOut.findUnique({ where: { id: messageOut.id }, select: { status: true } });
+    if (!current || ["sent", "blocked", "suppressed"].includes(current.status)) return { success: true };
+    return { success: false, error: "Message already being sent" };
+  }
+  try {
+    return await sendClaimedMessage(messageOut);
+  } finally {
+    await db.messageOut.updateMany({
+      where: { id: messageOut.id, sendLeaseUntil: leaseUntil },
+      data: { sendLeaseUntil: null },
+    });
+  }
+}
+
+async function sendClaimedMessage(messageOut: {
   id: string;
   tenantId: string;
   to: string;
@@ -208,6 +237,8 @@ export async function processOutboundMessage(messageOut: {
         where: { id },
         data: {
           status: "sent",
+          sentAt: new Date(),
+          lastError: null,
           providerMessageId: result.providerMessageId,
           updatedAt: new Date(),
         },
@@ -318,7 +349,7 @@ export async function startOutboxSenderWorker(): Promise<string> {
       }
 
       // Skip si déjà envoyé ou bloqué (idempotence)
-      if (messageOut.status === "sent" || messageOut.status === "blocked") {
+      if (messageOut.status === "sent" || messageOut.status === "blocked" || messageOut.status === "suppressed") {
         workerLogger.debug("MessageOut already processed, skipping", {
           messageOutId,
           status: messageOut.status,

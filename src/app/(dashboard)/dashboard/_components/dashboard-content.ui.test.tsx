@@ -18,12 +18,14 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
+const mockRefetch = vi.hoisted(() => vi.fn());
 const mockPush = vi.hoisted(() => vi.fn());
 const mockStartLive = vi.hoisted(() => vi.fn());
 
 const state = vi.hoisted(() => ({
   summary: undefined as Record<string, unknown> | undefined,
   isLoading: false,
+  error: null as Error | null,
   setup: undefined as Record<string, unknown> | undefined,
   onError: undefined as ((e: unknown) => void) | undefined,
 }));
@@ -34,7 +36,7 @@ vi.mock("~/trpc/react", () => ({
   api: {
     dashboard: {
       getSummary: {
-        useQuery: () => ({ data: state.summary, isLoading: state.isLoading }),
+        useQuery: () => ({ data: state.summary, isLoading: state.isLoading, error: state.error, refetch: mockRefetch, isFetching: false }),
       },
     },
     onboarding: { getStatus: { useQuery: () => ({ data: state.setup }) } },
@@ -55,6 +57,8 @@ vi.mock("~/app/(dashboard)/_components/credits-alert-banner", () => ({
 vi.mock("~/app/(dashboard)/_components/assistant-control", () => ({
   AssistantControl: () => <div data-testid="assistant-control" />,
 }));
+vi.mock("./product-metrics", () => ({ ProductMetrics: () => null }));
+
 vi.mock("./handed-off-conversations", () => ({
   HandedOffConversations: () => null,
 }));
@@ -104,6 +108,7 @@ describe("DashboardContent", () => {
     vi.clearAllMocks();
     state.summary = summary();
     state.isLoading = false;
+    state.error = null;
     state.setup = setup();
     state.onError = undefined;
     mockStartLive.mockResolvedValue(undefined);
@@ -234,10 +239,20 @@ describe("DashboardContent", () => {
     });
   });
 
-  it("n'affiche rien tant que le résumé n'est pas arrivé", () => {
+  it("propose de réessayer quand le chargement se termine sans résumé", () => {
     state.summary = undefined;
-    const { container } = renderScreen();
+    renderScreen();
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByRole("alert")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Réessayer" })).toBeVisible();
   });
 });
+
+ it("affiche une erreur et permet de réessayer après un échec initial", async () => {
+   state.summary = undefined;
+   state.error = new Error("Network unavailable");
+   render(<DashboardContent showUpgradeBanner={false} canManageSubscription />);
+   expect(screen.getByRole("alert")).toBeVisible();
+   await userEvent.click(screen.getByRole("button", { name: "Réessayer" }));
+   expect(mockRefetch).toHaveBeenCalledOnce();
+ });

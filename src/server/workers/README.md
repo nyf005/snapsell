@@ -125,15 +125,14 @@ writeToOutbox()                  → INSERT messages_out (status = 'pending')
 
 ### Rôle du worker Railway
 
-Publier, rien de plus. D'où les variables `QSTASH_TOKEN` **et** `NEXT_PUBLIC_APP_URL` sur le service Railway.
+Publier et reprendre les publications en échec. D'où les variables `QSTASH_TOKEN` **et** `NEXT_PUBLIC_APP_URL` sur le service Railway.
 
-### ⚠️ Code résiduel: `startOutboxSenderWorker()`
+### Consommateur local : `startOutboxSenderWorker()`
 
-`startOutboxSenderWorker()` et la queue pg-boss `outbox-send` existent encore comme fallback de développement local, **mais `scripts/start-worker.ts` ne les démarre jamais** : cette queue n'a aucun consommateur.
-
-Depuis le 2026-07-28, la bascule n'est plus silencieuse :
-- **en production**, l'absence de `QSTASH_TOKEN` ou `NEXT_PUBLIC_APP_URL` lève une erreur explicite nommant la variable manquante, journalisée en `error` (le `MessageOut` reste en `pending` mais l'incident est visible) ;
-- **en développement**, un `warn` explicite rappelle que le message ne partira pas.
+`startOutboxSenderWorker()` consomme la queue locale `outbox-send` hors production
+lorsque QStash n’est pas configuré. En production, les messages restent persistés et
+la tâche `cron-outbox-recovery` retente leur publication chaque minute. Le heartbeat
+est écrit à la fin de cette tâche ; `/api/healthz` détecte son absence après trois minutes.
 
 En local, soit configurer QStash + un tunnel public, soit accepter que les messages sortants ne partent pas.
 

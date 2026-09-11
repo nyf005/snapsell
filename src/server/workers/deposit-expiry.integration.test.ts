@@ -117,7 +117,7 @@ describe.skipIf(!shouldRun)("runDepositExpiryJob — base réelle", () => {
         tenantId,
         liveSessionId,
         liveItemId,
-        clientPhone: "+2250701020304",
+        clientPhone: `+2250701${String(seq).padStart(6, "0")}`,
         quantity: 1,
         status: "confirmed",
         correlationId: `corr-${seq}`,
@@ -146,7 +146,7 @@ describe.skipIf(!shouldRun)("runDepositExpiryJob — base réelle", () => {
     expect(after.status).toBe("cancelled");
     expect(after.depositStatus).toBe("deposit_rejected");
     expect(mockWriteToOutbox).toHaveBeenCalledWith(
-      expect.objectContaining({ tenantId, to: "+2250701020304" }),
+      expect.objectContaining({ tenantId, to: "+2250701000001" }),
     );
   });
 

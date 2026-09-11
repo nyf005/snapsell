@@ -1,10 +1,11 @@
+import { getProductMetrics } from "~/server/analytics/product-metrics";
 /**
  * Story 6.6: Résumé tableau de bord — agrégation des counts (preuves, commandes, session live).
  * Isolation tenant: tenantId depuis ctx.session.user.tenantId.
  */
 
 import { db } from "~/server/db";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, managerProcedure } from "~/server/api/trpc";
 import { canManageGrid } from "~/lib/rbac";
 import { dashboardSummaryOutputSchema } from "./dashboard.schema";
 import { getCurrentSessionReadOnly } from "~/server/live-session/service";
@@ -45,6 +46,7 @@ export function getLast7DaysRanges(now: Date = new Date()): { date: string; from
 }
 
 export const dashboardRouter = createTRPCRouter({
+  getProductMetrics: managerProcedure.query(({ ctx }) => getProductMetrics(ctx.tenantId)),
   /**
    * `protectedProcedure` et non `managerProcedure` : les AGENT ont
    * `/dashboard` pour page d'accueil, et un `managerProcedure` leur renvoyait

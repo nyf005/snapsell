@@ -38,6 +38,7 @@ import { SetupChecklist } from "~/app/(dashboard)/_components/setup-checklist";
 import { CreditsAlertBanner } from "~/app/(dashboard)/_components/credits-alert-banner";
 import { AssistantControl } from "~/app/(dashboard)/_components/assistant-control";
 import { formatError, formatRelativeDate, formatXof, formatXofUnits, type UserError } from "~/lib/copy";
+import { ProductMetrics } from "./product-metrics";
 import { HandedOffConversations } from "./handed-off-conversations";
 import { ErrorAlert } from "~/components/ui/error-alert";
 import { cn } from "~/lib/utils";
@@ -87,7 +88,7 @@ export function DashboardContent({
   canManageSubscription: boolean;
 }) {
   const router = useRouter();
-  const { data: summary, isLoading } = api.dashboard.getSummary.useQuery(
+  const { data: summary, isLoading, error: summaryError, refetch, isFetching } = api.dashboard.getSummary.useQuery(
     undefined,
     { refetchInterval: POLL_INTERVAL_MS }
   );
@@ -107,9 +108,15 @@ export function DashboardContent({
     return <DashboardLoadingState />;
   }
 
-  if (!summary) {
-    return null;
-  }
+  const summaryFailure = (
+    <div className="space-y-3">
+      <ErrorAlert error={summaryError ?? { title: "Votre activité est indisponible", detail: "Réessayez pour retrouver vos commandes et vos actions du jour." }} />
+      <Button variant="outline" disabled={isFetching} onClick={() => { void refetch(); }}>
+        {isFetching ? "Actualisation…" : "Réessayer"}
+      </Button>
+    </div>
+  );
+  if (!summary) return summaryFailure;
 
   // Sans connexion WhatsApp, les nouveaux messages n'arrivent plus et l'activité
   // courante n'est pas mise en avant. Le travail déjà créé reste toutefois traité
@@ -150,6 +157,7 @@ export function DashboardContent({
 
   return (
     <div className="space-y-8">
+      {summaryError && summaryFailure}
       {/* Sur mobile, c'est le seul endroit où le solde est visible. */}
       <CreditsAlertBanner canManageSubscription={canManageSubscription} />
       <AssistantControl canManage={canManageSubscription} />
@@ -321,6 +329,7 @@ export function DashboardContent({
 
       {/* Section: Activité — masquée tant que WhatsApp n'est pas connecté :
           sans messages entrants, tous ces chiffres valent zéro. */}
+      {canManageSubscription && <ProductMetrics />}
       {!setupBlocking && (
       <section aria-labelledby="activite-heading">
         <h2

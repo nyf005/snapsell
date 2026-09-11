@@ -10,6 +10,8 @@ let lastAdapterArgs: { phoneNumberId: string; accessToken: string } | null = nul
 vi.mock("~/server/db", () => ({
   db: {
     messageOut: {
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+      findUnique: vi.fn(),
       get update() {
         return mockMessageOutUpdate;
       },
@@ -224,6 +226,8 @@ describe("outbox-sender worker", () => {
         where: { id: messageOut.id },
         data: {
           status: "sent",
+          sentAt: expect.any(Date),
+          lastError: null,
           providerMessageId: "wamid.abc123",
           updatedAt: expect.any(Date),
         },

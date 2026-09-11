@@ -29,7 +29,7 @@ const ALLOWED = [
   "src/app/(ops)/",
   // Calcule l'heure locale dans un fuseau pour le message d'absence : ce n'est
   // pas du formatage d'affichage, et aucun helper partagé ne le remplace.
-  "src/server/workers/webhook-processor.ts",
+  "src/server/conversation/inbound-intents.ts",
 ];
 
 function walk(dir: string, acc: string[] = []): string[] {

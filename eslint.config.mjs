@@ -19,6 +19,17 @@ export default defineConfig([
       "react/no-unescaped-entities": "off",
     },
   },
+  {
+    files: [
+      "src/server/messaging/outbox*.ts", "src/server/workers/{outbox-recovery,health,shutdown,seller-message}.ts",
+      "src/server/conversation/inbound-intents.ts", "src/server/analytics/*.ts",
+    ],
+    ignores: ["**/*.test.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }],
+    },
+  },
   globalIgnores([
     ".next/**",
     "next-env.d.ts",

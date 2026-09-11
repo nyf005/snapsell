@@ -144,6 +144,7 @@ model Tenant {
   liveItems            LiveItem[]
   catalogueItems       CatalogueItem[]
   conversationWindows  ConversationWindow[]
+  conversationMetrics  ConversationMetric[]
   reservations         Reservation[]
   waitlists            Waitlist[]
   orders               Order[]
@@ -708,6 +709,11 @@ model MessageOut {
   isTypingIndicator  Boolean   @default(false) @map("is_typing_indicator") // Story 11.2
   status             String // pending | sending | sent | failed | blocked (STOP) | suppressed (assistant en pause)
   attempts           Int       @default(0)
+  purpose            String? // order_confirmation pour mesurer le premier succès
+  publishedAt        DateTime? @map("published_at")
+  publishLeaseUntil  DateTime? @map("publish_lease_until")
+  sendLeaseUntil     DateTime? @map("send_lease_until")
+  sentAt             DateTime? @map("sent_at")
   nextAttemptAt      DateTime? @map("next_attempt_at")
   lastError          String?   @map("last_error") @db.Text
   correlationId      String    @map("correlation_id") // UUID ou message_sid pour traçabilité
@@ -719,6 +725,7 @@ model MessageOut {
   @@index([tenantId, status]) // Lookup rapide des messages pending
   @@index([tenantId, correlationId]) // Traçabilité par correlationId
   @@index([tenantId])
+  @@index([status, publishedAt, createdAt])
   @@map("messages_out")
 }
 
@@ -744,4 +751,24 @@ model SubscriptionPayment {
   @@index([tenantId])
   @@index([tenantId, type, status])
   @@map("subscription_payments")
+}
+
+// Signal de vie actualisé par une tâche consommée sur le worker.
+model WorkerHeartbeat {
+  name       String   @id
+  lastSeenAt DateTime @map("last_seen_at")
+
+  @@map("worker_heartbeats")
+}
+
+// Mesure sans numéro de téléphone, conservée après expiration de la fenêtre de crédits.
+model ConversationMetric {
+  id        String   @id
+  tenantId  String   @map("tenant_id")
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  startedAt DateTime @default(now()) @map("started_at")
+  handedOff Boolean  @default(false) @map("handed_off")
+
+  @@index([tenantId, startedAt])
+  @@map("conversation_metrics")
 }

@@ -153,6 +153,16 @@ export type MessageOut = $Result.DefaultSelection<Prisma.$MessageOutPayload>
  * 
  */
 export type SubscriptionPayment = $Result.DefaultSelection<Prisma.$SubscriptionPaymentPayload>
+/**
+ * Model WorkerHeartbeat
+ * 
+ */
+export type WorkerHeartbeat = $Result.DefaultSelection<Prisma.$WorkerHeartbeatPayload>
+/**
+ * Model ConversationMetric
+ * 
+ */
+export type ConversationMetric = $Result.DefaultSelection<Prisma.$ConversationMetricPayload>
 
 /**
  * Enums
@@ -655,6 +665,26 @@ export class PrismaClient<
     * ```
     */
   get subscriptionPayment(): Prisma.SubscriptionPaymentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.workerHeartbeat`: Exposes CRUD operations for the **WorkerHeartbeat** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WorkerHeartbeats
+    * const workerHeartbeats = await prisma.workerHeartbeat.findMany()
+    * ```
+    */
+  get workerHeartbeat(): Prisma.WorkerHeartbeatDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.conversationMetric`: Exposes CRUD operations for the **ConversationMetric** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ConversationMetrics
+    * const conversationMetrics = await prisma.conversationMetric.findMany()
+    * ```
+    */
+  get conversationMetric(): Prisma.ConversationMetricDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -705,8 +735,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 7.9.1
-   * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
+   * Prisma Client JS version: 7.10.0
+   * Query Engine version: 0edf323efd1d98336f3f0a68684b56f689b900d3
    */
   export type PrismaVersion = {
     client: string
@@ -1129,7 +1159,9 @@ export namespace Prisma {
     Waitlist: 'Waitlist',
     DeadLetterJob: 'DeadLetterJob',
     MessageOut: 'MessageOut',
-    SubscriptionPayment: 'SubscriptionPayment'
+    SubscriptionPayment: 'SubscriptionPayment',
+    WorkerHeartbeat: 'WorkerHeartbeat',
+    ConversationMetric: 'ConversationMetric'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1145,7 +1177,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "whatsAppContact" | "sellerPhone" | "eventLog" | "optOut" | "liveSession" | "liveItem" | "catalogueItem" | "itemVariant" | "reservation" | "conversationState" | "conversationWindow" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "messageOut" | "subscriptionPayment"
+      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "whatsAppContact" | "sellerPhone" | "eventLog" | "optOut" | "liveSession" | "liveItem" | "catalogueItem" | "itemVariant" | "reservation" | "conversationState" | "conversationWindow" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "messageOut" | "subscriptionPayment" | "workerHeartbeat" | "conversationMetric"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3221,6 +3253,154 @@ export namespace Prisma {
           }
         }
       }
+      WorkerHeartbeat: {
+        payload: Prisma.$WorkerHeartbeatPayload<ExtArgs>
+        fields: Prisma.WorkerHeartbeatFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WorkerHeartbeatFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkerHeartbeatPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WorkerHeartbeatFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkerHeartbeatPayload>
+          }
+          findFirst: {
+            args: Prisma.WorkerHeartbeatFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkerHeartbeatPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WorkerHeartbeatFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkerHeartbeatPayload>
+          }
+          findMany: {
+            args: Prisma.WorkerHeartbeatFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkerHeartbeatPayload>[]
+          }
+          create: {
+            args: Prisma.WorkerHeartbeatCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkerHeartbeatPayload>
+          }
+          createMany: {
+            args: Prisma.WorkerHeartbeatCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WorkerHeartbeatCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkerHeartbeatPayload>[]
+          }
+          delete: {
+            args: Prisma.WorkerHeartbeatDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkerHeartbeatPayload>
+          }
+          update: {
+            args: Prisma.WorkerHeartbeatUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkerHeartbeatPayload>
+          }
+          deleteMany: {
+            args: Prisma.WorkerHeartbeatDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WorkerHeartbeatUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WorkerHeartbeatUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkerHeartbeatPayload>[]
+          }
+          upsert: {
+            args: Prisma.WorkerHeartbeatUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkerHeartbeatPayload>
+          }
+          aggregate: {
+            args: Prisma.WorkerHeartbeatAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWorkerHeartbeat>
+          }
+          groupBy: {
+            args: Prisma.WorkerHeartbeatGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WorkerHeartbeatGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WorkerHeartbeatCountArgs<ExtArgs>
+            result: $Utils.Optional<WorkerHeartbeatCountAggregateOutputType> | number
+          }
+        }
+      }
+      ConversationMetric: {
+        payload: Prisma.$ConversationMetricPayload<ExtArgs>
+        fields: Prisma.ConversationMetricFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ConversationMetricFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationMetricPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ConversationMetricFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationMetricPayload>
+          }
+          findFirst: {
+            args: Prisma.ConversationMetricFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationMetricPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ConversationMetricFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationMetricPayload>
+          }
+          findMany: {
+            args: Prisma.ConversationMetricFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationMetricPayload>[]
+          }
+          create: {
+            args: Prisma.ConversationMetricCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationMetricPayload>
+          }
+          createMany: {
+            args: Prisma.ConversationMetricCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ConversationMetricCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationMetricPayload>[]
+          }
+          delete: {
+            args: Prisma.ConversationMetricDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationMetricPayload>
+          }
+          update: {
+            args: Prisma.ConversationMetricUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationMetricPayload>
+          }
+          deleteMany: {
+            args: Prisma.ConversationMetricDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ConversationMetricUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ConversationMetricUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationMetricPayload>[]
+          }
+          upsert: {
+            args: Prisma.ConversationMetricUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationMetricPayload>
+          }
+          aggregate: {
+            args: Prisma.ConversationMetricAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConversationMetric>
+          }
+          groupBy: {
+            args: Prisma.ConversationMetricGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConversationMetricGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ConversationMetricCountArgs<ExtArgs>
+            result: $Utils.Optional<ConversationMetricCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3372,6 +3552,8 @@ export namespace Prisma {
     deadLetterJob?: DeadLetterJobOmit
     messageOut?: MessageOutOmit
     subscriptionPayment?: SubscriptionPaymentOmit
+    workerHeartbeat?: WorkerHeartbeatOmit
+    conversationMetric?: ConversationMetricOmit
   }
 
   /* Types for Logging */
@@ -3469,6 +3651,7 @@ export namespace Prisma {
     liveItems: number
     catalogueItems: number
     conversationWindows: number
+    conversationMetrics: number
     reservations: number
     waitlists: number
     orders: number
@@ -3495,6 +3678,7 @@ export namespace Prisma {
     liveItems?: boolean | TenantCountOutputTypeCountLiveItemsArgs
     catalogueItems?: boolean | TenantCountOutputTypeCountCatalogueItemsArgs
     conversationWindows?: boolean | TenantCountOutputTypeCountConversationWindowsArgs
+    conversationMetrics?: boolean | TenantCountOutputTypeCountConversationMetricsArgs
     reservations?: boolean | TenantCountOutputTypeCountReservationsArgs
     waitlists?: boolean | TenantCountOutputTypeCountWaitlistsArgs
     orders?: boolean | TenantCountOutputTypeCountOrdersArgs
@@ -3631,6 +3815,13 @@ export namespace Prisma {
    */
   export type TenantCountOutputTypeCountConversationWindowsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ConversationWindowWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountConversationMetricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConversationMetricWhereInput
   }
 
   /**
@@ -4593,6 +4784,7 @@ export namespace Prisma {
     liveItems?: boolean | Tenant$liveItemsArgs<ExtArgs>
     catalogueItems?: boolean | Tenant$catalogueItemsArgs<ExtArgs>
     conversationWindows?: boolean | Tenant$conversationWindowsArgs<ExtArgs>
+    conversationMetrics?: boolean | Tenant$conversationMetricsArgs<ExtArgs>
     reservations?: boolean | Tenant$reservationsArgs<ExtArgs>
     waitlists?: boolean | Tenant$waitlistsArgs<ExtArgs>
     orders?: boolean | Tenant$ordersArgs<ExtArgs>
@@ -4798,6 +4990,7 @@ export namespace Prisma {
     liveItems?: boolean | Tenant$liveItemsArgs<ExtArgs>
     catalogueItems?: boolean | Tenant$catalogueItemsArgs<ExtArgs>
     conversationWindows?: boolean | Tenant$conversationWindowsArgs<ExtArgs>
+    conversationMetrics?: boolean | Tenant$conversationMetricsArgs<ExtArgs>
     reservations?: boolean | Tenant$reservationsArgs<ExtArgs>
     waitlists?: boolean | Tenant$waitlistsArgs<ExtArgs>
     orders?: boolean | Tenant$ordersArgs<ExtArgs>
@@ -4829,6 +5022,7 @@ export namespace Prisma {
       liveItems: Prisma.$LiveItemPayload<ExtArgs>[]
       catalogueItems: Prisma.$CatalogueItemPayload<ExtArgs>[]
       conversationWindows: Prisma.$ConversationWindowPayload<ExtArgs>[]
+      conversationMetrics: Prisma.$ConversationMetricPayload<ExtArgs>[]
       reservations: Prisma.$ReservationPayload<ExtArgs>[]
       waitlists: Prisma.$WaitlistPayload<ExtArgs>[]
       orders: Prisma.$OrderPayload<ExtArgs>[]
@@ -5311,6 +5505,7 @@ export namespace Prisma {
     liveItems<T extends Tenant$liveItemsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$liveItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LiveItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     catalogueItems<T extends Tenant$catalogueItemsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$catalogueItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CatalogueItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     conversationWindows<T extends Tenant$conversationWindowsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$conversationWindowsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationWindowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    conversationMetrics<T extends Tenant$conversationMetricsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$conversationMetricsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reservations<T extends Tenant$reservationsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$reservationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReservationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     waitlists<T extends Tenant$waitlistsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$waitlistsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WaitlistPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orders<T extends Tenant$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6200,6 +6395,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ConversationWindowScalarFieldEnum | ConversationWindowScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.conversationMetrics
+   */
+  export type Tenant$conversationMetricsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricInclude<ExtArgs> | null
+    where?: ConversationMetricWhereInput
+    orderBy?: ConversationMetricOrderByWithRelationInput | ConversationMetricOrderByWithRelationInput[]
+    cursor?: ConversationMetricWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ConversationMetricScalarFieldEnum | ConversationMetricScalarFieldEnum[]
   }
 
   /**
@@ -35004,6 +35223,11 @@ export namespace Prisma {
     isTypingIndicator: boolean | null
     status: string | null
     attempts: number | null
+    purpose: string | null
+    publishedAt: Date | null
+    publishLeaseUntil: Date | null
+    sendLeaseUntil: Date | null
+    sentAt: Date | null
     nextAttemptAt: Date | null
     lastError: string | null
     correlationId: string | null
@@ -35021,6 +35245,11 @@ export namespace Prisma {
     isTypingIndicator: boolean | null
     status: string | null
     attempts: number | null
+    purpose: string | null
+    publishedAt: Date | null
+    publishLeaseUntil: Date | null
+    sendLeaseUntil: Date | null
+    sentAt: Date | null
     nextAttemptAt: Date | null
     lastError: string | null
     correlationId: string | null
@@ -35039,6 +35268,11 @@ export namespace Prisma {
     isTypingIndicator: number
     status: number
     attempts: number
+    purpose: number
+    publishedAt: number
+    publishLeaseUntil: number
+    sendLeaseUntil: number
+    sentAt: number
     nextAttemptAt: number
     lastError: number
     correlationId: number
@@ -35066,6 +35300,11 @@ export namespace Prisma {
     isTypingIndicator?: true
     status?: true
     attempts?: true
+    purpose?: true
+    publishedAt?: true
+    publishLeaseUntil?: true
+    sendLeaseUntil?: true
+    sentAt?: true
     nextAttemptAt?: true
     lastError?: true
     correlationId?: true
@@ -35083,6 +35322,11 @@ export namespace Prisma {
     isTypingIndicator?: true
     status?: true
     attempts?: true
+    purpose?: true
+    publishedAt?: true
+    publishLeaseUntil?: true
+    sendLeaseUntil?: true
+    sentAt?: true
     nextAttemptAt?: true
     lastError?: true
     correlationId?: true
@@ -35101,6 +35345,11 @@ export namespace Prisma {
     isTypingIndicator?: true
     status?: true
     attempts?: true
+    purpose?: true
+    publishedAt?: true
+    publishLeaseUntil?: true
+    sendLeaseUntil?: true
+    sentAt?: true
     nextAttemptAt?: true
     lastError?: true
     correlationId?: true
@@ -35206,6 +35455,11 @@ export namespace Prisma {
     isTypingIndicator: boolean
     status: string
     attempts: number
+    purpose: string | null
+    publishedAt: Date | null
+    publishLeaseUntil: Date | null
+    sendLeaseUntil: Date | null
+    sentAt: Date | null
     nextAttemptAt: Date | null
     lastError: string | null
     correlationId: string
@@ -35243,6 +35497,11 @@ export namespace Prisma {
     isTypingIndicator?: boolean
     status?: boolean
     attempts?: boolean
+    purpose?: boolean
+    publishedAt?: boolean
+    publishLeaseUntil?: boolean
+    sendLeaseUntil?: boolean
+    sentAt?: boolean
     nextAttemptAt?: boolean
     lastError?: boolean
     correlationId?: boolean
@@ -35262,6 +35521,11 @@ export namespace Prisma {
     isTypingIndicator?: boolean
     status?: boolean
     attempts?: boolean
+    purpose?: boolean
+    publishedAt?: boolean
+    publishLeaseUntil?: boolean
+    sendLeaseUntil?: boolean
+    sentAt?: boolean
     nextAttemptAt?: boolean
     lastError?: boolean
     correlationId?: boolean
@@ -35281,6 +35545,11 @@ export namespace Prisma {
     isTypingIndicator?: boolean
     status?: boolean
     attempts?: boolean
+    purpose?: boolean
+    publishedAt?: boolean
+    publishLeaseUntil?: boolean
+    sendLeaseUntil?: boolean
+    sentAt?: boolean
     nextAttemptAt?: boolean
     lastError?: boolean
     correlationId?: boolean
@@ -35300,6 +35569,11 @@ export namespace Prisma {
     isTypingIndicator?: boolean
     status?: boolean
     attempts?: boolean
+    purpose?: boolean
+    publishedAt?: boolean
+    publishLeaseUntil?: boolean
+    sendLeaseUntil?: boolean
+    sentAt?: boolean
     nextAttemptAt?: boolean
     lastError?: boolean
     correlationId?: boolean
@@ -35308,7 +35582,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type MessageOutOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "to" | "body" | "mediaUrl" | "interactivePayload" | "isTypingIndicator" | "status" | "attempts" | "nextAttemptAt" | "lastError" | "correlationId" | "providerMessageId" | "createdAt" | "updatedAt", ExtArgs["result"]["messageOut"]>
+  export type MessageOutOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "to" | "body" | "mediaUrl" | "interactivePayload" | "isTypingIndicator" | "status" | "attempts" | "purpose" | "publishedAt" | "publishLeaseUntil" | "sendLeaseUntil" | "sentAt" | "nextAttemptAt" | "lastError" | "correlationId" | "providerMessageId" | "createdAt" | "updatedAt", ExtArgs["result"]["messageOut"]>
   export type MessageOutInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
   }
@@ -35334,6 +35608,11 @@ export namespace Prisma {
       isTypingIndicator: boolean
       status: string
       attempts: number
+      purpose: string | null
+      publishedAt: Date | null
+      publishLeaseUntil: Date | null
+      sendLeaseUntil: Date | null
+      sentAt: Date | null
       nextAttemptAt: Date | null
       lastError: string | null
       correlationId: string
@@ -35773,6 +36052,11 @@ export namespace Prisma {
     readonly isTypingIndicator: FieldRef<"MessageOut", 'Boolean'>
     readonly status: FieldRef<"MessageOut", 'String'>
     readonly attempts: FieldRef<"MessageOut", 'Int'>
+    readonly purpose: FieldRef<"MessageOut", 'String'>
+    readonly publishedAt: FieldRef<"MessageOut", 'DateTime'>
+    readonly publishLeaseUntil: FieldRef<"MessageOut", 'DateTime'>
+    readonly sendLeaseUntil: FieldRef<"MessageOut", 'DateTime'>
+    readonly sentAt: FieldRef<"MessageOut", 'DateTime'>
     readonly nextAttemptAt: FieldRef<"MessageOut", 'DateTime'>
     readonly lastError: FieldRef<"MessageOut", 'String'>
     readonly correlationId: FieldRef<"MessageOut", 'String'>
@@ -37405,6 +37689,2017 @@ export namespace Prisma {
 
 
   /**
+   * Model WorkerHeartbeat
+   */
+
+  export type AggregateWorkerHeartbeat = {
+    _count: WorkerHeartbeatCountAggregateOutputType | null
+    _min: WorkerHeartbeatMinAggregateOutputType | null
+    _max: WorkerHeartbeatMaxAggregateOutputType | null
+  }
+
+  export type WorkerHeartbeatMinAggregateOutputType = {
+    name: string | null
+    lastSeenAt: Date | null
+  }
+
+  export type WorkerHeartbeatMaxAggregateOutputType = {
+    name: string | null
+    lastSeenAt: Date | null
+  }
+
+  export type WorkerHeartbeatCountAggregateOutputType = {
+    name: number
+    lastSeenAt: number
+    _all: number
+  }
+
+
+  export type WorkerHeartbeatMinAggregateInputType = {
+    name?: true
+    lastSeenAt?: true
+  }
+
+  export type WorkerHeartbeatMaxAggregateInputType = {
+    name?: true
+    lastSeenAt?: true
+  }
+
+  export type WorkerHeartbeatCountAggregateInputType = {
+    name?: true
+    lastSeenAt?: true
+    _all?: true
+  }
+
+  export type WorkerHeartbeatAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkerHeartbeat to aggregate.
+     */
+    where?: WorkerHeartbeatWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkerHeartbeats to fetch.
+     */
+    orderBy?: WorkerHeartbeatOrderByWithRelationInput | WorkerHeartbeatOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WorkerHeartbeatWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkerHeartbeats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkerHeartbeats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WorkerHeartbeats
+    **/
+    _count?: true | WorkerHeartbeatCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WorkerHeartbeatMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WorkerHeartbeatMaxAggregateInputType
+  }
+
+  export type GetWorkerHeartbeatAggregateType<T extends WorkerHeartbeatAggregateArgs> = {
+        [P in keyof T & keyof AggregateWorkerHeartbeat]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWorkerHeartbeat[P]>
+      : GetScalarType<T[P], AggregateWorkerHeartbeat[P]>
+  }
+
+
+
+
+  export type WorkerHeartbeatGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkerHeartbeatWhereInput
+    orderBy?: WorkerHeartbeatOrderByWithAggregationInput | WorkerHeartbeatOrderByWithAggregationInput[]
+    by: WorkerHeartbeatScalarFieldEnum[] | WorkerHeartbeatScalarFieldEnum
+    having?: WorkerHeartbeatScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WorkerHeartbeatCountAggregateInputType | true
+    _min?: WorkerHeartbeatMinAggregateInputType
+    _max?: WorkerHeartbeatMaxAggregateInputType
+  }
+
+  export type WorkerHeartbeatGroupByOutputType = {
+    name: string
+    lastSeenAt: Date
+    _count: WorkerHeartbeatCountAggregateOutputType | null
+    _min: WorkerHeartbeatMinAggregateOutputType | null
+    _max: WorkerHeartbeatMaxAggregateOutputType | null
+  }
+
+  type GetWorkerHeartbeatGroupByPayload<T extends WorkerHeartbeatGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WorkerHeartbeatGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WorkerHeartbeatGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WorkerHeartbeatGroupByOutputType[P]>
+            : GetScalarType<T[P], WorkerHeartbeatGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WorkerHeartbeatSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    name?: boolean
+    lastSeenAt?: boolean
+  }, ExtArgs["result"]["workerHeartbeat"]>
+
+  export type WorkerHeartbeatSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    name?: boolean
+    lastSeenAt?: boolean
+  }, ExtArgs["result"]["workerHeartbeat"]>
+
+  export type WorkerHeartbeatSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    name?: boolean
+    lastSeenAt?: boolean
+  }, ExtArgs["result"]["workerHeartbeat"]>
+
+  export type WorkerHeartbeatSelectScalar = {
+    name?: boolean
+    lastSeenAt?: boolean
+  }
+
+  export type WorkerHeartbeatOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"name" | "lastSeenAt", ExtArgs["result"]["workerHeartbeat"]>
+
+  export type $WorkerHeartbeatPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WorkerHeartbeat"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      name: string
+      lastSeenAt: Date
+    }, ExtArgs["result"]["workerHeartbeat"]>
+    composites: {}
+  }
+
+  type WorkerHeartbeatGetPayload<S extends boolean | null | undefined | WorkerHeartbeatDefaultArgs> = $Result.GetResult<Prisma.$WorkerHeartbeatPayload, S>
+
+  type WorkerHeartbeatCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WorkerHeartbeatFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WorkerHeartbeatCountAggregateInputType | true
+    }
+
+  export interface WorkerHeartbeatDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WorkerHeartbeat'], meta: { name: 'WorkerHeartbeat' } }
+    /**
+     * Find zero or one WorkerHeartbeat that matches the filter.
+     * @param {WorkerHeartbeatFindUniqueArgs} args - Arguments to find a WorkerHeartbeat
+     * @example
+     * // Get one WorkerHeartbeat
+     * const workerHeartbeat = await prisma.workerHeartbeat.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WorkerHeartbeatFindUniqueArgs>(args: SelectSubset<T, WorkerHeartbeatFindUniqueArgs<ExtArgs>>): Prisma__WorkerHeartbeatClient<$Result.GetResult<Prisma.$WorkerHeartbeatPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WorkerHeartbeat that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WorkerHeartbeatFindUniqueOrThrowArgs} args - Arguments to find a WorkerHeartbeat
+     * @example
+     * // Get one WorkerHeartbeat
+     * const workerHeartbeat = await prisma.workerHeartbeat.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WorkerHeartbeatFindUniqueOrThrowArgs>(args: SelectSubset<T, WorkerHeartbeatFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WorkerHeartbeatClient<$Result.GetResult<Prisma.$WorkerHeartbeatPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkerHeartbeat that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkerHeartbeatFindFirstArgs} args - Arguments to find a WorkerHeartbeat
+     * @example
+     * // Get one WorkerHeartbeat
+     * const workerHeartbeat = await prisma.workerHeartbeat.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WorkerHeartbeatFindFirstArgs>(args?: SelectSubset<T, WorkerHeartbeatFindFirstArgs<ExtArgs>>): Prisma__WorkerHeartbeatClient<$Result.GetResult<Prisma.$WorkerHeartbeatPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkerHeartbeat that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkerHeartbeatFindFirstOrThrowArgs} args - Arguments to find a WorkerHeartbeat
+     * @example
+     * // Get one WorkerHeartbeat
+     * const workerHeartbeat = await prisma.workerHeartbeat.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WorkerHeartbeatFindFirstOrThrowArgs>(args?: SelectSubset<T, WorkerHeartbeatFindFirstOrThrowArgs<ExtArgs>>): Prisma__WorkerHeartbeatClient<$Result.GetResult<Prisma.$WorkerHeartbeatPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WorkerHeartbeats that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkerHeartbeatFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WorkerHeartbeats
+     * const workerHeartbeats = await prisma.workerHeartbeat.findMany()
+     * 
+     * // Get first 10 WorkerHeartbeats
+     * const workerHeartbeats = await prisma.workerHeartbeat.findMany({ take: 10 })
+     * 
+     * // Only select the `name`
+     * const workerHeartbeatWithNameOnly = await prisma.workerHeartbeat.findMany({ select: { name: true } })
+     * 
+     */
+    findMany<T extends WorkerHeartbeatFindManyArgs>(args?: SelectSubset<T, WorkerHeartbeatFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkerHeartbeatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WorkerHeartbeat.
+     * @param {WorkerHeartbeatCreateArgs} args - Arguments to create a WorkerHeartbeat.
+     * @example
+     * // Create one WorkerHeartbeat
+     * const WorkerHeartbeat = await prisma.workerHeartbeat.create({
+     *   data: {
+     *     // ... data to create a WorkerHeartbeat
+     *   }
+     * })
+     * 
+     */
+    create<T extends WorkerHeartbeatCreateArgs>(args: SelectSubset<T, WorkerHeartbeatCreateArgs<ExtArgs>>): Prisma__WorkerHeartbeatClient<$Result.GetResult<Prisma.$WorkerHeartbeatPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WorkerHeartbeats.
+     * @param {WorkerHeartbeatCreateManyArgs} args - Arguments to create many WorkerHeartbeats.
+     * @example
+     * // Create many WorkerHeartbeats
+     * const workerHeartbeat = await prisma.workerHeartbeat.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WorkerHeartbeatCreateManyArgs>(args?: SelectSubset<T, WorkerHeartbeatCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WorkerHeartbeats and returns the data saved in the database.
+     * @param {WorkerHeartbeatCreateManyAndReturnArgs} args - Arguments to create many WorkerHeartbeats.
+     * @example
+     * // Create many WorkerHeartbeats
+     * const workerHeartbeat = await prisma.workerHeartbeat.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WorkerHeartbeats and only return the `name`
+     * const workerHeartbeatWithNameOnly = await prisma.workerHeartbeat.createManyAndReturn({
+     *   select: { name: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WorkerHeartbeatCreateManyAndReturnArgs>(args?: SelectSubset<T, WorkerHeartbeatCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkerHeartbeatPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WorkerHeartbeat.
+     * @param {WorkerHeartbeatDeleteArgs} args - Arguments to delete one WorkerHeartbeat.
+     * @example
+     * // Delete one WorkerHeartbeat
+     * const WorkerHeartbeat = await prisma.workerHeartbeat.delete({
+     *   where: {
+     *     // ... filter to delete one WorkerHeartbeat
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WorkerHeartbeatDeleteArgs>(args: SelectSubset<T, WorkerHeartbeatDeleteArgs<ExtArgs>>): Prisma__WorkerHeartbeatClient<$Result.GetResult<Prisma.$WorkerHeartbeatPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WorkerHeartbeat.
+     * @param {WorkerHeartbeatUpdateArgs} args - Arguments to update one WorkerHeartbeat.
+     * @example
+     * // Update one WorkerHeartbeat
+     * const workerHeartbeat = await prisma.workerHeartbeat.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WorkerHeartbeatUpdateArgs>(args: SelectSubset<T, WorkerHeartbeatUpdateArgs<ExtArgs>>): Prisma__WorkerHeartbeatClient<$Result.GetResult<Prisma.$WorkerHeartbeatPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WorkerHeartbeats.
+     * @param {WorkerHeartbeatDeleteManyArgs} args - Arguments to filter WorkerHeartbeats to delete.
+     * @example
+     * // Delete a few WorkerHeartbeats
+     * const { count } = await prisma.workerHeartbeat.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WorkerHeartbeatDeleteManyArgs>(args?: SelectSubset<T, WorkerHeartbeatDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkerHeartbeats.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkerHeartbeatUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WorkerHeartbeats
+     * const workerHeartbeat = await prisma.workerHeartbeat.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WorkerHeartbeatUpdateManyArgs>(args: SelectSubset<T, WorkerHeartbeatUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkerHeartbeats and returns the data updated in the database.
+     * @param {WorkerHeartbeatUpdateManyAndReturnArgs} args - Arguments to update many WorkerHeartbeats.
+     * @example
+     * // Update many WorkerHeartbeats
+     * const workerHeartbeat = await prisma.workerHeartbeat.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WorkerHeartbeats and only return the `name`
+     * const workerHeartbeatWithNameOnly = await prisma.workerHeartbeat.updateManyAndReturn({
+     *   select: { name: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WorkerHeartbeatUpdateManyAndReturnArgs>(args: SelectSubset<T, WorkerHeartbeatUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkerHeartbeatPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WorkerHeartbeat.
+     * @param {WorkerHeartbeatUpsertArgs} args - Arguments to update or create a WorkerHeartbeat.
+     * @example
+     * // Update or create a WorkerHeartbeat
+     * const workerHeartbeat = await prisma.workerHeartbeat.upsert({
+     *   create: {
+     *     // ... data to create a WorkerHeartbeat
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WorkerHeartbeat we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WorkerHeartbeatUpsertArgs>(args: SelectSubset<T, WorkerHeartbeatUpsertArgs<ExtArgs>>): Prisma__WorkerHeartbeatClient<$Result.GetResult<Prisma.$WorkerHeartbeatPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WorkerHeartbeats.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkerHeartbeatCountArgs} args - Arguments to filter WorkerHeartbeats to count.
+     * @example
+     * // Count the number of WorkerHeartbeats
+     * const count = await prisma.workerHeartbeat.count({
+     *   where: {
+     *     // ... the filter for the WorkerHeartbeats we want to count
+     *   }
+     * })
+    **/
+    count<T extends WorkerHeartbeatCountArgs>(
+      args?: Subset<T, WorkerHeartbeatCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WorkerHeartbeatCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WorkerHeartbeat.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkerHeartbeatAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WorkerHeartbeatAggregateArgs>(args: Subset<T, WorkerHeartbeatAggregateArgs>): Prisma.PrismaPromise<GetWorkerHeartbeatAggregateType<T>>
+
+    /**
+     * Group by WorkerHeartbeat.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkerHeartbeatGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WorkerHeartbeatGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WorkerHeartbeatGroupByArgs['orderBy'] }
+        : { orderBy?: WorkerHeartbeatGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WorkerHeartbeatGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWorkerHeartbeatGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WorkerHeartbeat model
+   */
+  readonly fields: WorkerHeartbeatFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WorkerHeartbeat.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WorkerHeartbeatClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WorkerHeartbeat model
+   */
+  interface WorkerHeartbeatFieldRefs {
+    readonly name: FieldRef<"WorkerHeartbeat", 'String'>
+    readonly lastSeenAt: FieldRef<"WorkerHeartbeat", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WorkerHeartbeat findUnique
+   */
+  export type WorkerHeartbeatFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkerHeartbeat to fetch.
+     */
+    where: WorkerHeartbeatWhereUniqueInput
+  }
+
+  /**
+   * WorkerHeartbeat findUniqueOrThrow
+   */
+  export type WorkerHeartbeatFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkerHeartbeat to fetch.
+     */
+    where: WorkerHeartbeatWhereUniqueInput
+  }
+
+  /**
+   * WorkerHeartbeat findFirst
+   */
+  export type WorkerHeartbeatFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkerHeartbeat to fetch.
+     */
+    where?: WorkerHeartbeatWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkerHeartbeats to fetch.
+     */
+    orderBy?: WorkerHeartbeatOrderByWithRelationInput | WorkerHeartbeatOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkerHeartbeats.
+     */
+    cursor?: WorkerHeartbeatWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkerHeartbeats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkerHeartbeats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkerHeartbeats.
+     */
+    distinct?: WorkerHeartbeatScalarFieldEnum | WorkerHeartbeatScalarFieldEnum[]
+  }
+
+  /**
+   * WorkerHeartbeat findFirstOrThrow
+   */
+  export type WorkerHeartbeatFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkerHeartbeat to fetch.
+     */
+    where?: WorkerHeartbeatWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkerHeartbeats to fetch.
+     */
+    orderBy?: WorkerHeartbeatOrderByWithRelationInput | WorkerHeartbeatOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkerHeartbeats.
+     */
+    cursor?: WorkerHeartbeatWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkerHeartbeats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkerHeartbeats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkerHeartbeats.
+     */
+    distinct?: WorkerHeartbeatScalarFieldEnum | WorkerHeartbeatScalarFieldEnum[]
+  }
+
+  /**
+   * WorkerHeartbeat findMany
+   */
+  export type WorkerHeartbeatFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkerHeartbeats to fetch.
+     */
+    where?: WorkerHeartbeatWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkerHeartbeats to fetch.
+     */
+    orderBy?: WorkerHeartbeatOrderByWithRelationInput | WorkerHeartbeatOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WorkerHeartbeats.
+     */
+    cursor?: WorkerHeartbeatWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkerHeartbeats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkerHeartbeats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkerHeartbeats.
+     */
+    distinct?: WorkerHeartbeatScalarFieldEnum | WorkerHeartbeatScalarFieldEnum[]
+  }
+
+  /**
+   * WorkerHeartbeat create
+   */
+  export type WorkerHeartbeatCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+    /**
+     * The data needed to create a WorkerHeartbeat.
+     */
+    data: XOR<WorkerHeartbeatCreateInput, WorkerHeartbeatUncheckedCreateInput>
+  }
+
+  /**
+   * WorkerHeartbeat createMany
+   */
+  export type WorkerHeartbeatCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WorkerHeartbeats.
+     */
+    data: WorkerHeartbeatCreateManyInput | WorkerHeartbeatCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WorkerHeartbeat createManyAndReturn
+   */
+  export type WorkerHeartbeatCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+    /**
+     * The data used to create many WorkerHeartbeats.
+     */
+    data: WorkerHeartbeatCreateManyInput | WorkerHeartbeatCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WorkerHeartbeat update
+   */
+  export type WorkerHeartbeatUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+    /**
+     * The data needed to update a WorkerHeartbeat.
+     */
+    data: XOR<WorkerHeartbeatUpdateInput, WorkerHeartbeatUncheckedUpdateInput>
+    /**
+     * Choose, which WorkerHeartbeat to update.
+     */
+    where: WorkerHeartbeatWhereUniqueInput
+  }
+
+  /**
+   * WorkerHeartbeat updateMany
+   */
+  export type WorkerHeartbeatUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WorkerHeartbeats.
+     */
+    data: XOR<WorkerHeartbeatUpdateManyMutationInput, WorkerHeartbeatUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkerHeartbeats to update
+     */
+    where?: WorkerHeartbeatWhereInput
+    /**
+     * Limit how many WorkerHeartbeats to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkerHeartbeat updateManyAndReturn
+   */
+  export type WorkerHeartbeatUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+    /**
+     * The data used to update WorkerHeartbeats.
+     */
+    data: XOR<WorkerHeartbeatUpdateManyMutationInput, WorkerHeartbeatUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkerHeartbeats to update
+     */
+    where?: WorkerHeartbeatWhereInput
+    /**
+     * Limit how many WorkerHeartbeats to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkerHeartbeat upsert
+   */
+  export type WorkerHeartbeatUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+    /**
+     * The filter to search for the WorkerHeartbeat to update in case it exists.
+     */
+    where: WorkerHeartbeatWhereUniqueInput
+    /**
+     * In case the WorkerHeartbeat found by the `where` argument doesn't exist, create a new WorkerHeartbeat with this data.
+     */
+    create: XOR<WorkerHeartbeatCreateInput, WorkerHeartbeatUncheckedCreateInput>
+    /**
+     * In case the WorkerHeartbeat was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WorkerHeartbeatUpdateInput, WorkerHeartbeatUncheckedUpdateInput>
+  }
+
+  /**
+   * WorkerHeartbeat delete
+   */
+  export type WorkerHeartbeatDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+    /**
+     * Filter which WorkerHeartbeat to delete.
+     */
+    where: WorkerHeartbeatWhereUniqueInput
+  }
+
+  /**
+   * WorkerHeartbeat deleteMany
+   */
+  export type WorkerHeartbeatDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkerHeartbeats to delete
+     */
+    where?: WorkerHeartbeatWhereInput
+    /**
+     * Limit how many WorkerHeartbeats to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkerHeartbeat without action
+   */
+  export type WorkerHeartbeatDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkerHeartbeat
+     */
+    select?: WorkerHeartbeatSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkerHeartbeat
+     */
+    omit?: WorkerHeartbeatOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ConversationMetric
+   */
+
+  export type AggregateConversationMetric = {
+    _count: ConversationMetricCountAggregateOutputType | null
+    _min: ConversationMetricMinAggregateOutputType | null
+    _max: ConversationMetricMaxAggregateOutputType | null
+  }
+
+  export type ConversationMetricMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    startedAt: Date | null
+    handedOff: boolean | null
+  }
+
+  export type ConversationMetricMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    startedAt: Date | null
+    handedOff: boolean | null
+  }
+
+  export type ConversationMetricCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    startedAt: number
+    handedOff: number
+    _all: number
+  }
+
+
+  export type ConversationMetricMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    startedAt?: true
+    handedOff?: true
+  }
+
+  export type ConversationMetricMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    startedAt?: true
+    handedOff?: true
+  }
+
+  export type ConversationMetricCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    startedAt?: true
+    handedOff?: true
+    _all?: true
+  }
+
+  export type ConversationMetricAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversationMetric to aggregate.
+     */
+    where?: ConversationMetricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationMetrics to fetch.
+     */
+    orderBy?: ConversationMetricOrderByWithRelationInput | ConversationMetricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ConversationMetricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ConversationMetrics
+    **/
+    _count?: true | ConversationMetricCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ConversationMetricMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ConversationMetricMaxAggregateInputType
+  }
+
+  export type GetConversationMetricAggregateType<T extends ConversationMetricAggregateArgs> = {
+        [P in keyof T & keyof AggregateConversationMetric]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateConversationMetric[P]>
+      : GetScalarType<T[P], AggregateConversationMetric[P]>
+  }
+
+
+
+
+  export type ConversationMetricGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConversationMetricWhereInput
+    orderBy?: ConversationMetricOrderByWithAggregationInput | ConversationMetricOrderByWithAggregationInput[]
+    by: ConversationMetricScalarFieldEnum[] | ConversationMetricScalarFieldEnum
+    having?: ConversationMetricScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ConversationMetricCountAggregateInputType | true
+    _min?: ConversationMetricMinAggregateInputType
+    _max?: ConversationMetricMaxAggregateInputType
+  }
+
+  export type ConversationMetricGroupByOutputType = {
+    id: string
+    tenantId: string
+    startedAt: Date
+    handedOff: boolean
+    _count: ConversationMetricCountAggregateOutputType | null
+    _min: ConversationMetricMinAggregateOutputType | null
+    _max: ConversationMetricMaxAggregateOutputType | null
+  }
+
+  type GetConversationMetricGroupByPayload<T extends ConversationMetricGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ConversationMetricGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ConversationMetricGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ConversationMetricGroupByOutputType[P]>
+            : GetScalarType<T[P], ConversationMetricGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ConversationMetricSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    startedAt?: boolean
+    handedOff?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationMetric"]>
+
+  export type ConversationMetricSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    startedAt?: boolean
+    handedOff?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationMetric"]>
+
+  export type ConversationMetricSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    startedAt?: boolean
+    handedOff?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationMetric"]>
+
+  export type ConversationMetricSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    startedAt?: boolean
+    handedOff?: boolean
+  }
+
+  export type ConversationMetricOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "startedAt" | "handedOff", ExtArgs["result"]["conversationMetric"]>
+  export type ConversationMetricInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type ConversationMetricIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type ConversationMetricIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+
+  export type $ConversationMetricPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConversationMetric"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      startedAt: Date
+      handedOff: boolean
+    }, ExtArgs["result"]["conversationMetric"]>
+    composites: {}
+  }
+
+  type ConversationMetricGetPayload<S extends boolean | null | undefined | ConversationMetricDefaultArgs> = $Result.GetResult<Prisma.$ConversationMetricPayload, S>
+
+  type ConversationMetricCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ConversationMetricFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ConversationMetricCountAggregateInputType | true
+    }
+
+  export interface ConversationMetricDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConversationMetric'], meta: { name: 'ConversationMetric' } }
+    /**
+     * Find zero or one ConversationMetric that matches the filter.
+     * @param {ConversationMetricFindUniqueArgs} args - Arguments to find a ConversationMetric
+     * @example
+     * // Get one ConversationMetric
+     * const conversationMetric = await prisma.conversationMetric.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ConversationMetricFindUniqueArgs>(args: SelectSubset<T, ConversationMetricFindUniqueArgs<ExtArgs>>): Prisma__ConversationMetricClient<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ConversationMetric that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ConversationMetricFindUniqueOrThrowArgs} args - Arguments to find a ConversationMetric
+     * @example
+     * // Get one ConversationMetric
+     * const conversationMetric = await prisma.conversationMetric.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ConversationMetricFindUniqueOrThrowArgs>(args: SelectSubset<T, ConversationMetricFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConversationMetricClient<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversationMetric that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationMetricFindFirstArgs} args - Arguments to find a ConversationMetric
+     * @example
+     * // Get one ConversationMetric
+     * const conversationMetric = await prisma.conversationMetric.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ConversationMetricFindFirstArgs>(args?: SelectSubset<T, ConversationMetricFindFirstArgs<ExtArgs>>): Prisma__ConversationMetricClient<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversationMetric that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationMetricFindFirstOrThrowArgs} args - Arguments to find a ConversationMetric
+     * @example
+     * // Get one ConversationMetric
+     * const conversationMetric = await prisma.conversationMetric.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ConversationMetricFindFirstOrThrowArgs>(args?: SelectSubset<T, ConversationMetricFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConversationMetricClient<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ConversationMetrics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationMetricFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ConversationMetrics
+     * const conversationMetrics = await prisma.conversationMetric.findMany()
+     * 
+     * // Get first 10 ConversationMetrics
+     * const conversationMetrics = await prisma.conversationMetric.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const conversationMetricWithIdOnly = await prisma.conversationMetric.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ConversationMetricFindManyArgs>(args?: SelectSubset<T, ConversationMetricFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ConversationMetric.
+     * @param {ConversationMetricCreateArgs} args - Arguments to create a ConversationMetric.
+     * @example
+     * // Create one ConversationMetric
+     * const ConversationMetric = await prisma.conversationMetric.create({
+     *   data: {
+     *     // ... data to create a ConversationMetric
+     *   }
+     * })
+     * 
+     */
+    create<T extends ConversationMetricCreateArgs>(args: SelectSubset<T, ConversationMetricCreateArgs<ExtArgs>>): Prisma__ConversationMetricClient<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ConversationMetrics.
+     * @param {ConversationMetricCreateManyArgs} args - Arguments to create many ConversationMetrics.
+     * @example
+     * // Create many ConversationMetrics
+     * const conversationMetric = await prisma.conversationMetric.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ConversationMetricCreateManyArgs>(args?: SelectSubset<T, ConversationMetricCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ConversationMetrics and returns the data saved in the database.
+     * @param {ConversationMetricCreateManyAndReturnArgs} args - Arguments to create many ConversationMetrics.
+     * @example
+     * // Create many ConversationMetrics
+     * const conversationMetric = await prisma.conversationMetric.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ConversationMetrics and only return the `id`
+     * const conversationMetricWithIdOnly = await prisma.conversationMetric.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ConversationMetricCreateManyAndReturnArgs>(args?: SelectSubset<T, ConversationMetricCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ConversationMetric.
+     * @param {ConversationMetricDeleteArgs} args - Arguments to delete one ConversationMetric.
+     * @example
+     * // Delete one ConversationMetric
+     * const ConversationMetric = await prisma.conversationMetric.delete({
+     *   where: {
+     *     // ... filter to delete one ConversationMetric
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ConversationMetricDeleteArgs>(args: SelectSubset<T, ConversationMetricDeleteArgs<ExtArgs>>): Prisma__ConversationMetricClient<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ConversationMetric.
+     * @param {ConversationMetricUpdateArgs} args - Arguments to update one ConversationMetric.
+     * @example
+     * // Update one ConversationMetric
+     * const conversationMetric = await prisma.conversationMetric.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ConversationMetricUpdateArgs>(args: SelectSubset<T, ConversationMetricUpdateArgs<ExtArgs>>): Prisma__ConversationMetricClient<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ConversationMetrics.
+     * @param {ConversationMetricDeleteManyArgs} args - Arguments to filter ConversationMetrics to delete.
+     * @example
+     * // Delete a few ConversationMetrics
+     * const { count } = await prisma.conversationMetric.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ConversationMetricDeleteManyArgs>(args?: SelectSubset<T, ConversationMetricDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversationMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationMetricUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ConversationMetrics
+     * const conversationMetric = await prisma.conversationMetric.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ConversationMetricUpdateManyArgs>(args: SelectSubset<T, ConversationMetricUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversationMetrics and returns the data updated in the database.
+     * @param {ConversationMetricUpdateManyAndReturnArgs} args - Arguments to update many ConversationMetrics.
+     * @example
+     * // Update many ConversationMetrics
+     * const conversationMetric = await prisma.conversationMetric.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ConversationMetrics and only return the `id`
+     * const conversationMetricWithIdOnly = await prisma.conversationMetric.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ConversationMetricUpdateManyAndReturnArgs>(args: SelectSubset<T, ConversationMetricUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ConversationMetric.
+     * @param {ConversationMetricUpsertArgs} args - Arguments to update or create a ConversationMetric.
+     * @example
+     * // Update or create a ConversationMetric
+     * const conversationMetric = await prisma.conversationMetric.upsert({
+     *   create: {
+     *     // ... data to create a ConversationMetric
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ConversationMetric we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ConversationMetricUpsertArgs>(args: SelectSubset<T, ConversationMetricUpsertArgs<ExtArgs>>): Prisma__ConversationMetricClient<$Result.GetResult<Prisma.$ConversationMetricPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ConversationMetrics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationMetricCountArgs} args - Arguments to filter ConversationMetrics to count.
+     * @example
+     * // Count the number of ConversationMetrics
+     * const count = await prisma.conversationMetric.count({
+     *   where: {
+     *     // ... the filter for the ConversationMetrics we want to count
+     *   }
+     * })
+    **/
+    count<T extends ConversationMetricCountArgs>(
+      args?: Subset<T, ConversationMetricCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ConversationMetricCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ConversationMetric.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationMetricAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ConversationMetricAggregateArgs>(args: Subset<T, ConversationMetricAggregateArgs>): Prisma.PrismaPromise<GetConversationMetricAggregateType<T>>
+
+    /**
+     * Group by ConversationMetric.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationMetricGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ConversationMetricGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ConversationMetricGroupByArgs['orderBy'] }
+        : { orderBy?: ConversationMetricGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ConversationMetricGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConversationMetricGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ConversationMetric model
+   */
+  readonly fields: ConversationMetricFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ConversationMetric.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ConversationMetricClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ConversationMetric model
+   */
+  interface ConversationMetricFieldRefs {
+    readonly id: FieldRef<"ConversationMetric", 'String'>
+    readonly tenantId: FieldRef<"ConversationMetric", 'String'>
+    readonly startedAt: FieldRef<"ConversationMetric", 'DateTime'>
+    readonly handedOff: FieldRef<"ConversationMetric", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ConversationMetric findUnique
+   */
+  export type ConversationMetricFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationMetric to fetch.
+     */
+    where: ConversationMetricWhereUniqueInput
+  }
+
+  /**
+   * ConversationMetric findUniqueOrThrow
+   */
+  export type ConversationMetricFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationMetric to fetch.
+     */
+    where: ConversationMetricWhereUniqueInput
+  }
+
+  /**
+   * ConversationMetric findFirst
+   */
+  export type ConversationMetricFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationMetric to fetch.
+     */
+    where?: ConversationMetricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationMetrics to fetch.
+     */
+    orderBy?: ConversationMetricOrderByWithRelationInput | ConversationMetricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversationMetrics.
+     */
+    cursor?: ConversationMetricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversationMetrics.
+     */
+    distinct?: ConversationMetricScalarFieldEnum | ConversationMetricScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationMetric findFirstOrThrow
+   */
+  export type ConversationMetricFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationMetric to fetch.
+     */
+    where?: ConversationMetricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationMetrics to fetch.
+     */
+    orderBy?: ConversationMetricOrderByWithRelationInput | ConversationMetricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversationMetrics.
+     */
+    cursor?: ConversationMetricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversationMetrics.
+     */
+    distinct?: ConversationMetricScalarFieldEnum | ConversationMetricScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationMetric findMany
+   */
+  export type ConversationMetricFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationMetrics to fetch.
+     */
+    where?: ConversationMetricWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationMetrics to fetch.
+     */
+    orderBy?: ConversationMetricOrderByWithRelationInput | ConversationMetricOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ConversationMetrics.
+     */
+    cursor?: ConversationMetricWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationMetrics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationMetrics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversationMetrics.
+     */
+    distinct?: ConversationMetricScalarFieldEnum | ConversationMetricScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationMetric create
+   */
+  export type ConversationMetricCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ConversationMetric.
+     */
+    data: XOR<ConversationMetricCreateInput, ConversationMetricUncheckedCreateInput>
+  }
+
+  /**
+   * ConversationMetric createMany
+   */
+  export type ConversationMetricCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ConversationMetrics.
+     */
+    data: ConversationMetricCreateManyInput | ConversationMetricCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ConversationMetric createManyAndReturn
+   */
+  export type ConversationMetricCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * The data used to create many ConversationMetrics.
+     */
+    data: ConversationMetricCreateManyInput | ConversationMetricCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ConversationMetric update
+   */
+  export type ConversationMetricUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ConversationMetric.
+     */
+    data: XOR<ConversationMetricUpdateInput, ConversationMetricUncheckedUpdateInput>
+    /**
+     * Choose, which ConversationMetric to update.
+     */
+    where: ConversationMetricWhereUniqueInput
+  }
+
+  /**
+   * ConversationMetric updateMany
+   */
+  export type ConversationMetricUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ConversationMetrics.
+     */
+    data: XOR<ConversationMetricUpdateManyMutationInput, ConversationMetricUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversationMetrics to update
+     */
+    where?: ConversationMetricWhereInput
+    /**
+     * Limit how many ConversationMetrics to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversationMetric updateManyAndReturn
+   */
+  export type ConversationMetricUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * The data used to update ConversationMetrics.
+     */
+    data: XOR<ConversationMetricUpdateManyMutationInput, ConversationMetricUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversationMetrics to update
+     */
+    where?: ConversationMetricWhereInput
+    /**
+     * Limit how many ConversationMetrics to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ConversationMetric upsert
+   */
+  export type ConversationMetricUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ConversationMetric to update in case it exists.
+     */
+    where: ConversationMetricWhereUniqueInput
+    /**
+     * In case the ConversationMetric found by the `where` argument doesn't exist, create a new ConversationMetric with this data.
+     */
+    create: XOR<ConversationMetricCreateInput, ConversationMetricUncheckedCreateInput>
+    /**
+     * In case the ConversationMetric was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ConversationMetricUpdateInput, ConversationMetricUncheckedUpdateInput>
+  }
+
+  /**
+   * ConversationMetric delete
+   */
+  export type ConversationMetricDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricInclude<ExtArgs> | null
+    /**
+     * Filter which ConversationMetric to delete.
+     */
+    where: ConversationMetricWhereUniqueInput
+  }
+
+  /**
+   * ConversationMetric deleteMany
+   */
+  export type ConversationMetricDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversationMetrics to delete
+     */
+    where?: ConversationMetricWhereInput
+    /**
+     * Limit how many ConversationMetrics to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversationMetric without action
+   */
+  export type ConversationMetricDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationMetric
+     */
+    select?: ConversationMetricSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationMetric
+     */
+    omit?: ConversationMetricOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationMetricInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -37849,6 +40144,11 @@ export namespace Prisma {
     isTypingIndicator: 'isTypingIndicator',
     status: 'status',
     attempts: 'attempts',
+    purpose: 'purpose',
+    publishedAt: 'publishedAt',
+    publishLeaseUntil: 'publishLeaseUntil',
+    sendLeaseUntil: 'sendLeaseUntil',
+    sentAt: 'sentAt',
     nextAttemptAt: 'nextAttemptAt',
     lastError: 'lastError',
     correlationId: 'correlationId',
@@ -37878,6 +40178,24 @@ export namespace Prisma {
   };
 
   export type SubscriptionPaymentScalarFieldEnum = (typeof SubscriptionPaymentScalarFieldEnum)[keyof typeof SubscriptionPaymentScalarFieldEnum]
+
+
+  export const WorkerHeartbeatScalarFieldEnum: {
+    name: 'name',
+    lastSeenAt: 'lastSeenAt'
+  };
+
+  export type WorkerHeartbeatScalarFieldEnum = (typeof WorkerHeartbeatScalarFieldEnum)[keyof typeof WorkerHeartbeatScalarFieldEnum]
+
+
+  export const ConversationMetricScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    startedAt: 'startedAt',
+    handedOff: 'handedOff'
+  };
+
+  export type ConversationMetricScalarFieldEnum = (typeof ConversationMetricScalarFieldEnum)[keyof typeof ConversationMetricScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -38188,6 +40506,7 @@ export namespace Prisma {
     liveItems?: LiveItemListRelationFilter
     catalogueItems?: CatalogueItemListRelationFilter
     conversationWindows?: ConversationWindowListRelationFilter
+    conversationMetrics?: ConversationMetricListRelationFilter
     reservations?: ReservationListRelationFilter
     waitlists?: WaitlistListRelationFilter
     orders?: OrderListRelationFilter
@@ -38270,6 +40589,7 @@ export namespace Prisma {
     liveItems?: LiveItemOrderByRelationAggregateInput
     catalogueItems?: CatalogueItemOrderByRelationAggregateInput
     conversationWindows?: ConversationWindowOrderByRelationAggregateInput
+    conversationMetrics?: ConversationMetricOrderByRelationAggregateInput
     reservations?: ReservationOrderByRelationAggregateInput
     waitlists?: WaitlistOrderByRelationAggregateInput
     orders?: OrderOrderByRelationAggregateInput
@@ -38355,6 +40675,7 @@ export namespace Prisma {
     liveItems?: LiveItemListRelationFilter
     catalogueItems?: CatalogueItemListRelationFilter
     conversationWindows?: ConversationWindowListRelationFilter
+    conversationMetrics?: ConversationMetricListRelationFilter
     reservations?: ReservationListRelationFilter
     waitlists?: WaitlistListRelationFilter
     orders?: OrderListRelationFilter
@@ -40398,6 +42719,11 @@ export namespace Prisma {
     isTypingIndicator?: BoolFilter<"MessageOut"> | boolean
     status?: StringFilter<"MessageOut"> | string
     attempts?: IntFilter<"MessageOut"> | number
+    purpose?: StringNullableFilter<"MessageOut"> | string | null
+    publishedAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
+    publishLeaseUntil?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
+    sendLeaseUntil?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
+    sentAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
     nextAttemptAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
     lastError?: StringNullableFilter<"MessageOut"> | string | null
     correlationId?: StringFilter<"MessageOut"> | string
@@ -40417,6 +42743,11 @@ export namespace Prisma {
     isTypingIndicator?: SortOrder
     status?: SortOrder
     attempts?: SortOrder
+    purpose?: SortOrderInput | SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    publishLeaseUntil?: SortOrderInput | SortOrder
+    sendLeaseUntil?: SortOrderInput | SortOrder
+    sentAt?: SortOrderInput | SortOrder
     nextAttemptAt?: SortOrderInput | SortOrder
     lastError?: SortOrderInput | SortOrder
     correlationId?: SortOrder
@@ -40440,6 +42771,11 @@ export namespace Prisma {
     isTypingIndicator?: BoolFilter<"MessageOut"> | boolean
     status?: StringFilter<"MessageOut"> | string
     attempts?: IntFilter<"MessageOut"> | number
+    purpose?: StringNullableFilter<"MessageOut"> | string | null
+    publishedAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
+    publishLeaseUntil?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
+    sendLeaseUntil?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
+    sentAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
     nextAttemptAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
     lastError?: StringNullableFilter<"MessageOut"> | string | null
     correlationId?: StringFilter<"MessageOut"> | string
@@ -40459,6 +42795,11 @@ export namespace Prisma {
     isTypingIndicator?: SortOrder
     status?: SortOrder
     attempts?: SortOrder
+    purpose?: SortOrderInput | SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    publishLeaseUntil?: SortOrderInput | SortOrder
+    sendLeaseUntil?: SortOrderInput | SortOrder
+    sentAt?: SortOrderInput | SortOrder
     nextAttemptAt?: SortOrderInput | SortOrder
     lastError?: SortOrderInput | SortOrder
     correlationId?: SortOrder
@@ -40485,6 +42826,11 @@ export namespace Prisma {
     isTypingIndicator?: BoolWithAggregatesFilter<"MessageOut"> | boolean
     status?: StringWithAggregatesFilter<"MessageOut"> | string
     attempts?: IntWithAggregatesFilter<"MessageOut"> | number
+    purpose?: StringNullableWithAggregatesFilter<"MessageOut"> | string | null
+    publishedAt?: DateTimeNullableWithAggregatesFilter<"MessageOut"> | Date | string | null
+    publishLeaseUntil?: DateTimeNullableWithAggregatesFilter<"MessageOut"> | Date | string | null
+    sendLeaseUntil?: DateTimeNullableWithAggregatesFilter<"MessageOut"> | Date | string | null
+    sentAt?: DateTimeNullableWithAggregatesFilter<"MessageOut"> | Date | string | null
     nextAttemptAt?: DateTimeNullableWithAggregatesFilter<"MessageOut"> | Date | string | null
     lastError?: StringNullableWithAggregatesFilter<"MessageOut"> | string | null
     correlationId?: StringWithAggregatesFilter<"MessageOut"> | string
@@ -40595,6 +42941,93 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"SubscriptionPayment"> | Date | string
   }
 
+  export type WorkerHeartbeatWhereInput = {
+    AND?: WorkerHeartbeatWhereInput | WorkerHeartbeatWhereInput[]
+    OR?: WorkerHeartbeatWhereInput[]
+    NOT?: WorkerHeartbeatWhereInput | WorkerHeartbeatWhereInput[]
+    name?: StringFilter<"WorkerHeartbeat"> | string
+    lastSeenAt?: DateTimeFilter<"WorkerHeartbeat"> | Date | string
+  }
+
+  export type WorkerHeartbeatOrderByWithRelationInput = {
+    name?: SortOrder
+    lastSeenAt?: SortOrder
+  }
+
+  export type WorkerHeartbeatWhereUniqueInput = Prisma.AtLeast<{
+    name?: string
+    AND?: WorkerHeartbeatWhereInput | WorkerHeartbeatWhereInput[]
+    OR?: WorkerHeartbeatWhereInput[]
+    NOT?: WorkerHeartbeatWhereInput | WorkerHeartbeatWhereInput[]
+    lastSeenAt?: DateTimeFilter<"WorkerHeartbeat"> | Date | string
+  }, "name">
+
+  export type WorkerHeartbeatOrderByWithAggregationInput = {
+    name?: SortOrder
+    lastSeenAt?: SortOrder
+    _count?: WorkerHeartbeatCountOrderByAggregateInput
+    _max?: WorkerHeartbeatMaxOrderByAggregateInput
+    _min?: WorkerHeartbeatMinOrderByAggregateInput
+  }
+
+  export type WorkerHeartbeatScalarWhereWithAggregatesInput = {
+    AND?: WorkerHeartbeatScalarWhereWithAggregatesInput | WorkerHeartbeatScalarWhereWithAggregatesInput[]
+    OR?: WorkerHeartbeatScalarWhereWithAggregatesInput[]
+    NOT?: WorkerHeartbeatScalarWhereWithAggregatesInput | WorkerHeartbeatScalarWhereWithAggregatesInput[]
+    name?: StringWithAggregatesFilter<"WorkerHeartbeat"> | string
+    lastSeenAt?: DateTimeWithAggregatesFilter<"WorkerHeartbeat"> | Date | string
+  }
+
+  export type ConversationMetricWhereInput = {
+    AND?: ConversationMetricWhereInput | ConversationMetricWhereInput[]
+    OR?: ConversationMetricWhereInput[]
+    NOT?: ConversationMetricWhereInput | ConversationMetricWhereInput[]
+    id?: StringFilter<"ConversationMetric"> | string
+    tenantId?: StringFilter<"ConversationMetric"> | string
+    startedAt?: DateTimeFilter<"ConversationMetric"> | Date | string
+    handedOff?: BoolFilter<"ConversationMetric"> | boolean
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }
+
+  export type ConversationMetricOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    startedAt?: SortOrder
+    handedOff?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+  }
+
+  export type ConversationMetricWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ConversationMetricWhereInput | ConversationMetricWhereInput[]
+    OR?: ConversationMetricWhereInput[]
+    NOT?: ConversationMetricWhereInput | ConversationMetricWhereInput[]
+    tenantId?: StringFilter<"ConversationMetric"> | string
+    startedAt?: DateTimeFilter<"ConversationMetric"> | Date | string
+    handedOff?: BoolFilter<"ConversationMetric"> | boolean
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }, "id">
+
+  export type ConversationMetricOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    startedAt?: SortOrder
+    handedOff?: SortOrder
+    _count?: ConversationMetricCountOrderByAggregateInput
+    _max?: ConversationMetricMaxOrderByAggregateInput
+    _min?: ConversationMetricMinOrderByAggregateInput
+  }
+
+  export type ConversationMetricScalarWhereWithAggregatesInput = {
+    AND?: ConversationMetricScalarWhereWithAggregatesInput | ConversationMetricScalarWhereWithAggregatesInput[]
+    OR?: ConversationMetricScalarWhereWithAggregatesInput[]
+    NOT?: ConversationMetricScalarWhereWithAggregatesInput | ConversationMetricScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ConversationMetric"> | string
+    tenantId?: StringWithAggregatesFilter<"ConversationMetric"> | string
+    startedAt?: DateTimeWithAggregatesFilter<"ConversationMetric"> | Date | string
+    handedOff?: BoolWithAggregatesFilter<"ConversationMetric"> | boolean
+  }
+
   export type TenantCreateInput = {
     id?: string
     name: string
@@ -40669,6 +43102,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -40751,6 +43185,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -40833,6 +43268,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -40915,6 +43351,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -43115,6 +45552,11 @@ export namespace Prisma {
     isTypingIndicator?: boolean
     status: string
     attempts?: number
+    purpose?: string | null
+    publishedAt?: Date | string | null
+    publishLeaseUntil?: Date | string | null
+    sendLeaseUntil?: Date | string | null
+    sentAt?: Date | string | null
     nextAttemptAt?: Date | string | null
     lastError?: string | null
     correlationId: string
@@ -43134,6 +45576,11 @@ export namespace Prisma {
     isTypingIndicator?: boolean
     status: string
     attempts?: number
+    purpose?: string | null
+    publishedAt?: Date | string | null
+    publishLeaseUntil?: Date | string | null
+    sendLeaseUntil?: Date | string | null
+    sentAt?: Date | string | null
     nextAttemptAt?: Date | string | null
     lastError?: string | null
     correlationId: string
@@ -43151,6 +45598,11 @@ export namespace Prisma {
     isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sendLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -43170,6 +45622,11 @@ export namespace Prisma {
     isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sendLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -43188,6 +45645,11 @@ export namespace Prisma {
     isTypingIndicator?: boolean
     status: string
     attempts?: number
+    purpose?: string | null
+    publishedAt?: Date | string | null
+    publishLeaseUntil?: Date | string | null
+    sendLeaseUntil?: Date | string | null
+    sentAt?: Date | string | null
     nextAttemptAt?: Date | string | null
     lastError?: string | null
     correlationId: string
@@ -43205,6 +45667,11 @@ export namespace Prisma {
     isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sendLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -43223,6 +45690,11 @@ export namespace Prisma {
     isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sendLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -43347,6 +45819,89 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkerHeartbeatCreateInput = {
+    name: string
+    lastSeenAt: Date | string
+  }
+
+  export type WorkerHeartbeatUncheckedCreateInput = {
+    name: string
+    lastSeenAt: Date | string
+  }
+
+  export type WorkerHeartbeatUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkerHeartbeatUncheckedUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkerHeartbeatCreateManyInput = {
+    name: string
+    lastSeenAt: Date | string
+  }
+
+  export type WorkerHeartbeatUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkerHeartbeatUncheckedUpdateManyInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    lastSeenAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationMetricCreateInput = {
+    id: string
+    startedAt?: Date | string
+    handedOff?: boolean
+    tenant: TenantCreateNestedOneWithoutConversationMetricsInput
+  }
+
+  export type ConversationMetricUncheckedCreateInput = {
+    id: string
+    tenantId: string
+    startedAt?: Date | string
+    handedOff?: boolean
+  }
+
+  export type ConversationMetricUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
+    tenant?: TenantUpdateOneRequiredWithoutConversationMetricsNestedInput
+  }
+
+  export type ConversationMetricUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type ConversationMetricCreateManyInput = {
+    id: string
+    tenantId: string
+    startedAt?: Date | string
+    handedOff?: boolean
+  }
+
+  export type ConversationMetricUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type ConversationMetricUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -43524,6 +46079,12 @@ export namespace Prisma {
     none?: ConversationWindowWhereInput
   }
 
+  export type ConversationMetricListRelationFilter = {
+    every?: ConversationMetricWhereInput
+    some?: ConversationMetricWhereInput
+    none?: ConversationMetricWhereInput
+  }
+
   export type ReservationListRelationFilter = {
     every?: ReservationWhereInput
     some?: ReservationWhereInput
@@ -43630,6 +46191,10 @@ export namespace Prisma {
   }
 
   export type ConversationWindowOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ConversationMetricOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -45312,6 +47877,11 @@ export namespace Prisma {
     isTypingIndicator?: SortOrder
     status?: SortOrder
     attempts?: SortOrder
+    purpose?: SortOrder
+    publishedAt?: SortOrder
+    publishLeaseUntil?: SortOrder
+    sendLeaseUntil?: SortOrder
+    sentAt?: SortOrder
     nextAttemptAt?: SortOrder
     lastError?: SortOrder
     correlationId?: SortOrder
@@ -45333,6 +47903,11 @@ export namespace Prisma {
     isTypingIndicator?: SortOrder
     status?: SortOrder
     attempts?: SortOrder
+    purpose?: SortOrder
+    publishedAt?: SortOrder
+    publishLeaseUntil?: SortOrder
+    sendLeaseUntil?: SortOrder
+    sentAt?: SortOrder
     nextAttemptAt?: SortOrder
     lastError?: SortOrder
     correlationId?: SortOrder
@@ -45350,6 +47925,11 @@ export namespace Prisma {
     isTypingIndicator?: SortOrder
     status?: SortOrder
     attempts?: SortOrder
+    purpose?: SortOrder
+    publishedAt?: SortOrder
+    publishLeaseUntil?: SortOrder
+    sendLeaseUntil?: SortOrder
+    sentAt?: SortOrder
     nextAttemptAt?: SortOrder
     lastError?: SortOrder
     correlationId?: SortOrder
@@ -45415,6 +47995,42 @@ export namespace Prisma {
 
   export type SubscriptionPaymentSumOrderByAggregateInput = {
     amount?: SortOrder
+  }
+
+  export type WorkerHeartbeatCountOrderByAggregateInput = {
+    name?: SortOrder
+    lastSeenAt?: SortOrder
+  }
+
+  export type WorkerHeartbeatMaxOrderByAggregateInput = {
+    name?: SortOrder
+    lastSeenAt?: SortOrder
+  }
+
+  export type WorkerHeartbeatMinOrderByAggregateInput = {
+    name?: SortOrder
+    lastSeenAt?: SortOrder
+  }
+
+  export type ConversationMetricCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    startedAt?: SortOrder
+    handedOff?: SortOrder
+  }
+
+  export type ConversationMetricMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    startedAt?: SortOrder
+    handedOff?: SortOrder
+  }
+
+  export type ConversationMetricMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    startedAt?: SortOrder
+    handedOff?: SortOrder
   }
 
   export type UserCreateNestedManyWithoutTenantInput = {
@@ -45534,6 +48150,13 @@ export namespace Prisma {
     connectOrCreate?: ConversationWindowCreateOrConnectWithoutTenantInput | ConversationWindowCreateOrConnectWithoutTenantInput[]
     createMany?: ConversationWindowCreateManyTenantInputEnvelope
     connect?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
+  }
+
+  export type ConversationMetricCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ConversationMetricCreateWithoutTenantInput, ConversationMetricUncheckedCreateWithoutTenantInput> | ConversationMetricCreateWithoutTenantInput[] | ConversationMetricUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationMetricCreateOrConnectWithoutTenantInput | ConversationMetricCreateOrConnectWithoutTenantInput[]
+    createMany?: ConversationMetricCreateManyTenantInputEnvelope
+    connect?: ConversationMetricWhereUniqueInput | ConversationMetricWhereUniqueInput[]
   }
 
   export type ReservationCreateNestedManyWithoutTenantInput = {
@@ -45695,6 +48318,13 @@ export namespace Prisma {
     connectOrCreate?: ConversationWindowCreateOrConnectWithoutTenantInput | ConversationWindowCreateOrConnectWithoutTenantInput[]
     createMany?: ConversationWindowCreateManyTenantInputEnvelope
     connect?: ConversationWindowWhereUniqueInput | ConversationWindowWhereUniqueInput[]
+  }
+
+  export type ConversationMetricUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ConversationMetricCreateWithoutTenantInput, ConversationMetricUncheckedCreateWithoutTenantInput> | ConversationMetricCreateWithoutTenantInput[] | ConversationMetricUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationMetricCreateOrConnectWithoutTenantInput | ConversationMetricCreateOrConnectWithoutTenantInput[]
+    createMany?: ConversationMetricCreateManyTenantInputEnvelope
+    connect?: ConversationMetricWhereUniqueInput | ConversationMetricWhereUniqueInput[]
   }
 
   export type ReservationUncheckedCreateNestedManyWithoutTenantInput = {
@@ -46007,6 +48637,20 @@ export namespace Prisma {
     update?: ConversationWindowUpdateWithWhereUniqueWithoutTenantInput | ConversationWindowUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: ConversationWindowUpdateManyWithWhereWithoutTenantInput | ConversationWindowUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: ConversationWindowScalarWhereInput | ConversationWindowScalarWhereInput[]
+  }
+
+  export type ConversationMetricUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ConversationMetricCreateWithoutTenantInput, ConversationMetricUncheckedCreateWithoutTenantInput> | ConversationMetricCreateWithoutTenantInput[] | ConversationMetricUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationMetricCreateOrConnectWithoutTenantInput | ConversationMetricCreateOrConnectWithoutTenantInput[]
+    upsert?: ConversationMetricUpsertWithWhereUniqueWithoutTenantInput | ConversationMetricUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ConversationMetricCreateManyTenantInputEnvelope
+    set?: ConversationMetricWhereUniqueInput | ConversationMetricWhereUniqueInput[]
+    disconnect?: ConversationMetricWhereUniqueInput | ConversationMetricWhereUniqueInput[]
+    delete?: ConversationMetricWhereUniqueInput | ConversationMetricWhereUniqueInput[]
+    connect?: ConversationMetricWhereUniqueInput | ConversationMetricWhereUniqueInput[]
+    update?: ConversationMetricUpdateWithWhereUniqueWithoutTenantInput | ConversationMetricUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ConversationMetricUpdateManyWithWhereWithoutTenantInput | ConversationMetricUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ConversationMetricScalarWhereInput | ConversationMetricScalarWhereInput[]
   }
 
   export type ReservationUpdateManyWithoutTenantNestedInput = {
@@ -46329,6 +48973,20 @@ export namespace Prisma {
     update?: ConversationWindowUpdateWithWhereUniqueWithoutTenantInput | ConversationWindowUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: ConversationWindowUpdateManyWithWhereWithoutTenantInput | ConversationWindowUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: ConversationWindowScalarWhereInput | ConversationWindowScalarWhereInput[]
+  }
+
+  export type ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ConversationMetricCreateWithoutTenantInput, ConversationMetricUncheckedCreateWithoutTenantInput> | ConversationMetricCreateWithoutTenantInput[] | ConversationMetricUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConversationMetricCreateOrConnectWithoutTenantInput | ConversationMetricCreateOrConnectWithoutTenantInput[]
+    upsert?: ConversationMetricUpsertWithWhereUniqueWithoutTenantInput | ConversationMetricUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ConversationMetricCreateManyTenantInputEnvelope
+    set?: ConversationMetricWhereUniqueInput | ConversationMetricWhereUniqueInput[]
+    disconnect?: ConversationMetricWhereUniqueInput | ConversationMetricWhereUniqueInput[]
+    delete?: ConversationMetricWhereUniqueInput | ConversationMetricWhereUniqueInput[]
+    connect?: ConversationMetricWhereUniqueInput | ConversationMetricWhereUniqueInput[]
+    update?: ConversationMetricUpdateWithWhereUniqueWithoutTenantInput | ConversationMetricUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ConversationMetricUpdateManyWithWhereWithoutTenantInput | ConversationMetricUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ConversationMetricScalarWhereInput | ConversationMetricScalarWhereInput[]
   }
 
   export type ReservationUncheckedUpdateManyWithoutTenantNestedInput = {
@@ -47509,6 +50167,20 @@ export namespace Prisma {
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutSubscriptionPaymentsInput, TenantUpdateWithoutSubscriptionPaymentsInput>, TenantUncheckedUpdateWithoutSubscriptionPaymentsInput>
   }
 
+  export type TenantCreateNestedOneWithoutConversationMetricsInput = {
+    create?: XOR<TenantCreateWithoutConversationMetricsInput, TenantUncheckedCreateWithoutConversationMetricsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutConversationMetricsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type TenantUpdateOneRequiredWithoutConversationMetricsNestedInput = {
+    create?: XOR<TenantCreateWithoutConversationMetricsInput, TenantUncheckedCreateWithoutConversationMetricsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutConversationMetricsInput
+    upsert?: TenantUpsertWithoutConversationMetricsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutConversationMetricsInput, TenantUpdateWithoutConversationMetricsInput>, TenantUncheckedUpdateWithoutConversationMetricsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -48107,6 +50779,11 @@ export namespace Prisma {
     isTypingIndicator?: boolean
     status: string
     attempts?: number
+    purpose?: string | null
+    publishedAt?: Date | string | null
+    publishLeaseUntil?: Date | string | null
+    sendLeaseUntil?: Date | string | null
+    sentAt?: Date | string | null
     nextAttemptAt?: Date | string | null
     lastError?: string | null
     correlationId: string
@@ -48124,6 +50801,11 @@ export namespace Prisma {
     isTypingIndicator?: boolean
     status: string
     attempts?: number
+    purpose?: string | null
+    publishedAt?: Date | string | null
+    publishLeaseUntil?: Date | string | null
+    sendLeaseUntil?: Date | string | null
+    sentAt?: Date | string | null
     nextAttemptAt?: Date | string | null
     lastError?: string | null
     correlationId: string
@@ -48429,6 +51111,28 @@ export namespace Prisma {
 
   export type ConversationWindowCreateManyTenantInputEnvelope = {
     data: ConversationWindowCreateManyTenantInput | ConversationWindowCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ConversationMetricCreateWithoutTenantInput = {
+    id: string
+    startedAt?: Date | string
+    handedOff?: boolean
+  }
+
+  export type ConversationMetricUncheckedCreateWithoutTenantInput = {
+    id: string
+    startedAt?: Date | string
+    handedOff?: boolean
+  }
+
+  export type ConversationMetricCreateOrConnectWithoutTenantInput = {
+    where: ConversationMetricWhereUniqueInput
+    create: XOR<ConversationMetricCreateWithoutTenantInput, ConversationMetricUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ConversationMetricCreateManyTenantInputEnvelope = {
+    data: ConversationMetricCreateManyTenantInput | ConversationMetricCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
@@ -48904,6 +51608,11 @@ export namespace Prisma {
     isTypingIndicator?: BoolFilter<"MessageOut"> | boolean
     status?: StringFilter<"MessageOut"> | string
     attempts?: IntFilter<"MessageOut"> | number
+    purpose?: StringNullableFilter<"MessageOut"> | string | null
+    publishedAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
+    publishLeaseUntil?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
+    sendLeaseUntil?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
+    sentAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
     nextAttemptAt?: DateTimeNullableFilter<"MessageOut"> | Date | string | null
     lastError?: StringNullableFilter<"MessageOut"> | string | null
     correlationId?: StringFilter<"MessageOut"> | string
@@ -49185,6 +51894,32 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"ConversationWindow"> | Date | string
   }
 
+  export type ConversationMetricUpsertWithWhereUniqueWithoutTenantInput = {
+    where: ConversationMetricWhereUniqueInput
+    update: XOR<ConversationMetricUpdateWithoutTenantInput, ConversationMetricUncheckedUpdateWithoutTenantInput>
+    create: XOR<ConversationMetricCreateWithoutTenantInput, ConversationMetricUncheckedCreateWithoutTenantInput>
+  }
+
+  export type ConversationMetricUpdateWithWhereUniqueWithoutTenantInput = {
+    where: ConversationMetricWhereUniqueInput
+    data: XOR<ConversationMetricUpdateWithoutTenantInput, ConversationMetricUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type ConversationMetricUpdateManyWithWhereWithoutTenantInput = {
+    where: ConversationMetricScalarWhereInput
+    data: XOR<ConversationMetricUpdateManyMutationInput, ConversationMetricUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type ConversationMetricScalarWhereInput = {
+    AND?: ConversationMetricScalarWhereInput | ConversationMetricScalarWhereInput[]
+    OR?: ConversationMetricScalarWhereInput[]
+    NOT?: ConversationMetricScalarWhereInput | ConversationMetricScalarWhereInput[]
+    id?: StringFilter<"ConversationMetric"> | string
+    tenantId?: StringFilter<"ConversationMetric"> | string
+    startedAt?: DateTimeFilter<"ConversationMetric"> | Date | string
+    handedOff?: BoolFilter<"ConversationMetric"> | boolean
+  }
+
   export type ReservationUpsertWithWhereUniqueWithoutTenantInput = {
     where: ReservationWhereUniqueInput
     update: XOR<ReservationUpdateWithoutTenantInput, ReservationUncheckedUpdateWithoutTenantInput>
@@ -49463,6 +52198,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -49544,6 +52280,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -49641,6 +52378,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -49722,6 +52460,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -49803,6 +52542,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -49884,6 +52624,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -50001,6 +52742,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -50082,6 +52824,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -50240,6 +52983,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -50321,6 +53065,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -50418,6 +53163,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -50499,6 +53245,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -50580,6 +53327,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -50661,6 +53409,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -50818,6 +53567,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -50899,6 +53649,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -51192,6 +53943,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -51273,6 +54025,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -51370,6 +54123,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -51451,6 +54205,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -51532,6 +54287,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -51613,6 +54369,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -51710,6 +54467,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -51791,6 +54549,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -51872,6 +54631,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -51953,6 +54713,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -52050,6 +54811,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -52131,6 +54893,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -52212,6 +54975,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -52293,6 +55057,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -52390,6 +55155,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -52471,6 +55237,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -52552,6 +55319,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -52633,6 +55401,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -52730,6 +55499,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -52811,6 +55581,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -52892,6 +55663,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -52973,6 +55745,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -53070,6 +55843,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -53151,6 +55925,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -53232,6 +56007,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -53313,6 +56089,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -53508,6 +56285,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -53589,6 +56367,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -53702,6 +56481,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -53783,6 +56563,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -53999,6 +56780,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -54080,6 +56862,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -54224,6 +57007,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -54305,6 +57089,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -54528,6 +57313,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -54609,6 +57395,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -54739,6 +57526,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -54820,6 +57608,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -55059,6 +57848,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -55140,6 +57930,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -55335,6 +58126,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
@@ -55416,6 +58208,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
@@ -55686,6 +58479,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
@@ -55767,6 +58561,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
@@ -56050,6 +58845,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -56131,6 +58927,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -56228,6 +59025,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -56309,6 +59107,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -56390,6 +59189,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -56471,6 +59271,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -56568,6 +59369,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -56649,6 +59451,7 @@ export namespace Prisma {
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -56731,6 +59534,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
@@ -56812,6 +59616,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
@@ -56994,6 +59799,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
@@ -57075,6 +59881,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
@@ -57258,6 +60065,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -57339,6 +60147,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -57471,6 +60280,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -57552,6 +60362,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -57633,6 +60444,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
@@ -57714,6 +60526,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
     paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
@@ -57860,6 +60673,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
@@ -57941,6 +60755,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
@@ -58076,6 +60891,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -58157,6 +60973,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -58254,6 +61071,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -58335,6 +61153,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -58416,6 +61235,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -58497,6 +61317,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -58594,6 +61415,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -58675,6 +61497,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -58757,6 +61580,7 @@ export namespace Prisma {
     liveItems?: LiveItemCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
     reservations?: ReservationCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistCreateNestedManyWithoutTenantInput
     orders?: OrderCreateNestedManyWithoutTenantInput
@@ -58838,6 +61662,7 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
     catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
     conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
     reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
     waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
     orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
@@ -58935,6 +61760,7 @@ export namespace Prisma {
     liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
     orders?: OrderUpdateManyWithoutTenantNestedInput
@@ -59016,10 +61842,355 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
     paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantCreateWithoutConversationMetricsInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    metaCoexistence?: boolean | null
+    metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
+    metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    creditsBonus?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    orderSeq?: number
+    hasAI?: boolean
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
+    users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutConversationMetricsInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    metaCoexistence?: boolean | null
+    metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
+    metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    creditsBonus?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    orderSeq?: number
+    hasAI?: boolean
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutConversationMetricsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutConversationMetricsInput, TenantUncheckedCreateWithoutConversationMetricsInput>
+  }
+
+  export type TenantUpsertWithoutConversationMetricsInput = {
+    update: XOR<TenantUpdateWithoutConversationMetricsInput, TenantUncheckedUpdateWithoutConversationMetricsInput>
+    create: XOR<TenantCreateWithoutConversationMetricsInput, TenantUncheckedCreateWithoutConversationMetricsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutConversationMetricsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutConversationMetricsInput, TenantUncheckedUpdateWithoutConversationMetricsInput>
+  }
+
+  export type TenantUpdateWithoutConversationMetricsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutConversationMetricsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
     itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -59099,6 +62270,11 @@ export namespace Prisma {
     isTypingIndicator?: boolean
     status: string
     attempts?: number
+    purpose?: string | null
+    publishedAt?: Date | string | null
+    publishLeaseUntil?: Date | string | null
+    sendLeaseUntil?: Date | string | null
+    sentAt?: Date | string | null
     nextAttemptAt?: Date | string | null
     lastError?: string | null
     correlationId: string
@@ -59198,6 +62374,12 @@ export namespace Prisma {
     customerPhone: string
     expiresAt: Date | string
     createdAt?: Date | string
+  }
+
+  export type ConversationMetricCreateManyTenantInput = {
+    id: string
+    startedAt?: Date | string
+    handedOff?: boolean
   }
 
   export type ReservationCreateManyTenantInput = {
@@ -59501,6 +62683,11 @@ export namespace Prisma {
     isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sendLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -59518,6 +62705,11 @@ export namespace Prisma {
     isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sendLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -59535,6 +62727,11 @@ export namespace Prisma {
     isTypingIndicator?: BoolFieldUpdateOperationsInput | boolean
     status?: StringFieldUpdateOperationsInput | string
     attempts?: IntFieldUpdateOperationsInput | number
+    purpose?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    publishLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sendLeaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextAttemptAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     correlationId?: StringFieldUpdateOperationsInput | string
@@ -59834,6 +63031,24 @@ export namespace Prisma {
     customerPhone?: StringFieldUpdateOperationsInput | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationMetricUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type ConversationMetricUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type ConversationMetricUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    handedOff?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ReservationUpdateWithoutTenantInput = {

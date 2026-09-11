@@ -111,9 +111,10 @@ export async function checkAndConsumeCredit(
         : { creditsBonus: { decrement: 1 } },
     });
 
-    await tx.conversationWindow.create({
+    const window = await tx.conversationWindow.create({
       data: { tenantId, customerPhone, expiresAt },
     });
+    await tx.conversationMetric.create({ data: { id: window.id, tenantId } });
 
     workerLogger.info("New session created, credit consumed", {
       tenantId,
@@ -136,5 +137,8 @@ export async function cleanupExpiredWindows(tenantId?: string): Promise<number> 
     : { expiresAt: { lte: new Date() } };
 
   const result = await db.conversationWindow.deleteMany({ where });
+  await db.conversationMetric.deleteMany({
+    where: { ...(tenantId ? { tenantId } : {}), startedAt: { lt: new Date(Date.now() - 90 * 86400_000) } },
+  });
   return result.count;
 }

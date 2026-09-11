@@ -150,6 +150,9 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
     const config = await caller.settings.getWhatsAppConfig();
 
     expect(config).toEqual({
+      coexistence: false,
+      contactsSyncStatus: null,
+      historySyncStatus: null,
       // `metaBusinessPhoneNumber` a été ajouté après l'écriture de ce test.
       // Assertion exacte assumée : ce que rend cette procédure part vers
       // l'écran de configuration, on veut être prévenu si le contenu change.

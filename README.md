@@ -38,7 +38,7 @@ Meta Cloud API ──▶ POST /api/webhooks/meta          (Vercel, < 1 s)
 ```
 
 **Points non évidents :**
-- La queue vit **dans Postgres** (pg-boss), pas dans Redis. Vercel et Railway doivent partager la même `DATABASE_URL`, et celle-ci doit être l'URL Neon **directe** (non-pooler) — PgBouncer casse les advisory locks.
+- La queue vit **dans Postgres** (pg-boss), pas dans Redis. Vercel et Railway doivent viser la même base. Railway utilise l’URL Neon **directe** ; Vercel utilise le rôle `producer` et peut passer par l’URL pooler.
 - Redis (Upstash REST) ne sert **qu'au rate limiting tRPC**.
 - Les credentials WhatsApp sont **par tenant, en base** (chiffrés AES-256-GCM), pas en variables d'environnement.
 - Les crons tournent sur Railway via `boss.schedule()`. `vercel.json` ne doit **pas** contenir de clé `crons` — les routes `/api/cron/*` sont des fallbacks ops manuels, et les activer en parallèle exécuterait chaque job deux fois.
@@ -105,6 +105,26 @@ Les tests sont **co-localisés** (`*.test.ts` à côté du code). Les tests d'in
 
 ## Pièges connus
 
-- **Messages sortants bloqués en `pending`** — `QSTASH_TOKEN` ou `NEXT_PUBLIC_APP_URL` manque. `enqueueOutboxSend()` bascule alors silencieusement sur une queue pg-boss sans consommateur.
+- **Messages sortants en `pending`** — la publication immédiate est reprise chaque minute par le worker si elle échoue. Vérifier QStash et `/api/healthz` si l’attente dépasse cinq minutes. Le mode local sans QStash dispose de son consommateur pg-boss.
 - **`ENCRYPTION_KEY` doit être identique** entre Vercel et Railway, sinon les tokens Meta sont indéchiffrables.
 - **Ne jamais traiter un vendeur comme un client** — le routing par `seller_phones` est critique, sous peine d'auto-réservations.
+
+## Vérification et supervision
+
+Le pipeline `.github/workflows/ci.yml` valide les migrations sur PostgreSQL 15, le lint,
+TypeScript, les intégrations, les tests UI, le build et les parcours Chromium mobile/desktop.
+Les tests ne chargent pas `.env`. Les intégrations et les parcours navigateur exigent
+une `DATABASE_URL` locale dont le nom de base se termine par `_test`.
+
+```bash
+DATABASE_URL=postgresql://test:test@127.0.0.1:5432/snapsell_test npm run db:migrate
+DATABASE_URL=postgresql://test:test@127.0.0.1:5432/snapsell_test npm run test:integration
+npx playwright install chromium
+DATABASE_URL=postgresql://test:test@127.0.0.1:5432/snapsell_test npm run build:test
+DATABASE_URL=postgresql://test:test@127.0.0.1:5432/snapsell_test npm run test:e2e
+```
+
+`/api/healthz` renvoie 503 si le worker n’a plus consommé sa tâche de supervision depuis
+3 minutes ou si un message est en attente depuis 5 minutes. Un moniteur externe doit
+surveiller cette URL ; Sentry reçoit aussi les retards d’outbox quand `SENTRY_DSN` est configuré.
+Voir [le détail des corrections, des mesures et du déploiement](docs/reliability-and-metrics.md).

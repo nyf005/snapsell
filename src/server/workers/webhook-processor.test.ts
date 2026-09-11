@@ -34,6 +34,7 @@ vi.mock("~/server/db", () => {
       findUnique: vi.fn().mockResolvedValue(null),
       update: vi.fn(),
     },
+    conversationMetric: { create: vi.fn(), updateMany: vi.fn() },
     conversationWindow: {
       findFirst: vi.fn().mockResolvedValue(null),
       create: vi.fn().mockResolvedValue({}),

@@ -60,3 +60,6 @@ _bmad
 # (architecture.md, PRD, epics, artefacts d'implémentation). L'avoir exclu a coûté
 # cher — architecture.md a dérivé pendant deux migrations structurantes sans que
 # personne ne le voie, parce qu'un fichier hors du dépôt ne passe jamais en revue.
+
+/playwright-report/
+/test-results/
