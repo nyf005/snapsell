@@ -99,6 +99,27 @@ export type HelpTopic = {
 };
 
 export const HELP_TOPICS: readonly HelpTopic[] = [
+  {
+    slug: "retrouver-sa-boutique",
+    family: "comprendre",
+    title: "Retrouver vos articles et vos réglages",
+    question: "Où sont le catalogue, les réglages et l’historique ?",
+    summary: "Boutique rassemble vos articles et vos réglages. Les paiements à vérifier restent dans Commandes, avec un raccourci depuis Aujourd’hui.",
+    route: "/dashboard/boutique",
+    body: [
+      { kind: "table", head: ["Votre besoin", "Où aller"], rows: [
+        ["Ajouter ou modifier un article", "Boutique → Catalogue, ou Choisir les articles depuis Live."],
+        ["Définir les prix et la livraison", "Boutique → Réglages de vente."],
+        ["Connecter WhatsApp ou préparer les réponses", "Boutique → Assistant WhatsApp."],
+        ["Gérer l’équipe ou l’abonnement", "Boutique → Gestion de la boutique."],
+        ["Retrouver une action passée", "Boutique → Historique de l’activité."],
+        ["Vérifier un paiement", "Commandes → Paiements à vérifier."],
+      ] },
+      { kind: "note", text: "Les agents accèdent au catalogue et à l’historique. Les réglages sont réservés au propriétaire et aux managers. Les quatre entrées du menu restent les mêmes sur téléphone et ordinateur." },
+      { kind: "screen", href: "/dashboard/boutique", label: "Ouvrir Boutique" },
+    ],
+  },
+
   // ── Comprendre ────────────────────────────────────────────────────────────
   {
     slug: "comment-ca-marche",
