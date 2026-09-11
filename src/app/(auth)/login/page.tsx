@@ -86,6 +86,7 @@ function LoginTabContent() {
         </Label>
         <Input
           id="login-email"
+          autoComplete="username"
           type="email"
           placeholder={marketing.placeholder.email}
           value={email}
@@ -108,6 +109,7 @@ function LoginTabContent() {
         <div className="relative">
           <Input
             id="login-password"
+            autoComplete="current-password"
             type={showPassword ? "text" : "password"}
             placeholder="Saisissez votre mot de passe"
             value={password}
@@ -121,7 +123,7 @@ function LoginTabContent() {
             variant="ghost"
             size="icon"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-9"
+            className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-11"
             aria-label={
               showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"
             }
@@ -137,6 +139,16 @@ function LoginTabContent() {
           <p className="text-sm text-destructive">{errors.password}</p>
         )}
       </div>
+      <details className="text-sm">
+        <summary className="min-h-11 cursor-pointer py-3 text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-primary">
+          Mot de passe oublié ?
+        </summary>
+        <div className="space-y-2 rounded-lg border border-border bg-muted/40 p-4">
+          <p>La réinitialisation automatique par email n’est pas encore disponible. Contactez l’assistance pour retrouver l’accès à votre compte.</p>
+          <p>Indiquez le nom de votre boutique et l’adresse email du compte. Ne communiquez jamais votre mot de passe.</p>
+          <a className="inline-flex min-h-11 items-center font-semibold text-primary underline" href="mailto:contact@snapsell.app?subject=Acc%C3%A8s%20au%20compte%20SnapSell">Contacter l’assistance par email</a>
+        </div>
+      </details>
       <Button
         type="submit"
         className="h-12 w-full rounded-lg text-base font-bold shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
@@ -271,7 +283,7 @@ function SignupTabContent() {
             variant="ghost"
             size="icon"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-9"
+            className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-11"
             aria-label={
               showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"
             }

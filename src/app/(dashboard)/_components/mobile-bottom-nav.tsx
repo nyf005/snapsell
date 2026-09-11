@@ -41,7 +41,7 @@ export function MobileBottomNav({ canManageGrid }: { canManageGrid: boolean }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg px-1 text-[11px] font-medium transition-colors",
+                "flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg px-1 text-sm font-medium transition-colors",
                 active
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground active:bg-muted",
@@ -57,7 +57,7 @@ export function MobileBottomNav({ canManageGrid }: { canManageGrid: boolean }) {
           <SheetTrigger asChild>
             <Button
               variant="ghost"
-              className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg px-1 text-[11px] font-medium text-muted-foreground"
+              className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg px-1 text-sm font-medium text-muted-foreground"
             >
               <Menu className="size-5" />
               <span>Plus</span>

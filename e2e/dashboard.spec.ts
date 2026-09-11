@@ -34,7 +34,7 @@ async function login(page: Page) {
 test("connexion, activité et commandes accessibles sur mobile et ordinateur", async ({ page }) => {
   await login(page);
   await expect(page.getByRole("heading", { name: "Votre travail", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Le bilan de vos ventes" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Le bilan de vos ventes" })).not.toBeVisible();
   await page.getByRole("link", { name: "Commandes", exact: true }).filter({ visible: true }).first().click();
   await expect(page).toHaveURL(/\/dashboard\/orders/);
   await expect(page.getByRole("heading", { name: "Commandes", exact: true })).toBeVisible();
@@ -56,5 +56,14 @@ test("une panne du résumé affiche une erreur et Réessayer restaure l'activit�
 test("les pages métier exigent une connexion", async ({ page }) => {
   await page.goto("/dashboard/orders");
   await expect(page).toHaveURL(/\/login/);
+  await expect(page.getByRole("button", { name: "Se connecter", exact: true })).toBeVisible();
+});
+
+
+test("le mot de passe oublié explique comment contacter l’assistance", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByText("Mot de passe oublié ?", { exact: true }).click();
+  await expect(page.getByText("La réinitialisation automatique par email n’est pas encore disponible.", { exact: false })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Contacter l’assistance par email" })).toHaveAttribute("href", /^mailto:contact@snapsell.app/);
   await expect(page.getByRole("button", { name: "Se connecter", exact: true })).toBeVisible();
 });

@@ -25,7 +25,6 @@ import {
   ShoppingBag,
   TrendingUp,
   TrendingDown,
-  History,
   Wallet,
   Zap,
 } from "lucide-react";
@@ -159,8 +158,6 @@ export function DashboardContent({
     <div className="space-y-8">
       {summaryError && summaryFailure}
       {/* Sur mobile, c'est le seul endroit où le solde est visible. */}
-      <CreditsAlertBanner canManageSubscription={canManageSubscription} />
-      <AssistantControl canManage={canManageSubscription} />
       {dailyPriority && (
         <section aria-label="Action prioritaire">
           <DashboardStartGuide
@@ -180,6 +177,8 @@ export function DashboardContent({
           />
         </section>
       )}
+      <CreditsAlertBanner canManageSubscription={canManageSubscription} />
+      <AssistantControl canManage={canManageSubscription} compact />
       {/* Section: À traiter */}
       <section aria-labelledby="a-traiter-heading">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -198,9 +197,9 @@ export function DashboardContent({
           */}
           <HelpHint slug="comment-ca-marche" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Preuves en attente */}
-          <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {/* Le bandeau prioritaire porte déjà les preuves à vérifier. */}
+          {summary.pendingProofsCount === 0 && <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
@@ -223,20 +222,20 @@ export function DashboardContent({
               <p className="text-sm font-bold text-foreground">
                 Preuves en attente
               </p>
-              <p className="text-xs text-muted-foreground">{lastProofLabel}</p>
+              <p className="text-sm text-muted-foreground">{lastProofLabel}</p>
               <Link
                 href="/dashboard/proofs"
                 prefetch
-                className="text-xs font-extrabold text-primary flex items-center gap-1 mt-4 group-hover:gap-2 transition-all"
+                className="text-sm font-extrabold text-primary inline-flex min-h-11 items-center gap-1 mt-2 group-hover:gap-2 transition-all"
               >
                 Voir les preuves
                 <ArrowRight className="size-3" />
               </Link>
             </CardContent>
-          </Card>
+          </Card>}
 
-          {/* Commandes à préparer */}
-          <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
+          {/* Le bandeau porte les commandes quand aucune preuve ne les précède. */}
+          {(summary.pendingProofsCount > 0 || summary.ordersPreparingCount === 0) && <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
             <CardHeader className="pb-2">
               <div className="inline-flex p-2 rounded-lg bg-primary/10 text-primary w-fit">
                 <Package className="size-5" />
@@ -249,19 +248,19 @@ export function DashboardContent({
               <p className="text-sm font-bold text-foreground">
                 Commandes à préparer
               </p>
-              <p className="text-xs text-muted-foreground">
-                Prêt pour expédition aujourd&apos;hui
+              <p className="text-sm text-muted-foreground">
+                À préparer avant la mise en livraison
               </p>
               <Link
                 href="/dashboard/orders"
                 prefetch
-                className="text-xs font-extrabold text-primary flex items-center gap-1 mt-4 group-hover:gap-2 transition-all"
+                className="text-sm font-extrabold text-primary inline-flex min-h-11 items-center gap-1 mt-2 group-hover:gap-2 transition-all"
               >
                 Voir les commandes
                 <ArrowRight className="size-3" />
               </Link>
             </CardContent>
-          </Card>
+          </Card>}
 
           {/* Live du moment */}
           <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
@@ -284,7 +283,7 @@ export function DashboardContent({
                       summary.hasLiveSession ? "bg-primary" : "bg-muted-foreground"
                     )}
                   />
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">
+                  <span className="text-sm font-bold text-muted-foreground uppercase">
                     {summary.hasLiveSession ? "En cours" : "Inactif"}
                   </span>
                 </div>
@@ -329,7 +328,7 @@ export function DashboardContent({
 
       {/* Section: Activité — masquée tant que WhatsApp n'est pas connecté :
           sans messages entrants, tous ces chiffres valent zéro. */}
-      {canManageSubscription && <ProductMetrics />}
+
       {!setupBlocking && (
       <section aria-labelledby="activite-heading">
         <h2
@@ -339,9 +338,9 @@ export function DashboardContent({
           <TrendingUp className="size-5 text-primary" />
           Résultats du jour
         </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           {/* Stats + Chart */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <KpiCard
                 label="Ventes totales"
@@ -370,7 +369,7 @@ export function DashboardContent({
                   <h3 className="text-sm font-bold text-foreground">
                     Évolution des revenus
                   </h3>
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">
+                  <span className="text-sm font-bold text-muted-foreground uppercase">
                     7 derniers jours
                   </span>
                 </div>
@@ -393,13 +392,13 @@ export function DashboardContent({
                       tickLine={false}
                       axisLine={false}
                       tickMargin={8}
-                      fontSize={11}
+                      fontSize={14}
                     />
                     <YAxis
                       tickLine={false}
                       axisLine={false}
                       tickMargin={4}
-                      fontSize={11}
+                      fontSize={14}
                       tickFormatter={(v: number) => `${v.toLocaleString("fr-FR")} F`}
                       width={60}
                     />
@@ -426,85 +425,18 @@ export function DashboardContent({
             </Card>
           </div>
 
-          {/* Flux d'activité */}
-          <Card className="border-border flex flex-col">
-            <CardHeader className="pb-2">
-              <h3 className="text-sm font-bold text-foreground flex items-center justify-between">
-                Flux d&apos;activité
-                <History className="size-4 text-muted-foreground" />
-              </h3>
-            </CardHeader>
-            <CardContent className="pt-0 flex-1 space-y-6">
-              {summary.ordersTodayCount > 0 && (
-                <div className="flex gap-4">
-                  <div className="relative">
-                    <div className="size-2 bg-primary rounded-full mt-1.5 ring-4 ring-primary/10" />
-                    <div className="absolute top-4 left-[3px] bottom-[-24px] w-[2px] bg-border" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-foreground">
-                      Commandes aujourd&apos;hui
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {summary.ordersTodayCount} commande
-                      {summary.ordersTodayCount > 1 ? "s" : ""} enregistrée
-                      {summary.ordersTodayCount > 1 ? "s" : ""}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {summary.pendingProofsCount > 0 && (
-                <div className="flex gap-4">
-                  <div className="relative">
-                    <div className="size-2 bg-amber-400 rounded-full mt-1.5 ring-4 ring-amber-400/10" />
-                    <div className="absolute top-4 left-[3px] bottom-[-24px] w-[2px] bg-border" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-foreground">
-                      Preuves en attente
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {summary.pendingProofsCount} preuve
-                      {summary.pendingProofsCount > 1 ? "s" : ""} à valider
-                    </p>
-                  </div>
-                </div>
-              )}
-              {summary.hasLiveSession && (
-                <div className="flex gap-4">
-                  <div className="relative">
-                    <div className="size-2 bg-success rounded-full mt-1.5 ring-4 ring-success/10" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-foreground">
-                      Live en cours
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Consultez Live Ops pour gérer les réservations
-                    </p>
-                  </div>
-                </div>
-              )}
-              {summary.ordersTodayCount === 0 &&
-                summary.pendingProofsCount === 0 &&
-                !summary.hasLiveSession && (
-                  <p className="text-sm text-muted-foreground">
-                    Aucune activité récente. Les réservations et commandes s’afficheront ici.
-                  </p>
-                )}
-            </CardContent>
-            <div className="px-6 pb-6">
-              <Link
-                href="/dashboard/orders"
-                prefetch
-                className="text-xs font-extrabold text-muted-foreground hover:text-primary transition-colors tracking-wide text-center block"
-              >
-                Voir les commandes
-              </Link>
-            </div>
-          </Card>
+
         </div>
       </section>
+      )}
+
+      {canManageSubscription && !setupBlocking && (
+        <details className="rounded-xl border border-border p-4 group">
+          <summary className="min-h-11 cursor-pointer py-3 text-base font-semibold focus-visible:outline-2 focus-visible:outline-primary">
+            Consulter le bilan des 30 derniers jours
+          </summary>
+          <div className="pt-4"><ProductMetrics /></div>
+        </details>
       )}
 
       {/* L'upsell passe en dernier, et disparaît tant que la boutique n'est pas
@@ -521,7 +453,7 @@ export function DashboardContent({
           </p>
           <Link
             href="/parametres/abonnement"
-            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
             Mettre à niveau
           </Link>

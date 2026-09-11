@@ -124,7 +124,8 @@ describe("DashboardContent", () => {
     state.summary = summary({ pendingProofsCount: 3, ordersPreparingCount: 7 });
     renderScreen();
 
-    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "3 preuves à vérifier" })).toBeInTheDocument();
+    expect(screen.queryByText("Preuves en attente")).not.toBeInTheDocument();
     expect(screen.getByText("7")).toBeInTheDocument();
   });
 
