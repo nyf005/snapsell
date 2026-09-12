@@ -295,6 +295,25 @@ describe("OrdersListContent — la preuve depuis la commande", () => {
    * en attente d'acompte, on voyait la pièce, et il fallait repartir sur l'écran
    * des preuves pour la retrouver. L'aller-retour de départ, à l'envers.
    */
+  it("présente le paiement avant la livraison pour un acompte en attente", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+    await user.click(screen.getAllByRole("button", { name: "CMD-2025-004" })[0]!);
+    const panel = await screen.findByRole("dialog");
+    const payment = within(panel).getByRole("region", { name: "Paiement à vérifier" });
+    const delivery = within(panel).getByText("Livraison", { exact: true });
+    expect(payment.compareDocumentPosition(delivery) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(payment).getByRole("button", { name: /Valider la preuve/ })).toBeVisible();
+  });
+
+  it("déplie directement les justificatifs du raccourci Voir la preuve", async () => {
+    const user = userEvent.setup();
+    render(<OrdersListContent />);
+    await user.click(screen.getAllByRole("button", { name: /validé.*voir la preuve/i })[0]!);
+    const panel = await screen.findByRole("dialog");
+    expect(panel.querySelector("details")).toHaveAttribute("open");
+  });
+
   it("permet de valider l'acompte depuis le panneau", async () => {
     const user = userEvent.setup();
     render(<OrdersListContent />);

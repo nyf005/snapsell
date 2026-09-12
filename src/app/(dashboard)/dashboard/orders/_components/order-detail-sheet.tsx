@@ -20,6 +20,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "~/components/ui/sheet";
+import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { formatDateTime, formatErrorText } from "~/lib/copy";
 import { depositStatusLabel, orderStatusLabel } from "~/lib/copy/orders";
@@ -57,7 +58,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1">
-      <dt className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <dt className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
         {icon}
         {label}
       </dt>
@@ -94,14 +95,16 @@ function deliveryLines(order: {
 
 export function OrderDetailSheet({
   orderId,
+  showProofs = false,
   open,
   onOpenChange,
 }: {
   orderId: string | null;
+  showProofs?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { data: order, isLoading } = api.orders.getById.useQuery(
+  const { data: order, isLoading, isError, error, refetch } = api.orders.getById.useQuery(
     { orderId: orderId ?? "" },
     { enabled: open && !!orderId },
   );
@@ -153,11 +156,16 @@ export function OrderDetailSheet({
           <SheetDescription className="text-sm leading-6 text-muted-foreground">
             {order
               ? `${orderStatusLabel(order.status)} — ${depositStatusLabel(order.depositStatus)}`
-              : "Chargement du détail…"}
+              : isError ? "Le détail n’a pas pu être chargé." : "Chargement du détail…"}
           </SheetDescription>
         </SheetHeader>
 
-        {isLoading || !order ? (
+        {isError ? (
+          <div className="space-y-4 p-6">
+            <p role="alert" className="text-sm text-destructive">{formatErrorText(error, "orders")}</p>
+            <Button variant="outline" onClick={() => void refetch()}>Réessayer</Button>
+          </div>
+        ) : isLoading || !order ? (
           <div className="space-y-4 p-6">
             <Skeleton className="h-4 w-2/3" />
             <Skeleton className="h-4 w-1/2" />
@@ -165,6 +173,41 @@ export function OrderDetailSheet({
           </div>
         ) : (
           <div className="space-y-6 p-6">
+            {order.depositStatus === "deposit_pending" && <section aria-label="Paiement à vérifier" className="space-y-3">
+              <p className="text-sm text-muted-foreground">Vérifiez la preuve et le paiement reçu avant de valider l’acompte. Comparez avec le montant convenu avec la cliente.</p>
+            <div className="border-t border-border pt-6">
+              <h3 className="pb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Preuves de paiement
+              </h3>
+              <OrderProofs
+                proofs={order.proofs}
+                orderNumber={order.orderNumber}
+                actions={{
+                  onApprove: (proofId) => approve.mutate({ proofId }),
+                  onReject: (proofId) => setRejectTargetId(proofId),
+                  disabled: isActing,
+                }}
+              />
+              {actionError ? (
+                <p role="alert" className="pt-3 text-sm text-destructive">
+                  {formatErrorText(actionError, "proofs")}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="border-t border-border pt-6">
+              <h3 className="pb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Faire avancer
+              </h3>
+              <OrderStatusControl
+                orderId={order.id}
+                orderNumber={order.orderNumber}
+                status={order.status}
+                layout="panel"
+              />
+            </div>
+
+            </section>}
             <dl className="grid grid-cols-2 gap-4">
               <Field icon={<Package className="size-3.5" aria-hidden />} label="Article">
                 {order.liveItemCode ?? "—"}
@@ -199,8 +242,9 @@ export function OrderDetailSheet({
               </Field>
             </div>
 
+            {order.depositStatus !== "deposit_pending" && (
             <div className="border-t border-border pt-6">
-              <h3 className="pb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <h3 className="pb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 Faire avancer
               </h3>
               <OrderStatusControl
@@ -211,8 +255,11 @@ export function OrderDetailSheet({
               />
             </div>
 
+            )}
+            {order.depositStatus !== "deposit_pending" && <details open={showProofs || undefined} className="border-t border-border pt-3">
+              <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium">Consulter les preuves de paiement ({order.proofs.length})</summary>
             <div className="border-t border-border pt-6">
-              <h3 className="pb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <h3 className="pb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 Preuves de paiement
               </h3>
               <OrderProofs
@@ -231,8 +278,9 @@ export function OrderDetailSheet({
               ) : null}
             </div>
 
+            </details>}
             {order.depositExpiresAt ? (
-              <p className="border-t border-border pt-6 text-xs text-muted-foreground">
+              <p className="border-t border-border pt-6 text-sm text-muted-foreground">
                 Délai d’acompte jusqu’au {formatDateTime(order.depositExpiresAt)}.
               </p>
             ) : null}

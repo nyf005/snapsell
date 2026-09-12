@@ -131,9 +131,9 @@ export function AssistantControl({
               {title.replace("Assistant ", "")}
             </Badge>
           </div>
-          <p className="mt-1 max-w-[65ch] text-sm leading-5 text-muted-foreground">
+          {!(compact && isActive) && <p className="mt-1 max-w-[65ch] text-sm leading-5 text-muted-foreground">
             {detail}
-          </p>
+          </p>}
         </div>
         <Switch
           checked={status.enabled}

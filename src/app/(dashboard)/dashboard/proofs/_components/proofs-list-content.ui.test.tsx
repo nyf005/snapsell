@@ -149,10 +149,22 @@ describe("ProofsListContent", () => {
     ).toBeInTheDocument();
   });
 
+  it("permet de lire et sélectionner une preuve sur mobile sans conserver la sélection dans une autre vue", async () => {
+    const user = userEvent.setup();
+    render(<ProofsListContent />);
+    const mobile = screen.getByRole("list", { name: "Preuves de paiement · À vérifier" });
+    expect(within(mobile).getByText("Paiement effectué")).toBeInTheDocument();
+    expect(within(mobile).getByRole("img", { name: "Preuve pour CMD-001" })).toBeInTheDocument();
+    await user.click(within(mobile).getByRole("button", { name: "Sélectionner la preuve CMD-001" }));
+    expect(screen.getByRole("button", { name: "Valider la sélection" })).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Validées" }));
+    expect(screen.queryByRole("button", { name: "Valider la sélection" })).not.toBeInTheDocument();
+  });
+
   it("expose chaque preuve dans la composition mobile", () => {
     render(<ProofsListContent />);
     const list = screen.getByRole("list", {
-      name: "Preuves de paiement en attente de validation",
+      name: "Preuves de paiement · À vérifier",
     });
     expect(within(list).getAllByRole("listitem")).toHaveLength(2);
   });

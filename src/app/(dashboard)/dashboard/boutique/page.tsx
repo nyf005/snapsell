@@ -9,6 +9,16 @@ import { TaskPageHeader } from "../../_components/task-page-header";
 
 export const metadata = { title: "Boutique | SnapSell" };
 
+const shortDescriptions: Record<string, string> = {
+  "/parametres/prix": "Les prix appliqués à vos codes articles.",
+  "/parametres/livraison": "Les tarifs par zone de livraison.",
+  "/parametres/whatsapp": "Votre numéro et son état de connexion.",
+  "/parametres/reponses": "Les réponses envoyées par l’assistant.",
+  "/parametres/team": "Les personnes et leurs droits d’accès.",
+  "/parametres/abonnement": "Votre offre, vos conversations et vos paiements.",
+  "/dashboard/audit": "Les actions passées dans votre boutique.",
+};
+
 export default async function BoutiquePage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
@@ -27,7 +37,7 @@ export default async function BoutiquePage() {
                 const Icon = item.icon;
                 return <li key={item.href}><Link href={item.href} className="flex min-h-16 items-center gap-3 rounded-lg py-4 pr-3 hover:bg-muted focus-visible:outline-2 focus-visible:outline-primary">
                   <Icon className="size-5 shrink-0 text-primary" aria-hidden="true" />
-                  <span className="flex-1"><span className="block font-medium">{item.label}</span><span className="block text-sm text-muted-foreground">{item.description}</span></span>
+                  <span className="flex-1"><span className="block font-medium">{item.label}</span><span className="block text-sm text-muted-foreground">{shortDescriptions[item.href] ?? item.description}</span></span>
                   <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
                 </Link></li>;
               })}

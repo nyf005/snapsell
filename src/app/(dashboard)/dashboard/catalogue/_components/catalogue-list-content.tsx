@@ -12,6 +12,7 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "~/components/ui/dropdown-menu";
 import { DataPagination } from "~/components/ui/data-pagination";
 import { CatalogueListSkeleton } from "./catalogue-skeletons";
 import {
@@ -24,7 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, PackageOpen, ImageOff, Send } from "lucide-react";
+import { Plus, Pencil, Trash2, PackageOpen, ImageOff, Send, MoreHorizontal } from "lucide-react";
 import { CatalogueItemFormDialog } from "./catalogue-item-form-dialog";
 import { SendProductCardDialog } from "./send-product-card-dialog";
 import { DashboardEmptyState } from "~/app/(dashboard)/_components/dashboard-empty-state";
@@ -264,32 +265,17 @@ export function CatalogueListContent() {
                           onClick={() => handleEditItem(item)}
                           aria-label={`Modifier l’article ${item.code}`}
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-4 w-4" /> Modifier
                         </Button>
-                        {/*
-                          Visible seulement si l'article est synchronisé avec Meta :
-                          `sendProductCard` le refuserait sinon, et proposer un
-                          bouton qui échoue est pire que ne rien proposer.
-                        */}
-                        {item.syncedToMeta ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setProductCardItem({ id: item.id, code: item.code })}
-                            aria-label={`Envoyer la fiche de l’article ${item.code}`}
-                          >
-                            <Send className="h-4 w-4" />
-                          </Button>
-                        ) : null}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteItem(item)}
-                          disabled={item.reservedQty > 0}
-                          aria-label={`Supprimer l’article ${item.code}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" aria-label={`Autres actions pour l’article ${item.code}`}><MoreHorizontal className="size-4" /></Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {item.syncedToMeta && <DropdownMenuItem onSelect={() => setProductCardItem({ id: item.id, code: item.code })}><Send className="size-4" />Envoyer la fiche de l’article {item.code}</DropdownMenuItem>}
+                            <DropdownMenuItem disabled={item.reservedQty > 0} onSelect={() => handleDeleteItem(item)}><Trash2 className="size-4" />Supprimer l’article {item.code}</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     )}
                   />

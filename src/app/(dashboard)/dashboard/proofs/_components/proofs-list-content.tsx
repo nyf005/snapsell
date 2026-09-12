@@ -28,6 +28,7 @@ import {
   EmptyTitle,
 } from "~/components/ui/empty";
 
+import { OrderDetailSheet } from "../../orders/_components/order-detail-sheet";
 import { ProofsListSkeleton } from "./proofs-skeletons";
 import { DataPagination } from "~/components/ui/data-pagination";
 import { Check, FileCheck, Phone, X } from "lucide-react";
@@ -62,6 +63,7 @@ const PROOF_STATUS_TINT: Record<string, string> = {
 
 export function ProofsListContent() {
   const utils = api.useUtils();
+  const [detailOrderId, setDetailOrderId] = useState<string | null>(null);
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [accumulatedProofs, setAccumulatedProofs] = useState<ProofOutput[]>([]);
   const [view, setView] = useState<ProofView>("pending");
@@ -79,6 +81,7 @@ export function ProofsListContent() {
    * précédente s'appliquerait à la nouvelle et empilerait deux listes sans rapport.
    */
   const changeView = (next: ProofView) => {
+    setSelectedIds(new Set());
     setView(next);
     setCursor(undefined);
     setAccumulatedProofs([]);
@@ -95,6 +98,13 @@ export function ProofsListContent() {
   }, [data?.items, cursor]);
 
   const proofs = accumulatedProofs;
+  useEffect(() => {
+    setSelectedIds((previous) => {
+      const pendingIds = new Set(proofs.filter((proof) => proof.status === "pending").map((proof) => proof.id));
+      const next = new Set([...previous].filter((id) => pendingIds.has(id)));
+      return next.size === previous.size ? previous : next;
+    });
+  }, [proofs]);
   const nextCursor = data?.nextCursor;
   const hasMore = Boolean(nextCursor);
 
@@ -151,9 +161,9 @@ export function ProofsListContent() {
 
   const isPending =
     approve.isPending || reject.isPending || bulkApprove.isPending || bulkReject.isPending;
-  const allIds = useMemo(() => proofs.map((p) => p.id), [proofs]);
+  const allIds = useMemo(() => proofs.filter((p) => p.status === "pending").map((p) => p.id), [proofs]);
   const isAllSelected =
-    proofs.length > 0 && selectedIds.size > 0 && allIds.every((id) => selectedIds.has(id));
+    allIds.length > 0 && selectedIds.size > 0 && allIds.every((id) => selectedIds.has(id));
   const isSomeSelected = selectedIds.size > 0;
 
   const toggleAll = () => {
@@ -238,45 +248,10 @@ export function ProofsListContent() {
               </div>
             ) : (
               <>
-              {/* Barre en haut du tableau : onglet + actions groupées */}
-              {proofs.length > 0 && (
-                <div className="flex flex-col gap-4 border-b border-border bg-muted/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex p-1">
-                    <span className="flex h-9 items-center justify-center rounded-lg bg-card px-4 text-sm font-bold text-primary shadow-sm">
-                      En attente
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 px-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                      Actions groupées :
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 gap-1.5 rounded-md bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 dark:text-emerald-400"
-                      disabled={!isSomeSelected || isPending}
-                      onClick={handleBulkApprove}
-                    >
-                      <Check className="size-3.5" />
-                      Tout valider
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 gap-1.5 rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20"
-                      disabled={!isSomeSelected || isPending}
-                      onClick={handleBulkReject}
-                    >
-                      <X className="size-3.5" />
-                      Tout refuser
-                    </Button>
-                  </div>
-                </div>
-              )}
               <DataList
                 items={proofs}
                 getKey={(proof) => proof.id}
-                label="Preuves de paiement en attente de validation"
+                label={`Preuves de paiement · ${PROOF_VIEWS.find((v) => v.value === view)?.label}`}
                 columns={[
                   {
                     id: "select",
@@ -285,8 +260,10 @@ export function ProofsListContent() {
                     header: (
                       <button
                         type="button"
+                        disabled={allIds.length === 0 || isPending}
+                        aria-pressed={isAllSelected}
                         onClick={toggleAll}
-                        className="flex size-5 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                        className="flex size-11 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                         aria-label={isAllSelected ? "Tout désélectionner" : "Tout sélectionner"}
                       >
                         {isAllSelected && <Check className="size-3" strokeWidth={3} />}
@@ -298,8 +275,10 @@ export function ProofsListContent() {
                     cell: (proof) => (
                       <button
                         type="button"
+                        disabled={proof.status !== "pending" || isPending}
+                        aria-pressed={selectedIds.has(proof.id)}
                         onClick={() => toggleOne(proof.id)}
-                        className="flex size-5 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                        className="flex size-11 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                         aria-label={`Sélectionner la preuve ${proof.orderNumber}`}
                       >
                         {selectedIds.has(proof.id) && (
@@ -311,7 +290,7 @@ export function ProofsListContent() {
                   {
                     id: "preview",
                     header: "Aperçu",
-                    role: "hiddenOnMobile",
+                    role: "meta",
                     headerClassName:
                       "w-24 px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
                     className: "px-6 py-4",
@@ -321,7 +300,7 @@ export function ProofsListContent() {
                           href={`/api/proofs/${proof.id}/media`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="relative block size-12 overflow-hidden rounded-lg border border-border bg-muted"
+                          className="relative block size-24 overflow-hidden rounded-lg border border-border bg-muted"
                         >
                           <img
                             src={`/api/proofs/${proof.id}/media`}
@@ -329,6 +308,8 @@ export function ProofsListContent() {
                             className="absolute inset-0 size-full object-cover"
                           />
                         </a>
+                      ) : proof.kind === "text" ? (
+                        <p className="max-w-sm whitespace-pre-wrap break-words text-sm">{proof.textPayload}</p>
                       ) : (
                         <div className="flex size-12 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
                           <FileCheck className="size-5" />
@@ -343,9 +324,9 @@ export function ProofsListContent() {
                     className: "px-6 py-4",
                     cell: (proof) => (
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-sm font-bold text-primary">
+                        <Button variant="link" className="h-auto min-h-11 justify-start whitespace-normal p-0 text-sm font-bold" onClick={() => setDetailOrderId(proof.orderId)} aria-label={`Voir la commande ${proof.orderNumber}`}>
                           {proof.orderNumber}
-                        </span>
+                        </Button>
                         <Badge variant="secondary" className={`w-fit ${PROOF_STATUS_TINT[proof.status] ?? ""}`}>
                           {proofStatusLabel(proof.status)}
                         </Badge>
@@ -389,6 +370,7 @@ export function ProofsListContent() {
                 actions={(proof) =>
                   proof.status !== "pending" ? null : (
                     <>
+                      <Button className="md:hidden" size="sm" variant="outline" disabled={isPending} aria-pressed={selectedIds.has(proof.id)} onClick={() => toggleOne(proof.id)} aria-label={`Sélectionner la preuve ${proof.orderNumber}`}>{selectedIds.has(proof.id) ? "Sélectionnée" : "Sélectionner"}</Button>
                       <Button
                         size="sm"
                         variant="outline"
@@ -554,6 +536,7 @@ export function ProofsListContent() {
           )}
         </div>
       </main>
+      {detailOrderId && <OrderDetailSheet key={detailOrderId} orderId={detailOrderId} showProofs open onOpenChange={(open) => { if (!open) setDetailOrderId(null); }} />}
     </>
   );
 }

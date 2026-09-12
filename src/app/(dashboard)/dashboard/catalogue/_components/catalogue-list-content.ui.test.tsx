@@ -186,12 +186,16 @@ describe("CatalogueListContent — envoyer la fiche produit", () => {
   it("n'offre l'action que sur un article synchronisé avec Meta", async () => {
     render(<CatalogueListContent />);
 
-    // `DataList` rend chaque ligne deux fois — tableau et carte mobile.
+    const user = userEvent.setup();
+    await user.click(screen.getAllByRole("button", { name: /Autres actions pour l’article A1/ })[0]!);
     expect(
-      await screen.findAllByRole("button", { name: /Envoyer la fiche de l’article A1/ }),
+      await screen.findAllByRole("menuitem", { name: /Envoyer la fiche de l’article A1/ }),
     ).not.toHaveLength(0);
+    expect(screen.getByRole("menuitem", { name: /Supprimer l’article A1/ })).toHaveAttribute("data-disabled");
+    await user.keyboard("{Escape}");
+    await user.click(screen.getAllByRole("button", { name: /Autres actions pour l’article B2/ })[0]!);
     expect(
-      screen.queryAllByRole("button", { name: /Envoyer la fiche de l’article B2/ }),
+      screen.queryAllByRole("menuitem", { name: /Envoyer la fiche de l’article B2/ }),
     ).toHaveLength(0);
   });
 
@@ -199,8 +203,9 @@ describe("CatalogueListContent — envoyer la fiche produit", () => {
     const user = userEvent.setup();
     render(<CatalogueListContent />);
 
+    await user.click(screen.getAllByRole("button", { name: /Autres actions pour l’article A1/ })[0]!);
     await user.click(
-      (await screen.findAllByRole("button", { name: /Envoyer la fiche de l’article A1/ }))[0]!,
+      (await screen.findAllByRole("menuitem", { name: /Envoyer la fiche de l’article A1/ }))[0]!,
     );
     await user.type(screen.getByLabelText(/Numéro de la cliente/), "+2250701020304");
     await user.click(screen.getByRole("button", { name: "Envoyer la fiche" }));
@@ -217,8 +222,9 @@ describe("CatalogueListContent — envoyer la fiche produit", () => {
     const user = userEvent.setup();
     render(<CatalogueListContent />);
 
+    await user.click(screen.getAllByRole("button", { name: /Autres actions pour l’article A1/ })[0]!);
     await user.click(
-      (await screen.findAllByRole("button", { name: /Envoyer la fiche de l’article A1/ }))[0]!,
+      (await screen.findAllByRole("menuitem", { name: /Envoyer la fiche de l’article A1/ }))[0]!,
     );
     await user.type(screen.getByLabelText(/Numéro de la cliente/), "0701020304");
     await user.click(screen.getByRole("button", { name: "Envoyer la fiche" }));

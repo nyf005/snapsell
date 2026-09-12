@@ -197,9 +197,10 @@ export function DashboardContent({
           */}
           <HelpHint slug="comment-ca-marche" />
         </div>
+        {setup?.isComplete && !dailyPriority && <p role="status" className="mb-4 text-base font-medium">Aucun paiement à vérifier ni commande à préparer.</p>}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {/* Le bandeau prioritaire porte déjà les preuves à vérifier. */}
-          {summary.pendingProofsCount === 0 && <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
+          {summary.pendingProofsCount === 0 && !setup?.isComplete && <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
@@ -235,7 +236,7 @@ export function DashboardContent({
           </Card>}
 
           {/* Le bandeau porte les commandes quand aucune preuve ne les précède. */}
-          {(summary.pendingProofsCount > 0 || summary.ordersPreparingCount === 0) && <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
+          {(summary.pendingProofsCount > 0 && summary.ordersPreparingCount > 0 || summary.ordersPreparingCount === 0 && !setup?.isComplete) && <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
             <CardHeader className="pb-2">
               <div className="inline-flex p-2 rounded-lg bg-primary/10 text-primary w-fit">
                 <Package className="size-5" />

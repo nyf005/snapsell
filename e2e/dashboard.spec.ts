@@ -111,3 +111,42 @@ test("un agent conserve catalogue et historique, les réglages restent protégé
   await expect(page.getByText("Page réservée", { exact: true })).toBeVisible();
   await expect(main.locator('a[href="/parametres/prix"]')).toHaveCount(0);
 });
+
+test("les filtres restent accessibles et les actions secondaires du catalogue conservent la suppression", async ({ page }) => {
+  await db.catalogueItem.create({ data: { tenantId, code: "UX-ARTICLE", name: "Article de test", amount: 500000 } });
+  await login(page);
+  await page.goto("/dashboard/orders");
+  await expect(page.getByLabel("Vue ou statut")).not.toBeVisible();
+  await page.locator("summary").filter({ hasText: "Filtres" }).click();
+  await expect(page.getByLabel("Vue ou statut")).toBeVisible();
+  await page.getByLabel("Vue ou statut").click();
+  await page.getByRole("option", { name: "Livrée", exact: true }).click();
+  await page.locator("summary").filter({ hasText: "Filtres" }).click();
+  await expect(page.locator("summary").filter({ hasText: "Filtres" })).toContainText("Livrée");
+  await page.goto("/dashboard/catalogue");
+  await expect(page.getByRole("button", { name: "Modifier l’article UX-ARTICLE" }).filter({ visible: true })).toBeVisible();
+  await page.getByRole("button", { name: "Autres actions pour l’article UX-ARTICLE" }).filter({ visible: true }).click();
+  await page.getByRole("menuitem", { name: "Supprimer l’article UX-ARTICLE" }).click();
+  await expect(page.getByRole("alertdialog")).toBeVisible();
+  await page.getByRole("button", { name: "Annuler", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Modifier l’article UX-ARTICLE" }).filter({ visible: true })).toBeVisible();
+});
+
+test("la preuve mobile ouvre la commande et reste prioritaire dans son détail", async ({ page }, testInfo) => {
+  const item = await db.catalogueItem.create({ data: { tenantId, code: "UX-PREUVE", amount: 500000 } });
+  const reservation = await db.reservation.create({ data: {
+    tenantId, catalogueItemId: item.id, clientPhone: "+2250701020304", correlationId: randomUUID(),
+    status: "confirmed", address: "Cocody, Abidjan",
+  } });
+  const order = await db.order.create({ data: { tenantId, reservationId: reservation.id, orderNumber: "SS-UX", status: "confirmed_pending_deposit", depositStatus: "deposit_pending" } });
+  await db.paymentProof.create({ data: { tenantId, orderId: order.id, textPayload: "Virement reçu — référence UX-123", correlationId: randomUUID() } });
+  await login(page);
+  await page.goto("/dashboard/proofs");
+  await expect(page.getByText("Virement reçu — référence UX-123").filter({ visible: true })).toBeVisible();
+  await page.getByRole("button", { name: "Voir la commande SS-UX" }).filter({ visible: true }).click();
+  const panel = page.getByRole("dialog");
+  await expect(panel.getByRole("region", { name: "Paiement à vérifier" })).toBeVisible();
+  await expect(panel.getByText("Cocody, Abidjan")).toBeVisible();
+  await expect(panel.getByRole("button", { name: /Valider la preuve/ })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("payment-detail.png"), fullPage: true, animations: "disabled" });
+});

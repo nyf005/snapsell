@@ -145,6 +145,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [accumulatedOrders, setAccumulatedOrders] = useState<OrderOutput[]>([]);
   /** Commande dont le panneau de détail est ouvert. `null` = fermé. */
+  const [showProofs, setShowProofs] = useState(false);
   const [detailOrderId, setDetailOrderId] = useState<string | null>(null);
   /** Sélection pour le traitement en masse, comme sur l'écran des preuves. */
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -343,34 +344,6 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
               }
             />
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <KpiCard
-                label="Total commandes"
-                value={kpis.total}
-                icon={ListOrdered}
-                iconVariant="primary"
-              />
-              <KpiCard
-                label="En attente acompte"
-                value={kpis.pendingDeposit}
-                icon={Wallet}
-                iconVariant="warning"
-              />
-              <KpiCard
-                label="À livrer"
-                value={kpis.toDeliver}
-                icon={Truck}
-                iconVariant="success"
-              />
-              <KpiCard
-                label="Annulées"
-                value={kpis.cancelled}
-                icon={XCircle}
-                iconVariant="destructive"
-              />
-            </div>
-
             <nav
               aria-label="Vues des commandes"
               className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1"
@@ -417,6 +390,9 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                       />
                     </div>
                   </div>
+                  <details className="w-full rounded-lg border border-border px-3">
+                    <summary className="cursor-pointer py-3 text-sm font-medium">Filtres · {orderWorkViews.find((view) => view.value === workView)?.label ?? orderFilterOptions.find((option) => option.value === workView)?.label ?? "Tous les statuts"}{dateFrom || dateTo ? " · période active" : ""}</summary>
+                    <div className="flex flex-wrap items-end gap-4 pb-3">
                   <div className="w-full md:w-48">
                     <label
                       htmlFor="orders-status-filter"
@@ -498,7 +474,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                               range?.to?.toISOString().slice(0, 10) ?? "",
                             );
                           }}
-                          numberOfMonths={2}
+                          numberOfMonths={1}
                           locale={fr}
                           className="rounded-lg border-0"
                         />
@@ -513,9 +489,42 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                   >
                     Rafraîchir
                   </Button>
+                    </div>
+                  </details>
                 </div>
               </CardContent>
             </Card>
+
+            <details className="rounded-lg border border-border px-4">
+              <summary className="cursor-pointer py-3 text-sm font-medium">Bilan de la liste affichée</summary>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <KpiCard
+                label="Total commandes"
+                value={kpis.total}
+                icon={ListOrdered}
+                iconVariant="primary"
+              />
+              <KpiCard
+                label="En attente acompte"
+                value={kpis.pendingDeposit}
+                icon={Wallet}
+                iconVariant="warning"
+              />
+              <KpiCard
+                label="À livrer"
+                value={kpis.toDeliver}
+                icon={Truck}
+                iconVariant="success"
+              />
+              <KpiCard
+                label="Annulées"
+                value={kpis.cancelled}
+                icon={XCircle}
+                iconVariant="destructive"
+              />
+            </div>
+
+            </details>
 
             {bulkMessage ? (
               <div
@@ -588,7 +597,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                       cell: (order) => (
                         <button
                           type="button"
-                          onClick={() => setDetailOrderId(order.id)}
+                          onClick={() => { setShowProofs(false); setDetailOrderId(order.id); }}
                           className="min-h-11 font-bold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                           {order.orderNumber}
@@ -605,7 +614,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                         <StatusBadge
                           status={order.status as OrderStatus}
                           depositStatus={order.depositStatus}
-                          onShowDeposit={() => setDetailOrderId(order.id)}
+                          onShowDeposit={() => { setShowProofs(true); setDetailOrderId(order.id); }}
                         />
                       ),
                     },
@@ -681,6 +690,8 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
         </main>
 
         <OrderDetailSheet
+          key={detailOrderId}
+          showProofs={showProofs}
           orderId={detailOrderId}
           open={detailOrderId !== null}
           onOpenChange={(open) => {
