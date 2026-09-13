@@ -26,6 +26,7 @@ export const listOrdersInputSchema = z
      * `confirmed_pending_deposit` et `confirmed` — voir src/lib/copy/orders.ts.
      */
     status: z.union([orderStatusSchema, z.array(orderStatusSchema).min(1)]).optional(),
+    queue: z.enum(["to_process", "in_progress", "completed", "review", "ready", "awaiting", "preparing", "in_delivery", "delivered", "cancelled", "all"]).optional(),
     payment: z.enum(["review", "awaiting", "approved", "rejected", "none"]).optional(),
     search: z.string().trim().max(100).optional(),
     dateFrom: dateOptionalSchema,
@@ -103,6 +104,8 @@ export const orderOutputSchema = z.object({
   deliveryAddressZone: z.string().nullable(),
   deliveryAddressDetails: z.string().nullable(),
   liveItemCode: z.string().nullable(),
+  articleName: z.string().nullable(),
+  articlePhotoUrl: z.string().nullable(),
   proofs: z.array(orderProofOutputSchema),
 });
 

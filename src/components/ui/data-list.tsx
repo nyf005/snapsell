@@ -63,6 +63,7 @@ export type DataListProps<T> = {
   className?: string;
   /** Largeur minimale du tableau desktop, si les colonnes sont serrées. */
   tableMinWidth?: string;
+  onOpenItem?: (item: T) => void;
 };
 
 export function DataList<T>({
@@ -74,6 +75,7 @@ export function DataList<T>({
   label,
   className,
   tableMinWidth,
+  onOpenItem,
 }: DataListProps<T>) {
   const isEmpty = items.length === 0;
   const colSpan = columns.length + (actions ? 1 : 0);
@@ -108,7 +110,7 @@ export function DataList<T>({
                 </TableRow>
               ) : (
                 items.map((item) => (
-                  <TableRow key={getKey(item)} className="hover:bg-muted/40">
+                  <TableRow key={getKey(item)} className={cn("hover:bg-muted/40", onOpenItem && "cursor-pointer")} onClick={(event) => { if (onOpenItem && !(event.target as HTMLElement).closest("button, a, input, select, [role=button]")) onOpenItem(item); }}>
                     {columns.map((column) => (
                       <TableCell key={column.id} className={column.className}>
                         {column.cell(item)}

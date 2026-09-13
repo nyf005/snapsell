@@ -39,9 +39,9 @@ export const ORDER_QUERY_INCLUDE = {
       quantity: true,
       variant: { select: { label: true } },
       liveItemId: true,
-      liveItem: { select: { code: true } },
+      liveItem: { select: { code: true, mediaStorageKey: true } },
       catalogueItemId: true,
-      catalogueItem: { select: { code: true } },
+      catalogueItem: { select: { code: true, name: true, mediaStorageKey: true } },
     },
   },
   paymentProofs: {
@@ -120,6 +120,12 @@ export function mapOrderOutput(o: any) {
     deliveryAddressZone: o.reservation.addressZone ?? null,
     deliveryAddressDetails: o.reservation.addressDetails ?? null,
     liveItemCode: o.reservation.catalogueItem?.code ?? o.reservation.liveItem?.code ?? null,
+    articleName: o.reservation.catalogueItem?.name ?? null,
+    articlePhotoUrl: o.reservation.catalogueItem?.mediaStorageKey
+      ? `/api/catalogue/${o.reservation.catalogueItemId}/photo`
+      : o.reservation.liveItem?.mediaStorageKey
+        ? `/api/media/${o.reservation.liveItem.mediaStorageKey.split("/").map(encodeURIComponent).join("/")}`
+        : null,
     proofs,
   };
 }

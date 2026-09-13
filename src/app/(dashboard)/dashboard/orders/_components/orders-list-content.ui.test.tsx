@@ -218,7 +218,7 @@ describe("OrdersListContent", () => {
     // « Confirmée » existe comme onglet ET comme badge : même mot des deux côtés.
     expect(screen.getAllByText("Confirmée").length).toBeGreaterThan(1);
     // Les anciens libellés divergents ont disparu.
-    expect(screen.queryByText("À préparer")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "À préparer" })).toBeInTheDocument();
     expect(screen.queryByText("Prépa")).not.toBeInTheDocument();
     // La seule vue transversale reste, sans équivalent en badge.
     expect(screen.getByRole("button", { name: "À traiter" })).toBeInTheDocument();
@@ -241,7 +241,7 @@ describe("OrdersListContent", () => {
   it("shows pending proofs link when proofs exist", () => {
     render(<OrdersListContent />);
     expect(
-      screen.getByText(/Paiements à vérifier · 2 preuves/),
+      screen.getByRole("button", { name: "Paiements à vérifier" }),
     ).toBeInTheDocument();
   });
 });
@@ -425,6 +425,7 @@ describe("OrdersListContent — l'annulation demande confirmation", () => {
     const user = userEvent.setup();
     render(<OrdersListContent />);
 
+    await user.click(screen.getAllByRole("button", { name: "CMD-2025-001" })[0]!);
     const selects = await screen.findAllByRole("combobox", {
       name: /Changer le statut de la commande CMD-2025-001/,
     });
@@ -445,6 +446,7 @@ describe("OrdersListContent — l'annulation demande confirmation", () => {
     const user = userEvent.setup();
     render(<OrdersListContent />);
 
+    await user.click(screen.getAllByRole("button", { name: "CMD-2025-001" })[0]!);
     const selects = await screen.findAllByRole("combobox", {
       name: /Changer le statut de la commande CMD-2025-001/,
     });
@@ -460,6 +462,7 @@ describe("OrdersListContent — l'annulation demande confirmation", () => {
     const user = userEvent.setup();
     render(<OrdersListContent />);
 
+    await user.click(screen.getAllByRole("button", { name: "CMD-2025-001" })[0]!);
     const selects = await screen.findAllByRole("combobox", {
       name: /Changer le statut de la commande CMD-2025-001/,
     });

@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useRef, useState } from "react";
+import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, ChevronsUpDown, KeyRound, LogOut } from "lucide-react";
 
 import { SnapSellLogo } from "~/components/auth/snapsel-logo";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { ChangePasswordDialog } from "./change-password-dialog";
-import { SignOutButton } from "./sign-out-button";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "~/components/ui/dropdown-menu";
 import { navItemsFor, primaryHrefFor } from "~/lib/navigation";
 import { CreditsAlert } from "./credits-alert";
 import {
@@ -35,13 +37,14 @@ type AppSidebarProps = {
 };
 
 export function AppSidebar({
-  userName,
   userEmail,
   tenantName,
   canManageGrid,
   showBranding,
 }: AppSidebarProps) {
   const pathname = usePathname();
+  const [passwordOpen, setPasswordOpen] = useState(false);
+  const accountTrigger = useRef<HTMLButtonElement>(null);
 
 
   return (
@@ -108,27 +111,30 @@ export function AppSidebar({
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <div className="flex w-full items-center gap-2 rounded-md p-2">
-              <Avatar className="h-8 w-8 shrink-0">
-                <AvatarFallback className="text-xs">
-                  {getInitials(userName)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{userName}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {tenantName}
-                </p>
-              </div>
+          <SidebarMenuItem className="mt-2 border-t border-sidebar-border pt-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button ref={accountTrigger} type="button" aria-label={`Compte de ${tenantName}`} className="flex min-h-12 w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-sidebar-accent focus-visible:outline-2 focus-visible:outline-primary group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+                  <Avatar className="size-9 shrink-0 group-data-[collapsible=icon]:size-8">
+                    <AvatarFallback className="text-xs">{getInitials(tenantName)}</AvatarFallback>
+                  </Avatar>
+                  <span className="min-w-0 flex-1 break-words text-sm font-semibold leading-5 group-data-[collapsible=icon]:hidden">{tenantName}</span>
+                  <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden" aria-hidden="true" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-64 max-w-[calc(100vw-2rem)] p-1.5" onCloseAutoFocus={(event) => { if (passwordOpen) event.preventDefault(); }}>
+                <DropdownMenuItem className="min-h-11 cursor-pointer gap-3 px-3" onSelect={() => setPasswordOpen(true)}>
+                  <KeyRound aria-hidden="true" />Changer le mot de passe
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="min-h-11 cursor-pointer gap-3 px-3 text-destructive focus:bg-destructive/10 focus:text-destructive" onSelect={() => { void signOut({ callbackUrl: "/login", redirect: true }); }}>
+                  <LogOut aria-hidden="true" />Se déconnecter
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <ChangePasswordDialog email={userEmail} open={passwordOpen} onOpenChange={setPasswordOpen} onCloseAutoFocus={(event) => { event.preventDefault(); accountTrigger.current?.focus(); }} />
+            <div className="mt-2 empty:hidden group-data-[collapsible=icon]:hidden">
               <CreditsAlert canManageSubscription={canManageGrid} />
-              {/*
-                Le mot de passe se change ici et non dans `/parametres` : cet
-                écran est réservé aux Propriétaires et Managers, alors qu'un
-                Agent a les mêmes raisons d'en changer.
-              */}
-              <ChangePasswordDialog email={userEmail} />
-              <SignOutButton className="shrink-0 text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
             </div>
           </SidebarMenuItem>
         </SidebarMenu>

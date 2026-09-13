@@ -175,19 +175,6 @@ export function OrderDetailSheet({
           </div>
         ) : (
           <div className="space-y-6 p-6">
-            <dl className="grid grid-cols-2 gap-4">
-              <Field icon={<Package className="size-3.5" aria-hidden />} label="Article">
-                {order.liveItemCode ?? "—"}
-                {order.variantLabel ? (
-                  <span className="text-muted-foreground"> · {order.variantLabel}</span>
-                ) : null}
-              </Field>
-              <Field label="Quantité">{order.quantity ?? "—"}</Field>
-              <Field icon={<Phone className="size-3.5" aria-hidden />} label="Cliente">
-                {order.clientPhone}
-              </Field>
-              <Field label="Passée le">{formatDateTime(order.createdAt)}</Field>
-            </dl>
             {order.depositStatus === "deposit_pending" && <section aria-label={paymentState(order).key === "review" ? "Paiement à vérifier" : "Acompte attendu"} className="space-y-3">
               <div className="rounded-lg bg-muted/50 p-3"><p className="text-sm text-muted-foreground">Acompte demandé</p><p className="text-xl font-semibold tabular-nums">{order.depositAmountCents != null ? formatXof(order.depositAmountCents) : "Montant non renseigné"}</p>{order.itemsTotalCents != null && <p className="mt-1 text-sm text-muted-foreground">{order.depositPercentSnapshot} % de {formatXof(order.itemsTotalCents)} d’articles, hors livraison</p>}</div>
               <p className="text-sm text-muted-foreground">Comparez la preuve avec le paiement reçu avant de valider l’acompte.</p>
@@ -224,6 +211,20 @@ export function OrderDetailSheet({
             </div>
 
             </section>}
+            <dl className="grid grid-cols-2 gap-4">
+              <Field icon={<Package className="size-3.5" aria-hidden />} label="Article">
+                {order.liveItemCode ?? "—"}
+                {order.variantLabel ? (
+                  <span className="text-muted-foreground"> · {order.variantLabel}</span>
+                ) : null}
+              </Field>
+              <Field label="Quantité">{order.quantity ?? "—"}</Field>
+              <Field icon={<Phone className="size-3.5" aria-hidden />} label="Cliente">
+                {order.clientPhone}
+              </Field>
+              <Field label="Passée le">{formatDateTime(order.createdAt)}</Field>
+            </dl>
+
 
 
             <div className="border-t border-border pt-6">

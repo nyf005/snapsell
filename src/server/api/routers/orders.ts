@@ -47,9 +47,9 @@ const EXPORT_CSV_MAX_ROWS = 10_000;
 type OrderWhereInput = Prisma.OrderWhereInput;
 
 /** Construit le where pour list et exportCsv (évite duplication, CR 6-5). */
-function buildOrdersWhere(
+export function buildOrdersWhere(
   tenantId: string,
-  opts: { status?: string | readonly string[]; dateFrom?: string; dateTo?: string; payment?: string; search?: string },
+  opts: { status?: string | readonly string[]; dateFrom?: string; dateTo?: string; payment?: string; search?: string; queue?: string },
 ): OrderWhereInput {
   const where: OrderWhereInput = { tenantId };
   if (opts?.status) {
@@ -71,14 +71,26 @@ function buildOrdersWhere(
       { depositStatus: "deposit_pending", paymentProofs: { some: { status: "rejected" }, none: { status: "pending" } } },
     ];
   }
+  const needsReview: OrderWhereInput = { status: "confirmed_pending_deposit", depositStatus: "deposit_pending", paymentProofs: { some: { status: "pending" } } };
+  const waiting: OrderWhereInput = { status: "confirmed_pending_deposit", NOT: needsReview };
+  const queues: Record<string, OrderWhereInput> = {
+    to_process: { OR: [{ status: "confirmed" }, needsReview] },
+    in_progress: { OR: [{ status: { in: ["preparing", "in_delivery"] } }, waiting] },
+    completed: { status: { in: ["delivered", "cancelled"] } },
+    review: needsReview, ready: { status: "confirmed" }, awaiting: waiting,
+    preparing: { status: "preparing" }, in_delivery: { status: "in_delivery" },
+    delivered: { status: "delivered" }, cancelled: { status: "cancelled" },
+  };
+  const conditions: OrderWhereInput[] = [];
+  if (opts.queue && queues[opts.queue]) conditions.push(queues[opts.queue]!);
   if (opts.search?.trim()) {
     const contains = { contains: opts.search.trim(), mode: "insensitive" as const };
-    where.AND = [{ OR: [
+    conditions.push({ OR: [
       { orderNumber: contains },
       { reservation: { clientPhone: contains } },
       { reservation: { liveItem: { code: contains } } },
       { reservation: { catalogueItem: { code: contains } } },
-    ] }];
+    ] });
   }
   if (opts?.dateFrom ?? opts?.dateTo) {
     where.createdAt = {};
@@ -93,6 +105,7 @@ function buildOrdersWhere(
       (where.createdAt as Record<string, Date>).lte = to;
     }
   }
+  if (conditions.length) where.AND = conditions;
   return where;
 }
 
@@ -117,6 +130,7 @@ export const ordersRouter = createTRPCRouter({
       const tenantId = ctx.session.user.tenantId;
       const limit = input?.limit ?? 20;
       const where = buildOrdersWhere(tenantId, {
+        queue: input?.queue,
         status: input?.status,
         payment: input?.payment,
         search: input?.search,
@@ -133,7 +147,21 @@ export const ordersRouter = createTRPCRouter({
       });
       const items = orders.slice(0, limit).map(mapOrderOutput);
       const nextCursor = orders.length > limit ? orders[limit - 1]?.id : undefined;
-      return { items, nextCursor };
+      if (!input?.queue) return { items, nextCursor };
+      const [groups, review, total] = await Promise.all([
+        db.order.groupBy({ by: ["status"], where: { tenantId }, _count: true }),
+        db.order.count({ where: buildOrdersWhere(tenantId, { queue: "review" }) }),
+        db.order.count({ where }),
+      ]);
+      const byStatus = Object.fromEntries(groups.map((group) => [group.status, group._count]));
+      const ready = byStatus.confirmed ?? 0;
+      const awaiting = (byStatus.confirmed_pending_deposit ?? 0) - review;
+      const preparing = byStatus.preparing ?? 0;
+      const inDelivery = byStatus.in_delivery ?? 0;
+      const delivered = byStatus.delivered ?? 0;
+      const cancelled = byStatus.cancelled ?? 0;
+      const counts = { to_process: ready + review, in_progress: awaiting + preparing + inDelivery, completed: delivered + cancelled, review, ready, awaiting, preparing, in_delivery: inDelivery, delivered, cancelled, all: groups.reduce((sum, group) => sum + group._count, 0) };
+      return { items, nextCursor, total, counts };
     }),
 
   /**
@@ -162,6 +190,7 @@ export const ordersRouter = createTRPCRouter({
       const advanced = tenantFeatures.hasAdvancedExports;
 
       const where = buildOrdersWhere(tenantId, {
+        queue: input?.queue,
         status: input?.status,
         payment: input?.payment,
         search: input?.search,

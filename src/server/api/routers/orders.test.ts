@@ -14,6 +14,8 @@ import { logOrderStatusChanged } from "~/server/events/eventLog";
 import { writeToOutbox } from "~/server/messaging/outbox";
 
 const mockOrderFindMany = vi.hoisted(() => vi.fn());
+const mockOrderCount = vi.hoisted(() => vi.fn());
+const mockOrderGroupBy = vi.hoisted(() => vi.fn());
 const mockOrderFindFirst = vi.hoisted(() => vi.fn());
 const mockTransaction = vi.hoisted(() => vi.fn());
 const mockTenantFindUnique = vi.hoisted(() => vi.fn());
@@ -25,6 +27,8 @@ vi.mock("~/server/db", () => ({
     },
     order: {
       findMany: mockOrderFindMany,
+      count: mockOrderCount,
+      groupBy: mockOrderGroupBy,
       findFirst: mockOrderFindFirst,
       update: vi.fn(),
     },
@@ -58,6 +62,24 @@ describe("orders router", () => {
       role: "OWNER",
     },
   };
+
+  it("counts work queues across the tenant before pagination", async () => {
+    mockOrderFindMany.mockResolvedValue([]);
+    mockOrderGroupBy.mockResolvedValue([
+      { status: "confirmed_pending_deposit", _count: 8 },
+      { status: "confirmed", _count: 4 }, { status: "preparing", _count: 2 },
+      { status: "in_delivery", _count: 1 }, { status: "delivered", _count: 9 },
+      { status: "cancelled", _count: 3 },
+    ]);
+    mockOrderCount.mockResolvedValueOnce(3).mockResolvedValueOnce(7);
+    const ctx = await createTRPCContext({ headers: new Headers(), session: tenant1Session as never });
+    const result = await createCaller(ctx).orders.list({ queue: "to_process", limit: 1, search: "A12" });
+    expect(result.counts).toMatchObject({ to_process: 7, in_progress: 8, completed: 12, awaiting: 5, review: 3, all: 27 });
+    expect(result.total).toBe(7);
+    expect(mockOrderGroupBy).toHaveBeenCalledWith({ by: ["status"], where: { tenantId: "tenant-1" }, _count: true });
+    expect(mockOrderCount.mock.calls.every(([args]) => args.where.tenantId === "tenant-1")).toBe(true);
+    expect(mockOrderFindMany.mock.calls.at(-1)?.[0].where.AND).toHaveLength(2);
+  });
 
   const tenant2Session = {
     user: {

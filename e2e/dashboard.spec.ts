@@ -82,9 +82,9 @@ test("les quatre destinations conservent les accès aux paiements et aux réglag
   await expect(page.getByRole("heading", { name: "Paiements à vérifier" })).toBeVisible();
   await expect(navigation.getByRole("link", { name: "Commandes", exact: true })).toHaveAttribute("aria-current", "page");
   await page.getByRole("link", { name: "Retour à Commandes" }).click();
-  await expect(page.getByRole("button", { name: "À traiter", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await page.getByRole("button", { name: "En cours", exact: true }).click();
-  await expect(page.getByRole("button", { name: "En cours", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^À traiter(?:\s+\d+)?$/ })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: /^En cours(?:\s+\d+)?$/ }).click();
+  await expect(page.getByRole("button", { name: /^En cours(?:\s+\d+)?$/ })).toHaveAttribute("aria-pressed", "true");
   await navigation.getByRole("link", { name: "Boutique", exact: true }).click();
   const main = page.getByRole("main");
   for (const href of ["/dashboard/catalogue", "/parametres/prix", "/parametres/livraison", "/parametres/whatsapp", "/parametres/reponses", "/parametres/team", "/parametres/abonnement", "/dashboard/audit"]) {
@@ -118,11 +118,13 @@ test("les filtres restent accessibles et les actions secondaires du catalogue co
   await db.catalogueItem.create({ data: { tenantId, code: "UX-ARTICLE", name: "Article de test", amount: 500000 } });
   await login(page);
   await page.goto("/dashboard/orders");
-  const deliveredFilter = page.getByRole("button", { name: "Livrée", exact: true });
+  await page.getByRole("button", { name: /^Terminées/ }).click();
+  const deliveredFilter = page.getByRole("button", { name: /^Livrées/ });
   await expect(deliveredFilter).toBeVisible();
   await deliveredFilter.click();
   await expect(deliveredFilter).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("button", { name: "Acompte attendu", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Affiner", exact: true }).click();
+  await expect(page.getByLabel("Statut précis")).toBeVisible();
   await page.goto("/dashboard/catalogue");
   await expect(page.getByRole("button", { name: "Modifier l’article UX-ARTICLE" }).filter({ visible: true })).toBeVisible();
   await page.getByRole("button", { name: "Autres actions pour l’article UX-ARTICLE" }).filter({ visible: true }).click();
@@ -165,7 +167,10 @@ test("commandes : distinguer acompte attendu et preuve reçue, puis valider sur 
   const readyRow = page.locator("tr, li").filter({ has: page.getByRole("button", { name: "SS-READY", exact: true }) }).filter({ visible: true });
   const waitingRow = page.locator("tr, li").filter({ has: page.getByRole("button", { name: "SS-WAITING", exact: true }) }).filter({ visible: true });
   await expect(readyRow.getByText("Preuve à vérifier", { exact: true })).toBeVisible();
+  await expect(waitingRow).toHaveCount(0);
+  await page.getByRole("button", { name: /^En cours/ }).click();
   await expect(waitingRow.getByText("Acompte attendu", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: /^À traiter/ }).click();
   await page.getByRole("button", { name: /Paiements à vérifier/ }).click();
   await expect(page.getByRole("button", { name: "SS-WAITING", exact: true }).filter({ visible: true })).toHaveCount(0);
   await expect(readyRow.getByRole("button", { name: "Vérifier le paiement" })).toBeVisible();
@@ -202,4 +207,27 @@ test("le tarif de livraison donne le montant appliqué et la règle prioritaire"
   await expect(page.getByRole("status")).toContainText("Tarif spécifique : Cocody");
   await expect(page.getByRole("status")).toContainText(/1.?500/);
   await page.screenshot({ path: testInfo.outputPath("delivery-settings.png"), fullPage: true, animations: "disabled" });
+});
+
+test("les compteurs et la recherche couvrent aussi les commandes non chargées", async ({ page }) => {
+  const prefix = `SS-BATCH-${randomUUID().slice(0, 8)}`;
+  for (let index = 0; index < 21; index++) {
+    const reservation = await db.reservation.create({ data: { tenantId, clientPhone: "+2250701020304", correlationId: randomUUID(), status: "confirmed" } });
+    await db.order.create({ data: { tenantId, reservationId: reservation.id, orderNumber: `${prefix}-${String(index).padStart(2, "0")}`, status: "confirmed", depositStatus: "no_deposit" } });
+  }
+  const confirmedCount = await db.order.count({ where: { tenantId, status: "confirmed" } });
+  await login(page);
+  await page.goto("/dashboard/orders");
+  const readyFilter = page.getByRole("button", { name: new RegExp(`^À préparer ${confirmedCount}$`) });
+  await expect(readyFilter).toBeVisible();
+  await readyFilter.click();
+  await expect(page.getByRole("status").filter({ hasText: `${confirmedCount} commandes` })).toBeVisible();
+  await page.getByLabel("Rechercher", { exact: true }).fill(`${prefix}-00`);
+  await expect(page.getByRole("button", { name: `${prefix}-00`, exact: true }).filter({ visible: true })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: /^1 commande$/ })).toBeVisible();
+  await page.getByRole("button", { name: "Affiner", exact: true }).click();
+  await page.getByLabel("Statut précis").selectOption("confirmed");
+  await page.getByRole("button", { name: "Fermer les filtres" }).click();
+  await expect(page.getByRole("button", { name: "Retirer le statut" })).toBeVisible();
+  await expect(page.getByRole("button", { name: `${prefix}-00`, exact: true }).filter({ visible: true })).toBeVisible();
 });

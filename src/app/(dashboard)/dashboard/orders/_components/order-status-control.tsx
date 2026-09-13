@@ -63,6 +63,7 @@ export function OrderStatusControl({
   status,
   layout = "row",
   onChanged,
+  primaryOnly = false,
 }: {
   orderId: string;
   orderNumber: string;
@@ -70,6 +71,7 @@ export function OrderStatusControl({
   /** `panel` élargit le sélecteur et explique la notification, faute de place en ligne. */
   layout?: "row" | "panel";
   onChanged?: () => void;
+  primaryOnly?: boolean;
 }) {
   const [confirmTarget, setConfirmTarget] = useState<OrderStatusKey | null>(null);
   const utils = api.useUtils();
@@ -105,7 +107,7 @@ export function OrderStatusControl({
   return (
     <div className={layout === "panel" ? "space-y-2" : "flex flex-col gap-1"}>
       {primary && <Button size="sm" className="min-h-11" disabled={updateStatus.isPending} onClick={() => apply(primary)}>{updateStatus.isPending ? "Mise à jour…" : actions[primary]}</Button>}
-      <Select
+      {!primaryOnly && <Select
         value=""
         onValueChange={(value) => {
           const next = value as OrderStatusKey;
@@ -141,7 +143,7 @@ export function OrderStatusControl({
             </SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select>}
 
       {layout === "panel" && allowed.some((s) => NOTIFYING.has(s)) ? (
         <p className="text-xs text-muted-foreground">

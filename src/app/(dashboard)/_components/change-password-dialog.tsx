@@ -35,8 +35,15 @@ import { formatErrorText } from "~/lib/copy";
 import { changePasswordInputSchema } from "~/lib/validations/signup";
 import { api } from "~/trpc/react";
 
-export function ChangePasswordDialog({ email }: { email: string }) {
-  const [open, setOpen] = useState(false);
+export function ChangePasswordDialog({ email, showLabel = false, open: controlledOpen, onOpenChange, onCloseAutoFocus }: {
+  email: string;
+  showLabel?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onCloseAutoFocus?: (event: Event) => void;
+}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
@@ -66,7 +73,8 @@ export function ChangePasswordDialog({ email }: { email: string }) {
   function handleOpenChange(next: boolean) {
     // Pendant la déconnexion programmée, refermer laisserait un écran incohérent.
     if (done) return;
-    setOpen(next);
+    setInternalOpen(next);
+    onOpenChange?.(next);
     if (!next) reset();
   }
 
@@ -91,18 +99,19 @@ export function ChangePasswordDialog({ email }: { email: string }) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
+      {controlledOpen === undefined && <DialogTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
+          size={showLabel ? "default" : "icon"}
           aria-label="Changer mon mot de passe"
-          className="shrink-0 text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          className={showLabel ? "min-h-11 w-full justify-start gap-3 px-3 text-sm font-normal text-sidebar-foreground hover:bg-sidebar-accent group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0" : "shrink-0 text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}
         >
-          <KeyRound className="size-4" />
+          <KeyRound className="size-4 shrink-0" aria-hidden="true" />
+          {showLabel && <span className="group-data-[collapsible=icon]:hidden">Changer le mot de passe</span>}
         </Button>
-      </DialogTrigger>
+      </DialogTrigger>}
 
-      <DialogContent className="sm:max-w-[440px]">
+      <DialogContent className="sm:max-w-[440px]" onCloseAutoFocus={onCloseAutoFocus}>
         <DialogHeader>
           <DialogTitle>Changer mon mot de passe</DialogTitle>
           <DialogDescription>
@@ -186,7 +195,7 @@ export function ChangePasswordDialog({ email }: { email: string }) {
                 <Button
                   type="button"
                   variant="ghost"
-                  size="icon"
+                  size={showLabel ? "default" : "icon"}
                   onClick={() => setShowPasswords(!showPasswords)}
                   className="absolute right-1 top-1/2 size-9 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   aria-label={
