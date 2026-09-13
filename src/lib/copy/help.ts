@@ -254,7 +254,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     title: "De la réservation à la livraison",
     question: "Par quels états passe une commande ?",
     summary:
-      "Une commande confirmée traverse cinq états. Chaque passage à l’état suivant prévient automatiquement le numéro concerné sur WhatsApp.",
+      "Une commande avance de la confirmation à la livraison. Le passage en livraison, la livraison et l’annulation déclenchent une notification WhatsApp.",
     // Pas de `route` : l'écran des commandes est porté par « preparer-et-livrer ».
     body: [
       {
@@ -271,7 +271,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       },
       {
         kind: "note",
-        text: "Chaque changement d’état envoie un message. Faire passer une commande en livraison prévient donc le numéro sans que vous ayez à écrire.",
+        text: "Passer en livraison, marquer livrée ou annuler une commande prévient le numéro concerné sur WhatsApp. Le passage en préparation ne déclenche pas cette notification.",
       },
       {
         kind: "text",
@@ -293,7 +293,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     body: [
       {
         kind: "text",
-        text: "Ce que WhatsApp facture, et ce que SnapSell compte à son tour, ce n’est pas le message : c’est la fenêtre de vingt-quatre heures pendant laquelle vous échangez avec un numéro.",
+        text: "SnapSell compte une conversation par période de vingt-quatre heures d’échanges avec un même numéro. C’est l’unité de votre forfait SnapSell, distincte des règles de facturation de WhatsApp.",
       },
       {
         kind: "table",
@@ -605,7 +605,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     title: "Préparer et livrer une commande",
     question: "Comment je fais avancer une commande ?",
     summary:
-      "Vous faites passer la commande d’un état au suivant, et chaque passage prévient le numéro concerné. Aucun message à écrire.",
+      "Vous faites avancer les commandes depuis leur liste. La livraison et l’annulation déclenchent une notification WhatsApp.",
     route: "/dashboard/orders",
     // Pas de `roles` : tous les rôles tenant traitent les commandes, cf. l'en-tête
     // de `routers/orders.ts`. Restreindre cet article privait l'Agent de l'aide
@@ -614,9 +614,9 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       {
         kind: "steps",
         steps: [
-          "Ouvrez « Commandes » et triez sur ce qui est à traiter.",
-          "Passez en préparation les commandes dont l’acompte est acquis.",
-          "Passez en livraison quand le colis part : le numéro est prévenu qu’il est en route.",
+          "Ouvrez « Commandes », puis « À traiter ». « À vérifier » affiche les preuves reçues ; « À préparer » affiche les commandes confirmées.",
+          "Cliquez sur « Vérifier le paiement » pour comparer la preuve au paiement reçu. Une fois la commande confirmée, cliquez sur « Préparer ».",
+          "Dans « En cours », retrouvez les acomptes attendus, les préparations et les livraisons. Passez en livraison quand le colis part : le numéro est prévenu.",
           "Marquez livrée à la remise. La commande quitte votre travail du jour.",
         ],
       },
@@ -632,6 +632,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
         kind: "text",
         text: "En cas de contestation, « Historique de l’activité » garde la trace de chaque étape, du code envoyé jusqu’à la livraison, avec l’heure exacte. Le détail de la commande, lui, garde l’image de la preuve.",
       },
+      { kind: "text", text: "La recherche retrouve un numéro de commande, un téléphone ou un code article dans la vue choisie. « Affiner » permet de choisir un statut, un paiement ou une période. Les critères actifs restent visibles même après fermeture du panneau. Choisissez « Toutes les commandes » dans ce panneau pour élargir la recherche." },
       { kind: "screen", href: "/dashboard/audit", label: "Ouvrir l’historique" },
     ],
     related: ["de-la-reservation-a-la-livraison", "une-cliente-dit-avoir-paye", "valider-une-preuve"],

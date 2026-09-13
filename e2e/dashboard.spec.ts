@@ -231,3 +231,54 @@ test("les compteurs et la recherche couvrent aussi les commandes non chargées",
   await expect(page.getByRole("button", { name: "Retirer le statut" })).toBeVisible();
   await expect(page.getByRole("button", { name: `${prefix}-00`, exact: true }).filter({ visible: true })).toBeVisible();
 });
+
+test("les pages publiques présentent les offres et des liens utiles", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Vos commandes WhatsApp");
+  await expect(page.getByText("Exemple illustratif avec des données fictives.", { exact: false })).toBeVisible();
+  await expect(page.locator('footer a[href="#"]')).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath("public-home.png"), fullPage: true, animations: "disabled" });
+  await page.goto("/tarifs");
+  await expect(page.getByText("Le plus populaire", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Choisir Starter" })).toHaveAttribute("href", "/login?tab=signup&plan=starter");
+  await page.screenshot({ path: testInfo.outputPath("public-pricing.png"), fullPage: true, animations: "disabled" });
+  await expect(page.getByRole("heading", { name: "Comparer les forfaits", exact: true })).toBeVisible();
+  await expect(page.getByText("Packs de conversations", { exact: true }).filter({ visible: true })).toBeVisible();
+  await page.getByRole("link", { name: "Comprendre le calcul des conversations" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("conversations client");
+});
+
+test("le choix Starter survit à la bascule vers la connexion", async ({ page }) => {
+  await page.goto("/login?tab=signup&plan=starter");
+  await page.getByRole("button", { name: "Connexion", exact: true }).click();
+  await expect(page).toHaveURL(/plan=starter/);
+  await page.getByLabel("Adresse email", { exact: true }).fill(email);
+  await page.getByLabel("Mot de passe", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page).toHaveURL(/\/tarifs\?plan=starter$/);
+  await expect(page.getByRole("status")).toContainText("Votre choix : Starter");
+  await expect(page.getByRole("link", { name: "Continuer avec Starter" })).toHaveAttribute("href", "/api/payment/subscribe?plan=starter");
+});
+
+test("l’inscription conserve Pro sans activer un abonnement avant paiement", async ({ page }, testInfo) => {
+  const signupEmail = `public-${randomUUID()}@example.test`;
+  let paymentRequests = 0;
+  await page.route("**/api/payment/subscribe**", async (route) => { paymentRequests++; await route.fulfill({ status: 418 }); });
+  try {
+    await page.goto("/login?tab=signup&plan=pro");
+    await page.getByLabel("Nom de la boutique").fill("Boutique publique de test");
+    await page.getByLabel("Adresse email", { exact: true }).fill(signupEmail);
+    await page.getByLabel("Mot de passe", { exact: true }).fill(password);
+    await page.screenshot({ path: testInfo.outputPath("public-signup.png"), fullPage: true, animations: "disabled" });
+    await page.getByRole("button", { name: "Commencer gratuitement", exact: true }).click();
+    await expect(page).toHaveURL(/\/tarifs\?plan=pro$/);
+    await expect(page.getByRole("status")).toContainText("Votre choix : Pro");
+    await expect(page.getByRole("link", { name: "Continuer avec Pro" })).toHaveAttribute("href", "/api/payment/subscribe?plan=pro");
+    expect(paymentRequests).toBe(0);
+    const createdUser = await db.user.findUniqueOrThrow({ where: { email: signupEmail }, include: { tenant: true } });
+    expect(createdUser.tenant?.subscriptionPlan).toBe("free");
+  } finally {
+    const createdUser = await db.user.findUnique({ where: { email: signupEmail } });
+    if (createdUser?.tenantId) await db.tenant.delete({ where: { id: createdUser.tenantId } });
+  }
+});

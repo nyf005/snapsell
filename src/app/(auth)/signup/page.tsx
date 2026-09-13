@@ -7,7 +7,9 @@ export default function SignupPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/login?tab=signup", { scroll: false });
+    const plan = new URLSearchParams(window.location.search).get("plan");
+    const destination = plan === "starter" || plan === "pro" ? `/login?tab=signup&plan=${plan}` : "/login?tab=signup";
+    router.replace(destination, { scroll: false });
   }, [router]);
 
   return (

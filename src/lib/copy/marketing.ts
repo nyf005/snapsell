@@ -82,7 +82,7 @@ export const marketing = {
    * concluait que ce n'était pas pour elle.
    */
   promise: {
-    setup: "Votre boutique répond dès aujourd’hui",
+    setup: "L’assistant répond une fois WhatsApp connecté et activé",
   },
 
   /**

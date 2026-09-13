@@ -25,7 +25,8 @@ type Tab = "login" | "signup";
 function LoginTabContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const rawCallback = searchParams.get("callbackUrl") ?? "/dashboard";
+  const selectedPlan = searchParams.get("plan");
+  const rawCallback = selectedPlan === "starter" || selectedPlan === "pro" ? `/tarifs?plan=${selectedPlan}` : searchParams.get("callbackUrl") ?? "/dashboard";
   const callbackUrl =
     typeof rawCallback === "string" &&
       rawCallback.startsWith("/") &&
@@ -162,6 +163,9 @@ function LoginTabContent() {
 
 function SignupTabContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedPlan = searchParams.get("plan");
+  const destination = selectedPlan === "starter" || selectedPlan === "pro" ? `/tarifs?plan=${selectedPlan}` : "/dashboard";
   const [tenantName, setTenantName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -174,11 +178,11 @@ function SignupTabContent() {
       const res = await signIn("credentials", {
         email,
         password,
-        callbackUrl: "/dashboard",
+        callbackUrl: destination,
         redirect: false,
       });
       if (res?.ok) {
-        router.push("/dashboard");
+        router.push(destination);
         router.refresh();
       } else {
         setErrors({
@@ -381,7 +385,9 @@ function LoginPageContent() {
   const setTab = (t: Tab) => {
     setSlideDir(t === "signup" ? "right" : "left");
     setActiveTab(t);
-    const url = t === "signup" ? "/login?tab=signup" : "/login";
+    const params = new URLSearchParams(searchParams.toString());
+    if (t === "signup") params.set("tab", "signup"); else params.delete("tab");
+    const url = `/login${params.size ? `?${params.toString()}` : ""}`;
     window.history.replaceState(null, "", url);
   };
 
@@ -417,6 +423,8 @@ function LoginPageContent() {
             : `Gardez votre numéro WhatsApp actuel. ${marketing.promise.setup}.`}
         </p>
       </div>
+
+      {(searchParams.get("plan") === "starter" || searchParams.get("plan") === "pro") && <p role="status" className="rounded-lg bg-primary/5 p-3 text-sm text-primary">Offre choisie : {searchParams.get("plan") === "pro" ? "Pro" : "Starter"}. Vous la confirmerez après connexion, avant tout paiement.</p>}
 
       {/* Tab switcher with sliding indicator */}
       <div

@@ -3,23 +3,22 @@ import { Check } from "lucide-react";
 import { marketing } from "~/lib/copy/marketing";
 
 import { Button } from "~/components/ui/button";
-import { AnimateOnScroll } from "~/app/_components/landing/animate-on-scroll";
 
 export function CtaSection() {
   return (
-    <section className="px-6 py-24 lg:py-32">
-      <AnimateOnScroll animation="scale-in">
-        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] bg-primary p-12 text-center shadow-2xl shadow-primary/20 lg:p-20">
+    <section className="px-6 py-12 lg:py-16">
+      <div>
+        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[2rem] bg-primary p-6 text-center sm:p-10 lg:p-12">
           {/* Decorative gradient overlay */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.2)_0%,_transparent_60%)]"
           />
 
-          <h2 className="relative z-10 mb-8 text-3xl font-extrabold text-primary-foreground lg:text-5xl">
+          <h2 className="relative z-10 mb-5 text-3xl font-extrabold text-primary-foreground lg:text-4xl">
             Votre prochaine commande, notée toute seule
           </h2>
-          <p className="relative z-10 mx-auto mb-12 max-w-2xl text-lg text-primary-foreground/80">
+          <p className="relative z-10 mx-auto mb-6 max-w-2xl text-lg text-primary-foreground/80">
             Créez votre boutique, connectez votre numéro WhatsApp actuel.{" "}
             {marketing.promise.setup}.
           </p>
@@ -67,7 +66,7 @@ export function CtaSection() {
             ))}
           </ul>
         </div>
-      </AnimateOnScroll>
+      </div>
     </section>
   );
 }

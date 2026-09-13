@@ -68,13 +68,15 @@ export default async function AidePage() {
               Comprendre et utiliser SnapSell
             </h1>
             <p className="mt-3 text-base leading-7 text-muted-foreground">
-              Ce qui se passe entre votre live et votre commande, les gestes du
-              quotidien, et la cause des pannes les plus courantes.
+              Démarrer votre boutique, traiter les commandes et résoudre les difficultés du quotidien.
             </p>
           </header>
 
           <div className="mt-10">
-            <HelpSearch cards={cards} />
+          <nav aria-label="Aide pour démarrer" className="my-6 grid gap-3 sm:grid-cols-3">
+          {[{ href: "/aide/mettre-en-route", label: "Démarrer ma boutique" }, { href: "/aide/connecter-whatsapp", label: "Connecter WhatsApp" }, { href: "/aide/preparer-et-livrer", label: "Traiter une commande" }].map((link) => <Link key={link.href} href={link.href} className="flex min-h-14 items-center justify-between gap-3 rounded-xl border border-border p-4 text-sm font-semibold hover:bg-muted">{link.label}<ArrowRight className="size-4" aria-hidden="true" /></Link>)}
+        </nav>
+          <HelpSearch cards={cards} />
           </div>
 
           <ContactSupport />

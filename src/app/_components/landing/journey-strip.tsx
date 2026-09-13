@@ -31,7 +31,7 @@ const journey = [
   { icon: MessageCircle, label: "Message", detail: "Le client écrit" },
   { icon: Reply, label: "Réponse", detail: "L’assistant répond" },
   { icon: ShoppingBag, label: "Commande", detail: "Tout est enregistré" },
-  { icon: ShieldCheck, label: "Paiement", detail: "Preuve vérifiée" },
+  { icon: ShieldCheck, label: "Paiement", detail: "Vous vérifiez la preuve" },
 ] as const;
 
 export function JourneyStrip() {

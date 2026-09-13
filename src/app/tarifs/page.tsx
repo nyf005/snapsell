@@ -2,7 +2,7 @@ import { type Metadata } from "next";
 import { marketing } from "~/lib/copy/marketing";
 import { formatXofUnits, formatXofUnitsParts } from "~/lib/copy";
 import Link from "next/link";
-import { ArrowRight, Check, Zap, Crown, Users, ShoppingCart, Lock, Shield, ShieldCheck, Sparkles, ChevronDown, AlertCircle } from "lucide-react";
+import { ArrowRight, Check, Zap, Crown, Users, ShoppingCart, Lock, Shield, ShieldCheck, ChevronDown, AlertCircle } from "lucide-react";
 
 import { SiteHeader } from "~/components/site-header";
 import { LandingFooter } from "~/app/_components/landing/landing-footer";
@@ -84,7 +84,7 @@ const comparisonItems: ComparisonItem[] = [
   },
   {
     kind: "row",
-    label: "IA (analyse des intentions)",
+    label: "Compréhension des demandes par IA",
     free: ent("free").hasAI,
     starter: ent("starter").hasAI,
     pro: ent("pro").hasAI,
@@ -101,7 +101,7 @@ const comparisonItems: ComparisonItem[] = [
     pro: String(ent("pro").maxAgents),
   },
   { kind: "group", label: "Fonctionnalités principales" },
-  { kind: "row", label: "Grille catégories prix", free: true, starter: true, pro: true },
+  { kind: "row", label: "Codes articles et prix", free: true, starter: true, pro: true },
   { kind: "row", label: "File de réservation", free: true, starter: true, pro: true },
   { kind: "row", label: "Tableau de bord des commandes", free: true, starter: true, pro: true },
   { kind: "row", label: "Notifications de statut", free: true, starter: true, pro: true },
@@ -122,7 +122,7 @@ const comparisonItems: ComparisonItem[] = [
   },
   {
     kind: "row",
-    label: "Acompte recommandé",
+    label: "Demande d’acompte activée par défaut",
     free: ent("free").hasDepositRecommended,
     starter: ent("starter").hasDepositRecommended,
     pro: ent("pro").hasDepositRecommended,
@@ -153,7 +153,7 @@ const comparisonItems: ComparisonItem[] = [
 const faqItems = [
   {
     q: "Qu’est-ce qu’une conversation client ?",
-    a: "Une conversation client correspond à 24 h d’échanges illimités avec un même numéro sur WhatsApp. Chaque nouveau numéro ouvre une conversation. Pendant 24 h, tous les échanges avec ce numéro consomment le même crédit, quel que soit le nombre de messages.",
+    a: "Pour SnapSell, une conversation correspond à 24 h d’échanges avec un même numéro WhatsApp. Tous les messages de cette période utilisent un seul crédit. Après la fin de la période, un nouvel échange peut ouvrir une nouvelle conversation.",
   },
   {
     q: "Que se passe-t-il si je dépasse ma limite de conversations ?",
@@ -165,7 +165,7 @@ const faqItems = [
   },
   {
     q: "Puis-je changer de plan à tout moment ?",
-    a: "Oui. Vous pouvez passer à un plan supérieur immédiatement depuis Paramètres - Abonnement. L’accès au nouveau plan est instantané.",
+    a: "Oui. Vous pouvez passer à un plan supérieur immédiatement depuis Boutique, puis Abonnement. L’accès au nouveau plan est activé après confirmation du paiement.",
   },
   {
     q: "Y a-t-il un engagement minimum ?",
@@ -173,7 +173,7 @@ const faqItems = [
   },
   {
     q: "Comment fonctionne le paiement ?",
-    a: "Via Paystack - Visa, Mastercard, Wave et Mobile Money acceptés. Facturation automatique chaque mois, reçu envoyé par email.",
+    a: "Le paiement est réalisé sur la page sécurisée de Paystack. Les moyens de paiement disponibles et les conditions de renouvellement y sont présentés avant votre confirmation. Retrouvez votre abonnement dans Boutique, puis Abonnement.",
   },
 ] as const;
 
@@ -224,7 +224,7 @@ function CellValue({
 
 /* ── Page ────────────────────────────────────────────────────────────────── */
 
-type TarifsPageProps = { searchParams?: Promise<{ error?: string }> };
+type TarifsPageProps = { searchParams?: Promise<{ error?: string; plan?: string }> };
 
 export default async function TarifsPage(props: TarifsPageProps) {
   const session = await auth();
@@ -234,6 +234,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
 
   const searchParams =
     props.searchParams != null ? await props.searchParams : {};
+  const chosenPlan = searchParams.plan === "starter" || searchParams.plan === "pro" ? searchParams.plan : null;
   const paymentError = searchParams.error === "payment_init_failed";
 
   return (
@@ -251,65 +252,21 @@ export default async function TarifsPage(props: TarifsPageProps) {
             <Alert variant="destructive" className="rounded-xl">
               <AlertCircle className="size-4" />
               <AlertDescription>
-                Impossible d'ouvrir la page de paiement. Vérifiez que les
-                clés Paystack et les plan codes sont correctement configurés, ou
-                réessayez plus tard.
+                Impossible d’ouvrir le paiement. Réessayez dans quelques instants ou contactez l’assistance.
               </AlertDescription>
             </Alert>
           </div>
         )}
 
-        {/* ── A : Hero cinematique ───────────────────────────────────────── */}
-        <section className="relative overflow-hidden px-6 pb-24 pt-24 text-center">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_70%_55%_at_50%_0%,var(--primary),transparent_70%)] opacity-[0.1]"
-          />
-          <div className="mx-auto max-w-3xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-              <Sparkles className="size-3.5" />
-              Pas de surprise, pas d&apos;engagement
-            </div>
-
-            {/*
-              Même échelle typographique que le hero du landing
-              (src/app/_components/landing/hero-section.tsx) : 30 / 36 / 44 px.
-              Les deux titres se lisaient à des tailles très différentes — 36 px
-              ici contre 60 px là — ce qui donnait l'impression de deux pages
-              conçues séparément.
-
-              44px et non 48 : c'est la contrainte du landing, dont l'accroche
-              passe à quatre lignes au-delà. La valeur est donc fixée là-bas.
-            */}
-            <h1 className="font-display text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-[2.75rem]">
-              Un plan pour chaque{" "}
-              <span className="hero-gradient-text">vendeur</span>
-            </h1>
-
-            {/*
-              « Facturation sur les conversations uniquement » laissait croire à
-              du paiement à l'usage, alors que c'est un forfait mensuel : un
-              Starter paie 25 000 F même avec trois conversations. Le sens voulu
-              — rien d'autre n'est facturé — est conservé, sans l'ambiguïté.
-            */}
-            <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              Commencez gratuitement, passez à la vitesse supérieure quand vos
-              ventes décollent. Un forfait mensuel dimensionné par vos{" "}
-              <strong className="text-foreground">conversations client</strong>{" "}
-              — ni frais par commande, ni frais par message.
-            </p>
-
-            {/* Aucune preuve sociale inventée : le produit se décrit lui-même. */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-              <span>Aucune carte bancaire pour démarrer</span>
-              <span>{marketing.promise.setup}</span>
-            </div>
-          </div>
+        <section className="mx-auto max-w-5xl px-5 pb-8 pt-10 sm:px-6 sm:pt-12">
+          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Un forfait adapté à vos ventes</h1>
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">Commencez gratuitement, sans carte bancaire. Les offres payantes sont mensuelles, sans frais par commande ni par message.</p>
+          {chosenPlan && <div role="status" className="mt-5 rounded-xl border border-primary/20 bg-primary/5 p-4"><p className="font-semibold">Votre choix : {SUBSCRIPTION_PLANS[chosenPlan].name} · {formatXofUnits(SUBSCRIPTION_PLANS[chosenPlan].price)} / mois</p><p className="mt-1 text-sm text-muted-foreground">{isManager ? "Votre compte est prêt. Vérifiez l’offre ci-dessous, puis continuez vers le paiement. Aucun abonnement n’est activé avant confirmation du paiement." : isLoggedIn ? "Le propriétaire ou un manager de votre boutique peut gérer cet abonnement." : "Créez votre compte pour continuer. Vous retrouverez cette offre avant de payer."}</p></div>}
         </section>
 
         {/* ── B : Plan Cards ─────────────────────────────────────────────── */}
         <section
-          className="mx-auto max-w-5xl px-6 pb-24"
+          className="mx-auto max-w-5xl px-5 pb-12 sm:px-6"
           aria-label="Plans tarifaires"
         >
           {/*
@@ -323,7 +280,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
             {PLAN_IDS.map((planId, planIndex) => {
               const plan = SUBSCRIPTION_PLANS[planId];
               const Icon = planIcons[planId];
-              const isPopular = !!plan.popular;
+              const isPopular = planId === (chosenPlan ?? "starter");
               const price = formatXofUnitsParts(plan.price);
               const previousPlanId = PLAN_IDS[planIndex - 1];
               const inheritsFrom = previousPlanId
@@ -339,13 +296,13 @@ export default async function TarifsPage(props: TarifsPageProps) {
                   : marketing.cta.signup;
               } else if (isLoggedIn && isManager) {
                 ctaHref = `/api/payment/subscribe?plan=${planId}`;
-                ctaLabel = "S'abonner";
+                ctaLabel = isLoggedIn ? `Continuer avec ${plan.name}` : `Choisir ${plan.name}`;
               } else if (isLoggedIn) {
                 ctaHref = "/dashboard";
-                ctaLabel = "Contactez votre manager";
+                ctaLabel = "Retour au tableau de bord";
               } else {
                 ctaHref = `/login?tab=signup&plan=${planId}`;
-                ctaLabel = "S'abonner";
+                ctaLabel = isLoggedIn ? `Continuer avec ${plan.name}` : `Choisir ${plan.name}`;
               }
 
               return (
@@ -356,7 +313,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
                       ? // `border-transparent` : sans lui, la carte Pro n'a pas
                         // le liseré de 1px des deux autres et tout son contenu
                         // remonte d'un pixel.
-                        "border border-transparent bg-primary text-primary-foreground shadow-2xl shadow-primary/40"
+                        "border border-transparent bg-primary text-primary-foreground shadow-sm"
                       : planId === "starter"
                         ? "border border-primary/25 bg-card shadow-lg shadow-primary/5 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10"
                         : "border border-border bg-card hover:border-border/60 hover:shadow-md"
@@ -364,18 +321,18 @@ export default async function TarifsPage(props: TarifsPageProps) {
                 >
                   {/* Popular badge */}
                   {isPopular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-background px-4 py-1.5 text-xs font-bold text-primary shadow-lg shadow-primary/20">
-                        <Crown className="size-3" />
-                        Le plus populaire
+                    <div className="absolute -top-4 inset-x-3 z-10 flex justify-center">
+                      <span className="inline-flex items-center justify-center gap-1.5 rounded-full bg-background px-4 py-1.5 text-center text-xs font-bold text-primary shadow-lg shadow-primary/20">
+                        <Crown className="size-3 shrink-0" aria-hidden="true" />
+                        {chosenPlan === planId ? "Votre choix" : "Pour développer vos ventes"}
                       </span>
                     </div>
                   )}
 
                   {/* Header */}
-                  <div className="flex flex-col items-center px-6 pb-6 pt-8 text-center">
+                  <div className="flex flex-col items-center px-5 pb-4 pt-6 text-center">
                     <div
-                      className={`mb-4 flex size-12 items-center justify-center rounded-xl ${
+                      className={`mb-2 flex size-8 items-center justify-center rounded-xl ${
                         isPopular
                           ? "bg-primary-foreground/15 text-primary-foreground"
                           : planId === "starter"
@@ -383,7 +340,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
                             : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      <Icon className="size-6" />
+                      <Icon className="size-4" />
                     </div>
 
                     <h2 className="text-lg font-bold">{plan.name}</h2>
@@ -393,14 +350,14 @@ export default async function TarifsPage(props: TarifsPageProps) {
                       {plan.description}
                     </p>
 
-                    <div className="mt-5 flex flex-wrap items-baseline justify-center gap-x-1.5">
+                    <div className="mt-3 flex flex-wrap items-baseline justify-center gap-x-1.5">
                       {plan.price === 0 ? (
-                        <span className="font-display text-5xl font-extrabold tracking-tight">
+                        <span className="font-display text-4xl font-extrabold tracking-tight">
                           Gratuit
                         </span>
                       ) : (
                         <>
-                          <span className="font-display text-5xl font-extrabold tracking-tight data-numeric">
+                          <span className="font-display text-4xl font-extrabold tracking-tight data-numeric">
                             {price.amount}
                           </span>
                           <span
@@ -436,7 +393,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
                   />
 
                   {/* Features */}
-                  <div className="flex flex-1 flex-col px-6 pb-8 pt-6">
+                  <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
                     {/*
                       Chaque plan contient le précédent : le dire évite de
                       relire trois listes pour comprendre ce qui change.
@@ -457,7 +414,11 @@ export default async function TarifsPage(props: TarifsPageProps) {
                       role="list"
                       aria-label={`Fonctionnalités du plan ${plan.name}`}
                     >
-                      {plan.features.map((feature) => (
+                      {[
+                        `${plan.entitlements.creditsTotalMonthly} conversations client / mois`,
+                        plan.entitlements.maxAgents === 0 ? "Pour vous seul, sans membre invité" : `${plan.entitlements.maxAgents} membre${plan.entitlements.maxAgents > 1 ? "s" : ""} en plus de vous`,
+                        ...(planId === "free" ? ["Catalogue, réservations et commandes", "Preuves de paiement et suivi de livraison", "Messages signés Via SnapSell"] : planId === "starter" ? ["Messages au nom de votre boutique", "Export des commandes", "Historique de l’activité sur 90 jours"] : ["Export enrichi des commandes", "Historique de l’activité sans limite de durée", "Assistance prioritaire"]),
+                      ].map((feature) => (
                         <li
                           key={feature}
                           className="flex items-start gap-2.5 text-sm"
@@ -482,7 +443,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
                     </ul>
 
                     {/* CTA */}
-                    <div className="mt-8">
+                    <div className="mt-5">
                       <Button
                         asChild
                         size="lg"
@@ -493,7 +454,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
                             : ""
                         }`}
                       >
-                        <Link href={ctaHref}>
+                        <Link href={ctaHref} prefetch={false}>
                           {ctaLabel}
                           <ArrowRight className="ml-2 size-4" />
                         </Link>
@@ -507,16 +468,28 @@ export default async function TarifsPage(props: TarifsPageProps) {
         </section>
 
         {/* ── C : Tableau de comparaison avec categories ─────────────────── */}
-        <section className="mx-auto max-w-5xl px-6 pb-24">
-          <h2 className="mb-2 text-center text-2xl font-bold">
-            Comparaison détaillée
-          </h2>
-          <p className="mb-8 text-center text-sm text-muted-foreground">
-            Tout ce qui est inclus dans chaque plan
-          </p>
-
-          <div className="overflow-x-auto rounded-2xl border border-border">
-            <table className="w-full text-sm">
+        <section className="mx-auto max-w-5xl px-5 pb-12 sm:px-6">
+          <div className="mb-6 rounded-xl bg-muted p-5"><h2 className="text-lg font-semibold">Une conversation client, c’est quoi ?</h2><p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">Pour SnapSell, c’est 24 h d’échanges avec un même numéro WhatsApp, quel que soit le nombre de messages. Par exemple, 10 personnes qui échangent avec votre boutique dans cette période utilisent 10 conversations. Un nouvel échange après la fin de cette période peut ouvrir une nouvelle conversation.</p><Link href="/aide/conversations-client" className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-primary">Comprendre le calcul des conversations</Link></div>
+          <h2 id="comparaison-forfaits" className="mb-6 mt-10 text-2xl font-bold tracking-tight">Comparer les forfaits</h2>
+          <div className="md:hidden" aria-labelledby="comparaison-forfaits">
+            {comparisonItems.map((item) => item.kind === "group" ? (
+              <h3 key={item.label} className="border-b border-border pb-3 pt-6 text-base font-semibold first:pt-0">{item.label}</h3>
+            ) : (
+              <div key={item.label} className="border-b border-border/60 py-4">
+                <p className="mb-3 text-sm font-medium">{item.label}</p>
+                <dl className="grid grid-cols-3 gap-2 text-center text-sm">
+                  {PLAN_IDS.map((planId) => (
+                    <div key={planId} className="min-w-0">
+                      <dt className="mb-2 text-xs font-semibold text-muted-foreground">{SUBSCRIPTION_PLANS[planId].name}</dt>
+                      <dd className="break-words"><CellValue val={item[planId]} isPro={planId === "pro"} /></dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ))}
+          </div>
+          <div className="hidden overflow-hidden rounded-2xl border border-border md:block">
+            <table aria-labelledby="comparaison-forfaits" className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/60">
                   <th
@@ -588,7 +561,7 @@ export default async function TarifsPage(props: TarifsPageProps) {
         </section>
 
         {/* ── D : FAQ + réassurance ───────────────────────────────────────── */}
-        <section className="mx-auto max-w-5xl px-6 pb-24">
+        <section className="mx-auto max-w-5xl px-5 pb-12 sm:px-6">
           <p className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-primary">
             Questions fréquentes
           </p>
@@ -673,13 +646,13 @@ export default async function TarifsPage(props: TarifsPageProps) {
         </section>
 
         {/* Trust section */}
-        <section className="mx-auto max-w-4xl px-6 pb-24">
+        <section className="mx-auto max-w-4xl px-5 pb-12 sm:px-6">
           <div className="grid gap-6 sm:grid-cols-3">
             {[
               {
                 icon: Lock,
                 title: "Paiement sécurisé",
-                text: "Via Paystack - Visa, Mastercard, Wave, Mobile Money",
+                text: "Les moyens disponibles sont affichés par Paystack avant confirmation.",
               },
               {
                 icon: Shield,
@@ -688,19 +661,19 @@ export default async function TarifsPage(props: TarifsPageProps) {
               },
               {
                 icon: Users,
-                title: "Support réactif",
-                text: "Assistance par WhatsApp, réponse rapide",
+                title: "Une question ?",
+                text: "Retrouvez les moyens de contact dans notre centre d’aide.",
               },
             ].map(({ icon: TrustIcon, title, text }) => (
               <div
                 key={title}
-                className="flex flex-col items-center gap-3 rounded-2xl border border-border/50 bg-card p-6 text-center transition-all duration-300 hover:border-primary/20 hover:shadow-md"
+                className="flex flex-col items-start gap-2 py-3 text-left"
               >
                 <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10">
                   <TrustIcon className="size-5 text-primary" />
                 </div>
                 <h3 className="font-semibold">{title}</h3>
-                <p className="text-xs leading-relaxed text-muted-foreground">
+                <p className="text-sm leading-relaxed text-muted-foreground">
                   {text}
                 </p>
               </div>
