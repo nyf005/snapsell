@@ -130,3 +130,12 @@ export function statusesForView(view: OrderWorkView): OrderStatusKey[] | undefin
   // Copie mutable : le schéma zod du routeur attend un tableau modifiable.
   return statuses.length > 0 ? [...statuses] : undefined;
 }
+
+/** Payment state is distinct from fulfilment; pending deposits need a received proof before review. */
+export function paymentState(order: { depositStatus?: string | null; proofs: readonly { status: string }[] }): { key: string; label: string } {
+  if (!order.depositStatus || order.depositStatus === "no_deposit") return { key: "none", label: "Aucun acompte requis" };
+  if (order.depositStatus === "deposit_approved") return { key: "approved", label: "Acompte validé" };
+  if (order.depositStatus === "deposit_pending" && order.proofs.some((proof) => proof.status === "pending")) return { key: "review", label: "Preuve à vérifier" };
+  if (order.depositStatus === "deposit_rejected" || order.proofs.some((proof) => proof.status === "rejected")) return { key: "rejected", label: "Preuve refusée" };
+  return { key: "awaiting", label: "Acompte attendu" };
+}

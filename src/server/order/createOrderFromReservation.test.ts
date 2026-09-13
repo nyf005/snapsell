@@ -30,6 +30,7 @@ const mockTx = {
 vi.mock("~/server/db", () => ({
   db: {
     order: { findUnique: vi.fn() },
+    tenant: { findUnique: vi.fn().mockResolvedValue({ depositPercent: null }) },
     reservation: { findUnique: vi.fn() },
     catalogueItem: { findUnique: vi.fn(), delete: vi.fn() },
     $transaction: vi.fn((fn: (tx: typeof mockTx) => Promise<unknown>) => fn(mockTx)),

@@ -1,5 +1,6 @@
 "use client";
 
+import { QueryFailure } from "~/components/ui/query-failure";
 import { Undo2, UserRound } from "lucide-react";
 
 import { Badge } from "~/components/ui/badge";
@@ -26,7 +27,7 @@ import { api } from "~/trpc/react";
  */
 export function HandedOffConversations() {
   const utils = api.useUtils();
-  const { data: conversations = [] } = api.conversations.listHandedOff.useQuery();
+  const { data: conversations = [], error, refetch } = api.conversations.listHandedOff.useQuery();
 
   const handBack = api.conversations.handBackToBot.useMutation({
     onSuccess: () => {
@@ -34,6 +35,7 @@ export function HandedOffConversations() {
     },
   });
 
+  if (error) return <QueryFailure error={error} retry={refetch} title="Conversations à reprendre indisponibles" />;
   if (conversations.length === 0) return null;
 
   return (

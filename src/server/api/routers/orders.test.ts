@@ -96,6 +96,13 @@ describe("orders router", () => {
    * router sont cohérents chacun de leur côté, c'est leur accord qui manquait.
    * D'où une assertion par procédure, sur le rôle le plus étroit.
    */
+  it("filtre les preuves reçues avant pagination et conserve l’isolation tenant", async () => {
+    mockOrderFindMany.mockResolvedValue([]);
+    const ctx = await createTRPCContext({ headers: new Headers(), session: tenant1Session as never });
+    await createCaller(ctx).orders.list({ payment: "review", search: "A12" });
+    expect(mockOrderFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ tenantId: "tenant-1", depositStatus: "deposit_pending", paymentProofs: { some: { status: "pending" } }, AND: expect.any(Array) }), take: 21 }));
+  });
+
   describe("portée des rôles (accord navigation ↔ router)", () => {
     /** Commande confirmée + transaction, matériel commun aux mutations. */
     function mockConfirmedOrder(id: string) {

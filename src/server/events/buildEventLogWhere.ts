@@ -9,6 +9,8 @@ type EventLogWhereInput = Prisma.EventLogWhereInput;
 
 export interface EventLogFilterOpts {
   eventType?: string;
+  eventTypes?: string[];
+  search?: string;
   dateFrom?: string;
   dateTo?: string;
   correlationId?: string;
@@ -37,6 +39,8 @@ export function buildEventLogWhere(
   if (tenantId) {
     where.tenantId = tenantId;
   }
+  if (opts.eventTypes?.length) where.eventType = { in: opts.eventTypes };
+  if (opts.search?.trim()) { const contains = { contains: opts.search.trim(), mode: "insensitive" as const }; where.OR = [{ entityId: contains }, { correlationId: contains }, { eventType: contains }]; }
   if (opts.eventType) {
     where.eventType = opts.eventType;
   }

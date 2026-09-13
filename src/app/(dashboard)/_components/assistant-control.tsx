@@ -1,5 +1,6 @@
 "use client";
 
+import { QueryFailure } from "~/components/ui/query-failure";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Bot, CheckCircle2, CircleAlert, PauseCircle } from "lucide-react";
@@ -37,7 +38,7 @@ export function AssistantControl({
   compact?: boolean;
 }) {
   const utils = api.useUtils();
-  const { data: status, isLoading } = api.assistant.getStatus.useQuery();
+  const { data: status, isLoading, error: queryError, refetch } = api.assistant.getStatus.useQuery();
   const [showActivation, setShowActivation] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +67,7 @@ export function AssistantControl({
     },
   });
 
+  if (queryError) return <QueryFailure error={queryError} retry={refetch} title="État de l’assistant indisponible" />;
   if (isLoading || !status) {
     return <Skeleton className={cn("h-24 rounded-xl", compact && "h-20")} />;
   }
@@ -101,7 +103,7 @@ export function AssistantControl({
       className={cn(
         "scroll-mt-24 rounded-xl border bg-surface",
         isUnavailable ? "border-warning/45" : "border-border",
-        compact ? "p-4" : "p-4 sm:p-5",
+        compact ? "px-4 py-3" : "p-4 sm:p-5",
       )}
     >
       <div className="flex items-start gap-3 sm:items-center">

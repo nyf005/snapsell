@@ -1,3 +1,4 @@
+import { getOrderByIdInputSchema } from "~/server/api/routers/orders.schema";
 import { redirect } from "next/navigation";
 import { canManageGrid } from "~/lib/rbac";
 import { auth } from "~/server/auth";
@@ -11,9 +12,11 @@ import { OrdersListContent } from "./_components/orders-list-content";
  * Seul le bouton d'export reste conditionné au rôle, en miroir du gating
  * `managerProcedure` que garde `orders.exportCsv`.
  */
-export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
-  const requestedView = (await searchParams).view;
-  const initialView: OrderWorkView = requestedView && Object.hasOwn(ORDER_WORK_VIEW_STATUSES, requestedView) ? requestedView as OrderWorkView : "to_process";
+export default async function OrdersPage({ searchParams }: { searchParams: Promise<{ view?: string; payment?: string; order?: string }> }) {
+  const params = await searchParams;
+  const requestedOrder = getOrderByIdInputSchema.safeParse({ orderId: params.order });
+  const requestedView = params.payment === "review" ? "" : params.view;
+  const initialView: OrderWorkView = requestedView !== undefined && Object.hasOwn(ORDER_WORK_VIEW_STATUSES, requestedView) ? requestedView as OrderWorkView : "to_process";
   const session = await auth();
 
   if (!session?.user) {
@@ -32,5 +35,5 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
     canExportCsv = tenant?.hasExportCsv ?? false;
   }
 
-  return <OrdersListContent canExportCsv={canExportCsv} initialView={initialView} />;
+  return <OrdersListContent initialOrderId={requestedOrder.success ? requestedOrder.data.orderId : undefined} canExportCsv={canExportCsv} initialView={initialView} initialPayment={params.payment === "review" ? "review" : ""} />;
 }

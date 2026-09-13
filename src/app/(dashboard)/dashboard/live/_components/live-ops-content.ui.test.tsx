@@ -60,6 +60,7 @@ vi.mock("~/trpc/react", () => ({
       },
     },
     live: {
+      getWaitlist: { useQuery: () => ({ data: undefined, isLoading: false }) },
       getLiveOpsData: {
         useQuery: () => ({
           data: {
@@ -161,9 +162,9 @@ describe("LiveOpsContent — active session", () => {
 
   it("displays KPI section with article count label", () => {
     render(<LiveOpsContent />);
-    expect(screen.getByText("Articles du live")).toBeInTheDocument();
-    expect(screen.getAllByText("Réservations actives").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/file d'attente/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /articles/ })).toHaveAttribute("href", "#live-inventory");
+    expect(screen.getByRole("link", { name: /réservations/ })).toHaveAttribute("href", "#live-reservations");
+    expect(screen.getByRole("link", { name: /personnes en attente/ })).toHaveAttribute("href", "#live-waitlist");
   });
 });
 

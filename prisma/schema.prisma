@@ -51,6 +51,7 @@ model Tenant {
   assistantUpdatedAt     DateTime? @map("assistant_updated_at")
   assistantUpdatedBy     String?   @map("assistant_updated_by")
   assistantActivatedAt   DateTime? @map("assistant_activated_at")
+  depositPercent         Int?      @map("deposit_percent")
   requireDeposit         Boolean   @default(false) @map("require_deposit") // Story 4.5: acompte activé → TTL locked, demande preuve
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
@@ -604,6 +605,9 @@ model Order {
   orderNumber      String         @map("order_number") // SS-XXXX (SnapSell)
   status           OrderStatus
   depositStatus    DepositStatus  @map("deposit_status")
+  depositAmountCents Int?         @map("deposit_amount_cents")
+  depositPercentSnapshot Int?     @map("deposit_percent_snapshot")
+  itemsTotalCents Int?            @map("items_total_cents")
   depositExpiresAt DateTime?      @map("deposit_expires_at")
   createdAt        DateTime       @default(now()) @map("created_at")
   updatedAt        DateTime       @updatedAt @map("updated_at")

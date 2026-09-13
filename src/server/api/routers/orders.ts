@@ -49,13 +49,36 @@ type OrderWhereInput = Prisma.OrderWhereInput;
 /** Construit le where pour list et exportCsv (évite duplication, CR 6-5). */
 function buildOrdersWhere(
   tenantId: string,
-  opts: { status?: string | readonly string[]; dateFrom?: string; dateTo?: string },
+  opts: { status?: string | readonly string[]; dateFrom?: string; dateTo?: string; payment?: string; search?: string },
 ): OrderWhereInput {
   const where: OrderWhereInput = { tenantId };
   if (opts?.status) {
     where.status = Array.isArray(opts.status)
       ? { in: opts.status as OrderStatus[] }
       : (opts.status as OrderStatus);
+  }
+  if (opts.payment === "review") {
+    where.depositStatus = "deposit_pending";
+    where.paymentProofs = { some: { status: "pending" } };
+  } else if (opts.payment === "awaiting") {
+    where.depositStatus = "deposit_pending";
+    where.paymentProofs = { none: { status: { in: ["pending", "rejected"] } } };
+  } else if (opts.payment === "approved") where.depositStatus = "deposit_approved";
+  else if (opts.payment === "none") where.depositStatus = "no_deposit";
+  else if (opts.payment === "rejected") {
+    where.OR = [
+      { depositStatus: "deposit_rejected" },
+      { depositStatus: "deposit_pending", paymentProofs: { some: { status: "rejected" }, none: { status: "pending" } } },
+    ];
+  }
+  if (opts.search?.trim()) {
+    const contains = { contains: opts.search.trim(), mode: "insensitive" as const };
+    where.AND = [{ OR: [
+      { orderNumber: contains },
+      { reservation: { clientPhone: contains } },
+      { reservation: { liveItem: { code: contains } } },
+      { reservation: { catalogueItem: { code: contains } } },
+    ] }];
   }
   if (opts?.dateFrom ?? opts?.dateTo) {
     where.createdAt = {};
@@ -95,6 +118,8 @@ export const ordersRouter = createTRPCRouter({
       const limit = input?.limit ?? 20;
       const where = buildOrdersWhere(tenantId, {
         status: input?.status,
+        payment: input?.payment,
+        search: input?.search,
         dateFrom: input?.dateFrom,
         dateTo: input?.dateTo,
       });
@@ -138,6 +163,8 @@ export const ordersRouter = createTRPCRouter({
 
       const where = buildOrdersWhere(tenantId, {
         status: input?.status,
+        payment: input?.payment,
+        search: input?.search,
         dateFrom: input?.dateFrom,
         dateTo: input?.dateTo,
       });

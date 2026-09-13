@@ -64,29 +64,23 @@ export function TaskPageHeader({
   return (
     <header
       className={cn(
-        "flex flex-col gap-5 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between",
+        "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between",
         className,
       )}
     >
       <div className="min-w-0 max-w-3xl">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
-          {parent && parent.href !== href ? <Link href={parent.href} className="inline-flex min-h-11 items-center underline underline-offset-4">Retour à {parent.label}</Link> : item.section}
-        </p>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+        {parent && parent.href !== href && <Link href={parent.href} className="mb-1 inline-flex min-h-11 items-center text-sm text-muted-foreground hover:text-primary">← Retour à {parent.label}</Link>}
+        <div className="flex flex-wrap items-center gap-3"><h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
           {item.label}
         </h1>
+        {topic && <HelpHint compact slug={topic.slug} />}
+        </div>
         {text ? (
-          <div className="mt-2 max-w-[65ch] text-sm leading-6 text-muted-foreground sm:text-base">
+          <div className="mt-1 max-w-[65ch] text-sm leading-6 text-muted-foreground">
             {text}
           </div>
         ) : null}
-        {topic ? (
-          // Décalé de la largeur du padding du bouton, pour rester aligné sur le
-          // titre plutôt que sur son libellé.
-          <div className="-ml-2 mt-2">
-            <HelpHint slug={topic.slug} />
-          </div>
-        ) : null}
+
       </div>
       {actions ? (
         <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">

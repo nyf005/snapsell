@@ -1,3 +1,4 @@
+import { z } from "zod";
 /**
  * Story 6.4 + 8.1: Live Ops — session courante (lecture seule), items, réservations, libérer une réservation.
  * Story 8.1: support CatalogueItem — releaseReservation sur catalogue_items si reservation.catalogueItemId.
@@ -42,6 +43,19 @@ function maskClientPhone(phone: string): string {
 }
 
 export const liveRouter = createTRPCRouter({
+  getWaitlist: protectedProcedure.input(z.object({ cursor: z.string().cuid().optional() })).query(async ({ ctx, input }) => {
+    const tenantId = ctx.session.user.tenantId;
+    const session = await getCurrentSessionReadOnly(tenantId);
+    const entries = await db.waitlist.findMany({
+      where: { tenantId, OR: [...(session ? [{ liveSessionId: session.id }] : []), { catalogueItemId: { not: null }, liveSessionId: null }] },
+      include: { catalogueItem: { select: { code: true } } },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }], take: 51,
+      ...(input.cursor ? { cursor: { id: input.cursor }, skip: 1 } : {}),
+    });
+    const liveItems = await db.liveItem.findMany({ where: { tenantId, id: { in: entries.flatMap((entry) => entry.liveItemId ? [entry.liveItemId] : []) } }, select: { id: true, code: true } });
+    const codes = new Map(liveItems.map((item) => [item.id, item.code]));
+    return { items: entries.slice(0, 50).map((entry) => ({ id: entry.id, code: entry.catalogueItem?.code ?? (entry.liveItemId ? codes.get(entry.liveItemId) : undefined) ?? "Article", clientPhone: maskClientPhone(entry.clientPhone), position: entry.position })), nextCursor: entries.length > 50 ? entries[49]?.id : undefined };
+  }),
   /** Une seule requête : session + items + reservations (1 appel getCurrentSessionReadOnly). */
   getLiveOpsData: protectedProcedure.query(async ({ ctx }) => {
     const tenantId = ctx.session.user.tenantId;
@@ -68,7 +82,7 @@ export const liveRouter = createTRPCRouter({
         },
       }),
       db.waitlist.count({
-        where: { liveSessionId: session.id, tenantId },
+        where: { tenantId, OR: [{ liveSessionId: session.id }, { catalogueItemId: { not: null }, liveSessionId: null }] },
       }),
     ]);
 

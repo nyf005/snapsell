@@ -26,6 +26,8 @@ export const listOrdersInputSchema = z
      * `confirmed_pending_deposit` et `confirmed` — voir src/lib/copy/orders.ts.
      */
     status: z.union([orderStatusSchema, z.array(orderStatusSchema).min(1)]).optional(),
+    payment: z.enum(["review", "awaiting", "approved", "rejected", "none"]).optional(),
+    search: z.string().trim().max(100).optional(),
     dateFrom: dateOptionalSchema,
     dateTo: dateOptionalSchema,
     limit: z.number().min(1).max(100).default(20),
@@ -85,6 +87,9 @@ export const orderOutputSchema = z.object({
   orderNumber: z.string(),
   status: z.string(),
   depositStatus: z.string().nullable(),
+  depositAmountCents: z.number().nullable(),
+  depositPercentSnapshot: z.number().nullable(),
+  itemsTotalCents: z.number().nullable(),
   depositExpiresAt: z.date().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { fr } from "react-day-picker/locale";
 import Link from "next/link";
@@ -36,6 +36,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "~/components/ui/empty";
+import { Input } from "~/components/ui/input";
 import { DataPagination } from "~/components/ui/data-pagination";
 import {
   ScrollText,
@@ -113,7 +114,7 @@ function eventPresentation(event: EventLogItem): EventPresentation {
   const p = event.payload as Record<string, unknown> | null ?? {};
   const orderHref =
     event.entityId && event.entityType === "order"
-      ? `/dashboard/orders/${event.entityId}`
+      ? `/dashboard/orders?order=${encodeURIComponent(event.entityId)}`
       : undefined;
 
   switch (event.eventType) {
@@ -206,6 +207,9 @@ export function AuditTrailContent({
   const [category, setCategory] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [search, setSearch] = useState("");
+  const [cursor, setCursor] = useState<string>();
+  const [accumulated, setAccumulated] = useState<EventLogItem[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   const categoryTypes = useMemo(
@@ -216,29 +220,35 @@ export function AuditTrailContent({
   const queryInput = useMemo(
     () => ({
       tenantId: tenantId ?? undefined,
+      eventTypes: categoryTypes.length ? [...categoryTypes] : undefined,
+      search: search.trim() || undefined,
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
       limit: 100,
-      cursor: undefined,
+      cursor,
     }),
-    [tenantId, dateFrom, dateTo],
+    [tenantId, dateFrom, dateTo, categoryTypes, search, cursor],
   );
 
   const exportFilters = useMemo(
     () => ({
       tenantId: tenantId ?? undefined,
+      eventTypes: categoryTypes.length ? [...categoryTypes] : undefined,
+      search: search.trim() || undefined,
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
     }),
-    [tenantId, dateFrom, dateTo],
+    [tenantId, dateFrom, dateTo, categoryTypes, search],
   );
 
   const utils = api.useUtils();
-  const { data, isLoading } = api.eventLog.list.useQuery(queryInput);
+  const { data, isLoading, error, refetch } = api.eventLog.list.useQuery(queryInput);
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
-  const allItems = useMemo(() => data?.items ?? [], [data?.items]);
+  useEffect(() => { setCursor(undefined); setCurrentPage(1); setAccumulated([]); }, [category, search, dateFrom, dateTo]);
+  useEffect(() => { if (data) setAccumulated((prev) => cursor ? [...prev.filter((item) => !data.items.some((next) => next.id === item.id)), ...data.items] : data.items); }, [data, cursor]);
+  const allItems = accumulated;
   const items = useMemo(() => {
     if (!category || categoryTypes.length === 0) return allItems;
     return allItems.filter((e) =>
@@ -275,11 +285,13 @@ export function AuditTrailContent({
     <>
       <DashboardHeader />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
-        <div className="space-y-8 p-6 md:p-8">
+        <div className="space-y-5 p-4 md:p-6">
           <TaskPageHeader
             href="/dashboard/audit"
           />
 
+          <label htmlFor="audit-search" className="block space-y-2 text-sm font-medium">Rechercher une référence<Input id="audit-search" value={search} maxLength={100} onChange={(event) => setSearch(event.target.value)} placeholder="Référence de commande ou d’activité" /></label>
+          {error && <div role="alert"><p>Impossible de charger l’historique.</p><Button variant="outline" onClick={() => void refetch()}>Réessayer</Button></div>}
           {/* Filtres */}
           <Card className="rounded-xl border border-border bg-card shadow-sm">
             <CardContent className="p-4">
@@ -287,7 +299,7 @@ export function AuditTrailContent({
                 <div className="min-w-[180px] flex-1">
                   <label
                     htmlFor="audit-category"
-                    className="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                    className="mb-1.5 ml-1 block text-sm font-medium text-muted-foreground"
                   >
                     Catégorie
                   </label>
@@ -318,7 +330,7 @@ export function AuditTrailContent({
                 </div>
 
                 <div className="min-w-[220px] flex-1">
-                  <span className="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <span className="mb-1.5 ml-1 block text-sm font-medium text-muted-foreground">
                     Période
                   </span>
                   <Popover>
@@ -369,7 +381,7 @@ export function AuditTrailContent({
                           );
                           setCurrentPage(1);
                         }}
-                        numberOfMonths={2}
+                        numberOfMonths={1}
                         locale={fr}
                         className="rounded-lg border-0"
                       />
@@ -419,7 +431,7 @@ export function AuditTrailContent({
                       id: "event",
                       header: "Événement",
                       role: "primary",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4",
                       cell: (row) => {
                         const { label, detail, Icon, href } = eventPresentation(row);
@@ -449,7 +461,7 @@ export function AuditTrailContent({
                       id: "date",
                       header: "Date",
                       role: "secondary",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4 text-sm text-muted-foreground",
                       cell: (row) => (
                         <span title={formatDateTime(new Date(row.createdAt))}>
@@ -461,7 +473,7 @@ export function AuditTrailContent({
                       id: "category",
                       header: "Catégorie",
                       role: "meta",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4",
                       cell: (row) => {
                         const { category, categoryVariant } = eventPresentation(row);
@@ -476,7 +488,7 @@ export function AuditTrailContent({
                       id: "actor",
                       header: "Acteur",
                       role: "meta",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4 text-sm text-muted-foreground",
                       cell: (row) => actorLabel(row.actorType),
                     },
@@ -513,6 +525,7 @@ export function AuditTrailContent({
               </>
             )}
           </Card>
+          {data?.nextCursor && <Button variant="outline" onClick={() => setCursor(data.nextCursor)}>Charger les activités suivantes</Button>}
         </div>
       </main>
     </>

@@ -4146,6 +4146,7 @@ export namespace Prisma {
   }
 
   export type TenantAvgAggregateOutputType = {
+    depositPercent: number | null
     creditsBalance: number | null
     creditsTotalMonthly: number | null
     creditsBonus: number | null
@@ -4157,6 +4158,7 @@ export namespace Prisma {
   }
 
   export type TenantSumAggregateOutputType = {
+    depositPercent: number | null
     creditsBalance: number | null
     creditsTotalMonthly: number | null
     creditsBonus: number | null
@@ -4181,6 +4183,7 @@ export namespace Prisma {
     assistantUpdatedAt: Date | null
     assistantUpdatedBy: string | null
     assistantActivatedAt: Date | null
+    depositPercent: number | null
     requireDeposit: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4240,6 +4243,7 @@ export namespace Prisma {
     assistantUpdatedAt: Date | null
     assistantUpdatedBy: string | null
     assistantActivatedAt: Date | null
+    depositPercent: number | null
     requireDeposit: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4299,6 +4303,7 @@ export namespace Prisma {
     assistantUpdatedAt: number
     assistantUpdatedBy: number
     assistantActivatedAt: number
+    depositPercent: number
     requireDeposit: number
     createdAt: number
     updatedAt: number
@@ -4347,6 +4352,7 @@ export namespace Prisma {
 
 
   export type TenantAvgAggregateInputType = {
+    depositPercent?: true
     creditsBalance?: true
     creditsTotalMonthly?: true
     creditsBonus?: true
@@ -4358,6 +4364,7 @@ export namespace Prisma {
   }
 
   export type TenantSumAggregateInputType = {
+    depositPercent?: true
     creditsBalance?: true
     creditsTotalMonthly?: true
     creditsBonus?: true
@@ -4382,6 +4389,7 @@ export namespace Prisma {
     assistantUpdatedAt?: true
     assistantUpdatedBy?: true
     assistantActivatedAt?: true
+    depositPercent?: true
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
@@ -4441,6 +4449,7 @@ export namespace Prisma {
     assistantUpdatedAt?: true
     assistantUpdatedBy?: true
     assistantActivatedAt?: true
+    depositPercent?: true
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
@@ -4500,6 +4509,7 @@ export namespace Prisma {
     assistantUpdatedAt?: true
     assistantUpdatedBy?: true
     assistantActivatedAt?: true
+    depositPercent?: true
     requireDeposit?: true
     createdAt?: true
     updatedAt?: true
@@ -4646,6 +4656,7 @@ export namespace Prisma {
     assistantUpdatedAt: Date | null
     assistantUpdatedBy: string | null
     assistantActivatedAt: Date | null
+    depositPercent: number | null
     requireDeposit: boolean
     createdAt: Date
     updatedAt: Date
@@ -4724,6 +4735,7 @@ export namespace Prisma {
     assistantUpdatedAt?: boolean
     assistantUpdatedBy?: boolean
     assistantActivatedAt?: boolean
+    depositPercent?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4808,6 +4820,7 @@ export namespace Prisma {
     assistantUpdatedAt?: boolean
     assistantUpdatedBy?: boolean
     assistantActivatedAt?: boolean
+    depositPercent?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4867,6 +4880,7 @@ export namespace Prisma {
     assistantUpdatedAt?: boolean
     assistantUpdatedBy?: boolean
     assistantActivatedAt?: boolean
+    depositPercent?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4926,6 +4940,7 @@ export namespace Prisma {
     assistantUpdatedAt?: boolean
     assistantUpdatedBy?: boolean
     assistantActivatedAt?: boolean
+    depositPercent?: boolean
     requireDeposit?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4971,7 +4986,7 @@ export namespace Prisma {
     awayMessage?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "metaCoexistence" | "metaHistorySyncStatus" | "metaContactsSyncStatus" | "metaHistorySyncAt" | "assistantEnabled" | "assistantUpdatedAt" | "assistantUpdatedBy" | "assistantActivatedAt" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "creditsBonus" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "orderSeq" | "hasAI" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "whatsappTemplateName" | "whatsappTemplateLanguage" | "whatsappTemplateCategory" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "metaPhoneNumberId" | "metaWabaId" | "metaAccessToken" | "metaCoexistence" | "metaHistorySyncStatus" | "metaContactsSyncStatus" | "metaHistorySyncAt" | "assistantEnabled" | "assistantUpdatedAt" | "assistantUpdatedBy" | "assistantActivatedAt" | "depositPercent" | "requireDeposit" | "createdAt" | "updatedAt" | "subscriptionPlan" | "subscriptionStatus" | "subscriptionExpiresAt" | "cycleStartedAt" | "creditsBalance" | "creditsTotalMonthly" | "creditsBonus" | "usageResetDate" | "lowCreditsAlerted" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackEmailToken" | "paystackAuthorizationCode" | "maxConfirmedOrdersPerMonth" | "maxProofsPerMonth" | "maxAgents" | "overagePerOrderCents" | "orderSeq" | "hasAI" | "hasExportCsv" | "hasAdvancedExports" | "hasNotificationsOutside24h" | "hasDepositRecommended" | "hasAdvancedFilters" | "hasPrioritySupport" | "showBranding" | "showUpgradeBanner" | "faqDelivery" | "faqPayment" | "faqLocation" | "faqAvailability" | "metaCatalogId" | "hasMetaCatalogSync" | "whatsappTemplateName" | "whatsappTemplateLanguage" | "whatsappTemplateCategory" | "businessHoursStart" | "businessHoursEnd" | "businessTimezone" | "awayMessage", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Tenant$usersArgs<ExtArgs>
     conversationStates?: boolean | Tenant$conversationStatesArgs<ExtArgs>
@@ -5044,6 +5059,7 @@ export namespace Prisma {
       assistantUpdatedAt: Date | null
       assistantUpdatedBy: string | null
       assistantActivatedAt: Date | null
+      depositPercent: number | null
       requireDeposit: boolean
       createdAt: Date
       updatedAt: Date
@@ -5554,6 +5570,7 @@ export namespace Prisma {
     readonly assistantUpdatedAt: FieldRef<"Tenant", 'DateTime'>
     readonly assistantUpdatedBy: FieldRef<"Tenant", 'String'>
     readonly assistantActivatedAt: FieldRef<"Tenant", 'DateTime'>
+    readonly depositPercent: FieldRef<"Tenant", 'Int'>
     readonly requireDeposit: FieldRef<"Tenant", 'Boolean'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
@@ -30590,8 +30607,22 @@ export namespace Prisma {
 
   export type AggregateOrder = {
     _count: OrderCountAggregateOutputType | null
+    _avg: OrderAvgAggregateOutputType | null
+    _sum: OrderSumAggregateOutputType | null
     _min: OrderMinAggregateOutputType | null
     _max: OrderMaxAggregateOutputType | null
+  }
+
+  export type OrderAvgAggregateOutputType = {
+    depositAmountCents: number | null
+    depositPercentSnapshot: number | null
+    itemsTotalCents: number | null
+  }
+
+  export type OrderSumAggregateOutputType = {
+    depositAmountCents: number | null
+    depositPercentSnapshot: number | null
+    itemsTotalCents: number | null
   }
 
   export type OrderMinAggregateOutputType = {
@@ -30601,6 +30632,9 @@ export namespace Prisma {
     orderNumber: string | null
     status: $Enums.OrderStatus | null
     depositStatus: $Enums.DepositStatus | null
+    depositAmountCents: number | null
+    depositPercentSnapshot: number | null
+    itemsTotalCents: number | null
     depositExpiresAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -30613,6 +30647,9 @@ export namespace Prisma {
     orderNumber: string | null
     status: $Enums.OrderStatus | null
     depositStatus: $Enums.DepositStatus | null
+    depositAmountCents: number | null
+    depositPercentSnapshot: number | null
+    itemsTotalCents: number | null
     depositExpiresAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -30625,12 +30662,27 @@ export namespace Prisma {
     orderNumber: number
     status: number
     depositStatus: number
+    depositAmountCents: number
+    depositPercentSnapshot: number
+    itemsTotalCents: number
     depositExpiresAt: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
+
+  export type OrderAvgAggregateInputType = {
+    depositAmountCents?: true
+    depositPercentSnapshot?: true
+    itemsTotalCents?: true
+  }
+
+  export type OrderSumAggregateInputType = {
+    depositAmountCents?: true
+    depositPercentSnapshot?: true
+    itemsTotalCents?: true
+  }
 
   export type OrderMinAggregateInputType = {
     id?: true
@@ -30639,6 +30691,9 @@ export namespace Prisma {
     orderNumber?: true
     status?: true
     depositStatus?: true
+    depositAmountCents?: true
+    depositPercentSnapshot?: true
+    itemsTotalCents?: true
     depositExpiresAt?: true
     createdAt?: true
     updatedAt?: true
@@ -30651,6 +30706,9 @@ export namespace Prisma {
     orderNumber?: true
     status?: true
     depositStatus?: true
+    depositAmountCents?: true
+    depositPercentSnapshot?: true
+    itemsTotalCents?: true
     depositExpiresAt?: true
     createdAt?: true
     updatedAt?: true
@@ -30663,6 +30721,9 @@ export namespace Prisma {
     orderNumber?: true
     status?: true
     depositStatus?: true
+    depositAmountCents?: true
+    depositPercentSnapshot?: true
+    itemsTotalCents?: true
     depositExpiresAt?: true
     createdAt?: true
     updatedAt?: true
@@ -30707,6 +30768,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: OrderAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OrderSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: OrderMinAggregateInputType
@@ -30737,6 +30810,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: OrderCountAggregateInputType | true
+    _avg?: OrderAvgAggregateInputType
+    _sum?: OrderSumAggregateInputType
     _min?: OrderMinAggregateInputType
     _max?: OrderMaxAggregateInputType
   }
@@ -30748,10 +30823,15 @@ export namespace Prisma {
     orderNumber: string
     status: $Enums.OrderStatus
     depositStatus: $Enums.DepositStatus
+    depositAmountCents: number | null
+    depositPercentSnapshot: number | null
+    itemsTotalCents: number | null
     depositExpiresAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: OrderCountAggregateOutputType | null
+    _avg: OrderAvgAggregateOutputType | null
+    _sum: OrderSumAggregateOutputType | null
     _min: OrderMinAggregateOutputType | null
     _max: OrderMaxAggregateOutputType | null
   }
@@ -30777,6 +30857,9 @@ export namespace Prisma {
     orderNumber?: boolean
     status?: boolean
     depositStatus?: boolean
+    depositAmountCents?: boolean
+    depositPercentSnapshot?: boolean
+    itemsTotalCents?: boolean
     depositExpiresAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -30793,6 +30876,9 @@ export namespace Prisma {
     orderNumber?: boolean
     status?: boolean
     depositStatus?: boolean
+    depositAmountCents?: boolean
+    depositPercentSnapshot?: boolean
+    itemsTotalCents?: boolean
     depositExpiresAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -30807,6 +30893,9 @@ export namespace Prisma {
     orderNumber?: boolean
     status?: boolean
     depositStatus?: boolean
+    depositAmountCents?: boolean
+    depositPercentSnapshot?: boolean
+    itemsTotalCents?: boolean
     depositExpiresAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -30821,12 +30910,15 @@ export namespace Prisma {
     orderNumber?: boolean
     status?: boolean
     depositStatus?: boolean
+    depositAmountCents?: boolean
+    depositPercentSnapshot?: boolean
+    itemsTotalCents?: boolean
     depositExpiresAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "reservationId" | "orderNumber" | "status" | "depositStatus" | "depositExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "reservationId" | "orderNumber" | "status" | "depositStatus" | "depositAmountCents" | "depositPercentSnapshot" | "itemsTotalCents" | "depositExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     reservation?: boolean | ReservationDefaultArgs<ExtArgs>
@@ -30856,6 +30948,9 @@ export namespace Prisma {
       orderNumber: string
       status: $Enums.OrderStatus
       depositStatus: $Enums.DepositStatus
+      depositAmountCents: number | null
+      depositPercentSnapshot: number | null
+      itemsTotalCents: number | null
       depositExpiresAt: Date | null
       createdAt: Date
       updatedAt: Date
@@ -31291,6 +31386,9 @@ export namespace Prisma {
     readonly orderNumber: FieldRef<"Order", 'String'>
     readonly status: FieldRef<"Order", 'OrderStatus'>
     readonly depositStatus: FieldRef<"Order", 'DepositStatus'>
+    readonly depositAmountCents: FieldRef<"Order", 'Int'>
+    readonly depositPercentSnapshot: FieldRef<"Order", 'Int'>
+    readonly itemsTotalCents: FieldRef<"Order", 'Int'>
     readonly depositExpiresAt: FieldRef<"Order", 'DateTime'>
     readonly createdAt: FieldRef<"Order", 'DateTime'>
     readonly updatedAt: FieldRef<"Order", 'DateTime'>
@@ -39727,6 +39825,7 @@ export namespace Prisma {
     assistantUpdatedAt: 'assistantUpdatedAt',
     assistantUpdatedBy: 'assistantUpdatedBy',
     assistantActivatedAt: 'assistantActivatedAt',
+    depositPercent: 'depositPercent',
     requireDeposit: 'requireDeposit',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -40080,6 +40179,9 @@ export namespace Prisma {
     orderNumber: 'orderNumber',
     status: 'status',
     depositStatus: 'depositStatus',
+    depositAmountCents: 'depositAmountCents',
+    depositPercentSnapshot: 'depositPercentSnapshot',
+    itemsTotalCents: 'itemsTotalCents',
     depositExpiresAt: 'depositExpiresAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -40446,6 +40548,7 @@ export namespace Prisma {
     assistantUpdatedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     assistantUpdatedBy?: StringNullableFilter<"Tenant"> | string | null
     assistantActivatedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    depositPercent?: IntNullableFilter<"Tenant"> | number | null
     requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
@@ -40529,6 +40632,7 @@ export namespace Prisma {
     assistantUpdatedAt?: SortOrderInput | SortOrder
     assistantUpdatedBy?: SortOrderInput | SortOrder
     assistantActivatedAt?: SortOrderInput | SortOrder
+    depositPercent?: SortOrderInput | SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -40617,6 +40721,7 @@ export namespace Prisma {
     assistantUpdatedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     assistantUpdatedBy?: StringNullableFilter<"Tenant"> | string | null
     assistantActivatedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
+    depositPercent?: IntNullableFilter<"Tenant"> | number | null
     requireDeposit?: BoolFilter<"Tenant"> | boolean
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
@@ -40698,6 +40803,7 @@ export namespace Prisma {
     assistantUpdatedAt?: SortOrderInput | SortOrder
     assistantUpdatedBy?: SortOrderInput | SortOrder
     assistantActivatedAt?: SortOrderInput | SortOrder
+    depositPercent?: SortOrderInput | SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -40765,6 +40871,7 @@ export namespace Prisma {
     assistantUpdatedAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
     assistantUpdatedBy?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     assistantActivatedAt?: DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+    depositPercent?: IntNullableWithAggregatesFilter<"Tenant"> | number | null
     requireDeposit?: BoolWithAggregatesFilter<"Tenant"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
@@ -42394,6 +42501,9 @@ export namespace Prisma {
     orderNumber?: StringFilter<"Order"> | string
     status?: EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFilter<"Order"> | $Enums.DepositStatus
+    depositAmountCents?: IntNullableFilter<"Order"> | number | null
+    depositPercentSnapshot?: IntNullableFilter<"Order"> | number | null
+    itemsTotalCents?: IntNullableFilter<"Order"> | number | null
     depositExpiresAt?: DateTimeNullableFilter<"Order"> | Date | string | null
     createdAt?: DateTimeFilter<"Order"> | Date | string
     updatedAt?: DateTimeFilter<"Order"> | Date | string
@@ -42409,6 +42519,9 @@ export namespace Prisma {
     orderNumber?: SortOrder
     status?: SortOrder
     depositStatus?: SortOrder
+    depositAmountCents?: SortOrderInput | SortOrder
+    depositPercentSnapshot?: SortOrderInput | SortOrder
+    itemsTotalCents?: SortOrderInput | SortOrder
     depositExpiresAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -42428,6 +42541,9 @@ export namespace Prisma {
     orderNumber?: StringFilter<"Order"> | string
     status?: EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFilter<"Order"> | $Enums.DepositStatus
+    depositAmountCents?: IntNullableFilter<"Order"> | number | null
+    depositPercentSnapshot?: IntNullableFilter<"Order"> | number | null
+    itemsTotalCents?: IntNullableFilter<"Order"> | number | null
     depositExpiresAt?: DateTimeNullableFilter<"Order"> | Date | string | null
     createdAt?: DateTimeFilter<"Order"> | Date | string
     updatedAt?: DateTimeFilter<"Order"> | Date | string
@@ -42443,12 +42559,17 @@ export namespace Prisma {
     orderNumber?: SortOrder
     status?: SortOrder
     depositStatus?: SortOrder
+    depositAmountCents?: SortOrderInput | SortOrder
+    depositPercentSnapshot?: SortOrderInput | SortOrder
+    itemsTotalCents?: SortOrderInput | SortOrder
     depositExpiresAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: OrderCountOrderByAggregateInput
+    _avg?: OrderAvgOrderByAggregateInput
     _max?: OrderMaxOrderByAggregateInput
     _min?: OrderMinOrderByAggregateInput
+    _sum?: OrderSumOrderByAggregateInput
   }
 
   export type OrderScalarWhereWithAggregatesInput = {
@@ -42461,6 +42582,9 @@ export namespace Prisma {
     orderNumber?: StringWithAggregatesFilter<"Order"> | string
     status?: EnumOrderStatusWithAggregatesFilter<"Order"> | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusWithAggregatesFilter<"Order"> | $Enums.DepositStatus
+    depositAmountCents?: IntNullableWithAggregatesFilter<"Order"> | number | null
+    depositPercentSnapshot?: IntNullableWithAggregatesFilter<"Order"> | number | null
+    itemsTotalCents?: IntNullableWithAggregatesFilter<"Order"> | number | null
     depositExpiresAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
@@ -43042,6 +43166,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -43125,6 +43250,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -43208,6 +43334,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43291,6 +43418,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43374,6 +43502,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -43433,6 +43562,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43492,6 +43622,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45208,6 +45339,9 @@ export namespace Prisma {
     orderNumber: string
     status: $Enums.OrderStatus
     depositStatus: $Enums.DepositStatus
+    depositAmountCents?: number | null
+    depositPercentSnapshot?: number | null
+    itemsTotalCents?: number | null
     depositExpiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -45223,6 +45357,9 @@ export namespace Prisma {
     orderNumber: string
     status: $Enums.OrderStatus
     depositStatus: $Enums.DepositStatus
+    depositAmountCents?: number | null
+    depositPercentSnapshot?: number | null
+    itemsTotalCents?: number | null
     depositExpiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -45234,6 +45371,9 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositAmountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    depositPercentSnapshot?: NullableIntFieldUpdateOperationsInput | number | null
+    itemsTotalCents?: NullableIntFieldUpdateOperationsInput | number | null
     depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45249,6 +45389,9 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositAmountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    depositPercentSnapshot?: NullableIntFieldUpdateOperationsInput | number | null
+    itemsTotalCents?: NullableIntFieldUpdateOperationsInput | number | null
     depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45262,6 +45405,9 @@ export namespace Prisma {
     orderNumber: string
     status: $Enums.OrderStatus
     depositStatus: $Enums.DepositStatus
+    depositAmountCents?: number | null
+    depositPercentSnapshot?: number | null
+    itemsTotalCents?: number | null
     depositExpiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -45272,6 +45418,9 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositAmountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    depositPercentSnapshot?: NullableIntFieldUpdateOperationsInput | number | null
+    itemsTotalCents?: NullableIntFieldUpdateOperationsInput | number | null
     depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45284,6 +45433,9 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositAmountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    depositPercentSnapshot?: NullableIntFieldUpdateOperationsInput | number | null
+    itemsTotalCents?: NullableIntFieldUpdateOperationsInput | number | null
     depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45955,6 +46107,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -46236,6 +46399,7 @@ export namespace Prisma {
     assistantUpdatedAt?: SortOrder
     assistantUpdatedBy?: SortOrder
     assistantActivatedAt?: SortOrder
+    depositPercent?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -46282,6 +46446,7 @@ export namespace Prisma {
   }
 
   export type TenantAvgOrderByAggregateInput = {
+    depositPercent?: SortOrder
     creditsBalance?: SortOrder
     creditsTotalMonthly?: SortOrder
     creditsBonus?: SortOrder
@@ -46306,6 +46471,7 @@ export namespace Prisma {
     assistantUpdatedAt?: SortOrder
     assistantUpdatedBy?: SortOrder
     assistantActivatedAt?: SortOrder
+    depositPercent?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -46365,6 +46531,7 @@ export namespace Prisma {
     assistantUpdatedAt?: SortOrder
     assistantUpdatedBy?: SortOrder
     assistantActivatedAt?: SortOrder
+    depositPercent?: SortOrder
     requireDeposit?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -46411,6 +46578,7 @@ export namespace Prisma {
   }
 
   export type TenantSumOrderByAggregateInput = {
+    depositPercent?: SortOrder
     creditsBalance?: SortOrder
     creditsTotalMonthly?: SortOrder
     creditsBonus?: SortOrder
@@ -46485,6 +46653,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -46760,17 +46944,6 @@ export namespace Prisma {
     tokenVersion?: SortOrder
   }
 
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -46832,22 +47005,6 @@ export namespace Prisma {
 
   export type AccountSumOrderByAggregateInput = {
     expires_at?: SortOrder
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type SessionCountOrderByAggregateInput = {
@@ -47665,9 +47822,18 @@ export namespace Prisma {
     orderNumber?: SortOrder
     status?: SortOrder
     depositStatus?: SortOrder
+    depositAmountCents?: SortOrder
+    depositPercentSnapshot?: SortOrder
+    itemsTotalCents?: SortOrder
     depositExpiresAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type OrderAvgOrderByAggregateInput = {
+    depositAmountCents?: SortOrder
+    depositPercentSnapshot?: SortOrder
+    itemsTotalCents?: SortOrder
   }
 
   export type OrderMaxOrderByAggregateInput = {
@@ -47677,6 +47843,9 @@ export namespace Prisma {
     orderNumber?: SortOrder
     status?: SortOrder
     depositStatus?: SortOrder
+    depositAmountCents?: SortOrder
+    depositPercentSnapshot?: SortOrder
+    itemsTotalCents?: SortOrder
     depositExpiresAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -47689,9 +47858,18 @@ export namespace Prisma {
     orderNumber?: SortOrder
     status?: SortOrder
     depositStatus?: SortOrder
+    depositAmountCents?: SortOrder
+    depositPercentSnapshot?: SortOrder
+    itemsTotalCents?: SortOrder
     depositExpiresAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type OrderSumOrderByAggregateInput = {
+    depositAmountCents?: SortOrder
+    depositPercentSnapshot?: SortOrder
+    itemsTotalCents?: SortOrder
   }
 
   export type EnumOrderStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -48387,6 +48565,14 @@ export namespace Prisma {
 
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -49279,14 +49465,6 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutAccountsInput, UserUncheckedCreateWithoutAccountsInput>
     connectOrCreate?: UserCreateOrConnectWithoutAccountsInput
     connect?: UserWhereUniqueInput
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type UserUpdateOneRequiredWithoutAccountsNestedInput = {
@@ -50230,6 +50408,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -50286,17 +50475,6 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
     not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
@@ -50325,6 +50503,33 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -50383,33 +50588,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumRoleFilter<$PrismaModel>
     _max?: NestedEnumRoleFilter<$PrismaModel>
-  }
-
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -51229,6 +51407,9 @@ export namespace Prisma {
     orderNumber: string
     status: $Enums.OrderStatus
     depositStatus: $Enums.DepositStatus
+    depositAmountCents?: number | null
+    depositPercentSnapshot?: number | null
+    itemsTotalCents?: number | null
     depositExpiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -51242,6 +51423,9 @@ export namespace Prisma {
     orderNumber: string
     status: $Enums.OrderStatus
     depositStatus: $Enums.DepositStatus
+    depositAmountCents?: number | null
+    depositPercentSnapshot?: number | null
+    itemsTotalCents?: number | null
     depositExpiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52019,6 +52203,9 @@ export namespace Prisma {
     orderNumber?: StringFilter<"Order"> | string
     status?: EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFilter<"Order"> | $Enums.DepositStatus
+    depositAmountCents?: IntNullableFilter<"Order"> | number | null
+    depositPercentSnapshot?: IntNullableFilter<"Order"> | number | null
+    itemsTotalCents?: IntNullableFilter<"Order"> | number | null
     depositExpiresAt?: DateTimeNullableFilter<"Order"> | Date | string | null
     createdAt?: DateTimeFilter<"Order"> | Date | string
     updatedAt?: DateTimeFilter<"Order"> | Date | string
@@ -52139,6 +52326,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52221,6 +52409,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52319,6 +52508,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52401,6 +52591,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52483,6 +52674,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52565,6 +52757,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52683,6 +52876,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52765,6 +52959,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52924,6 +53119,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -53006,6 +53202,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -53104,6 +53301,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53186,6 +53384,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53268,6 +53467,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -53350,6 +53550,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -53508,6 +53709,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53590,6 +53792,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53884,6 +54087,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -53966,6 +54170,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -54064,6 +54269,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54146,6 +54352,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54228,6 +54435,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -54310,6 +54518,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -54408,6 +54617,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54490,6 +54700,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54572,6 +54783,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -54654,6 +54866,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -54752,6 +54965,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54834,6 +55048,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -54916,6 +55131,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -54998,6 +55214,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55096,6 +55313,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55178,6 +55396,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55260,6 +55479,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55342,6 +55562,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55440,6 +55661,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55522,6 +55744,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55604,6 +55827,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55686,6 +55910,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55784,6 +56009,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55866,6 +56092,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55948,6 +56175,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56030,6 +56258,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56226,6 +56455,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56308,6 +56538,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56422,6 +56653,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56504,6 +56736,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56721,6 +56954,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56803,6 +57037,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56948,6 +57183,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -57030,6 +57266,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -57254,6 +57491,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57336,6 +57574,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57466,6 +57705,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -57548,6 +57788,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -57788,6 +58029,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57870,6 +58112,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58066,6 +58309,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -58148,6 +58392,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -58370,6 +58615,9 @@ export namespace Prisma {
     orderNumber: string
     status: $Enums.OrderStatus
     depositStatus: $Enums.DepositStatus
+    depositAmountCents?: number | null
+    depositPercentSnapshot?: number | null
+    itemsTotalCents?: number | null
     depositExpiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -58383,6 +58631,9 @@ export namespace Prisma {
     orderNumber: string
     status: $Enums.OrderStatus
     depositStatus: $Enums.DepositStatus
+    depositAmountCents?: number | null
+    depositPercentSnapshot?: number | null
+    itemsTotalCents?: number | null
     depositExpiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -58419,6 +58670,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58501,6 +58753,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58753,6 +59006,9 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositAmountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    depositPercentSnapshot?: NullableIntFieldUpdateOperationsInput | number | null
+    itemsTotalCents?: NullableIntFieldUpdateOperationsInput | number | null
     depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58766,6 +59022,9 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositAmountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    depositPercentSnapshot?: NullableIntFieldUpdateOperationsInput | number | null
+    itemsTotalCents?: NullableIntFieldUpdateOperationsInput | number | null
     depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -58786,6 +59045,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -58868,6 +59128,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -58966,6 +59227,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59048,6 +59310,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59130,6 +59393,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -59212,6 +59476,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -59310,6 +59575,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59392,6 +59658,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59474,6 +59741,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -59556,6 +59824,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -59739,6 +60008,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59821,6 +60091,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59967,6 +60238,9 @@ export namespace Prisma {
     orderNumber: string
     status: $Enums.OrderStatus
     depositStatus: $Enums.DepositStatus
+    depositAmountCents?: number | null
+    depositPercentSnapshot?: number | null
+    itemsTotalCents?: number | null
     depositExpiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -59981,6 +60255,9 @@ export namespace Prisma {
     orderNumber: string
     status: $Enums.OrderStatus
     depositStatus: $Enums.DepositStatus
+    depositAmountCents?: number | null
+    depositPercentSnapshot?: number | null
+    itemsTotalCents?: number | null
     depositExpiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -60005,6 +60282,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -60087,6 +60365,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -60176,6 +60455,9 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositAmountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    depositPercentSnapshot?: NullableIntFieldUpdateOperationsInput | number | null
+    itemsTotalCents?: NullableIntFieldUpdateOperationsInput | number | null
     depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -60190,6 +60472,9 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositAmountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    depositPercentSnapshot?: NullableIntFieldUpdateOperationsInput | number | null
+    itemsTotalCents?: NullableIntFieldUpdateOperationsInput | number | null
     depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -60220,6 +60505,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -60302,6 +60588,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -60384,6 +60671,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -60466,6 +60754,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -60613,6 +60902,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -60695,6 +60985,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -60832,6 +61123,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -60914,6 +61206,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -61012,6 +61305,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -61094,6 +61388,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -61176,6 +61471,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -61258,6 +61554,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -61356,6 +61653,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -61438,6 +61736,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -61520,6 +61819,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -61602,6 +61902,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -61700,6 +62001,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -61782,6 +62084,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -61864,6 +62167,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -61946,6 +62250,7 @@ export namespace Prisma {
     assistantUpdatedAt?: Date | string | null
     assistantUpdatedBy?: string | null
     assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
     requireDeposit?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -62044,6 +62349,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62126,6 +62432,7 @@ export namespace Prisma {
     assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
     requireDeposit?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62421,6 +62728,9 @@ export namespace Prisma {
     orderNumber: string
     status: $Enums.OrderStatus
     depositStatus: $Enums.DepositStatus
+    depositAmountCents?: number | null
+    depositPercentSnapshot?: number | null
+    itemsTotalCents?: number | null
     depositExpiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -63157,6 +63467,9 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositAmountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    depositPercentSnapshot?: NullableIntFieldUpdateOperationsInput | number | null
+    itemsTotalCents?: NullableIntFieldUpdateOperationsInput | number | null
     depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -63170,6 +63483,9 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositAmountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    depositPercentSnapshot?: NullableIntFieldUpdateOperationsInput | number | null
+    itemsTotalCents?: NullableIntFieldUpdateOperationsInput | number | null
     depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -63182,6 +63498,9 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: EnumOrderStatusFieldUpdateOperationsInput | $Enums.OrderStatus
     depositStatus?: EnumDepositStatusFieldUpdateOperationsInput | $Enums.DepositStatus
+    depositAmountCents?: NullableIntFieldUpdateOperationsInput | number | null
+    depositPercentSnapshot?: NullableIntFieldUpdateOperationsInput | number | null
+    itemsTotalCents?: NullableIntFieldUpdateOperationsInput | number | null
     depositExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

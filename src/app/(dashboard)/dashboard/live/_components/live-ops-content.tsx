@@ -1,5 +1,8 @@
 "use client";
 
+import { QueryFailure } from "~/components/ui/query-failure";
+
+import { LiveWaitlist } from "./live-waitlist";
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { api } from "~/trpc/react";
@@ -13,7 +16,6 @@ import { AssistantControl } from "~/app/(dashboard)/_components/assistant-contro
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { KpiCard } from "~/components/ui/kpi-card";
 
 import { LiveOpsSkeleton } from "./live-ops-skeletons";
 import {
@@ -29,15 +31,11 @@ import {
 import { DashboardEmptyState } from "~/app/(dashboard)/_components/dashboard-empty-state";
 import {
   Radio,
-  Package,
   Clock,
-  ShoppingCart,
-  Users,
   BarChart2,
   AlarmClock,
   PackageOpen,
   X,
-  TrendingUp,
   Play,
 } from "lucide-react";
 
@@ -90,7 +88,7 @@ export function LiveOpsContent({ canManageAssistant = true }: { canManageAssista
   /** Dialogue d'ajout depuis le catalogue — branche `live.addItemFromCatalogue`. */
   const [showAddFromCatalogue, setShowAddFromCatalogue] = useState(false);
 
-  const { data: liveOpsData, isLoading } = api.live.getLiveOpsData.useQuery(undefined, {
+  const { data: liveOpsData, isLoading, error: queryError, refetch } = api.live.getLiveOpsData.useQuery(undefined, {
     refetchInterval: (query) => {
       const hasLive = query.state.data?.session != null;
       const hasRecentReservations = query.state.data?.reservations.some(
@@ -186,13 +184,16 @@ export function LiveOpsContent({ canManageAssistant = true }: { canManageAssista
     return total > 0 ? Math.round((reserved / total) * 100) : 0;
   }, [items]);
 
+  if (queryError && !liveOpsData) return <><DashboardHeader /><main className="p-4 md:p-6"><QueryFailure error={queryError} retry={refetch} /></main></>;
+
   return (
     <>
       <DashboardHeader />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
-        <div className="space-y-8 p-6 md:p-8">
+        <div className="space-y-5 p-4 md:p-6">
           <SetupRequiredBanner />
           <AssistantControl canManage={canManageAssistant} compact />
+          {queryError && <QueryFailure error={queryError} retry={refetch} title="Ces informations ne sont plus à jour" />}
           <TaskPageHeader
             href="/dashboard/live"
             description={
@@ -246,59 +247,15 @@ export function LiveOpsContent({ canManageAssistant = true }: { canManageAssista
             }
           />
 
-          <details className="rounded-lg border border-border px-4">
-            <summary className="cursor-pointer py-3 text-sm font-medium">Bilan du live · {items.length} articles · {reservations.length} réservations · {waitlistCount} en attente</summary>
-          <section aria-label="Indicateurs" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <KpiCard
-              label="Articles du live"
-              value={isLoading ? "—" : items.length}
-              icon={Package}
-              iconVariant="primary"
-            />
-            <KpiCard
-              label="Réservations actives"
-              value={isLoading ? "—" : reservations.length}
-              icon={ShoppingCart}
-              iconVariant="warning"
-            />
-            <KpiCard
-              label="En file d'attente"
-              value={isLoading ? "—" : waitlistCount}
-              icon={Users}
-              iconVariant="purple"
-            />
-          </section>
-              <Card className="overflow-hidden rounded-xl border-0 bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-                <CardContent className="relative overflow-hidden p-6">
-                  <div className="relative z-10">
-                    <h4 className="mb-2 font-bold">Rythme du live</h4>
-                    <div className="mb-4 flex items-center gap-2">
-                      <span className="text-2xl font-extrabold tabular-nums">
-                        {isLoading ? "—" : `${soldThroughPercent} %`}
-                      </span>
-                      <span className="text-sm font-bold uppercase tracking-widest opacity-80">
-                        Réservé
-                      </span>
-                    </div>
-                    <div className="mb-2 h-3 overflow-hidden rounded-full bg-white/20">
-                      <div
-                        className="h-full rounded-full bg-white transition-[width]"
-                        style={{ width: `${soldThroughPercent}%` }}
-                      />
-                    </div>
-                    <p className="text-[10px] opacity-70">
-                      {hasSession
-                        ? "Part des quantités réservées par rapport au total du live."
-                        : "Lancez un live pour voir le rythme."}
-                    </p>
-                  </div>
-                  <TrendingUp className="absolute -bottom-4 -right-4 size-24 opacity-10" />
-                </CardContent>
-              </Card>
-          </details>
+          <nav aria-label="Accès au live" className="flex flex-wrap gap-2 text-sm font-medium">
+            <a href="#live-reservations" className="rounded-lg border border-border bg-card px-4 py-3">{reservations.length} réservations</a>
+            <a href="#live-inventory" className="rounded-lg border border-border bg-card px-4 py-3">{items.length} articles</a>
+            {waitlistCount > 0 && <a href="#live-waitlist" className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3">{waitlistCount} personnes en attente</a>}
+            <span className="px-2 py-3 text-muted-foreground">{soldThroughPercent} % des quantités réservées</span>
+          </nav>
 
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-stretch">
-            <div className="order-1 flex min-h-0 flex-col gap-6 lg:order-1 lg:col-span-6">
+            <div id="live-reservations" className="scroll-mt-4 order-1 flex min-h-0 flex-col gap-6 lg:order-1 lg:col-span-6">
               <Card className="flex flex-1 flex-col overflow-hidden rounded-xl border-border pt-0 shadow-sm">
                 <CardHeader className="flex items-center border-b border-border bg-muted/30 px-6 py-2.5 [.border-b]:pb-2.5">
                   <div className="flex w-full items-center justify-between">
@@ -369,7 +326,7 @@ export function LiveOpsContent({ canManageAssistant = true }: { canManageAssista
 
 
             </div>
-            <div className="order-2 flex flex-col lg:order-2 lg:col-span-6">
+            <div id="live-inventory" className="scroll-mt-4 order-2 flex flex-col lg:order-2 lg:col-span-6">
               <Card className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border-border gap-0 pt-0 shadow-sm">
                 <CardHeader className="flex items-center border-b border-border bg-muted/30 px-6 py-2.5 [.border-b]:pb-2.5">
                   <div className="flex w-full items-center justify-between">
@@ -499,6 +456,8 @@ export function LiveOpsContent({ canManageAssistant = true }: { canManageAssista
               </Card>
             </div>
           </div>
+
+          {waitlistCount > 0 && <LiveWaitlist />}
 
           {successMessage && (
             <p

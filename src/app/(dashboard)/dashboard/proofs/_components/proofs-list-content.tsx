@@ -1,5 +1,7 @@
 "use client";
 
+import { QueryFailure } from "~/components/ui/query-failure";
+
 import { useEffect, useMemo, useState } from "react";
 import { api } from "~/trpc/react";
 import { formatDateTime, formatErrorText } from "~/lib/copy";
@@ -74,7 +76,7 @@ export function ProofsListContent() {
     [cursor, view],
   );
 
-  const { data, isLoading } = api.proofs.listPending.useQuery(queryInput);
+  const { data, isLoading, error: queryError, refetch } = api.proofs.listPending.useQuery(queryInput);
 
   /**
    * Changer de vue repart de la première page. Sans ça, le curseur de la vue
@@ -195,11 +197,14 @@ export function ProofsListContent() {
     setShowBulkReject(true);
   };
 
+  if (queryError && !data) return <><DashboardHeader /><main className="p-4 md:p-6"><QueryFailure error={queryError} retry={refetch} /></main></>;
+
   return (
     <>
       <DashboardHeader />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
-        <div className="space-y-8 p-6 md:p-8">
+        <div className="space-y-5 p-4 md:p-6">
+          {queryError && <QueryFailure error={queryError} retry={refetch} title="Ces informations ne sont plus à jour" />}
           <TaskPageHeader
             href="/dashboard/proofs"
             description="Comparez la preuve avec la commande, puis validez-la ou refusez-la. Un refus demande toujours confirmation."
@@ -241,7 +246,7 @@ export function ProofsListContent() {
             </div>
           ) : null}
 
-          <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
+          <Card className="overflow-hidden rounded-xl border-border gap-0 pb-0 pt-0 shadow-none">
             {isLoading ? (
               <div className="p-6">
                 <ProofsListSkeleton />
@@ -292,7 +297,7 @@ export function ProofsListContent() {
                     header: "Aperçu",
                     role: "meta",
                     headerClassName:
-                      "w-24 px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      "w-24 px-6 py-4 text-sm font-medium text-muted-foreground",
                     className: "px-6 py-4",
                     cell: (proof) =>
                       proof.kind === "image" ? (
@@ -320,7 +325,7 @@ export function ProofsListContent() {
                     id: "order",
                     header: "N° commande",
                     role: "primary",
-                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                     className: "px-6 py-4",
                     cell: (proof) => (
                       <div className="flex flex-col gap-0.5">
@@ -337,7 +342,7 @@ export function ProofsListContent() {
                     id: "type",
                     header: "Type",
                     role: "meta",
-                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                     className: "px-6 py-4 text-sm font-medium text-muted-foreground",
                     cell: (proof) =>
                       proof.kind === "image" ? "Image" : proof.kind === "text" ? "Texte" : "—",
@@ -346,7 +351,7 @@ export function ProofsListContent() {
                     id: "client",
                     header: "Client",
                     role: "meta",
-                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                     className: "px-6 py-4",
                     cell: (proof) => (
                       <div className="flex items-center gap-2 text-sm text-foreground">
@@ -359,7 +364,7 @@ export function ProofsListContent() {
                     id: "createdAt",
                     header: "Reçue le",
                     role: "meta",
-                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                     className: "px-6 py-4 text-sm text-muted-foreground",
                     cell: (proof) => formatDateTime(new Date(proof.createdAt)),
                   },

@@ -1,3 +1,5 @@
+import { z } from "zod";
+import { resolveDeliveryFee } from "~/lib/delivery/resolve-delivery-fee";
 import { TRPCError } from "@trpc/server";
 
 import { appError } from "~/server/api/errors";
@@ -28,6 +30,15 @@ function checkDeliveryAccess(role: string) {
 }
 
 export const deliveryRouter = createTRPCRouter({
+  previewFee: protectedProcedure.input(z.object({ commune: z.string().trim().min(1).max(120) })).query(async ({ ctx, input }) => {
+    checkDeliveryAccess(ctx.session.user.role as string);
+    const tenantId = ctx.session.user.tenantId;
+    const [zones, communes] = await Promise.all([
+      db.deliveryZone.findMany({ where: { tenantId }, include: { communes: true }, orderBy: { name: "asc" } }),
+      db.deliveryFeeCommune.findMany({ where: { tenantId } }),
+    ]);
+    return resolveDeliveryFee(input.commune, zones.map((zone) => ({ name: zone.name, amount: zone.amount, communes: zone.communes.map((c) => c.communeName) })), communes);
+  }),
   getDeliveryZones: protectedProcedure
     .input(listDeliveryZonesInputSchema)
     .query(async ({ ctx, input }) => {

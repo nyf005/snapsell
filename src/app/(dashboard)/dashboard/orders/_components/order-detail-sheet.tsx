@@ -22,8 +22,8 @@ import {
 } from "~/components/ui/sheet";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
-import { formatDateTime, formatErrorText } from "~/lib/copy";
-import { depositStatusLabel, orderStatusLabel } from "~/lib/copy/orders";
+import { formatDateTime, formatErrorText, formatXof } from "~/lib/copy";
+import { paymentState, orderStatusLabel } from "~/lib/copy/orders";
 import { api } from "~/trpc/react";
 
 import { OrderProofs } from "./order-proofs";
@@ -96,11 +96,13 @@ function deliveryLines(order: {
 export function OrderDetailSheet({
   orderId,
   showProofs = false,
+  onNext,
   open,
   onOpenChange,
 }: {
   orderId: string | null;
   showProofs?: boolean;
+  onNext?: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -155,7 +157,7 @@ export function OrderDetailSheet({
           </SheetTitle>
           <SheetDescription className="text-sm leading-6 text-muted-foreground">
             {order
-              ? `${orderStatusLabel(order.status)} — ${depositStatusLabel(order.depositStatus)}`
+              ? `${orderStatusLabel(order.status)} · ${paymentState(order).label}`
               : isError ? "Le détail n’a pas pu être chargé." : "Chargement du détail…"}
           </SheetDescription>
         </SheetHeader>
@@ -173,8 +175,22 @@ export function OrderDetailSheet({
           </div>
         ) : (
           <div className="space-y-6 p-6">
-            {order.depositStatus === "deposit_pending" && <section aria-label="Paiement à vérifier" className="space-y-3">
-              <p className="text-sm text-muted-foreground">Vérifiez la preuve et le paiement reçu avant de valider l’acompte. Comparez avec le montant convenu avec la cliente.</p>
+            <dl className="grid grid-cols-2 gap-4">
+              <Field icon={<Package className="size-3.5" aria-hidden />} label="Article">
+                {order.liveItemCode ?? "—"}
+                {order.variantLabel ? (
+                  <span className="text-muted-foreground"> · {order.variantLabel}</span>
+                ) : null}
+              </Field>
+              <Field label="Quantité">{order.quantity ?? "—"}</Field>
+              <Field icon={<Phone className="size-3.5" aria-hidden />} label="Cliente">
+                {order.clientPhone}
+              </Field>
+              <Field label="Passée le">{formatDateTime(order.createdAt)}</Field>
+            </dl>
+            {order.depositStatus === "deposit_pending" && <section aria-label={paymentState(order).key === "review" ? "Paiement à vérifier" : "Acompte attendu"} className="space-y-3">
+              <div className="rounded-lg bg-muted/50 p-3"><p className="text-sm text-muted-foreground">Acompte demandé</p><p className="text-xl font-semibold tabular-nums">{order.depositAmountCents != null ? formatXof(order.depositAmountCents) : "Montant non renseigné"}</p>{order.itemsTotalCents != null && <p className="mt-1 text-sm text-muted-foreground">{order.depositPercentSnapshot} % de {formatXof(order.itemsTotalCents)} d’articles, hors livraison</p>}</div>
+              <p className="text-sm text-muted-foreground">Comparez la preuve avec le paiement reçu avant de valider l’acompte.</p>
             <div className="border-t border-border pt-6">
               <h3 className="pb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 Preuves de paiement
@@ -208,19 +224,7 @@ export function OrderDetailSheet({
             </div>
 
             </section>}
-            <dl className="grid grid-cols-2 gap-4">
-              <Field icon={<Package className="size-3.5" aria-hidden />} label="Article">
-                {order.liveItemCode ?? "—"}
-                {order.variantLabel ? (
-                  <span className="text-muted-foreground"> · {order.variantLabel}</span>
-                ) : null}
-              </Field>
-              <Field label="Quantité">{order.quantity ?? "—"}</Field>
-              <Field icon={<Phone className="size-3.5" aria-hidden />} label="Cliente">
-                {order.clientPhone}
-              </Field>
-              <Field label="Passée le">{formatDateTime(order.createdAt)}</Field>
-            </dl>
+
 
             <div className="border-t border-border pt-6">
               <Field icon={<MapPin className="size-3.5" aria-hidden />} label="Livraison">
@@ -279,6 +283,8 @@ export function OrderDetailSheet({
             </div>
 
             </details>}
+            {order.depositStatus !== "deposit_pending" && order.depositStatus !== "no_deposit" && <p className="text-sm">Acompte demandé : {order.depositAmountCents != null ? formatXof(order.depositAmountCents) : "montant non renseigné"}</p>}
+            {onNext && <Button variant="outline" className="w-full" onClick={onNext}>Paiement suivant à vérifier</Button>}
             {order.depositExpiresAt ? (
               <p className="border-t border-border pt-6 text-sm text-muted-foreground">
                 Délai d’acompte jusqu’au {formatDateTime(order.depositExpiresAt)}.

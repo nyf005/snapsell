@@ -19,8 +19,6 @@ import {
 } from "~/components/ui/chart";
 import {
   ClipboardList,
-  Package,
-  Radio,
   ArrowRight,
   ShoppingBag,
   TrendingUp,
@@ -29,18 +27,16 @@ import {
   Zap,
 } from "lucide-react";
 import {
-  DashboardStartGuide,
   getDailyPriority,
 } from "~/app/(dashboard)/_components/dashboard-start-guide";
 import { HelpHint } from "~/app/(dashboard)/_components/help-hint";
 import { SetupChecklist } from "~/app/(dashboard)/_components/setup-checklist";
 import { CreditsAlertBanner } from "~/app/(dashboard)/_components/credits-alert-banner";
 import { AssistantControl } from "~/app/(dashboard)/_components/assistant-control";
-import { formatError, formatRelativeDate, formatXof, formatXofUnits, type UserError } from "~/lib/copy";
+import { formatError, formatXof, formatXofUnits, type UserError } from "~/lib/copy";
 import { ProductMetrics } from "./product-metrics";
 import { HandedOffConversations } from "./handed-off-conversations";
 import { ErrorAlert } from "~/components/ui/error-alert";
-import { cn } from "~/lib/utils";
 
 const revenueChartConfig = {
   revenueCents: {
@@ -150,23 +146,11 @@ export function DashboardContent({
     await startLiveMutation.mutateAsync();
   };
 
-  const lastProofLabel = summary.lastProofSubmittedAt
-    ? formatRelativeDate(summary.lastProofSubmittedAt)
-    : "Aucune preuve reçue pour l’instant";
 
   return (
     <div className="space-y-8">
       {summaryError && summaryFailure}
       {/* Sur mobile, c'est le seul endroit où le solde est visible. */}
-      {dailyPriority && (
-        <section aria-label="Action prioritaire">
-          <DashboardStartGuide
-            hasLiveSession={summary.hasLiveSession}
-            pendingProofsCount={summary.pendingProofsCount}
-            ordersPreparingCount={summary.ordersPreparingCount}
-          />
-        </section>
-      )}
       {showSetup && setup && (
         <section aria-label="Mise en route">
           <SetupChecklist
@@ -198,128 +182,11 @@ export function DashboardContent({
           <HelpHint slug="comment-ca-marche" />
         </div>
         {setup?.isComplete && !dailyPriority && <p role="status" className="mb-4 text-base font-medium">Aucun paiement à vérifier ni commande à préparer.</p>}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {/* Le bandeau prioritaire porte déjà les preuves à vérifier. */}
-          {summary.pendingProofsCount === 0 && !setup?.isComplete && <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                  <ClipboardList className="size-5" />
-                </div>
-                {summary.pendingProofsCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="bg-amber-500/20 text-amber-700 dark:text-amber-400 border-0"
-                  >
-                    Urgent
-                  </Badge>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-1">
-              <p className="text-2xl md:text-3xl font-extrabold text-foreground">
-                {summary.pendingProofsCount}
-              </p>
-              <p className="text-sm font-bold text-foreground">
-                Preuves en attente
-              </p>
-              <p className="text-sm text-muted-foreground">{lastProofLabel}</p>
-              <Link
-                href="/dashboard/proofs"
-                prefetch
-                className="text-sm font-extrabold text-primary inline-flex min-h-11 items-center gap-1 mt-2 group-hover:gap-2 transition-all"
-              >
-                Voir les preuves
-                <ArrowRight className="size-3" />
-              </Link>
-            </CardContent>
-          </Card>}
-
-          {/* Le bandeau porte les commandes quand aucune preuve ne les précède. */}
-          {(summary.pendingProofsCount > 0 && summary.ordersPreparingCount > 0 || summary.ordersPreparingCount === 0 && !setup?.isComplete) && <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
-            <CardHeader className="pb-2">
-              <div className="inline-flex p-2 rounded-lg bg-primary/10 text-primary w-fit">
-                <Package className="size-5" />
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-1">
-              <p className="text-2xl md:text-3xl font-extrabold text-foreground">
-                {summary.ordersPreparingCount}
-              </p>
-              <p className="text-sm font-bold text-foreground">
-                Commandes à préparer
-              </p>
-              <p className="text-sm text-muted-foreground">
-                À préparer avant la mise en livraison
-              </p>
-              <Link
-                href="/dashboard/orders?view=preparing"
-                prefetch
-                className="text-sm font-extrabold text-primary inline-flex min-h-11 items-center gap-1 mt-2 group-hover:gap-2 transition-all"
-              >
-                Voir les commandes
-                <ArrowRight className="size-3" />
-              </Link>
-            </CardContent>
-          </Card>}
-
-          {/* Live du moment */}
-          <Card className="min-w-0 border-border shadow-sm hover:border-primary/50 transition-all group">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <div
-                  className={cn(
-                    "p-2 rounded-lg",
-                    summary.hasLiveSession
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  <Radio className="size-5" />
-                </div>
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-muted">
-                  <span
-                    className={cn(
-                      "size-1.5 rounded-full",
-                      summary.hasLiveSession ? "bg-primary" : "bg-muted-foreground"
-                    )}
-                  />
-                  <span className="text-sm font-bold text-muted-foreground uppercase">
-                    {summary.hasLiveSession ? "En cours" : "Inactif"}
-                  </span>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-2">
-              <p className="text-xl font-extrabold text-foreground">
-                Live du moment
-              </p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {summary.hasLiveSession
-                  ? "Les réservations et délais sont suivis automatiquement."
-                  : "Le live peut démarrer automatiquement au premier code."}
-              </p>
-              {summary.hasLiveSession ? (
-                <Button asChild size="sm" className="mt-2">
-                  <Link href="/dashboard/live" prefetch>Voir le live</Link>
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    size="sm"
-                    className="mt-2"
-                    onClick={handleStartLive}
-                    disabled={startLiveMutation.isPending}
-                  >
-                    {startLiveMutation.isPending ? "Démarrage..." : "Démarrer maintenant"}
-                  </Button>
-                  {startLiveError && (
-                    <ErrorAlert error={startLiveError} className="mt-2" />
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
+        <div className="divide-y divide-border rounded-xl border border-border bg-card px-4">
+          <Link href="/dashboard/orders?payment=review" className="flex min-h-20 items-center justify-between gap-4 py-3"><span><span className="block font-semibold">Paiements à vérifier</span><span className="text-sm text-muted-foreground">{summary.pendingProofsCount ? "Vérifier les justificatifs reçus" : "Aucune preuve en attente"}</span></span><span className="flex items-center gap-3"><Badge variant={summary.pendingProofsCount ? "warning" : "secondary"}>{summary.pendingProofsCount}</Badge><ArrowRight className="size-4" /></span></Link>
+          <Link href="/dashboard/orders?view=preparing" className="flex min-h-20 items-center justify-between gap-4 py-3"><span><span className="block font-semibold">Commandes à préparer</span><span className="text-sm text-muted-foreground">Articles et coordonnées de livraison</span></span><span className="flex items-center gap-3"><Badge variant="secondary">{summary.ordersPreparingCount}</Badge><ArrowRight className="size-4" /></span></Link>
+          <div className="flex min-h-20 flex-wrap items-center justify-between gap-3 py-3"><span><span className="block font-semibold">{summary.hasLiveSession ? "Live en cours" : "Votre prochain live"}</span><span className="text-sm text-muted-foreground">{summary.hasLiveSession ? "Retrouver les réservations" : "Préparer vos articles et lancer la vente"}</span></span>{summary.hasLiveSession ? <Button asChild><Link href="/dashboard/live">Voir le live</Link></Button> : <Button onClick={handleStartLive} disabled={startLiveMutation.isPending}>{startLiveMutation.isPending ? "Démarrage…" : "Démarrer maintenant"}</Button>}</div>
+          {startLiveError && <ErrorAlert error={startLiveError} className="py-3" />}
         </div>
 
         {/* Ne s'affiche que s'il y a une conversation à reprendre — sinon la

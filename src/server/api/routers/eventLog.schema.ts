@@ -43,6 +43,8 @@ export const eventTypeEnumSchema = z.enum([
 export const listEventLogsInputSchema = z
   .object({
     eventType: eventTypeEnumSchema.optional(),
+    eventTypes: z.array(eventTypeEnumSchema).min(1).max(40).optional(),
+    search: z.string().trim().max(100).optional(),
     dateFrom: dateOptionalSchema,
     dateTo: dateOptionalSchema,
     correlationId: z.string().min(1).optional(),
@@ -67,6 +69,8 @@ export const listEventLogsInputSchema = z
 export const exportCsvEventLogsInputSchema = z
   .object({
     eventType: eventTypeEnumSchema.optional(),
+    eventTypes: z.array(eventTypeEnumSchema).min(1).max(40).optional(),
+    search: z.string().trim().max(100).optional(),
     dateFrom: dateOptionalSchema,
     dateTo: dateOptionalSchema,
     correlationId: z.string().min(1).optional(),

@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-const fieldLabel = "mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground";
+const fieldLabel = "mb-1.5 ml-1 block text-sm font-medium text-muted-foreground";
 
 /**
  * Fonctions avancées de WhatsApp : catalogue Meta Commerce et modèles de message.
@@ -126,7 +126,7 @@ export function WhatsAppAdvancedSections() {
 
             {data?.metaCatalogId && (
               <div className="rounded-lg border border-success/30 bg-success/5 p-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Catalogue actif</p>
+                <p className="text-sm font-medium text-muted-foreground mb-0.5">Catalogue actif</p>
                 <p className="font-mono text-sm text-foreground">{data.metaCatalogId}</p>
               </div>
             )}

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 import { appError } from "~/server/api/errors";
@@ -111,6 +112,13 @@ async function fetchWhatsAppTemplatesFromMeta(opts: {
 
 /** Fenêtre accordée par Meta pour lancer la reprise après l'intégration. */
 export const settingsRouter = createTRPCRouter({
+  getDepositSettings: managerProcedure.query(async ({ ctx }) => {
+    return db.tenant.findUniqueOrThrow({ where: { id: ctx.session.user.tenantId }, select: { requireDeposit: true, depositPercent: true } });
+  }),
+  setDepositSettings: managerProcedure.input(z.object({ requireDeposit: z.boolean(), depositPercent: z.number().int().min(1).max(100) })).mutation(async ({ ctx, input }) => {
+    await db.tenant.update({ where: { id: ctx.session.user.tenantId }, data: input });
+    return { ok: true };
+  }),
   getCategoryPrices: managerProcedure
     .input(listCategoryPricesInputSchema)
     .query(async ({ ctx, input }) => {

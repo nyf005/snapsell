@@ -29,15 +29,15 @@ import { HelpBody } from "~/app/aide/_components/help-body";
  * reste là pour partager l'article ou suivre ses renvois.
  * ────────────────────────────────────────────────────────────────────────────
  */
-export function HelpHint({ slug }: { slug: string }) {
+export function HelpHint({ slug, compact = false }: { slug: string; compact?: boolean }) {
   const topic = helpTopic(slug);
   if (!topic) return null;
 
   return (
     <Sheet>
-      <SheetTrigger className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      <SheetTrigger aria-label="Comment ça marche ?" className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <HelpCircle className="size-4" aria-hidden="true" />
-        Comment ça marche ?
+        {compact ? "Aide" : "Comment ça marche ?"}
       </SheetTrigger>
 
       <SheetContent

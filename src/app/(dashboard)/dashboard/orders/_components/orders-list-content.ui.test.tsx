@@ -241,7 +241,7 @@ describe("OrdersListContent", () => {
   it("shows pending proofs link when proofs exist", () => {
     render(<OrdersListContent />);
     expect(
-      screen.getByText(/Paiements à vérifier \(2\)/),
+      screen.getByText(/Paiements à vérifier · 2 preuves/),
     ).toBeInTheDocument();
   });
 });
@@ -271,7 +271,7 @@ describe("OrdersListContent — la preuve depuis la commande", () => {
 
     // `DataList` rend chaque ligne deux fois — tableau et carte mobile — d'où le
     // facteur 2. Le compte est dérivé du jeu d'essai plutôt qu'écrit en dur.
-    const withDeposit = ORDERS.filter((o) => o.depositStatus).length;
+    const withDeposit = ORDERS.filter((o) => o.depositStatus && !o.proofs.some((proof) => proof.status === "pending")).length;
     expect(screen.getAllByRole("button", { name: /voir la preuve/i })).toHaveLength(
       withDeposit * 2,
     );

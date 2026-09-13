@@ -21,7 +21,6 @@ import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import { KpiCard } from "~/components/ui/kpi-card";
 import {
   Dialog,
   DialogContent,
@@ -303,7 +302,7 @@ export function TeamContent() {
           </span>
         }
       />
-      <main className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-4 md:p-8">
+      <main className="flex min-h-0 flex-1 flex-col space-y-5 overflow-y-auto p-4 md:p-6">
         <TaskPageHeader
           href="/parametres/team"
           actions={
@@ -312,28 +311,18 @@ export function TeamContent() {
               onClick={() => setInviteOpen(true)}
             >
               <UserPlus className="size-4" />
-              Inviter un agent
+              Inviter un membre
             </Button>
           }
         />
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <KpiCard label="Total membres" value={stats.total} icon={Users} iconVariant="primary" />
-          <KpiCard label="Membres actifs" value={stats.activeSeats} icon={Users} iconVariant="success" />
-          <KpiCard
-            label="Invitations en attente"
-            value={stats.pendingInvites}
-            icon={UserPlus}
-            iconVariant="warning"
-            valueClassName="text-xl font-bold tabular-nums md:text-2xl text-primary"
-          />
-        </section>
+        <p className="text-sm text-muted-foreground">{stats.total} membres · {stats.activeSeats} actifs · {stats.pendingInvites} invitations en attente</p>
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h3 className="text-lg font-semibold">Tous les membres</h3>
         </div>
 
-        <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
+        <Card className="overflow-hidden rounded-xl border-border gap-0 pb-0 pt-0 shadow-none">
           {loadingMembers || loadingInvitations ? (
             <div className="p-6"><TeamContentSkeleton /></div>
           ) : (
@@ -347,7 +336,7 @@ export function TeamContent() {
                     id: "member",
                     header: "Membre",
                     role: "primary",
-                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                     className: "whitespace-nowrap px-6 py-4",
                     cell: (member) => (
                       <span className="flex items-center gap-3">
@@ -371,7 +360,7 @@ export function TeamContent() {
                     id: "role",
                     header: "Rôle",
                     role: "meta",
-                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                     className: "whitespace-nowrap px-6 py-4",
                     cell: (member) => (
                       <Badge
@@ -390,7 +379,7 @@ export function TeamContent() {
                     id: "status",
                     header: "Statut",
                     role: "meta",
-                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                     className: "whitespace-nowrap px-6 py-4",
                     cell: (member) => <StatusCell status={member.status} />,
                   },
@@ -398,7 +387,7 @@ export function TeamContent() {
                     id: "lastActive",
                     header: "Dernière activité",
                     role: "hiddenOnMobile",
-                    headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                     className: "whitespace-nowrap px-6 py-4 text-sm text-muted-foreground",
                     cell: (member) => member.lastActive,
                   },

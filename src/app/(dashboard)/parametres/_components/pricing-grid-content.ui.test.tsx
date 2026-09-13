@@ -24,6 +24,8 @@ vi.mock("~/trpc/react", () => ({
       settings: { getCategoryPrices: { invalidate: vi.fn() } },
     }),
     settings: {
+      getDepositSettings: { useQuery: () => ({ data: { requireDeposit: false, depositPercent: null }, refetch: vi.fn() }) },
+      setDepositSettings: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
       getCategoryPrices: {
         useQuery: () => ({
           data: emptyPriceData,

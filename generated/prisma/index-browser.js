@@ -134,6 +134,7 @@ exports.Prisma.TenantScalarFieldEnum = {
   assistantUpdatedAt: 'assistantUpdatedAt',
   assistantUpdatedBy: 'assistantUpdatedBy',
   assistantActivatedAt: 'assistantActivatedAt',
+  depositPercent: 'depositPercent',
   requireDeposit: 'requireDeposit',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -421,6 +422,9 @@ exports.Prisma.OrderScalarFieldEnum = {
   orderNumber: 'orderNumber',
   status: 'status',
   depositStatus: 'depositStatus',
+  depositAmountCents: 'depositAmountCents',
+  depositPercentSnapshot: 'depositPercentSnapshot',
+  itemsTotalCents: 'itemsTotalCents',
   depositExpiresAt: 'depositExpiresAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

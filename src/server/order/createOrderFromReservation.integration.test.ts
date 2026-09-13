@@ -111,6 +111,24 @@ describe.skipIf(!shouldRun)("createOrderFromReservation — base réelle", () =>
     return { itemId: item.id, reservationId: reservation.id };
   }
 
+  it("enregistre l’acompte annoncé et conserve son montant après un changement de prix", async () => {
+    const { itemId, reservationId } = await readyReservation(5, 2);
+    await db.tenant.update({ where: { id: tenantId }, data: { requireDeposit: true, depositPercent: 30 } });
+    await db.liveItem.update({ where: { id: itemId }, data: { amount: 500000 } });
+    const result = await createOrderFromReservation(tenantId, reservationId, true, "+2250701020304", "deposit-snapshot");
+    expect(result.success).toBe(true);
+    let order = await db.order.findUniqueOrThrow({ where: { reservationId } });
+    expect(order).toMatchObject({ itemsTotalCents: 1000000, depositAmountCents: 300000, depositPercentSnapshot: 30 });
+    const { writeToOutbox } = await import("~/server/messaging/outbox");
+    expect(writeToOutbox).toHaveBeenCalledWith(expect.objectContaining({ body: expect.stringMatching(/Acompte demandé :.*3.*000/) }));
+    await db.liveItem.update({ where: { id: itemId }, data: { amount: 900000 } });
+    await db.tenant.update({ where: { id: tenantId }, data: { depositPercent: 50 } });
+    await createOrderFromReservation(tenantId, reservationId, true, "+2250701020304", "repeat");
+    order = await db.order.findUniqueOrThrow({ where: { reservationId } });
+    expect(order.depositAmountCents).toBe(300000);
+    await db.tenant.update({ where: { id: tenantId }, data: { requireDeposit: false, depositPercent: null } });
+  });
+
   it("crée la commande et décrémente le stock", async () => {
     const { itemId, reservationId } = await readyReservation(5);
 

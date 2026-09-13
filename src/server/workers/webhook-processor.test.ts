@@ -119,6 +119,7 @@ function mockTenant(overrides: Partial<Tenant> = {}): Tenant {
     assistantUpdatedBy: null,
     assistantActivatedAt: null,
     requireDeposit: false,
+    depositPercent: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     subscriptionPlan: "starter",
@@ -1370,6 +1371,7 @@ describe("webhook-processor", () => {
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
       vi.mocked(db.tenant.findUnique).mockResolvedValue({
         requireDeposit: false,
+    depositPercent: null,
       } as never);
       const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
       vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
@@ -1568,6 +1570,7 @@ describe("webhook-processor", () => {
       vi.mocked(db.sellerPhone.findMany).mockResolvedValue([]);
       vi.mocked(db.tenant.findUnique).mockResolvedValue({
         requireDeposit: false,
+    depositPercent: null,
       } as never);
       const { getCurrentSessionReadOnly } = await import("~/server/live-session/service");
       vi.mocked(getCurrentSessionReadOnly).mockResolvedValue({
@@ -3065,6 +3068,7 @@ describe("webhook-processor", () => {
       vi.mocked(db.tenant.findUnique).mockResolvedValue({
         name: "Boutique Test",
         requireDeposit: false,
+    depositPercent: null,
         faqDelivery: "Livraison sous 24h.",
         faqPayment: "Paiement Wave accepté.",
         faqLocation: null,
@@ -3294,6 +3298,7 @@ describe("panier natif WhatsApp — montants et plafonds", () => {
       name: "Boutique",
       subscriptionPlan: "free",
       requireDeposit: false,
+    depositPercent: null,
     } as never);
     vi.mocked(createReservation).mockResolvedValue({
       success: true,

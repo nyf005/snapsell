@@ -91,7 +91,7 @@ function ProofCard({
           />
         </a>
       ) : proof.kind === "text" ? (
-        <p className="whitespace-pre-wrap rounded-lg bg-muted p-3 text-sm text-foreground">
+        <p className="whitespace-pre-wrap break-words rounded-lg bg-muted p-3 text-sm text-foreground">
           {proof.text}
         </p>
       ) : (
@@ -155,7 +155,7 @@ export function OrderProofs({
 
   return (
     <ul className="space-y-3">
-      {proofs.map((proof) => (
+      {[...proofs].sort((a, b) => Number(b.status === "pending") - Number(a.status === "pending")).map((proof) => (
         <ProofCard
           key={proof.id}
           proof={proof}

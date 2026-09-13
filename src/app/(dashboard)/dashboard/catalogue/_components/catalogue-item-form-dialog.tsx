@@ -118,6 +118,15 @@ export function CatalogueItemFormDialog({
   onSuccess,
   r2Configured = true,
 }: CatalogueItemFormDialogProps) {
+  const [dirty, setDirty] = useState(false);
+  useEffect(() => { setDirty(false); }, [open, item]);
+  useEffect(() => {
+    if (!open || !dirty) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [open, dirty]);
+  const requestClose = (next: boolean) => { if (next || !dirty || window.confirm("Quitter sans enregistrer les modifications de cet article ?")) onOpenChange(next); };
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("1");
@@ -359,7 +368,7 @@ export function CatalogueItemFormDialog({
   const showPhotoSection = r2Configured;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={requestClose}>
       <DialogContent variant="sheet-on-mobile" className="sm:max-w-6xl max-h-[92vh] overflow-y-auto overflow-x-hidden custom-scrollbar">
         <DialogHeader>
           <DialogTitle>{item ? "Modifier l'article" : "Ajouter un article"}</DialogTitle>
@@ -370,7 +379,7 @@ export function CatalogueItemFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} onChangeCapture={() => setDirty(true)}>
           <div className="space-y-6 py-4">
             <div className="grid gap-6 lg:grid-cols-[minmax(320px,1fr)_minmax(420px,520px)] lg:items-start">
               <div className="space-y-4">
@@ -633,8 +642,9 @@ export function CatalogueItemFormDialog({
             )}
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+          <DialogFooter className="sticky bottom-0 z-10 border-t border-border bg-background py-3">
+            {dirty && <p role="status" className="mr-auto self-center text-sm text-muted-foreground">Modifications non enregistrées</p>}
+            <Button type="button" variant="outline" onClick={() => requestClose(false)} disabled={isSubmitting}>
               Annuler
             </Button>
             <Button type="submit" disabled={isSubmitting}>

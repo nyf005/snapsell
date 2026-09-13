@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useUnsavedChanges } from "~/hooks/use-unsaved-changes";
 import { Save } from "lucide-react";
 
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
@@ -56,11 +57,14 @@ type FaqValues = Record<FaqKey, string>;
  * à votre place.
  */
 export function AutoRepliesContent() {
-  const { data, isLoading } = api.settings.getFaqSettings.useQuery();
+  const [dirty, setDirty] = useState(false);
+  useUnsavedChanges(dirty);
+  const { data, isLoading, error, refetch } = api.settings.getFaqSettings.useQuery();
   const utils = api.useUtils();
   const saveMutation = api.settings.setFaqSettings.useMutation({
-    onSuccess: () => {
-      void utils.settings.getFaqSettings.invalidate();
+    onSuccess: async () => {
+      await utils.settings.getFaqSettings.invalidate();
+      setDirty(false);
     },
   });
 
@@ -72,7 +76,7 @@ export function AutoRepliesContent() {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && !dirty) {
       setValues({
         faqDelivery: data.faqDelivery ?? "",
         faqPayment: data.faqPayment ?? "",
@@ -80,9 +84,10 @@ export function AutoRepliesContent() {
         faqAvailability: data.faqAvailability ?? "",
       });
     }
-  }, [data]);
+  }, [data, dirty]);
 
   function handleChange(key: FaqKey, value: string) {
+    setDirty(true);
     setValues((prev) => ({ ...prev, [key]: value }));
   }
 
@@ -99,22 +104,25 @@ export function AutoRepliesContent() {
     <>
       <DashboardHeader />
 
-      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-4 md:p-8">
+      <div className="flex min-h-0 flex-1 flex-col space-y-5 overflow-y-auto p-4 md:p-6">
         <TaskPageHeader
           href="/parametres/reponses"
         />
 
-        {isLoading ? (
+        <nav aria-label="Réglages des réponses" className="flex flex-wrap gap-4 text-sm font-medium"><a className="min-h-11 py-3 text-primary underline underline-offset-4" href="#reponses-questions">Réponses aux questions</a><a className="min-h-11 py-3 text-primary underline underline-offset-4" href="#horaires">Horaires et message d’absence</a></nav>
+        {error && <div role="alert"><ErrorAlert error={error} /><Button variant="outline" onClick={() => void refetch()}>Réessayer</Button></div>}
+        {error && !data ? null : isLoading ? (
           <AutoRepliesSkeleton />
         ) : (
-          <Card>
+          <Card id="reponses-questions">
             <CardHeader className="pb-2 text-sm font-medium text-muted-foreground">
-              Chaque réponse part automatiquement quand la question est posée
-              correspondante. Laissez vide pour ne rien répondre.
+              Ouvrez un sujet pour modifier la réponse envoyée à votre clientèle. Une réponse vide est désactivée.
             </CardHeader>
             <CardContent className="flex flex-col gap-6 p-4 sm:p-6">
               {FAQ_FIELDS.map((field) => (
-                <div key={field.key} className="flex flex-col gap-1.5">
+                <details key={field.key} className="border-b border-border pb-3 last:border-0">
+                  <summary className="cursor-pointer py-2"><span className="font-medium">{field.label}</span><span className="ml-3 text-sm text-muted-foreground">{values[field.key].trim() ? "Configurée" : "Non configurée"}</span><span className="mt-1 block line-clamp-2 text-sm text-muted-foreground">{values[field.key].trim() || field.description}</span></summary>
+                  <div className="mt-3 space-y-2">
                   <Label htmlFor={field.key} className="font-semibold">
                     {field.label}
                   </Label>
@@ -130,13 +138,15 @@ export function AutoRepliesContent() {
                   <p className="text-right text-xs text-muted-foreground">
                     {values[field.key].length}/1000
                   </p>
-                </div>
+                  </div>
+                </details>
               ))}
 
               {saveMutation.isError && (
                 <ErrorAlert error={saveMutation.error} context="generic" />
               )}
-              {saveMutation.isSuccess && (
+              {dirty && <p role="status" className="text-sm text-muted-foreground">Modifications non enregistrées</p>}
+              {saveMutation.isSuccess && !dirty && (
                 <Alert className="border-success/50 bg-success/10 text-success [&>svg]:text-success">
                   <AlertDescription>Vos réponses sont enregistrées.</AlertDescription>
                 </Alert>
@@ -144,8 +154,8 @@ export function AutoRepliesContent() {
 
               <Button
                 onClick={handleSave}
-                disabled={saveMutation.isPending}
-                className="min-h-11 w-full sm:w-auto sm:self-end"
+                disabled={saveMutation.isPending || !dirty}
+                className="sticky bottom-0 min-h-11 w-full shadow-sm sm:w-auto sm:self-end"
               >
                 {saveMutation.isPending ? (
                   <Spinner className="mr-2 h-4 w-4" />
@@ -158,7 +168,7 @@ export function AutoRepliesContent() {
           </Card>
         )}
 
-        <BusinessHoursCard />
+        <section id="horaires" className="scroll-mt-4"><BusinessHoursCard /></section>
       </div>
     </>
   );

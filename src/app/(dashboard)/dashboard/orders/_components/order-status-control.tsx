@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "~/components/ui/button";
 import { useState } from "react";
 
 import {
@@ -98,8 +99,12 @@ export function OrderStatusControl({
     updateStatus.mutate({ orderId, status: next });
   };
 
+  const primary = status === "confirmed_pending_deposit" ? undefined : allowed.find((next) => next !== "cancelled");
+  const actions: Record<string, string> = { preparing: "Préparer", in_delivery: "Passer en livraison", delivered: "Marquer livrée" };
+
   return (
     <div className={layout === "panel" ? "space-y-2" : "flex flex-col gap-1"}>
+      {primary && <Button size="sm" className="min-h-11" disabled={updateStatus.isPending} onClick={() => apply(primary)}>{updateStatus.isPending ? "Mise à jour…" : actions[primary]}</Button>}
       <Select
         value=""
         onValueChange={(value) => {
@@ -124,10 +129,10 @@ export function OrderStatusControl({
           className={
             layout === "panel"
               ? "h-9 w-full border-border"
-              : "h-9 w-full border-border bg-muted/50 sm:w-[140px]"
+              : "min-h-11 w-full border-border bg-background sm:w-[160px]"
           }
         >
-          <SelectValue placeholder={updateStatus.isPending ? "Mise à jour…" : "Nouveau statut"} />
+          <SelectValue placeholder={updateStatus.isPending ? "Mise à jour…" : "Autres actions"} />
         </SelectTrigger>
         <SelectContent>
           {allowed.map((next) => (

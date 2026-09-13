@@ -1,8 +1,10 @@
 "use client";
 
+import { DepositSettings } from "./deposit-settings";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Clock, DollarSign, Layers, Pencil, Plus, Save, Trash2 } from "lucide-react";
+import { Layers, Pencil, Plus, Save, Trash2 } from "lucide-react";
 
 import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header";
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
@@ -18,7 +20,6 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
-import { KpiCard } from "~/components/ui/kpi-card";
 import {
   Dialog,
   DialogContent,
@@ -290,7 +291,7 @@ export function PricingGridContent() {
   return (
     <>
       <DashboardHeader />
-      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-4 md:p-8">
+      <div className="flex min-h-0 flex-1 flex-col space-y-5 overflow-y-auto p-4 md:p-6">
         <TaskPageHeader
           href="/parametres/prix"
           actions={
@@ -509,31 +510,10 @@ export function PricingGridContent() {
           </AlertDialogContent>
         </AlertDialog>
 
-        {/* Stats */}
-        <div className="grid gap-4 sm:grid-cols-3">
-          <KpiCard
-            label="Total des catégories"
-            value={totalCategories}
-            icon={Layers}
-            iconVariant="primary"
-          />
-          <KpiCard
-            label="Prix moyen"
-            value={formatXof(avgCents)}
-            icon={DollarSign}
-            iconVariant="success"
-          />
-          <KpiCard
-            label="Dernière MAJ"
-            value={lastUpdated ? formatDateCompact(lastUpdated) : "—"}
-            icon={Clock}
-            iconVariant="warning"
-            valueClassName="text-xl font-bold md:text-2xl"
-          />
-        </div>
+        <p className="text-sm text-muted-foreground">{totalCategories} catégories · Prix moyen {formatXof(avgCents)}{lastUpdated ? ` · Mis à jour le ${formatDateCompact(lastUpdated)}` : ""}</p>
 
         {/* Table */}
-        <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
+        <Card className="overflow-hidden rounded-xl border-border gap-0 pb-0 pt-0 shadow-none">
           {isLoading ? (
             <div className="p-6">
               <PricingGridSkeleton />
@@ -550,7 +530,7 @@ export function PricingGridContent() {
                   header: "Catégorie",
                   role: "primary",
                   headerClassName:
-                    "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    "px-6 py-4 text-sm font-medium text-muted-foreground",
                   className: "px-6 py-4",
                   cell: (row) => (
                     <div className="flex items-center gap-3">
@@ -571,7 +551,7 @@ export function PricingGridContent() {
                   header: "Prix",
                   role: "secondary",
                   headerClassName:
-                    "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    "px-6 py-4 text-sm font-medium text-muted-foreground",
                   className: "px-6 py-4 text-sm tabular-nums",
                   cell: (row) => (row.amount === 0 ? "—" : formatXof(row.amount)),
                 },
@@ -580,7 +560,7 @@ export function PricingGridContent() {
                   header: "Description",
                   role: "meta",
                   headerClassName:
-                    "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    "px-6 py-4 text-sm font-medium text-muted-foreground",
                   className: "px-6 py-4 text-sm text-muted-foreground",
                   cell: (row) => row.description ?? "—",
                 },
@@ -589,7 +569,7 @@ export function PricingGridContent() {
                   header: "Dernière MAJ",
                   role: "hiddenOnMobile",
                   headerClassName:
-                    "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                    "px-6 py-4 text-sm font-medium text-muted-foreground",
                   className: "px-6 py-4 text-sm text-muted-foreground tabular-nums",
                   cell: (row) => formatDateCompact(row.updatedAt),
                 },
@@ -642,6 +622,7 @@ export function PricingGridContent() {
             </>
           )}
         </Card>
+        <DepositSettings />
       </div>
     </>
   );

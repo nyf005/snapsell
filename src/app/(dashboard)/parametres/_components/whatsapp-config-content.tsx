@@ -517,7 +517,7 @@ export function WhatsAppConfigContent({
   return (
     <>
       <DashboardHeader />
-      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-4 md:p-8">
+      <div className="flex min-h-0 flex-1 flex-col space-y-5 overflow-y-auto p-4 md:p-6">
         <TaskPageHeader
           href="/parametres/whatsapp"
           actions={
@@ -861,9 +861,9 @@ export function WhatsAppConfigContent({
             vendeuses, donc repliés. */}
         <details className="rounded-xl border border-border">
           <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-foreground [&::-webkit-details-marker]:hidden">
-            Fonctions avancées
+            Catalogue WhatsApp et modèles de messages
             <span className="ml-2 font-normal text-muted-foreground">
-              Catalogue et modèles de message
+              Connexion et configuration
             </span>
           </summary>
           <div className="border-t border-border p-4 sm:p-5">

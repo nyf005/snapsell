@@ -31,7 +31,7 @@ export function PricingGridSkeleton() {
       </div>
 
       {/* Table skeleton */}
-      <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
+      <Card className="overflow-hidden rounded-xl border-border gap-0 pb-0 pt-0 shadow-none">
         <CardContent className="p-0">
           <DataListSkeleton columns={5} rows={5} />
         </CardContent>

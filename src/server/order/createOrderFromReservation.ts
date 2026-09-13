@@ -1,3 +1,5 @@
+import { calculateDeposit } from "~/lib/order-deposit";
+import { formatXof } from "~/lib/copy";
 /**
  * Story 4.5: Création de commande à la confirmation (OUI + adresse).
  * Idempotent sur (tenant_id, reservation_id). Envoie message preuve d'acompte si requireDeposit.
@@ -112,6 +114,8 @@ export async function createOrderFromReservation(
   // Les commandes ne bloquent plus l'activité. Les métriques sont toujours sauvegardées pour stats.
   // Le check des credits se fait dans le webhook processor lors de l'ouverture d'une nouvelle session.
 
+  const depositConfig = requireDeposit ? await db.tenant.findUnique({ where: { id: tenantId }, select: { depositPercent: true } }) : null;
+  const deposit = requireDeposit ? calculateDeposit((reservation.catalogueItem ?? reservation.liveItem)?.amount, reservation.quantity, depositConfig?.depositPercent) : null;
   const depositExpiresAt = requireDeposit
     ? new Date(Date.now() + DEPOSIT_TTL_MINUTES * 60 * 1000)
     : null;
@@ -160,6 +164,7 @@ export async function createOrderFromReservation(
             status: requireDeposit ? "confirmed_pending_deposit" : "confirmed",
             depositStatus: requireDeposit ? "deposit_pending" : "no_deposit",
             depositExpiresAt,
+            ...(deposit ?? {}),
           },
         });
         return created;
@@ -284,7 +289,7 @@ export async function createOrderFromReservation(
   });
 
   if (requireDeposit) {
-    const body = botMsg.client.orderWithDeposit(DEPOSIT_TTL_MINUTES);
+    const body = (deposit ? `Acompte demandé : ${formatXof(deposit.depositAmountCents)} (${deposit.depositPercentSnapshot} % des articles, hors livraison).\n` : "") + botMsg.client.orderWithDeposit(DEPOSIT_TTL_MINUTES);
     await writeToOutbox({
       tenantId,
       to: clientPhone,

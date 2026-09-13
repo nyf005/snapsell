@@ -7,8 +7,7 @@ import { fr } from "react-day-picker/locale";
 import { api } from "~/trpc/react";
 import { formatDateCompact, formatDateTime, formatErrorText } from "~/lib/copy";
 import {
-  depositStatusLabel,
-  hasDeposit,
+  paymentState,
   orderFilterOptions,
   orderStatusLabel,
   orderWorkViews,
@@ -31,7 +30,6 @@ import {
 } from "~/components/ui/popover";
 import { DashboardEmptyState } from "~/app/(dashboard)/_components/dashboard-empty-state";
 import { Card, CardContent } from "~/components/ui/card";
-import { KpiCard } from "~/components/ui/kpi-card";
 import { Input } from "~/components/ui/input";
 
 import { OrdersListSkeleton } from "./orders-skeletons";
@@ -42,101 +40,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
 import { DataPagination } from "~/components/ui/data-pagination";
-import { Package, ListOrdered, Wallet, Truck, XCircle, Search, CalendarIcon, FileCheck, Download, Receipt, Check } from "lucide-react";
+import { Package, Search, CalendarIcon, FileCheck, Download, Check, X } from "lucide-react";
 import type { RouterOutputs } from "~/trpc/react";
 
 type OrderOutput = RouterOutputs["orders"]["list"]["items"][number];
-type OrderStatus =
-  | "confirmed"
-  | "confirmed_pending_deposit"
-  | "preparing"
-  | "in_delivery"
-  | "delivered"
-  | "cancelled";
-
-
-/**
- * ── LE BADGE D'ACOMPTE EST LA PORTE VERS LA PREUVE ──────────────────────────
- * Vérifier un acompte imposait un aller-retour : lire le numéro sur l'écran des
- * preuves, revenir aux commandes, le retrouver. Et cet aller-retour n'était
- * possible que dans une fenêtre étroite — `proofs.listPending` ne liste que les
- * preuves en attente, donc une fois validée, la preuve devenait introuvable.
- *
- * Le badge dit déjà qu'il y a un acompte : c'est donc là que se pose l'affordance
- * qui mène à la preuve, plutôt que dans une colonne de plus. La table en a déjà
- * cinq et doit tenir sur un téléphone pendant un live, et la plupart des commandes
- * n'ont aucun acompte — la colonne serait vide la plupart du temps.
- *
- * Le repère apparaît dès qu'un acompte existe, quel que soit l'état de la commande.
- * Il était conditionné à `confirmed_pending_deposit` seul : une commande livrée
- * dont l'acompte avait été validé n'en disait donc rien.
- * ────────────────────────────────────────────────────────────────────────────
- */
-function StatusBadge({
-  status,
-  depositStatus,
-  onShowDeposit,
-}: {
-  status: OrderStatus;
-  depositStatus?: string | null;
-  onShowDeposit?: () => void;
-}) {
-  const variant =
-    status === "delivered"
-      ? "success"
-      : status === "cancelled"
-        ? "destructive"
-        : status === "confirmed_pending_deposit"
-          ? "secondary"
-          : status === "preparing" || status === "in_delivery"
-            ? "outline"
-            : "default";
-  const label = orderStatusLabel(status);
-  const content = (
-    <Badge variant={variant} className="whitespace-nowrap">
-      {label}
-    </Badge>
-  );
-  if (!hasDeposit(depositStatus)) return content;
-
-  const depositLabel = depositStatusLabel(depositStatus);
-
-  // Sans gestionnaire, on garde l'infobulle seule — le badge reste informatif.
-  if (!onShowDeposit) {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>{content}</TooltipTrigger>
-        <TooltipContent>{depositLabel}</TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          onClick={onShowDeposit}
-          aria-label={`${depositLabel} — voir la preuve`}
-          className="inline-flex min-h-11 items-center gap-1.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {content}
-          <Receipt className="size-3.5 text-muted-foreground" aria-hidden />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent>{depositLabel} — voir la preuve</TooltipContent>
-    </Tooltip>
-  );
-}
-
-export function OrdersListContent({ canExportCsv = false, initialView = "to_process" }: { canExportCsv?: boolean; initialView?: OrderWorkView }) {
+export function OrdersListContent({ canExportCsv = false, initialView = "to_process", initialPayment = "", initialOrderId }: { canExportCsv?: boolean; initialView?: OrderWorkView; initialPayment?: "" | "review"; initialOrderId?: string }) {
+  const [payment, setPayment] = useState<"" | "review" | "awaiting" | "approved" | "rejected" | "none">(initialPayment);
+  useEffect(() => { setPayment(initialPayment); }, [initialPayment]);
   const [workView, setWorkView] = useState<OrderWorkView>(initialView);
   useEffect(() => { setWorkView(initialView); }, [initialView]);
   const [dateFrom, setDateFrom] = useState("");
@@ -146,7 +57,8 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
   const [accumulatedOrders, setAccumulatedOrders] = useState<OrderOutput[]>([]);
   /** Commande dont le panneau de détail est ouvert. `null` = fermé. */
   const [showProofs, setShowProofs] = useState(false);
-  const [detailOrderId, setDetailOrderId] = useState<string | null>(null);
+  const [detailOrderId, setDetailOrderId] = useState<string | null>(initialOrderId ?? null);
+  useEffect(() => { setDetailOrderId(initialOrderId ?? null); }, [initialOrderId]);
   /** Sélection pour le traitement en masse, comme sur l'écran des preuves. */
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkMessage, setBulkMessage] = useState<string | null>(null);
@@ -156,18 +68,20 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
   const queryInput = useMemo(
     () => ({
       status: statusesForView(workView),
+      payment: payment || undefined,
+      search: search.trim() || undefined,
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,
       limit: itemsPerPage,
       cursor,
     }),
-    [workView, dateFrom, dateTo, cursor],
+    [workView, payment, search, dateFrom, dateTo, cursor],
   );
 
   const utils = api.useUtils();
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
-  const { data, isLoading } = api.orders.list.useQuery(queryInput);
+  const { data, isLoading, error, refetch } = api.orders.list.useQuery(queryInput);
   const { data: pendingProofCount = 0 } = api.proofs.pendingCount.useQuery();
 
   // La mutation de statut et son erreur vivent dans `OrderStatusControl`, partagé
@@ -181,6 +95,8 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
     try {
       const data = await utils.orders.exportCsv.fetch({
         status: statusesForView(workView),
+      payment: payment || undefined,
+      search: search.trim() || undefined,
         dateFrom: dateFrom || undefined,
         dateTo: dateTo || undefined,
       });
@@ -206,7 +122,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
     if (!cursor) {
       setAccumulatedOrders(data.items);
     } else {
-      setAccumulatedOrders((prev) => [...prev, ...data.items]);
+      setAccumulatedOrders((prev) => { const updated = new Map(data.items.map((item) => [item.id, item])); return [...prev.filter((item) => !updated.has(item.id)), ...data.items]; });
     }
   }, [data?.items, cursor]);
 
@@ -219,30 +135,23 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
   };
 
   const resetPagination = () => {
+    setSelectedIds(new Set());
     setCursor(undefined);
     setAccumulatedOrders([]);
   };
 
   const hasActiveFilters =
-    search.trim().length > 0 || workView !== "" || dateFrom !== "" || dateTo !== "";
+    payment !== "" || search.trim().length > 0 || workView !== "" || dateFrom !== "" || dateTo !== "";
 
   const clearFilters = () => {
+    setPayment("");
     setSearch("");
     setWorkView("");
     setDateFrom("");
     setDateTo("");
   };
 
-  const filteredBySearch = useMemo(() => {
-    if (!search.trim()) return orders;
-    const q = search.trim().toLowerCase();
-    return orders.filter(
-      (o) =>
-        o.orderNumber.toLowerCase().includes(q) ||
-        (o.liveItemCode?.toLowerCase().includes(q) ?? false) ||
-        o.clientPhone.toLowerCase().includes(q),
-    );
-  }, [orders, search]);
+  const filteredBySearch = orders;
 
   /**
    * La sélection ne garde que des commandes encore visibles : filtrer ou paginer
@@ -278,32 +187,18 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
       return;
     }
     resetPagination();
-  }, [workView, dateFrom, dateTo, search]);
+  }, [workView, payment, dateFrom, dateTo, search]);
 
-  const kpis = useMemo(() => {
-    return {
-      total: orders.length,
-      pendingDeposit: orders.filter((o) => o.status === "confirmed_pending_deposit").length,
-      toDeliver: orders.filter(
-        (o) =>
-          o.status === "confirmed" ||
-          o.status === "confirmed_pending_deposit" ||
-          o.status === "preparing" ||
-          o.status === "in_delivery",
-      ).length,
-      cancelled: orders.filter((o) => o.status === "cancelled").length,
-    };
-  }, [orders]);
 
   return (
     <>
       <DashboardHeader />
-      <TooltipProvider>
+
         <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
-          <div className="space-y-8 p-6 md:p-8">
+          <div className="space-y-5 p-4 md:p-6">
             <TaskPageHeader
               href="/dashboard/orders"
-              description="Avancez chaque commande jusqu’à la livraison. Les vues ci-dessous suivent votre rythme de travail."
+              description="Paiements, préparation et livraison au même endroit."
               actions={
                 <>
                 {(
@@ -311,11 +206,11 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                     href="/dashboard/proofs"
                     prefetch
                     className="inline-flex items-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                    aria-label="Paiements à vérifier"
+                    aria-label="Historique et traitement des preuves"
                   >
                     <FileCheck className="size-4" />
                     <span>
-                      Paiements à vérifier{pendingProofCount > 0 ? ` (${pendingProofCount})` : ""}
+                      Historique et traitement des preuves
                     </span>
                   </Link>
                 )}
@@ -346,10 +241,10 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
 
             <nav
               aria-label="Vues des commandes"
-              className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1"
+              className="flex flex-wrap items-center gap-1"
             >
               {orderWorkViews.map((view) => {
-                const active = workView === view.value;
+                const active = !payment && workView === view.value;
                 return (
                   <Button
                     key={view.label}
@@ -358,24 +253,27 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                     size="sm"
                     className="shrink-0"
                     aria-pressed={active}
-                    onClick={() => setWorkView(view.value)}
+                    onClick={() => { setPayment(""); setWorkView(view.value); }}
                   >
                     {view.label}
                   </Button>
                 );
               })}
+              <Button variant={payment === "review" ? "default" : "outline"} className="shrink-0" aria-pressed={payment === "review"} onClick={() => { setWorkView(""); setPayment(payment === "review" ? "" : "review"); }}>
+                Paiements à vérifier{pendingProofCount > 0 ? ` · ${pendingProofCount} preuve${pendingProofCount > 1 ? "s" : ""}` : ""}
+              </Button>
             </nav>
 
             {/* Filter Section */}
-            <Card className="rounded-xl border border-border bg-card shadow-sm">
-              <CardContent className="space-y-4 p-4">
+            <Card className="gap-0 border-0 bg-transparent py-0 shadow-none">
+              <CardContent className="space-y-3 p-0">
                 <div className="flex flex-wrap items-end gap-4">
                   <div className="min-w-[200px] flex-1 md:min-w-[280px]">
                     {/* `htmlFor`/`id` : le champ n'avait qu'un placeholder pour nom,
                         et un placeholder disparaît dès la première frappe. */}
                     <label
                       htmlFor="orders-search"
-                      className="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                      className="mb-1.5 ml-1 block text-sm font-medium text-muted-foreground"
                     >
                       Recherche
                     </label>
@@ -385,6 +283,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                         id="orders-search"
                         className="h-11 border-border bg-muted/50 pl-10 focus-visible:ring-primary"
                         placeholder="N° commande, code article, client..."
+                        maxLength={100}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                       />
@@ -396,7 +295,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                   <div className="w-full md:w-48">
                     <label
                       htmlFor="orders-status-filter"
-                      className="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                      className="mb-1.5 ml-1 block text-sm font-medium text-muted-foreground"
                     >
                       Vue ou statut
                     </label>
@@ -425,8 +324,9 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="w-full md:w-48"><label htmlFor="orders-payment-filter" className="mb-1.5 block text-sm font-medium">Paiement</label><Select value={payment || "all"} onValueChange={(value) => setPayment(value === "all" ? "" : value as typeof payment)}><SelectTrigger id="orders-payment-filter" className="min-h-11"><SelectValue /></SelectTrigger><SelectContent>{Object.entries({ all: "Tous les paiements", review: "Preuve à vérifier", awaiting: "Acompte attendu", approved: "Acompte validé", rejected: "Preuve refusée", none: "Aucun acompte requis" }).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}</SelectContent></Select></div>
                   <div className="w-full md:w-72">
-                    <span className="mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    <span className="mb-1.5 ml-1 block text-sm font-medium text-muted-foreground">
                       Période
                     </span>
                     <Popover>
@@ -495,36 +395,12 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
               </CardContent>
             </Card>
 
-            <details className="rounded-lg border border-border px-4">
-              <summary className="cursor-pointer py-3 text-sm font-medium">Bilan de la liste affichée</summary>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <KpiCard
-                label="Total commandes"
-                value={kpis.total}
-                icon={ListOrdered}
-                iconVariant="primary"
-              />
-              <KpiCard
-                label="En attente acompte"
-                value={kpis.pendingDeposit}
-                icon={Wallet}
-                iconVariant="warning"
-              />
-              <KpiCard
-                label="À livrer"
-                value={kpis.toDeliver}
-                icon={Truck}
-                iconVariant="success"
-              />
-              <KpiCard
-                label="Annulées"
-                value={kpis.cancelled}
-                icon={XCircle}
-                iconVariant="destructive"
-              />
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <span>{isLoading ? "Chargement des commandes…" : `${filteredBySearch.length} commande${filteredBySearch.length > 1 ? "s" : ""} chargée${filteredBySearch.length > 1 ? "s" : ""}`}</span>
+              {(dateFrom || dateTo) && <Button variant="secondary" size="sm" onClick={() => { setDateFrom(""); setDateTo(""); }} aria-label="Retirer la période">{dateFrom || "Début"} → {dateTo || "Aujourd’hui"}<X className="size-3" /></Button>}
+              {payment && <Button variant="secondary" size="sm" onClick={() => setPayment("")} aria-label="Retirer le filtre de paiement">Paiement : {({ review: "À vérifier", awaiting: "Attendu", approved: "Validé", rejected: "Refusé", none: "Non requis" })[payment]}<X className="size-3" /></Button>}
             </div>
-
-            </details>
+            {error && <div role="alert" className="space-y-2 text-sm text-destructive"><p>{formatErrorText(error, "orders")}</p><Button variant="outline" onClick={() => void refetch()}>Réessayer</Button></div>}
 
             {bulkMessage ? (
               <div
@@ -546,7 +422,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
             />
 
             {/* Table */}
-            <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
+            <Card className="overflow-hidden rounded-xl border-border gap-0 pb-0 pt-0 shadow-none">
               {isLoading ? (
                 <div className="p-6">
                   <OrdersListSkeleton />
@@ -564,7 +440,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                         <button
                           type="button"
                           onClick={toggleAll}
-                          className="flex size-5 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                          className="flex size-11 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                           aria-label={
                             isAllSelected ? "Tout désélectionner" : "Tout sélectionner"
                           }
@@ -579,7 +455,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                         <button
                           type="button"
                           onClick={() => toggleOne(order.id)}
-                          className="flex size-5 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                          className="flex size-11 items-center justify-center rounded border border-input bg-transparent text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                           aria-label={`Sélectionner la commande ${order.orderNumber}`}
                         >
                           {selectedIds.has(order.id) && (
@@ -592,7 +468,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                       id: "orderNumber",
                       header: "N° commande",
                       role: "primary",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4 font-bold text-primary",
                       cell: (order) => (
                         <button
@@ -608,21 +484,22 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                       id: "status",
                       header: "Statut",
                       role: "secondary",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4",
-                      cell: (order) => (
-                        <StatusBadge
-                          status={order.status as OrderStatus}
-                          depositStatus={order.depositStatus}
-                          onShowDeposit={() => { setShowProofs(true); setDetailOrderId(order.id); }}
-                        />
-                      ),
+                      cell: (order) => <Badge variant="secondary">{orderStatusLabel(order.status)}</Badge>,
+                    },
+                    {
+                      id: "payment", header: "Paiement", role: "meta",
+                      cell: (order) => {
+                        const state = paymentState(order);
+                        return <Badge variant={state.key === "review" ? "warning" : state.key === "approved" ? "success" : state.key === "rejected" ? "destructive" : "outline"}>{state.label}</Badge>;
+                      },
                     },
                     {
                       id: "code",
                       header: "Code article",
                       role: "meta",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4 text-sm font-medium text-foreground",
                       cell: (order) => order.liveItemCode ?? "—",
                     },
@@ -630,7 +507,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                       id: "client",
                       header: "Client",
                       role: "meta",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4",
                       cell: (order) => (
                         <span className="text-sm font-bold text-foreground">
@@ -642,17 +519,17 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                       id: "createdAt",
                       header: "Créée le",
                       role: "meta",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4 text-sm text-muted-foreground",
                       cell: (order) => formatDateTime(new Date(order.createdAt)),
                     },
                   ]}
                   actions={(order) => (
-                    <OrderStatusControl
-                      orderId={order.id}
-                      orderNumber={order.orderNumber}
-                      status={order.status}
-                    />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button variant="outline" size="sm" className="md:hidden" aria-pressed={selectedIds.has(order.id)} aria-label={`Sélectionner la commande ${order.orderNumber}`} onClick={() => toggleOne(order.id)}>{selectedIds.has(order.id) ? "Sélectionnée" : "Sélectionner"}</Button>
+                      {paymentState(order).key === "review" ? <Button size="sm" onClick={() => { setShowProofs(true); setDetailOrderId(order.id); }}>Vérifier le paiement</Button> : <OrderStatusControl orderId={order.id} orderNumber={order.orderNumber} status={order.status} />}
+                      {order.depositStatus && order.depositStatus !== "no_deposit" && paymentState(order).key !== "review" && <Button variant="ghost" size="sm" aria-label={`${paymentState(order).label} · voir la preuve`} onClick={() => { setShowProofs(true); setDetailOrderId(order.id); }}>Justificatifs</Button>}
+                    </div>
                   )}
                   empty={
                     hasActiveFilters ? (
@@ -690,6 +567,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
         </main>
 
         <OrderDetailSheet
+          onNext={orders.some((order) => order.id !== detailOrderId && paymentState(order).key === "review") ? () => { const next = orders.find((order) => order.id !== detailOrderId && paymentState(order).key === "review"); if (next) { setShowProofs(true); setDetailOrderId(next.id); } } : undefined}
           key={detailOrderId}
           showProofs={showProofs}
           orderId={detailOrderId}
@@ -698,7 +576,7 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
             if (!open) setDetailOrderId(null);
           }}
         />
-      </TooltipProvider>
+
     </>
   );
 }

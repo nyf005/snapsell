@@ -166,9 +166,7 @@ describe("live router", () => {
       expect(result.reservations).toHaveLength(1);
       expect(result.reservations[0]!.clientPhoneMasked).toMatch(/\*\*\*\d{4}$/);
       expect(mockGetCurrentSessionReadOnly).toHaveBeenCalledTimes(1);
-      expect(mockWaitlistCount).toHaveBeenCalledWith({
-        where: { liveSessionId: "session-1", tenantId: "tenant-1" },
-      });
+      expect(mockWaitlistCount).toHaveBeenCalledWith({ where: { tenantId: "tenant-1", OR: [{ liveSessionId: "session-1" }, { catalogueItemId: { not: null }, liveSessionId: null }] } });
       expect(mockLiveItemFindMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { liveSessionId: "session-1", tenantId: "tenant-1" },
@@ -223,9 +221,7 @@ describe("live router", () => {
       expect(result.items[0]!.code).toBe("B");
       expect(result.reservations).toHaveLength(0);
       expect(mockGetCurrentSessionReadOnly).toHaveBeenCalledWith("tenant-2");
-      expect(mockWaitlistCount).toHaveBeenCalledWith({
-        where: { liveSessionId: "session-2", tenantId: "tenant-2" },
-      });
+      expect(mockWaitlistCount).toHaveBeenCalledWith({ where: { tenantId: "tenant-2", OR: [{ liveSessionId: "session-2" }, { catalogueItemId: { not: null }, liveSessionId: null }] } });
       expect(mockLiveItemFindMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { liveSessionId: "session-2", tenantId: "tenant-2" },

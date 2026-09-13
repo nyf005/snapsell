@@ -1,5 +1,6 @@
 "use client";
 
+import { DeliveryPreview } from "./delivery-preview";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { MapPin, Building2, Pencil, Plus, Save, Trash2 } from "lucide-react";
@@ -244,11 +245,12 @@ export function DeliveryFeesContent() {
   return (
     <>
       <DashboardHeader />
-      <div className="flex min-h-0 flex-1 flex-col space-y-8 overflow-y-auto p-4 md:p-8">
+      <div className="flex min-h-0 flex-1 flex-col space-y-5 overflow-y-auto p-4 md:p-6">
         <TaskPageHeader
           href="/parametres/livraison"
         />
 
+        <DeliveryPreview />
         {/* La préséance était appliquée nulle part et expliquée nulle part.
             Elle vient maintenant de src/lib/delivery/resolve-delivery-fee.ts. */}
         <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
@@ -298,7 +300,7 @@ export function DeliveryFeesContent() {
                       id: "name",
                       header: "Zone",
                       role: "primary",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4 font-medium",
                       cell: (z) => z.name,
                     },
@@ -306,7 +308,7 @@ export function DeliveryFeesContent() {
                       id: "amount",
                       header: "Prix",
                       role: "secondary",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4 tabular-nums",
                       cell: (z) => formatXof(z.amount),
                     },
@@ -314,7 +316,7 @@ export function DeliveryFeesContent() {
                       id: "communes",
                       header: "Communes",
                       role: "meta",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4 text-sm text-muted-foreground",
                       cell: (z) =>
                         `${pluralize(z.communeNames.length, "commune")}${
@@ -405,7 +407,7 @@ export function DeliveryFeesContent() {
                       id: "commune",
                       header: "Commune",
                       role: "primary",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4 font-medium",
                       cell: (c) => c.communeName,
                     },
@@ -413,7 +415,7 @@ export function DeliveryFeesContent() {
                       id: "amount",
                       header: "Prix",
                       role: "secondary",
-                      headerClassName: "px-6 py-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground",
+                      headerClassName: "px-6 py-4 text-sm font-medium text-muted-foreground",
                       className: "px-6 py-4 tabular-nums",
                       cell: (c) => formatXof(c.amount),
                     },

@@ -13,7 +13,7 @@ export function ProofsListSkeleton() {
         <Skeleton className="h-5 w-96" variant="text" />
       </div>
 
-      <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
+      <Card className="overflow-hidden rounded-xl border-border gap-0 pb-0 pt-0 shadow-none">
         <CardContent className="p-0">
           {/* Action bar skeleton */}
           <div className="flex flex-col gap-4 border-b border-border bg-muted/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">

@@ -37,7 +37,7 @@ const TIMEZONES = [
 ];
 
 const fieldLabel =
-  "mb-1.5 ml-1 block text-xs font-bold uppercase tracking-wider text-muted-foreground";
+  "mb-1.5 ml-1 block text-sm font-medium text-muted-foreground";
 
 /**
  * Horaires d'ouverture et message d'absence.
@@ -96,8 +96,7 @@ export function BusinessHoursCard() {
           Vos horaires
         </CardTitle>
         <CardDescription>
-          En dehors de ces horaires, votre message d’absence part automatiquement
-          d’absence dès leur premier message.
+          En dehors de ces horaires, votre message d’absence répond au premier message de la cliente.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 p-4 sm:p-6">

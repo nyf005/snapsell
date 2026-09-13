@@ -108,14 +108,14 @@ export function DataList<T>({
                 </TableRow>
               ) : (
                 items.map((item) => (
-                  <TableRow key={getKey(item)}>
+                  <TableRow key={getKey(item)} className="hover:bg-muted/40">
                     {columns.map((column) => (
                       <TableCell key={column.id} className={column.className}>
                         {column.cell(item)}
                       </TableCell>
                     ))}
                     {actions && (
-                      <TableCell className="text-right">{actions(item)}</TableCell>
+                      <TableCell className="text-right"><div className="flex flex-wrap items-center justify-end gap-2">{actions(item)}</div></TableCell>
                     )}
                   </TableRow>
                 ))

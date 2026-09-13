@@ -77,7 +77,7 @@ test("les quatre destinations conservent les accès aux paiements et aux réglag
     await expect(navigation.getByRole("link", { name, exact: true })).toBeVisible();
   }
   await navigation.getByRole("link", { name: "Commandes", exact: true }).click();
-  await page.getByRole("link", { name: "Paiements à vérifier", exact: true }).click();
+  await page.getByRole("link", { name: "Historique et traitement des preuves", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Paiements à vérifier" })).toBeVisible();
   await expect(navigation.getByRole("link", { name: "Commandes", exact: true })).toHaveAttribute("aria-current", "page");
   await page.getByRole("link", { name: "Retour à Commandes" }).click();
@@ -149,4 +149,57 @@ test("la preuve mobile ouvre la commande et reste prioritaire dans son détail",
   await expect(panel.getByText("Cocody, Abidjan")).toBeVisible();
   await expect(panel.getByRole("button", { name: /Valider la preuve/ })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("payment-detail.png"), fullPage: true, animations: "disabled" });
+});
+
+async function paymentOrder(number: string, proof: boolean) {
+  const item = await db.catalogueItem.create({ data: { tenantId, code: number, amount: 1000000 } });
+  const reservation = await db.reservation.create({ data: { tenantId, catalogueItemId: item.id, clientPhone: "+2250701020304", correlationId: randomUUID(), status: "confirmed", address: "Cocody" } });
+  return db.order.create({ data: { tenantId, reservationId: reservation.id, orderNumber: number, status: "confirmed_pending_deposit", depositStatus: "deposit_pending", depositAmountCents: 300000, depositPercentSnapshot: 30, itemsTotalCents: 1000000, ...(proof ? { paymentProofs: { create: { tenantId, correlationId: randomUUID(), textPayload: `Justificatif ${number}` } } } : {}) } });
+}
+
+test("commandes : distinguer acompte attendu et preuve reçue, puis valider sur place", async ({ page }, testInfo) => {
+  const ready = await paymentOrder("SS-READY", true);
+  await paymentOrder("SS-WAITING", false);
+  await login(page);
+  await page.goto("/dashboard/orders");
+  const readyRow = page.locator("tr, li").filter({ has: page.getByRole("button", { name: "SS-READY", exact: true }) }).filter({ visible: true });
+  const waitingRow = page.locator("tr, li").filter({ has: page.getByRole("button", { name: "SS-WAITING", exact: true }) }).filter({ visible: true });
+  await expect(readyRow.getByText("Preuve à vérifier", { exact: true })).toBeVisible();
+  await expect(waitingRow.getByText("Acompte attendu", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: /Paiements à vérifier/ }).click();
+  await expect(page.getByRole("button", { name: "SS-WAITING", exact: true }).filter({ visible: true })).toHaveCount(0);
+  await expect(readyRow.getByRole("button", { name: "Vérifier le paiement" })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("orders-payments.png"), fullPage: true, animations: "disabled" });
+  await readyRow.getByRole("button", { name: "Vérifier le paiement" }).click();
+  const panel = page.getByRole("dialog");
+  await expect(panel.getByText(/3.?000.*FCFA/).first()).toBeVisible();
+  await panel.getByRole("button", { name: /Valider la preuve/ }).click();
+  await expect(panel.getByText(/Acompte validé/).first()).toBeVisible();
+  await expect(panel.getByRole("button", { name: "Préparer", exact: true })).toBeVisible();
+  expect((await db.order.findUniqueOrThrow({ where: { id: ready.id } })).depositStatus).toBe("deposit_approved");
+});
+
+test("le propriétaire configure le pourcentage sans modifier les acomptes existants", async ({ page }, testInfo) => {
+  await login(page);
+  await page.goto("/parametres/prix");
+  await page.getByRole("switch", { name: "Demander un acompte" }).check();
+  await page.getByLabel("Pourcentage de l’acompte").fill("25");
+  await page.getByRole("button", { name: "Enregistrer la règle" }).click();
+  await expect(page.getByText("Règle d’acompte enregistrée.")).toBeVisible();
+  const tenant = await db.tenant.findUniqueOrThrow({ where: { id: tenantId } });
+  expect(tenant.depositPercent).toBe(25);
+  expect(tenant.requireDeposit).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("pricing-settings.png"), fullPage: true, animations: "disabled" });
+});
+
+test("le tarif de livraison donne le montant appliqué et la règle prioritaire", async ({ page }, testInfo) => {
+  await db.deliveryZone.create({ data: { tenantId, name: "Abidjan test", amount: 200000, communes: { create: { communeName: "Cocody" } } } });
+  await db.deliveryFeeCommune.create({ data: { tenantId, communeName: "Cocody", amount: 150000 } });
+  await login(page);
+  await page.goto("/parametres/livraison");
+  await page.getByLabel("Quel tarif sera appliqué ?").fill("Cocody");
+  await page.getByRole("button", { name: "Vérifier le tarif" }).click();
+  await expect(page.getByRole("status")).toContainText("Tarif spécifique : Cocody");
+  await expect(page.getByRole("status")).toContainText(/1.?500/);
+  await page.screenshot({ path: testInfo.outputPath("delivery-settings.png"), fullPage: true, animations: "disabled" });
 });

@@ -1,5 +1,7 @@
 "use client";
 
+import { QueryFailure } from "~/components/ui/query-failure";
+
 import { useEffect, useMemo, useState } from "react";
 import { api } from "~/trpc/react";
 import { ErrorAlert } from "~/components/ui/error-alert";
@@ -46,7 +48,7 @@ export function CatalogueListContent() {
 
   const queryInput = useMemo(() => ({ limit: itemsPerPage, cursor }), [cursor]);
 
-  const { data, isLoading, refetch } = api.catalogue.list.useQuery(queryInput);
+  const { data, isLoading, error: queryError, refetch } = api.catalogue.list.useQuery(queryInput);
 
   useEffect(() => {
     if (!data?.items) return;
@@ -116,18 +118,20 @@ export function CatalogueListContent() {
     setEditingItem(null);
   };
 
+  if (queryError && !data) return <><DashboardHeader /><main className="p-4 md:p-6"><QueryFailure error={queryError} retry={refetch} /></main></>;
+
   return (
     <>
       <DashboardHeader />
       <main className="flex min-h-0 flex-1 flex-col overflow-auto bg-background text-foreground">
-        <div className="space-y-8 p-6 md:p-8">
+        <div className="space-y-5 p-4 md:p-6">
           <SetupRequiredBanner />
+          {queryError && <QueryFailure error={queryError} retry={refetch} title="Ces informations ne sont plus à jour" />}
           <TaskPageHeader
             href="/dashboard/catalogue"
             description={
               <>
-                Ces articles restent disponibles d’un live à l’autre. Ceux improvisés pendant un
-                live sont suivis dans « Live du moment ».
+                Vos articles, disponibles d’un live à l’autre.
                 {items && items.length > 0 && (
                   <span className="ml-1 text-muted-foreground">
                     {items.length} article{items.length > 1 ? "s" : ""} chargé{items.length > 1 ? "s" : ""}.
@@ -138,7 +142,7 @@ export function CatalogueListContent() {
             actions={
               <Button onClick={handleAddItem} className="w-full sm:w-auto">
                 <Plus className="size-4" />
-                Ajouter un article permanent
+                Ajouter un article
               </Button>
             }
           />
@@ -159,7 +163,7 @@ export function CatalogueListContent() {
             <CatalogueListSkeleton />
           ) : items && items.length > 0 ? (
             <div className="space-y-4">
-              <Card className="overflow-hidden rounded-2xl border-border gap-0 pb-0 pt-0 shadow-sm">
+              <Card className="overflow-hidden rounded-xl border-border gap-0 pb-0 pt-0 shadow-none">
                 <CardContent className="p-0">
                   <DataList
                     items={items}
@@ -169,8 +173,8 @@ export function CatalogueListContent() {
                       {
                         id: "photo",
                         header: "Photo",
-                        role: "hiddenOnMobile",
-                        headerClassName: "w-16",
+                        role: "meta",
+                        headerClassName: "w-24",
                         className: "px-3 py-2",
                         cell: (item) =>
                           item.mediaStorageKey ? (
@@ -178,7 +182,7 @@ export function CatalogueListContent() {
                               href={`/api/catalogue/${item.id}/photo`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="relative block size-10 overflow-hidden rounded-lg border border-border bg-muted"
+                              className="relative block size-20 overflow-hidden rounded-lg border border-border bg-muted"
                             >
                               <img
                                 src={`/api/catalogue/${item.id}/photo`}
@@ -187,7 +191,7 @@ export function CatalogueListContent() {
                               />
                             </a>
                           ) : (
-                            <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
+                            <div className="flex size-20 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
                               <ImageOff className="size-4" />
                             </div>
                           ),
@@ -200,7 +204,7 @@ export function CatalogueListContent() {
                           <div className="flex flex-col gap-0.5">
                             <span className="font-medium">{item.code}</span>
                             {item.name && (
-                              <span className="text-xs text-muted-foreground">{item.name}</span>
+                              <span className="text-sm text-muted-foreground">{item.name}</span>
                             )}
                           </div>
                         ),
@@ -274,6 +278,7 @@ export function CatalogueListContent() {
                           <DropdownMenuContent align="end">
                             {item.syncedToMeta && <DropdownMenuItem onSelect={() => setProductCardItem({ id: item.id, code: item.code })}><Send className="size-4" />Envoyer la fiche de l’article {item.code}</DropdownMenuItem>}
                             <DropdownMenuItem disabled={item.reservedQty > 0} onSelect={() => handleDeleteItem(item)}><Trash2 className="size-4" />Supprimer l’article {item.code}</DropdownMenuItem>
+                            {item.reservedQty > 0 && <p className="max-w-60 px-2 py-2 text-sm text-muted-foreground">Suppression indisponible : cet article a des réservations en cours.</p>}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </>

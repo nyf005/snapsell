@@ -124,7 +124,7 @@ describe("DashboardContent", () => {
     state.summary = summary({ pendingProofsCount: 3, ordersPreparingCount: 7 });
     renderScreen();
 
-    expect(screen.getByRole("heading", { name: "3 preuves à vérifier" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Paiements à vérifier/ })).toBeInTheDocument();
     expect(screen.queryByText("Preuves en attente")).not.toBeInTheDocument();
     expect(screen.getByText("7")).toBeInTheDocument();
   });
@@ -183,7 +183,7 @@ describe("DashboardContent", () => {
       renderScreen();
 
       expect(
-        screen.getByRole("heading", { name: "2 preuves à vérifier" }),
+        screen.getByRole("link", { name: /Paiements à vérifier/ }),
       ).toBeInTheDocument();
       expect(screen.getByLabelText("Mise en route")).toBeInTheDocument();
       expect(screen.queryByText("Résultats du jour")).not.toBeInTheDocument();
@@ -199,7 +199,7 @@ describe("DashboardContent", () => {
       renderScreen();
 
       expect(
-        screen.getByRole("heading", { name: "1 commande à préparer" }),
+        screen.getByRole("link", { name: /Commandes à préparer/ }),
       ).toBeInTheDocument();
       const setupRegion = screen.getByLabelText("Mise en route");
       expect(within(setupRegion).getByRole("link", { name: "Reprendre" })).toBeInTheDocument();
