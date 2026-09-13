@@ -31,10 +31,11 @@ async function login(page: Page) {
   await expect(page).toHaveURL(/\/dashboard$/);
 }
 
-test("connexion, activité et commandes accessibles sur mobile et ordinateur", async ({ page }) => {
+test("connexion, activité et commandes accessibles sur mobile et ordinateur", async ({ page }, testInfo) => {
   await login(page);
   await expect(page.getByRole("heading", { name: "Votre travail", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Le bilan de vos ventes" })).not.toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("today.png"), fullPage: true });
   await page.getByRole("link", { name: "Commandes", exact: true }).filter({ visible: true }).first().click();
   await expect(page).toHaveURL(/\/dashboard\/orders/);
   await expect(page.getByRole("heading", { name: "Commandes", exact: true })).toBeVisible();
@@ -68,7 +69,7 @@ test("le mot de passe oublié explique comment contacter l’assistance", async 
   await expect(page.getByRole("button", { name: "Se connecter", exact: true })).toBeVisible();
 });
 
-test("les quatre destinations conservent les accès aux paiements et aux réglages", async ({ page }) => {
+test("les quatre destinations conservent les accès aux paiements et aux réglages", async ({ page }, testInfo) => {
   await login(page);
   const primary = page.getByRole("navigation", { name: "Navigation mobile" });
   const navigation = await primary.isVisible() ? primary : page.getByLabel("Navigation principale");
@@ -89,6 +90,7 @@ test("les quatre destinations conservent les accès aux paiements et aux réglag
   for (const href of ["/dashboard/catalogue", "/parametres/prix", "/parametres/livraison", "/parametres/whatsapp", "/parametres/reponses", "/parametres/team", "/parametres/abonnement", "/dashboard/audit"]) {
     await expect(main.locator(`a[href="${href}"]`)).toBeVisible();
   }
+  await page.screenshot({ path: testInfo.outputPath("boutique.png"), fullPage: true });
   await main.locator('a[href="/dashboard/catalogue"]').click();
   await expect(navigation.getByRole("link", { name: "Boutique", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("link", { name: "Retour à Boutique" })).toBeVisible();
@@ -116,13 +118,11 @@ test("les filtres restent accessibles et les actions secondaires du catalogue co
   await db.catalogueItem.create({ data: { tenantId, code: "UX-ARTICLE", name: "Article de test", amount: 500000 } });
   await login(page);
   await page.goto("/dashboard/orders");
-  await expect(page.getByLabel("Vue ou statut")).not.toBeVisible();
-  await page.locator("summary").filter({ hasText: "Filtres" }).click();
-  await expect(page.getByLabel("Vue ou statut")).toBeVisible();
-  await page.getByLabel("Vue ou statut").click();
-  await page.getByRole("option", { name: "Livrée", exact: true }).click();
-  await page.locator("summary").filter({ hasText: "Filtres" }).click();
-  await expect(page.locator("summary").filter({ hasText: "Filtres" })).toContainText("Livrée");
+  const deliveredFilter = page.getByRole("button", { name: "Livrée", exact: true });
+  await expect(deliveredFilter).toBeVisible();
+  await deliveredFilter.click();
+  await expect(deliveredFilter).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "Acompte attendu", exact: true })).toBeVisible();
   await page.goto("/dashboard/catalogue");
   await expect(page.getByRole("button", { name: "Modifier l’article UX-ARTICLE" }).filter({ visible: true })).toBeVisible();
   await page.getByRole("button", { name: "Autres actions pour l’article UX-ARTICLE" }).filter({ visible: true }).click();

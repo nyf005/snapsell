@@ -39,7 +39,6 @@ export default async function DashboardPage() {
       : Promise.resolve(null),
   ]);
 
-  const userName = session.user.name ?? session.user.email ?? "Utilisateur";
   const tenantName = tenant?.name;
 
   return (
@@ -47,18 +46,11 @@ export default async function DashboardPage() {
       <DashboardHeader />
       <main className="flex-1 min-h-0 overflow-y-auto bg-background">
         <div className="p-4 sm:p-6 md:p-8">
-          <header className="mb-7 flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
+          <header className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
-                Aujourd’hui
-              </p>
-              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                Bonjour,{" "}
-                <span className="text-primary">{userName}</span>
-              </h1>
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Aujourd’hui</h1>
               {tenantName && (
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="size-2 rounded-full bg-primary shrink-0" />
                   <p className="text-sm font-medium text-muted-foreground">
                     {tenantName}
                   </p>

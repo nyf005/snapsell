@@ -14,8 +14,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { Stepper, StepperBullet } from "~/components/ui/stepper";
-import type { StepperItem } from "~/components/ui/stepper";
+import { StepperBullet } from "~/components/ui/stepper";
 import { ui } from "~/lib/copy";
 import { cn } from "~/lib/utils";
 import type { SetupStepId } from "~/server/api/routers/onboarding.schema";
@@ -61,7 +60,7 @@ export const STEP_META: Record<
     icon: Tags,
     title: ui.setup.prices.title,
     description: ui.setup.prices.description,
-    href: "/parametres",
+    href: "/parametres/prix",
     action: ui.setup.prices.action,
     helpSlug: "le-code",
   },
@@ -85,7 +84,7 @@ export const STEP_META: Record<
     icon: MessageCircle,
     title: ui.setup.replies.title,
     description: ui.setup.replies.description,
-    href: "/parametres/faq",
+    href: "/parametres/reponses",
     action: ui.setup.replies.action,
     helpSlug: "reponses-automatiques",
   },
@@ -107,205 +106,31 @@ export const STEP_META: Record<
   },
 };
 
-/**
- * Mise en route progressive : une seule prochaine action est mise en avant.
- *
- * Le rail de pastilles donne la position dans le parcours sans en exposer le
- * contenu — six blocs ouverts d'emblée transformeraient le premier écran en
- * long formulaire d'installation. La vue d'ensemble reste disponible pour
- * comprendre le chemin et reprendre une étape antérieure, mais elle ne
- * concurrence jamais l'action du moment : titres et états seulement, aucune
- * seconde action principale.
- */
-export function SetupChecklist({
-  steps,
-  doneCount,
-  totalCount,
-  compact = false,
-}: SetupChecklistProps) {
+/** Une prochaine action, un compteur, et le parcours complet à portée de main. */
+export function SetupChecklist({ steps, doneCount, totalCount, compact = false }: SetupChecklistProps) {
   const currentIndex = steps.findIndex((step) => !step.done);
-  const current = currentIndex >= 0 ? steps[currentIndex] : null;
-  const progressPercent =
-    totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
-
+  const current = steps[currentIndex];
   if (!current) return null;
-
   const meta = STEP_META[current.id];
-  const Icon = meta.icon;
-
-  const stepperItems: StepperItem[] = steps.map((step, index) => ({
-    id: step.id,
-    label: STEP_META[step.id].title,
-    state: step.done ? "done" : index === currentIndex ? "current" : "upcoming",
-  }));
-
-  if (compact) {
-    return (
-      <section
-        aria-labelledby="setup-checklist-heading"
-        className="overflow-hidden rounded-2xl border border-border bg-surface"
-      >
-        <div className="p-4 sm:px-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <span
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground"
-              aria-hidden="true"
-            >
-              <Icon className="size-4" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                Mise en route · {doneCount} sur {totalCount}
-              </p>
-              <h2
-                id="setup-checklist-heading"
-                className="mt-0.5 truncate text-sm font-semibold text-foreground"
-              >
-                {meta.title}
-              </h2>
-            </div>
-            <Link
-              href={meta.href}
-              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-md border border-border bg-background px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
-            >
-              Reprendre
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
-          </div>
-          <Stepper
-            items={stepperItems}
-            label="Étapes de la mise en route"
-            responsive
-            className="mt-3"
-          />
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section
-      aria-labelledby="setup-checklist-heading"
-      className={cn(
-        "overflow-hidden rounded-2xl border",
-        "border-primary/20 bg-primary/5",
-      )}
-    >
-      <div className="px-5 py-5 sm:px-6 sm:py-6">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <div>
-            <p
-              className={cn(
-                "text-xs font-semibold uppercase tracking-[0.12em]",
-                "text-primary",
-              )}
-            >
-              Mise en route
-            </p>
-            <h2
-              id="setup-checklist-heading"
-              className="mt-1 text-lg font-bold text-foreground sm:text-xl"
-            >
-              {ui.setup.title}
-            </h2>
-          </div>
-          {/* La phrase complète est portée par le rail, qui la lit une seule fois. */}
-          <p
-            className="text-sm font-medium tabular-nums text-muted-foreground"
-            aria-hidden="true"
-          >
-            {doneCount} sur {totalCount}
-          </p>
+    <section aria-labelledby="setup-checklist-heading" className="overflow-hidden rounded-xl border border-border bg-surface">
+      <div className="space-y-4 p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <h2 id="setup-checklist-heading" className="text-base font-semibold">Mise en route</h2>
+          <span className="text-sm tabular-nums text-muted-foreground" aria-label={ui.setup.progress(doneCount, totalCount)}>{doneCount}/{totalCount} étapes</span>
         </div>
-
-        <div
-          className="mt-3 h-1.5 overflow-hidden rounded-full bg-primary/10"
-          role="progressbar"
-          aria-valuenow={doneCount}
-          aria-valuemin={0}
-          aria-valuemax={totalCount}
-          aria-label={ui.setup.progress(doneCount, totalCount)}
-        >
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-200 motion-reduce:transition-none"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-
-        {/* Le chemin, sans son contenu : on voit où l'on est, pas tout ce qui reste à lire. */}
-        <Stepper
-          items={stepperItems}
-          label="Étapes de la mise en route"
-          responsive
-          className="mt-4"
-        />
-
-        <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-start">
-          <span
-            className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
-            aria-hidden="true"
-          >
-            <Icon className="size-5" />
-          </span>
-
-          <div className="min-w-0 flex-1">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
-              Prochaine action
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <h3
-                className="text-lg font-bold text-foreground sm:text-xl"
-              >
-                {meta.title}
-              </h3>
-              <span
-                className={cn(
-                  "rounded-full border px-2 py-0.5 text-xs font-medium",
-                  // `text-warning-foreground` est fait pour un aplat `bg-warning`,
-                  // pas pour un fond à 15 % : en thème sombre il devenait illisible.
-                  current.required
-                    ? "border-warning/40 bg-warning/10 text-foreground"
-                    : "border-transparent bg-muted text-muted-foreground",
-                )}
-              >
-                {current.required ? "Nécessaire" : "Recommandé"}
-              </span>
-            </div>
-            <p className="mt-1.5 max-w-[60ch] text-sm leading-6 text-muted-foreground">
-              {meta.description}
-            </p>
-            <Link
-              href={`/aide/${meta.helpSlug}`}
-              className="mt-2 inline-flex min-h-11 items-center text-sm font-medium text-primary hover:underline"
-            >
-              Comprendre cette étape
-            </Link>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <div className="min-w-0">
+            <h3 className="text-lg font-semibold">{meta.title}</h3>
+            {!compact && <p className="mt-1 max-w-prose text-sm text-muted-foreground">{meta.description}</p>}
           </div>
-
-          <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto">
-            <Link
-              href={meta.href}
-              className="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
-            >
-              {meta.action}
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
-            {current.id === "firstSale" && (
-              <Link
-                href="/dashboard/catalogue"
-                className="inline-flex min-h-11 items-center justify-center gap-1.5 text-sm font-semibold text-primary hover:underline"
-              >
-                <PackageOpen className="size-4" aria-hidden="true" />
-                {ui.setup.firstSale.actionCatalogue}
-              </Link>
-            )}
-          </div>
+          <Link href={meta.href} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">{meta.action}<ArrowRight className="size-4" aria-hidden="true" /></Link>
         </div>
+        {current.id === "firstSale" && <Link href="/dashboard/catalogue" className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary hover:underline"><PackageOpen className="size-4" aria-hidden="true" />{ui.setup.firstSale.actionCatalogue}</Link>}
       </div>
-
       <details className="group border-t border-border bg-surface/70">
         <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-6 [&::-webkit-details-marker]:hidden">
-          Voir toutes les étapes
+          Toutes les étapes
           <ChevronDown
             className="size-4 text-muted-foreground transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
             aria-hidden="true"
@@ -375,6 +200,7 @@ export function SetupChecklist({
             );
           })}
         </ol>
+        <Link href={`/aide/${meta.helpSlug}`} className="inline-flex min-h-11 items-center px-5 text-sm font-medium text-primary hover:underline">Comprendre cette étape</Link>
       </details>
     </section>
   );

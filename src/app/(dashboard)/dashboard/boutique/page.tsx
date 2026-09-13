@@ -38,24 +38,17 @@ export default async function BoutiquePage() {
   return <>
     <DashboardHeader />
     <main className="min-h-0 flex-1 overflow-y-auto bg-background">
-      <div className="space-y-5 p-4 md:p-6">
+      <div className="space-y-8 p-4 pb-8 md:p-6 md:pb-10">
         <TaskPageHeader href="/dashboard/boutique" />
-        {boutiqueGroupsFor(canManage).map((group) => {
-          const items = group.items;
-          return <section key={group.title} aria-label={group.title} className="space-y-2">
-            <h2 className="text-lg font-semibold">{group.title}</h2>
-            <ul className="divide-y divide-border">
-              {items.map((item) => {
+        <ul aria-label="Les accès de votre boutique" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {boutiqueGroupsFor(canManage).flatMap((group) => group.items).map((item) => {
                 const Icon = item.icon;
-                return <li key={item.href}><Link href={item.href} className="flex min-h-16 items-center gap-3 rounded-lg py-4 pr-3 hover:bg-muted focus-visible:outline-2 focus-visible:outline-primary">
-                  <Icon className="size-5 shrink-0 text-primary" aria-hidden="true" />
-                  <span className="flex-1"><span className="block font-medium">{item.label}</span><span className="block text-sm text-muted-foreground">{summaries[item.href] ?? item.description}</span></span>
-                  <ArrowRight className="size-4 shrink-0" aria-hidden="true" />
+                return <li key={item.href}><Link href={item.href} className="group flex h-full min-h-36 flex-col items-start gap-4 rounded-xl border border-border bg-surface p-5 transition-colors hover:border-primary/40 hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:p-6">
+                  <span className="flex w-full items-center justify-between"><Icon className="size-5 text-primary" aria-hidden="true" /><ArrowRight className="size-4 text-muted-foreground group-hover:text-primary" aria-hidden="true" /></span>
+                  <span className="space-y-1"><span className="block text-base font-semibold">{item.label}</span><span className="block text-sm text-muted-foreground">{summaries[item.href] ?? item.description}</span></span>
                 </Link></li>;
               })}
-            </ul>
-          </section>;
-        })}
+        </ul>
       </div>
     </main>
   </>;

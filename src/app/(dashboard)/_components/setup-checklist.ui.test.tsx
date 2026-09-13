@@ -47,9 +47,9 @@ describe("SetupChecklist — compte neuf", () => {
    * Le rail donne la position dans le parcours sans en exposer le contenu : six
    * étapes annoncées, aucune description ouverte en plus de celle du moment.
    */
-  it("montre le chemin complet en pastilles, sans ouvrir les sept étapes", () => {
+  it("conserve le chemin complet dans la vue d’ensemble, sans ouvrir les sept étapes", () => {
     renderChecklist(["whatsapp", "prices"]);
-    const rail = screen.getByRole("list", { name: "Étapes de la mise en route" });
+    const rail = screen.getByRole("list", { name: "Toutes les étapes de la mise en route" });
     const stops = within(rail).getAllByRole("listitem");
 
     expect(stops).toHaveLength(7);
@@ -61,23 +61,23 @@ describe("SetupChecklist — compte neuf", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("désigne l’étape du moment dans le rail", () => {
+  it("désigne l’étape du moment dans la vue d’ensemble", () => {
     renderChecklist(["whatsapp"]);
-    const rail = screen.getByRole("list", { name: "Étapes de la mise en route" });
+    const rail = screen.getByRole("list", { name: "Toutes les étapes de la mise en route" });
     const current = within(rail)
       .getAllByRole("listitem")
       .find((stop) => stop.getAttribute("aria-current") === "step");
 
     expect(current).toHaveTextContent("Définir vos prix");
-    expect(current).toHaveTextContent("étape en cours");
+    expect(current).toHaveTextContent("À faire en priorité");
   });
 
   it("dit l’état de chaque étape sans dépendre de la couleur", () => {
     renderChecklist(["whatsapp"]);
-    const rail = screen.getByRole("list", { name: "Étapes de la mise en route" });
+    const rail = screen.getByRole("list", { name: "Toutes les étapes de la mise en route" });
 
-    expect(within(rail).getAllByText("terminée")).toHaveLength(1);
-    expect(within(rail).getAllByText("à venir")).toHaveLength(5);
+    expect(within(rail).getAllByText("Terminée")).toHaveLength(1);
+    expect(within(rail).getAllByText("À venir")).toHaveLength(2);
   });
 
   it("met la connexion WhatsApp en premier", () => {
@@ -95,7 +95,7 @@ describe("SetupChecklist — compte neuf", () => {
 
   it("présente l’étape courante comme nécessaire", () => {
     renderChecklist();
-    expect(screen.getByText("Nécessaire")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Connecter WhatsApp" })).toBeInTheDocument();
     expect(screen.getAllByText("Recommandée")).toHaveLength(3);
   });
 
@@ -105,9 +105,9 @@ describe("SetupChecklist — compte neuf", () => {
   it("annonce la progression", () => {
     renderChecklist();
     expect(
-      screen.getByRole("progressbar", { name: "0 étape sur 7 terminée" }),
+      screen.getByLabelText("0 étape sur 7 terminée"),
     ).toBeInTheDocument();
-    expect(screen.getByText("0 sur 7")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByText("0/7 étapes")).toBeInTheDocument();
   });
 
   it("propose le catalogue quand la première vente devient l’étape courante", () => {
@@ -145,7 +145,7 @@ describe("SetupChecklist — progression", () => {
   it("accorde le libellé de progression au pluriel", () => {
     renderChecklist(["whatsapp", "prices"]);
     expect(
-      screen.getByRole("progressbar", { name: "2 étapes sur 7 terminées" }),
+      screen.getByLabelText("2 étapes sur 7 terminées"),
     ).toBeInTheDocument();
   });
 
@@ -156,13 +156,13 @@ describe("SetupChecklist — progression", () => {
 });
 
 describe("SetupChecklist — mode compact", () => {
-  it("devient un résumé secondaire sans description ni vue d’ensemble", () => {
+  it("devient un résumé secondaire sans description et conserve l’accès aux étapes", () => {
     renderChecklist(["whatsapp"], true);
     expect(
-      screen.getByRole("list", { name: "Étapes de la mise en route" }),
+      screen.getByRole("list", { name: "Toutes les étapes de la mise en route" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Définir vos prix" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Reprendre" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: ui.setup.prices.action })).toBeInTheDocument();
     expect(screen.queryByText(ui.setup.prices.description)).not.toBeInTheDocument();
     expect(screen.queryByText("Voir toutes les étapes")).not.toBeInTheDocument();
   });

@@ -202,9 +202,9 @@ describe("DashboardContent", () => {
         screen.getByRole("link", { name: /Commandes à préparer/ }),
       ).toBeInTheDocument();
       const setupRegion = screen.getByLabelText("Mise en route");
-      expect(within(setupRegion).getByRole("link", { name: "Reprendre" })).toBeInTheDocument();
+      expect(within(setupRegion).getByRole("link", { name: "Préparer l’activation" })).toBeInTheDocument();
       expect(within(setupRegion).queryByText("Voir toutes les étapes")).not.toBeInTheDocument();
-      expect(within(setupRegion).queryByText("Comprendre cette étape")).not.toBeInTheDocument();
+      expect(within(setupRegion).getByText("Comprendre cette étape")).toBeInTheDocument();
     });
   });
 

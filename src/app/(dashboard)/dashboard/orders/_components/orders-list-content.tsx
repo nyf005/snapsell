@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { DateRange } from "react-day-picker";
-import { fr } from "react-day-picker/locale";
 import { api } from "~/trpc/react";
-import { formatDateCompact, formatDateTime, formatErrorText } from "~/lib/copy";
+import { formatDateTime, formatErrorText } from "~/lib/copy";
 import {
   paymentState,
   orderFilterOptions,
@@ -22,26 +20,13 @@ import { DashboardHeader } from "~/app/(dashboard)/_components/dashboard-header"
 import { TaskPageHeader } from "~/app/(dashboard)/_components/task-page-header";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
 import { DashboardEmptyState } from "~/app/(dashboard)/_components/dashboard-empty-state";
 import { Card, CardContent } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 
 import { OrdersListSkeleton } from "./orders-skeletons";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { DataPagination } from "~/components/ui/data-pagination";
-import { Package, Search, CalendarIcon, FileCheck, Download, Check, X } from "lucide-react";
+import { Package, Search, FileCheck, Download, Check, X } from "lucide-react";
 import type { RouterOutputs } from "~/trpc/react";
 
 type OrderOutput = RouterOutputs["orders"]["list"]["items"][number];
@@ -289,108 +274,25 @@ export function OrdersListContent({ canExportCsv = false, initialView = "to_proc
                       />
                     </div>
                   </div>
-                  <details className="w-full rounded-lg border border-border px-3">
-                    <summary className="cursor-pointer py-3 text-sm font-medium">Filtres · {orderWorkViews.find((view) => view.value === workView)?.label ?? orderFilterOptions.find((option) => option.value === workView)?.label ?? "Tous les statuts"}{dateFrom || dateTo ? " · période active" : ""}</summary>
-                    <div className="flex flex-wrap items-end gap-4 pb-3">
-                  <div className="w-full md:w-48">
-                    <label
-                      htmlFor="orders-status-filter"
-                      className="mb-1.5 ml-1 block text-sm font-medium text-muted-foreground"
-                    >
-                      Vue ou statut
-                    </label>
-                    <Select
-                      value={workView || "all"}
-                      onValueChange={(v) =>
-                        setWorkView((v === "all" ? "" : v) as OrderWorkView)
-                      }
-                    >
-                      <SelectTrigger
-                        id="orders-status-filter"
-                        className="h-11 min-h-11 w-full rounded-lg border-border bg-muted/50 data-[size=default]:h-11"
-                      >
-                        <SelectValue placeholder="Tous les statuts" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {orderWorkViews.map((view) => <SelectItem key={view.value} value={view.value}>{view.label}</SelectItem>)}
-                        {orderFilterOptions.map((opt) => (
-                          <SelectItem
-                            key={opt.value || "all"}
-                            value={opt.value || "all"}
-                          >
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="w-full md:w-48"><label htmlFor="orders-payment-filter" className="mb-1.5 block text-sm font-medium">Paiement</label><Select value={payment || "all"} onValueChange={(value) => setPayment(value === "all" ? "" : value as typeof payment)}><SelectTrigger id="orders-payment-filter" className="min-h-11"><SelectValue /></SelectTrigger><SelectContent>{Object.entries({ all: "Tous les paiements", review: "Preuve à vérifier", awaiting: "Acompte attendu", approved: "Acompte validé", rejected: "Preuve refusée", none: "Aucun acompte requis" }).map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}</SelectContent></Select></div>
-                  <div className="w-full md:w-72">
-                    <span className="mb-1.5 ml-1 block text-sm font-medium text-muted-foreground">
-                      Période
-                    </span>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="h-11 w-full justify-start rounded-lg border-border bg-muted/50 text-left font-normal data-[empty=true]:text-muted-foreground"
-                          data-empty={
-                            !dateFrom && !dateTo
-                          }
-                        >
-                          <CalendarIcon className="mr-2 size-4" />
-                          {dateFrom && dateTo
-                            ? `${formatDateCompact(new Date(dateFrom))} – ${formatDateCompact(new Date(dateTo))}`
-                            : !dateFrom && !dateTo
-                              ? "Choisir une période"
-                              : dateFrom
-                                ? `À partir du ${formatDateCompact(new Date(dateFrom))}`
-                                : `Jusqu'au ${formatDateCompact(new Date(dateTo!))}`}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="range"
-                          defaultMonth={
-                            dateFrom
-                              ? new Date(dateFrom)
-                              : dateTo
-                                ? new Date(dateTo)
-                                : new Date()
-                          }
-                          selected={
-                            dateFrom || dateTo
-                              ? {
-                                  from: dateFrom ? new Date(dateFrom) : undefined,
-                                  to: dateTo ? new Date(dateTo) : undefined,
-                                }
-                              : undefined
-                          }
-                          onSelect={(range: DateRange | undefined) => {
-                            setDateFrom(
-                              range?.from?.toISOString().slice(0, 10) ?? "",
-                            );
-                            setDateTo(
-                              range?.to?.toISOString().slice(0, 10) ?? "",
-                            );
-                          }}
-                          numberOfMonths={1}
-                          locale={fr}
-                          className="rounded-lg border-0"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <Button
-                    type="button"
-                    size="default"
-                    className="h-11 bg-primary text-primary-foreground hover:bg-primary/90"
-                    onClick={() => void utils.orders.list.invalidate()}
-                  >
-                    Rafraîchir
-                  </Button>
+                  <div className="w-full space-y-4" aria-label="Filtres des commandes">
+                    <fieldset className="space-y-2">
+                      <legend className="text-sm font-medium text-muted-foreground">Statut</legend>
+                      <div className="flex flex-wrap gap-2">
+                        {orderFilterOptions.map((option) => <Button key={option.value || "all"} type="button" variant={workView === option.value ? "secondary" : "outline"} className="min-h-11" aria-pressed={workView === option.value} onClick={() => setWorkView(option.value as OrderWorkView)}>{option.label}</Button>)}
+                      </div>
+                    </fieldset>
+                    <fieldset className="space-y-2">
+                      <legend className="text-sm font-medium text-muted-foreground">Paiement</legend>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries({ "": "Tous les paiements", review: "Preuve à vérifier", awaiting: "Acompte attendu", approved: "Acompte validé", rejected: "Preuve refusée", none: "Aucun acompte requis" }).map(([value, label]) => <Button key={value} type="button" variant={payment === value ? "secondary" : "outline"} className="min-h-11" aria-pressed={payment === value} onClick={() => setPayment(value as typeof payment)}>{label}</Button>)}
+                      </div>
+                    </fieldset>
+                    <div className="flex flex-wrap items-end gap-3">
+                      <div className="min-w-0 flex-1 sm:max-w-48"><label htmlFor="orders-date-from" className="mb-1.5 block text-sm font-medium text-muted-foreground">Du</label><Input id="orders-date-from" type="date" className="min-h-11" value={dateFrom} max={dateTo || undefined} onChange={(event) => setDateFrom(event.target.value)} /></div>
+                      <div className="min-w-0 flex-1 sm:max-w-48"><label htmlFor="orders-date-to" className="mb-1.5 block text-sm font-medium text-muted-foreground">Au</label><Input id="orders-date-to" type="date" className="min-h-11" value={dateTo} min={dateFrom || undefined} onChange={(event) => setDateTo(event.target.value)} /></div>
+                      <Button type="button" variant="ghost" className="min-h-11" onClick={() => void utils.orders.list.invalidate()}>Rafraîchir</Button>
                     </div>
-                  </details>
+                  </div>
                 </div>
               </CardContent>
             </Card>

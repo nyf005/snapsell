@@ -152,14 +152,12 @@ export function DashboardContent({
       {summaryError && summaryFailure}
       {/* Sur mobile, c'est le seul endroit où le solde est visible. */}
       {showSetup && setup && (
-        <section aria-label="Mise en route">
           <SetupChecklist
             steps={setup.steps}
             doneCount={setup.doneCount}
             totalCount={setup.totalCount}
             compact={dailyPriority !== null}
           />
-        </section>
       )}
       <CreditsAlertBanner canManageSubscription={canManageSubscription} />
       <AssistantControl canManage={canManageSubscription} compact />
