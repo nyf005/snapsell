@@ -91,7 +91,11 @@ vi.mock("~/server/db", () => {
       create: vi.fn().mockResolvedValue({ id: "msg-out-1" }),
       findUnique: vi.fn().mockResolvedValue(null),
     },
-    order: { findFirst: vi.fn().mockResolvedValue(null) },
+    order: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      // Le rattachement des preuves examine les commandes candidates sans en deviner une.
+      findMany: vi.fn().mockResolvedValue([]),
+    },
     reservation: { findFirst: vi.fn().mockResolvedValue(null) },
     liveItem: {
       findFirst: vi.fn().mockResolvedValue(null),
