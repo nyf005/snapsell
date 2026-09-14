@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
@@ -80,6 +80,27 @@ describe("CatalogueItemFormDialog", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockMutateAsync.mockResolvedValue({ id: "new-item-id" });
+  });
+
+  it("reprend une photo en échec sans créer un second article", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: "Connexion interrompue" }), { status: 503 }))
+      .mockResolvedValueOnce(new Response(null, { status: 200 }));
+    const createUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:photo-test");
+    const revokeUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    try {
+      const { container } = render(<CatalogueItemFormDialog {...defaultProps} />);
+      await user.type(screen.getByLabelText("Code *"), "A12");
+      const input = container.querySelector('input[type="file"]') ?? document.querySelector('input[type="file"]');
+      await user.upload(input as HTMLInputElement, new File(["photo"], "photo.png", { type: "image/png" }));
+      await user.click(screen.getByRole("button", { name: "Ajouter" }));
+      await screen.findByText(/L’article a été créé/);
+      await user.click(screen.getByRole("button", { name: "Ajouter" }));
+      await waitFor(() => expect(defaultProps.onSuccess).toHaveBeenCalled());
+      expect(mockMutateAsync).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally { fetchMock.mockRestore(); createUrl.mockRestore(); revokeUrl.mockRestore(); }
   });
 
   it("renders create mode title and the variants disclosure when item is null", () => {

@@ -282,3 +282,22 @@ test("l’inscription conserve Pro sans activer un abonnement avant paiement", a
     if (createdUser?.tenantId) await db.tenant.delete({ where: { id: createdUser.tenantId } });
   }
 });
+
+test("un article similaire conserve les saisies jusqu’à l’abandon explicite", async ({ page }, testInfo) => {
+  await db.catalogueItem.create({ data: { tenantId, code: "MODELE-UX", name: "Sac modèle", amount: 500000 } });
+  await login(page);
+  await page.goto("/dashboard/catalogue");
+  await page.getByRole("button", { name: "Autres actions pour l’article MODELE-UX" }).filter({ visible: true }).click();
+  await page.getByRole("menuitem", { name: "Créer un article similaire" }).click();
+  await expect(page.getByLabel("Nom de l'article", { exact: true })).toHaveValue("Sac modèle");
+  await page.getByLabel("Code *", { exact: true }).fill("NOUVEAU-UX");
+  await page.getByRole("button", { name: "Annuler", exact: true }).click();
+  await expect(page.getByRole("alertdialog")).toBeVisible();
+  await page.getByRole("button", { name: "Continuer à modifier" }).click();
+  await expect(page.getByLabel("Code *", { exact: true })).toHaveValue("NOUVEAU-UX");
+  await page.screenshot({ path: testInfo.outputPath("article-similaire.png"), fullPage: true });
+  await page.getByRole("button", { name: "Annuler", exact: true }).click();
+  await page.getByRole("button", { name: "Quitter sans enregistrer", exact: true }).click();
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  expect(await db.catalogueItem.count({ where: { tenantId, code: "NOUVEAU-UX" } })).toBe(0);
+});

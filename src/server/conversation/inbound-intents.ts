@@ -243,3 +243,11 @@ export function isOutsideBusinessHours(
   }
 }
 
+
+/** Interruptions must be resolved before treating free text as an address or receipt. */
+export function isConversationQuestion(body: string): boolean {
+  return /[?？]/.test(body) || /^(?:bonjour[, !]*\s*)?(?:combien|comment|pourquoi|quand|où|est.ce que|puis.je|peux.tu|pouvez.vous|je peux|vous pouvez|c.est combien)(?![a-zà-öø-ÿ])/i.test(body.trim());
+}
+export function isChangeRequest(body: string): boolean {
+  return /\b(?:annul(?:er|e|ez)|chang(?:er|e|ez)|modifi(?:er|e|ez)|corrig(?:er|e|ez))\b/i.test(body);
+}

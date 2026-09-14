@@ -21,8 +21,7 @@ import {
   normalizeCode,
 } from "~/server/live-item/createLiveItem";
 import { findOrderableItemByCode } from "~/server/catalogue/findOrderableItemByCode";
-import { uploadProofMedia } from "~/server/media/uploadProofMedia";
-import { createPaymentProof } from "~/server/proof/createPaymentProof";
+import { handlePendingPayment, hasPaymentReference } from "~/server/conversation/payment-proof";
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { botMsg } from "~/server/messaging/templates";
 import { getDeliveryFee } from "~/server/delivery/getDeliveryFee";
@@ -42,7 +41,7 @@ import {
   hasTrustedAIIntent,
 } from "../messaging/ai-service";
 
-import { isStopMessage, isHandoffRequest, isHandoffActive, isOutsideBusinessHours, MAX_ORDER_ITEMS, clampQuantity, parseClientCodeIntent, isConfirmOui, detectFaqIntent } from "~/server/conversation/inbound-intents";
+import { isConversationQuestion, isChangeRequest, isStopMessage, isHandoffRequest, isHandoffActive, isOutsideBusinessHours, MAX_ORDER_ITEMS, clampQuantity, parseClientCodeIntent, isConfirmOui, detectFaqIntent } from "~/server/conversation/inbound-intents";
 export * from "~/server/conversation/inbound-intents";
 
 /** Traite un job webhook : détermine le type de message et enrichit le payload. */
@@ -145,6 +144,20 @@ export async function processWebhookJob(
       return buildEnrichedMessage();
     }
 
+    if (messageType === "client") {
+      const state = await getConversationState(tenantId, clientPhoneE164);
+      if (isHandoffActive(state)) return buildEnrichedMessage();
+      if (state?.handedOff) {
+        // Passé le délai, on rend la main au bot plutôt que de laisser la cliente
+        // sans réponse : rien ni personne ne remettait `handedOff` à false.
+        await setHandedOff(tenantId, clientPhoneE164, false);
+        workerLogger.info("Mise en relation expirée, le bot reprend", {
+          tenantId,
+          correlationId,
+        });
+      }
+    }
+
     // 2. Pour les clients: vérifier les credits (Story Credits)
     if (messageType === "client") {
       const creditCheck = await checkAndConsumeCredit(tenantId, clientPhoneE164);
@@ -214,16 +227,23 @@ export async function processWebhookJob(
         });
         return buildEnrichedMessage();
       }
-      const state = await getConversationState(tenantId, clientPhoneE164);
-      if (isHandoffActive(state)) return buildEnrichedMessage();
-      if (state?.handedOff) {
-        // Passé le délai, on rend la main au bot plutôt que de laisser la cliente
-        // sans réponse : rien ni personne ne remettait `handedOff` à false.
-        await setHandedOff(tenantId, clientPhoneE164, false);
-        workerLogger.info("Mise en relation expirée, le bot reprend", {
-          tenantId,
-          correlationId,
-        });
+
+    }
+
+    if (messageType === "client" && !interactiveReplyId && body.trim()) {
+      const changing = isChangeRequest(body) || hasTrustedAIIntent(aiAnalysis, "CHANGE_REQUEST");
+      const question = isConversationQuestion(body) || hasTrustedAIIntent(aiAnalysis, "QUESTION") || hasTrustedAIIntent(aiAnalysis, "FAQ");
+      if (changing || question) {
+        const category = getTrustedAIFaqCategory(aiAnalysis) ?? detectFaqIntent(body);
+        const answer = !changing && category ? ({ delivery: tenant?.faqDelivery, payment: tenant?.faqPayment, location: tenant?.faqLocation, availability: tenant?.faqAvailability })[category] : null;
+        // Do not promise an exception (payment tomorrow, cancellation, etc.) based on a generic FAQ.
+        if (answer && !/\b(?:demain|plus tard|annul|chang|modifi)/i.test(body)) {
+          await writeToOutbox({ tenantId, to: clientPhoneE164, body: answer, correlationId });
+        } else {
+          await setHandedOff(tenantId, clientPhoneE164, true);
+          await writeToOutbox({ tenantId, to: clientPhoneE164, body: botMsg.client.handedOff(), correlationId });
+        }
+        return buildEnrichedMessage();
       }
     }
 
@@ -487,6 +507,9 @@ export async function processWebhookJob(
 
     // 9. Client intent
     if (isClient) {
+      if (mediaUrl || hasPaymentReference(body) || /\bSS-\d+\b/i.test(body)) {
+        if (await handlePendingPayment({ tenantId, phone: clientPhoneE164, body, mediaUrl, correlationId })) return buildEnrichedMessage(liveSessionId);
+      }
       let clientCodeIntent = parseClientCodeIntent(body);
 
       // Story 12.1: AI Fallback for buying intent
@@ -571,50 +594,9 @@ export async function processWebhookJob(
         return buildEnrichedMessage(liveSessionId);
       }
 
-      // 9b. Deposit proof — image sans texte (body vide, mediaUrl présent)
-      if (mediaUrl && !trimmedBody) {
-        const pendingDepositOrder = await db.order.findFirst({
-          where: {
-            tenantId,
-            depositStatus: "deposit_pending",
-            reservation: { clientPhone: clientPhoneE164 },
-          },
-          select: { id: true, orderNumber: true },
-          orderBy: { createdAt: "desc" },
-        });
-        if (pendingDepositOrder) {
-          // L'échec était avalé sans trace, et la preuve enregistrée en « [image
-          // reçue] » : une panne R2 restait invisible côté boutique comme côté logs.
-          const key = await uploadProofMedia(tenantId, pendingDepositOrder.id, mediaUrl, correlationId).catch((err) => {
-            workerLogger.error("Preuve : upload du média échoué", {
-              tenantId,
-              correlationId,
-              orderId: pendingDepositOrder.id,
-              err,
-            });
-            return null;
-          });
-          await createPaymentProof(
-            tenantId,
-            pendingDepositOrder.id,
-            key ? { mediaStorageKey: key } : { textPayload: "[image reçue]" },
-            correlationId,
-          ).catch((err) => {
-            workerLogger.warn("createPaymentProof (image-only) failed", { orderId: pendingDepositOrder.id, err });
-          });
-          await writeToOutbox({
-            tenantId,
-            to: clientPhoneE164,
-            body: botMsg.client.proofReceived(pendingDepositOrder.orderNumber),
-            correlationId,
-          });
-          return buildEnrichedMessage(liveSessionId);
-        }
-      }
-
       if (trimmedBody.length > 0 && !isStopMessage(body)) {
         const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
-        if (active?.status === "reserved" && isConfirmOui(body)) {
+        if (active?.status === "reserved" && (isConfirmOui(body) || /^(?:ok|d[’']accord|merci|bonjour|salut|bonsoir)[.! ]*$/i.test(body.trim()))) {
           // « oui » alors qu'on attend l'adresse : `collectAddress` ne vérifie que
           // le non-vide, l'adresse de livraison devenait donc littéralement « oui ».
           await writeToOutbox({
@@ -696,44 +678,7 @@ export async function processWebhookJob(
           return buildEnrichedMessage(liveSessionId);
         }
 
-        // 9c. Deposit proof — texte (référence paiement) ou image + texte (caption)
-        const pendingDepositOrder = await db.order.findFirst({
-          where: {
-            tenantId,
-            depositStatus: "deposit_pending",
-            reservation: { clientPhone: clientPhoneE164 },
-          },
-          select: { id: true, orderNumber: true },
-          orderBy: { createdAt: "desc" },
-        });
-        if (pendingDepositOrder) {
-          const key = mediaUrl
-            ? await uploadProofMedia(tenantId, pendingDepositOrder.id, mediaUrl, correlationId).catch((err) => {
-                workerLogger.error("Preuve : upload du média échoué", {
-                  tenantId,
-                  correlationId,
-                  orderId: pendingDepositOrder.id,
-                  err,
-                });
-                return null;
-              })
-            : null;
-          await createPaymentProof(
-            tenantId,
-            pendingDepositOrder.id,
-            key ? { mediaStorageKey: key } : { textPayload: trimmedBody },
-            correlationId,
-          ).catch((err) => {
-            workerLogger.warn("createPaymentProof (text) failed", { orderId: pendingDepositOrder.id, err });
-          });
-          await writeToOutbox({
-            tenantId,
-            to: clientPhoneE164,
-            body: botMsg.client.proofReceived(pendingDepositOrder.orderNumber),
-            correlationId,
-          });
-          return buildEnrichedMessage(liveSessionId);
-        }
+        if (await handlePendingPayment({ tenantId, phone: clientPhoneE164, body, correlationId })) return buildEnrichedMessage(liveSessionId);
 
         const faqCategory = detectFaqIntent(body) ?? getTrustedAIFaqCategory(aiAnalysis);
         const faqAnswer = faqCategory

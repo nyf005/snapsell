@@ -32,7 +32,7 @@ export function getDailyPriority({
 }: DashboardStartGuideProps) {
   return pendingProofsCount > 0
       ? {
-          href: "/dashboard/proofs",
+          href: "/dashboard/orders?payment=review",
           icon: CheckCircle2,
           eyebrow: "À traiter maintenant",
           title: `${pendingProofsCount} preuve${pendingProofsCount > 1 ? "s" : ""} à vérifier`,

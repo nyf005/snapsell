@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { env } from "~/env";
 
-const aiIntentSchema = z.enum(["BUY", "FAQ", "HUMAN_AGENT", "SELLER_CREATE", "OTHER"]);
+const aiIntentSchema = z.enum(["BUY", "FAQ", "HUMAN_AGENT", "SELLER_CREATE", "QUESTION", "CHANGE_REQUEST", "OTHER"]);
 const faqCategorySchema = z.enum(["delivery", "payment", "location", "availability"]);
 
 const aiAnalysisSchema = z.object({
@@ -36,6 +36,8 @@ export const AI_CONFIDENCE_THRESHOLD: Record<AIIntent, number> = {
   FAQ: 0.8,
   HUMAN_AGENT: 0.75,
   SELLER_CREATE: 0.9,
+  QUESTION: 0.8,
+  CHANGE_REQUEST: 0.85,
   OTHER: 1,
 };
 
@@ -122,7 +124,10 @@ export async function analyzeInboundIntent(body: string): Promise<AIAnalysis> {
     - FAQ (question livraison/payement)
     - HUMAN_AGENT (demande parler humain)
     - SELLER_CREATE (le vendeur veut créer/ajouter un article, ex: "Ajoute 10 de B12")
+    - QUESTION (question hors FAQ, même pendant une commande).
+    - CHANGE_REQUEST (annuler ou modifier une commande, une quantité ou une adresse).
     - OTHER.
+    Une question sur un article n’est pas un achat. Une promesse de payer n’est pas une preuve.
     Réponds EXCLUSIVEMENT en JSON avec la structure {"intent": "...", "confidence": 0.9, "entities": {}}.
     L'objet "entities" doit TOUJOURS être présent.
     Si intent = BUY ou SELLER_CREATE, fournis si possible entities.productCode et entities.quantity.
@@ -133,6 +138,7 @@ export async function analyzeInboundIntent(body: string): Promise<AIAnalysis> {
   try {
     const response = await fetch(`${AI_BASE_URL}/chat/completions`, {
       method: "POST",
+      signal: AbortSignal.timeout(8000),
       headers: {
         Authorization: `Bearer ${AI_API_KEY}`,
         "Content-Type": "application/json",
@@ -184,21 +190,24 @@ Tu es un assistant d'extraction d'adresses pour SnapSell.
 Analyse le texte suivant et extrais les composants d'adresse disponibles.
 
 Règles:
-- city: La ville. SI le quartier est mentionné mais pas la ville, INFÈRE la ville la plus probable (ex: "Plateau" à Dakar → "Dakar", "Marcory" à Abidjan → "Abidjan"). Si vraiment incertain, laisser vide.
-- commune: La commune ou arrondissement (ex: Plateau, Yoff, Marcory, Bonoua)
-- zone: Le quartier ou zone spécifique (ex: Point E, Almadies, Bonoumin)
-- details: Indications supplémentaires (ex: "près de la pharmacie", "en face du marché", "au 3e étage", "près du terminus")
+- Extrais uniquement les lieux et indications explicitement présents. N’invente ni ville ni commune à partir d’un quartier ambigu.
+- city: La ville, si elle est donnée.
+- commune: La commune ou l’arrondissement explicitement donné.
+- zone: Le quartier ou la zone spécifique.
+- details: Les indications de livraison présentes dans le message.
+- Si le message est une question, une promesse de paiement ou une demande de modification, retourne {}.
 
 Renvoie UNIQUEMENT un JSON avec les champs trouvés. Ne rien écrire d'autre.
 Exemples:
-- "Dakar plateau quartier point e" → {"city": "Dakar", "commune": "Plateau", "zone": "Point E", "details": ""}
-- "Je suis au quartier Bonoua près du terminus" → {"city": "Abidjan", "commune": "Bonoua", "zone": "Bonoua", "details": "près du terminus"}
-- "Point E" → {"city": "Dakar", "commune": "HLM", "zone": "Point E", "details": ""}
+- "Livraison à Abidjan, commune de Cocody, quartier Bonoumin" → {"city": "Abidjan", "commune": "Cocody", "zone": "Bonoumin"}
+- "Près de la pharmacie" → {"details": "Près de la pharmacie"}
+- "La livraison coûte combien ?" → {}
   `.trim();
 
   try {
     const response = await fetch(`${AI_BASE_URL}/chat/completions`, {
       method: "POST",
+      signal: AbortSignal.timeout(8000),
       headers: {
         Authorization: `Bearer ${AI_API_KEY}`,
         "Content-Type": "application/json",

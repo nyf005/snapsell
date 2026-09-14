@@ -27,7 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, PackageOpen, ImageOff, Send, MoreHorizontal } from "lucide-react";
+import { Plus, Copy, Pencil, Trash2, PackageOpen, ImageOff, Send, MoreHorizontal } from "lucide-react";
 import { CatalogueItemFormDialog } from "./catalogue-item-form-dialog";
 import { SendProductCardDialog } from "./send-product-card-dialog";
 import { DashboardEmptyState } from "~/app/(dashboard)/_components/dashboard-empty-state";
@@ -36,6 +36,7 @@ import type { CatalogueItemOutput } from "~/server/api/routers/catalogue.schema"
 import { getCatalogueOriginLabel, isLiveCatalogueOrigin } from "~/server/catalogue/origin";
 
 export function CatalogueListContent() {
+  const [templateItem, setTemplateItem] = useState<CatalogueItemOutput | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<CatalogueItemOutput | null>(null);
   const [deletingItem, setDeletingItem] = useState<CatalogueItemOutput | null>(null);
@@ -56,7 +57,7 @@ export function CatalogueListContent() {
     if (!cursor) {
       setAccumulatedItems(items);
     } else {
-      setAccumulatedItems((prev) => [...prev, ...items]);
+      setAccumulatedItems((prev) => { const refreshed = new Map(items.map(item => [item.id, item])); return [...prev.filter(item => !refreshed.has(item.id)), ...items]; });
     }
   }, [data?.items, cursor]);
 
@@ -83,6 +84,8 @@ export function CatalogueListContent() {
 
   const deleteMutation = api.catalogue.delete.useMutation({
     onSuccess: () => {
+      setCursor(undefined);
+      if (deletingItem) setAccumulatedItems(prev => prev.filter(item => item.id !== deletingItem.id));
       void refetch();
       setDeletingItem(null);
       setDeleteError(null);
@@ -93,11 +96,13 @@ export function CatalogueListContent() {
   });
 
   const handleAddItem = () => {
+    setTemplateItem(null);
     setEditingItem(null);
     setIsFormOpen(true);
   };
 
   const handleEditItem = (item: CatalogueItemOutput) => {
+    setTemplateItem(null);
     setEditingItem(item);
     setIsFormOpen(true);
   };
@@ -113,6 +118,7 @@ export function CatalogueListContent() {
   };
 
   const handleFormSuccess = () => {
+    setCursor(undefined);
     void refetch();
     setIsFormOpen(false);
     setEditingItem(null);
@@ -276,6 +282,7 @@ export function CatalogueListContent() {
                             <Button variant="ghost" size="icon" aria-label={`Autres actions pour l’article ${item.code}`}><MoreHorizontal className="size-4" /></Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={() => { setEditingItem(null); setTemplateItem(item); setIsFormOpen(true); }}><Copy className="size-4" />Créer un article similaire</DropdownMenuItem>
                             {item.syncedToMeta && <DropdownMenuItem onSelect={() => setProductCardItem({ id: item.id, code: item.code })}><Send className="size-4" />Envoyer la fiche de l’article {item.code}</DropdownMenuItem>}
                             <DropdownMenuItem disabled={item.reservedQty > 0} onSelect={() => handleDeleteItem(item)}><Trash2 className="size-4" />Supprimer l’article {item.code}</DropdownMenuItem>
                             {item.reservedQty > 0 && <p className="max-w-60 px-2 py-2 text-sm text-muted-foreground">Suppression indisponible : cet article a des réservations en cours.</p>}
@@ -314,6 +321,7 @@ export function CatalogueListContent() {
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         item={editingItem}
+        template={templateItem}
         onSuccess={handleFormSuccess}
         r2Configured={r2Status?.configured ?? false}
       />

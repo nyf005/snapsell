@@ -1,3 +1,4 @@
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 /**
  * Tests des réponses automatiques.
  *

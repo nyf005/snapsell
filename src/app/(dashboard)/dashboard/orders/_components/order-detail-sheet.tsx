@@ -130,18 +130,15 @@ export function OrderDetailSheet({
    * derrière le panneau garderait l'ancien badge. L'écran des preuves n'invalidait
    * que `proofs.listPending` et souffrait donc du même décalage.
    */
-  const invalidateAll = () => {
-    void utils.orders.list.invalidate();
-    void utils.orders.getById.invalidate();
-    void utils.proofs.listPending.invalidate();
-    void utils.proofs.pendingCount.invalidate();
+  const invalidateAll = async () => {
+    await Promise.all([utils.orders.list.invalidate(), utils.orders.getById.invalidate(), utils.proofs.listPending.invalidate(), utils.proofs.pendingCount.invalidate()]);
   };
 
   const approve = api.proofs.approve.useMutation({ onSuccess: invalidateAll });
   const reject = api.proofs.reject.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       setRejectTargetId(null);
-      invalidateAll();
+      await invalidateAll();
     },
   });
 
@@ -161,6 +158,7 @@ export function OrderDetailSheet({
               : isError ? "Le détail n’a pas pu être chargé." : "Chargement du détail…"}
           </SheetDescription>
         </SheetHeader>
+        {onNext && <div className="sticky top-0 z-10 border-b border-border bg-background px-6 py-3"><Button variant="outline" className="min-h-11 w-full" disabled={isActing || isLoading} onClick={onNext}>Paiement suivant à vérifier</Button></div>}
 
         {isError ? (
           <div className="space-y-4 p-6">
@@ -176,7 +174,7 @@ export function OrderDetailSheet({
         ) : (
           <div className="space-y-6 p-6">
             {order.depositStatus === "deposit_pending" && <section aria-label={paymentState(order).key === "review" ? "Paiement à vérifier" : "Acompte attendu"} className="space-y-3">
-              <div className="rounded-lg bg-muted/50 p-3"><p className="text-sm text-muted-foreground">Acompte demandé</p><p className="text-xl font-semibold tabular-nums">{order.depositAmountCents != null ? formatXof(order.depositAmountCents) : "Montant non renseigné"}</p>{order.itemsTotalCents != null && <p className="mt-1 text-sm text-muted-foreground">{order.depositPercentSnapshot} % de {formatXof(order.itemsTotalCents)} d’articles, hors livraison</p>}</div>
+              <div className="rounded-lg bg-muted/50 p-3"><p className="text-sm text-muted-foreground">Acompte demandé</p><p className="text-xl font-semibold tabular-nums">{order.depositAmountCents != null ? formatXof(order.depositAmountCents) : "Montant non renseigné"}</p>{order.itemsTotalCents != null && order.depositPercentSnapshot != null && <p className="mt-1 text-sm text-muted-foreground">{order.depositPercentSnapshot} % de {formatXof(order.itemsTotalCents)} d’articles, hors livraison</p>}</div>
               <p className="text-sm text-muted-foreground">Comparez la preuve avec le paiement reçu avant de valider l’acompte.</p>
             <div className="border-t border-border pt-6">
               <h3 className="pb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
@@ -285,7 +283,7 @@ export function OrderDetailSheet({
 
             </details>}
             {order.depositStatus !== "deposit_pending" && order.depositStatus !== "no_deposit" && <p className="text-sm">Acompte demandé : {order.depositAmountCents != null ? formatXof(order.depositAmountCents) : "montant non renseigné"}</p>}
-            {onNext && <Button variant="outline" className="w-full" onClick={onNext}>Paiement suivant à vérifier</Button>}
+
             {order.depositExpiresAt ? (
               <p className="border-t border-border pt-6 text-sm text-muted-foreground">
                 Délai d’acompte jusqu’au {formatDateTime(order.depositExpiresAt)}.

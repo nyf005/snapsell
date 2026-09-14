@@ -1,5 +1,6 @@
 "use client";
 
+import { UnsavedChangesDialog } from "~/components/ui/unsaved-changes-dialog";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, ImagePlus, RefreshCw, Trash2, Upload } from "lucide-react";
 import { api } from "~/trpc/react";
@@ -30,6 +31,7 @@ type CatalogueItemFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   item: CatalogueItemOutput | null;
+  template?: CatalogueItemOutput | null;
   onSuccess: () => void;
   r2Configured?: boolean;
 };
@@ -115,18 +117,21 @@ export function CatalogueItemFormDialog({
   open,
   onOpenChange,
   item,
+  template,
   onSuccess,
   r2Configured = true,
 }: CatalogueItemFormDialogProps) {
+  const createdItemId = useRef<string | null>(null);
   const [dirty, setDirty] = useState(false);
-  useEffect(() => { setDirty(false); }, [open, item]);
+  useEffect(() => { setDirty(false); createdItemId.current = null; }, [open, item]);
   useEffect(() => {
     if (!open || !dirty) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [open, dirty]);
-  const requestClose = (next: boolean) => { if (next || !dirty || window.confirm("Quitter sans enregistrer les modifications de cet article ?")) onOpenChange(next); };
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const requestClose = (next: boolean) => { if (isSubmitting) return; if (next || !dirty) onOpenChange(next); else setConfirmDiscard(true); };
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("1");
@@ -175,6 +180,7 @@ export function CatalogueItemFormDialog({
       setShowVariants(false);
     } else {
       resetForm();
+      if (template) { setName(template.name ?? ""); setAmountCents(template.amount != null ? String(template.amount / 100) : ""); }
       setShowVariants(true);
     }
 
@@ -185,7 +191,7 @@ export function CatalogueItemFormDialog({
     setSyncError(null);
     setSyncSuccess(false);
     setVariantDraft(null);
-  }, [item, open]);
+  }, [item, open, template]);
 
   useEffect(() => {
     return () => {
@@ -309,12 +315,15 @@ export function CatalogueItemFormDialog({
           }
         }
       } else {
-        const created = await createMutation.mutateAsync({
-          code: code.trim(),
-          name: name.trim() || null,
-          quantity: qty,
-          amount: amountValue,
-        });
+        const payload = { code: code.trim(), name: name.trim() || null, quantity: qty, amount: amountValue };
+        const created = createdItemId.current
+          ? { id: createdItemId.current }
+          : await createMutation.mutateAsync(payload);
+        if (createdItemId.current) {
+          await updateMutation.mutateAsync({ id: created.id, ...payload });
+        }
+        // A failed photo or variants request must resume this article, not create another.
+        createdItemId.current = created.id;
 
         if (selectedFile && created.id) {
           setIsUploading(true);
@@ -368,10 +377,12 @@ export function CatalogueItemFormDialog({
   const showPhotoSection = r2Configured;
 
   return (
+    <>
+    <UnsavedChangesDialog open={confirmDiscard} onOpenChange={setConfirmDiscard} onDiscard={() => { setConfirmDiscard(false); onOpenChange(false); }} />
     <Dialog open={open} onOpenChange={requestClose}>
-      <DialogContent variant="sheet-on-mobile" className="sm:max-w-6xl max-h-[92vh] overflow-y-auto overflow-x-hidden custom-scrollbar">
+      <DialogContent variant="sheet-on-mobile" className="sm:max-w-6xl max-h-[92dvh] overflow-y-auto overflow-x-hidden custom-scrollbar">
         <DialogHeader>
-          <DialogTitle>{item ? "Modifier l'article" : "Ajouter un article"}</DialogTitle>
+          <DialogTitle>{item ? "Modifier l'article" : template ? "Créer un article similaire" : "Ajouter un article"}</DialogTitle>
           <DialogDescription>
             {item
               ? "Modifiez les informations de l'article du catalogue."
@@ -379,6 +390,8 @@ export function CatalogueItemFormDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {template && !item && <p className="text-sm text-muted-foreground">Nom et prix repris de {template.code}. Choisissez un nouveau code et vérifiez le stock. Les photos et variantes sont à ajouter.</p>}
+        {createdItemId.current && error && <p role="status" className="text-sm text-muted-foreground">L’article a été créé. Vos saisies sont conservées : réessayez pour terminer son enregistrement.</p>}
         <form onSubmit={handleSubmit} onChangeCapture={() => setDirty(true)}>
           <div className="space-y-6 py-4">
             <div className="grid gap-6 lg:grid-cols-[minmax(320px,1fr)_minmax(420px,520px)] lg:items-start">
@@ -654,5 +667,6 @@ export function CatalogueItemFormDialog({
         </form>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

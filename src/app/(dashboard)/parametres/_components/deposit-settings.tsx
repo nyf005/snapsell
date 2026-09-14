@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { UnsavedChangesDialog } from "~/components/ui/unsaved-changes-dialog";
 import { useUnsavedChanges } from "~/hooks/use-unsaved-changes";
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
@@ -11,11 +12,12 @@ export function DepositSettings() {
   const [enabled, setEnabled] = useState(false);
   const [percent, setPercent] = useState("30");
   const [dirty, setDirty] = useState(false);
-  useUnsavedChanges(dirty);
+  const unsavedChanges = useUnsavedChanges(dirty);
   useEffect(() => { if (query.data && !dirty) { setEnabled(query.data.requireDeposit); setPercent(String(query.data.depositPercent ?? 30)); } }, [query.data, dirty]);
   const save = api.settings.setDepositSettings.useMutation({ onSuccess: async () => { await query.refetch(); setDirty(false); } });
   const valid = Number.isInteger(Number(percent)) && Number(percent) >= 1 && Number(percent) <= 100;
   return <section className="space-y-4 rounded-xl border border-border bg-card p-4" aria-labelledby="deposit-heading">
+    <UnsavedChangesDialog {...unsavedChanges} />
     <div className="flex items-center justify-between gap-3"><div><h2 id="deposit-heading" className="font-semibold">Acompte avant préparation</h2><p className="mt-1 text-sm text-muted-foreground">Pour les nouvelles commandes, hors frais de livraison.</p></div><Switch aria-label="Demander un acompte" checked={enabled} disabled={query.isLoading || !!query.error || save.isPending} onCheckedChange={(value) => { setEnabled(value); setDirty(true); }} /></div>
     {query.isLoading ? <p>Chargement du réglage…</p> : query.error ? <div role="alert"><p>{formatErrorText(query.error, "generic")}</p><Button onClick={() => void query.refetch()}>Réessayer</Button></div> : <>
       <p className="text-sm text-muted-foreground">{query.data?.depositPercent == null ? "Aucun pourcentage enregistré. Enregistrez votre règle pour calculer les prochains acomptes." : `Règle enregistrée : ${query.data.depositPercent} % des articles. Les commandes existantes conservent leur montant.`}</p>

@@ -60,6 +60,7 @@ vi.mock("~/server/db", () => {
       count: vi.fn().mockResolvedValue(0),
     },
     order: {
+      findMany: vi.fn().mockResolvedValue([]),
       findFirst: vi.fn().mockResolvedValue(null),
     },
     reservation: {
@@ -3449,5 +3450,40 @@ describe("detectFaqIntent", () => {
   it("ne classe pas un message quelconque", () => {
     expect(detectFaqIntent("bonjour")).toBeNull();
     expect(detectFaqIntent("merci beaucoup")).toBeNull();
+  });
+});
+
+describe("Priorité des intentions dans une conversation", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks(); setupClientMocks("free");
+    vi.mocked(db.conversationState.findUnique).mockResolvedValue(null);
+    vi.mocked(db.order.findMany).mockResolvedValue([]);
+    const { analyzeInboundIntent } = await import("../messaging/ai-service");
+    vi.mocked(analyzeInboundIntent).mockResolvedValue({ intent: "OTHER", confidence: 0, entities: {} });
+  });
+  const run = (body: string, extra = {}) => processWebhookJob({ id: "nuance", data: { tenantId: "tenant-123", providerMessageId: "nuance", from: "+33612345678", body, correlationId: "nuance", ...extra } } as PgBossJob<InboundMessage>);
+  it.each(["La livraison coûte combien ?", "Je peux payer demain ?", "je veux annuler A12"])("ne transforme pas %s en adresse ou achat", async body => {
+    const { collectAddress } = await import("~/server/reservation/service");
+    await run(body);
+    expect(collectAddress).not.toHaveBeenCalled();
+    expect(createReservation).not.toHaveBeenCalled();
+    expect(db.order.findMany).not.toHaveBeenCalled();
+    expect(writeToOutbox).toHaveBeenCalled();
+  });
+  it("respecte une question reconnue par IA sans ponctuation", async () => {
+    setupClientMocks("pro");
+    const { analyzeInboundIntent } = await import("../messaging/ai-service");
+    const { collectAddress } = await import("~/server/reservation/service");
+    vi.mocked(analyzeInboundIntent).mockResolvedValue({ intent: "QUESTION", confidence: 0.95, entities: {} });
+    await run("ça arrive avant samedi");
+    expect(collectAddress).not.toHaveBeenCalled();
+    expect(db.conversationState.upsert).toHaveBeenCalled();
+  });
+  it.each([{ mediaUrl: "image" }, { interactiveReplyId: "send_proof" }, { orderPayload: { catalogId: "catalog", items: [{ productRetailerId: "A12", quantity: 1, itemPrice: 100, currency: "XOF" }] } }])("reste silencieux pendant une reprise humaine pour %j", async extra => {
+    vi.mocked(db.conversationState.findUnique).mockResolvedValue({ handedOff: true, updatedAt: new Date() } as never);
+    await run("", extra);
+    expect(writeToOutbox).not.toHaveBeenCalled();
+    expect(db.conversationWindow.create).not.toHaveBeenCalled();
+    expect(createReservation).not.toHaveBeenCalled();
   });
 });

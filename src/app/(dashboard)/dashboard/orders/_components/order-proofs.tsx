@@ -111,7 +111,7 @@ function ProofCard({
         <div className="flex flex-wrap gap-2 pt-3">
           <Button
             size="sm"
-            className="flex-1 font-bold"
+            className="min-h-11 flex-1 font-bold"
             disabled={actions.disabled}
             aria-label={`Valider la preuve de la commande ${orderNumber}`}
             onClick={() => actions.onApprove(proof.id)}
@@ -121,7 +121,7 @@ function ProofCard({
           <Button
             size="sm"
             variant="outline"
-            className="flex-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            className="min-h-11 flex-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
             disabled={actions.disabled}
             aria-label={`Refuser la preuve de la commande ${orderNumber}`}
             onClick={() => actions.onReject(proof.id)}

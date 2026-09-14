@@ -26,12 +26,18 @@ export default async function BoutiquePage() {
   const canManage = canManageGrid(session.user.role ?? "");
   const tenantId = session.user.tenantId;
   if (!tenantId) redirect("/login");
-  const [catalogueCount, teamCount] = await Promise.all([
+  const [catalogueCount, teamCount, tenant, zones, communes] = await Promise.all([
     db.catalogueItem.count({ where: { tenantId } }),
     canManage ? db.user.count({ where: { tenantId } }) : Promise.resolve(null),
+    db.tenant.findUnique({ where: { id: tenantId }, select: { metaPhoneNumberId: true, metaWabaId: true, metaAccessToken: true, assistantEnabled: true, creditsBalance: true, creditsBonus: true } }),
+    db.deliveryZone.count({ where: { tenantId } }),
+    db.deliveryFeeCommune.count({ where: { tenantId } }),
   ]);
   const summaries: Record<string, string> = {
     ...shortDescriptions,
+    "/parametres/whatsapp": tenant?.metaPhoneNumberId && tenant.metaWabaId && tenant.metaAccessToken ? `Numéro configuré · assistant ${tenant.assistantEnabled ? "activé" : "en pause"}` : "Numéro WhatsApp à connecter",
+    "/parametres/livraison": zones + communes > 0 ? `${zones + communes} tarif${zones + communes > 1 ? "s" : ""} de livraison configuré${zones + communes > 1 ? "s" : ""}` : "Tarifs de livraison à configurer",
+    ...(canManage && tenant ? { "/parametres/abonnement": `${Math.max(0, tenant.creditsBalance + tenant.creditsBonus).toLocaleString("fr-FR")} conversations disponibles` } : {}),
     "/dashboard/catalogue": `${catalogueCount} article${catalogueCount > 1 ? "s" : ""} dans votre catalogue`,
     ...(teamCount !== null ? { "/parametres/team": `${teamCount} membre${teamCount > 1 ? "s" : ""} dans votre équipe` } : {}),
   };

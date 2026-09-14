@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { UnsavedChangesDialog } from "~/components/ui/unsaved-changes-dialog";
 import { useUnsavedChanges } from "~/hooks/use-unsaved-changes";
 import { Save } from "lucide-react";
 
@@ -58,7 +59,7 @@ type FaqValues = Record<FaqKey, string>;
  */
 export function AutoRepliesContent() {
   const [dirty, setDirty] = useState(false);
-  useUnsavedChanges(dirty);
+  const unsavedChanges = useUnsavedChanges(dirty);
   const { data, isLoading, error, refetch } = api.settings.getFaqSettings.useQuery();
   const utils = api.useUtils();
   const saveMutation = api.settings.setFaqSettings.useMutation({
@@ -102,6 +103,7 @@ export function AutoRepliesContent() {
 
   return (
     <>
+      <UnsavedChangesDialog {...unsavedChanges} />
       <DashboardHeader />
 
       <div className="flex min-h-0 flex-1 flex-col space-y-5 overflow-y-auto p-4 md:p-6">

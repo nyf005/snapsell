@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import {
   getDailyPriority,
+  DashboardStartGuide,
 } from "~/app/(dashboard)/_components/dashboard-start-guide";
 import { HelpHint } from "~/app/(dashboard)/_components/help-hint";
 import { SetupChecklist } from "~/app/(dashboard)/_components/setup-checklist";
@@ -54,7 +55,7 @@ function trendVsHier(
 ): { trend: ReactNode; trendClassName?: string } {
   if (previous === 0) {
     return {
-      trend: current > 0 ? "+100% vs hier" : "—",
+      trend: current > 0 ? "Aucune activité hier" : "—",
     };
   }
   const pct = Math.round(((current - previous) / previous) * 100);
@@ -142,14 +143,15 @@ export function DashboardContent({
   });
   const showSetup = Boolean(setup && !setup.isComplete);
 
-  const handleStartLive = async () => {
-    await startLiveMutation.mutateAsync();
+  const handleStartLive = () => {
+    startLiveMutation.mutate();
   };
 
 
   return (
     <div className="space-y-8">
       {summaryError && summaryFailure}
+      {dailyPriority && <DashboardStartGuide hasLiveSession={summary.hasLiveSession} pendingProofsCount={summary.pendingProofsCount} ordersPreparingCount={summary.ordersPreparingCount} />}
       {/* Sur mobile, c'est le seul endroit où le solde est visible. */}
       {showSetup && setup && (
           <SetupChecklist

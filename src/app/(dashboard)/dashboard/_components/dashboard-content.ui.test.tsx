@@ -44,7 +44,7 @@ vi.mock("~/trpc/react", () => ({
       startLive: {
         useMutation: (opts?: { onError?: (e: unknown) => void }) => {
           state.onError = opts?.onError;
-          return { mutateAsync: mockStartLive, isPending: false };
+          return { mutate: mockStartLive, isPending: false };
         },
       },
     },
