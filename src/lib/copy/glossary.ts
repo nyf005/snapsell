@@ -71,7 +71,7 @@ export const ui = {
     whatsapp: {
       title: "Connecter WhatsApp",
       description:
-        "Sans cette étape, personne ne peut vous écrire et rien ne fonctionne.",
+        "Préparez votre numéro WhatsApp et votre accès administrateur Meta pour connecter la boutique.",
       action: "Connecter WhatsApp",
     },
     prices: {

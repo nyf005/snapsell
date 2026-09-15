@@ -165,6 +165,9 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
 
     expect(screen.getByRole("button", { name: "Connecter WhatsApp" })).toBeEnabled();
     expect(screen.getByText("WhatsApp n’est pas connecté")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Avant de commencer" })).toBeInTheDocument();
+    expect(screen.getByText(/Préparez votre accès administrateur à ce portefeuille/)).toBeInTheDocument();
+    expect(screen.getByText(/attendez sa confirmation avant de relancer la connexion/)).toBeInTheDocument();
   });
 
   it("masque les identifiants Meta pour une boutique ordinaire", () => {
