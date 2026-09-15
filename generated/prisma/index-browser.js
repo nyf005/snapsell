@@ -530,6 +530,18 @@ exports.Prisma.ConversationMetricScalarFieldEnum = {
   handedOff: 'handedOff'
 };
 
+exports.Prisma.WhatsAppSignupAttemptScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  inputHash: 'inputHash',
+  encryptedToken: 'encryptedToken',
+  leaseOwner: 'leaseOwner',
+  leaseUntil: 'leaseUntil',
+  completedAt: 'completedAt',
+  phoneNumberId: 'phoneNumberId',
+  expiresAt: 'expiresAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -637,7 +649,8 @@ exports.Prisma.ModelName = {
   MessageOut: 'MessageOut',
   SubscriptionPayment: 'SubscriptionPayment',
   WorkerHeartbeat: 'WorkerHeartbeat',
-  ConversationMetric: 'ConversationMetric'
+  ConversationMetric: 'ConversationMetric',
+  WhatsAppSignupAttempt: 'WhatsAppSignupAttempt'
 };
 
 /**

@@ -139,6 +139,7 @@ model Tenant {
   sellerPhones         SellerPhone[]
   whatsappContacts     WhatsAppContact[]
   messagingConsents    MessagingConsent[]
+  signupAttempts       WhatsAppSignupAttempt[]
   eventLogs            EventLog[]
   deadLetterJobs       DeadLetterJob[]
   optOuts              OptOut[]
@@ -792,4 +793,21 @@ model ConversationMetric {
 
   @@index([tenantId, startedAt])
   @@map("conversation_metrics")
+}
+
+// Short-lived recovery checkpoint. OAuth codes are hashed, tokens encrypted.
+model WhatsAppSignupAttempt {
+  id             String    @id
+  tenantId       String    @map("tenant_id")
+  tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  inputHash      String    @map("input_hash")
+  encryptedToken String?   @map("encrypted_token")
+  leaseOwner     String?   @map("lease_owner")
+  leaseUntil     DateTime? @map("lease_until")
+  completedAt    DateTime? @map("completed_at")
+  phoneNumberId  String?   @map("phone_number_id")
+  expiresAt      DateTime  @map("expires_at")
+
+  @@index([expiresAt])
+  @@map("whatsapp_signup_attempts")
 }

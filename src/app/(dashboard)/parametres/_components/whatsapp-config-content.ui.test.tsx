@@ -199,6 +199,29 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
     expect(screen.getByRole("button", { name: "Reconnecter" })).toBeInTheDocument();
   });
 
+  it("reprend la finalisation sans rouvrir la fenêtre Meta", async () => {
+    mockStartSignup.mockResolvedValue({ authResponse: { code: "oauth-retry" } });
+    mockExtractCode.mockReturnValue("oauth-retry");
+    mockConnectEmbeddedMutateAsync.mockRejectedValueOnce({ data: { userKey: "whatsapp.signupRetry" } }).mockResolvedValueOnce({ ok: true });
+    render(<WhatsAppConfigContent />);
+    fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Réessayer la finalisation" }));
+    await waitFor(() => expect(mockConnectEmbeddedMutateAsync).toHaveBeenCalledTimes(2));
+    expect(mockConnectEmbeddedMutateAsync).toHaveBeenNthCalledWith(1, { code: "oauth-retry" });
+    expect(mockConnectEmbeddedMutateAsync).toHaveBeenNthCalledWith(2, { code: "oauth-retry" });
+    expect(mockStartSignup).toHaveBeenCalledTimes(1);
+  });
+
+  it("demande une nouvelle session quand le code Meta a expiré", async () => {
+    mockStartSignup.mockResolvedValue({ authResponse: { code: "oauth-expired" } });
+    mockExtractCode.mockReturnValue("oauth-expired");
+    mockConnectEmbeddedMutateAsync.mockRejectedValueOnce({ data: { userKey: "whatsapp.signupRestart" } });
+    render(<WhatsAppConfigContent />);
+    fireEvent.click(screen.getByRole("button", { name: "Connecter WhatsApp" }));
+    expect(await screen.findByText("Relancez la connexion WhatsApp")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Réessayer la finalisation" })).not.toBeInTheDocument();
+  });
+
   it("transmet le code OAuth au serveur après le popup", async () => {
     mockLoadSdk.mockResolvedValue({ login: vi.fn(), init: vi.fn() });
     mockStartSignup.mockResolvedValue({

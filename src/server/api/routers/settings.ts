@@ -1,3 +1,4 @@
+import { withSignupAttempt } from "~/server/messaging/providers/meta/signup-attempt";
 import { isOrderStatusTemplate, type MetaTemplate } from "~/lib/whatsapp-template";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -432,117 +433,117 @@ export const settingsRouter = createTRPCRouter({
       const appSecret = env.META_APP_SECRET ?? process.env.META_APP_SECRET;
 
       try {
-        const credentials = await resolveMetaEmbeddedSignupCredentials({
-          tenantId,
-          code: input.code,
-          appId: appId ?? "",
-          appSecret: appSecret ?? "",
-          wabaId: input.wabaId,
-          phoneNumberId: input.phoneNumberId,
-        });
-
-        const normalizedBusinessPhone = normalizeMetaPhone(
-          credentials.businessPhoneNumber,
-        );
-
-        const syncStartedAt = credentials.coexistence !== false ? new Date() : null;
-
-        await db.$transaction(async (tx) => {
-          await tx.tenant.update({
-            where: { id: tenantId },
-            data: {
-              metaPhoneNumberId: credentials.phoneNumberId,
-              metaWabaId: credentials.wabaId,
-              metaAccessToken: encrypt(credentials.accessToken),
-              /*
-                Ce que Meta a confirmé sur le numéro, pas le mode demandé à
-                l'écran. `null` = indéterminé, ce qui fait quand même tenter la
-                synchronisation plus bas.
-              */
-              metaCoexistence: credentials.coexistence,
-              /*
-                Une nouvelle connexion repart d'une reprise vierge : sans ça,
-                le statut d'une connexion précédente survivrait et le garde
-                ci-dessous prendrait une ancienne valeur pour une avance.
-              */
-              metaHistorySyncStatus: syncStartedAt ? "requested" : null,
-              metaContactsSyncStatus: syncStartedAt ? "requested" : null,
-              metaHistorySyncAt: syncStartedAt,
-              // Une connexion valide ouvre le canal, elle n'autorise jamais les
-              // réponses automatiques. La boutique active l'assistant séparément
-              // après avoir vérifié ses articles.
-              assistantEnabled: false,
-              assistantUpdatedAt: new Date(),
-              assistantUpdatedBy: ctx.session.user.id,
-            },
+        if (!appId || !appSecret) throw appError("INTERNAL_SERVER_ERROR", "whatsapp.signupConfiguration");
+        await withSignupAttempt({ tenantId, appId, ...input }, async checkpoint => {
+          const credentials = await resolveMetaEmbeddedSignupCredentials({
+            tenantId,
+            code: input.code,
+            appId: appId ?? "",
+            appSecret: appSecret ?? "",
+            wabaId: input.wabaId,
+            phoneNumberId: input.phoneNumberId,
+            checkpoint,
           });
 
-          await tx.sellerPhone.upsert({
-            where: {
-              tenantId_phoneNumber: {
+          const normalizedBusinessPhone = normalizeMetaPhone(
+            credentials.businessPhoneNumber,
+          );
+
+          const syncStartedAt = credentials.coexistence !== false ? new Date() : null;
+
+          await db.$transaction(async (tx) => {
+            await checkpoint.complete(tx, credentials.phoneNumberId);
+            await tx.tenant.update({
+              where: { id: tenantId },
+              data: {
+                metaPhoneNumberId: credentials.phoneNumberId,
+                metaWabaId: credentials.wabaId,
+                metaAccessToken: encrypt(credentials.accessToken),
+                /*
+                  Ce que Meta a confirmé sur le numéro, pas le mode demandé à
+                  l'écran. `null` = indéterminé, ce qui fait quand même tenter la
+                  synchronisation plus bas.
+                */
+                metaCoexistence: credentials.coexistence,
+                /*
+                  Une nouvelle connexion repart d'une reprise vierge : sans ça,
+                  le statut d'une connexion précédente survivrait et le garde
+                  ci-dessous prendrait une ancienne valeur pour une avance.
+                */
+                metaHistorySyncStatus: syncStartedAt ? "requested" : null,
+                metaContactsSyncStatus: syncStartedAt ? "requested" : null,
+                metaHistorySyncAt: syncStartedAt,
+                // Une connexion valide ouvre le canal, elle n'autorise jamais les
+                // réponses automatiques. La boutique active l'assistant séparément
+                // après avoir vérifié ses articles.
+                assistantEnabled: false,
+                assistantUpdatedAt: new Date(),
+                assistantUpdatedBy: ctx.session.user.id,
+              },
+            });
+
+            await tx.sellerPhone.upsert({
+              where: {
+                tenantId_phoneNumber: {
+                  tenantId,
+                  phoneNumber: normalizedBusinessPhone,
+                },
+              },
+              create: {
                 tenantId,
                 phoneNumber: normalizedBusinessPhone,
               },
-            },
-            create: {
+              update: {},
+            });
+            workerLogger.info("Embedded signup seller phone ensured", {
               tenantId,
               phoneNumber: normalizedBusinessPhone,
-            },
-            update: {},
+            });
           });
-          workerLogger.info("Embedded signup seller phone ensured", {
-            tenantId,
-            phoneNumber: normalizedBusinessPhone,
-          });
-        });
 
-        /**
-         * ── LA SYNCHRONISATION PART APRÈS L'ÉCRITURE, JAMAIS AVANT ────────
-         *
-         * Elle était déclenchée pendant la résolution des identifiants, donc
-         * avant que `metaPhoneNumberId` n'existe en base. Meta pouvait alors
-         * renvoyer un `history` ou un `smb_app_state_sync` sur une boutique
-         * que le webhook ne savait pas encore résoudre — évènement jeté, et
-         * rien pour le rattraper dans la fenêtre de 24 h.
-         *
-         * Ici, la transaction est validée : le webhook trouvera la boutique.
-         *
-         * `null` (indéterminé) déclenche quand même la tentative. Les deux
-         * erreurs n'ont pas le même prix : un appel refusé sur un numéro
-         * ordinaire ne coûte rien, une synchronisation omise coûte
-         * l'historique.
-         */
-        if (syncStartedAt) {
-          try {
-            await enqueueCoexistenceSyncRequest({
-              tenantId,
-              correlationId: crypto.randomUUID(),
-            });
-          } catch (error) {
-            // La connexion WhatsApp reste valable. Rendre l'échec visible permet
-            // de relancer dans les 24 h sans forcer une nouvelle connexion Meta.
-            await db.tenant.update({
-              where: { id: tenantId },
-              data: {
-                metaHistorySyncStatus: "failed",
-                metaContactsSyncStatus: "failed",
-              },
-            });
-            workerLogger.error("Coexistence: demande initiale non mise en file", error, {
-              tenantId,
-            });
+          /**
+           * ── LA SYNCHRONISATION PART APRÈS L'ÉCRITURE, JAMAIS AVANT ────────
+           *
+           * Elle était déclenchée pendant la résolution des identifiants, donc
+           * avant que `metaPhoneNumberId` n'existe en base. Meta pouvait alors
+           * renvoyer un `history` ou un `smb_app_state_sync` sur une boutique
+           * que le webhook ne savait pas encore résoudre — évènement jeté, et
+           * rien pour le rattraper dans la fenêtre de 24 h.
+           *
+           * Ici, la transaction est validée : le webhook trouvera la boutique.
+           *
+           * `null` (indéterminé) déclenche quand même la tentative. Les deux
+           * erreurs n'ont pas le même prix : un appel refusé sur un numéro
+           * ordinaire ne coûte rien, une synchronisation omise coûte
+           * l'historique.
+           */
+          if (syncStartedAt) {
+            try {
+              await enqueueCoexistenceSyncRequest({
+                tenantId,
+                correlationId: crypto.randomUUID(),
+              });
+            } catch (error) {
+              // La connexion WhatsApp reste valable. Rendre l'échec visible permet
+              // de relancer dans les 24 h sans forcer une nouvelle connexion Meta.
+              await db.tenant.update({
+                where: { id: tenantId },
+                data: { metaHistorySyncStatus: "failed", metaContactsSyncStatus: "failed" },
+              }).catch(() => undefined);
+              workerLogger.error("Coexistence: demande initiale non mise en file", error, {
+                tenantId,
+              });
+            }
           }
-        }
+        });
       } catch (error) {
+        if (error instanceof TRPCError) throw error;
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
           const target = Array.isArray(error.meta?.target)
             ? error.meta.target.join(",")
             : "";
           if (target === "" || target.includes("meta_phone_number_id")) {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: "Ce Phone Number ID est déjà associé à un autre vendeur.",
-            });
+            throw appError("CONFLICT", "whatsapp.numberAlreadyConnected");
           }
         }
 
@@ -555,18 +556,12 @@ export const settingsRouter = createTRPCRouter({
           if (metaErr.kind === "BAD_REQUEST") {
             // Le texte de Meta est en anglais et parle d'identifiants techniques :
             // il part dans les logs, pas à l'écran.
-            throw appError("BAD_REQUEST", "whatsapp.metaRefused", {
+            throw appError("BAD_REQUEST", metaErr.userKey ?? "whatsapp.metaRefused", {
               cause: metaErr,
               logMessage: metaErr.message,
             });
           }
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message:
-              metaErr.kind === "CONFIG_ERROR"
-                ? "Configuration Meta incomplète côté serveur."
-                : metaErr.message,
-          });
+          throw appError("INTERNAL_SERVER_ERROR", metaErr.kind === "CONFIG_ERROR" ? "whatsapp.signupConfiguration" : "whatsapp.signupRetry");
         }
 
         if (error instanceof Error) {
@@ -575,10 +570,7 @@ export const settingsRouter = createTRPCRouter({
           });
         }
 
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Impossible de finaliser la connexion WhatsApp via Meta.",
-        });
+        throw appError("INTERNAL_SERVER_ERROR", "whatsapp.signupRetry");
       }
 
       return { ok: true };

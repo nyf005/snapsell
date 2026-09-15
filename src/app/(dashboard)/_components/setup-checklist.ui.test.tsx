@@ -35,10 +35,10 @@ function renderChecklist(doneIds: string[] = [], compact = false) {
 }
 
 describe("SetupChecklist — compte neuf", () => {
-  it("affiche une seule action principale et garde les sept étapes dans la vue d’ensemble", () => {
+  it("affiche une seule action principale et garde les huit étapes dans la vue d’ensemble", () => {
     renderChecklist();
     const list = screen.getByRole("list", { name: /Toutes les étapes/i });
-    expect(within(list).getAllByRole("listitem")).toHaveLength(7);
+    expect(within(list).getAllByRole("listitem")).toHaveLength(8);
     expect(screen.getByRole("link", { name: /^Connecter WhatsApp$/i })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /^Définir les prix$/i })).not.toBeInTheDocument();
   });
@@ -47,12 +47,12 @@ describe("SetupChecklist — compte neuf", () => {
    * Le rail donne la position dans le parcours sans en exposer le contenu : six
    * étapes annoncées, aucune description ouverte en plus de celle du moment.
    */
-  it("conserve le chemin complet dans la vue d’ensemble, sans ouvrir les sept étapes", () => {
+  it("conserve le chemin complet dans la vue d’ensemble, sans ouvrir les huit étapes", () => {
     renderChecklist(["whatsapp", "prices"]);
     const rail = screen.getByRole("list", { name: "Toutes les étapes de la mise en route" });
     const stops = within(rail).getAllByRole("listitem");
 
-    expect(stops).toHaveLength(7);
+    expect(stops).toHaveLength(8);
     expect(stops.filter((stop) => stop.getAttribute("aria-current") === "step"))
       .toHaveLength(1);
     // Seule l'étape du moment est décrite ; les autres ne le sont nulle part.
@@ -68,7 +68,7 @@ describe("SetupChecklist — compte neuf", () => {
       .getAllByRole("listitem")
       .find((stop) => stop.getAttribute("aria-current") === "step");
 
-    expect(current).toHaveTextContent("Définir vos prix");
+    expect(current).toHaveTextContent("Définir vos prix par code");
     expect(current).toHaveTextContent("À faire en priorité");
   });
 
@@ -96,7 +96,7 @@ describe("SetupChecklist — compte neuf", () => {
   it("présente l’étape courante comme nécessaire", () => {
     renderChecklist();
     expect(screen.getByRole("heading", { name: "Connecter WhatsApp" })).toBeInTheDocument();
-    expect(screen.getAllByText("Recommandée")).toHaveLength(3);
+    expect(screen.getAllByText("Recommandée")).toHaveLength(4);
   });
 
   /**
@@ -105,15 +105,22 @@ describe("SetupChecklist — compte neuf", () => {
   it("annonce la progression", () => {
     renderChecklist();
     expect(
-      screen.getByLabelText("0 étape sur 7 terminée"),
+      screen.getByLabelText("0 étape sur 8 terminée"),
     ).toBeInTheDocument();
-    expect(screen.getByText("0/7 étapes")).toBeInTheDocument();
+    expect(screen.getByText("0/8 étapes")).toBeInTheDocument();
   });
 
   it("propose le catalogue quand la première vente devient l’étape courante", () => {
-    renderChecklist(["whatsapp", "prices", "delivery", "assistant", "replies", "sellerPhone"]);
+    renderChecklist(["whatsapp", "prices", "catalogue", "delivery", "assistant", "replies", "sellerPhone"]);
     const link = screen.getByRole("link", { name: /Ouvrir le catalogue/i });
     expect(link).toHaveAttribute("href", "/dashboard/catalogue");
+  });
+
+  it("explique le catalogue après la grille de prix et donne accès aux articles", () => {
+    renderChecklist(["whatsapp", "prices"]);
+    expect(screen.getByRole("heading", { name: ui.setup.catalogue.title })).toBeInTheDocument();
+    expect(screen.getByText(ui.setup.catalogue.description)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ajouter un article" })).toHaveAttribute("href", "/dashboard/catalogue");
   });
 
   it("n’emploie aucun jargon technique", () => {
@@ -145,7 +152,7 @@ describe("SetupChecklist — progression", () => {
   it("accorde le libellé de progression au pluriel", () => {
     renderChecklist(["whatsapp", "prices"]);
     expect(
-      screen.getByLabelText("2 étapes sur 7 terminées"),
+      screen.getByLabelText("2 étapes sur 8 terminées"),
     ).toBeInTheDocument();
   });
 
@@ -161,7 +168,7 @@ describe("SetupChecklist — mode compact", () => {
     expect(
       screen.getByRole("list", { name: "Toutes les étapes de la mise en route" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Définir vos prix" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Définir vos prix par code" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: ui.setup.prices.action })).toBeInTheDocument();
     expect(screen.queryByText(ui.setup.prices.description)).not.toBeInTheDocument();
     expect(screen.queryByText("Voir toutes les étapes")).not.toBeInTheDocument();

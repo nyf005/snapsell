@@ -127,7 +127,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: "/parametres/prix",
     label: "Prix",
     description:
-      "A12 prend le prix de la catégorie A. Définissez vos catégories une fois, elles s’appliquent à tous vos codes.",
+      "Les catégories proposent un prix par défaut aux articles : A = 5 000 FCFA donne 5 000 FCFA à A12. Créez ensuite vos articles dans le catalogue.",
     icon: Tags,
     section: "Boutique",
     surfaces: SETTINGS_ONLY,

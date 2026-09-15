@@ -228,4 +228,21 @@ describe.skipIf(!shouldRun)("embedded-signup.integration", () => {
       caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-waba-suspended" }),
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
+  it("reprend après une panne de transaction sans réutiliser le code auprès de Meta", async () => {
+    mockMetaFlow();
+    const caller = await makeCaller(ownerSession);
+    const transaction = vi.spyOn(db, "$transaction").mockRejectedValueOnce(new Error("DB temporarily unavailable"));
+    try {
+      await expect(caller.settings.connectWhatsAppEmbedded({ code: "oauth-recover-db" })).rejects.toMatchObject({ userKey: "whatsapp.signupRetry" });
+    } finally {
+      transaction.mockRestore();
+    }
+    expect((await db.tenant.findUniqueOrThrow({ where: { id: testTenantId } })).metaPhoneNumberId).toBeNull();
+    await expect(caller.settings.connectWhatsAppEmbedded({ code: "oauth-recover-db" })).resolves.toEqual({ ok: true });
+    expect(mockFetch.mock.calls.filter(([url]) => String(url).includes("/oauth/access_token"))).toHaveLength(1);
+    const callsAfterSuccess = mockFetch.mock.calls.length;
+    await caller.settings.connectWhatsAppEmbedded({ code: "oauth-recover-db" });
+    expect(mockFetch).toHaveBeenCalledTimes(callsAfterSuccess);
+  });
+
 });

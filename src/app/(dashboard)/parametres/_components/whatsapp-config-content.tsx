@@ -67,6 +67,8 @@ export function WhatsAppConfigContent({
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [embeddedSignupError, setEmbeddedSignupError] = useState<UserError | null>(null);
+  const pendingSignupRef = useRef<{ code: string; wabaId?: string; phoneNumberId?: string } | null>(null);
+  const [canRetryFinalization, setCanRetryFinalization] = useState(false);
   const [historySyncError, setHistorySyncError] = useState<UserError | null>(null);
   /** Après quelques secondes, préciser où terminer sans rouvrir une session. */
   const [embeddedSignupSlow, setEmbeddedSignupSlow] = useState(false);
@@ -340,6 +342,8 @@ export function WhatsAppConfigContent({
     /** Vrai tant que cette tentative-ci est la plus récente. */
     const isCurrentRun = () => signupRunRef.current === runId;
 
+    pendingSignupRef.current = null;
+    setCanRetryFinalization(false);
     setEmbeddedSignupError(null);
     setEmbeddedSignupState("loading");
     setEmbeddedSignupSlow(false);
@@ -454,7 +458,7 @@ export function WhatsAppConfigContent({
         | MetaEmbeddedSignupEvent
         | undefined;
 
-      await connectEmbedded.mutateAsync({
+      const connectionInput = {
         code,
         ...(embeddedSignupEvent?.data?.waba_id
           ? { wabaId: embeddedSignupEvent.data.waba_id }
@@ -462,8 +466,13 @@ export function WhatsAppConfigContent({
         ...(embeddedSignupEvent?.data?.phone_number_id
           ? { phoneNumberId: embeddedSignupEvent.data.phone_number_id }
           : {}),
-      });
+      };
+      pendingSignupRef.current = connectionInput;
+      setCanRetryFinalization(true);
+      await connectEmbedded.mutateAsync(connectionInput);
       if (!isCurrentRun()) return;
+      pendingSignupRef.current = null;
+      setCanRetryFinalization(false);
       setEmbeddedSignupState("success");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
@@ -499,6 +508,25 @@ export function WhatsAppConfigContent({
       if (isCurrentRun()) setEmbeddedSignupSlow(false);
     }
   }, [connectEmbedded, isEmbeddedSignupEnabled, metaAppId, metaEmbeddedConfigId]);
+
+  const retryFinalization = async () => {
+    const input = pendingSignupRef.current;
+    if (!input || signupBusy) return;
+    const runId = ++signupRunRef.current;
+    setEmbeddedSignupError(null);
+    setEmbeddedSignupState("loading");
+    try {
+      await connectEmbedded.mutateAsync(input);
+      if (signupRunRef.current !== runId) return;
+      pendingSignupRef.current = null;
+      setCanRetryFinalization(false);
+      setEmbeddedSignupState("success");
+    } catch (error) {
+      if (signupRunRef.current !== runId) return;
+      setEmbeddedSignupError(formatError(error, "whatsapp"));
+      setEmbeddedSignupState("error");
+    }
+  };
 
   const cancelEmbeddedSignup = useCallback(() => {
     const controller = signupAbortControllerRef.current;
@@ -675,6 +703,18 @@ export function WhatsAppConfigContent({
               )}
               {embeddedSignupError && (
                 <ErrorAlert error={embeddedSignupError} className="mt-3" />
+              )}
+              {canRetryFinalization && embeddedSignupState === "error" && ![
+                errorCopy["whatsapp.signupRestart"]?.title,
+                errorCopy["whatsapp.signupSelection"]?.title,
+                errorCopy["whatsapp.missingPermissions"]?.title,
+                errorCopy["whatsapp.numberAlreadyConnected"]?.title,
+                errorCopy["whatsapp.signupConfiguration"]?.title,
+                errorCopy["whatsapp.metaRefused"]?.title,
+              ].includes(embeddedSignupError?.title) && (
+                <Button type="button" variant="outline" className="mt-3" disabled={signupBusy} onClick={() => void retryFinalization()}>
+                  Réessayer la finalisation
+                </Button>
               )}
             </div>
 

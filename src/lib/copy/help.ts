@@ -187,7 +187,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       },
       {
         kind: "text",
-        text: "Vous ne fixez pas un prix par article, mais un prix par catégorie. Le début du code désigne la catégorie. La règle exacte : parmi vos catégories, celle qui correspond au plus long début du code l’emporte.",
+        text: "Les catégories proposent un prix par défaut selon le début du code. Si plusieurs catégories correspondent, la plus longue l’emporte. Dans le catalogue, vous pouvez aussi saisir un prix propre à un article.",
       },
       {
         kind: "table",
@@ -205,7 +205,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
       },
       {
         kind: "warning",
-        text: "Un code dont aucune catégorie ne couvre le début n’a pas de prix. L’assistant ne peut alors ni le créer ni l’annoncer, et vous verrez une réservation manquante plutôt qu’une vente.",
+        text: "Pour créer automatiquement un article à partir de son code, une catégorie de prix doit correspondre. Sinon, créez l’article dans le catalogue en saisissant son prix.",
       },
       { kind: "screen", href: "/parametres/prix", label: "Voir mes catégories de prix" },
     ],

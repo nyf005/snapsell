@@ -23,7 +23,7 @@ export const onboardingRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const tenantId = ctx.session.user.tenantId;
 
-      const [tenant, categoryCount, zoneCount, communeCount, sellerPhoneCount, orderCount] =
+      const [tenant, categoryCount, catalogueCount, zoneCount, communeCount, sellerPhoneCount, orderCount] =
         await Promise.all([
           db.tenant.findUnique({
             where: { id: tenantId },
@@ -39,6 +39,7 @@ export const onboardingRouter = createTRPCRouter({
             },
           }),
           db.categoryPrice.count({ where: { tenantId } }),
+          db.catalogueItem.count({ where: { tenantId } }),
           db.deliveryZone.count({ where: { tenantId } }),
           db.deliveryFeeCommune.count({ where: { tenantId } }),
           db.sellerPhone.count({ where: { tenantId } }),
@@ -61,6 +62,7 @@ export const onboardingRouter = createTRPCRouter({
       const steps: { id: SetupStepId; done: boolean; required: boolean }[] = [
         { id: "whatsapp", done: whatsappConnected, required: true },
         { id: "prices", done: categoryCount > 0, required: true },
+        { id: "catalogue", done: catalogueCount > 0, required: false },
         { id: "delivery", done: zoneCount + communeCount > 0, required: true },
         { id: "assistant", done: tenant?.assistantEnabled ?? false, required: true },
         { id: "replies", done: hasAnyFaq, required: false },

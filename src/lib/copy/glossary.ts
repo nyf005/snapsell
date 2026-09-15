@@ -75,10 +75,15 @@ export const ui = {
       action: "Connecter WhatsApp",
     },
     prices: {
-      title: "Définir vos prix",
+      title: "Définir vos prix par code",
       description:
-        "Le début du code d’un article détermine son prix. Par exemple, A12 prend le prix de la catégorie A.",
+        "Les catégories donnent un prix par défaut aux codes : si A vaut 5 000 FCFA, A12 reprend ce prix. Les articles eux-mêmes se créent dans le catalogue.",
       action: "Définir les prix",
+    },
+    catalogue: {
+      title: "Ajouter votre premier article au catalogue",
+      description: "Le catalogue rassemble vos articles : code, photo, prix et stock. Le prix est proposé selon le code ; vous pouvez le modifier pour cet article.",
+      action: "Ajouter un article",
     },
     delivery: {
       title: "Définir vos frais de livraison",
@@ -223,6 +228,31 @@ export const errorCopy: Record<
     detail:
       "Le lien avec votre compte WhatsApp Business n’est plus valide. Reconnectez-vous à WhatsApp.",
     action: { label: "Reconnecter", href: "/parametres/whatsapp" },
+  },
+  "whatsapp.signupRestart": {
+    title: "Relancez la connexion WhatsApp",
+    detail: "Cette session Meta ne peut plus être utilisée. Cliquez sur Connecter ou Reconnecter pour ouvrir une nouvelle session. Ne supprimez pas votre compte WhatsApp Business.",
+  },
+  "whatsapp.signupSelection": {
+    title: "Vérifiez le compte et le numéro choisis",
+    detail: "Relancez la connexion et sélectionnez le compte WhatsApp Business et le numéro de cette boutique. Utilisez un compte Facebook autorisé à les gérer.",
+  },
+  "whatsapp.signupBusy": {
+    title: "La connexion est déjà en cours",
+    detail: "Patientez quelques instants, puis cliquez sur Réessayer la finalisation. N’ouvrez pas une deuxième fenêtre Meta.",
+  },
+  "whatsapp.signupRetry": {
+    title: "La connexion n’a pas pu être finalisée",
+    detail: "Cliquez sur Réessayer la finalisation. Si Meta avait déjà confirmé votre numéro, SnapSell reprendra cette étape sans vous demander de recommencer le parcours.",
+  },
+  "whatsapp.signupConfiguration": {
+    title: "La connexion WhatsApp nécessite une intervention",
+    detail: "Contactez le support SnapSell. Le problème vient de la configuration du service ; vous n’avez pas à modifier votre numéro.",
+    action: { label: "Ouvrir l’aide et le support", href: "/aide" },
+  },
+  "whatsapp.numberAlreadyConnected": {
+    title: "Ce numéro est déjà connecté à une autre boutique",
+    detail: "Ouvrez la boutique qui utilise ce numéro ou contactez le support pour vérifier son rattachement. Ne supprimez pas votre compte WhatsApp Business.",
   },
   "whatsapp.metaRefused": {
     title: "WhatsApp a refusé la demande",

@@ -301,3 +301,27 @@ test("un article similaire conserve les saisies jusqu’à l’abandon explicite
   await expect(page.getByRole("dialog")).not.toBeVisible();
   expect(await db.catalogueItem.count({ where: { tenantId, code: "NOUVEAU-UX" } })).toBe(0);
 });
+
+
+test("les interrupteurs et le champ acompte restent lisibles", async ({ page }, testInfo) => {
+  await login(page);
+  await page.goto("/parametres/prix");
+  const toggle = page.getByRole("switch", { name: "Demander un acompte" });
+  await expect(toggle).toBeEnabled();
+  await toggle.scrollIntoViewIfNeeded();
+  const box = await toggle.boundingBox();
+  expect(box!.width).toBe(48);
+  expect(box!.height).toBe(28);
+  const label = page.locator('label[for="deposit-percent"]');
+  const input = page.getByLabel("Pourcentage de l’acompte (%)");
+  await input.scrollIntoViewIfNeeded();
+  const labelBox = await label.boundingBox();
+  const inputBox = await input.boundingBox();
+  expect(inputBox!.y - labelBox!.y - labelBox!.height).toBeGreaterThanOrEqual(8);
+  await toggle.click();
+  await expect(toggle).toBeChecked();
+  await input.fill("40");
+  await page.getByRole("button", { name: "Enregistrer la règle" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Règle d’acompte enregistrée" })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("deposit-layout.png"), fullPage: true });
+});

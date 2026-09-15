@@ -4,6 +4,7 @@ import { z } from "zod";
 export const SETUP_STEP_IDS = [
   "whatsapp",
   "prices",
+  "catalogue",
   "delivery",
   "assistant",
   "replies",

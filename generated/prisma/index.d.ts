@@ -168,6 +168,11 @@ export type WorkerHeartbeat = $Result.DefaultSelection<Prisma.$WorkerHeartbeatPa
  * 
  */
 export type ConversationMetric = $Result.DefaultSelection<Prisma.$ConversationMetricPayload>
+/**
+ * Model WhatsAppSignupAttempt
+ * 
+ */
+export type WhatsAppSignupAttempt = $Result.DefaultSelection<Prisma.$WhatsAppSignupAttemptPayload>
 
 /**
  * Enums
@@ -700,6 +705,16 @@ export class PrismaClient<
     * ```
     */
   get conversationMetric(): Prisma.ConversationMetricDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.whatsAppSignupAttempt`: Exposes CRUD operations for the **WhatsAppSignupAttempt** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WhatsAppSignupAttempts
+    * const whatsAppSignupAttempts = await prisma.whatsAppSignupAttempt.findMany()
+    * ```
+    */
+  get whatsAppSignupAttempt(): Prisma.WhatsAppSignupAttemptDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1177,7 +1192,8 @@ export namespace Prisma {
     MessageOut: 'MessageOut',
     SubscriptionPayment: 'SubscriptionPayment',
     WorkerHeartbeat: 'WorkerHeartbeat',
-    ConversationMetric: 'ConversationMetric'
+    ConversationMetric: 'ConversationMetric',
+    WhatsAppSignupAttempt: 'WhatsAppSignupAttempt'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1193,7 +1209,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messagingConsent" | "messageIn" | "whatsAppContact" | "sellerPhone" | "eventLog" | "optOut" | "liveSession" | "liveItem" | "catalogueItem" | "itemVariant" | "reservation" | "conversationState" | "conversationWindow" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "messageOut" | "subscriptionPayment" | "workerHeartbeat" | "conversationMetric"
+      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messagingConsent" | "messageIn" | "whatsAppContact" | "sellerPhone" | "eventLog" | "optOut" | "liveSession" | "liveItem" | "catalogueItem" | "itemVariant" | "reservation" | "conversationState" | "conversationWindow" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "messageOut" | "subscriptionPayment" | "workerHeartbeat" | "conversationMetric" | "whatsAppSignupAttempt"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3491,6 +3507,80 @@ export namespace Prisma {
           }
         }
       }
+      WhatsAppSignupAttempt: {
+        payload: Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>
+        fields: Prisma.WhatsAppSignupAttemptFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WhatsAppSignupAttemptFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppSignupAttemptPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WhatsAppSignupAttemptFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppSignupAttemptPayload>
+          }
+          findFirst: {
+            args: Prisma.WhatsAppSignupAttemptFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppSignupAttemptPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WhatsAppSignupAttemptFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppSignupAttemptPayload>
+          }
+          findMany: {
+            args: Prisma.WhatsAppSignupAttemptFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppSignupAttemptPayload>[]
+          }
+          create: {
+            args: Prisma.WhatsAppSignupAttemptCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppSignupAttemptPayload>
+          }
+          createMany: {
+            args: Prisma.WhatsAppSignupAttemptCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WhatsAppSignupAttemptCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppSignupAttemptPayload>[]
+          }
+          delete: {
+            args: Prisma.WhatsAppSignupAttemptDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppSignupAttemptPayload>
+          }
+          update: {
+            args: Prisma.WhatsAppSignupAttemptUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppSignupAttemptPayload>
+          }
+          deleteMany: {
+            args: Prisma.WhatsAppSignupAttemptDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WhatsAppSignupAttemptUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WhatsAppSignupAttemptUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppSignupAttemptPayload>[]
+          }
+          upsert: {
+            args: Prisma.WhatsAppSignupAttemptUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WhatsAppSignupAttemptPayload>
+          }
+          aggregate: {
+            args: Prisma.WhatsAppSignupAttemptAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWhatsAppSignupAttempt>
+          }
+          groupBy: {
+            args: Prisma.WhatsAppSignupAttemptGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WhatsAppSignupAttemptGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WhatsAppSignupAttemptCountArgs<ExtArgs>
+            result: $Utils.Optional<WhatsAppSignupAttemptCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3645,6 +3735,7 @@ export namespace Prisma {
     subscriptionPayment?: SubscriptionPaymentOmit
     workerHeartbeat?: WorkerHeartbeatOmit
     conversationMetric?: ConversationMetricOmit
+    whatsAppSignupAttempt?: WhatsAppSignupAttemptOmit
   }
 
   /* Types for Logging */
@@ -3736,6 +3827,7 @@ export namespace Prisma {
     sellerPhones: number
     whatsappContacts: number
     messagingConsents: number
+    signupAttempts: number
     eventLogs: number
     deadLetterJobs: number
     optOuts: number
@@ -3764,6 +3856,7 @@ export namespace Prisma {
     sellerPhones?: boolean | TenantCountOutputTypeCountSellerPhonesArgs
     whatsappContacts?: boolean | TenantCountOutputTypeCountWhatsappContactsArgs
     messagingConsents?: boolean | TenantCountOutputTypeCountMessagingConsentsArgs
+    signupAttempts?: boolean | TenantCountOutputTypeCountSignupAttemptsArgs
     eventLogs?: boolean | TenantCountOutputTypeCountEventLogsArgs
     deadLetterJobs?: boolean | TenantCountOutputTypeCountDeadLetterJobsArgs
     optOuts?: boolean | TenantCountOutputTypeCountOptOutsArgs
@@ -3866,6 +3959,13 @@ export namespace Prisma {
    */
   export type TenantCountOutputTypeCountMessagingConsentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MessagingConsentWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountSignupAttemptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WhatsAppSignupAttemptWhereInput
   }
 
   /**
@@ -4890,6 +4990,7 @@ export namespace Prisma {
     sellerPhones?: boolean | Tenant$sellerPhonesArgs<ExtArgs>
     whatsappContacts?: boolean | Tenant$whatsappContactsArgs<ExtArgs>
     messagingConsents?: boolean | Tenant$messagingConsentsArgs<ExtArgs>
+    signupAttempts?: boolean | Tenant$signupAttemptsArgs<ExtArgs>
     eventLogs?: boolean | Tenant$eventLogsArgs<ExtArgs>
     deadLetterJobs?: boolean | Tenant$deadLetterJobsArgs<ExtArgs>
     optOuts?: boolean | Tenant$optOutsArgs<ExtArgs>
@@ -5100,6 +5201,7 @@ export namespace Prisma {
     sellerPhones?: boolean | Tenant$sellerPhonesArgs<ExtArgs>
     whatsappContacts?: boolean | Tenant$whatsappContactsArgs<ExtArgs>
     messagingConsents?: boolean | Tenant$messagingConsentsArgs<ExtArgs>
+    signupAttempts?: boolean | Tenant$signupAttemptsArgs<ExtArgs>
     eventLogs?: boolean | Tenant$eventLogsArgs<ExtArgs>
     deadLetterJobs?: boolean | Tenant$deadLetterJobsArgs<ExtArgs>
     optOuts?: boolean | Tenant$optOutsArgs<ExtArgs>
@@ -5133,6 +5235,7 @@ export namespace Prisma {
       sellerPhones: Prisma.$SellerPhonePayload<ExtArgs>[]
       whatsappContacts: Prisma.$WhatsAppContactPayload<ExtArgs>[]
       messagingConsents: Prisma.$MessagingConsentPayload<ExtArgs>[]
+      signupAttempts: Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>[]
       eventLogs: Prisma.$EventLogPayload<ExtArgs>[]
       deadLetterJobs: Prisma.$DeadLetterJobPayload<ExtArgs>[]
       optOuts: Prisma.$OptOutPayload<ExtArgs>[]
@@ -5618,6 +5721,7 @@ export namespace Prisma {
     sellerPhones<T extends Tenant$sellerPhonesArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$sellerPhonesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SellerPhonePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     whatsappContacts<T extends Tenant$whatsappContactsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$whatsappContactsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsAppContactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     messagingConsents<T extends Tenant$messagingConsentsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$messagingConsentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    signupAttempts<T extends Tenant$signupAttemptsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$signupAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     eventLogs<T extends Tenant$eventLogsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$eventLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     deadLetterJobs<T extends Tenant$deadLetterJobsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$deadLetterJobsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeadLetterJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     optOuts<T extends Tenant$optOutsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$optOutsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptOutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6372,6 +6476,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MessagingConsentScalarFieldEnum | MessagingConsentScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.signupAttempts
+   */
+  export type Tenant$signupAttemptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptInclude<ExtArgs> | null
+    where?: WhatsAppSignupAttemptWhereInput
+    orderBy?: WhatsAppSignupAttemptOrderByWithRelationInput | WhatsAppSignupAttemptOrderByWithRelationInput[]
+    cursor?: WhatsAppSignupAttemptWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WhatsAppSignupAttemptScalarFieldEnum | WhatsAppSignupAttemptScalarFieldEnum[]
   }
 
   /**
@@ -41024,6 +41152,1121 @@ export namespace Prisma {
 
 
   /**
+   * Model WhatsAppSignupAttempt
+   */
+
+  export type AggregateWhatsAppSignupAttempt = {
+    _count: WhatsAppSignupAttemptCountAggregateOutputType | null
+    _min: WhatsAppSignupAttemptMinAggregateOutputType | null
+    _max: WhatsAppSignupAttemptMaxAggregateOutputType | null
+  }
+
+  export type WhatsAppSignupAttemptMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    inputHash: string | null
+    encryptedToken: string | null
+    leaseOwner: string | null
+    leaseUntil: Date | null
+    completedAt: Date | null
+    phoneNumberId: string | null
+    expiresAt: Date | null
+  }
+
+  export type WhatsAppSignupAttemptMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    inputHash: string | null
+    encryptedToken: string | null
+    leaseOwner: string | null
+    leaseUntil: Date | null
+    completedAt: Date | null
+    phoneNumberId: string | null
+    expiresAt: Date | null
+  }
+
+  export type WhatsAppSignupAttemptCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    inputHash: number
+    encryptedToken: number
+    leaseOwner: number
+    leaseUntil: number
+    completedAt: number
+    phoneNumberId: number
+    expiresAt: number
+    _all: number
+  }
+
+
+  export type WhatsAppSignupAttemptMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    inputHash?: true
+    encryptedToken?: true
+    leaseOwner?: true
+    leaseUntil?: true
+    completedAt?: true
+    phoneNumberId?: true
+    expiresAt?: true
+  }
+
+  export type WhatsAppSignupAttemptMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    inputHash?: true
+    encryptedToken?: true
+    leaseOwner?: true
+    leaseUntil?: true
+    completedAt?: true
+    phoneNumberId?: true
+    expiresAt?: true
+  }
+
+  export type WhatsAppSignupAttemptCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    inputHash?: true
+    encryptedToken?: true
+    leaseOwner?: true
+    leaseUntil?: true
+    completedAt?: true
+    phoneNumberId?: true
+    expiresAt?: true
+    _all?: true
+  }
+
+  export type WhatsAppSignupAttemptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WhatsAppSignupAttempt to aggregate.
+     */
+    where?: WhatsAppSignupAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppSignupAttempts to fetch.
+     */
+    orderBy?: WhatsAppSignupAttemptOrderByWithRelationInput | WhatsAppSignupAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WhatsAppSignupAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppSignupAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppSignupAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WhatsAppSignupAttempts
+    **/
+    _count?: true | WhatsAppSignupAttemptCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WhatsAppSignupAttemptMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WhatsAppSignupAttemptMaxAggregateInputType
+  }
+
+  export type GetWhatsAppSignupAttemptAggregateType<T extends WhatsAppSignupAttemptAggregateArgs> = {
+        [P in keyof T & keyof AggregateWhatsAppSignupAttempt]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWhatsAppSignupAttempt[P]>
+      : GetScalarType<T[P], AggregateWhatsAppSignupAttempt[P]>
+  }
+
+
+
+
+  export type WhatsAppSignupAttemptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WhatsAppSignupAttemptWhereInput
+    orderBy?: WhatsAppSignupAttemptOrderByWithAggregationInput | WhatsAppSignupAttemptOrderByWithAggregationInput[]
+    by: WhatsAppSignupAttemptScalarFieldEnum[] | WhatsAppSignupAttemptScalarFieldEnum
+    having?: WhatsAppSignupAttemptScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WhatsAppSignupAttemptCountAggregateInputType | true
+    _min?: WhatsAppSignupAttemptMinAggregateInputType
+    _max?: WhatsAppSignupAttemptMaxAggregateInputType
+  }
+
+  export type WhatsAppSignupAttemptGroupByOutputType = {
+    id: string
+    tenantId: string
+    inputHash: string
+    encryptedToken: string | null
+    leaseOwner: string | null
+    leaseUntil: Date | null
+    completedAt: Date | null
+    phoneNumberId: string | null
+    expiresAt: Date
+    _count: WhatsAppSignupAttemptCountAggregateOutputType | null
+    _min: WhatsAppSignupAttemptMinAggregateOutputType | null
+    _max: WhatsAppSignupAttemptMaxAggregateOutputType | null
+  }
+
+  type GetWhatsAppSignupAttemptGroupByPayload<T extends WhatsAppSignupAttemptGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WhatsAppSignupAttemptGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WhatsAppSignupAttemptGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WhatsAppSignupAttemptGroupByOutputType[P]>
+            : GetScalarType<T[P], WhatsAppSignupAttemptGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WhatsAppSignupAttemptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    inputHash?: boolean
+    encryptedToken?: boolean
+    leaseOwner?: boolean
+    leaseUntil?: boolean
+    completedAt?: boolean
+    phoneNumberId?: boolean
+    expiresAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["whatsAppSignupAttempt"]>
+
+  export type WhatsAppSignupAttemptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    inputHash?: boolean
+    encryptedToken?: boolean
+    leaseOwner?: boolean
+    leaseUntil?: boolean
+    completedAt?: boolean
+    phoneNumberId?: boolean
+    expiresAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["whatsAppSignupAttempt"]>
+
+  export type WhatsAppSignupAttemptSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    inputHash?: boolean
+    encryptedToken?: boolean
+    leaseOwner?: boolean
+    leaseUntil?: boolean
+    completedAt?: boolean
+    phoneNumberId?: boolean
+    expiresAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["whatsAppSignupAttempt"]>
+
+  export type WhatsAppSignupAttemptSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    inputHash?: boolean
+    encryptedToken?: boolean
+    leaseOwner?: boolean
+    leaseUntil?: boolean
+    completedAt?: boolean
+    phoneNumberId?: boolean
+    expiresAt?: boolean
+  }
+
+  export type WhatsAppSignupAttemptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "inputHash" | "encryptedToken" | "leaseOwner" | "leaseUntil" | "completedAt" | "phoneNumberId" | "expiresAt", ExtArgs["result"]["whatsAppSignupAttempt"]>
+  export type WhatsAppSignupAttemptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type WhatsAppSignupAttemptIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type WhatsAppSignupAttemptIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+
+  export type $WhatsAppSignupAttemptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WhatsAppSignupAttempt"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      inputHash: string
+      encryptedToken: string | null
+      leaseOwner: string | null
+      leaseUntil: Date | null
+      completedAt: Date | null
+      phoneNumberId: string | null
+      expiresAt: Date
+    }, ExtArgs["result"]["whatsAppSignupAttempt"]>
+    composites: {}
+  }
+
+  type WhatsAppSignupAttemptGetPayload<S extends boolean | null | undefined | WhatsAppSignupAttemptDefaultArgs> = $Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload, S>
+
+  type WhatsAppSignupAttemptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WhatsAppSignupAttemptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WhatsAppSignupAttemptCountAggregateInputType | true
+    }
+
+  export interface WhatsAppSignupAttemptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WhatsAppSignupAttempt'], meta: { name: 'WhatsAppSignupAttempt' } }
+    /**
+     * Find zero or one WhatsAppSignupAttempt that matches the filter.
+     * @param {WhatsAppSignupAttemptFindUniqueArgs} args - Arguments to find a WhatsAppSignupAttempt
+     * @example
+     * // Get one WhatsAppSignupAttempt
+     * const whatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WhatsAppSignupAttemptFindUniqueArgs>(args: SelectSubset<T, WhatsAppSignupAttemptFindUniqueArgs<ExtArgs>>): Prisma__WhatsAppSignupAttemptClient<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WhatsAppSignupAttempt that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WhatsAppSignupAttemptFindUniqueOrThrowArgs} args - Arguments to find a WhatsAppSignupAttempt
+     * @example
+     * // Get one WhatsAppSignupAttempt
+     * const whatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WhatsAppSignupAttemptFindUniqueOrThrowArgs>(args: SelectSubset<T, WhatsAppSignupAttemptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WhatsAppSignupAttemptClient<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WhatsAppSignupAttempt that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppSignupAttemptFindFirstArgs} args - Arguments to find a WhatsAppSignupAttempt
+     * @example
+     * // Get one WhatsAppSignupAttempt
+     * const whatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WhatsAppSignupAttemptFindFirstArgs>(args?: SelectSubset<T, WhatsAppSignupAttemptFindFirstArgs<ExtArgs>>): Prisma__WhatsAppSignupAttemptClient<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WhatsAppSignupAttempt that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppSignupAttemptFindFirstOrThrowArgs} args - Arguments to find a WhatsAppSignupAttempt
+     * @example
+     * // Get one WhatsAppSignupAttempt
+     * const whatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WhatsAppSignupAttemptFindFirstOrThrowArgs>(args?: SelectSubset<T, WhatsAppSignupAttemptFindFirstOrThrowArgs<ExtArgs>>): Prisma__WhatsAppSignupAttemptClient<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WhatsAppSignupAttempts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppSignupAttemptFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WhatsAppSignupAttempts
+     * const whatsAppSignupAttempts = await prisma.whatsAppSignupAttempt.findMany()
+     * 
+     * // Get first 10 WhatsAppSignupAttempts
+     * const whatsAppSignupAttempts = await prisma.whatsAppSignupAttempt.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const whatsAppSignupAttemptWithIdOnly = await prisma.whatsAppSignupAttempt.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WhatsAppSignupAttemptFindManyArgs>(args?: SelectSubset<T, WhatsAppSignupAttemptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WhatsAppSignupAttempt.
+     * @param {WhatsAppSignupAttemptCreateArgs} args - Arguments to create a WhatsAppSignupAttempt.
+     * @example
+     * // Create one WhatsAppSignupAttempt
+     * const WhatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.create({
+     *   data: {
+     *     // ... data to create a WhatsAppSignupAttempt
+     *   }
+     * })
+     * 
+     */
+    create<T extends WhatsAppSignupAttemptCreateArgs>(args: SelectSubset<T, WhatsAppSignupAttemptCreateArgs<ExtArgs>>): Prisma__WhatsAppSignupAttemptClient<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WhatsAppSignupAttempts.
+     * @param {WhatsAppSignupAttemptCreateManyArgs} args - Arguments to create many WhatsAppSignupAttempts.
+     * @example
+     * // Create many WhatsAppSignupAttempts
+     * const whatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WhatsAppSignupAttemptCreateManyArgs>(args?: SelectSubset<T, WhatsAppSignupAttemptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WhatsAppSignupAttempts and returns the data saved in the database.
+     * @param {WhatsAppSignupAttemptCreateManyAndReturnArgs} args - Arguments to create many WhatsAppSignupAttempts.
+     * @example
+     * // Create many WhatsAppSignupAttempts
+     * const whatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WhatsAppSignupAttempts and only return the `id`
+     * const whatsAppSignupAttemptWithIdOnly = await prisma.whatsAppSignupAttempt.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WhatsAppSignupAttemptCreateManyAndReturnArgs>(args?: SelectSubset<T, WhatsAppSignupAttemptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WhatsAppSignupAttempt.
+     * @param {WhatsAppSignupAttemptDeleteArgs} args - Arguments to delete one WhatsAppSignupAttempt.
+     * @example
+     * // Delete one WhatsAppSignupAttempt
+     * const WhatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.delete({
+     *   where: {
+     *     // ... filter to delete one WhatsAppSignupAttempt
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WhatsAppSignupAttemptDeleteArgs>(args: SelectSubset<T, WhatsAppSignupAttemptDeleteArgs<ExtArgs>>): Prisma__WhatsAppSignupAttemptClient<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WhatsAppSignupAttempt.
+     * @param {WhatsAppSignupAttemptUpdateArgs} args - Arguments to update one WhatsAppSignupAttempt.
+     * @example
+     * // Update one WhatsAppSignupAttempt
+     * const whatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WhatsAppSignupAttemptUpdateArgs>(args: SelectSubset<T, WhatsAppSignupAttemptUpdateArgs<ExtArgs>>): Prisma__WhatsAppSignupAttemptClient<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WhatsAppSignupAttempts.
+     * @param {WhatsAppSignupAttemptDeleteManyArgs} args - Arguments to filter WhatsAppSignupAttempts to delete.
+     * @example
+     * // Delete a few WhatsAppSignupAttempts
+     * const { count } = await prisma.whatsAppSignupAttempt.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WhatsAppSignupAttemptDeleteManyArgs>(args?: SelectSubset<T, WhatsAppSignupAttemptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WhatsAppSignupAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppSignupAttemptUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WhatsAppSignupAttempts
+     * const whatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WhatsAppSignupAttemptUpdateManyArgs>(args: SelectSubset<T, WhatsAppSignupAttemptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WhatsAppSignupAttempts and returns the data updated in the database.
+     * @param {WhatsAppSignupAttemptUpdateManyAndReturnArgs} args - Arguments to update many WhatsAppSignupAttempts.
+     * @example
+     * // Update many WhatsAppSignupAttempts
+     * const whatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WhatsAppSignupAttempts and only return the `id`
+     * const whatsAppSignupAttemptWithIdOnly = await prisma.whatsAppSignupAttempt.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WhatsAppSignupAttemptUpdateManyAndReturnArgs>(args: SelectSubset<T, WhatsAppSignupAttemptUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WhatsAppSignupAttempt.
+     * @param {WhatsAppSignupAttemptUpsertArgs} args - Arguments to update or create a WhatsAppSignupAttempt.
+     * @example
+     * // Update or create a WhatsAppSignupAttempt
+     * const whatsAppSignupAttempt = await prisma.whatsAppSignupAttempt.upsert({
+     *   create: {
+     *     // ... data to create a WhatsAppSignupAttempt
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WhatsAppSignupAttempt we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WhatsAppSignupAttemptUpsertArgs>(args: SelectSubset<T, WhatsAppSignupAttemptUpsertArgs<ExtArgs>>): Prisma__WhatsAppSignupAttemptClient<$Result.GetResult<Prisma.$WhatsAppSignupAttemptPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WhatsAppSignupAttempts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppSignupAttemptCountArgs} args - Arguments to filter WhatsAppSignupAttempts to count.
+     * @example
+     * // Count the number of WhatsAppSignupAttempts
+     * const count = await prisma.whatsAppSignupAttempt.count({
+     *   where: {
+     *     // ... the filter for the WhatsAppSignupAttempts we want to count
+     *   }
+     * })
+    **/
+    count<T extends WhatsAppSignupAttemptCountArgs>(
+      args?: Subset<T, WhatsAppSignupAttemptCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WhatsAppSignupAttemptCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WhatsAppSignupAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppSignupAttemptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WhatsAppSignupAttemptAggregateArgs>(args: Subset<T, WhatsAppSignupAttemptAggregateArgs>): Prisma.PrismaPromise<GetWhatsAppSignupAttemptAggregateType<T>>
+
+    /**
+     * Group by WhatsAppSignupAttempt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WhatsAppSignupAttemptGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WhatsAppSignupAttemptGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WhatsAppSignupAttemptGroupByArgs['orderBy'] }
+        : { orderBy?: WhatsAppSignupAttemptGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WhatsAppSignupAttemptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWhatsAppSignupAttemptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WhatsAppSignupAttempt model
+   */
+  readonly fields: WhatsAppSignupAttemptFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WhatsAppSignupAttempt.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WhatsAppSignupAttemptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WhatsAppSignupAttempt model
+   */
+  interface WhatsAppSignupAttemptFieldRefs {
+    readonly id: FieldRef<"WhatsAppSignupAttempt", 'String'>
+    readonly tenantId: FieldRef<"WhatsAppSignupAttempt", 'String'>
+    readonly inputHash: FieldRef<"WhatsAppSignupAttempt", 'String'>
+    readonly encryptedToken: FieldRef<"WhatsAppSignupAttempt", 'String'>
+    readonly leaseOwner: FieldRef<"WhatsAppSignupAttempt", 'String'>
+    readonly leaseUntil: FieldRef<"WhatsAppSignupAttempt", 'DateTime'>
+    readonly completedAt: FieldRef<"WhatsAppSignupAttempt", 'DateTime'>
+    readonly phoneNumberId: FieldRef<"WhatsAppSignupAttempt", 'String'>
+    readonly expiresAt: FieldRef<"WhatsAppSignupAttempt", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WhatsAppSignupAttempt findUnique
+   */
+  export type WhatsAppSignupAttemptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppSignupAttempt to fetch.
+     */
+    where: WhatsAppSignupAttemptWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppSignupAttempt findUniqueOrThrow
+   */
+  export type WhatsAppSignupAttemptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppSignupAttempt to fetch.
+     */
+    where: WhatsAppSignupAttemptWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppSignupAttempt findFirst
+   */
+  export type WhatsAppSignupAttemptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppSignupAttempt to fetch.
+     */
+    where?: WhatsAppSignupAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppSignupAttempts to fetch.
+     */
+    orderBy?: WhatsAppSignupAttemptOrderByWithRelationInput | WhatsAppSignupAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WhatsAppSignupAttempts.
+     */
+    cursor?: WhatsAppSignupAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppSignupAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppSignupAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WhatsAppSignupAttempts.
+     */
+    distinct?: WhatsAppSignupAttemptScalarFieldEnum | WhatsAppSignupAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * WhatsAppSignupAttempt findFirstOrThrow
+   */
+  export type WhatsAppSignupAttemptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppSignupAttempt to fetch.
+     */
+    where?: WhatsAppSignupAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppSignupAttempts to fetch.
+     */
+    orderBy?: WhatsAppSignupAttemptOrderByWithRelationInput | WhatsAppSignupAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WhatsAppSignupAttempts.
+     */
+    cursor?: WhatsAppSignupAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppSignupAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppSignupAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WhatsAppSignupAttempts.
+     */
+    distinct?: WhatsAppSignupAttemptScalarFieldEnum | WhatsAppSignupAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * WhatsAppSignupAttempt findMany
+   */
+  export type WhatsAppSignupAttemptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptInclude<ExtArgs> | null
+    /**
+     * Filter, which WhatsAppSignupAttempts to fetch.
+     */
+    where?: WhatsAppSignupAttemptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WhatsAppSignupAttempts to fetch.
+     */
+    orderBy?: WhatsAppSignupAttemptOrderByWithRelationInput | WhatsAppSignupAttemptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WhatsAppSignupAttempts.
+     */
+    cursor?: WhatsAppSignupAttemptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WhatsAppSignupAttempts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WhatsAppSignupAttempts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WhatsAppSignupAttempts.
+     */
+    distinct?: WhatsAppSignupAttemptScalarFieldEnum | WhatsAppSignupAttemptScalarFieldEnum[]
+  }
+
+  /**
+   * WhatsAppSignupAttempt create
+   */
+  export type WhatsAppSignupAttemptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptInclude<ExtArgs> | null
+    /**
+     * The data needed to create a WhatsAppSignupAttempt.
+     */
+    data: XOR<WhatsAppSignupAttemptCreateInput, WhatsAppSignupAttemptUncheckedCreateInput>
+  }
+
+  /**
+   * WhatsAppSignupAttempt createMany
+   */
+  export type WhatsAppSignupAttemptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WhatsAppSignupAttempts.
+     */
+    data: WhatsAppSignupAttemptCreateManyInput | WhatsAppSignupAttemptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WhatsAppSignupAttempt createManyAndReturn
+   */
+  export type WhatsAppSignupAttemptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * The data used to create many WhatsAppSignupAttempts.
+     */
+    data: WhatsAppSignupAttemptCreateManyInput | WhatsAppSignupAttemptCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WhatsAppSignupAttempt update
+   */
+  export type WhatsAppSignupAttemptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptInclude<ExtArgs> | null
+    /**
+     * The data needed to update a WhatsAppSignupAttempt.
+     */
+    data: XOR<WhatsAppSignupAttemptUpdateInput, WhatsAppSignupAttemptUncheckedUpdateInput>
+    /**
+     * Choose, which WhatsAppSignupAttempt to update.
+     */
+    where: WhatsAppSignupAttemptWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppSignupAttempt updateMany
+   */
+  export type WhatsAppSignupAttemptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WhatsAppSignupAttempts.
+     */
+    data: XOR<WhatsAppSignupAttemptUpdateManyMutationInput, WhatsAppSignupAttemptUncheckedUpdateManyInput>
+    /**
+     * Filter which WhatsAppSignupAttempts to update
+     */
+    where?: WhatsAppSignupAttemptWhereInput
+    /**
+     * Limit how many WhatsAppSignupAttempts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WhatsAppSignupAttempt updateManyAndReturn
+   */
+  export type WhatsAppSignupAttemptUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * The data used to update WhatsAppSignupAttempts.
+     */
+    data: XOR<WhatsAppSignupAttemptUpdateManyMutationInput, WhatsAppSignupAttemptUncheckedUpdateManyInput>
+    /**
+     * Filter which WhatsAppSignupAttempts to update
+     */
+    where?: WhatsAppSignupAttemptWhereInput
+    /**
+     * Limit how many WhatsAppSignupAttempts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WhatsAppSignupAttempt upsert
+   */
+  export type WhatsAppSignupAttemptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptInclude<ExtArgs> | null
+    /**
+     * The filter to search for the WhatsAppSignupAttempt to update in case it exists.
+     */
+    where: WhatsAppSignupAttemptWhereUniqueInput
+    /**
+     * In case the WhatsAppSignupAttempt found by the `where` argument doesn't exist, create a new WhatsAppSignupAttempt with this data.
+     */
+    create: XOR<WhatsAppSignupAttemptCreateInput, WhatsAppSignupAttemptUncheckedCreateInput>
+    /**
+     * In case the WhatsAppSignupAttempt was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WhatsAppSignupAttemptUpdateInput, WhatsAppSignupAttemptUncheckedUpdateInput>
+  }
+
+  /**
+   * WhatsAppSignupAttempt delete
+   */
+  export type WhatsAppSignupAttemptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptInclude<ExtArgs> | null
+    /**
+     * Filter which WhatsAppSignupAttempt to delete.
+     */
+    where: WhatsAppSignupAttemptWhereUniqueInput
+  }
+
+  /**
+   * WhatsAppSignupAttempt deleteMany
+   */
+  export type WhatsAppSignupAttemptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WhatsAppSignupAttempts to delete
+     */
+    where?: WhatsAppSignupAttemptWhereInput
+    /**
+     * Limit how many WhatsAppSignupAttempts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WhatsAppSignupAttempt without action
+   */
+  export type WhatsAppSignupAttemptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WhatsAppSignupAttempt
+     */
+    select?: WhatsAppSignupAttemptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WhatsAppSignupAttempt
+     */
+    omit?: WhatsAppSignupAttemptOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WhatsAppSignupAttemptInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -41540,6 +42783,21 @@ export namespace Prisma {
   export type ConversationMetricScalarFieldEnum = (typeof ConversationMetricScalarFieldEnum)[keyof typeof ConversationMetricScalarFieldEnum]
 
 
+  export const WhatsAppSignupAttemptScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    inputHash: 'inputHash',
+    encryptedToken: 'encryptedToken',
+    leaseOwner: 'leaseOwner',
+    leaseUntil: 'leaseUntil',
+    completedAt: 'completedAt',
+    phoneNumberId: 'phoneNumberId',
+    expiresAt: 'expiresAt'
+  };
+
+  export type WhatsAppSignupAttemptScalarFieldEnum = (typeof WhatsAppSignupAttemptScalarFieldEnum)[keyof typeof WhatsAppSignupAttemptScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -41843,6 +43101,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneListRelationFilter
     whatsappContacts?: WhatsAppContactListRelationFilter
     messagingConsents?: MessagingConsentListRelationFilter
+    signupAttempts?: WhatsAppSignupAttemptListRelationFilter
     eventLogs?: EventLogListRelationFilter
     deadLetterJobs?: DeadLetterJobListRelationFilter
     optOuts?: OptOutListRelationFilter
@@ -41928,6 +43187,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneOrderByRelationAggregateInput
     whatsappContacts?: WhatsAppContactOrderByRelationAggregateInput
     messagingConsents?: MessagingConsentOrderByRelationAggregateInput
+    signupAttempts?: WhatsAppSignupAttemptOrderByRelationAggregateInput
     eventLogs?: EventLogOrderByRelationAggregateInput
     deadLetterJobs?: DeadLetterJobOrderByRelationAggregateInput
     optOuts?: OptOutOrderByRelationAggregateInput
@@ -42016,6 +43276,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneListRelationFilter
     whatsappContacts?: WhatsAppContactListRelationFilter
     messagingConsents?: MessagingConsentListRelationFilter
+    signupAttempts?: WhatsAppSignupAttemptListRelationFilter
     eventLogs?: EventLogListRelationFilter
     deadLetterJobs?: DeadLetterJobListRelationFilter
     optOuts?: OptOutListRelationFilter
@@ -44466,6 +45727,81 @@ export namespace Prisma {
     handedOff?: BoolWithAggregatesFilter<"ConversationMetric"> | boolean
   }
 
+  export type WhatsAppSignupAttemptWhereInput = {
+    AND?: WhatsAppSignupAttemptWhereInput | WhatsAppSignupAttemptWhereInput[]
+    OR?: WhatsAppSignupAttemptWhereInput[]
+    NOT?: WhatsAppSignupAttemptWhereInput | WhatsAppSignupAttemptWhereInput[]
+    id?: StringFilter<"WhatsAppSignupAttempt"> | string
+    tenantId?: StringFilter<"WhatsAppSignupAttempt"> | string
+    inputHash?: StringFilter<"WhatsAppSignupAttempt"> | string
+    encryptedToken?: StringNullableFilter<"WhatsAppSignupAttempt"> | string | null
+    leaseOwner?: StringNullableFilter<"WhatsAppSignupAttempt"> | string | null
+    leaseUntil?: DateTimeNullableFilter<"WhatsAppSignupAttempt"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"WhatsAppSignupAttempt"> | Date | string | null
+    phoneNumberId?: StringNullableFilter<"WhatsAppSignupAttempt"> | string | null
+    expiresAt?: DateTimeFilter<"WhatsAppSignupAttempt"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }
+
+  export type WhatsAppSignupAttemptOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    inputHash?: SortOrder
+    encryptedToken?: SortOrderInput | SortOrder
+    leaseOwner?: SortOrderInput | SortOrder
+    leaseUntil?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    phoneNumberId?: SortOrderInput | SortOrder
+    expiresAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+  }
+
+  export type WhatsAppSignupAttemptWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: WhatsAppSignupAttemptWhereInput | WhatsAppSignupAttemptWhereInput[]
+    OR?: WhatsAppSignupAttemptWhereInput[]
+    NOT?: WhatsAppSignupAttemptWhereInput | WhatsAppSignupAttemptWhereInput[]
+    tenantId?: StringFilter<"WhatsAppSignupAttempt"> | string
+    inputHash?: StringFilter<"WhatsAppSignupAttempt"> | string
+    encryptedToken?: StringNullableFilter<"WhatsAppSignupAttempt"> | string | null
+    leaseOwner?: StringNullableFilter<"WhatsAppSignupAttempt"> | string | null
+    leaseUntil?: DateTimeNullableFilter<"WhatsAppSignupAttempt"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"WhatsAppSignupAttempt"> | Date | string | null
+    phoneNumberId?: StringNullableFilter<"WhatsAppSignupAttempt"> | string | null
+    expiresAt?: DateTimeFilter<"WhatsAppSignupAttempt"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }, "id">
+
+  export type WhatsAppSignupAttemptOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    inputHash?: SortOrder
+    encryptedToken?: SortOrderInput | SortOrder
+    leaseOwner?: SortOrderInput | SortOrder
+    leaseUntil?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    phoneNumberId?: SortOrderInput | SortOrder
+    expiresAt?: SortOrder
+    _count?: WhatsAppSignupAttemptCountOrderByAggregateInput
+    _max?: WhatsAppSignupAttemptMaxOrderByAggregateInput
+    _min?: WhatsAppSignupAttemptMinOrderByAggregateInput
+  }
+
+  export type WhatsAppSignupAttemptScalarWhereWithAggregatesInput = {
+    AND?: WhatsAppSignupAttemptScalarWhereWithAggregatesInput | WhatsAppSignupAttemptScalarWhereWithAggregatesInput[]
+    OR?: WhatsAppSignupAttemptScalarWhereWithAggregatesInput[]
+    NOT?: WhatsAppSignupAttemptScalarWhereWithAggregatesInput | WhatsAppSignupAttemptScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"WhatsAppSignupAttempt"> | string
+    tenantId?: StringWithAggregatesFilter<"WhatsAppSignupAttempt"> | string
+    inputHash?: StringWithAggregatesFilter<"WhatsAppSignupAttempt"> | string
+    encryptedToken?: StringNullableWithAggregatesFilter<"WhatsAppSignupAttempt"> | string | null
+    leaseOwner?: StringNullableWithAggregatesFilter<"WhatsAppSignupAttempt"> | string | null
+    leaseUntil?: DateTimeNullableWithAggregatesFilter<"WhatsAppSignupAttempt"> | Date | string | null
+    completedAt?: DateTimeNullableWithAggregatesFilter<"WhatsAppSignupAttempt"> | Date | string | null
+    phoneNumberId?: StringNullableWithAggregatesFilter<"WhatsAppSignupAttempt"> | string | null
+    expiresAt?: DateTimeWithAggregatesFilter<"WhatsAppSignupAttempt"> | Date | string
+  }
+
   export type TenantCreateInput = {
     id?: string
     name: string
@@ -44535,6 +45871,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -44620,6 +45957,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -44705,6 +46043,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -44790,6 +46129,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -47450,6 +48790,89 @@ export namespace Prisma {
     handedOff?: BoolFieldUpdateOperationsInput | boolean
   }
 
+  export type WhatsAppSignupAttemptCreateInput = {
+    id: string
+    inputHash: string
+    encryptedToken?: string | null
+    leaseOwner?: string | null
+    leaseUntil?: Date | string | null
+    completedAt?: Date | string | null
+    phoneNumberId?: string | null
+    expiresAt: Date | string
+    tenant: TenantCreateNestedOneWithoutSignupAttemptsInput
+  }
+
+  export type WhatsAppSignupAttemptUncheckedCreateInput = {
+    id: string
+    tenantId: string
+    inputHash: string
+    encryptedToken?: string | null
+    leaseOwner?: string | null
+    leaseUntil?: Date | string | null
+    completedAt?: Date | string | null
+    phoneNumberId?: string | null
+    expiresAt: Date | string
+  }
+
+  export type WhatsAppSignupAttemptUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inputHash?: StringFieldUpdateOperationsInput | string
+    encryptedToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutSignupAttemptsNestedInput
+  }
+
+  export type WhatsAppSignupAttemptUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    inputHash?: StringFieldUpdateOperationsInput | string
+    encryptedToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppSignupAttemptCreateManyInput = {
+    id: string
+    tenantId: string
+    inputHash: string
+    encryptedToken?: string | null
+    leaseOwner?: string | null
+    leaseUntil?: Date | string | null
+    completedAt?: Date | string | null
+    phoneNumberId?: string | null
+    expiresAt: Date | string
+  }
+
+  export type WhatsAppSignupAttemptUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inputHash?: StringFieldUpdateOperationsInput | string
+    encryptedToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppSignupAttemptUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    inputHash?: StringFieldUpdateOperationsInput | string
+    encryptedToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -47600,6 +49023,12 @@ export namespace Prisma {
     none?: MessagingConsentWhereInput
   }
 
+  export type WhatsAppSignupAttemptListRelationFilter = {
+    every?: WhatsAppSignupAttemptWhereInput
+    some?: WhatsAppSignupAttemptWhereInput
+    none?: WhatsAppSignupAttemptWhereInput
+  }
+
   export type EventLogListRelationFilter = {
     every?: EventLogWhereInput
     some?: EventLogWhereInput
@@ -47730,6 +49159,10 @@ export namespace Prisma {
   }
 
   export type MessagingConsentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type WhatsAppSignupAttemptOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -49652,6 +51085,42 @@ export namespace Prisma {
     handedOff?: SortOrder
   }
 
+  export type WhatsAppSignupAttemptCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    inputHash?: SortOrder
+    encryptedToken?: SortOrder
+    leaseOwner?: SortOrder
+    leaseUntil?: SortOrder
+    completedAt?: SortOrder
+    phoneNumberId?: SortOrder
+    expiresAt?: SortOrder
+  }
+
+  export type WhatsAppSignupAttemptMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    inputHash?: SortOrder
+    encryptedToken?: SortOrder
+    leaseOwner?: SortOrder
+    leaseUntil?: SortOrder
+    completedAt?: SortOrder
+    phoneNumberId?: SortOrder
+    expiresAt?: SortOrder
+  }
+
+  export type WhatsAppSignupAttemptMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    inputHash?: SortOrder
+    encryptedToken?: SortOrder
+    leaseOwner?: SortOrder
+    leaseUntil?: SortOrder
+    completedAt?: SortOrder
+    phoneNumberId?: SortOrder
+    expiresAt?: SortOrder
+  }
+
   export type UserCreateNestedManyWithoutTenantInput = {
     create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
@@ -49727,6 +51196,13 @@ export namespace Prisma {
     connectOrCreate?: MessagingConsentCreateOrConnectWithoutTenantInput | MessagingConsentCreateOrConnectWithoutTenantInput[]
     createMany?: MessagingConsentCreateManyTenantInputEnvelope
     connect?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
+  }
+
+  export type WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput = {
+    create?: XOR<WhatsAppSignupAttemptCreateWithoutTenantInput, WhatsAppSignupAttemptUncheckedCreateWithoutTenantInput> | WhatsAppSignupAttemptCreateWithoutTenantInput[] | WhatsAppSignupAttemptUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WhatsAppSignupAttemptCreateOrConnectWithoutTenantInput | WhatsAppSignupAttemptCreateOrConnectWithoutTenantInput[]
+    createMany?: WhatsAppSignupAttemptCreateManyTenantInputEnvelope
+    connect?: WhatsAppSignupAttemptWhereUniqueInput | WhatsAppSignupAttemptWhereUniqueInput[]
   }
 
   export type EventLogCreateNestedManyWithoutTenantInput = {
@@ -49902,6 +51378,13 @@ export namespace Prisma {
     connectOrCreate?: MessagingConsentCreateOrConnectWithoutTenantInput | MessagingConsentCreateOrConnectWithoutTenantInput[]
     createMany?: MessagingConsentCreateManyTenantInputEnvelope
     connect?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
+  }
+
+  export type WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<WhatsAppSignupAttemptCreateWithoutTenantInput, WhatsAppSignupAttemptUncheckedCreateWithoutTenantInput> | WhatsAppSignupAttemptCreateWithoutTenantInput[] | WhatsAppSignupAttemptUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WhatsAppSignupAttemptCreateOrConnectWithoutTenantInput | WhatsAppSignupAttemptCreateOrConnectWithoutTenantInput[]
+    createMany?: WhatsAppSignupAttemptCreateManyTenantInputEnvelope
+    connect?: WhatsAppSignupAttemptWhereUniqueInput | WhatsAppSignupAttemptWhereUniqueInput[]
   }
 
   export type EventLogUncheckedCreateNestedManyWithoutTenantInput = {
@@ -50194,6 +51677,20 @@ export namespace Prisma {
     update?: MessagingConsentUpdateWithWhereUniqueWithoutTenantInput | MessagingConsentUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: MessagingConsentUpdateManyWithWhereWithoutTenantInput | MessagingConsentUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: MessagingConsentScalarWhereInput | MessagingConsentScalarWhereInput[]
+  }
+
+  export type WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<WhatsAppSignupAttemptCreateWithoutTenantInput, WhatsAppSignupAttemptUncheckedCreateWithoutTenantInput> | WhatsAppSignupAttemptCreateWithoutTenantInput[] | WhatsAppSignupAttemptUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WhatsAppSignupAttemptCreateOrConnectWithoutTenantInput | WhatsAppSignupAttemptCreateOrConnectWithoutTenantInput[]
+    upsert?: WhatsAppSignupAttemptUpsertWithWhereUniqueWithoutTenantInput | WhatsAppSignupAttemptUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: WhatsAppSignupAttemptCreateManyTenantInputEnvelope
+    set?: WhatsAppSignupAttemptWhereUniqueInput | WhatsAppSignupAttemptWhereUniqueInput[]
+    disconnect?: WhatsAppSignupAttemptWhereUniqueInput | WhatsAppSignupAttemptWhereUniqueInput[]
+    delete?: WhatsAppSignupAttemptWhereUniqueInput | WhatsAppSignupAttemptWhereUniqueInput[]
+    connect?: WhatsAppSignupAttemptWhereUniqueInput | WhatsAppSignupAttemptWhereUniqueInput[]
+    update?: WhatsAppSignupAttemptUpdateWithWhereUniqueWithoutTenantInput | WhatsAppSignupAttemptUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: WhatsAppSignupAttemptUpdateManyWithWhereWithoutTenantInput | WhatsAppSignupAttemptUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: WhatsAppSignupAttemptScalarWhereInput | WhatsAppSignupAttemptScalarWhereInput[]
   }
 
   export type EventLogUpdateManyWithoutTenantNestedInput = {
@@ -50544,6 +52041,20 @@ export namespace Prisma {
     update?: MessagingConsentUpdateWithWhereUniqueWithoutTenantInput | MessagingConsentUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: MessagingConsentUpdateManyWithWhereWithoutTenantInput | MessagingConsentUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: MessagingConsentScalarWhereInput | MessagingConsentScalarWhereInput[]
+  }
+
+  export type WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<WhatsAppSignupAttemptCreateWithoutTenantInput, WhatsAppSignupAttemptUncheckedCreateWithoutTenantInput> | WhatsAppSignupAttemptCreateWithoutTenantInput[] | WhatsAppSignupAttemptUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: WhatsAppSignupAttemptCreateOrConnectWithoutTenantInput | WhatsAppSignupAttemptCreateOrConnectWithoutTenantInput[]
+    upsert?: WhatsAppSignupAttemptUpsertWithWhereUniqueWithoutTenantInput | WhatsAppSignupAttemptUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: WhatsAppSignupAttemptCreateManyTenantInputEnvelope
+    set?: WhatsAppSignupAttemptWhereUniqueInput | WhatsAppSignupAttemptWhereUniqueInput[]
+    disconnect?: WhatsAppSignupAttemptWhereUniqueInput | WhatsAppSignupAttemptWhereUniqueInput[]
+    delete?: WhatsAppSignupAttemptWhereUniqueInput | WhatsAppSignupAttemptWhereUniqueInput[]
+    connect?: WhatsAppSignupAttemptWhereUniqueInput | WhatsAppSignupAttemptWhereUniqueInput[]
+    update?: WhatsAppSignupAttemptUpdateWithWhereUniqueWithoutTenantInput | WhatsAppSignupAttemptUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: WhatsAppSignupAttemptUpdateManyWithWhereWithoutTenantInput | WhatsAppSignupAttemptUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: WhatsAppSignupAttemptScalarWhereInput | WhatsAppSignupAttemptScalarWhereInput[]
   }
 
   export type EventLogUncheckedUpdateManyWithoutTenantNestedInput = {
@@ -51856,6 +53367,20 @@ export namespace Prisma {
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutConversationMetricsInput, TenantUpdateWithoutConversationMetricsInput>, TenantUncheckedUpdateWithoutConversationMetricsInput>
   }
 
+  export type TenantCreateNestedOneWithoutSignupAttemptsInput = {
+    create?: XOR<TenantCreateWithoutSignupAttemptsInput, TenantUncheckedCreateWithoutSignupAttemptsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutSignupAttemptsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type TenantUpdateOneRequiredWithoutSignupAttemptsNestedInput = {
+    create?: XOR<TenantCreateWithoutSignupAttemptsInput, TenantUncheckedCreateWithoutSignupAttemptsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutSignupAttemptsInput
+    upsert?: TenantUpsertWithoutSignupAttemptsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutSignupAttemptsInput, TenantUpdateWithoutSignupAttemptsInput>, TenantUncheckedUpdateWithoutSignupAttemptsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -52576,6 +54101,38 @@ export namespace Prisma {
 
   export type MessagingConsentCreateManyTenantInputEnvelope = {
     data: MessagingConsentCreateManyTenantInput | MessagingConsentCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type WhatsAppSignupAttemptCreateWithoutTenantInput = {
+    id: string
+    inputHash: string
+    encryptedToken?: string | null
+    leaseOwner?: string | null
+    leaseUntil?: Date | string | null
+    completedAt?: Date | string | null
+    phoneNumberId?: string | null
+    expiresAt: Date | string
+  }
+
+  export type WhatsAppSignupAttemptUncheckedCreateWithoutTenantInput = {
+    id: string
+    inputHash: string
+    encryptedToken?: string | null
+    leaseOwner?: string | null
+    leaseUntil?: Date | string | null
+    completedAt?: Date | string | null
+    phoneNumberId?: string | null
+    expiresAt: Date | string
+  }
+
+  export type WhatsAppSignupAttemptCreateOrConnectWithoutTenantInput = {
+    where: WhatsAppSignupAttemptWhereUniqueInput
+    create: XOR<WhatsAppSignupAttemptCreateWithoutTenantInput, WhatsAppSignupAttemptUncheckedCreateWithoutTenantInput>
+  }
+
+  export type WhatsAppSignupAttemptCreateManyTenantInputEnvelope = {
+    data: WhatsAppSignupAttemptCreateManyTenantInput | WhatsAppSignupAttemptCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
@@ -53417,6 +54974,37 @@ export namespace Prisma {
     grantedAt?: DateTimeFilter<"MessagingConsent"> | Date | string
   }
 
+  export type WhatsAppSignupAttemptUpsertWithWhereUniqueWithoutTenantInput = {
+    where: WhatsAppSignupAttemptWhereUniqueInput
+    update: XOR<WhatsAppSignupAttemptUpdateWithoutTenantInput, WhatsAppSignupAttemptUncheckedUpdateWithoutTenantInput>
+    create: XOR<WhatsAppSignupAttemptCreateWithoutTenantInput, WhatsAppSignupAttemptUncheckedCreateWithoutTenantInput>
+  }
+
+  export type WhatsAppSignupAttemptUpdateWithWhereUniqueWithoutTenantInput = {
+    where: WhatsAppSignupAttemptWhereUniqueInput
+    data: XOR<WhatsAppSignupAttemptUpdateWithoutTenantInput, WhatsAppSignupAttemptUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type WhatsAppSignupAttemptUpdateManyWithWhereWithoutTenantInput = {
+    where: WhatsAppSignupAttemptScalarWhereInput
+    data: XOR<WhatsAppSignupAttemptUpdateManyMutationInput, WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type WhatsAppSignupAttemptScalarWhereInput = {
+    AND?: WhatsAppSignupAttemptScalarWhereInput | WhatsAppSignupAttemptScalarWhereInput[]
+    OR?: WhatsAppSignupAttemptScalarWhereInput[]
+    NOT?: WhatsAppSignupAttemptScalarWhereInput | WhatsAppSignupAttemptScalarWhereInput[]
+    id?: StringFilter<"WhatsAppSignupAttempt"> | string
+    tenantId?: StringFilter<"WhatsAppSignupAttempt"> | string
+    inputHash?: StringFilter<"WhatsAppSignupAttempt"> | string
+    encryptedToken?: StringNullableFilter<"WhatsAppSignupAttempt"> | string | null
+    leaseOwner?: StringNullableFilter<"WhatsAppSignupAttempt"> | string | null
+    leaseUntil?: DateTimeNullableFilter<"WhatsAppSignupAttempt"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"WhatsAppSignupAttempt"> | Date | string | null
+    phoneNumberId?: StringNullableFilter<"WhatsAppSignupAttempt"> | string | null
+    expiresAt?: DateTimeFilter<"WhatsAppSignupAttempt"> | Date | string
+  }
+
   export type EventLogUpsertWithWhereUniqueWithoutTenantInput = {
     where: EventLogWhereUniqueInput
     update: XOR<EventLogUpdateWithoutTenantInput, EventLogUncheckedUpdateWithoutTenantInput>
@@ -53937,6 +55525,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -54021,6 +55610,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -54121,6 +55711,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -54205,6 +55796,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -54289,6 +55881,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -54373,6 +55966,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -54493,6 +56087,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -54577,6 +56172,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -54738,6 +56334,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -54822,6 +56419,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -54922,6 +56520,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -55006,6 +56605,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -55090,6 +56690,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -55174,6 +56775,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -55334,6 +56936,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -55418,6 +57021,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -55714,6 +57318,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -55798,6 +57403,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -55898,6 +57504,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -55982,6 +57589,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -56066,6 +57674,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -56150,6 +57759,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -56250,6 +57860,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -56334,6 +57945,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -56418,6 +58030,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -56502,6 +58115,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -56602,6 +58216,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -56686,6 +58301,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -56770,6 +58386,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -56854,6 +58471,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -56954,6 +58572,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -57038,6 +58657,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -57122,6 +58742,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -57206,6 +58827,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -57306,6 +58928,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -57390,6 +59013,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -57475,6 +59099,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
@@ -57559,6 +59184,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
@@ -57659,6 +59285,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
@@ -57743,6 +59370,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
@@ -57827,6 +59455,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
@@ -57911,6 +59540,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
@@ -58011,6 +59641,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
@@ -58095,6 +59726,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
@@ -58179,6 +59811,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -58263,6 +59896,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -58461,6 +60095,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -58545,6 +60180,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -58661,6 +60297,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -58745,6 +60382,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -58964,6 +60602,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -59048,6 +60687,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -59195,6 +60835,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -59279,6 +60920,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -59505,6 +61147,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -59589,6 +61232,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -59721,6 +61365,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -59805,6 +61450,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -60047,6 +61693,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -60131,6 +61778,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -60329,6 +61977,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -60413,6 +62062,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -60692,6 +62342,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -60776,6 +62427,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -61068,6 +62720,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -61152,6 +62805,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -61252,6 +62906,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -61336,6 +62991,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -61421,6 +63077,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -61505,6 +63162,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -61605,6 +63263,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -61689,6 +63348,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -61773,6 +63433,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -61857,6 +63518,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -62042,6 +63704,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -62126,6 +63789,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -62318,6 +63982,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -62402,6 +64067,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -62543,6 +64209,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -62627,6 +64294,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -62711,6 +64379,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -62795,6 +64464,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -62944,6 +64614,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -63028,6 +64699,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -63167,6 +64839,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
@@ -63251,6 +64924,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
@@ -63351,6 +65025,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
@@ -63435,6 +65110,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
@@ -63518,6 +65194,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -63602,6 +65279,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -63702,6 +65380,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -63786,6 +65465,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -63871,6 +65551,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -63955,6 +65636,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -64055,6 +65737,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -64139,6 +65822,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -64223,6 +65907,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -64307,6 +65992,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
     messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -64407,6 +66093,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -64491,6 +66178,7 @@ export namespace Prisma {
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
     messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    signupAttempts?: WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -64498,6 +66186,362 @@ export namespace Prisma {
     liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
     catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
     conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantCreateWithoutSignupAttemptsInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    metaCoexistence?: boolean | null
+    metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
+    metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    creditsBonus?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    orderSeq?: number
+    hasAI?: boolean
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
+    users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutSignupAttemptsInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    metaCoexistence?: boolean | null
+    metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
+    metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    creditsBonus?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    orderSeq?: number
+    hasAI?: boolean
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutSignupAttemptsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutSignupAttemptsInput, TenantUncheckedCreateWithoutSignupAttemptsInput>
+  }
+
+  export type TenantUpsertWithoutSignupAttemptsInput = {
+    update: XOR<TenantUpdateWithoutSignupAttemptsInput, TenantUncheckedUpdateWithoutSignupAttemptsInput>
+    create: XOR<TenantCreateWithoutSignupAttemptsInput, TenantUncheckedCreateWithoutSignupAttemptsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutSignupAttemptsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutSignupAttemptsInput, TenantUncheckedUpdateWithoutSignupAttemptsInput>
+  }
+
+  export type TenantUpdateWithoutSignupAttemptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutSignupAttemptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
     reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
     waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
     orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
@@ -64618,6 +66662,17 @@ export namespace Prisma {
     scope: string
     sourceMessageId: string
     grantedAt?: Date | string
+  }
+
+  export type WhatsAppSignupAttemptCreateManyTenantInput = {
+    id: string
+    inputHash: string
+    encryptedToken?: string | null
+    leaseOwner?: string | null
+    leaseUntil?: Date | string | null
+    completedAt?: Date | string | null
+    phoneNumberId?: string | null
+    expiresAt: Date | string
   }
 
   export type EventLogCreateManyTenantInput = {
@@ -65138,6 +67193,39 @@ export namespace Prisma {
     scope?: StringFieldUpdateOperationsInput | string
     sourceMessageId?: StringFieldUpdateOperationsInput | string
     grantedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppSignupAttemptUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inputHash?: StringFieldUpdateOperationsInput | string
+    encryptedToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppSignupAttemptUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inputHash?: StringFieldUpdateOperationsInput | string
+    encryptedToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WhatsAppSignupAttemptUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inputHash?: StringFieldUpdateOperationsInput | string
+    encryptedToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseOwner?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    phoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EventLogUpdateWithoutTenantInput = {

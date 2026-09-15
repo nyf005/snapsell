@@ -64,6 +64,14 @@ export const STEP_META: Record<
     action: ui.setup.prices.action,
     helpSlug: "le-code",
   },
+  catalogue: {
+    icon: PackageOpen,
+    title: ui.setup.catalogue.title,
+    description: ui.setup.catalogue.description,
+    href: "/dashboard/catalogue",
+    action: ui.setup.catalogue.action,
+    helpSlug: "creer-un-article",
+  },
   delivery: {
     icon: Truck,
     title: ui.setup.delivery.title,

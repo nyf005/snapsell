@@ -101,16 +101,19 @@ export class MetaEmbeddedSignupError extends Error {
   readonly kind: "BAD_REQUEST" | "UPSTREAM_ERROR" | "CONFIG_ERROR";
   /** Code d'erreur Meta, quand il en fournit un. Voir `HISTORY_DECLINED_CODE`. */
   readonly metaErrorCode?: number;
+  readonly userKey?: string;
 
   constructor(
     kind: "BAD_REQUEST" | "UPSTREAM_ERROR" | "CONFIG_ERROR",
     message: string,
     metaErrorCode?: number,
+    userKey?: string,
   ) {
     super(message);
     this.name = "MetaEmbeddedSignupError";
     this.kind = kind;
     this.metaErrorCode = metaErrorCode;
+    this.userKey = userKey;
   }
 }
 
@@ -192,26 +195,6 @@ function requireString(value: unknown): string | null {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
 
-const USED_CODE_TTL_MS = 10 * 60 * 1000;
-const usedOAuthCodes = new Map<string, number>();
-
-function assertOAuthCodeNotReplayed(tenantId: string, code: string) {
-  const now = Date.now();
-  for (const [key, expiresAt] of usedOAuthCodes.entries()) {
-    if (expiresAt <= now) usedOAuthCodes.delete(key);
-  }
-
-  const replayKey = `${tenantId}:${code}`;
-  if (usedOAuthCodes.has(replayKey)) {
-    throw new MetaEmbeddedSignupError(
-      "BAD_REQUEST",
-      "Ce code OAuth Meta a deja ete utilise. Relance la connexion WhatsApp.",
-    );
-  }
-
-  usedOAuthCodes.set(replayKey, now + USED_CODE_TTL_MS);
-}
-
 /**
  * Les WABA sur lesquelles le jeton porte réellement, d'après Meta.
  *
@@ -241,7 +224,11 @@ function extractAuthorizedWabaIds(debugData: DebugTokenResponse["data"]): string
   if (managementIds.length === 0) return messagingIds;
   if (messagingIds.length === 0) return managementIds;
 
-  return managementIds.filter((id) => messagingIds.includes(id));
+  const shared = managementIds.filter((id) => messagingIds.includes(id));
+  if (shared.length === 0) {
+    throw new MetaEmbeddedSignupError("BAD_REQUEST", "Les autorisations de gestion et de messagerie ne portent pas sur le même compte WhatsApp.", undefined, "whatsapp.missingPermissions");
+  }
+  return shared;
 }
 
 function resolveWabaId(params: {
@@ -262,6 +249,7 @@ function resolveWabaId(params: {
       throw new MetaEmbeddedSignupError(
         "BAD_REQUEST",
         "Le compte WhatsApp Business selectionne n'est pas autorise par le token Meta.",
+        undefined, "whatsapp.signupSelection",
       );
     }
     return requested;
@@ -276,6 +264,7 @@ function resolveWabaId(params: {
     authorized.length === 0
       ? "Aucun compte WhatsApp Business autorise pour ce token Meta."
       : "Plusieurs comptes WhatsApp Business autorises : impossible de choisir sans indication.",
+    undefined, "whatsapp.signupSelection",
   );
 }
 
@@ -538,6 +527,7 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
   appSecret: string;
   wabaId?: string;
   phoneNumberId?: string;
+  checkpoint?: { accessToken?: string; saveAccessToken: (token: string) => Promise<void> };
 }): Promise<EmbeddedSignupConnectionResult> {
   const tenantId = params.tenantId.trim();
   const code = params.code.trim();
@@ -552,8 +542,6 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
     throw new MetaEmbeddedSignupError("BAD_REQUEST", "Le code OAuth Meta est requis.");
   }
 
-  assertOAuthCodeNotReplayed(tenantId, code);
-
   if (!appId || !appSecret) {
     throw new MetaEmbeddedSignupError(
       "CONFIG_ERROR",
@@ -561,28 +549,23 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
     );
   }
 
-  const codeExchangeBody = new URLSearchParams({
-    client_id: appId,
-    client_secret: appSecret,
-    code,
-  });
-
-  const codeExchangePayload = (await requestJson(
-    `https://graph.facebook.com/${META_GRAPH_VERSION}/oauth/access_token`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: codeExchangeBody.toString(),
-    },
-    "Code OAuth Meta invalide ou expire. Relance la connexion WhatsApp.",
-  )) as OAuthAccessTokenResponse;
-
-  const businessToken = requireString(codeExchangePayload.access_token);
+  let businessToken = params.checkpoint?.accessToken;
   if (!businessToken) {
-    throw new MetaEmbeddedSignupError(
-      "BAD_REQUEST",
-      "Meta n'a pas retourne de token pour ce code OAuth.",
-    );
+    const codeExchangeBody = new URLSearchParams({ client_id: appId, client_secret: appSecret, code });
+    const codeExchangePayload = (await requestJson(
+      `https://graph.facebook.com/${META_GRAPH_VERSION}/oauth/access_token`,
+      { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: codeExchangeBody.toString() },
+      "La session Meta a expiré. Relancez la connexion WhatsApp.",
+    ).catch(error => {
+      if (error instanceof MetaEmbeddedSignupError && error.kind === "BAD_REQUEST") {
+        throw new MetaEmbeddedSignupError("BAD_REQUEST", error.message, error.metaErrorCode, "whatsapp.signupRestart");
+      }
+      throw error;
+    })) as OAuthAccessTokenResponse;
+    businessToken = requireString(codeExchangePayload.access_token) ?? undefined;
+    if (!businessToken) throw new MetaEmbeddedSignupError("BAD_REQUEST", "Meta n’a pas confirmé la connexion. Relancez la connexion WhatsApp.", undefined, "whatsapp.signupRestart");
+    // Persist before subsequent Meta calls: the authorization code is single-use.
+    await params.checkpoint?.saveAccessToken(businessToken);
   }
 
   const debugTokenPayload = (await requestJson(
@@ -596,6 +579,7 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
     throw new MetaEmbeddedSignupError(
       "BAD_REQUEST",
       "Le token Meta retourne est invalide. Reconnecte ton compte WhatsApp Business.",
+      undefined, "whatsapp.signupRestart",
     );
   }
 
@@ -605,6 +589,7 @@ export async function resolveMetaEmbeddedSignupCredentials(params: {
     throw new MetaEmbeddedSignupError(
       "BAD_REQUEST",
       `Permissions Meta insuffisantes pour connecter WhatsApp Business (manquant: ${missingScopes.join(", ")}).`,
+      undefined, "whatsapp.missingPermissions",
     );
   }
 

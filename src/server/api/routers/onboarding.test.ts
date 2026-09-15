@@ -14,6 +14,7 @@ import { createCaller } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
 
 const mockTenantFindUnique = vi.hoisted(() => vi.fn());
+const mockCatalogueCount = vi.hoisted(() => vi.fn());
 const mockCategoryCount = vi.hoisted(() => vi.fn());
 const mockZoneCount = vi.hoisted(() => vi.fn());
 const mockCommuneCount = vi.hoisted(() => vi.fn());
@@ -24,6 +25,7 @@ vi.mock("~/server/db", () => ({
   db: {
     tenant: { findUnique: mockTenantFindUnique },
     categoryPrice: { count: mockCategoryCount },
+    catalogueItem: { count: mockCatalogueCount },
     deliveryZone: { count: mockZoneCount },
     deliveryFeeCommune: { count: mockCommuneCount },
     sellerPhone: { count: mockSellerPhoneCount },
@@ -69,6 +71,7 @@ describe("onboarding.getStatus", () => {
       faqAvailability: null,
     });
     mockCategoryCount.mockResolvedValue(0);
+    mockCatalogueCount.mockResolvedValue(0);
     mockZoneCount.mockResolvedValue(0);
     mockCommuneCount.mockResolvedValue(0);
     mockSellerPhoneCount.mockResolvedValue(0);
@@ -84,12 +87,12 @@ describe("onboarding.getStatus", () => {
     return step;
   }
 
-  it("part de sept étapes, aucune faite", async () => {
+  it("part de huit étapes, aucune faite", async () => {
     const caller = await callerFor();
 
     const result = await caller.onboarding.getStatus();
 
-    expect(result.totalCount).toBe(7);
+    expect(result.totalCount).toBe(8);
     expect(result.doneCount).toBe(0);
     expect(result.isComplete).toBe(false);
     expect(result.whatsappConnected).toBe(false);
@@ -108,6 +111,7 @@ describe("onboarding.getStatus", () => {
     expect(result.steps.map((s) => s.id)).toEqual([
       "whatsapp",
       "prices",
+      "catalogue",
       "delivery",
       "assistant",
       "replies",
@@ -164,6 +168,16 @@ describe("onboarding.getStatus", () => {
     });
   });
 
+  it("distingue les prix configurés des articles réellement créés", async () => {
+    mockCategoryCount.mockResolvedValue(1);
+    const caller = await callerFor();
+    const empty = await caller.onboarding.getStatus();
+    expect(stepOf(empty, "prices").done).toBe(true);
+    expect(stepOf(empty, "catalogue")).toMatchObject({ done: false, required: false });
+    mockCatalogueCount.mockResolvedValue(1);
+    expect(stepOf(await caller.onboarding.getStatus(), "catalogue").done).toBe(true);
+  });
+
   describe("étape livraison", () => {
     it("est faite avec une zone seule", async () => {
       mockZoneCount.mockResolvedValue(1);
@@ -200,13 +214,14 @@ describe("onboarding.getStatus", () => {
     });
   });
 
-  it("compte la boutique comme prête quand les sept étapes sont faites", async () => {
+  it("compte la boutique comme prête quand les huit étapes sont faites", async () => {
     mockTenantFindUnique.mockResolvedValue({
       ...CONNECTED,
       assistantEnabled: true,
       faqDelivery: "Sous 24h",
     });
     mockCategoryCount.mockResolvedValue(4);
+    mockCatalogueCount.mockResolvedValue(1);
     mockZoneCount.mockResolvedValue(2);
     mockSellerPhoneCount.mockResolvedValue(1);
     mockOrderCount.mockResolvedValue(1);
@@ -214,7 +229,7 @@ describe("onboarding.getStatus", () => {
 
     const result = await caller.onboarding.getStatus();
 
-    expect(result.doneCount).toBe(7);
+    expect(result.doneCount).toBe(8);
     expect(result.isComplete).toBe(true);
   });
 
@@ -226,6 +241,7 @@ describe("onboarding.getStatus", () => {
 
     for (const mock of [
       mockCategoryCount,
+      mockCatalogueCount,
       mockZoneCount,
       mockCommuneCount,
       mockSellerPhoneCount,

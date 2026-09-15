@@ -216,7 +216,7 @@
 }
 
 @media (pointer: coarse) {
-  :where(button, [role="button"], a) {
+  :where(button, [role="button"], a):not([data-slot="switch"]) {
     min-height: 44px;
   }
 }

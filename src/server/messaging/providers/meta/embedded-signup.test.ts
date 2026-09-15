@@ -20,11 +20,6 @@ function jsonResponse(body: unknown, ok = true, status = 200): Response {
   } as unknown as Response;
 }
 
-/**
- * `usedOAuthCodes` vit au niveau du module et rejette un code déjà vu. Chaque
- * test doit donc apporter le sien, sous peine de se faire refuser par le
- * garde-fou anti-rejeu plutôt que par ce qu'il cherche à vérifier.
- */
 let codeCounter = 0;
 function freshCode(): string {
   codeCounter += 1;
@@ -345,27 +340,28 @@ describe("resolveMetaEmbeddedSignupCredentials", () => {
     });
   });
 
-  it("rejette un code deja utilise par le meme tenant", async () => {
+  it("rejette des permissions accordées sur deux comptes WhatsApp différents", async () => {
+    routeFetch({ debugToken: () => jsonResponse({ data: {
+      is_valid: true, scopes: ["whatsapp_business_management", "whatsapp_business_messaging"],
+      granular_scopes: [{ scope: "whatsapp_business_management", target_ids: ["waba-1"] }, { scope: "whatsapp_business_messaging", target_ids: ["waba-2"] }],
+    } }) });
+    await expect(connect({ wabaId: "waba-1" })).rejects.toMatchObject({ userKey: "whatsapp.missingPermissions" });
+    expect(mockFetch.mock.calls.some(([url]) => String(url).includes("/subscribed_apps"))).toBe(false);
+  });
+
+  it("reprend avec le jeton sauvegardé sans rééchanger le code à usage unique", async () => {
     routeFetch({});
-    const code = freshCode();
+    const saveAccessToken = vi.fn();
+    await resolveMetaEmbeddedSignupCredentials({ tenantId: "tenant-1", code: freshCode(), appId: APP_ID, appSecret: APP_SECRET, wabaId: "waba-1", checkpoint: { accessToken: "saved-business-token", saveAccessToken } });
+    expect(mockFetch.mock.calls.some(([url]) => String(url).includes("/oauth/access_token"))).toBe(false);
+    expect(saveAccessToken).not.toHaveBeenCalled();
+  });
 
-    await resolveMetaEmbeddedSignupCredentials({
-      tenantId: "tenant-1",
-      code,
-      appId: APP_ID,
-      appSecret: APP_SECRET,
-      wabaId: "waba-1",
-    });
-
-    await expect(
-      resolveMetaEmbeddedSignupCredentials({
-        tenantId: "tenant-1",
-        code,
-        appId: APP_ID,
-        appSecret: APP_SECRET,
-        wabaId: "waba-1",
-      }),
-    ).rejects.toThrow(/deja ete utilise/);
+  it("sauvegarde le jeton même si l’abonnement Meta échoue ensuite", async () => {
+    routeFetch({ subscribedApps: () => jsonResponse({}, false, 503) });
+    const saveAccessToken = vi.fn();
+    await expect(resolveMetaEmbeddedSignupCredentials({ tenantId: "tenant-1", code: freshCode(), appId: APP_ID, appSecret: APP_SECRET, wabaId: "waba-1", checkpoint: { saveAccessToken } })).rejects.toMatchObject({ kind: "UPSTREAM_ERROR" });
+    expect(saveAccessToken).toHaveBeenCalledWith("business-token");
   });
 
   it("signale une configuration serveur incomplete", async () => {

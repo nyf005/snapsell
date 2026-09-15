@@ -137,7 +137,7 @@ export function CatalogueListContent() {
             href="/dashboard/catalogue"
             description={
               <>
-                Vos articles, disponibles d’un live à l’autre.
+                Vos articles avec leur code, photo, prix et stock. Le prix proposé selon le code peut être modifié pour chaque article.
                 {items && items.length > 0 && (
                   <span className="ml-1 text-muted-foreground">
                     {items.length} article{items.length > 1 ? "s" : ""} chargé{items.length > 1 ? "s" : ""}.

@@ -6,6 +6,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createCaller } from "~/server/api/root";
 import { createTRPCContext } from "~/server/api/trpc";
 
+vi.mock("~/server/messaging/providers/meta/signup-attempt", () => ({
+  withSignupAttempt: async (_input: unknown, connect: (checkpoint: unknown) => Promise<void>) => connect({ saveAccessToken: vi.fn(), complete: vi.fn() }),
+}));
+
 const mockTenantFindUnique = vi.hoisted(() => vi.fn());
 const mockTenantFindFirst = vi.hoisted(() => vi.fn());
 const mockTenantUpdate = vi.hoisted(() => vi.fn());
@@ -870,16 +874,13 @@ describe("settings router — connectWhatsAppEmbedded", () => {
   });
 
 
-  it("rejette reutilisation du meme code OAuth pour le meme tenant", async () => {
+  it("renvoie une action de reprise si l’enregistrement échoue", async () => {
     mockMetaFlow();
-    mockTenantUpdate.mockResolvedValue({});
-
+    mockTenantUpdate.mockRejectedValueOnce(new Error("database unavailable"));
     const caller = await makeCaller(ownerSession);
-    await caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-replay" });
-
-    await expect(
-      caller.settings.connectWhatsAppEmbedded({ code: "oauth-code-replay" }),
-    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    await expect(caller.settings.connectWhatsAppEmbedded({ code: "oauth-db-failed" })).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR", userKey: "whatsapp.signupRetry",
+    });
   });
 
   it("rejects AGENT role with FORBIDDEN", async () => {
