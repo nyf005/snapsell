@@ -267,7 +267,17 @@ exports.Prisma.CategoryPriceScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.MessagingConsentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  phone: 'phone',
+  scope: 'scope',
+  sourceMessageId: 'sourceMessageId',
+  grantedAt: 'grantedAt'
+};
+
 exports.Prisma.MessageInScalarFieldEnum = {
+  providerSentAt: 'providerSentAt',
   id: 'id',
   tenantId: 'tenantId',
   providerMessageId: 'providerMessageId',
@@ -468,6 +478,7 @@ exports.Prisma.DeadLetterJobScalarFieldEnum = {
 };
 
 exports.Prisma.MessageOutScalarFieldEnum = {
+  notificationContext: 'notificationContext',
   id: 'id',
   tenantId: 'tenantId',
   to: 'to',
@@ -606,6 +617,7 @@ exports.Prisma.ModelName = {
   Session: 'Session',
   VerificationToken: 'VerificationToken',
   CategoryPrice: 'CategoryPrice',
+  MessagingConsent: 'MessagingConsent',
   MessageIn: 'MessageIn',
   WhatsAppContact: 'WhatsAppContact',
   SellerPhone: 'SellerPhone',

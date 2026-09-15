@@ -26,14 +26,9 @@ export interface PlanEntitlements {
   /**
    * Envoi de notifications hors fenêtre WhatsApp de 24h, via templates Meta approuvés.
    *
-   * ⚠️ NON IMPLÉMENTÉ — `MetaCloudAdapter.sendTemplate()` existe mais n'est appelé
-   * nulle part. Aucun plan ne bénéficie donc de l'envoi hors 24h aujourd'hui, et
-   * tous — Free inclus — reçoivent les notifications de statut dans la fenêtre.
-   *
-   * Ce flag n'est volontairement associé à AUCUN garde-fou : verrouiller une capacité
-   * inexistante n'apporterait rien, et priver Free des notifications qu'il reçoit déjà
-   * serait une régression. Le drapeau reste prêt pour la livraison des templates —
-   * voir docs/plan-whatsapp-template-workflows.md.
+   * La politique d'envoi exige aussi le consentement du client et un modèle
+   * de suivi de commande compatible, actuellement approuvé par Meta.
+   * Les réponses dans les 24h restent accessibles à tous les plans.
    */
   hasNotificationsOutside24h: boolean;
   hasDepositRecommended: boolean; // Active requireDeposit à la souscription

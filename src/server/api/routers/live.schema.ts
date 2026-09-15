@@ -16,6 +16,7 @@ export type ReleaseReservationInput = z.infer<typeof releaseReservationInputSche
 
 /** Input pour envoyer une fiche produit WhatsApp à un client. */
 export const sendProductCardInputSchema = z.object({
+  consentConfirmed: z.literal(true, { errorMap: () => ({ message: "Confirmez que le client a demandé cette fiche sur WhatsApp." }) }),
   catalogueItemId: cuidSchema,
   clientPhone: z.string().min(8).max(20),
 });

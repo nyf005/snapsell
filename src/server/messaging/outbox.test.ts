@@ -49,6 +49,13 @@ describe("writeToOutbox", () => {
     vi.mocked(db.tenant.findUnique).mockResolvedValue({ name: "La Boutique", showBranding: false } as never);
   });
 
+  it("preserves typed notification metadata through persistence for the sender", async () => {
+    vi.mocked(db.messageOut.create).mockResolvedValue({ id: "m" } as never);
+    const notificationContext = { kind: "order_status" as const, orderNumber: "CMD-42", status: "delivered" as const };
+    await writeToOutbox({ tenantId: "tenant-123", to: "+33612345678", body: "Livrée", correlationId: "policy", notificationContext });
+    expect(db.messageOut.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ notificationContext }) }));
+  });
+
   it("should write MessageOut with status pending", async () => {
     const message = {
       tenantId: "tenant-123",

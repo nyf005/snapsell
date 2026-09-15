@@ -474,6 +474,7 @@ export async function POST(request: Request) {
             from: message.from,
             body: message.body,
             mediaUrl: message.mediaUrl,
+            providerSentAt: message.providerSentAt ? new Date(message.providerSentAt) : null,
             correlationId: message.correlationId,
           },
         }).catch((error: unknown) => {

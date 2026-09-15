@@ -64,6 +64,11 @@ export type VerificationToken = $Result.DefaultSelection<Prisma.$VerificationTok
  */
 export type CategoryPrice = $Result.DefaultSelection<Prisma.$CategoryPricePayload>
 /**
+ * Model MessagingConsent
+ * 
+ */
+export type MessagingConsent = $Result.DefaultSelection<Prisma.$MessagingConsentPayload>
+/**
  * Model MessageIn
  * 
  */
@@ -485,6 +490,16 @@ export class PrismaClient<
     * ```
     */
   get categoryPrice(): Prisma.CategoryPriceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.messagingConsent`: Exposes CRUD operations for the **MessagingConsent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MessagingConsents
+    * const messagingConsents = await prisma.messagingConsent.findMany()
+    * ```
+    */
+  get messagingConsent(): Prisma.MessagingConsentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.messageIn`: Exposes CRUD operations for the **MessageIn** model.
@@ -1142,6 +1157,7 @@ export namespace Prisma {
     Session: 'Session',
     VerificationToken: 'VerificationToken',
     CategoryPrice: 'CategoryPrice',
+    MessagingConsent: 'MessagingConsent',
     MessageIn: 'MessageIn',
     WhatsAppContact: 'WhatsAppContact',
     SellerPhone: 'SellerPhone',
@@ -1177,7 +1193,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messageIn" | "whatsAppContact" | "sellerPhone" | "eventLog" | "optOut" | "liveSession" | "liveItem" | "catalogueItem" | "itemVariant" | "reservation" | "conversationState" | "conversationWindow" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "messageOut" | "subscriptionPayment" | "workerHeartbeat" | "conversationMetric"
+      modelProps: "tenant" | "invitation" | "deliveryZone" | "deliveryZoneCommune" | "deliveryFeeCommune" | "user" | "account" | "session" | "verificationToken" | "categoryPrice" | "messagingConsent" | "messageIn" | "whatsAppContact" | "sellerPhone" | "eventLog" | "optOut" | "liveSession" | "liveItem" | "catalogueItem" | "itemVariant" | "reservation" | "conversationState" | "conversationWindow" | "order" | "paymentProof" | "waitlist" | "deadLetterJob" | "messageOut" | "subscriptionPayment" | "workerHeartbeat" | "conversationMetric"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1918,6 +1934,80 @@ export namespace Prisma {
           count: {
             args: Prisma.CategoryPriceCountArgs<ExtArgs>
             result: $Utils.Optional<CategoryPriceCountAggregateOutputType> | number
+          }
+        }
+      }
+      MessagingConsent: {
+        payload: Prisma.$MessagingConsentPayload<ExtArgs>
+        fields: Prisma.MessagingConsentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MessagingConsentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagingConsentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MessagingConsentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagingConsentPayload>
+          }
+          findFirst: {
+            args: Prisma.MessagingConsentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagingConsentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MessagingConsentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagingConsentPayload>
+          }
+          findMany: {
+            args: Prisma.MessagingConsentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagingConsentPayload>[]
+          }
+          create: {
+            args: Prisma.MessagingConsentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagingConsentPayload>
+          }
+          createMany: {
+            args: Prisma.MessagingConsentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MessagingConsentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagingConsentPayload>[]
+          }
+          delete: {
+            args: Prisma.MessagingConsentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagingConsentPayload>
+          }
+          update: {
+            args: Prisma.MessagingConsentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagingConsentPayload>
+          }
+          deleteMany: {
+            args: Prisma.MessagingConsentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MessagingConsentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MessagingConsentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagingConsentPayload>[]
+          }
+          upsert: {
+            args: Prisma.MessagingConsentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MessagingConsentPayload>
+          }
+          aggregate: {
+            args: Prisma.MessagingConsentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMessagingConsent>
+          }
+          groupBy: {
+            args: Prisma.MessagingConsentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MessagingConsentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MessagingConsentCountArgs<ExtArgs>
+            result: $Utils.Optional<MessagingConsentCountAggregateOutputType> | number
           }
         }
       }
@@ -3534,6 +3624,7 @@ export namespace Prisma {
     session?: SessionOmit
     verificationToken?: VerificationTokenOmit
     categoryPrice?: CategoryPriceOmit
+    messagingConsent?: MessagingConsentOmit
     messageIn?: MessageInOmit
     whatsAppContact?: WhatsAppContactOmit
     sellerPhone?: SellerPhoneOmit
@@ -3644,6 +3735,7 @@ export namespace Prisma {
     messagesOut: number
     sellerPhones: number
     whatsappContacts: number
+    messagingConsents: number
     eventLogs: number
     deadLetterJobs: number
     optOuts: number
@@ -3671,6 +3763,7 @@ export namespace Prisma {
     messagesOut?: boolean | TenantCountOutputTypeCountMessagesOutArgs
     sellerPhones?: boolean | TenantCountOutputTypeCountSellerPhonesArgs
     whatsappContacts?: boolean | TenantCountOutputTypeCountWhatsappContactsArgs
+    messagingConsents?: boolean | TenantCountOutputTypeCountMessagingConsentsArgs
     eventLogs?: boolean | TenantCountOutputTypeCountEventLogsArgs
     deadLetterJobs?: boolean | TenantCountOutputTypeCountDeadLetterJobsArgs
     optOuts?: boolean | TenantCountOutputTypeCountOptOutsArgs
@@ -3766,6 +3859,13 @@ export namespace Prisma {
    */
   export type TenantCountOutputTypeCountWhatsappContactsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: WhatsAppContactWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountMessagingConsentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MessagingConsentWhereInput
   }
 
   /**
@@ -4789,6 +4889,7 @@ export namespace Prisma {
     messagesOut?: boolean | Tenant$messagesOutArgs<ExtArgs>
     sellerPhones?: boolean | Tenant$sellerPhonesArgs<ExtArgs>
     whatsappContacts?: boolean | Tenant$whatsappContactsArgs<ExtArgs>
+    messagingConsents?: boolean | Tenant$messagingConsentsArgs<ExtArgs>
     eventLogs?: boolean | Tenant$eventLogsArgs<ExtArgs>
     deadLetterJobs?: boolean | Tenant$deadLetterJobsArgs<ExtArgs>
     optOuts?: boolean | Tenant$optOutsArgs<ExtArgs>
@@ -4998,6 +5099,7 @@ export namespace Prisma {
     messagesOut?: boolean | Tenant$messagesOutArgs<ExtArgs>
     sellerPhones?: boolean | Tenant$sellerPhonesArgs<ExtArgs>
     whatsappContacts?: boolean | Tenant$whatsappContactsArgs<ExtArgs>
+    messagingConsents?: boolean | Tenant$messagingConsentsArgs<ExtArgs>
     eventLogs?: boolean | Tenant$eventLogsArgs<ExtArgs>
     deadLetterJobs?: boolean | Tenant$deadLetterJobsArgs<ExtArgs>
     optOuts?: boolean | Tenant$optOutsArgs<ExtArgs>
@@ -5030,6 +5132,7 @@ export namespace Prisma {
       messagesOut: Prisma.$MessageOutPayload<ExtArgs>[]
       sellerPhones: Prisma.$SellerPhonePayload<ExtArgs>[]
       whatsappContacts: Prisma.$WhatsAppContactPayload<ExtArgs>[]
+      messagingConsents: Prisma.$MessagingConsentPayload<ExtArgs>[]
       eventLogs: Prisma.$EventLogPayload<ExtArgs>[]
       deadLetterJobs: Prisma.$DeadLetterJobPayload<ExtArgs>[]
       optOuts: Prisma.$OptOutPayload<ExtArgs>[]
@@ -5514,6 +5617,7 @@ export namespace Prisma {
     messagesOut<T extends Tenant$messagesOutArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$messagesOutArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sellerPhones<T extends Tenant$sellerPhonesArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$sellerPhonesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SellerPhonePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     whatsappContacts<T extends Tenant$whatsappContactsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$whatsappContactsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsAppContactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    messagingConsents<T extends Tenant$messagingConsentsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$messagingConsentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     eventLogs<T extends Tenant$eventLogsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$eventLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     deadLetterJobs<T extends Tenant$deadLetterJobsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$deadLetterJobsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeadLetterJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     optOuts<T extends Tenant$optOutsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$optOutsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OptOutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6244,6 +6348,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: WhatsAppContactScalarFieldEnum | WhatsAppContactScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.messagingConsents
+   */
+  export type Tenant$messagingConsentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentInclude<ExtArgs> | null
+    where?: MessagingConsentWhereInput
+    orderBy?: MessagingConsentOrderByWithRelationInput | MessagingConsentOrderByWithRelationInput[]
+    cursor?: MessagingConsentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MessagingConsentScalarFieldEnum | MessagingConsentScalarFieldEnum[]
   }
 
   /**
@@ -16578,6 +16706,1082 @@ export namespace Prisma {
 
 
   /**
+   * Model MessagingConsent
+   */
+
+  export type AggregateMessagingConsent = {
+    _count: MessagingConsentCountAggregateOutputType | null
+    _min: MessagingConsentMinAggregateOutputType | null
+    _max: MessagingConsentMaxAggregateOutputType | null
+  }
+
+  export type MessagingConsentMinAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    phone: string | null
+    scope: string | null
+    sourceMessageId: string | null
+    grantedAt: Date | null
+  }
+
+  export type MessagingConsentMaxAggregateOutputType = {
+    id: string | null
+    tenantId: string | null
+    phone: string | null
+    scope: string | null
+    sourceMessageId: string | null
+    grantedAt: Date | null
+  }
+
+  export type MessagingConsentCountAggregateOutputType = {
+    id: number
+    tenantId: number
+    phone: number
+    scope: number
+    sourceMessageId: number
+    grantedAt: number
+    _all: number
+  }
+
+
+  export type MessagingConsentMinAggregateInputType = {
+    id?: true
+    tenantId?: true
+    phone?: true
+    scope?: true
+    sourceMessageId?: true
+    grantedAt?: true
+  }
+
+  export type MessagingConsentMaxAggregateInputType = {
+    id?: true
+    tenantId?: true
+    phone?: true
+    scope?: true
+    sourceMessageId?: true
+    grantedAt?: true
+  }
+
+  export type MessagingConsentCountAggregateInputType = {
+    id?: true
+    tenantId?: true
+    phone?: true
+    scope?: true
+    sourceMessageId?: true
+    grantedAt?: true
+    _all?: true
+  }
+
+  export type MessagingConsentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MessagingConsent to aggregate.
+     */
+    where?: MessagingConsentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MessagingConsents to fetch.
+     */
+    orderBy?: MessagingConsentOrderByWithRelationInput | MessagingConsentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MessagingConsentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MessagingConsents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MessagingConsents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MessagingConsents
+    **/
+    _count?: true | MessagingConsentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MessagingConsentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MessagingConsentMaxAggregateInputType
+  }
+
+  export type GetMessagingConsentAggregateType<T extends MessagingConsentAggregateArgs> = {
+        [P in keyof T & keyof AggregateMessagingConsent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMessagingConsent[P]>
+      : GetScalarType<T[P], AggregateMessagingConsent[P]>
+  }
+
+
+
+
+  export type MessagingConsentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MessagingConsentWhereInput
+    orderBy?: MessagingConsentOrderByWithAggregationInput | MessagingConsentOrderByWithAggregationInput[]
+    by: MessagingConsentScalarFieldEnum[] | MessagingConsentScalarFieldEnum
+    having?: MessagingConsentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MessagingConsentCountAggregateInputType | true
+    _min?: MessagingConsentMinAggregateInputType
+    _max?: MessagingConsentMaxAggregateInputType
+  }
+
+  export type MessagingConsentGroupByOutputType = {
+    id: string
+    tenantId: string
+    phone: string
+    scope: string
+    sourceMessageId: string
+    grantedAt: Date
+    _count: MessagingConsentCountAggregateOutputType | null
+    _min: MessagingConsentMinAggregateOutputType | null
+    _max: MessagingConsentMaxAggregateOutputType | null
+  }
+
+  type GetMessagingConsentGroupByPayload<T extends MessagingConsentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MessagingConsentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MessagingConsentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MessagingConsentGroupByOutputType[P]>
+            : GetScalarType<T[P], MessagingConsentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MessagingConsentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    phone?: boolean
+    scope?: boolean
+    sourceMessageId?: boolean
+    grantedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["messagingConsent"]>
+
+  export type MessagingConsentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    phone?: boolean
+    scope?: boolean
+    sourceMessageId?: boolean
+    grantedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["messagingConsent"]>
+
+  export type MessagingConsentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenantId?: boolean
+    phone?: boolean
+    scope?: boolean
+    sourceMessageId?: boolean
+    grantedAt?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["messagingConsent"]>
+
+  export type MessagingConsentSelectScalar = {
+    id?: boolean
+    tenantId?: boolean
+    phone?: boolean
+    scope?: boolean
+    sourceMessageId?: boolean
+    grantedAt?: boolean
+  }
+
+  export type MessagingConsentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "phone" | "scope" | "sourceMessageId" | "grantedAt", ExtArgs["result"]["messagingConsent"]>
+  export type MessagingConsentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type MessagingConsentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+  export type MessagingConsentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+  }
+
+  export type $MessagingConsentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MessagingConsent"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenantId: string
+      phone: string
+      scope: string
+      sourceMessageId: string
+      grantedAt: Date
+    }, ExtArgs["result"]["messagingConsent"]>
+    composites: {}
+  }
+
+  type MessagingConsentGetPayload<S extends boolean | null | undefined | MessagingConsentDefaultArgs> = $Result.GetResult<Prisma.$MessagingConsentPayload, S>
+
+  type MessagingConsentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MessagingConsentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MessagingConsentCountAggregateInputType | true
+    }
+
+  export interface MessagingConsentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MessagingConsent'], meta: { name: 'MessagingConsent' } }
+    /**
+     * Find zero or one MessagingConsent that matches the filter.
+     * @param {MessagingConsentFindUniqueArgs} args - Arguments to find a MessagingConsent
+     * @example
+     * // Get one MessagingConsent
+     * const messagingConsent = await prisma.messagingConsent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MessagingConsentFindUniqueArgs>(args: SelectSubset<T, MessagingConsentFindUniqueArgs<ExtArgs>>): Prisma__MessagingConsentClient<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MessagingConsent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MessagingConsentFindUniqueOrThrowArgs} args - Arguments to find a MessagingConsent
+     * @example
+     * // Get one MessagingConsent
+     * const messagingConsent = await prisma.messagingConsent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MessagingConsentFindUniqueOrThrowArgs>(args: SelectSubset<T, MessagingConsentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MessagingConsentClient<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MessagingConsent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessagingConsentFindFirstArgs} args - Arguments to find a MessagingConsent
+     * @example
+     * // Get one MessagingConsent
+     * const messagingConsent = await prisma.messagingConsent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MessagingConsentFindFirstArgs>(args?: SelectSubset<T, MessagingConsentFindFirstArgs<ExtArgs>>): Prisma__MessagingConsentClient<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MessagingConsent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessagingConsentFindFirstOrThrowArgs} args - Arguments to find a MessagingConsent
+     * @example
+     * // Get one MessagingConsent
+     * const messagingConsent = await prisma.messagingConsent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MessagingConsentFindFirstOrThrowArgs>(args?: SelectSubset<T, MessagingConsentFindFirstOrThrowArgs<ExtArgs>>): Prisma__MessagingConsentClient<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MessagingConsents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessagingConsentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MessagingConsents
+     * const messagingConsents = await prisma.messagingConsent.findMany()
+     * 
+     * // Get first 10 MessagingConsents
+     * const messagingConsents = await prisma.messagingConsent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const messagingConsentWithIdOnly = await prisma.messagingConsent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MessagingConsentFindManyArgs>(args?: SelectSubset<T, MessagingConsentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MessagingConsent.
+     * @param {MessagingConsentCreateArgs} args - Arguments to create a MessagingConsent.
+     * @example
+     * // Create one MessagingConsent
+     * const MessagingConsent = await prisma.messagingConsent.create({
+     *   data: {
+     *     // ... data to create a MessagingConsent
+     *   }
+     * })
+     * 
+     */
+    create<T extends MessagingConsentCreateArgs>(args: SelectSubset<T, MessagingConsentCreateArgs<ExtArgs>>): Prisma__MessagingConsentClient<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MessagingConsents.
+     * @param {MessagingConsentCreateManyArgs} args - Arguments to create many MessagingConsents.
+     * @example
+     * // Create many MessagingConsents
+     * const messagingConsent = await prisma.messagingConsent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MessagingConsentCreateManyArgs>(args?: SelectSubset<T, MessagingConsentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MessagingConsents and returns the data saved in the database.
+     * @param {MessagingConsentCreateManyAndReturnArgs} args - Arguments to create many MessagingConsents.
+     * @example
+     * // Create many MessagingConsents
+     * const messagingConsent = await prisma.messagingConsent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MessagingConsents and only return the `id`
+     * const messagingConsentWithIdOnly = await prisma.messagingConsent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MessagingConsentCreateManyAndReturnArgs>(args?: SelectSubset<T, MessagingConsentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MessagingConsent.
+     * @param {MessagingConsentDeleteArgs} args - Arguments to delete one MessagingConsent.
+     * @example
+     * // Delete one MessagingConsent
+     * const MessagingConsent = await prisma.messagingConsent.delete({
+     *   where: {
+     *     // ... filter to delete one MessagingConsent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MessagingConsentDeleteArgs>(args: SelectSubset<T, MessagingConsentDeleteArgs<ExtArgs>>): Prisma__MessagingConsentClient<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MessagingConsent.
+     * @param {MessagingConsentUpdateArgs} args - Arguments to update one MessagingConsent.
+     * @example
+     * // Update one MessagingConsent
+     * const messagingConsent = await prisma.messagingConsent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MessagingConsentUpdateArgs>(args: SelectSubset<T, MessagingConsentUpdateArgs<ExtArgs>>): Prisma__MessagingConsentClient<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MessagingConsents.
+     * @param {MessagingConsentDeleteManyArgs} args - Arguments to filter MessagingConsents to delete.
+     * @example
+     * // Delete a few MessagingConsents
+     * const { count } = await prisma.messagingConsent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MessagingConsentDeleteManyArgs>(args?: SelectSubset<T, MessagingConsentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MessagingConsents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessagingConsentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MessagingConsents
+     * const messagingConsent = await prisma.messagingConsent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MessagingConsentUpdateManyArgs>(args: SelectSubset<T, MessagingConsentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MessagingConsents and returns the data updated in the database.
+     * @param {MessagingConsentUpdateManyAndReturnArgs} args - Arguments to update many MessagingConsents.
+     * @example
+     * // Update many MessagingConsents
+     * const messagingConsent = await prisma.messagingConsent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MessagingConsents and only return the `id`
+     * const messagingConsentWithIdOnly = await prisma.messagingConsent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MessagingConsentUpdateManyAndReturnArgs>(args: SelectSubset<T, MessagingConsentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MessagingConsent.
+     * @param {MessagingConsentUpsertArgs} args - Arguments to update or create a MessagingConsent.
+     * @example
+     * // Update or create a MessagingConsent
+     * const messagingConsent = await prisma.messagingConsent.upsert({
+     *   create: {
+     *     // ... data to create a MessagingConsent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MessagingConsent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MessagingConsentUpsertArgs>(args: SelectSubset<T, MessagingConsentUpsertArgs<ExtArgs>>): Prisma__MessagingConsentClient<$Result.GetResult<Prisma.$MessagingConsentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MessagingConsents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessagingConsentCountArgs} args - Arguments to filter MessagingConsents to count.
+     * @example
+     * // Count the number of MessagingConsents
+     * const count = await prisma.messagingConsent.count({
+     *   where: {
+     *     // ... the filter for the MessagingConsents we want to count
+     *   }
+     * })
+    **/
+    count<T extends MessagingConsentCountArgs>(
+      args?: Subset<T, MessagingConsentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MessagingConsentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MessagingConsent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessagingConsentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MessagingConsentAggregateArgs>(args: Subset<T, MessagingConsentAggregateArgs>): Prisma.PrismaPromise<GetMessagingConsentAggregateType<T>>
+
+    /**
+     * Group by MessagingConsent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MessagingConsentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MessagingConsentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MessagingConsentGroupByArgs['orderBy'] }
+        : { orderBy?: MessagingConsentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MessagingConsentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMessagingConsentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MessagingConsent model
+   */
+  readonly fields: MessagingConsentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MessagingConsent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MessagingConsentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MessagingConsent model
+   */
+  interface MessagingConsentFieldRefs {
+    readonly id: FieldRef<"MessagingConsent", 'String'>
+    readonly tenantId: FieldRef<"MessagingConsent", 'String'>
+    readonly phone: FieldRef<"MessagingConsent", 'String'>
+    readonly scope: FieldRef<"MessagingConsent", 'String'>
+    readonly sourceMessageId: FieldRef<"MessagingConsent", 'String'>
+    readonly grantedAt: FieldRef<"MessagingConsent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MessagingConsent findUnique
+   */
+  export type MessagingConsentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentInclude<ExtArgs> | null
+    /**
+     * Filter, which MessagingConsent to fetch.
+     */
+    where: MessagingConsentWhereUniqueInput
+  }
+
+  /**
+   * MessagingConsent findUniqueOrThrow
+   */
+  export type MessagingConsentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentInclude<ExtArgs> | null
+    /**
+     * Filter, which MessagingConsent to fetch.
+     */
+    where: MessagingConsentWhereUniqueInput
+  }
+
+  /**
+   * MessagingConsent findFirst
+   */
+  export type MessagingConsentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentInclude<ExtArgs> | null
+    /**
+     * Filter, which MessagingConsent to fetch.
+     */
+    where?: MessagingConsentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MessagingConsents to fetch.
+     */
+    orderBy?: MessagingConsentOrderByWithRelationInput | MessagingConsentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MessagingConsents.
+     */
+    cursor?: MessagingConsentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MessagingConsents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MessagingConsents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MessagingConsents.
+     */
+    distinct?: MessagingConsentScalarFieldEnum | MessagingConsentScalarFieldEnum[]
+  }
+
+  /**
+   * MessagingConsent findFirstOrThrow
+   */
+  export type MessagingConsentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentInclude<ExtArgs> | null
+    /**
+     * Filter, which MessagingConsent to fetch.
+     */
+    where?: MessagingConsentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MessagingConsents to fetch.
+     */
+    orderBy?: MessagingConsentOrderByWithRelationInput | MessagingConsentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MessagingConsents.
+     */
+    cursor?: MessagingConsentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MessagingConsents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MessagingConsents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MessagingConsents.
+     */
+    distinct?: MessagingConsentScalarFieldEnum | MessagingConsentScalarFieldEnum[]
+  }
+
+  /**
+   * MessagingConsent findMany
+   */
+  export type MessagingConsentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentInclude<ExtArgs> | null
+    /**
+     * Filter, which MessagingConsents to fetch.
+     */
+    where?: MessagingConsentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MessagingConsents to fetch.
+     */
+    orderBy?: MessagingConsentOrderByWithRelationInput | MessagingConsentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MessagingConsents.
+     */
+    cursor?: MessagingConsentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MessagingConsents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MessagingConsents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MessagingConsents.
+     */
+    distinct?: MessagingConsentScalarFieldEnum | MessagingConsentScalarFieldEnum[]
+  }
+
+  /**
+   * MessagingConsent create
+   */
+  export type MessagingConsentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MessagingConsent.
+     */
+    data: XOR<MessagingConsentCreateInput, MessagingConsentUncheckedCreateInput>
+  }
+
+  /**
+   * MessagingConsent createMany
+   */
+  export type MessagingConsentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MessagingConsents.
+     */
+    data: MessagingConsentCreateManyInput | MessagingConsentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MessagingConsent createManyAndReturn
+   */
+  export type MessagingConsentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * The data used to create many MessagingConsents.
+     */
+    data: MessagingConsentCreateManyInput | MessagingConsentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MessagingConsent update
+   */
+  export type MessagingConsentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MessagingConsent.
+     */
+    data: XOR<MessagingConsentUpdateInput, MessagingConsentUncheckedUpdateInput>
+    /**
+     * Choose, which MessagingConsent to update.
+     */
+    where: MessagingConsentWhereUniqueInput
+  }
+
+  /**
+   * MessagingConsent updateMany
+   */
+  export type MessagingConsentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MessagingConsents.
+     */
+    data: XOR<MessagingConsentUpdateManyMutationInput, MessagingConsentUncheckedUpdateManyInput>
+    /**
+     * Filter which MessagingConsents to update
+     */
+    where?: MessagingConsentWhereInput
+    /**
+     * Limit how many MessagingConsents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MessagingConsent updateManyAndReturn
+   */
+  export type MessagingConsentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * The data used to update MessagingConsents.
+     */
+    data: XOR<MessagingConsentUpdateManyMutationInput, MessagingConsentUncheckedUpdateManyInput>
+    /**
+     * Filter which MessagingConsents to update
+     */
+    where?: MessagingConsentWhereInput
+    /**
+     * Limit how many MessagingConsents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MessagingConsent upsert
+   */
+  export type MessagingConsentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MessagingConsent to update in case it exists.
+     */
+    where: MessagingConsentWhereUniqueInput
+    /**
+     * In case the MessagingConsent found by the `where` argument doesn't exist, create a new MessagingConsent with this data.
+     */
+    create: XOR<MessagingConsentCreateInput, MessagingConsentUncheckedCreateInput>
+    /**
+     * In case the MessagingConsent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MessagingConsentUpdateInput, MessagingConsentUncheckedUpdateInput>
+  }
+
+  /**
+   * MessagingConsent delete
+   */
+  export type MessagingConsentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentInclude<ExtArgs> | null
+    /**
+     * Filter which MessagingConsent to delete.
+     */
+    where: MessagingConsentWhereUniqueInput
+  }
+
+  /**
+   * MessagingConsent deleteMany
+   */
+  export type MessagingConsentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MessagingConsents to delete
+     */
+    where?: MessagingConsentWhereInput
+    /**
+     * Limit how many MessagingConsents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MessagingConsent without action
+   */
+  export type MessagingConsentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MessagingConsent
+     */
+    select?: MessagingConsentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MessagingConsent
+     */
+    omit?: MessagingConsentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MessagingConsentInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model MessageIn
    */
 
@@ -16588,6 +17792,7 @@ export namespace Prisma {
   }
 
   export type MessageInMinAggregateOutputType = {
+    providerSentAt: Date | null
     id: string | null
     tenantId: string | null
     providerMessageId: string | null
@@ -16599,6 +17804,7 @@ export namespace Prisma {
   }
 
   export type MessageInMaxAggregateOutputType = {
+    providerSentAt: Date | null
     id: string | null
     tenantId: string | null
     providerMessageId: string | null
@@ -16610,6 +17816,7 @@ export namespace Prisma {
   }
 
   export type MessageInCountAggregateOutputType = {
+    providerSentAt: number
     id: number
     tenantId: number
     providerMessageId: number
@@ -16623,6 +17830,7 @@ export namespace Prisma {
 
 
   export type MessageInMinAggregateInputType = {
+    providerSentAt?: true
     id?: true
     tenantId?: true
     providerMessageId?: true
@@ -16634,6 +17842,7 @@ export namespace Prisma {
   }
 
   export type MessageInMaxAggregateInputType = {
+    providerSentAt?: true
     id?: true
     tenantId?: true
     providerMessageId?: true
@@ -16645,6 +17854,7 @@ export namespace Prisma {
   }
 
   export type MessageInCountAggregateInputType = {
+    providerSentAt?: true
     id?: true
     tenantId?: true
     providerMessageId?: true
@@ -16729,6 +17939,7 @@ export namespace Prisma {
   }
 
   export type MessageInGroupByOutputType = {
+    providerSentAt: Date | null
     id: string
     tenantId: string | null
     providerMessageId: string
@@ -16757,6 +17968,7 @@ export namespace Prisma {
 
 
   export type MessageInSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    providerSentAt?: boolean
     id?: boolean
     tenantId?: boolean
     providerMessageId?: boolean
@@ -16769,6 +17981,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["messageIn"]>
 
   export type MessageInSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    providerSentAt?: boolean
     id?: boolean
     tenantId?: boolean
     providerMessageId?: boolean
@@ -16781,6 +17994,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["messageIn"]>
 
   export type MessageInSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    providerSentAt?: boolean
     id?: boolean
     tenantId?: boolean
     providerMessageId?: boolean
@@ -16793,6 +18007,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["messageIn"]>
 
   export type MessageInSelectScalar = {
+    providerSentAt?: boolean
     id?: boolean
     tenantId?: boolean
     providerMessageId?: boolean
@@ -16803,7 +18018,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type MessageInOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "providerMessageId" | "from" | "body" | "mediaUrl" | "correlationId" | "createdAt", ExtArgs["result"]["messageIn"]>
+  export type MessageInOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"providerSentAt" | "id" | "tenantId" | "providerMessageId" | "from" | "body" | "mediaUrl" | "correlationId" | "createdAt", ExtArgs["result"]["messageIn"]>
   export type MessageInInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | MessageIn$tenantArgs<ExtArgs>
   }
@@ -16820,6 +18035,7 @@ export namespace Prisma {
       tenant: Prisma.$TenantPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
+      providerSentAt: Date | null
       id: string
       tenantId: string | null
       providerMessageId: string
@@ -16911,8 +18127,8 @@ export namespace Prisma {
      * // Get first 10 MessageIns
      * const messageIns = await prisma.messageIn.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const messageInWithIdOnly = await prisma.messageIn.findMany({ select: { id: true } })
+     * // Only select the `providerSentAt`
+     * const messageInWithProviderSentAtOnly = await prisma.messageIn.findMany({ select: { providerSentAt: true } })
      * 
      */
     findMany<T extends MessageInFindManyArgs>(args?: SelectSubset<T, MessageInFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessageInPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -16956,9 +18172,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many MessageIns and only return the `id`
-     * const messageInWithIdOnly = await prisma.messageIn.createManyAndReturn({
-     *   select: { id: true },
+     * // Create many MessageIns and only return the `providerSentAt`
+     * const messageInWithProviderSentAtOnly = await prisma.messageIn.createManyAndReturn({
+     *   select: { providerSentAt: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -17047,9 +18263,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more MessageIns and only return the `id`
-     * const messageInWithIdOnly = await prisma.messageIn.updateManyAndReturn({
-     *   select: { id: true },
+     * // Update zero or more MessageIns and only return the `providerSentAt`
+     * const messageInWithProviderSentAtOnly = await prisma.messageIn.updateManyAndReturn({
+     *   select: { providerSentAt: true },
      *   where: {
      *     // ... provide filter here
      *   },
@@ -17252,6 +18468,7 @@ export namespace Prisma {
    * Fields of the MessageIn model
    */
   interface MessageInFieldRefs {
+    readonly providerSentAt: FieldRef<"MessageIn", 'DateTime'>
     readonly id: FieldRef<"MessageIn", 'String'>
     readonly tenantId: FieldRef<"MessageIn", 'String'>
     readonly providerMessageId: FieldRef<"MessageIn", 'String'>
@@ -35357,6 +36574,7 @@ export namespace Prisma {
   }
 
   export type MessageOutCountAggregateOutputType = {
+    notificationContext: number
     id: number
     tenantId: number
     to: number
@@ -35434,6 +36652,7 @@ export namespace Prisma {
   }
 
   export type MessageOutCountAggregateInputType = {
+    notificationContext?: true
     id?: true
     tenantId?: true
     to?: true
@@ -35544,6 +36763,7 @@ export namespace Prisma {
   }
 
   export type MessageOutGroupByOutputType = {
+    notificationContext: JsonValue | null
     id: string
     tenantId: string
     to: string
@@ -35586,6 +36806,7 @@ export namespace Prisma {
 
 
   export type MessageOutSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    notificationContext?: boolean
     id?: boolean
     tenantId?: boolean
     to?: boolean
@@ -35610,6 +36831,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["messageOut"]>
 
   export type MessageOutSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    notificationContext?: boolean
     id?: boolean
     tenantId?: boolean
     to?: boolean
@@ -35634,6 +36856,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["messageOut"]>
 
   export type MessageOutSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    notificationContext?: boolean
     id?: boolean
     tenantId?: boolean
     to?: boolean
@@ -35658,6 +36881,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["messageOut"]>
 
   export type MessageOutSelectScalar = {
+    notificationContext?: boolean
     id?: boolean
     tenantId?: boolean
     to?: boolean
@@ -35680,7 +36904,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type MessageOutOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenantId" | "to" | "body" | "mediaUrl" | "interactivePayload" | "isTypingIndicator" | "status" | "attempts" | "purpose" | "publishedAt" | "publishLeaseUntil" | "sendLeaseUntil" | "sentAt" | "nextAttemptAt" | "lastError" | "correlationId" | "providerMessageId" | "createdAt" | "updatedAt", ExtArgs["result"]["messageOut"]>
+  export type MessageOutOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"notificationContext" | "id" | "tenantId" | "to" | "body" | "mediaUrl" | "interactivePayload" | "isTypingIndicator" | "status" | "attempts" | "purpose" | "publishedAt" | "publishLeaseUntil" | "sendLeaseUntil" | "sentAt" | "nextAttemptAt" | "lastError" | "correlationId" | "providerMessageId" | "createdAt" | "updatedAt", ExtArgs["result"]["messageOut"]>
   export type MessageOutInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
   }
@@ -35697,6 +36921,7 @@ export namespace Prisma {
       tenant: Prisma.$TenantPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
+      notificationContext: Prisma.JsonValue | null
       id: string
       tenantId: string
       to: string
@@ -35800,8 +37025,8 @@ export namespace Prisma {
      * // Get first 10 MessageOuts
      * const messageOuts = await prisma.messageOut.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const messageOutWithIdOnly = await prisma.messageOut.findMany({ select: { id: true } })
+     * // Only select the `notificationContext`
+     * const messageOutWithNotificationContextOnly = await prisma.messageOut.findMany({ select: { notificationContext: true } })
      * 
      */
     findMany<T extends MessageOutFindManyArgs>(args?: SelectSubset<T, MessageOutFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessageOutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -35845,9 +37070,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many MessageOuts and only return the `id`
-     * const messageOutWithIdOnly = await prisma.messageOut.createManyAndReturn({
-     *   select: { id: true },
+     * // Create many MessageOuts and only return the `notificationContext`
+     * const messageOutWithNotificationContextOnly = await prisma.messageOut.createManyAndReturn({
+     *   select: { notificationContext: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -35936,9 +37161,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more MessageOuts and only return the `id`
-     * const messageOutWithIdOnly = await prisma.messageOut.updateManyAndReturn({
-     *   select: { id: true },
+     * // Update zero or more MessageOuts and only return the `notificationContext`
+     * const messageOutWithNotificationContextOnly = await prisma.messageOut.updateManyAndReturn({
+     *   select: { notificationContext: true },
      *   where: {
      *     // ... provide filter here
      *   },
@@ -36141,6 +37366,7 @@ export namespace Prisma {
    * Fields of the MessageOut model
    */
   interface MessageOutFieldRefs {
+    readonly notificationContext: FieldRef<"MessageOut", 'Json'>
     readonly id: FieldRef<"MessageOut", 'String'>
     readonly tenantId: FieldRef<"MessageOut", 'String'>
     readonly to: FieldRef<"MessageOut", 'String'>
@@ -39988,7 +41214,20 @@ export namespace Prisma {
   export type CategoryPriceScalarFieldEnum = (typeof CategoryPriceScalarFieldEnum)[keyof typeof CategoryPriceScalarFieldEnum]
 
 
+  export const MessagingConsentScalarFieldEnum: {
+    id: 'id',
+    tenantId: 'tenantId',
+    phone: 'phone',
+    scope: 'scope',
+    sourceMessageId: 'sourceMessageId',
+    grantedAt: 'grantedAt'
+  };
+
+  export type MessagingConsentScalarFieldEnum = (typeof MessagingConsentScalarFieldEnum)[keyof typeof MessagingConsentScalarFieldEnum]
+
+
   export const MessageInScalarFieldEnum: {
+    providerSentAt: 'providerSentAt',
     id: 'id',
     tenantId: 'tenantId',
     providerMessageId: 'providerMessageId',
@@ -40237,6 +41476,7 @@ export namespace Prisma {
 
 
   export const MessageOutScalarFieldEnum: {
+    notificationContext: 'notificationContext',
     id: 'id',
     tenantId: 'tenantId',
     to: 'to',
@@ -40602,6 +41842,7 @@ export namespace Prisma {
     messagesOut?: MessageOutListRelationFilter
     sellerPhones?: SellerPhoneListRelationFilter
     whatsappContacts?: WhatsAppContactListRelationFilter
+    messagingConsents?: MessagingConsentListRelationFilter
     eventLogs?: EventLogListRelationFilter
     deadLetterJobs?: DeadLetterJobListRelationFilter
     optOuts?: OptOutListRelationFilter
@@ -40686,6 +41927,7 @@ export namespace Prisma {
     messagesOut?: MessageOutOrderByRelationAggregateInput
     sellerPhones?: SellerPhoneOrderByRelationAggregateInput
     whatsappContacts?: WhatsAppContactOrderByRelationAggregateInput
+    messagingConsents?: MessagingConsentOrderByRelationAggregateInput
     eventLogs?: EventLogOrderByRelationAggregateInput
     deadLetterJobs?: DeadLetterJobOrderByRelationAggregateInput
     optOuts?: OptOutOrderByRelationAggregateInput
@@ -40773,6 +42015,7 @@ export namespace Prisma {
     messagesOut?: MessageOutListRelationFilter
     sellerPhones?: SellerPhoneListRelationFilter
     whatsappContacts?: WhatsAppContactListRelationFilter
+    messagingConsents?: MessagingConsentListRelationFilter
     eventLogs?: EventLogListRelationFilter
     deadLetterJobs?: DeadLetterJobListRelationFilter
     optOuts?: OptOutListRelationFilter
@@ -41508,10 +42751,72 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"CategoryPrice"> | Date | string
   }
 
+  export type MessagingConsentWhereInput = {
+    AND?: MessagingConsentWhereInput | MessagingConsentWhereInput[]
+    OR?: MessagingConsentWhereInput[]
+    NOT?: MessagingConsentWhereInput | MessagingConsentWhereInput[]
+    id?: StringFilter<"MessagingConsent"> | string
+    tenantId?: StringFilter<"MessagingConsent"> | string
+    phone?: StringFilter<"MessagingConsent"> | string
+    scope?: StringFilter<"MessagingConsent"> | string
+    sourceMessageId?: StringFilter<"MessagingConsent"> | string
+    grantedAt?: DateTimeFilter<"MessagingConsent"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }
+
+  export type MessagingConsentOrderByWithRelationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    phone?: SortOrder
+    scope?: SortOrder
+    sourceMessageId?: SortOrder
+    grantedAt?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+  }
+
+  export type MessagingConsentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenantId_phone_scope?: MessagingConsentTenantIdPhoneScopeCompoundUniqueInput
+    AND?: MessagingConsentWhereInput | MessagingConsentWhereInput[]
+    OR?: MessagingConsentWhereInput[]
+    NOT?: MessagingConsentWhereInput | MessagingConsentWhereInput[]
+    tenantId?: StringFilter<"MessagingConsent"> | string
+    phone?: StringFilter<"MessagingConsent"> | string
+    scope?: StringFilter<"MessagingConsent"> | string
+    sourceMessageId?: StringFilter<"MessagingConsent"> | string
+    grantedAt?: DateTimeFilter<"MessagingConsent"> | Date | string
+    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
+  }, "id" | "tenantId_phone_scope">
+
+  export type MessagingConsentOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    phone?: SortOrder
+    scope?: SortOrder
+    sourceMessageId?: SortOrder
+    grantedAt?: SortOrder
+    _count?: MessagingConsentCountOrderByAggregateInput
+    _max?: MessagingConsentMaxOrderByAggregateInput
+    _min?: MessagingConsentMinOrderByAggregateInput
+  }
+
+  export type MessagingConsentScalarWhereWithAggregatesInput = {
+    AND?: MessagingConsentScalarWhereWithAggregatesInput | MessagingConsentScalarWhereWithAggregatesInput[]
+    OR?: MessagingConsentScalarWhereWithAggregatesInput[]
+    NOT?: MessagingConsentScalarWhereWithAggregatesInput | MessagingConsentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MessagingConsent"> | string
+    tenantId?: StringWithAggregatesFilter<"MessagingConsent"> | string
+    phone?: StringWithAggregatesFilter<"MessagingConsent"> | string
+    scope?: StringWithAggregatesFilter<"MessagingConsent"> | string
+    sourceMessageId?: StringWithAggregatesFilter<"MessagingConsent"> | string
+    grantedAt?: DateTimeWithAggregatesFilter<"MessagingConsent"> | Date | string
+  }
+
   export type MessageInWhereInput = {
     AND?: MessageInWhereInput | MessageInWhereInput[]
     OR?: MessageInWhereInput[]
     NOT?: MessageInWhereInput | MessageInWhereInput[]
+    providerSentAt?: DateTimeNullableFilter<"MessageIn"> | Date | string | null
     id?: StringFilter<"MessageIn"> | string
     tenantId?: StringNullableFilter<"MessageIn"> | string | null
     providerMessageId?: StringFilter<"MessageIn"> | string
@@ -41524,6 +42829,7 @@ export namespace Prisma {
   }
 
   export type MessageInOrderByWithRelationInput = {
+    providerSentAt?: SortOrderInput | SortOrder
     id?: SortOrder
     tenantId?: SortOrderInput | SortOrder
     providerMessageId?: SortOrder
@@ -41541,6 +42847,7 @@ export namespace Prisma {
     AND?: MessageInWhereInput | MessageInWhereInput[]
     OR?: MessageInWhereInput[]
     NOT?: MessageInWhereInput | MessageInWhereInput[]
+    providerSentAt?: DateTimeNullableFilter<"MessageIn"> | Date | string | null
     tenantId?: StringNullableFilter<"MessageIn"> | string | null
     providerMessageId?: StringFilter<"MessageIn"> | string
     from?: StringFilter<"MessageIn"> | string
@@ -41552,6 +42859,7 @@ export namespace Prisma {
   }, "id" | "tenantId_providerMessageId">
 
   export type MessageInOrderByWithAggregationInput = {
+    providerSentAt?: SortOrderInput | SortOrder
     id?: SortOrder
     tenantId?: SortOrderInput | SortOrder
     providerMessageId?: SortOrder
@@ -41569,6 +42877,7 @@ export namespace Prisma {
     AND?: MessageInScalarWhereWithAggregatesInput | MessageInScalarWhereWithAggregatesInput[]
     OR?: MessageInScalarWhereWithAggregatesInput[]
     NOT?: MessageInScalarWhereWithAggregatesInput | MessageInScalarWhereWithAggregatesInput[]
+    providerSentAt?: DateTimeNullableWithAggregatesFilter<"MessageIn"> | Date | string | null
     id?: StringWithAggregatesFilter<"MessageIn"> | string
     tenantId?: StringNullableWithAggregatesFilter<"MessageIn"> | string | null
     providerMessageId?: StringWithAggregatesFilter<"MessageIn"> | string
@@ -42834,6 +44143,7 @@ export namespace Prisma {
     AND?: MessageOutWhereInput | MessageOutWhereInput[]
     OR?: MessageOutWhereInput[]
     NOT?: MessageOutWhereInput | MessageOutWhereInput[]
+    notificationContext?: JsonNullableFilter<"MessageOut">
     id?: StringFilter<"MessageOut"> | string
     tenantId?: StringFilter<"MessageOut"> | string
     to?: StringFilter<"MessageOut"> | string
@@ -42858,6 +44168,7 @@ export namespace Prisma {
   }
 
   export type MessageOutOrderByWithRelationInput = {
+    notificationContext?: SortOrderInput | SortOrder
     id?: SortOrder
     tenantId?: SortOrder
     to?: SortOrder
@@ -42887,6 +44198,7 @@ export namespace Prisma {
     AND?: MessageOutWhereInput | MessageOutWhereInput[]
     OR?: MessageOutWhereInput[]
     NOT?: MessageOutWhereInput | MessageOutWhereInput[]
+    notificationContext?: JsonNullableFilter<"MessageOut">
     tenantId?: StringFilter<"MessageOut"> | string
     to?: StringFilter<"MessageOut"> | string
     body?: StringNullableFilter<"MessageOut"> | string | null
@@ -42910,6 +44222,7 @@ export namespace Prisma {
   }, "id" | "tenantId_correlationId_to">
 
   export type MessageOutOrderByWithAggregationInput = {
+    notificationContext?: SortOrderInput | SortOrder
     id?: SortOrder
     tenantId?: SortOrder
     to?: SortOrder
@@ -42941,6 +44254,7 @@ export namespace Prisma {
     AND?: MessageOutScalarWhereWithAggregatesInput | MessageOutScalarWhereWithAggregatesInput[]
     OR?: MessageOutScalarWhereWithAggregatesInput[]
     NOT?: MessageOutScalarWhereWithAggregatesInput | MessageOutScalarWhereWithAggregatesInput[]
+    notificationContext?: JsonNullableWithAggregatesFilter<"MessageOut">
     id?: StringWithAggregatesFilter<"MessageOut"> | string
     tenantId?: StringWithAggregatesFilter<"MessageOut"> | string
     to?: StringWithAggregatesFilter<"MessageOut"> | string
@@ -43220,6 +44534,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -43304,6 +44619,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -43388,6 +44704,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -43472,6 +44789,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -44281,7 +45599,70 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MessagingConsentCreateInput = {
+    id?: string
+    phone: string
+    scope: string
+    sourceMessageId: string
+    grantedAt?: Date | string
+    tenant: TenantCreateNestedOneWithoutMessagingConsentsInput
+  }
+
+  export type MessagingConsentUncheckedCreateInput = {
+    id?: string
+    tenantId: string
+    phone: string
+    scope: string
+    sourceMessageId: string
+    grantedAt?: Date | string
+  }
+
+  export type MessagingConsentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    scope?: StringFieldUpdateOperationsInput | string
+    sourceMessageId?: StringFieldUpdateOperationsInput | string
+    grantedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutMessagingConsentsNestedInput
+  }
+
+  export type MessagingConsentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    scope?: StringFieldUpdateOperationsInput | string
+    sourceMessageId?: StringFieldUpdateOperationsInput | string
+    grantedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessagingConsentCreateManyInput = {
+    id?: string
+    tenantId: string
+    phone: string
+    scope: string
+    sourceMessageId: string
+    grantedAt?: Date | string
+  }
+
+  export type MessagingConsentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    scope?: StringFieldUpdateOperationsInput | string
+    sourceMessageId?: StringFieldUpdateOperationsInput | string
+    grantedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessagingConsentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    scope?: StringFieldUpdateOperationsInput | string
+    sourceMessageId?: StringFieldUpdateOperationsInput | string
+    grantedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type MessageInCreateInput = {
+    providerSentAt?: Date | string | null
     id?: string
     providerMessageId: string
     from: string
@@ -44293,6 +45674,7 @@ export namespace Prisma {
   }
 
   export type MessageInUncheckedCreateInput = {
+    providerSentAt?: Date | string | null
     id?: string
     tenantId?: string | null
     providerMessageId: string
@@ -44304,6 +45686,7 @@ export namespace Prisma {
   }
 
   export type MessageInUpdateInput = {
+    providerSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     id?: StringFieldUpdateOperationsInput | string
     providerMessageId?: StringFieldUpdateOperationsInput | string
     from?: StringFieldUpdateOperationsInput | string
@@ -44315,6 +45698,7 @@ export namespace Prisma {
   }
 
   export type MessageInUncheckedUpdateInput = {
+    providerSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: NullableStringFieldUpdateOperationsInput | string | null
     providerMessageId?: StringFieldUpdateOperationsInput | string
@@ -44326,6 +45710,7 @@ export namespace Prisma {
   }
 
   export type MessageInCreateManyInput = {
+    providerSentAt?: Date | string | null
     id?: string
     tenantId?: string | null
     providerMessageId: string
@@ -44337,6 +45722,7 @@ export namespace Prisma {
   }
 
   export type MessageInUpdateManyMutationInput = {
+    providerSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     id?: StringFieldUpdateOperationsInput | string
     providerMessageId?: StringFieldUpdateOperationsInput | string
     from?: StringFieldUpdateOperationsInput | string
@@ -44347,6 +45733,7 @@ export namespace Prisma {
   }
 
   export type MessageInUncheckedUpdateManyInput = {
+    providerSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: NullableStringFieldUpdateOperationsInput | string | null
     providerMessageId?: StringFieldUpdateOperationsInput | string
@@ -45696,6 +47083,7 @@ export namespace Prisma {
   }
 
   export type MessageOutCreateInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: string
     to: string
     body?: string | null
@@ -45719,6 +47107,7 @@ export namespace Prisma {
   }
 
   export type MessageOutUncheckedCreateInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: string
     tenantId: string
     to: string
@@ -45742,6 +47131,7 @@ export namespace Prisma {
   }
 
   export type MessageOutUpdateInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     body?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45765,6 +47155,7 @@ export namespace Prisma {
   }
 
   export type MessageOutUncheckedUpdateInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
@@ -45788,6 +47179,7 @@ export namespace Prisma {
   }
 
   export type MessageOutCreateManyInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: string
     tenantId: string
     to: string
@@ -45811,6 +47203,7 @@ export namespace Prisma {
   }
 
   export type MessageOutUpdateManyMutationInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     body?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45833,6 +47226,7 @@ export namespace Prisma {
   }
 
   export type MessageOutUncheckedUpdateManyInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: StringFieldUpdateOperationsInput | string
     tenantId?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
@@ -46200,6 +47594,12 @@ export namespace Prisma {
     none?: WhatsAppContactWhereInput
   }
 
+  export type MessagingConsentListRelationFilter = {
+    every?: MessagingConsentWhereInput
+    some?: MessagingConsentWhereInput
+    none?: MessagingConsentWhereInput
+  }
+
   export type EventLogListRelationFilter = {
     every?: EventLogWhereInput
     some?: EventLogWhereInput
@@ -46326,6 +47726,10 @@ export namespace Prisma {
   }
 
   export type WhatsAppContactOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MessagingConsentOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -47094,12 +48498,46 @@ export namespace Prisma {
     amount?: SortOrder
   }
 
+  export type MessagingConsentTenantIdPhoneScopeCompoundUniqueInput = {
+    tenantId: string
+    phone: string
+    scope: string
+  }
+
+  export type MessagingConsentCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    phone?: SortOrder
+    scope?: SortOrder
+    sourceMessageId?: SortOrder
+    grantedAt?: SortOrder
+  }
+
+  export type MessagingConsentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    phone?: SortOrder
+    scope?: SortOrder
+    sourceMessageId?: SortOrder
+    grantedAt?: SortOrder
+  }
+
+  export type MessagingConsentMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenantId?: SortOrder
+    phone?: SortOrder
+    scope?: SortOrder
+    sourceMessageId?: SortOrder
+    grantedAt?: SortOrder
+  }
+
   export type MessageInTenantIdProviderMessageIdCompoundUniqueInput = {
     tenantId: string
     providerMessageId: string
   }
 
   export type MessageInCountOrderByAggregateInput = {
+    providerSentAt?: SortOrder
     id?: SortOrder
     tenantId?: SortOrder
     providerMessageId?: SortOrder
@@ -47111,6 +48549,7 @@ export namespace Prisma {
   }
 
   export type MessageInMaxOrderByAggregateInput = {
+    providerSentAt?: SortOrder
     id?: SortOrder
     tenantId?: SortOrder
     providerMessageId?: SortOrder
@@ -47122,6 +48561,7 @@ export namespace Prisma {
   }
 
   export type MessageInMinOrderByAggregateInput = {
+    providerSentAt?: SortOrder
     id?: SortOrder
     tenantId?: SortOrder
     providerMessageId?: SortOrder
@@ -48046,6 +49486,7 @@ export namespace Prisma {
   }
 
   export type MessageOutCountOrderByAggregateInput = {
+    notificationContext?: SortOrder
     id?: SortOrder
     tenantId?: SortOrder
     to?: SortOrder
@@ -48281,6 +49722,13 @@ export namespace Prisma {
     connect?: WhatsAppContactWhereUniqueInput | WhatsAppContactWhereUniqueInput[]
   }
 
+  export type MessagingConsentCreateNestedManyWithoutTenantInput = {
+    create?: XOR<MessagingConsentCreateWithoutTenantInput, MessagingConsentUncheckedCreateWithoutTenantInput> | MessagingConsentCreateWithoutTenantInput[] | MessagingConsentUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: MessagingConsentCreateOrConnectWithoutTenantInput | MessagingConsentCreateOrConnectWithoutTenantInput[]
+    createMany?: MessagingConsentCreateManyTenantInputEnvelope
+    connect?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
+  }
+
   export type EventLogCreateNestedManyWithoutTenantInput = {
     create?: XOR<EventLogCreateWithoutTenantInput, EventLogUncheckedCreateWithoutTenantInput> | EventLogCreateWithoutTenantInput[] | EventLogUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: EventLogCreateOrConnectWithoutTenantInput | EventLogCreateOrConnectWithoutTenantInput[]
@@ -48447,6 +49895,13 @@ export namespace Prisma {
     connectOrCreate?: WhatsAppContactCreateOrConnectWithoutTenantInput | WhatsAppContactCreateOrConnectWithoutTenantInput[]
     createMany?: WhatsAppContactCreateManyTenantInputEnvelope
     connect?: WhatsAppContactWhereUniqueInput | WhatsAppContactWhereUniqueInput[]
+  }
+
+  export type MessagingConsentUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<MessagingConsentCreateWithoutTenantInput, MessagingConsentUncheckedCreateWithoutTenantInput> | MessagingConsentCreateWithoutTenantInput[] | MessagingConsentUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: MessagingConsentCreateOrConnectWithoutTenantInput | MessagingConsentCreateOrConnectWithoutTenantInput[]
+    createMany?: MessagingConsentCreateManyTenantInputEnvelope
+    connect?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
   }
 
   export type EventLogUncheckedCreateNestedManyWithoutTenantInput = {
@@ -48725,6 +50180,20 @@ export namespace Prisma {
     update?: WhatsAppContactUpdateWithWhereUniqueWithoutTenantInput | WhatsAppContactUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: WhatsAppContactUpdateManyWithWhereWithoutTenantInput | WhatsAppContactUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: WhatsAppContactScalarWhereInput | WhatsAppContactScalarWhereInput[]
+  }
+
+  export type MessagingConsentUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<MessagingConsentCreateWithoutTenantInput, MessagingConsentUncheckedCreateWithoutTenantInput> | MessagingConsentCreateWithoutTenantInput[] | MessagingConsentUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: MessagingConsentCreateOrConnectWithoutTenantInput | MessagingConsentCreateOrConnectWithoutTenantInput[]
+    upsert?: MessagingConsentUpsertWithWhereUniqueWithoutTenantInput | MessagingConsentUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: MessagingConsentCreateManyTenantInputEnvelope
+    set?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
+    disconnect?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
+    delete?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
+    connect?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
+    update?: MessagingConsentUpdateWithWhereUniqueWithoutTenantInput | MessagingConsentUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: MessagingConsentUpdateManyWithWhereWithoutTenantInput | MessagingConsentUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: MessagingConsentScalarWhereInput | MessagingConsentScalarWhereInput[]
   }
 
   export type EventLogUpdateManyWithoutTenantNestedInput = {
@@ -49061,6 +50530,20 @@ export namespace Prisma {
     update?: WhatsAppContactUpdateWithWhereUniqueWithoutTenantInput | WhatsAppContactUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: WhatsAppContactUpdateManyWithWhereWithoutTenantInput | WhatsAppContactUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: WhatsAppContactScalarWhereInput | WhatsAppContactScalarWhereInput[]
+  }
+
+  export type MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<MessagingConsentCreateWithoutTenantInput, MessagingConsentUncheckedCreateWithoutTenantInput> | MessagingConsentCreateWithoutTenantInput[] | MessagingConsentUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: MessagingConsentCreateOrConnectWithoutTenantInput | MessagingConsentCreateOrConnectWithoutTenantInput[]
+    upsert?: MessagingConsentUpsertWithWhereUniqueWithoutTenantInput | MessagingConsentUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: MessagingConsentCreateManyTenantInputEnvelope
+    set?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
+    disconnect?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
+    delete?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
+    connect?: MessagingConsentWhereUniqueInput | MessagingConsentWhereUniqueInput[]
+    update?: MessagingConsentUpdateWithWhereUniqueWithoutTenantInput | MessagingConsentUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: MessagingConsentUpdateManyWithWhereWithoutTenantInput | MessagingConsentUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: MessagingConsentScalarWhereInput | MessagingConsentScalarWhereInput[]
   }
 
   export type EventLogUncheckedUpdateManyWithoutTenantNestedInput = {
@@ -49501,6 +50984,20 @@ export namespace Prisma {
     upsert?: TenantUpsertWithoutCategoryPricesInput
     connect?: TenantWhereUniqueInput
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutCategoryPricesInput, TenantUpdateWithoutCategoryPricesInput>, TenantUncheckedUpdateWithoutCategoryPricesInput>
+  }
+
+  export type TenantCreateNestedOneWithoutMessagingConsentsInput = {
+    create?: XOR<TenantCreateWithoutMessagingConsentsInput, TenantUncheckedCreateWithoutMessagingConsentsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutMessagingConsentsInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type TenantUpdateOneRequiredWithoutMessagingConsentsNestedInput = {
+    create?: XOR<TenantCreateWithoutMessagingConsentsInput, TenantUncheckedCreateWithoutMessagingConsentsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutMessagingConsentsInput
+    upsert?: TenantUpsertWithoutMessagingConsentsInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutMessagingConsentsInput, TenantUpdateWithoutMessagingConsentsInput>, TenantUncheckedUpdateWithoutMessagingConsentsInput>
   }
 
   export type TenantCreateNestedOneWithoutMessagesInInput = {
@@ -50919,6 +52416,7 @@ export namespace Prisma {
   }
 
   export type MessageInCreateWithoutTenantInput = {
+    providerSentAt?: Date | string | null
     id?: string
     providerMessageId: string
     from: string
@@ -50929,6 +52427,7 @@ export namespace Prisma {
   }
 
   export type MessageInUncheckedCreateWithoutTenantInput = {
+    providerSentAt?: Date | string | null
     id?: string
     providerMessageId: string
     from: string
@@ -50949,6 +52448,7 @@ export namespace Prisma {
   }
 
   export type MessageOutCreateWithoutTenantInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: string
     to: string
     body?: string | null
@@ -50971,6 +52471,7 @@ export namespace Prisma {
   }
 
   export type MessageOutUncheckedCreateWithoutTenantInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: string
     to: string
     body?: string | null
@@ -51049,6 +52550,32 @@ export namespace Prisma {
 
   export type WhatsAppContactCreateManyTenantInputEnvelope = {
     data: WhatsAppContactCreateManyTenantInput | WhatsAppContactCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MessagingConsentCreateWithoutTenantInput = {
+    id?: string
+    phone: string
+    scope: string
+    sourceMessageId: string
+    grantedAt?: Date | string
+  }
+
+  export type MessagingConsentUncheckedCreateWithoutTenantInput = {
+    id?: string
+    phone: string
+    scope: string
+    sourceMessageId: string
+    grantedAt?: Date | string
+  }
+
+  export type MessagingConsentCreateOrConnectWithoutTenantInput = {
+    where: MessagingConsentWhereUniqueInput
+    create: XOR<MessagingConsentCreateWithoutTenantInput, MessagingConsentUncheckedCreateWithoutTenantInput>
+  }
+
+  export type MessagingConsentCreateManyTenantInputEnvelope = {
+    data: MessagingConsentCreateManyTenantInput | MessagingConsentCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
@@ -51753,6 +53280,7 @@ export namespace Prisma {
     AND?: MessageInScalarWhereInput | MessageInScalarWhereInput[]
     OR?: MessageInScalarWhereInput[]
     NOT?: MessageInScalarWhereInput | MessageInScalarWhereInput[]
+    providerSentAt?: DateTimeNullableFilter<"MessageIn"> | Date | string | null
     id?: StringFilter<"MessageIn"> | string
     tenantId?: StringNullableFilter<"MessageIn"> | string | null
     providerMessageId?: StringFilter<"MessageIn"> | string
@@ -51783,6 +53311,7 @@ export namespace Prisma {
     AND?: MessageOutScalarWhereInput | MessageOutScalarWhereInput[]
     OR?: MessageOutScalarWhereInput[]
     NOT?: MessageOutScalarWhereInput | MessageOutScalarWhereInput[]
+    notificationContext?: JsonNullableFilter<"MessageOut">
     id?: StringFilter<"MessageOut"> | string
     tenantId?: StringFilter<"MessageOut"> | string
     to?: StringFilter<"MessageOut"> | string
@@ -51858,6 +53387,34 @@ export namespace Prisma {
     firstName?: StringNullableFilter<"WhatsAppContact"> | string | null
     createdAt?: DateTimeFilter<"WhatsAppContact"> | Date | string
     updatedAt?: DateTimeFilter<"WhatsAppContact"> | Date | string
+  }
+
+  export type MessagingConsentUpsertWithWhereUniqueWithoutTenantInput = {
+    where: MessagingConsentWhereUniqueInput
+    update: XOR<MessagingConsentUpdateWithoutTenantInput, MessagingConsentUncheckedUpdateWithoutTenantInput>
+    create: XOR<MessagingConsentCreateWithoutTenantInput, MessagingConsentUncheckedCreateWithoutTenantInput>
+  }
+
+  export type MessagingConsentUpdateWithWhereUniqueWithoutTenantInput = {
+    where: MessagingConsentWhereUniqueInput
+    data: XOR<MessagingConsentUpdateWithoutTenantInput, MessagingConsentUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type MessagingConsentUpdateManyWithWhereWithoutTenantInput = {
+    where: MessagingConsentScalarWhereInput
+    data: XOR<MessagingConsentUpdateManyMutationInput, MessagingConsentUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type MessagingConsentScalarWhereInput = {
+    AND?: MessagingConsentScalarWhereInput | MessagingConsentScalarWhereInput[]
+    OR?: MessagingConsentScalarWhereInput[]
+    NOT?: MessagingConsentScalarWhereInput | MessagingConsentScalarWhereInput[]
+    id?: StringFilter<"MessagingConsent"> | string
+    tenantId?: StringFilter<"MessagingConsent"> | string
+    phone?: StringFilter<"MessagingConsent"> | string
+    scope?: StringFilter<"MessagingConsent"> | string
+    sourceMessageId?: StringFilter<"MessagingConsent"> | string
+    grantedAt?: DateTimeFilter<"MessagingConsent"> | Date | string
   }
 
   export type EventLogUpsertWithWhereUniqueWithoutTenantInput = {
@@ -52379,6 +53936,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -52462,6 +54020,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -52561,6 +54120,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -52644,6 +54204,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -52727,6 +54288,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -52810,6 +54372,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -52929,6 +54492,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -53012,6 +54576,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -53172,6 +54737,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -53255,6 +54821,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -53354,6 +54921,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -53437,6 +55005,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -53520,6 +55089,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -53603,6 +55173,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -53762,6 +55333,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -53845,6 +55417,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -54140,6 +55713,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -54223,6 +55797,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -54322,6 +55897,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -54398,6 +55974,359 @@ export namespace Prisma {
     awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
     conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUncheckedUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUncheckedUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUncheckedUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUncheckedUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUncheckedUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUncheckedUpdateManyWithoutTenantNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantCreateWithoutMessagingConsentsInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    metaCoexistence?: boolean | null
+    metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
+    metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    creditsBonus?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    orderSeq?: number
+    hasAI?: boolean
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
+    users?: UserCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneCreateNestedManyWithoutTenantInput
+    invitations?: InvitationCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricCreateNestedManyWithoutTenantInput
+    reservations?: ReservationCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistCreateNestedManyWithoutTenantInput
+    orders?: OrderCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutMessagingConsentsInput = {
+    id?: string
+    name: string
+    metaPhoneNumberId?: string | null
+    metaWabaId?: string | null
+    metaAccessToken?: string | null
+    metaCoexistence?: boolean | null
+    metaHistorySyncStatus?: string | null
+    metaContactsSyncStatus?: string | null
+    metaHistorySyncAt?: Date | string | null
+    assistantEnabled?: boolean
+    assistantUpdatedAt?: Date | string | null
+    assistantUpdatedBy?: string | null
+    assistantActivatedAt?: Date | string | null
+    depositPercent?: number | null
+    requireDeposit?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscriptionPlan?: string
+    subscriptionStatus?: string
+    subscriptionExpiresAt?: Date | string | null
+    cycleStartedAt?: Date | string | null
+    creditsBalance?: number
+    creditsTotalMonthly?: number
+    creditsBonus?: number
+    usageResetDate?: Date | string | null
+    lowCreditsAlerted?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackEmailToken?: string | null
+    paystackAuthorizationCode?: string | null
+    maxConfirmedOrdersPerMonth?: number
+    maxProofsPerMonth?: number
+    maxAgents?: number
+    overagePerOrderCents?: number
+    orderSeq?: number
+    hasAI?: boolean
+    hasExportCsv?: boolean
+    hasAdvancedExports?: boolean
+    hasNotificationsOutside24h?: boolean
+    hasDepositRecommended?: boolean
+    hasAdvancedFilters?: boolean
+    hasPrioritySupport?: boolean
+    showBranding?: boolean
+    showUpgradeBanner?: boolean
+    faqDelivery?: string | null
+    faqPayment?: string | null
+    faqLocation?: string | null
+    faqAvailability?: string | null
+    metaCatalogId?: string | null
+    hasMetaCatalogSync?: boolean
+    whatsappTemplateName?: string | null
+    whatsappTemplateLanguage?: string | null
+    whatsappTemplateCategory?: string | null
+    businessHoursStart?: string | null
+    businessHoursEnd?: string | null
+    businessTimezone?: string | null
+    awayMessage?: string | null
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    conversationStates?: ConversationStateUncheckedCreateNestedManyWithoutTenantInput
+    categoryPrices?: CategoryPriceUncheckedCreateNestedManyWithoutTenantInput
+    deliveryZones?: DeliveryZoneUncheckedCreateNestedManyWithoutTenantInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUncheckedCreateNestedManyWithoutTenantInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutTenantInput
+    messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
+    messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
+    sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
+    deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
+    optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
+    liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
+    liveItems?: LiveItemUncheckedCreateNestedManyWithoutTenantInput
+    catalogueItems?: CatalogueItemUncheckedCreateNestedManyWithoutTenantInput
+    conversationWindows?: ConversationWindowUncheckedCreateNestedManyWithoutTenantInput
+    conversationMetrics?: ConversationMetricUncheckedCreateNestedManyWithoutTenantInput
+    reservations?: ReservationUncheckedCreateNestedManyWithoutTenantInput
+    waitlists?: WaitlistUncheckedCreateNestedManyWithoutTenantInput
+    orders?: OrderUncheckedCreateNestedManyWithoutTenantInput
+    paymentProofs?: PaymentProofUncheckedCreateNestedManyWithoutTenantInput
+    subscriptionPayments?: SubscriptionPaymentUncheckedCreateNestedManyWithoutTenantInput
+    itemVariants?: ItemVariantUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutMessagingConsentsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutMessagingConsentsInput, TenantUncheckedCreateWithoutMessagingConsentsInput>
+  }
+
+  export type TenantUpsertWithoutMessagingConsentsInput = {
+    update: XOR<TenantUpdateWithoutMessagingConsentsInput, TenantUncheckedUpdateWithoutMessagingConsentsInput>
+    create: XOR<TenantCreateWithoutMessagingConsentsInput, TenantUncheckedCreateWithoutMessagingConsentsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutMessagingConsentsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutMessagingConsentsInput, TenantUncheckedUpdateWithoutMessagingConsentsInput>
+  }
+
+  export type TenantUpdateWithoutMessagingConsentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUpdateManyWithoutTenantNestedInput
+    deliveryZones?: DeliveryZoneUpdateManyWithoutTenantNestedInput
+    deliveryFeeCommune?: DeliveryFeeCommuneUpdateManyWithoutTenantNestedInput
+    invitations?: InvitationUpdateManyWithoutTenantNestedInput
+    messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
+    messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
+    sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
+    deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
+    optOuts?: OptOutUpdateManyWithoutTenantNestedInput
+    liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
+    liveItems?: LiveItemUpdateManyWithoutTenantNestedInput
+    catalogueItems?: CatalogueItemUpdateManyWithoutTenantNestedInput
+    conversationWindows?: ConversationWindowUpdateManyWithoutTenantNestedInput
+    conversationMetrics?: ConversationMetricUpdateManyWithoutTenantNestedInput
+    reservations?: ReservationUpdateManyWithoutTenantNestedInput
+    waitlists?: WaitlistUpdateManyWithoutTenantNestedInput
+    orders?: OrderUpdateManyWithoutTenantNestedInput
+    paymentProofs?: PaymentProofUpdateManyWithoutTenantNestedInput
+    subscriptionPayments?: SubscriptionPaymentUpdateManyWithoutTenantNestedInput
+    itemVariants?: ItemVariantUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutMessagingConsentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    metaPhoneNumberId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaWabaId?: NullableStringFieldUpdateOperationsInput | string | null
+    metaAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCoexistence?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    metaHistorySyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaContactsSyncStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    metaHistorySyncAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantEnabled?: BoolFieldUpdateOperationsInput | boolean
+    assistantUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assistantUpdatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    assistantActivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    depositPercent?: NullableIntFieldUpdateOperationsInput | number | null
+    requireDeposit?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscriptionPlan?: StringFieldUpdateOperationsInput | string
+    subscriptionStatus?: StringFieldUpdateOperationsInput | string
+    subscriptionExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cycleStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    creditsBalance?: IntFieldUpdateOperationsInput | number
+    creditsTotalMonthly?: IntFieldUpdateOperationsInput | number
+    creditsBonus?: IntFieldUpdateOperationsInput | number
+    usageResetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lowCreditsAlerted?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    maxConfirmedOrdersPerMonth?: IntFieldUpdateOperationsInput | number
+    maxProofsPerMonth?: IntFieldUpdateOperationsInput | number
+    maxAgents?: IntFieldUpdateOperationsInput | number
+    overagePerOrderCents?: IntFieldUpdateOperationsInput | number
+    orderSeq?: IntFieldUpdateOperationsInput | number
+    hasAI?: BoolFieldUpdateOperationsInput | boolean
+    hasExportCsv?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedExports?: BoolFieldUpdateOperationsInput | boolean
+    hasNotificationsOutside24h?: BoolFieldUpdateOperationsInput | boolean
+    hasDepositRecommended?: BoolFieldUpdateOperationsInput | boolean
+    hasAdvancedFilters?: BoolFieldUpdateOperationsInput | boolean
+    hasPrioritySupport?: BoolFieldUpdateOperationsInput | boolean
+    showBranding?: BoolFieldUpdateOperationsInput | boolean
+    showUpgradeBanner?: BoolFieldUpdateOperationsInput | boolean
+    faqDelivery?: NullableStringFieldUpdateOperationsInput | string | null
+    faqPayment?: NullableStringFieldUpdateOperationsInput | string | null
+    faqLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    faqAvailability?: NullableStringFieldUpdateOperationsInput | string | null
+    metaCatalogId?: NullableStringFieldUpdateOperationsInput | string | null
+    hasMetaCatalogSync?: BoolFieldUpdateOperationsInput | boolean
+    whatsappTemplateName?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateLanguage?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappTemplateCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursStart?: NullableStringFieldUpdateOperationsInput | string | null
+    businessHoursEnd?: NullableStringFieldUpdateOperationsInput | string | null
+    businessTimezone?: NullableStringFieldUpdateOperationsInput | string | null
+    awayMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    conversationStates?: ConversationStateUncheckedUpdateManyWithoutTenantNestedInput
+    categoryPrices?: CategoryPriceUncheckedUpdateManyWithoutTenantNestedInput
     deliveryZones?: DeliveryZoneUncheckedUpdateManyWithoutTenantNestedInput
     deliveryFeeCommune?: DeliveryFeeCommuneUncheckedUpdateManyWithoutTenantNestedInput
     invitations?: InvitationUncheckedUpdateManyWithoutTenantNestedInput
@@ -54488,6 +56417,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -54571,6 +56501,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -54670,6 +56601,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -54753,6 +56685,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -54836,6 +56769,7 @@ export namespace Prisma {
     messagesIn?: MessageInCreateNestedManyWithoutTenantInput
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -54919,6 +56853,7 @@ export namespace Prisma {
     messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -55018,6 +56953,7 @@ export namespace Prisma {
     messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -55101,6 +57037,7 @@ export namespace Prisma {
     messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -55184,6 +57121,7 @@ export namespace Prisma {
     messagesIn?: MessageInCreateNestedManyWithoutTenantInput
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -55267,6 +57205,7 @@ export namespace Prisma {
     messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -55366,6 +57305,7 @@ export namespace Prisma {
     messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -55449,6 +57389,7 @@ export namespace Prisma {
     messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -55533,6 +57474,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
@@ -55616,6 +57558,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
@@ -55715,6 +57658,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
@@ -55798,6 +57742,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
@@ -55881,6 +57826,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
@@ -55964,6 +57910,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
@@ -56063,6 +58010,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
@@ -56146,6 +58094,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
@@ -56229,6 +58178,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -56312,6 +58262,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -56509,6 +58460,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -56592,6 +58544,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -56707,6 +58660,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -56790,6 +58744,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -57008,6 +58963,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -57091,6 +59047,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -57237,6 +59194,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -57320,6 +59278,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -57545,6 +59504,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -57628,6 +59588,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -57759,6 +59720,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -57842,6 +59804,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -58083,6 +60046,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -58166,6 +60130,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -58363,6 +60328,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -58446,6 +60412,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -58724,6 +60691,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -58807,6 +60775,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -59098,6 +61067,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -59181,6 +61151,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -59280,6 +61251,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -59363,6 +61335,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -59447,6 +61420,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -59530,6 +61504,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -59629,6 +61604,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -59712,6 +61688,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -59795,6 +61772,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -59878,6 +61856,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -60062,6 +62041,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -60145,6 +62125,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -60336,6 +62317,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -60419,6 +62401,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -60559,6 +62542,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -60642,6 +62626,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -60725,6 +62710,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -60808,6 +62794,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -60956,6 +62943,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -61039,6 +63027,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -61177,6 +63166,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionCreateNestedManyWithoutTenantInput
@@ -61260,6 +63250,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
     liveSessions?: LiveSessionUncheckedCreateNestedManyWithoutTenantInput
@@ -61359,6 +63350,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUpdateManyWithoutTenantNestedInput
@@ -61442,6 +63434,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
     liveSessions?: LiveSessionUncheckedUpdateManyWithoutTenantNestedInput
@@ -61524,6 +63517,7 @@ export namespace Prisma {
     messagesIn?: MessageInCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -61607,6 +63601,7 @@ export namespace Prisma {
     messagesIn?: MessageInUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -61706,6 +63701,7 @@ export namespace Prisma {
     messagesIn?: MessageInUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -61789,6 +63785,7 @@ export namespace Prisma {
     messagesIn?: MessageInUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -61873,6 +63870,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -61956,6 +63954,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -62055,6 +64054,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -62138,6 +64138,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -62221,6 +64222,7 @@ export namespace Prisma {
     messagesOut?: MessageOutCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobCreateNestedManyWithoutTenantInput
     optOuts?: OptOutCreateNestedManyWithoutTenantInput
@@ -62304,6 +64306,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedCreateNestedManyWithoutTenantInput
     sellerPhones?: SellerPhoneUncheckedCreateNestedManyWithoutTenantInput
     whatsappContacts?: WhatsAppContactUncheckedCreateNestedManyWithoutTenantInput
+    messagingConsents?: MessagingConsentUncheckedCreateNestedManyWithoutTenantInput
     eventLogs?: EventLogUncheckedCreateNestedManyWithoutTenantInput
     deadLetterJobs?: DeadLetterJobUncheckedCreateNestedManyWithoutTenantInput
     optOuts?: OptOutUncheckedCreateNestedManyWithoutTenantInput
@@ -62403,6 +64406,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUpdateManyWithoutTenantNestedInput
@@ -62486,6 +64490,7 @@ export namespace Prisma {
     messagesOut?: MessageOutUncheckedUpdateManyWithoutTenantNestedInput
     sellerPhones?: SellerPhoneUncheckedUpdateManyWithoutTenantNestedInput
     whatsappContacts?: WhatsAppContactUncheckedUpdateManyWithoutTenantNestedInput
+    messagingConsents?: MessagingConsentUncheckedUpdateManyWithoutTenantNestedInput
     eventLogs?: EventLogUncheckedUpdateManyWithoutTenantNestedInput
     deadLetterJobs?: DeadLetterJobUncheckedUpdateManyWithoutTenantNestedInput
     optOuts?: OptOutUncheckedUpdateManyWithoutTenantNestedInput
@@ -62559,6 +64564,7 @@ export namespace Prisma {
   }
 
   export type MessageInCreateManyTenantInput = {
+    providerSentAt?: Date | string | null
     id?: string
     providerMessageId: string
     from: string
@@ -62569,6 +64575,7 @@ export namespace Prisma {
   }
 
   export type MessageOutCreateManyTenantInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: string
     to: string
     body?: string | null
@@ -62603,6 +64610,14 @@ export namespace Prisma {
     firstName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type MessagingConsentCreateManyTenantInput = {
+    id?: string
+    phone: string
+    scope: string
+    sourceMessageId: string
+    grantedAt?: Date | string
   }
 
   export type EventLogCreateManyTenantInput = {
@@ -62955,6 +64970,7 @@ export namespace Prisma {
   }
 
   export type MessageInUpdateWithoutTenantInput = {
+    providerSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     id?: StringFieldUpdateOperationsInput | string
     providerMessageId?: StringFieldUpdateOperationsInput | string
     from?: StringFieldUpdateOperationsInput | string
@@ -62965,6 +64981,7 @@ export namespace Prisma {
   }
 
   export type MessageInUncheckedUpdateWithoutTenantInput = {
+    providerSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     id?: StringFieldUpdateOperationsInput | string
     providerMessageId?: StringFieldUpdateOperationsInput | string
     from?: StringFieldUpdateOperationsInput | string
@@ -62975,6 +64992,7 @@ export namespace Prisma {
   }
 
   export type MessageInUncheckedUpdateManyWithoutTenantInput = {
+    providerSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     id?: StringFieldUpdateOperationsInput | string
     providerMessageId?: StringFieldUpdateOperationsInput | string
     from?: StringFieldUpdateOperationsInput | string
@@ -62985,6 +65003,7 @@ export namespace Prisma {
   }
 
   export type MessageOutUpdateWithoutTenantInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     body?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63007,6 +65026,7 @@ export namespace Prisma {
   }
 
   export type MessageOutUncheckedUpdateWithoutTenantInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     body?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63029,6 +65049,7 @@ export namespace Prisma {
   }
 
   export type MessageOutUncheckedUpdateManyWithoutTenantInput = {
+    notificationContext?: NullableJsonNullValueInput | InputJsonValue
     id?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     body?: NullableStringFieldUpdateOperationsInput | string | null
@@ -63093,6 +65114,30 @@ export namespace Prisma {
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessagingConsentUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    scope?: StringFieldUpdateOperationsInput | string
+    sourceMessageId?: StringFieldUpdateOperationsInput | string
+    grantedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessagingConsentUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    scope?: StringFieldUpdateOperationsInput | string
+    sourceMessageId?: StringFieldUpdateOperationsInput | string
+    grantedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MessagingConsentUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    scope?: StringFieldUpdateOperationsInput | string
+    sourceMessageId?: StringFieldUpdateOperationsInput | string
+    grantedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EventLogUpdateWithoutTenantInput = {

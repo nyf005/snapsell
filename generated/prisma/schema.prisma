@@ -138,6 +138,7 @@ model Tenant {
   messagesOut          MessageOut[]
   sellerPhones         SellerPhone[]
   whatsappContacts     WhatsAppContact[]
+  messagingConsents    MessagingConsent[]
   eventLogs            EventLog[]
   deadLetterJobs       DeadLetterJob[]
   optOuts              OptOut[]
@@ -297,18 +298,33 @@ model CategoryPrice {
 }
 
 // Message entrant WhatsApp (webhook) - Story 2.1
+model MessagingConsent {
+  id              String   @id @default(cuid())
+  tenantId        String   @map("tenant_id")
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  phone           String
+  scope           String
+  sourceMessageId String   @map("source_message_id")
+  grantedAt       DateTime @default(now()) @map("granted_at")
+
+  @@unique([tenantId, phone, scope])
+  @@map("messaging_consents")
+}
+
 model MessageIn {
-  id                String   @id @default(cuid())
-  tenantId          String?  @map("tenant_id") // nullable si tenant non résolu
-  tenant            Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
-  providerMessageId String   @map("provider_message_id") // ex. wamid Meta
+  providerSentAt    DateTime? @map("provider_sent_at")
+  id                String    @id @default(cuid())
+  tenantId          String?   @map("tenant_id") // nullable si tenant non résolu
+  tenant            Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  providerMessageId String    @map("provider_message_id") // ex. wamid Meta
   from              String // numéro WhatsApp expéditeur
-  body              String   @db.Text
-  mediaUrl          String?  @map("media_url")
-  correlationId     String   @map("correlation_id") // UUID ou message_sid pour traçabilité
-  createdAt         DateTime @default(now()) @map("created_at")
+  body              String    @db.Text
+  mediaUrl          String?   @map("media_url")
+  correlationId     String    @map("correlation_id") // UUID ou message_sid pour traçabilité
+  createdAt         DateTime  @default(now()) @map("created_at")
 
   @@unique([tenantId, providerMessageId])
+  @@index([tenantId, from, providerSentAt], map: "messages_in_tenant_from_provider_sent_idx")
   @@index([tenantId, providerMessageId])
   @@index([tenantId])
   @@map("messages_in")
@@ -703,27 +719,28 @@ model DeadLetterJob {
 }
 
 model MessageOut {
-  id                 String    @id @default(cuid())
-  tenantId           String    @map("tenant_id") // NOT NULL: isolation tenant stricte
-  tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  to                 String // destinataire (format E.164 normalisé)
-  body               String?   @db.Text
-  mediaUrl           String?   @map("media_url") @db.Text // Story 9.4: URL média (photo article) pour MMS WhatsApp
-  interactivePayload Json?     @map("interactive_payload") // Payload boutons/liste pour messages interactifs WhatsApp
-  isTypingIndicator  Boolean   @default(false) @map("is_typing_indicator") // Story 11.2
-  status             String // pending | sending | sent | failed | blocked (STOP) | suppressed (assistant en pause)
-  attempts           Int       @default(0)
-  purpose            String? // order_confirmation pour mesurer le premier succès
-  publishedAt        DateTime? @map("published_at")
-  publishLeaseUntil  DateTime? @map("publish_lease_until")
-  sendLeaseUntil     DateTime? @map("send_lease_until")
-  sentAt             DateTime? @map("sent_at")
-  nextAttemptAt      DateTime? @map("next_attempt_at")
-  lastError          String?   @map("last_error") @db.Text
-  correlationId      String    @map("correlation_id") // UUID ou message_sid pour traçabilité
-  providerMessageId  String?   @map("provider_message_id") // wamid Meta après envoi réussi
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
+  notificationContext Json?     @map("notification_context")
+  id                  String    @id @default(cuid())
+  tenantId            String    @map("tenant_id") // NOT NULL: isolation tenant stricte
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  to                  String // destinataire (format E.164 normalisé)
+  body                String?   @db.Text
+  mediaUrl            String?   @map("media_url") @db.Text // Story 9.4: URL média (photo article) pour MMS WhatsApp
+  interactivePayload  Json?     @map("interactive_payload") // Payload boutons/liste pour messages interactifs WhatsApp
+  isTypingIndicator   Boolean   @default(false) @map("is_typing_indicator") // Story 11.2
+  status              String // pending | sending | sent | failed | blocked (STOP) | suppressed (assistant en pause)
+  attempts            Int       @default(0)
+  purpose             String? // order_confirmation pour mesurer le premier succès
+  publishedAt         DateTime? @map("published_at")
+  publishLeaseUntil   DateTime? @map("publish_lease_until")
+  sendLeaseUntil      DateTime? @map("send_lease_until")
+  sentAt              DateTime? @map("sent_at")
+  nextAttemptAt       DateTime? @map("next_attempt_at")
+  lastError           String?   @map("last_error") @db.Text
+  correlationId       String    @map("correlation_id") // UUID ou message_sid pour traçabilité
+  providerMessageId   String?   @map("provider_message_id") // wamid Meta après envoi réussi
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   @@unique([tenantId, correlationId, to]) // Anti-doublon : même message pas écrit deux fois (optionnel Story 2.4)
   @@index([tenantId, status]) // Lookup rapide des messages pending

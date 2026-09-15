@@ -185,6 +185,7 @@ export async function updateOrderStatus(opts: {
     writeToOutbox({
       tenantId,
       to: order.reservation.clientPhone,
+      notificationContext: { kind: "order_status", orderNumber: updated.orderNumber, status: newStatus as "delivered" | "cancelled" | "in_delivery" },
       body,
       correlationId,
     }).catch((err) => {

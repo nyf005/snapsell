@@ -4,6 +4,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const mockMessageOutUpdate = vi.fn();
 const mockTenantFindUnique = vi.fn();
 const mockSend = vi.fn();
+const mockSendTemplate = vi.fn();
+const mockPolicy = vi.hoisted(() => vi.fn());
+vi.mock("~/server/messaging/sending-policy", () => ({ decideSendingPolicy: mockPolicy }));
 const mockEventLogCreate = vi.hoisted(() => vi.fn());
 let lastAdapterArgs: { phoneNumberId: string; accessToken: string } | null = null;
 
@@ -32,6 +35,7 @@ vi.mock("~/server/messaging/providers/meta/adapter", () => ({
       lastAdapterArgs = { phoneNumberId, accessToken };
     }
     send = mockSend;
+    sendTemplate = mockSendTemplate;
   },
 }));
 
@@ -74,6 +78,8 @@ describe("outbox-sender worker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSend.mockReset();
+    mockSendTemplate.mockReset();
+    mockPolicy.mockReset().mockResolvedValue({ mode: "freeform" });
     mockMessageOutUpdate.mockReset();
     mockTenantFindUnique.mockReset();
     lastAdapterArgs = null;
@@ -90,6 +96,32 @@ describe("outbox-sender worker", () => {
   });
 
   describe("processOutboundMessage", () => {
+    it("bloque une tâche expirée sans appeler Meta", async () => {
+      mockPolicy.mockResolvedValue({ mode: "blocked", reason: "whatsapp_window_closed" });
+      mockMessageOutUpdate.mockResolvedValue({});
+      await processOutboundMessage({ id: "expired", tenantId: "tenant-123", to: "+33612345678", body: "Ancien rappel", status: "pending", attempts: 0, correlationId: "expired" });
+      expect(mockSend).not.toHaveBeenCalled();
+      expect(mockSendTemplate).not.toHaveBeenCalled();
+      expect(mockMessageOutUpdate).toHaveBeenCalledWith({ where: { id: "expired" }, data: { status: "blocked", lastError: "whatsapp_window_closed" } });
+    });
+    it("envoie le modèle validé sans envoyer le texte libre", async () => {
+      mockPolicy.mockResolvedValue({ mode: "template", name: "suivi", language: "fr", parameters: ["CMD-42", "livrée"] });
+      mockSendTemplate.mockResolvedValue({ success: true, providerMessageId: "wamid.template" });
+      mockMessageOutUpdate.mockResolvedValue({});
+      vi.mocked(logMessageSent).mockResolvedValue();
+      await processOutboundMessage({ id: "template", tenantId: "tenant-123", to: "+33612345678", body: "Texte libre", status: "pending", attempts: 0, correlationId: "template", notificationContext: { kind: "order_status", orderNumber: "CMD-42", status: "delivered" } });
+      expect(mockSend).not.toHaveBeenCalled();
+      expect(mockSendTemplate).toHaveBeenCalledWith(expect.objectContaining({ to: "+33612345678" }), "suivi", ["CMD-42", "livrée"], "fr");
+    });
+    it("ne contourne pas une erreur de vérification Meta par un envoi libre", async () => {
+      mockPolicy.mockRejectedValue(new Error("approval unavailable"));
+      mockMessageOutUpdate.mockResolvedValue({});
+      const result = await processOutboundMessage({ id: "error", tenantId: "tenant-123", to: "+33612345678", body: "Texte", status: "pending", attempts: 0, correlationId: "error" });
+      expect(result.success).toBe(false);
+      expect(mockSend).not.toHaveBeenCalled();
+      expect(mockSendTemplate).not.toHaveBeenCalled();
+    });
+
     it("supprime définitivement un message client en attente quand l’assistant est en pause", async () => {
       mockTenantFindUnique.mockResolvedValue({
         metaPhoneNumberId: "123456",

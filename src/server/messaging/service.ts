@@ -1,3 +1,5 @@
+import { isServiceWindowOpen } from "./sending-policy";
+import { normalizeIncomingPhone } from "~/lib/validations/phone";
 import { db } from "~/server/db";
 import { decrypt } from "~/lib/crypto";
 import { MetaCloudAdapter } from "./providers/meta/adapter";
@@ -66,6 +68,8 @@ export async function sendImmediateTyping(
 ): Promise<void> {
   if (!tenantOrId) return;
   try {
+    const tenantId = typeof tenantOrId === "string" ? tenantOrId : tenantOrId.id;
+    if (!await isServiceWindowOpen(tenantId, normalizeIncomingPhone(to))) return;
     const adapter = await getProviderForTenant(tenantOrId);
     if (!adapter) return;
 

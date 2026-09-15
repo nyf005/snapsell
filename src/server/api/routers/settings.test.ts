@@ -1,3 +1,4 @@
+import { ORDER_STATUS_TEMPLATE_BODY } from "~/lib/whatsapp-template";
 import { Prisma } from "../../../../generated/prisma";
 import { TRPCError } from "@trpc/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -555,6 +556,8 @@ describe("settings router — WhatsApp templates", () => {
       templates: [
         {
           id: "template-1",
+          components: undefined,
+          compatible: false,
           name: "order_confirmation",
           language: "en",
           category: "UTILITY",
@@ -590,6 +593,7 @@ describe("settings router — WhatsApp templates", () => {
         Promise.resolve({
           data: [
             {
+              components: [{ type: "BODY", text: ORDER_STATUS_TEMPLATE_BODY }],
               name: "reservation_confirmation",
               language: "fr",
               category: "UTILITY",

@@ -59,7 +59,7 @@ export const botMsg = {
       `⏳ *${code} est déjà réservé.*\n\nTu es en file d’attente, position *n° ${position}*. Je te préviens automatiquement si l’article se libère.`,
 
     orderConfirmed: () =>
-      `✅ *Commande confirmée.*\n\nOn te contacte pour organiser la livraison.`,
+      `✅ *Commande confirmée.*\n\nÉcris-nous ici pour suivre ta commande.`,
 
     orderWithDeposit: (minutes: number) =>
       `⏳ *Commande en attente d’acompte.*\n\nEnvoie la preuve de paiement ici dans les *${minutes} minutes* 📸\n\nL’article reste réservé pendant ce délai.`,
@@ -84,7 +84,7 @@ export const botMsg = {
       `Je n’ai pas reconnu ce message.\n\nEnvoie le code de l’article, par exemple *A12*, ou demande de l’aide.`,
 
     orderStatus: (orderNumber: string) =>
-      `✅ *Commande ${orderNumber} confirmée.*\n\nOn te contacte pour organiser la livraison.`,
+      `✅ *Commande ${orderNumber} confirmée.*\n\nÉcris-nous ici pour suivre ta commande.`,
 
     // --- Order status notifications ---
 
@@ -227,11 +227,12 @@ export const botMsg = {
 
     /** Commande confirmée avec bouton Suivre */
     orderConfirmedInteractive: (): InteractiveMessage => ({
-      body: `✅ *Commande confirmée.*\n\nOn te contacte pour organiser la livraison.`,
+      body: `✅ *Commande confirmée.*\n\nPour recevoir les mises à jour de tes commandes ici, choisis « Activer le suivi ». Tu peux arrêter avec STOP.`,
       interactive: {
         type: "buttons",
         header: "✅ Commande confirmée",
         buttons: [
+          { id: "allow_order_updates", title: "Activer le suivi" },
           { id: "track_order", title: "Suivre la commande" },
         ],
       } satisfies InteractivePayload,
@@ -239,11 +240,12 @@ export const botMsg = {
 
     /** Acompte requis avec boutons Envoyer preuve / Agent */
     orderWithDepositInteractive: (minutes: number): InteractiveMessage => ({
-      body: `⏳ *Commande en attente d’acompte.*\n\nEnvoie la preuve de paiement dans les *${minutes} minutes*. L’article reste réservé pendant ce délai.`,
+      body: `⏳ *Commande en attente d’acompte.*\n\nEnvoie la preuve de paiement dans les *${minutes} minutes*. L’article reste réservé pendant ce délai. Pour recevoir les mises à jour de tes commandes sur WhatsApp, choisis « Activer le suivi ». Arrêt possible avec STOP.`,
       interactive: {
         type: "buttons",
         header: "⚡ Action requise",
         buttons: [
+          { id: "allow_order_updates", title: "Activer le suivi" },
           { id: "send_proof", title: "Envoyer la preuve" },
           { id: "contact_agent", title: "Demander de l’aide" },
         ],

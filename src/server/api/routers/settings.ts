@@ -1,3 +1,4 @@
+import { isOrderStatusTemplate, type MetaTemplate } from "~/lib/whatsapp-template";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
@@ -38,7 +39,7 @@ import {
 import { env } from "~/env";
 import { isWhatsAppSupportEmail } from "~/lib/support-access";
 
-type WhatsAppTemplate = {
+type WhatsAppTemplate = MetaTemplate & {
   id?: string;
   name: string;
   language: string;
@@ -90,7 +91,7 @@ async function fetchWhatsAppTemplatesFromMeta(opts: {
   accessToken: string;
 }): Promise<WhatsAppTemplate[]> {
   const res = await fetch(
-    `https://graph.facebook.com/v21.0/${encodeURIComponent(opts.wabaId)}/message_templates?fields=id,name,language,category,status&limit=100`,
+    `https://graph.facebook.com/v21.0/${encodeURIComponent(opts.wabaId)}/message_templates?fields=id,name,language,category,status,components&limit=100`,
     { headers: { Authorization: `Bearer ${opts.accessToken}` } },
   );
 
@@ -107,6 +108,8 @@ async function fetchWhatsAppTemplatesFromMeta(opts: {
     language: template.language,
     category: template.category,
     status: template.status,
+    components: template.components,
+    compatible: isOrderStatusTemplate(template),
   }));
 }
 
@@ -722,13 +725,13 @@ export const settingsRouter = createTRPCRouter({
         (template) =>
           template.name === input.name &&
           template.language === input.language &&
-          template.status === "APPROVED",
+          isOrderStatusTemplate(template),
       );
 
       if (!matchingTemplate) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Sélectionnez un template WhatsApp approuvé.",
+          message: "Sélectionnez un modèle de suivi approuvé, de catégorie Utilitaire, avec le texte et les deux variables indiqués.",
         });
       }
 

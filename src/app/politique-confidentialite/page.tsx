@@ -16,7 +16,7 @@ export default function PolitiqueConfidentialitePage() {
           Politique de confidentialit&eacute;
         </h1>
         <p className="mb-8 text-sm text-muted-foreground">
-          Derni&egrave;re mise &agrave; jour&nbsp;: 13 f&eacute;vrier 2026
+          Derni&egrave;re mise &agrave; jour&nbsp;: 14 septembre 2026
         </p>
 
         <section className="mb-10">
@@ -45,6 +45,13 @@ export default function PolitiqueConfidentialitePage() {
           <p className="leading-relaxed text-muted-foreground">
             Vos donn&eacute;es personnelles ne sont pas vendues &agrave; des tiers. Elles peuvent &ecirc;tre partag&eacute;es avec&nbsp;: nos prestataires techniques (h&eacute;bergement, paiement via Paystack, envoi de messages via WhatsApp Business API), les autorit&eacute;s comp&eacute;tentes en cas d&apos;obligation l&eacute;gale.
           </p>
+        </section>
+
+        <section className="mb-10">
+          <h2 className="mb-4 text-xl font-bold">Analyse des messages par intelligence artificielle</h2>
+          <p className="leading-relaxed text-muted-foreground">Pour comprendre une demande et extraire les indications de livraison, SnapSell peut transmettre le texte des messages WhatsApp ou l’adresse saisie à un prestataire d’intelligence artificielle. Groq est le prestataire prévu par défaut ; le fournisseur utilisé dépend de la configuration du service. Le texte transmis peut contenir les informations personnelles que le client y a écrites. Les photos des justificatifs ne sont pas envoyées par ces fonctions d’analyse de texte.</p>
+          <p className="mt-3 leading-relaxed text-muted-foreground">Cette analyse sert au traitement des demandes et des commandes. Elle peut se tromper : le client peut demander à parler à la boutique, et les paiements restent vérifiés par le vendeur. Le traitement peut impliquer des transferts internationaux selon le prestataire utilisé. Contactez-nous pour connaître les prestataires effectivement utilisés et exercer vos droits. La boutique doit informer sa clientèle de ce traitement avant de collecter ses informations.</p>
+          <p className="mt-3 leading-relaxed text-muted-foreground">L’accord pour recevoir le suivi des commandes sur WhatsApp est enregistré séparément, avec sa date et la référence du message de consentement. Il peut être retiré en envoyant STOP. Pour les fiches produit envoyées manuellement, nous enregistrons la confirmation du vendeur que le client a demandé cet envoi.</p>
         </section>
 
         <section className="mb-10">

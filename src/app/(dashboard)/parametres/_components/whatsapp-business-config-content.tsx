@@ -1,4 +1,5 @@
 "use client";
+import { ORDER_STATUS_TEMPLATE_BODY, isOrderStatusTemplate } from "~/lib/whatsapp-template";
 
 import { useCallback, useEffect, useState } from "react";
 import { Check, ExternalLink, Info, MessageSquare, RefreshCw, ShoppingBag } from "lucide-react";
@@ -84,8 +85,8 @@ export function WhatsAppAdvancedSections() {
   }, [templatesQuery.data?.selectedTemplate]);
 
   const templates = templatesQuery.data?.templates ?? [];
-  const approvedTemplates = templates.filter((template) => template.status === "APPROVED");
-  const selectedTemplate = templates.find(
+  const approvedTemplates = templates.filter(isOrderStatusTemplate);
+  const selectedTemplate = approvedTemplates.find(
     (template) => `${template.name}::${template.language}` === selectedTemplateKey,
   );
   const whatsappManagerTemplatesUrl = waConfig?.metaWabaId
@@ -231,7 +232,7 @@ export function WhatsAppAdvancedSections() {
                   Modèles de message
                 </CardTitle>
                 <CardDescription>
-                  Choisissez le modèle de message que SnapSell utilisera pour écrire sur WhatsApp. Seuls les modèles approuvés par WhatsApp apparaissent ici.
+                  Choisissez le modèle utilisé pour annoncer une mise en livraison, une livraison ou une annulation. La sélection propose les modèles approuvés et compatibles avec ce suivi.
                 </CardDescription>
               </div>
               <Button
@@ -258,6 +259,12 @@ export function WhatsAppAdvancedSections() {
               </Alert>
             ) : (
               <div className="space-y-6">
+                <div className="space-y-2 rounded-lg bg-muted p-4 text-sm">
+                  <p>Hors des 24 heures suivant le dernier message du client, le suivi exige son accord et un modèle approuvé. Ce suivi hors délai est disponible en Starter et Pro. Ces envois peuvent être facturés par Meta.</p>
+                  <p>Dans WhatsApp Manager, créez un modèle en français, de catégorie Utilitaire, avec uniquement ce corps de message :</p>
+                  <p className="select-all font-medium">{ORDER_STATUS_TEMPLATE_BODY}</p>
+                  <p>La première variable est le numéro de commande, la seconde son statut. Sans modèle compatible, les notifications hors délai sont bloquées. Les autres messages automatiques restent limités aux 24 heures.</p>
+                </div>
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
                   <div className="min-w-0 flex-1 space-y-2">
                     <label className={fieldLabel} htmlFor="wa-template-select">

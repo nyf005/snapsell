@@ -8,6 +8,7 @@
  * pg-boss gère retries (retryLimit: 5, retryBackoff) et DLQ (deadLetter: "outbox-dlq")
  */
 
+import { decideSendingPolicy } from "~/server/messaging/sending-policy";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { logMessageSent, logMessageBlockedOptOut } from "~/server/events/eventLog";
@@ -64,6 +65,7 @@ async function sendClaimedMessage(messageOut: {
   body?: string | null;
   mediaUrl?: string | null;
   interactivePayload?: unknown;
+  notificationContext?: unknown;
   isTypingIndicator?: boolean;
   status: string;
   attempts: number;
@@ -206,6 +208,18 @@ async function sendClaimedMessage(messageOut: {
       return { success: false, error: errorMsg };
     }
 
+    // Re-evaluate after queue delays and retries, including messages addressed to sellers.
+    const policy = await decideSendingPolicy(tenantId, normalizeIncomingPhone(to), messageOut.notificationContext,
+      (messageOut.interactivePayload as InteractivePayload | null)?.type === "product");
+    if (policy.mode === "blocked") {
+      await db.messageOut.update({ where: { id }, data: { status: "blocked", lastError: policy.reason } });
+      return { success: true };
+    }
+    if (policy.mode === "template" && !adapter.sendTemplate) {
+      await db.messageOut.update({ where: { id }, data: { status: "blocked", lastError: "whatsapp_template_unsupported" } });
+      return { success: true };
+    }
+
     // Story 9.4: si mediaUrl est une clé R2 (pas une URL), signer juste avant l'envoi
     let resolvedMediaUrl: string | undefined;
     if (messageOut.mediaUrl) {
@@ -230,7 +244,9 @@ async function sendClaimedMessage(messageOut: {
     };
 
     // Envoyer via MessagingProvider
-    const result: ProviderSendResult = await adapter.send(outboundMessage);
+    const result: ProviderSendResult = policy.mode === "template"
+      ? await adapter.sendTemplate!(outboundMessage, policy.name, policy.parameters, policy.language)
+      : await adapter.send(outboundMessage);
 
     if (result.success && result.providerMessageId) {
       await db.messageOut.update({

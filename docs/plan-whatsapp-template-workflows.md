@@ -1,5 +1,28 @@
 # Plan WhatsApp Template Workflows
 
+## État au 14 septembre 2026
+
+Le moteur contrôle désormais les 24 heures à chaque tentative, à partir du dernier horodatage entrant Meta. Un message reçu tardivement ou rejoué ne prolonge pas ce délai. Les anciennes lignes sans horodatage ne prouvent pas une fenêtre ouverte : le client doit écrire à nouveau.
+
+Le suivi `order_status_update` est branché sur la sélection globale existante : mise en livraison, livraison et annulation. Hors fenêtre, il exige le droit `hasNotificationsOutside24h` (Starter/Pro), le consentement explicite `order_updates` du client, et un modèle français `UTILITY`, `APPROVED`, contenant uniquement le corps suivant :
+
+> Votre commande {{1}} est {{2}}. Répondez à ce message pour contacter la boutique.
+
+Les variables sont le numéro de commande et le statut. Le modèle est revérifié auprès de Meta avant chaque envoi ; aucune erreur ne déclenche un repli en texte libre. Les autres workflows restent limités à la fenêtre de service. Le plan multi-workflows ci-dessous décrit une évolution ultérieure, pas des fonctionnalités déjà disponibles.
+
+Le client peut activer le suivi avec le bouton proposé après confirmation de commande. STOP garde priorité sur cet accord. Les fiches produit manuelles exigent l'attestation du vendeur que le client les a demandées, ainsi qu'une fenêtre ouverte ; cette attestation n'autorise pas des campagnes marketing.
+
+### Mise en service
+
+1. Appliquer `20260914130000_whatsapp_sending_policy` avant de démarrer la nouvelle application et le worker. Les modifications sont additives.
+2. Créer le modèle dans WhatsApp Manager et fournir des exemples de variables (par exemple `CMD-42` et `livrée`). Attendre l'approbation de Meta.
+3. Actualiser les modèles dans les paramètres WhatsApp et sélectionner le modèle compatible. Une ancienne sélection incompatible est bloquée, jamais convertie automatiquement.
+4. Publier l'information de confidentialité mise à jour et informer les clients du traitement des messages et adresses par IA.
+
+Les refus sont conservés dans `messages_out.last_error` (`whatsapp_window_closed`, `whatsapp_consent_missing`, `whatsapp_template_missing`, `whatsapp_template_incompatible`, `whatsapp_template_plan_required`, `whatsapp_product_consent_missing`). Les messages bloqués sont terminaux : changer un réglage ne relance pas une ancienne notification. Les échecs transitoires de vérification Meta restent soumis aux retries normaux de la file.
+
+Les tests utilisent Meta simulé et une base PostgreSQL locale. Ils ne constituent ni une approbation de modèle ni un déploiement en production.
+
 ## Objectif
 
 Passer d'une selection globale de template WhatsApp a une configuration par workflow SnapSell.

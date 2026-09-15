@@ -6,6 +6,7 @@ import type { IncomingMessage } from "node:http";
  * Note: tenantId peut être null si tenant non résolu (pour traçabilité)
  */
 export interface InboundMessage {
+  providerSentAt?: string;
   tenantId: string | null;
   providerMessageId: string; // ex. wamid Meta
   from: string; // numéro WhatsApp expéditeur
@@ -94,6 +95,7 @@ export type InteractivePayload =
  * Le métier ne dépend jamais des types SDK BSP
  */
 export interface OutboundMessage {
+  notificationContext?: { kind: "order_status"; orderNumber: string; status: "in_delivery" | "delivered" | "cancelled" } | { kind: "requested_product"; consentConfirmedBy: string; consentConfirmedAt: string };
   purpose?: "order_confirmation";
   tenantId: string;
   to: string; // destinataire (format E.164 normalisé)
@@ -148,4 +150,5 @@ export interface MessagingProvider {
    * @returns Résultat d'envoi avec providerMessageId si succès
    */
   send(message: OutboundMessage): Promise<ProviderSendResult>;
+  sendTemplate?(message: OutboundMessage, name: string, parameters?: string[], language?: string): Promise<ProviderSendResult>;
 }

@@ -328,7 +328,11 @@ export async function processWebhookJob(
 
     // 7. Interactive Replies Handler
     if (interactiveReplyId) {
-      if (interactiveReplyId === "cancel_order") {
+      if (interactiveReplyId === "allow_order_updates") {
+        if (messageType !== "client") return buildEnrichedMessage();
+        await db.messagingConsent.upsert({ where: { tenantId_phone_scope: { tenantId, phone: clientPhoneE164, scope: "order_updates" } }, create: { tenantId, phone: clientPhoneE164, scope: "order_updates", sourceMessageId: providerMessageId }, update: { sourceMessageId: providerMessageId, grantedAt: new Date() } });
+        await writeToOutbox({ tenantId, to: clientPhoneE164, body: "Vous recevrez les mises à jour de vos commandes sur WhatsApp. Envoyez STOP pour ne plus recevoir de messages.", correlationId });
+      } else if (interactiveReplyId === "cancel_order") {
         const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
         if (active)
           await db.reservation.update({ where: { id: active.id }, data: { status: "expired" } });

@@ -39,6 +39,7 @@ vi.mock("~/server/db", () => {
       findFirst: vi.fn().mockResolvedValue(null),
       create: vi.fn().mockResolvedValue({}),
     },
+    messagingConsent: { upsert: vi.fn().mockResolvedValue({}) },
     optOut: {
       findUnique: vi.fn().mockResolvedValue(null),
       create: vi.fn().mockResolvedValue({}),
@@ -3485,5 +3486,34 @@ describe("Priorité des intentions dans une conversation", () => {
     expect(writeToOutbox).not.toHaveBeenCalled();
     expect(db.conversationWindow.create).not.toHaveBeenCalled();
     expect(createReservation).not.toHaveBeenCalled();
+  });
+});
+
+
+describe("Consentement explicite aux mises à jour WhatsApp", () => {
+  beforeEach(() => {
+    vi.clearAllMocks(); setupClientMocks("free");
+    vi.mocked(db.conversationState.findUnique).mockResolvedValue(null);
+    vi.mocked(db.optOut.findUnique).mockResolvedValue(null);
+  });
+  const run = (extra = {}) => processWebhookJob({ id: "consent", data: {
+    tenantId: "tenant-123", providerMessageId: "wamid.consent", from: "+33612345678",
+    body: "Activer le suivi", correlationId: "consent", ...extra,
+  } } as PgBossJob<InboundMessage>);
+  it("enregistre la portée, le client et la preuve du clic", async () => {
+    await run({ interactiveReplyId: "allow_order_updates" });
+    expect(db.messagingConsent.upsert).toHaveBeenCalledWith(expect.objectContaining({
+      where: { tenantId_phone_scope: { tenantId: "tenant-123", phone: "+33612345678", scope: "order_updates" } },
+      create: { tenantId: "tenant-123", phone: "+33612345678", scope: "order_updates", sourceMessageId: "wamid.consent" },
+    }));
+    expect(writeToOutbox).toHaveBeenCalledWith(expect.objectContaining({ body: expect.stringContaining("STOP") }));
+  });
+  it("n'infère pas le consentement à partir d'un message ordinaire", async () => {
+    await run({ body: "bonjour" });
+    expect(db.messagingConsent.upsert).not.toHaveBeenCalled();
+  });
+  it("STOP prime sur un clic et empêche tout accord", async () => {
+    await run({ body: "STOP", interactiveReplyId: "allow_order_updates" });
+    expect(db.messagingConsent.upsert).not.toHaveBeenCalled();
   });
 });

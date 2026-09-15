@@ -22,8 +22,13 @@ describe.skipIf(process.env.RUN_INTEGRATION_TESTS !== "true")("outbox recovery w
     recover = (await import("~/server/workers/outbox-recovery")).runOutboxRecovery;
     processMessage = (await import("~/server/workers/outbox-sender")).processOutboundMessage;
     tenantId = (await db.tenant.create({ data: { assistantEnabled: true, name: "Outbox test", metaPhoneNumberId: "outbox-reliability-test", metaAccessToken: "test" } })).id;
+    await db.messageIn.create({ data: { tenantId, from: "+2250701020304", providerMessageId: "reliability-inbound", correlationId: "reliability-inbound", body: "Bonjour", providerSentAt: new Date() } });
   });
-  afterAll(async () => { if (tenantId) await db.tenant.delete({ where: { id: tenantId } }); });
+  afterAll(async () => {
+    if (!tenantId) return;
+    await db.messageIn.deleteMany({ where: { tenantId } });
+    await db.tenant.delete({ where: { id: tenantId } });
+  });
   beforeEach(async () => {
     vi.clearAllMocks();
     publish.mockResolvedValue({ messageId: "qstash-test" });

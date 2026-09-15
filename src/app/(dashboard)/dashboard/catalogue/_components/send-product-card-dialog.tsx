@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -43,12 +43,14 @@ export function SendProductCardDialog({
   onOpenChange: (open: boolean) => void;
   onSent: (message: string) => void;
 }) {
+  const [consentConfirmed, setConsentConfirmed] = useState(false);
+  useEffect(() => { setConsentConfirmed(false); }, [item]);
   const [phone, setPhone] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
   const send = api.live.sendProductCard.useMutation({
     onSuccess: () => {
-      onSent(`Fiche de ${item?.code} envoyée.`);
+      onSent(`Fiche de ${item?.code} mise en attente d’envoi.`);
       setPhone("");
       onOpenChange(false);
     },
@@ -65,7 +67,8 @@ export function SendProductCardDialog({
       return;
     }
     if (!item) return;
-    send.mutate({ catalogueItemId: item.id, clientPhone: value });
+    if (!consentConfirmed) return;
+    send.mutate({ catalogueItemId: item.id, clientPhone: value, consentConfirmed: true });
   };
 
   return (
@@ -90,6 +93,7 @@ export function SendProductCardDialog({
               value={phone}
               onChange={(e) => {
                 setPhone(e.target.value);
+                setConsentConfirmed(false);
                 if (localError) setLocalError(null);
               }}
               disabled={send.isPending}
@@ -103,6 +107,7 @@ export function SendProductCardDialog({
             ) : null}
           </div>
 
+          <label htmlFor="product-card-consent" className="flex min-h-11 items-start gap-3 text-sm"><input id="product-card-consent" type="checkbox" className="mt-1 size-5 shrink-0" checked={consentConfirmed} onChange={e => setConsentConfirmed(e.target.checked)} disabled={send.isPending} required /><span>Le client a demandé cette fiche et accepte de la recevoir sur WhatsApp. Il m’a écrit au cours des dernières 24 heures.</span></label>
           {send.isError ? (
             <p role="alert" className="text-sm text-destructive">
               {formatErrorText(send.error, "catalogue")}
@@ -119,7 +124,7 @@ export function SendProductCardDialog({
             >
               Annuler
             </Button>
-            <Button type="submit" className="flex-1 font-bold" disabled={send.isPending}>
+            <Button type="submit" className="flex-1 font-bold" disabled={send.isPending || !consentConfirmed}>
               {send.isPending ? "Envoi…" : "Envoyer la fiche"}
             </Button>
           </DialogFooter>

@@ -175,6 +175,7 @@ describe("MetaCloudAdapter", () => {
       expect(result).toEqual({
         tenantId: null,
         providerMessageId: "wamid.HBgNMzM2MTIzNDU2Nzg",
+        providerSentAt: new Date(1234567890 * 1000).toISOString(),
         from: "+33612345678",
         body: "Bonjour",
         mediaUrl: undefined,
@@ -214,6 +215,7 @@ describe("MetaCloudAdapter", () => {
       expect(result).toEqual({
         tenantId: null,
         providerMessageId: "wamid.BUTTON001",
+        providerSentAt: new Date(1234567890 * 1000).toISOString(),
         from: "+22509542783",
         body: "Variantes",
         mediaUrl: undefined,
@@ -359,6 +361,14 @@ describe("MetaCloudAdapter", () => {
     });
   });
 
+  it.each([undefined, "invalid", "0", "9999999999999"])("does not accept invalid or future inbound time %s", async timestamp => {
+    const messages = await adapter.parseInboundBatch(makeJsonRequest(makeMetaWebhookPayload([
+      { from: "33612345678", id: "wamid.time", type: "text", text: { body: "Bonjour" }, timestamp },
+    ])));
+    expect(messages).toHaveLength(1);
+    expect(messages[0]?.providerSentAt).toBeUndefined();
+  });
+
   // ===== AC1 + AC4: send =====
   describe("send", () => {
     const mockFetch = vi.fn();
@@ -369,6 +379,17 @@ describe("MetaCloudAdapter", () => {
 
     afterEach(() => {
       vi.unstubAllGlobals();
+    });
+
+    it("sends the approved template body parameters with the selected language", async () => {
+      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ messages: [{ id: "wamid.TEMPLATE" }] }), { status: 200 }));
+      const result = await adapter.sendTemplate({ tenantId: "t", to: "+33612345678", correlationId: "c" }, "suivi", ["CMD-42", "livrée"], "fr");
+      expect(result).toEqual({ success: true, providerMessageId: "wamid.TEMPLATE" });
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining("/messages"), expect.objectContaining({
+        body: JSON.stringify({ messaging_product: "whatsapp", to: "33612345678", type: "template", template: {
+          name: "suivi", language: { code: "fr" }, components: [{ type: "body", parameters: [{ type: "text", text: "CMD-42" }, { type: "text", text: "livrée" }] }],
+        } }),
+      }));
     });
 
     it("should send text-only message", async () => {

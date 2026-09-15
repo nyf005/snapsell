@@ -1,3 +1,4 @@
+import { ORDER_STATUS_TEMPLATE_BODY } from "~/lib/whatsapp-template";
 /**
  * Tests d'intégration pour le worker outbox-sender (Story 2.4, 10.4, 11.1)
  *
@@ -13,10 +14,12 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
 
 const mockSend = vi.fn();
+const mockSendTemplate = vi.fn();
 
 vi.mock("~/server/messaging/providers/meta/adapter", () => ({
   MetaCloudAdapter: class {
     send = mockSend;
+    sendTemplate = mockSendTemplate;
   },
 }));
 
@@ -75,11 +78,16 @@ describe.skipIf(!shouldRun)(
         },
       });
       testTenantId = tenant.id;
+      await db.messageIn.createMany({ data: ["+33612345678", "+33698765432"].map(phone => ({
+        tenantId: testTenantId, from: phone, providerMessageId: `incoming-${phone}`,
+        correlationId: `incoming-${phone}`, providerSentAt: new Date(), body: "Bonjour",
+      })) });
     });
 
     afterAll(async () => {
       if (!db || !testTenantId) return;
       await db.messageOut.deleteMany({ where: { tenantId: testTenantId } });
+      await db.messageIn.deleteMany({ where: { tenantId: testTenantId } });
       await db.tenant.delete({ where: { id: testTenantId } });
     });
 
@@ -116,6 +124,46 @@ describe.skipIf(!shouldRun)(
       });
       expect(updated!.status).toBe("sent");
       expect(updated!.providerMessageId).toBe("SM-INTEGRATION-SUCCESS");
+    });
+
+    it("a delayed job is blocked based on the original inbound timestamp", async () => {
+      const phone = "+33611223344";
+      await db.messageIn.create({ data: {
+        tenantId: testTenantId, from: phone, providerMessageId: "old-incoming",
+        correlationId: "old-incoming", body: "Bonjour",
+        providerSentAt: new Date(Date.now() - 25 * 60 * 60 * 1000),
+      } });
+      const message = await db.messageOut.create({ data: {
+        tenantId: testTenantId, to: phone, status: "pending", body: "Rappel retardé", correlationId: "late",
+      } });
+      await processOutboundMessage(message);
+      expect(mockSend).not.toHaveBeenCalled();
+      expect(await db.messageOut.findUnique({ where: { id: message.id } })).toMatchObject({ status: "blocked", lastError: "whatsapp_window_closed" });
+    });
+
+    it("uses stored consent and a checked template for a late order update", async () => {
+      const phone = "+33655443322";
+      await db.tenant.update({ where: { id: testTenantId }, data: {
+        hasNotificationsOutside24h: true, metaWabaId: "waba-test",
+        whatsappTemplateName: "suivi", whatsappTemplateLanguage: "fr",
+      } });
+      await db.messagingConsent.create({ data: { tenantId: testTenantId, phone, scope: "order_updates", sourceMessageId: "wamid.consent" } });
+      const message = await db.messageOut.create({ data: {
+        tenantId: testTenantId, to: phone, status: "pending", body: "Commande livrée", correlationId: "late-template",
+        notificationContext: { kind: "order_status", orderNumber: "CMD-42", status: "delivered" },
+      } });
+      vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ data: [{
+        name: "suivi", language: "fr", category: "UTILITY", status: "APPROVED", components: [{ type: "BODY", text: ORDER_STATUS_TEMPLATE_BODY }],
+      }] }) }));
+      mockSendTemplate.mockResolvedValue({ success: true, providerMessageId: "wamid.late-template" });
+      try {
+        await processOutboundMessage(message);
+        expect(mockSend).not.toHaveBeenCalled();
+        expect(mockSendTemplate).toHaveBeenCalledWith(expect.objectContaining({ to: phone }), "suivi", ["CMD-42", "livrée"], "fr");
+        expect(await db.messageOut.findUnique({ where: { id: message.id } })).toMatchObject({ status: "sent" });
+      } finally {
+        vi.unstubAllGlobals();
+      }
     });
 
     it("Meta failure → status failed (pg-boss handles retry)", async () => {

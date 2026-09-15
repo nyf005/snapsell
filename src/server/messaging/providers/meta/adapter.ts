@@ -156,6 +156,12 @@ export class MetaCloudAdapter implements MessagingProvider {
               continue;
             }
 
+            // Preserve provider time; missing or future timestamps never open a service window.
+            const sentAtMs = Number(message.timestamp) * 1000;
+            const providerSentAt = Number.isFinite(sentAtMs) && sentAtMs > 0 && sentAtMs <= Date.now()
+              ? new Date(sentAtMs).toISOString()
+              : undefined;
+
             // Prefixer + pour E.164, guard double prefix
             const from = rawFrom.startsWith("+") ? rawFrom : `+${rawFrom}`;
 
@@ -189,6 +195,7 @@ export class MetaCloudAdapter implements MessagingProvider {
                 results.push({
                   tenantId: null,
                   providerMessageId: messageId,
+                  ...(providerSentAt ? { providerSentAt } : {}),
                   from,
                   body: "",
                   correlationId: messageId,
@@ -223,6 +230,7 @@ export class MetaCloudAdapter implements MessagingProvider {
             results.push({
               tenantId: null,
               providerMessageId: messageId,
+                  ...(providerSentAt ? { providerSentAt } : {}),
               from,
               body,
               mediaUrl,
@@ -542,7 +550,7 @@ export class MetaCloudAdapter implements MessagingProvider {
 
   /**
    * Envoie un message template (hors fenetre 24h)
-   * Hors scope MessagingProvider — methode bonus
+   * Appelé par outbox-sender après validation de la politique d’envoi.
    */
   async sendTemplate(
     message: OutboundMessage,

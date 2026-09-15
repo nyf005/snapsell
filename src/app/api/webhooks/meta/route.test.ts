@@ -423,7 +423,7 @@ describe("POST /api/webhooks/meta — inbound", () => {
     vi.mocked(dbMock.db.messageIn.create).mockResolvedValue({ id: "msg-1", correlationId: "wamid.abc" } as never);
     // Mock adapter parseInboundBatch
     const mockParseInboundBatch = vi.fn().mockResolvedValue([
-      { tenantId: null, providerMessageId: "wamid.abc", from: "+22891234567", body: "A3", correlationId: "wamid.abc" },
+      { tenantId: null, providerMessageId: "wamid.abc", providerSentAt: "2024-03-09T16:00:00.000Z", from: "+22891234567", body: "A3", correlationId: "wamid.abc" },
     ]);
     vi.mocked(adapterModule.MetaCloudAdapter).mockImplementation(function () {
       return {
@@ -437,6 +437,9 @@ describe("POST /api/webhooks/meta — inbound", () => {
     const resp = await callPOST(bodyText, sig);
     expect(resp.status).toBe(200);
     expect(dbMock.db.messageIn.create).toHaveBeenCalledTimes(1);
+    expect(dbMock.db.messageIn.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ providerSentAt: new Date("2024-03-09T16:00:00.000Z") }),
+    }));
     expect(queueMock.boss.send).toHaveBeenCalledTimes(1);
   });
 

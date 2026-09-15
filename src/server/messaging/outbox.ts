@@ -62,6 +62,7 @@ const interactivePayloadSchema = z.discriminatedUnion("type", [
 ]);
 
 const outboundMessageSchema = z.object({
+  notificationContext: z.discriminatedUnion("kind", [z.object({ kind: z.literal("order_status"), orderNumber: z.string().min(1), status: z.enum(["in_delivery", "delivered", "cancelled"]) }), z.object({ kind: z.literal("requested_product"), consentConfirmedBy: z.string().min(1), consentConfirmedAt: z.string().datetime() })]).optional(),
   purpose: z.literal("order_confirmation").optional(),
   tenantId: z.string().min(1),
   to: z.string().min(1), // Format E.164 normalisé
@@ -134,6 +135,7 @@ export async function writeToOutbox(message: OutboundMessage): Promise<{
         body: validatedMessage.body ?? "",
         mediaUrl: validatedMessage.mediaUrl ?? null,
         interactivePayload: validatedMessage.interactive ?? undefined,
+        notificationContext: validatedMessage.notificationContext ?? undefined,
         isTypingIndicator: validatedMessage.isTypingIndicator ?? false,
         ...(validatedMessage.purpose ? { purpose: validatedMessage.purpose } : {}),
         status: "pending",

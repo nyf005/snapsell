@@ -1,3 +1,6 @@
+import { isServiceWindowOpen } from "~/server/messaging/sending-policy";
+import { checkOptOut } from "~/server/messaging/optout";
+import { normalizeIncomingPhone } from "~/lib/validations/phone";
 import { z } from "zod";
 /**
  * Story 6.4 + 8.1: Live Ops — session courante (lecture seule), items, réservations, libérer une réservation.
@@ -273,10 +276,14 @@ export const liveRouter = createTRPCRouter({
         });
       }
 
+      const phone = normalizeIncomingPhone(input.clientPhone);
+      if (await checkOptOut(tenantId, phone)) throw new TRPCError({ code: "BAD_REQUEST", message: "Ce client a demandé à ne plus recevoir de messages." });
+      if (!await isServiceWindowOpen(tenantId, phone)) throw new TRPCError({ code: "BAD_REQUEST", message: "Le client doit d’abord vous écrire sur WhatsApp. Une fiche produit ne peut être envoyée que dans les 24 heures suivant son dernier message." });
       const { botMsg } = await import("~/server/messaging/templates");
       await writeToOutbox({
         tenantId,
-        to: input.clientPhone,
+        to: phone,
+        notificationContext: { kind: "requested_product", consentConfirmedBy: ctx.session.user.id, consentConfirmedAt: new Date().toISOString() },
         ...botMsg.client.productCard(tenant.metaCatalogId, item.code),
         correlationId: `product-card-${item.id}-${Date.now()}`,
       });

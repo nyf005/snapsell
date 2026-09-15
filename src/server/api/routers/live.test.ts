@@ -23,6 +23,13 @@ const mockLogEvent = vi.hoisted(() => vi.fn());
 const mockLogWaitlistPromoted = vi.hoisted(() => vi.fn());
 const mockLogLiveSessionCreated = vi.hoisted(() => vi.fn());
 const mockWriteToOutbox = vi.hoisted(() => vi.fn());
+const mockProduct = vi.hoisted(() => vi.fn());
+const mockTenant = vi.hoisted(() => vi.fn());
+const mockWindow = vi.hoisted(() => vi.fn());
+const mockOptOut = vi.hoisted(() => vi.fn());
+vi.mock("~/server/messaging/sending-policy", () => ({ isServiceWindowOpen: mockWindow }));
+vi.mock("~/server/messaging/optout", () => ({ checkOptOut: mockOptOut }));
+
 
 vi.mock("~/server/live-session/service", () => ({
   getCurrentSessionReadOnly: (...args: unknown[]) => mockGetCurrentSessionReadOnly(...args),
@@ -35,7 +42,8 @@ vi.mock("~/server/db", () => ({
   db: {
     liveSession: { findFirst: vi.fn() },
     liveItem: { findMany: mockLiveItemFindMany },
-    catalogueItem: { findMany: mockCatalogueItemFindMany },
+    catalogueItem: { findMany: mockCatalogueItemFindMany, findUnique: mockProduct },
+    tenant: { findUnique: mockTenant },
     reservation: {
       findFirst: mockReservationFindFirst,
       findMany: mockReservationFindMany,
@@ -76,7 +84,7 @@ describe("live router", () => {
       id: "user-1",
       email: "seller@example.com",
       tenantId: "tenant-1",
-      role: "OWNER",
+      role: "OWNER" as const,
     },
   };
 
@@ -85,7 +93,7 @@ describe("live router", () => {
       id: "user-2",
       email: "other@example.com",
       tenantId: "tenant-2",
-      role: "OWNER",
+      role: "OWNER" as const,
     },
   };
 
@@ -95,6 +103,44 @@ describe("live router", () => {
     mockLogWaitlistPromoted.mockResolvedValue(undefined);
     mockLogLiveSessionCreated.mockResolvedValue(undefined);
     mockWriteToOutbox.mockResolvedValue({});
+  });
+
+
+  describe("sendProductCard consent and service window", () => {
+    const input = { catalogueItemId: VALID_RESERVATION_ID, clientPhone: "+2250701020304", consentConfirmed: true as const };
+    beforeEach(() => {
+      mockProduct.mockResolvedValue({ id: VALID_RESERVATION_ID, tenantId: "tenant-1", code: "A12", syncedToMeta: true, metaProductId: "meta-product" });
+      mockTenant.mockResolvedValue({ metaCatalogId: "catalog", metaAccessToken: "token" });
+      mockWindow.mockResolvedValue(true);
+      mockOptOut.mockResolvedValue(false);
+    });
+    const caller = async () => createCaller(await createTRPCContext({ headers: new Headers(), session: { ...tenant1Session, expires: "2099-01-01T00:00:00Z" } }));
+    it("refuses unconfirmed consent without queueing a message", async () => {
+      const api = await caller();
+      await expect(api.live.sendProductCard({ ...input, consentConfirmed: false as never })).rejects.toThrow();
+      expect(mockWriteToOutbox).not.toHaveBeenCalled();
+    });
+    it("refuses a recipient who sent STOP", async () => {
+      mockOptOut.mockResolvedValue(true);
+      await expect((await caller()).live.sendProductCard(input)).rejects.toThrow("ne plus recevoir");
+      expect(mockWriteToOutbox).not.toHaveBeenCalled();
+    });
+    it("refuses an expired window even when the seller attests consent", async () => {
+      mockWindow.mockResolvedValue(false);
+      await expect((await caller()).live.sendProductCard(input)).rejects.toThrow("24 heures");
+      expect(mockWriteToOutbox).not.toHaveBeenCalled();
+    });
+    it("records seller attestation and sends only a tenant-owned product", async () => {
+      await (await caller()).live.sendProductCard(input);
+      expect(mockWriteToOutbox).toHaveBeenCalledWith(expect.objectContaining({
+        tenantId: "tenant-1", to: input.clientPhone,
+        notificationContext: { kind: "requested_product", consentConfirmedBy: "user-1", consentConfirmedAt: expect.any(String) },
+      }));
+      mockWriteToOutbox.mockClear();
+      mockProduct.mockResolvedValue({ tenantId: "tenant-2" });
+      await expect((await caller()).live.sendProductCard(input)).rejects.toThrow("introuvable");
+      expect(mockWriteToOutbox).not.toHaveBeenCalled();
+    });
   });
 
   describe("getLiveOpsData", () => {

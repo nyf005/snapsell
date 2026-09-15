@@ -1,3 +1,4 @@
+import { ORDER_STATUS_TEMPLATE_BODY } from "~/lib/whatsapp-template";
 /**
  * Tests du profil WhatsApp Business.
  *
@@ -23,6 +24,7 @@ const mockRefetchCatalogs = vi.hoisted(() => vi.fn());
 const mockRefetchTemplates = vi.hoisted(() => vi.fn());
 
 type Template = {
+  components?: Array<{ type: string; text: string }>;
   name: string;
   language: string;
   category: string;
@@ -88,6 +90,7 @@ import { WhatsAppAdvancedSections } from "./whatsapp-business-config-content";
 
 function template(overrides: Partial<Template> = {}): Template {
   return {
+    components: [{ type: "BODY", text: ORDER_STATUS_TEMPLATE_BODY }],
     name: "rappel_commande",
     language: "fr",
     category: "UTILITY",
@@ -220,7 +223,8 @@ describe("WhatsAppAdvancedSections", () => {
     it("envoie le nom, la langue et la catégorie", async () => {
       const user = userEvent.setup();
       state.templates = [
-        template({ name: "rappel_commande", language: "fr", category: "UTILITY" }),
+        template({ components: [{ type: "BODY", text: ORDER_STATUS_TEMPLATE_BODY }],
+    name: "rappel_commande", language: "fr", category: "UTILITY" }),
       ];
       render(<WhatsAppAdvancedSections />);
 

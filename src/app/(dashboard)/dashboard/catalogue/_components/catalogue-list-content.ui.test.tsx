@@ -208,11 +208,13 @@ describe("CatalogueListContent — envoyer la fiche produit", () => {
       (await screen.findAllByRole("menuitem", { name: /Envoyer la fiche de l’article A1/ }))[0]!,
     );
     await user.type(screen.getByLabelText(/Numéro de la cliente/), "+2250701020304");
+    await user.click(screen.getByRole("checkbox"));
     await user.click(screen.getByRole("button", { name: "Envoyer la fiche" }));
 
     expect(mockSendProductCard).toHaveBeenCalledWith({
       catalogueItemId: "cat-1",
       clientPhone: "+2250701020304",
+      consentConfirmed: true,
     });
   });
 
@@ -227,6 +229,7 @@ describe("CatalogueListContent — envoyer la fiche produit", () => {
       (await screen.findAllByRole("menuitem", { name: /Envoyer la fiche de l’article A1/ }))[0]!,
     );
     await user.type(screen.getByLabelText(/Numéro de la cliente/), "0701020304");
+    await user.click(screen.getByRole("checkbox"));
     await user.click(screen.getByRole("button", { name: "Envoyer la fiche" }));
 
     expect(mockSendProductCard).not.toHaveBeenCalled();

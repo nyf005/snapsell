@@ -224,6 +224,7 @@ describe.skipIf(!shouldRun)(
 
       try {
         const correlationId = `corr-e2e-ac2-${Date.now()}`;
+        await db.messageIn.create({ data: { tenantId: testTenantId, from: "+33612345678", providerMessageId: "e2e-recent", correlationId: "e2e-recent", body: "Bonjour", providerSentAt: new Date() } });
         const messageOut = await db.messageOut.create({
           data: {
             tenantId: testTenantId,
