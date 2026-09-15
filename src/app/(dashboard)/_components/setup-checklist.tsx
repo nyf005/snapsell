@@ -129,6 +129,7 @@ export function SetupChecklist({ steps, doneCount, totalCount, compact = false }
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <div className="min-w-0">
+            <p className="mb-1 text-xs font-medium text-primary">Prochaine étape<span className="text-muted-foreground"> · {current.required ? "Indispensable" : "Recommandé"}</span></p>
             <h3 className="text-lg font-semibold">{meta.title}</h3>
             {!compact && <p className="mt-1 max-w-prose text-sm text-muted-foreground">{meta.description}</p>}
           </div>
@@ -169,33 +170,16 @@ export function SetupChecklist({ steps, doneCount, totalCount, compact = false }
                   }
                   index={index + 1}
                 />
-                <p
-                  className={cn(
-                    "min-w-0 flex-1 text-sm font-medium",
-                    step.done ? "text-muted-foreground" : "text-foreground",
-                  )}
-                >
-                  {stepMeta.title}
-                </p>
-                <span
-                  className={cn(
-                    "shrink-0 text-xs",
-                    isCurrent
-                      ? "font-medium text-primary"
-                      : "text-muted-foreground",
-                    // Sur mobile, « Ouvrir » dit déjà qu'il reste à faire : le mot
-                    // d'état prendrait la place du titre, qui serait tronqué.
-                    !step.done && !isCurrent && "hidden sm:inline",
-                  )}
-                >
-                  {step.done
-                    ? "Terminée"
-                    : isCurrent
-                      ? "À faire en priorité"
-                      : step.required
-                        ? "À venir"
-                        : "Recommandée"}
-                </span>
+                <div className="min-w-0 flex-1">
+                  <p className={cn("text-sm font-medium", step.done ? "text-muted-foreground" : "text-foreground")}>
+                    {stepMeta.title}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    <span>{step.done ? "Terminée" : "À faire"}</span>
+                    <span> · {step.required ? "Indispensable" : "Recommandé"}</span>
+                    {isCurrent && <span className="font-medium text-primary"> · Prochaine étape</span>}
+                  </p>
+                </div>
                 {!step.done && !isCurrent && (
                   <Link
                     href={stepMeta.href}

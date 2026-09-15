@@ -69,7 +69,9 @@ describe("SetupChecklist — compte neuf", () => {
       .find((stop) => stop.getAttribute("aria-current") === "step");
 
     expect(current).toHaveTextContent("Définir vos prix par code");
-    expect(current).toHaveTextContent("À faire en priorité");
+    expect(current).toHaveTextContent("À faire");
+    expect(current).toHaveTextContent("Indispensable");
+    expect(current).toHaveTextContent("Prochaine étape");
   });
 
   it("dit l’état de chaque étape sans dépendre de la couleur", () => {
@@ -77,7 +79,7 @@ describe("SetupChecklist — compte neuf", () => {
     const rail = screen.getByRole("list", { name: "Toutes les étapes de la mise en route" });
 
     expect(within(rail).getAllByText("Terminée")).toHaveLength(1);
-    expect(within(rail).getAllByText("À venir")).toHaveLength(2);
+    expect(within(rail).getAllByText("À faire")).toHaveLength(7);
   });
 
   it("met la connexion WhatsApp en premier", () => {
@@ -93,10 +95,10 @@ describe("SetupChecklist — compte neuf", () => {
     expect(link).toHaveAttribute("href", "/parametres/whatsapp");
   });
 
-  it("présente l’étape courante comme nécessaire", () => {
+  it("sépare l’importance des étapes de leur état", () => {
     renderChecklist();
     expect(screen.getByRole("heading", { name: "Connecter WhatsApp" })).toBeInTheDocument();
-    expect(screen.getAllByText("Recommandée")).toHaveLength(4);
+    expect(within(screen.getByRole("list", { name: /Toutes les étapes/i })).getAllByText(/Recommandé/)).toHaveLength(4);
   });
 
   /**
@@ -120,6 +122,10 @@ describe("SetupChecklist — compte neuf", () => {
     renderChecklist(["whatsapp", "prices"]);
     expect(screen.getByRole("heading", { name: ui.setup.catalogue.title })).toBeInTheDocument();
     expect(screen.getByText(ui.setup.catalogue.description)).toBeInTheDocument();
+    const current = screen.getByRole("list", { name: /Toutes les étapes/i }).querySelector('[aria-current="step"]');
+    expect(current).toHaveTextContent("À faire · Recommandé · Prochaine étape");
+    expect(screen.queryByText(/Facultatif/)).not.toBeInTheDocument();
+    expect(screen.queryByText("À venir")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ajouter un article" })).toHaveAttribute("href", "/dashboard/catalogue");
   });
 
