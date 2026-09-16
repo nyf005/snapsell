@@ -2,14 +2,20 @@
  * Story 9.2 Task 1: API route upload/serve/delete photo catalogue
  * POST — upload photo vers R2, met à jour mediaStorageKey
  * GET  — sert l'image depuis R2 (session requise)
- * DELETE — met mediaStorageKey à null
+ * DELETE — met mediaStorageKey à null et retire l'objet du stockage
  */
 
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
-import { isR2Configured, createR2Client, getR2BucketName } from "~/server/media/r2-client";
+import {
+  isR2Configured,
+  createR2Client,
+  getR2BucketName,
+  deleteR2ObjectBestEffort,
+} from "~/server/media/r2-client";
 import {
   canonicalImageContentType,
   isAllowedImageContentType,
@@ -83,7 +89,7 @@ export async function POST(request: Request, context: RouteContext) {
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const key = `tenants/${tenantId}/catalogue-items/${itemId}/photo`;
+    const key = `tenants/${tenantId}/catalogue-items/${itemId}/photos/${randomUUID()}`;
 
     const client = createR2Client();
     await client.send(
@@ -97,7 +103,7 @@ export async function POST(request: Request, context: RouteContext) {
 
     await db.catalogueItem.update({
       where: { id: itemId },
-      data: { mediaStorageKey: key },
+      data: { mediaStorageKey: key, syncedToMeta: false },
     });
 
     return NextResponse.json({ success: true, mediaStorageKey: key });
@@ -184,17 +190,19 @@ export async function DELETE(_request: Request, context: RouteContext) {
 
   const item = await db.catalogueItem.findFirst({
     where: { id: itemId, tenantId },
-    select: { id: true },
+    select: { id: true, mediaStorageKey: true },
   });
 
   if (!item) {
     return NextResponse.json({ error: "Article non trouvé" }, { status: 404 });
   }
 
-  await db.catalogueItem.update({
-    where: { id: itemId },
-    data: { mediaStorageKey: null },
+  await db.catalogueItem.updateMany({
+    where: { id: itemId, tenantId, mediaStorageKey: item.mediaStorageKey },
+    data: { mediaStorageKey: null, syncedToMeta: false },
   });
+
+  if (item.mediaStorageKey) await deleteR2ObjectBestEffort(tenantId, itemId, item.mediaStorageKey);
 
   return NextResponse.json({ success: true });
 }

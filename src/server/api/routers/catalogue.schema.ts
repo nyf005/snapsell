@@ -8,7 +8,7 @@ export const createCatalogueItemInputSchema = z.object({
   name: z.string().trim().max(200).nullable().optional(),
   quantity: z.number().int().min(1, "Quantité doit être >= 1"),
   amount: z.number().int().min(0).max(MAX_AMOUNT_CENTS).nullable().optional(),
-  mediaStorageKey: z.string().nullable().optional(),
+  mediaStorageKey: z.never().optional(),
 });
 
 /** Mise à jour d'un article catalogue (dashboard) */
@@ -18,7 +18,7 @@ export const updateCatalogueItemInputSchema = z.object({
   name: z.string().trim().max(200).nullable().optional(),
   quantity: z.number().int().min(0, "Quantité doit être >= 0").optional(),
   amount: z.number().int().min(0).max(MAX_AMOUNT_CENTS).nullable().optional(),
-  mediaStorageKey: z.string().nullable().optional(),
+  mediaStorageKey: z.never().optional(),
 });
 
 /** Suppression d'un article catalogue (dashboard) */

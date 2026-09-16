@@ -5,7 +5,7 @@ const links = [
   { label: "Fonctionnalités", href: "/#fonctionnalites" },
   { label: "Tarifs", href: "/tarifs" },
   { label: "Aide", href: "/aide" },
-  { label: "Contact", href: "mailto:contact@snapsell.app" },
+  { label: "Contact", href: "mailto:nyf.dev@gmail.com" },
   { label: "Confidentialité", href: "/politique-confidentialite" },
   { label: "Conditions", href: "/conditions-utilisation" },
 ];

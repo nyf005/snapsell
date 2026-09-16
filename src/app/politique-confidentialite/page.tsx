@@ -64,7 +64,7 @@ export default function PolitiqueConfidentialitePage() {
         <section className="mb-10">
           <h2 className="mb-4 text-xl font-bold">6. Droits des utilisateurs</h2>
           <p className="leading-relaxed text-muted-foreground">
-            Conform&eacute;ment au R&egrave;glement G&eacute;n&eacute;ral sur la Protection des Donn&eacute;es (RGPD), vous disposez des droits suivants&nbsp;: droit d&apos;acc&egrave;s, de rectification, de suppression, de limitation du traitement, de portabilit&eacute; de vos donn&eacute;es, et d&apos;opposition au traitement. Pour exercer ces droits, contactez-nous &agrave; l&apos;adresse&nbsp;: contact@snapsell.app
+            Conform&eacute;ment au R&egrave;glement G&eacute;n&eacute;ral sur la Protection des Donn&eacute;es (RGPD), vous disposez des droits suivants&nbsp;: droit d&apos;acc&egrave;s, de rectification, de suppression, de limitation du traitement, de portabilit&eacute; de vos donn&eacute;es, et d&apos;opposition au traitement. Pour exercer ces droits, contactez-nous &agrave; l&apos;adresse&nbsp;: nyf.dev@gmail.com
           </p>
         </section>
 
@@ -78,7 +78,7 @@ export default function PolitiqueConfidentialitePage() {
         <section className="mb-10">
           <h2 className="mb-4 text-xl font-bold">8. Contact</h2>
           <p className="leading-relaxed text-muted-foreground">
-            Pour toute question relative &agrave; la protection de vos donn&eacute;es personnelles, vous pouvez nous contacter &agrave; l&apos;adresse&nbsp;: contact@snapsell.app
+            Pour toute question relative &agrave; la protection de vos donn&eacute;es personnelles, vous pouvez nous contacter &agrave; l&apos;adresse&nbsp;: nyf.dev@gmail.com
           </p>
         </section>
       </main>

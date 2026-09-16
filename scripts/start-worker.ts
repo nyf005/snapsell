@@ -39,6 +39,7 @@ import { recordWorkerHeartbeat } from "~/server/workers/health";
 import { createShutdownHandler } from "~/server/workers/shutdown";
 import { startOutboxSenderWorker } from "~/server/workers/outbox-sender";
 import { env } from "~/env";
+import { startPasswordResetEmailWorker } from "~/server/account/password-reset-delivery";
 import { initSentry } from "~/lib/sentry";
 
 const SCHEDULE = {
@@ -84,6 +85,7 @@ async function main(): Promise<void> {
     workerLogger.info("pg-boss started successfully");
 
     await ensureQueues();
+    await startPasswordResetEmailWorker();
     workerLogger.info("pg-boss queues created");
 
     workerLogger.info("Starting webhook processor worker...");

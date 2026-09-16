@@ -14,6 +14,7 @@ vi.mock("~/server/db", () => ({
     catalogueItem: {
       findFirst: vi.fn(),
       update: vi.fn(),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
   },
 }));
@@ -21,6 +22,7 @@ vi.mock("~/server/media/r2-client", () => ({
   isR2Configured: vi.fn(),
   createR2Client: vi.fn(),
   getR2BucketName: vi.fn(),
+  deleteR2ObjectBestEffort: vi.fn().mockResolvedValue(true),
 }));
 vi.mock("@aws-sdk/client-s3", () => ({
   PutObjectCommand: vi.fn(),
@@ -29,6 +31,7 @@ vi.mock("@aws-sdk/client-s3", () => ({
 }));
 
 import { POST, GET, DELETE } from "./route";
+import { deleteR2ObjectBestEffort } from "~/server/media/r2-client";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 import { isR2Configured, createR2Client, getR2BucketName } from "~/server/media/r2-client";
@@ -176,7 +179,7 @@ describe("Story 9.2: API /api/catalogue/[itemId]/photo", () => {
       expect(mockSend).toHaveBeenCalledTimes(1);
       expect(db.catalogueItem.update).toHaveBeenCalledWith({
         where: { id: "item-1" },
-        data: { mediaStorageKey: "tenants/tenant-1/catalogue-items/item-1/photo" },
+        data: { mediaStorageKey: expect.stringMatching(/^tenants\/tenant-1\/catalogue-items\/item-1\/photos\/[a-f0-9-]{36}$/), syncedToMeta: false },
       });
     });
 
@@ -284,7 +287,7 @@ describe("Story 9.2: API /api/catalogue/[itemId]/photo", () => {
       expect(res.status).toBe(404);
     });
 
-    it("sets mediaStorageKey to null", async () => {
+    it("sets mediaStorageKey to null and removes the R2 object", async () => {
       vi.mocked(db.catalogueItem.findFirst).mockResolvedValue(mockItemWithPhoto as never);
       vi.mocked(db.catalogueItem.update).mockResolvedValue({
         ...mockItemWithPhoto,
@@ -297,10 +300,26 @@ describe("Story 9.2: API /api/catalogue/[itemId]/photo", () => {
       const res = await DELETE(req, makeParams("item-1"));
 
       expect(res.status).toBe(200);
-      expect(db.catalogueItem.update).toHaveBeenCalledWith({
-        where: { id: "item-1" },
-        data: { mediaStorageKey: null },
+      expect(db.catalogueItem.updateMany).toHaveBeenCalledWith({
+        where: { id: "item-1", tenantId: "tenant-1", mediaStorageKey: mockItemWithPhoto.mediaStorageKey },
+        data: { mediaStorageKey: null, syncedToMeta: false },
       });
+      expect(deleteR2ObjectBestEffort).toHaveBeenCalledWith("tenant-1", "item-1", mockItemWithPhoto.mediaStorageKey);
+    });
+
+    it("does not attempt an R2 delete when the item had no photo", async () => {
+      vi.mocked(db.catalogueItem.findFirst).mockResolvedValue({
+        id: "item-1",
+        mediaStorageKey: null,
+      } as never);
+      vi.mocked(db.catalogueItem.update).mockResolvedValue({} as never);
+
+      const req = new Request("http://localhost/api/catalogue/item-1/photo", {
+        method: "DELETE",
+      });
+      await DELETE(req, makeParams("item-1"));
+
+      expect(deleteR2ObjectBestEffort).not.toHaveBeenCalled();
     });
   });
 });

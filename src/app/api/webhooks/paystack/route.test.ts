@@ -128,6 +128,26 @@ describe("Story 7A.2: Paystack Webhook", () => {
       });
     });
 
+    it("enables the recommended deposit on a first paid subscription only", async () => {
+      vi.mocked(db.tenant.findUnique).mockResolvedValue({
+        subscriptionPlan: "free",
+        subscriptionStatus: "active",
+      } as never);
+      await POST(makeRequest(chargeEvent));
+      expect(vi.mocked(db.tenant.update).mock.calls[0]![0].data).toMatchObject({ requireDeposit: true });
+    });
+
+    it("keeps the seller's deposit setting when a failed charge is regularised (attention)", async () => {
+      vi.mocked(db.tenant.findUnique).mockResolvedValue({
+        subscriptionPlan: "starter",
+        subscriptionStatus: "attention",
+      } as never);
+      await POST(makeRequest(chargeEvent));
+      const data = vi.mocked(db.tenant.update).mock.calls[0]![0].data as Record<string, unknown>;
+      expect(data.subscriptionStatus).toBe("active");
+      expect(data).not.toHaveProperty("requireDeposit");
+    });
+
     it("is idempotent — skips if payment already success", async () => {
       vi.mocked(db.subscriptionPayment.findUnique).mockResolvedValue({
         status: "success",

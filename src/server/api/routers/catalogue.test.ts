@@ -29,6 +29,7 @@ vi.mock("~/server/pricing/getPriceFromCode", () => ({
 
 vi.mock("~/server/media/r2-client", () => ({
   isR2Configured: vi.fn(),
+  deleteR2ObjectBestEffort: vi.fn().mockResolvedValue(true),
 }));
 
 vi.mock("~/server/live-item/createLiveItem", () => ({
@@ -36,7 +37,7 @@ vi.mock("~/server/live-item/createLiveItem", () => ({
 }));
 
 import { getPriceFromCode } from "~/server/pricing/getPriceFromCode";
-import { isR2Configured } from "~/server/media/r2-client";
+import { deleteR2ObjectBestEffort, isR2Configured } from "~/server/media/r2-client";
 
 const mockCtx = (tenantId: string | null = "tenant-1") => ({
   session: {
@@ -101,7 +102,6 @@ describe("catalogueRouter", () => {
         code: "a1",
         quantity: 5,
         amount: 1000,
-        mediaStorageKey: null,
       };
 
       const created = {
@@ -344,6 +344,7 @@ describe("catalogueRouter", () => {
       vi.mocked(db.catalogueItem.findUnique).mockResolvedValue({
         id: validCuid,
         tenantId: "tenant-1",
+        mediaStorageKey: null,
       } as never);
       vi.mocked(db.reservation.count).mockResolvedValue(0);
       vi.mocked(db.catalogueItem.delete).mockResolvedValue({} as never);
@@ -355,6 +356,25 @@ describe("catalogueRouter", () => {
       expect(db.catalogueItem.delete).toHaveBeenCalledWith({
         where: { id: validCuid },
       });
+      expect(deleteR2ObjectBestEffort).not.toHaveBeenCalled();
+    });
+
+    it("removes the R2 object when the deleted item had a photo", async () => {
+      const validCuid = "clxyz1234567890abcdefgh";
+      vi.mocked(db.catalogueItem.findUnique).mockResolvedValue({
+        id: validCuid,
+        tenantId: "tenant-1",
+        mediaStorageKey: "tenants/tenant-1/catalogue-items/item-1/photo",
+      } as never);
+      vi.mocked(db.reservation.count).mockResolvedValue(0);
+      vi.mocked(db.catalogueItem.delete).mockResolvedValue({} as never);
+
+      const caller = createCaller(mockCtx("tenant-1"));
+      await caller.delete({ id: validCuid });
+
+      expect(deleteR2ObjectBestEffort).toHaveBeenCalledWith(
+        "tenant-1", validCuid, "tenants/tenant-1/catalogue-items/item-1/photo",
+      );
     });
 
     it("should throw BAD_REQUEST if item has active reservations", async () => {

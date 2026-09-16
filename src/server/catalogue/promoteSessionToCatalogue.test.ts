@@ -11,6 +11,7 @@ vi.mock("~/server/db", () => ({
   db: {
     liveItem: {
       findMany: vi.fn(),
+      findUnique: vi.fn(),
     },
     catalogueItem: {
       findUnique: vi.fn(),
@@ -20,6 +21,12 @@ vi.mock("~/server/db", () => ({
   },
 }));
 
+vi.mock("~/server/media/r2-client", () => ({
+  withMediaLock: async (key: string, work: (tx: typeof db) => Promise<unknown>) => {
+    vi.mocked(db.liveItem.findUnique).mockResolvedValue({ mediaStorageKey: key } as never);
+    return work(db);
+  },
+}));
 vi.mock("~/lib/logger", () => ({
   workerLogger: {
     info: vi.fn(),

@@ -68,9 +68,11 @@ test("les pages métier exigent une connexion", async ({ page }) => {
 
 test("le mot de passe oublié explique comment contacter l’assistance", async ({ page }) => {
   await page.goto("/login");
-  await page.getByText("Mot de passe oublié ?", { exact: true }).click();
-  await expect(page.getByText("La réinitialisation automatique par email n’est pas encore disponible.", { exact: false })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Contacter l’assistance par email" })).toHaveAttribute("href", /^mailto:contact@snapsell.app/);
+  await page.getByRole("link", { name: "Mot de passe oublié ?", exact: true }).click();
+  await expect(page).toHaveURL(/\/mot-de-passe-oublie/);
+  await expect(page.getByText("La réinitialisation par email n’est pas disponible", { exact: false })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Contacter l’assistance par email" })).toHaveAttribute("href", /^mailto:nyf\.dev@gmail\.com/);
+  await page.getByRole("link", { name: "Retour à la connexion", exact: true }).click();
   await expect(page.getByRole("button", { name: "Se connecter", exact: true })).toBeVisible();
 });
 
@@ -339,4 +341,33 @@ test("connexion depuis un lien profond conserve la destination et ses filtres", 
   await page.getByLabel("Mot de passe", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Se connecter", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard\/orders\?queue=in_progress$/);
+});
+
+
+test("réinitialiser le mot de passe révoque immédiatement la session ouverte", async ({ page, context }) => {
+  await login(page);
+  const user = await db.user.findUniqueOrThrow({ where: { email } });
+  const token = createHash("sha256").update(randomUUID()).digest("hex");
+  await db.passwordResetToken.create({ data: {
+    userId: user.id, tokenHash: createHash("sha256").update(token).digest("hex"),
+    expiresAt: new Date(Date.now() + 30 * 60_000),
+  } });
+  const resetPage = await context.newPage();
+  await resetPage.goto(`/reinitialiser-mot-de-passe?token=${token}`);
+  await resetPage.getByLabel("Nouveau mot de passe", { exact: true }).fill("ChangedBrowser123!");
+  await resetPage.getByLabel("Confirmez le mot de passe", { exact: true }).fill("ChangedBrowser123!");
+  await resetPage.getByRole("button", { name: "Enregistrer le nouveau mot de passe" }).click();
+  await expect(resetPage).toHaveURL(/\/login\?message=password_reset/);
+  await page.goto("/dashboard/orders");
+  await expect(page).toHaveURL(/\/login/);
+  await page.getByLabel("Adresse email", { exact: true }).fill(email);
+  await page.getByLabel("Mot de passe", { exact: true }).fill("ChangedBrowser123!");
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard\/orders/);
+  await resetPage.goto(`/reinitialiser-mot-de-passe?token=${token}`);
+  await resetPage.getByLabel("Nouveau mot de passe", { exact: true }).fill("AnotherBrowser123!");
+  await resetPage.getByLabel("Confirmez le mot de passe", { exact: true }).fill("AnotherBrowser123!");
+  await resetPage.getByRole("button", { name: "Enregistrer le nouveau mot de passe" }).click();
+  await expect(resetPage.getByRole("alert").filter({ hasText: "déjà servi" })).toBeVisible();
+  await resetPage.close();
 });

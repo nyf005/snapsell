@@ -68,6 +68,7 @@ export function ensureBossReady(): Promise<void> {
 
 /** Noms de queues (centralisés pour éviter les typos) */
 export const QUEUE = {
+  PASSWORD_RESET_EMAIL: "password-reset-email",
   WEBHOOK_PROCESSING: "webhook-processing",
   /**
    * Import des évènements de Coexistence (historique, contacts, échos).
@@ -95,6 +96,7 @@ export const QUEUE = {
  * Note: OUTBOX_SEND est uniquement créé pour le fallback dev (QStash en production).
  */
 export async function ensureQueues(): Promise<void> {
+  await boss.createQueue(QUEUE.PASSWORD_RESET_EMAIL, { retryLimit: 5, retryDelay: 30, retryBackoff: true, deleteAfterSeconds: 3600 });
   await boss.createQueue(QUEUE.CRON_OUTBOX_RECOVERY, { retryLimit: 2, retryDelay: 5 });
   await boss.createQueue(QUEUE.WEBHOOK_PROCESSING, {
     retryLimit: 2,

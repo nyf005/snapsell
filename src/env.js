@@ -106,6 +106,11 @@ export const env = createEnv({
     META_CATALOG_SYNC_ENABLED: z.enum(["true", "false"]).optional(),
     // Image placeholder pour articles sans photo (URL publique permanente, ex. CDN)
     CATALOGUE_PLACEHOLDER_IMAGE_URL: z.string().url().optional(),
+    // Email transactionnel (Resend, API REST). Les deux sont requis ensemble, avec
+    // NEXT_PUBLIC_APP_URL, pour que la réinitialisation de mot de passe par email
+    // soit proposée ; sinon l'écran renvoie vers l'assistance.
+    RESEND_API_KEY: z.string().min(1).optional(),
+    EMAIL_FROM: z.string().min(3).optional(),
   },
 
   /**
@@ -183,6 +188,8 @@ export const env = createEnv({
     AI_MODEL_NAME: process.env.AI_MODEL_NAME,
     META_CATALOG_SYNC_ENABLED: process.env.META_CATALOG_SYNC_ENABLED,
     CATALOGUE_PLACEHOLDER_IMAGE_URL: process.env.CATALOGUE_PLACEHOLDER_IMAGE_URL,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    EMAIL_FROM: process.env.EMAIL_FROM,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

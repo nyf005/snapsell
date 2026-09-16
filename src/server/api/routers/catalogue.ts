@@ -24,7 +24,7 @@ import {
 } from "~/server/catalogue/syncCatalogueItemToMeta";
 import { normalizeCode } from "~/server/live-item/createLiveItem";
 import { getPriceFromCode } from "~/server/pricing/getPriceFromCode";
-import { isR2Configured } from "~/server/media/r2-client";
+import { deleteR2ObjectBestEffort, isR2Configured } from "~/server/media/r2-client";
 
 export const catalogueRouter = createTRPCRouter({
   /** Story 9.2: Indique si R2 est configuré (sans révéler les credentials) */
@@ -107,7 +107,7 @@ export const catalogueRouter = createTRPCRouter({
             quantity: input.quantity,
             availableQty: input.quantity,
             reservedQty: 0,
-            mediaStorageKey: input.mediaStorageKey ?? null,
+            mediaStorageKey: null,
             origin: "dashboard",
             createdInLive: false,
           },
@@ -166,7 +166,6 @@ export const catalogueRouter = createTRPCRouter({
 
       if (input.name !== undefined) updateData.name = input.name;
       if (input.amount !== undefined) updateData.amount = input.amount;
-      if (input.mediaStorageKey !== undefined) updateData.mediaStorageKey = input.mediaStorageKey;
 
       updateData.syncedToMeta = false;
       let updated;
@@ -229,6 +228,9 @@ export const catalogueRouter = createTRPCRouter({
       }
 
       await db.catalogueItem.delete({ where: { id: input.id } });
+      // Sans réservation ni commande liée, la photo n'appartient plus à aucun
+      // historique : elle part avec l'article.
+      if (existing.mediaStorageKey) await deleteR2ObjectBestEffort(tenantId, input.id, existing.mediaStorageKey);
       return { success: true };
     }),
 

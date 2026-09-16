@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 
 const NAV_ITEMS = [
   { href: "/ops/whatsapp", label: "WhatsApp" },
+  { href: "/ops/comptes", label: "Comptes" },
   { href: "/ops/logs", label: "Logs" },
   { href: "/ops/errors", label: "File d\u2019erreurs" },
 ] as const;

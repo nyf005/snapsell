@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 /**
  * Story 9.3: Télécharger le média, uploader vers R2, enregistrer la clé sur CatalogueItem.
  * Exécuté en async (ne pas bloquer le worker).
@@ -101,7 +102,7 @@ export async function uploadMediaToCatalogueItem(
     }
 
     // 2. Upload to R2
-    const key = `tenants/${tenantId}/catalogue-items/${catalogueItemId}/photo`;
+    const key = `tenants/${tenantId}/catalogue-items/${catalogueItemId}/photos/${randomUUID()}`;
     const client = createR2Client();
 
     await client.send(
@@ -116,7 +117,7 @@ export async function uploadMediaToCatalogueItem(
     // 3. Update DB
     await db.catalogueItem.update({
       where: { id: catalogueItemId, tenantId },
-      data: { mediaStorageKey: key },
+      data: { mediaStorageKey: key, syncedToMeta: false },
     });
 
     workerLogger.info("Media uploaded to R2 and linked to CatalogueItem", {

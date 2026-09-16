@@ -44,6 +44,7 @@ vi.mock("~/server/events/eventLog", () => ({
 vi.mock("~/lib/logger", () => ({
   webhookLogger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
   workerLogger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+  createLogger: () => ({ debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }),
 }));
 
 vi.mock("~/lib/sentry", () => ({

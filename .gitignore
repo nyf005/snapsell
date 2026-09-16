@@ -63,3 +63,6 @@ _bmad
 
 /playwright-report/
 /test-results/
+
+# Client Prisma : régénéré par `postinstall` (npm ci) et par le Dockerfile.
+/generated

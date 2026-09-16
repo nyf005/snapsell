@@ -15,6 +15,17 @@ import {
   buildEventLogWhere,
 } from "~/server/events/buildEventLogWhere";
 import { opsWhatsappRouter } from "./ops-whatsapp";
+import { createLogger } from "~/lib/logger";
+import {
+  buildPasswordResetPath,
+  requestPasswordResetInputSchema,
+} from "~/lib/validations/password-reset";
+import {
+  findUserForPasswordReset,
+  issuePasswordResetToken,
+} from "~/server/account/password-reset";
+
+const opsLogger = createLogger("Ops");
 
 const dateOptionalSchema = z
   .string()
@@ -149,6 +160,40 @@ async function assertTenantExists(tenantId: string) {
 
 export const opsRouter = createTRPCRouter({
   whatsapp: opsWhatsappRouter,
+
+  accounts: createTRPCRouter({
+    /**
+     * Lien de réinitialisation remis à la main par le support, quand l'email n'est
+     * pas configuré ou n'arrive pas. Réservé aux comptes de boutique : un compte
+     * support ne se réinitialise pas depuis la console, sinon n'importe quel
+     * membre du support pourrait s'approprier celui d'un autre.
+     */
+    createPasswordResetLink: opsProcedure
+      .input(requestPasswordResetInputSchema)
+      .mutation(async ({ ctx, input }) => {
+        const user = await findUserForPasswordReset(input.email);
+        if (!user?.passwordHash) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Aucun compte avec mot de passe pour cette adresse.",
+          });
+        }
+        if (!user.tenantId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Les comptes support se réinitialisent par email uniquement.",
+          });
+        }
+        const { token, expiresAt } = await issuePasswordResetToken(user.id);
+        opsLogger.info("Lien de réinitialisation généré par le support", {
+          opsUserId: ctx.session.user.id,
+          targetUserId: user.id,
+          tenantId: user.tenantId,
+        });
+        return { email: user.email, path: buildPasswordResetPath(token), expiresAt };
+      }),
+  }),
+
   /** Liste des tenants (pour filtre ops console). */
   tenants: createTRPCRouter({
     list: opsProcedure.query(async () => {

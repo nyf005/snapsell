@@ -630,3 +630,29 @@ la politique `ON_FAILURE` de Railway.
 
 Les opérations locales réalisées pour cette correction ne déploient aucun service.
 Voir [le guide de reprise et les définitions des indicateurs](docs/reliability-and-metrics.md).
+
+
+## Réinitialisation des mots de passe
+
+Appliquer `npm run db:migrate` avant de déployer les nouveaux chemins de récupération
+(migrations `20260916120000_password_reset_tokens` et `20260916140000_password_reset_request_order`).
+Redémarrer ensuite le worker Railway : il crée et consomme `password-reset-email`.
+Configurer `RESEND_API_KEY`, `EMAIL_FROM` (domaine vérifié chez Resend),
+`NEXT_PUBLIC_APP_URL` (URL HTTPS publique) sur Vercel et Railway.
+Conserver la même `ENCRYPTION_KEY` sur les deux services ; elle permet de retrouver
+le même jeton lors des reprises sans le stocker en clair. Aucun email de test réel
+n'est envoyé par les suites automatisées : vérifier une livraison sur un compte de
+contrôle après configuration.
+
+La requête publique met toutes les adresses dans la même file sans rechercher le
+compte. Un échec fournisseur reste dans le worker (cinq reprises espacées) et ne
+modifie pas la réponse publique. Une reprise d'une demande dépassée ou consommée
+ne renvoie pas de nouveau lien. Une demande en attente depuis plus de 30 minutes
+est abandonnée ; l'utilisateur peut en faire une nouvelle. Sans configuration
+email, l'écran conserve le relais assistance et `/ops/comptes`.
+
+Les sessions sont contrôlées en base à chaque accès authentifié. Les anciens
+jetons de session sans version nécessitent une nouvelle connexion. Les écritures
+de clés R2 via les mutations catalogue sont refusées : utiliser l'API photo,
+qui crée des noms d'objets uniques. Les objets partagés et hérités d'un live sont
+conservés ; leur suppression ne constitue pas une purge des anciens orphelins.

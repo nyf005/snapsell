@@ -78,7 +78,7 @@ export default function ConditionsUtilisationPage() {
         <section className="mb-10">
           <h2 className="mb-4 text-xl font-bold">9. Contact</h2>
           <p className="leading-relaxed text-muted-foreground">
-            Pour toute question relative aux pr&eacute;sentes CGU, vous pouvez nous contacter &agrave; l&apos;adresse&nbsp;: contact@snapsell.app
+            Pour toute question relative aux pr&eacute;sentes CGU, vous pouvez nous contacter &agrave; l&apos;adresse&nbsp;: nyf.dev@gmail.com
           </p>
         </section>
       </main>

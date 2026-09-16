@@ -65,14 +65,14 @@ describe("uploadMediaToCatalogueItem", () => {
       expect.objectContaining({
         input: expect.objectContaining({
           Bucket: "test-bucket",
-          Key: "tenants/tenant-1/catalogue-items/cat-item-1/photo",
+          Key: expect.stringMatching(/^tenants\/tenant-1\/catalogue-items\/cat-item-1\/photos\/[a-f0-9-]{36}$/),
           ContentType: "image/jpeg",
         }),
       }),
     );
     expect(db.catalogueItem.update).toHaveBeenCalledWith({
       where: { id: "cat-item-1", tenantId: "tenant-1" },
-      data: { mediaStorageKey: "tenants/tenant-1/catalogue-items/cat-item-1/photo" },
+      data: { syncedToMeta: false, mediaStorageKey: expect.stringMatching(/^tenants\/tenant-1\/catalogue-items\/cat-item-1\/photos\/[a-f0-9-]{36}$/) },
     });
   });
 

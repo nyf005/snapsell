@@ -104,6 +104,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           image: user.image ?? undefined,
           tenantId: user.tenantId ?? null,
           role: user.role,
+          tokenVersion: user.tokenVersion,
         };
       },
     }),
@@ -114,47 +115,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.sub = (user as { id?: string }).id ?? token.sub;
         token.tenantId = (user as { tenantId?: string | null }).tenantId ?? null;
         token.role = (user as { role?: Role }).role;
-        // Stocker tokenVersion au login initial pour détection de révocation
-        const dbUserAtLogin = await db.user.findUnique({
-          where: { id: (user as { id?: string }).id ?? "" },
-          select: { tokenVersion: true },
-        });
-        if (dbUserAtLogin) {
-          token.tokenVersion = dbUserAtLogin.tokenVersion;
-        }
-        token.tokenVersionCheckedAt = Date.now();
+        // Version du compte qui a réellement passé la vérification du mot de passe.
+        token.tokenVersion = (user as { tokenVersion?: number }).tokenVersion;
       }
-
-      // Relire depuis la base uniquement si le role est absent (premier login / token existant)
-      // Pour les OPS, tenantId est légitimement null
-      if (!token.role && token.email) {
-        const dbUser = await db.user.findUnique({
-          where: { email: token.email as string },
-          select: { tenantId: true, role: true, tokenVersion: true },
-        });
-        if (dbUser) {
-          token.tenantId = dbUser.tenantId;
-          token.role = dbUser.role;
-          token.tokenVersion = dbUser.tokenVersion;
-          token.tokenVersionCheckedAt = Date.now();
-        }
-      }
-
-      // Vérification périodique du tokenVersion (toutes les heures).
-      // Permet d'invalider les tokens sans attendre leur expiration (ex: changement mot de passe).
-      // Retourner null force NextAuth à invalider la session et le cookie → re-login.
-      const checkedAt = token.tokenVersionCheckedAt as number | undefined;
-      const ONE_HOUR_MS = 60 * 60 * 1000;
-      if (token.sub && checkedAt && Date.now() - checkedAt > ONE_HOUR_MS) {
-        const dbUser = await db.user.findUnique({
-          where: { id: token.sub as string },
-          select: { tokenVersion: true },
-        });
-        if (!dbUser || dbUser.tokenVersion !== (token.tokenVersion as number | undefined)) {
-          return null; // Token révoqué → force re-login
-        }
-        token.tokenVersionCheckedAt = Date.now();
-      }
+      // Chaque accès authentifié vérifie la révocation, sans cache d'une heure.
+      // Un ancien jeton sans version ne peut pas adopter la version courante.
+      if (!token.sub || typeof token.tokenVersion !== "number") return null;
+      const current = await db.user.findUnique({
+        where: { id: token.sub }, select: { tokenVersion: true, tenantId: true, role: true },
+      });
+      if (!current || current.tokenVersion !== token.tokenVersion) return null;
+      token.tenantId = current.tenantId;
+      token.role = current.role;
 
       return token;
     },

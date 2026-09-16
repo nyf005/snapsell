@@ -1,5 +1,6 @@
-import { cancelActiveReservations } from "~/server/reservation/cancel";
 import { handleSellerMessage } from "./seller-message";
+import { confirmCart } from "./confirm-cart";
+import { handleInteractiveReply } from "./interactive-reply-handler";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { formatXof } from "~/lib/copy";
@@ -26,15 +27,8 @@ import { handlePendingPayment, hasPaymentReference } from "~/server/conversation
 import { writeToOutbox } from "~/server/messaging/outbox";
 import { botMsg } from "~/server/messaging/templates";
 import { getDeliveryFee } from "~/server/delivery/getDeliveryFee";
-import { createOrderFromReservation } from "~/server/order/createOrderFromReservation";
 import { getConversationState, setHandedOff } from "~/server/conversation/conversationState";
-import {
-  startVariantSelection,
-  handleVariantChoice,
-} from "~/server/conversation/variantSelection";
-import {
-  startSellerVariantConfig,
-} from "~/server/conversation/sellerVariantConfig";
+import { startVariantSelection } from "~/server/conversation/variantSelection";
 import {
   analyzeInboundIntent,
   getTrustedAIFaqCategory,
@@ -83,30 +77,6 @@ export async function processWebhookJob(
       messageType,
       liveSessionId: liveSessionId ?? null,
     });
-
-    // One order per reservation; confirm every item shown in the address recap.
-    const confirmCart = async (requireDeposit: boolean) => {
-      const reservations = await db.reservation.findMany({
-        where: { tenantId, clientPhone: clientPhoneE164, status: "address_collected" },
-        orderBy: { createdAt: "asc" },
-      });
-      const confirmed: string[] = [];
-      let failed = 0;
-      for (const reservation of reservations) {
-        const result = await createOrderFromReservation(tenantId, reservation.id, requireDeposit, clientPhoneE164, correlationId);
-        if (result.success) confirmed.push(result.order.orderNumber);
-        else failed++;
-      }
-      if (confirmed.length) await db.conversationState.deleteMany({ where: { tenantId, phone: clientPhoneE164 } });
-      await writeToOutbox({ tenantId, to: clientPhoneE164, correlationId, purpose: "order_confirmation",
-        ...(requireDeposit ? botMsg.client.orderWithDepositInteractive(15) : botMsg.client.orderConfirmedInteractive()),
-        body: confirmed.length
-          ? `Commande${confirmed.length > 1 ? "s" : ""} enregistrée${confirmed.length > 1 ? "s" : ""} : ${confirmed.join(", ")}.` +
-            (requireDeposit ? " Les acomptes attendus sont indiqués pour chaque commande." : "") +
-            (failed ? " Certains articles n’ont pas pu être confirmés. Vérifiez leur disponibilité avant de renvoyer leur code." : "")
-          : botMsg.client.orderFailed(),
-      });
-    };
 
     /**
      * ── LE STOP PASSE AVANT LE CONTRÔLE DE CRÉDIT ─────────────────────────────
@@ -354,160 +324,15 @@ export async function processWebhookJob(
 
     // 7. Interactive Replies Handler
     if (interactiveReplyId) {
-      if (interactiveReplyId === "allow_order_updates") {
-        if (messageType !== "client") return buildEnrichedMessage();
-        await db.messagingConsent.upsert({ where: { tenantId_phone_scope: { tenantId, phone: clientPhoneE164, scope: "order_updates" } }, create: { tenantId, phone: clientPhoneE164, scope: "order_updates", sourceMessageId: providerMessageId }, update: { sourceMessageId: providerMessageId, grantedAt: new Date() } });
-        await writeToOutbox({ tenantId, to: clientPhoneE164, body: "Vous recevrez les mises à jour de vos commandes sur WhatsApp. Envoyez STOP pour ne plus recevoir de messages.", correlationId });
-      } else if (interactiveReplyId === "cancel_order") {
-        await cancelActiveReservations(tenantId, clientPhoneE164);
-        await db.conversationState.deleteMany({ where: { tenantId, phone: clientPhoneE164 } });
-        await writeToOutbox({
-          tenantId,
-          to: clientPhoneE164,
-          body: botMsg.client.reservationCancelled(),
-          correlationId,
-        });
-      } else if (interactiveReplyId === "confirm_order") {
-        // Les trois issues répondent quelque chose. Avant, appuyer sur « Confirmer »
-        // hors du bon état — ou une création de commande en échec — ne renvoyait
-        // rien du tout : la cliente restait devant un bouton muet.
-        const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
-        if (active?.status !== "address_collected") {
-          await writeToOutbox({
-            tenantId,
-            to: clientPhoneE164,
-            body: botMsg.client.orderNotReady(),
-            correlationId,
-          });
-        } else {
-          await confirmCart(tenant?.requireDeposit ?? false);
-        }
-      } else if (interactiveReplyId.startsWith("retry_code:")) {
-        const code = interactiveReplyId.slice("retry_code:".length).toUpperCase();
-        const item = await findOrderableItemByCode(tenantId, code);
-        if (!item) {
-          await writeToOutbox({
-            tenantId,
-            to: clientPhoneE164,
-            body: botMsg.client.unknownArticleHandedOff(),
-            correlationId,
-          });
-        } else if (item.availableQty - item.reservedQty <= 0) {
-          const wait = await addToWaitlist(tenantId, null, null, clientPhoneE164, correlationId, {
-            table: "catalogue_items",
-            catalogueItemId: item.id,
-          });
-          await writeToOutbox({
-            tenantId,
-            to: clientPhoneE164,
-            body: wait.ok ? botMsg.client.waitlist(code, wait.position) : botMsg.client.exhausted(),
-            correlationId,
-          });
-        } else {
-          const session = await getCurrentSessionReadOnly(tenantId);
-          if (item.hasVariants)
-            await startVariantSelection(tenantId, clientPhoneE164, item, 1, correlationId);
-          else {
-            const reservation = await createReservation(tenantId, session?.id ?? null, null, clientPhoneE164, correlationId, {
-              catalogueItemId: item.id,
-              liveSessionId: session?.id ?? null,
-            });
-            await writeToOutbox({
-              tenantId,
-              to: clientPhoneE164,
-              body: reservation.success ? botMsg.client.reserved(code) : botMsg.client.exhausted(),
-              correlationId,
-            });
-          }
-        }
-      } else if (interactiveReplyId === "contact_agent") {
-        await setHandedOff(tenantId, clientPhoneE164, true);
-        await writeToOutbox({
-          tenantId,
-          to: clientPhoneE164,
-          body: botMsg.client.handedOff(),
-          correlationId,
-        });
-      } else if (interactiveReplyId === "send_address") {
-        await writeToOutbox({ tenantId, to: clientPhoneE164, body: botMsg.client.addressStillNeeded(), correlationId });
-      } else if (interactiveReplyId === "leave_message") {
-        await setHandedOff(tenantId, clientPhoneE164, true);
-        await writeToOutbox({ tenantId, to: clientPhoneE164, body: "Écrivez votre message ici. La boutique pourra le consulter et vous répondre.", correlationId });
-      } else if (interactiveReplyId === "view_catalogue") {
-        const items = await db.catalogueItem.findMany({ where: { tenantId, availableQty: { gt: 0 } }, take: 20, orderBy: { createdAt: "desc" } });
-        const available = items.filter(item => item.availableQty > item.reservedQty);
-        const text = available.length
-          ? available.map(item => `${item.code} — ${item.name ?? "Article"} — ${formatXof(item.amount)}`).join("\n") + "\nEnvoyez le code de l’article souhaité."
-          : "Aucun article disponible pour le moment. Revenez un peu plus tard.";
-        await writeToOutbox({ tenantId, to: clientPhoneE164, body: text, correlationId });
-      } else if (interactiveReplyId === "send_proof") {
-        await writeToOutbox({
-          tenantId,
-          to: clientPhoneE164,
-          body: botMsg.client.sendProofNow(),
-          correlationId,
-        });
-      } else if (interactiveReplyId === "track_order") {
-        const order = await db.order.findFirst({
-          where: { tenantId, reservation: { clientPhone: clientPhoneE164 } },
-          orderBy: { createdAt: "desc" },
-        });
-        await writeToOutbox({
-          tenantId,
-          to: clientPhoneE164,
-          body: order
-            ? botMsg.client.orderStatus(order.orderNumber, order.status)
-            : botMsg.client.noOrderYet(),
-          correlationId,
-        });
-      } else if (interactiveReplyId === "add_item" || interactiveReplyId === "fallback_no") {
-        await db.conversationState.deleteMany({ where: { tenantId, phone: clientPhoneE164 } });
-        const bodyMsg =
-          interactiveReplyId === "add_item"
-            ? botMsg.client.sendNextCode()
-            : botMsg.client.resendCode();
-        await writeToOutbox({ tenantId, to: clientPhoneE164, body: bodyMsg, correlationId });
-      } else if (
-        interactiveReplyId === "no_variants" ||
-        interactiveReplyId === "cancel_variant_config"
-      ) {
-        await db.conversationState.deleteMany({ where: { tenantId, phone: clientPhoneE164 } });
-        const bodyMsg =
-          interactiveReplyId === "no_variants"
-            ? botMsg.seller.variantsSkipped()
-            : botMsg.seller.variantConfigCancelled();
-        await writeToOutbox({ tenantId, to: clientPhoneE164, body: bodyMsg, correlationId });
-      } else if (interactiveReplyId.startsWith("configure_variants:")) {
-        const code = normalizeCode(interactiveReplyId.slice("configure_variants:".length));
-        const item = await db.catalogueItem.findUnique({
-          where: { tenantId_code: { tenantId, code } },
-          select: { id: true, attributes: true },
-        });
-        if (item) {
-          await startSellerVariantConfig(
-            tenantId,
-            clientPhoneE164,
-            item.id,
-            code,
-            correlationId,
-            Array.isArray(item.attributes) ? (item.attributes as string[]) : [],
-          );
-        } else {
-          await writeToOutbox({
-            tenantId,
-            to: clientPhoneE164,
-            body: botMsg.seller.codeNotFoundForVariants(code),
-            correlationId,
-          });
-        }
-      } else if (interactiveReplyId.startsWith("select_val:")) {
-        await handleVariantChoice(
-          tenantId,
-          clientPhoneE164,
-          interactiveReplyId.split(":")[1]!,
-          correlationId,
-        );
-      }
+      await handleInteractiveReply({
+        tenantId,
+        clientPhoneE164,
+        correlationId,
+        providerMessageId,
+        interactiveReplyId,
+        requireDeposit: tenant?.requireDeposit ?? false,
+        messageType,
+      });
       return buildEnrichedMessage();
     }
 
@@ -660,7 +485,7 @@ export async function processWebhookJob(
             return buildEnrichedMessage(liveSessionId);
           }
         } else if (isConfirmOui(body) && active?.status === "address_collected") {
-          await confirmCart(tenant?.requireDeposit ?? false);
+          await confirmCart(tenantId, clientPhoneE164, correlationId, tenant?.requireDeposit ?? false);
           return buildEnrichedMessage(liveSessionId);
         }
 

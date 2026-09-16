@@ -1,17 +1,98 @@
 import { TRPCError } from "@trpc/server";
 import { compare, hash } from "bcrypt";
 
-import { checkSignupRateLimit, getClientIpFromHeaders } from "~/lib/rate-limit";
+import {
+  checkPasswordResetAttemptRateLimit,
+  checkPasswordResetRequestRateLimit,
+  checkSignupRateLimit,
+  getClientIpFromHeaders,
+} from "~/lib/rate-limit";
+import { createLogger } from "~/lib/logger";
+import {
+  requestPasswordResetInputSchema,
+  resetPasswordInputSchema,
+} from "~/lib/validations/password-reset";
 import { db } from "~/server/db";
 import {
   authedProcedure,
   createTRPCRouter,
   publicProcedure,
 } from "~/server/api/trpc";
+import {
+  resetPasswordWithToken,
+} from "~/server/account/password-reset";
+import {
+  canSendPasswordResetEmail,
+} from "~/server/account/password-reset-email";
 import { Role } from "../../../../generated/prisma";
 import { changePasswordInputSchema, signupInputSchema } from "./auth.schema";
 
+import { enqueuePasswordReset } from "~/server/account/password-reset-delivery";
+
+const authLogger = createLogger("Auth");
+
+const RESET_FAILURE_MESSAGES = {
+  invalid: "Ce lien n’est pas valide. Demandez un nouveau lien de réinitialisation.",
+  expired: "Ce lien a expiré. Demandez un nouveau lien de réinitialisation.",
+  used: "Ce lien a déjà servi. Demandez un nouveau lien si nécessaire.",
+} as const;
+
 export const authRouter = createTRPCRouter({
+  /** Dit à l'écran « mot de passe oublié » s'il peut proposer l'envoi d'un email. */
+  passwordResetAvailability: publicProcedure.query(() => ({
+    emailEnabled: canSendPasswordResetEmail(),
+  })),
+
+  /**
+   * Réponse identique qu'un compte existe ou non : l'écran ne doit pas servir à
+   * vérifier quelles adresses ont un compte. Le frein est posé avant toute lecture.
+   */
+  requestPasswordReset: publicProcedure
+    .input(requestPasswordResetInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      if (!canSendPasswordResetEmail()) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "La réinitialisation par email n’est pas disponible. Contactez l’assistance.",
+        });
+      }
+      const ip = getClientIpFromHeaders(ctx.headers);
+      if (!(await checkPasswordResetRequestRateLimit(input.email, ip))) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Trop de demandes. Réessayez dans quelques minutes.",
+        });
+      }
+
+      try {
+        await enqueuePasswordReset(input.email);
+      } catch {
+        authLogger.error("Demande de réinitialisation non enregistrée");
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Réessayez dans quelques minutes." });
+      }
+      return { ok: true as const };
+    }),
+
+  resetPassword: publicProcedure
+    .input(resetPasswordInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const ip = getClientIpFromHeaders(ctx.headers);
+      if (!(await checkPasswordResetAttemptRateLimit(ip))) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Trop de tentatives. Réessayez dans quelques minutes.",
+        });
+      }
+      const result = await resetPasswordWithToken(input.token, input.password);
+      if (!result.ok) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: RESET_FAILURE_MESSAGES[result.reason],
+        });
+      }
+      return { ok: true as const };
+    }),
+
   signup: publicProcedure
     .input(signupInputSchema)
     .mutation(async ({ ctx, input }) => {

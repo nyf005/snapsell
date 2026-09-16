@@ -1,3 +1,4 @@
+import { withMediaLock } from "~/server/media/r2-client";
 /**
  * Story 8.2 Task 1: Promotion session → catalogue à la fermeture
  *
@@ -98,14 +99,18 @@ export async function promoteSessionToCatalogue(
         // L'article catalogue porte déjà le stock réel : rien à faire.
         result.itemsUpdated++;
       } else {
-        await createCatalogueItemFromLive(
-          tenantId,
-          item.code,
-          remainingQty,
-          item.amount,
-          item.mediaStorageKey,
-          await getItemNameFromCode(tenantId, item.code),
-        );
+        if (item.mediaStorageKey) {
+          await withMediaLock(item.mediaStorageKey, async tx => {
+            const source = await tx.liveItem.findUnique({ where: { id: item.id } });
+            if (!source) return;
+            await createCatalogueItemFromLive(tenantId, item.code, remainingQty, item.amount,
+              source.mediaStorageKey === item.mediaStorageKey ? item.mediaStorageKey : null,
+              await getItemNameFromCode(tenantId, item.code), tx);
+          });
+        } else {
+          await createCatalogueItemFromLive(tenantId, item.code, remainingQty, item.amount,
+            null, await getItemNameFromCode(tenantId, item.code));
+        }
         result.itemsCreated++;
       }
 
@@ -167,11 +172,12 @@ async function createCatalogueItemFromLive(
   amount: number | null,
   mediaStorageKey: string | null,
   name: string | null = null,
+  client: Prisma.TransactionClient = db,
 ): Promise<void> {
   try {
     {
       try {
-        await db.catalogueItem.create({
+        await client.catalogueItem.create({
           data: {
             tenantId,
             code,

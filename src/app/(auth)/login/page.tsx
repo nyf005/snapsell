@@ -14,6 +14,7 @@ import { formatErrorText } from "~/lib/copy";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { getLoginValidationErrors } from "~/lib/validations/login";
+import { FORGOT_PASSWORD_PATH } from "~/lib/validations/password-reset";
 import { getSignupValidationErrors } from "~/lib/validations/signup";
 import { api } from "~/trpc/react";
 
@@ -140,16 +141,12 @@ function LoginTabContent() {
           <p className="text-sm text-destructive">{errors.password}</p>
         )}
       </div>
-      <details className="text-sm">
-        <summary className="min-h-11 cursor-pointer py-3 text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-primary">
-          Mot de passe oublié ?
-        </summary>
-        <div className="space-y-2 rounded-lg border border-border bg-muted/40 p-4">
-          <p>La réinitialisation automatique par email n’est pas encore disponible. Contactez l’assistance pour retrouver l’accès à votre compte.</p>
-          <p>Indiquez le nom de votre boutique et l’adresse email du compte. Ne communiquez jamais votre mot de passe.</p>
-          <a className="inline-flex min-h-11 items-center font-semibold text-primary underline" href="mailto:contact@snapsell.app?subject=Acc%C3%A8s%20au%20compte%20SnapSell">Contacter l’assistance par email</a>
-        </div>
-      </details>
+      <Link
+        href={FORGOT_PASSWORD_PATH}
+        className="inline-flex min-h-11 items-center self-start text-sm text-primary underline-offset-4 hover:underline"
+      >
+        Mot de passe oublié ?
+      </Link>
       <Button
         type="submit"
         className="h-12 w-full rounded-lg text-base font-bold shadow-lg shadow-primary/20 transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
@@ -364,6 +361,8 @@ const LOGIN_NOTICES: Record<string, string> = {
     "La connexion automatique n’a pas abouti. Saisissez vos identifiants ci-dessous.",
   password_changed:
     "Mot de passe modifié. Connectez-vous avec votre nouveau mot de passe.",
+  password_reset:
+    "Votre nouveau mot de passe est enregistré. Connectez-vous pour continuer.",
 };
 
 function LoginPageContent() {

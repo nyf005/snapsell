@@ -121,6 +121,8 @@ export async function syncCatalogueItemToMeta(
   const payload: Record<string, unknown> = {
     retailer_id: item.code,
     name: item.name,
+    // L’exemple officiel du SDK transmet un entier en centièmes.
+    // Conserver cette unité ; la vérification XOF en sandbox reste à effectuer.
     price: item.amount ?? 0,
     currency: "XOF",
     availability: item.availableQty - item.reservedQty > 0 ? "in stock" : "out of stock",

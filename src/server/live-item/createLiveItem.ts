@@ -77,6 +77,7 @@ async function createLiveItemRecord(
   code: string,
   quantity: number,
   options?: { availableQty?: number; reservedQty?: number; mediaStorageKey?: string | null },
+  client: Prisma.TransactionClient = db,
 ): Promise<{
   id: string;
   code: string;
@@ -91,7 +92,7 @@ async function createLiveItemRecord(
   const availableQty = options?.availableQty ?? quantity;
   const reservedQty = options?.reservedQty ?? 0;
   const totalQty = availableQty + reservedQty;
-  const liveItem = await db.liveItem.create({
+  const liveItem = await client.liveItem.create({
     data: {
       tenantId,
       liveSessionId,
@@ -123,6 +124,7 @@ export async function createLiveItem(
   tenantId: string,
   code: string,
   options?: { quantity?: number; mediaStorageKey?: string | null },
+  client: Prisma.TransactionClient = db,
 ): Promise<CreateLiveItemResult> {
   const normalized = normalizeCode(code);
   if (!normalized.length) return { success: false, reason: "invalid_code" };
@@ -138,8 +140,9 @@ export async function createLiveItem(
       availableQty,
       reservedQty,
       mediaStorageKey: options?.mediaStorageKey ?? undefined,
-    });
-    await updateLastActivity(session.id);
+    }, client);
+    if (client === db) await updateLastActivity(session.id);
+    else await client.liveSession.update({ where: { id: session.id }, data: { lastActivityAt: new Date() } });
     return {
       success: true,
       liveItem,

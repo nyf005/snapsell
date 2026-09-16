@@ -248,7 +248,9 @@ async function handleChargeSuccess(data: PaystackWebhookData) {
       const now = new Date();
       const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // +30 days
 
-      // Detect renewal: tenant already has an active paid subscription
+      // Detect renewal: tenant already holds a paid plan. `attention` (a failed
+      // charge being regularised) is still that same subscription, so the
+      // seller's deposit setting must survive the recovery payment.
       const currentTenant = await tx.tenant.findUnique({
         where: { id: tenantId },
         select: { subscriptionPlan: true, subscriptionStatus: true },
@@ -257,7 +259,8 @@ async function handleChargeSuccess(data: PaystackWebhookData) {
         currentTenant != null &&
         currentTenant.subscriptionPlan !== "free" &&
         (currentTenant.subscriptionStatus === "active" ||
-          currentTenant.subscriptionStatus === "non_renewing");
+          currentTenant.subscriptionStatus === "non_renewing" ||
+          currentTenant.subscriptionStatus === "attention");
 
       await tx.tenant.update({
         where: { id: tenantId },

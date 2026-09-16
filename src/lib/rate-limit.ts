@@ -274,6 +274,47 @@ export async function checkSignupRateLimit(ip: string): Promise<boolean> {
   );
 }
 
+const MAX_PASSWORD_RESET_REQUESTS_PER_EMAIL = 3;
+const MAX_PASSWORD_RESET_REQUESTS_PER_IP = 10;
+const MAX_PASSWORD_RESET_ATTEMPTS_PER_IP = 20;
+
+/**
+ * Demande de réinitialisation autorisée ? Chaque demande envoie un email : le
+ * plafond par adresse protège la boîte visée, celui par IP protège le quota
+ * d'envoi. Les deux compteurs avancent à chaque appel, comme pour la connexion.
+ */
+export async function checkPasswordResetRequestRateLimit(
+  email: string,
+  ip: string,
+): Promise<boolean> {
+  const normalizedEmail = email.trim().toLowerCase();
+  const [emailAllowed, ipAllowed] = await Promise.all([
+    runSharedRateLimit(
+      `pwreset:email:${normalizedEmail}`,
+      MAX_PASSWORD_RESET_REQUESTS_PER_EMAIL,
+      AUTH_WINDOW_MS,
+      "auth:rl",
+    ),
+    runSharedRateLimit(
+      `pwreset:ip:${ip}`,
+      MAX_PASSWORD_RESET_REQUESTS_PER_IP,
+      AUTH_WINDOW_MS,
+      "auth:rl",
+    ),
+  ]);
+  return emailAllowed && ipAllowed;
+}
+
+/** Tentative de consommation d'un jeton autorisée depuis cette IP ? */
+export async function checkPasswordResetAttemptRateLimit(ip: string): Promise<boolean> {
+  return runSharedRateLimit(
+    `pwreset:attempt:${ip}`,
+    MAX_PASSWORD_RESET_ATTEMPTS_PER_IP,
+    AUTH_WINDOW_MS,
+    "auth:rl",
+  );
+}
+
 /** Extrait l'IP client depuis un jeu d'en-têtes déjà lu (contexte tRPC). */
 export function getClientIpFromHeaders(headers: Headers): string {
   const forwarded = headers.get("x-forwarded-for");

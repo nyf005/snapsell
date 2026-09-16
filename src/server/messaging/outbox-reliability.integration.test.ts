@@ -6,7 +6,10 @@ vi.mock("~/env", () => ({ env: {
   NODE_ENV: "production", QSTASH_TOKEN: "test", NEXT_PUBLIC_APP_URL: "https://example.test",
 } }));
 vi.mock("~/server/messaging/service", () => ({ getProviderForTenant: async () => ({ send }) }));
-vi.mock("~/lib/logger", () => ({ workerLogger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
+vi.mock("~/lib/logger", () => ({
+  workerLogger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+  createLogger: () => ({ debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }),
+}));
 
 describe.skipIf(process.env.RUN_INTEGRATION_TESTS !== "true")("outbox recovery with PostgreSQL", () => {
   let db: typeof import("~/server/db").db;

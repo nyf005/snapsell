@@ -1,3 +1,5 @@
+import type { Prisma } from "../../../../generated/prisma";
+import { withMediaLock } from "~/server/media/r2-client";
 import { isServiceWindowOpen } from "~/server/messaging/sending-policy";
 import { checkOptOut } from "~/server/messaging/optout";
 import { normalizeIncomingPhone } from "~/lib/validations/phone";
@@ -321,10 +323,15 @@ export const liveRouter = createTRPCRouter({
         });
       }
 
-      const result = await createLiveItem(tenantId, catalogueItem.code, {
-        quantity: catalogueItem.availableQty,
-        mediaStorageKey: catalogueItem.mediaStorageKey,
-      });
+      const create = (mediaStorageKey: string | null, client?: Prisma.TransactionClient) => createLiveItem(tenantId, catalogueItem.code, {
+        quantity: catalogueItem.availableQty, mediaStorageKey,
+      }, client);
+      const key = catalogueItem.mediaStorageKey;
+      const result = key ? await withMediaLock(key, async tx => {
+        const source = await tx.catalogueItem.findUnique({ where: { id: catalogueItem.id } });
+        if (!source) throw new TRPCError({ code: "NOT_FOUND", message: "Article catalogue introuvable." });
+        return create(source.mediaStorageKey === key ? key : null, tx);
+      }) : await create(null);
 
       if (!result.success) {
         if ("duplicate" in result && result.duplicate) {
