@@ -7,7 +7,7 @@ vi.mock("~/server/db", () => ({
   db: {
     tenant: {
       findMany: mockTenantFindMany,
-      update: mockTenantUpdate,
+      updateMany: mockTenantUpdate,
     },
   },
 }));
@@ -43,13 +43,13 @@ describe("runSubscriptionExpiredJob", () => {
       where: {
         subscriptionPlan: { not: "free" },
         subscriptionExpiresAt: { lt: expect.any(Date) },
-        subscriptionStatus: { in: ["active", "non_renewing"] },
+        subscriptionStatus: { in: ["active", "non_renewing", "attention"] },
       },
       select: { id: true, subscriptionPlan: true },
     });
     expect(mockTenantUpdate).toHaveBeenCalledTimes(2);
     expect(mockTenantUpdate).toHaveBeenCalledWith({
-      where: { id: "tenant-1" },
+      where: { id: "tenant-1", subscriptionExpiresAt: { lt: expect.any(Date) }, subscriptionStatus: { in: ["active", "non_renewing", "attention"] } },
       data: expect.objectContaining({
         subscriptionStatus: "cancelled",
         subscriptionPlan: "free",

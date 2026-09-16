@@ -22,10 +22,10 @@ const shortDescriptions: Record<string, string> = {
 
 export default async function BoutiquePage() {
   const session = await auth();
-  if (!session?.user) redirect("/login");
+  if (!session?.user) redirect("/login?callbackUrl=%2Fdashboard%2Fboutique");
   const canManage = canManageGrid(session.user.role ?? "");
   const tenantId = session.user.tenantId;
-  if (!tenantId) redirect("/login");
+  if (!tenantId) redirect("/login?callbackUrl=%2Fdashboard%2Fboutique");
   const [catalogueCount, teamCount, tenant, zones, communes] = await Promise.all([
     db.catalogueItem.count({ where: { tenantId } }),
     canManage ? db.user.count({ where: { tenantId } }) : Promise.resolve(null),

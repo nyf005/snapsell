@@ -74,7 +74,7 @@ export async function runReservationReminderJob(): Promise<ReservationReminderRu
         tenantId: res.tenantId,
         to: res.clientPhone,
         ...REMINDER_MSG,
-        correlationId: res.correlationId,
+        correlationId: `reservation:${res.id}:reminder`,
       });
 
       // Story 8.1: payload adapté catalogue ou live
@@ -150,8 +150,8 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
   for (const res of expired) {
     // Story 8.1: polymorphisme item catalogue ou live
     const isCatalogue = !!res.catalogueItemId;
-    const itemIdForStock = res.catalogueItemId ?? res.liveItemId;
-    const stockTableName = isCatalogue ? "catalogue_items" : "live_items";
+    const itemIdForStock = res.variantId ?? res.catalogueItemId ?? res.liveItemId;
+    const stockTableName = res.variantId ? "item_variants" : isCatalogue ? "catalogue_items" : "live_items";
 
     if (!itemIdForStock) {
       workerLogger.warn("Reservation has no associated item (neither liveItemId nor catalogueItemId), skipping", {
@@ -179,10 +179,15 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
       await tx.$executeRaw(
         Prisma.sql`
           UPDATE ${Prisma.raw(stockTableName)}
-          SET reserved_qty = reserved_qty - 1, updated_at = NOW()
+          SET reserved_qty = reserved_qty - ${res.quantity} ${isCatalogue && !res.variantId ? Prisma.sql`, synced_to_meta = false` : Prisma.empty}, updated_at = NOW()
           WHERE id = ${itemIdForStock} AND tenant_id = ${res.tenantId}
         `,
       );
+
+      if (res.variantId && res.catalogueItemId) {
+        await tx.catalogueItem.update({ where: { id: res.catalogueItemId, tenantId: res.tenantId },
+          data: { reservedQty: { decrement: res.quantity }, syncedToMeta: false } });
+      }
 
       // Story 9.1: Waitlist lookup — catalogue entries use catalogueItemId, live entries use liveItemId
       const firstInWaitlist = isCatalogue
@@ -249,7 +254,7 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
         tenantId: res.tenantId,
         to: res.clientPhone,
         ...botMsg.client.reservationExpiredInteractive(expiredCode),
-        correlationId: res.correlationId,
+        correlationId: `reservation:${res.id}:expired`,
       }).catch((err) => {
         workerLogger.warn("writeToOutbox reservation_expired notification failed", {
           reservationId: res.id,
@@ -311,7 +316,7 @@ export async function runReservationTtlJob(): Promise<ReservationTtlRunResult> {
           tenantId: updated.promoted.tenantId,
           to: updated.promoted.clientPhone,
           ...botMsg.client.waitlistPromotedInteractive(code),
-          correlationId: updated.promoted.correlationId,
+          correlationId: `waitlist:${updated.promoted.waitlistId}:promoted`,
         });
       } else {
         workerLogger.warn("Promotion createReservation failed (exhausted or race)", {

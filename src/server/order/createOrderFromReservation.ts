@@ -86,7 +86,7 @@ export async function createOrderFromReservation(
 ): Promise<CreateOrderFromReservationResult> {
   // 1. Idempotence check (HORS transaction — fast-path, ne modifie rien)
   const existingOrder = await db.order.findUnique({
-    where: { reservationId },
+    where: { reservationId, tenantId },
   });
   if (existingOrder) {
     return {
@@ -138,6 +138,18 @@ export async function createOrderFromReservation(
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
       orderRecord = await db.$transaction(async (tx) => {
+        // Claim the reservation before touching stock. Expiration/cancellation use
+        // the same row lock, so only one transition can win.
+        const claimed = await tx.reservation.updateMany({
+          where: { id: reservationId, tenantId, status: "address_collected",
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+          data: { status: "confirmed" },
+        });
+        if (claimed.count === 0) {
+          const existing = await tx.order.findUnique({ where: { reservationId, tenantId } });
+          if (existing) return existing;
+          throw new ConfirmFailedError("reservation_expired_or_changed");
+        }
         // 3a. confirmReservation avec tx (SELECT FOR UPDATE + décrément stock)
         const confirmResult = await confirmReservation(tenantId, itemIdForStock, quantity, {
           correlationId,
@@ -147,12 +159,6 @@ export async function createOrderFromReservation(
         if (!confirmResult.success) {
           throw new ConfirmFailedError(confirmResult.reason);
         }
-
-        // 3b. Update reservation status → confirmed
-        await tx.reservation.update({
-          where: { id: reservationId },
-          data: { status: "confirmed" },
-        });
 
         // 3c. Create Order (SS-XXXX)
         const orderNumber = await getNextOrderNumber(tenantId, tx);
@@ -203,7 +209,7 @@ export async function createOrderFromReservation(
 
       // P2002 sur reservation_id → commande créée par un concurrent (idempotence)
       if (isReservationIdConflict) {
-        const existing = await db.order.findUnique({ where: { reservationId } });
+        const existing = await db.order.findUnique({ where: { reservationId, tenantId } });
         if (existing) {
           return {
             success: true,
@@ -253,32 +259,8 @@ export async function createOrderFromReservation(
     workerLogger.warn("Event log reservation_confirmed failed", { correlationId, err });
   });
 
-  // Story 8.1 AC#5: Libération du code après vente pour articles créés en live
-  if (isCatalogue && reservation.catalogueItem?.createdInLive) {
-    try {
-      const catItem = await db.catalogueItem.findUnique({
-        where: { id: reservation.catalogueItemId! },
-        select: { availableQty: true },
-      });
-      if (catItem && catItem.availableQty <= 0) {
-        await db.catalogueItem.delete({
-          where: { id: reservation.catalogueItemId! },
-        });
-        workerLogger.info("Catalogue code released after sale (createdInLive, qty=0)", {
-          tenantId,
-          catalogueItemId: reservation.catalogueItemId,
-          correlationId,
-        });
-      }
-    } catch (err) {
-      workerLogger.warn("Failed to release catalogue code after sale", {
-        tenantId,
-        catalogueItemId: reservation.catalogueItemId,
-        correlationId,
-        err,
-      });
-    }
-  }
+  // Sold items remain attached to the order and its payment evidence.
+  // Reusing a live code must never delete commercial history.
 
   await logOrderCreated(tenantId, orderRecord.id, reservationId, correlationId).catch((err) => {
     workerLogger.warn("Event log order_created failed", {
@@ -289,12 +271,12 @@ export async function createOrderFromReservation(
   });
 
   if (requireDeposit) {
-    const body = (deposit ? `Acompte demandé : ${formatXof(deposit.depositAmountCents)} (${deposit.depositPercentSnapshot} % des articles, hors livraison).\n` : "") + botMsg.client.orderWithDeposit(DEPOSIT_TTL_MINUTES);
+    const body = `Commande ${orderRecord.orderNumber} — ` + (deposit ? `Acompte demandé : ${formatXof(deposit.depositAmountCents)} (${deposit.depositPercentSnapshot} % des articles, hors livraison).\n` : "") + botMsg.client.orderWithDeposit(DEPOSIT_TTL_MINUTES);
     await writeToOutbox({
       tenantId,
       to: clientPhone,
       body,
-      correlationId,
+      correlationId: `order:${orderRecord.id}:deposit-request`,
     });
     await logDepositRequested(tenantId, orderRecord.id, correlationId, {
       deposit_expires_minutes: DEPOSIT_TTL_MINUTES,

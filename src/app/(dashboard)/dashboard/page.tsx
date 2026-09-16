@@ -14,7 +14,7 @@ export default async function DashboardPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/login?callbackUrl=%2Fdashboard");
   }
 
   // Un user OPS n'a pas de tenant → rediriger vers la console ops

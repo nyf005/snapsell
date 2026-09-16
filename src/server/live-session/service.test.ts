@@ -6,6 +6,7 @@ import { db } from "~/server/db";
 vi.mock("~/server/db", () => ({
   db: {
     liveSession: {
+      updateMany: vi.fn().mockResolvedValue({ count: 0 }),
       findFirst: vi.fn(),
       update: vi.fn(),
       create: vi.fn(),

@@ -6,6 +6,8 @@ const MOCK_SECRET = "sk_test_webhook";
 // Mocks
 vi.mock("~/server/db", () => ({
   db: {
+    $transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(db)),
+    $executeRaw: vi.fn().mockResolvedValue(1),
     subscriptionPayment: {
       findUnique: vi.fn(),
       findFirst: vi.fn(),

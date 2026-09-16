@@ -1,3 +1,4 @@
+import { MAX_AMOUNT_CENTS } from "~/lib/money";
 import { z } from "zod";
 
 /** Code catégorie : libre (lettre, mot ou libellé composé, ex. A, Premium, Haut de gamme), 1–50 caractères. */
@@ -12,7 +13,7 @@ const categoryCodeSchema = z
 
 export const categoryPriceItemSchema = z.object({
   categoryLetter: categoryCodeSchema,
-  amount: z.number().int().min(0, "Le montant ne peut pas être négatif"),
+  amount: z.number().int().min(0, "Le montant ne peut pas être négatif").max(MAX_AMOUNT_CENTS),
   description: z.string().min(1, "La description est requise").max(500).optional(),
 });
 

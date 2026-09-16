@@ -1,5 +1,6 @@
 "use client";
 
+import { francsToCents, centsToFrancs } from "~/lib/money";
 import { DeliveryPreview } from "./delivery-preview";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -508,13 +509,13 @@ export function DeliveryFeesContent() {
                     inputMode="numeric"
                     className="pl-8"
                     placeholder="0"
-                    value={zoneForm.amount === 0 ? "" : (zoneForm.amount / 100).toString()}
+                    value={zoneForm.amount === 0 ? "" : centsToFrancs(zoneForm.amount).toString()}
                     onChange={(e) => {
                       const v = e.target.value.replace(/[^0-9]/g, "");
                       const num = parseInt(v, 10);
                       setZoneForm((f) => ({
                         ...f,
-                        amount: Number.isNaN(num) ? 0 : num * 100,
+                        amount: Number.isNaN(num) ? 0 : francsToCents(num),
                       }));
                     }}
                   />
@@ -604,13 +605,13 @@ export function DeliveryFeesContent() {
                     inputMode="numeric"
                     className="pl-8"
                     placeholder="0"
-                    value={communeForm.amount === 0 ? "" : (communeForm.amount / 100).toString()}
+                    value={communeForm.amount === 0 ? "" : centsToFrancs(communeForm.amount).toString()}
                     onChange={(e) => {
                       const v = e.target.value.replace(/[^0-9]/g, "");
                       const num = parseInt(v, 10);
                       setCommuneForm((f) => ({
                         ...f,
-                        amount: Number.isNaN(num) ? 0 : num * 100,
+                        amount: Number.isNaN(num) ? 0 : francsToCents(num),
                       }));
                     }}
                   />

@@ -8,7 +8,7 @@ export default async function AuditPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/login?callbackUrl=%2Fdashboard%2Faudit");
   }
 
   // `canManageGrid` plutôt qu'une comparaison à la main, comme sur la page des

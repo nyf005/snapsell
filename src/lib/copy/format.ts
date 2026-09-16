@@ -1,3 +1,4 @@
+import { centsToFrancs } from "~/lib/money";
 /**
  * Formateurs partagés — monnaie, quantités, dates.
  *
@@ -18,7 +19,7 @@ const XOF_FORMATTER = new Intl.NumberFormat("fr-FR", {
  */
 export function formatXof(cents: number | null | undefined): string {
   if (cents == null || !Number.isFinite(cents)) return "—";
-  return `${XOF_FORMATTER.format(Math.round(cents / 100))} FCFA`;
+  return `${XOF_FORMATTER.format(Math.round(centsToFrancs(cents)))} FCFA`;
 }
 
 /**

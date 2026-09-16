@@ -11,6 +11,7 @@
  * à la seconde près serait écrasée par l'annulation.
  */
 
+import { db } from "~/server/db";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockFindMany = vi.hoisted(() => vi.fn());
@@ -19,7 +20,11 @@ const mockWriteToOutbox = vi.hoisted(() => vi.fn());
 const mockLogEvent = vi.hoisted(() => vi.fn());
 
 vi.mock("~/server/db", () => ({
-  db: { order: { findMany: mockFindMany, updateMany: mockUpdateMany } },
+  db: { $transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(db)),
+    order: { findMany: mockFindMany, updateMany: mockUpdateMany, update: vi.fn().mockResolvedValue({}) },
+    paymentProof: { count: vi.fn().mockResolvedValue(0) },
+    catalogueItem: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
+  },
 }));
 vi.mock("~/server/messaging/outbox", () => ({ writeToOutbox: mockWriteToOutbox }));
 vi.mock("~/server/events/eventLog", () => ({ logEvent: mockLogEvent }));
@@ -31,7 +36,7 @@ function order(overrides: Record<string, unknown> = {}) {
     id: "order-1",
     tenantId: "tenant-1",
     orderNumber: "SS-0042",
-    reservation: { clientPhone: "+2250701020304", correlationId: "corr-1" },
+    reservation: { tenantId: "tenant-1", catalogueItemId: "item-1", liveItemId: null, variantId: null, quantity: 2, clientPhone: "+2250701020304", correlationId: "corr-1" },
     ...overrides,
   };
 }
@@ -61,8 +66,8 @@ describe("runDepositExpiryJob", () => {
 
     expect(result.expiredCount).toBe(1);
     expect(mockUpdateMany).toHaveBeenCalledWith({
-      where: { id: "order-1", depositStatus: "deposit_pending" },
-      data: { status: "cancelled", depositStatus: "deposit_rejected" },
+      where: { id: "order-1", status: "confirmed_pending_deposit", depositStatus: "deposit_pending", depositExpiresAt: { lte: expect.any(Date) } },
+      data: { updatedAt: expect.any(Date) },
     });
     expect(mockWriteToOutbox).toHaveBeenCalledWith(
       expect.objectContaining({ tenantId: "tenant-1", to: "+2250701020304" }),
@@ -121,7 +126,7 @@ describe("runDepositExpiryJob", () => {
   });
 
   it("n'envoie rien quand la réservation n'a pas de numéro", async () => {
-    mockFindMany.mockResolvedValue([order({ reservation: null })]);
+    mockFindMany.mockResolvedValue([order({ reservation: { tenantId: "tenant-1", catalogueItemId: "item-1", quantity: 1, clientPhone: null } })]);
 
     const result = await runDepositExpiryJob();
 

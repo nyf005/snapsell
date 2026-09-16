@@ -8,7 +8,7 @@
  * - subscription.disable → Set status to "cancelled"
  * - subscription.not_renew → Set status to "non_renewing"
  *
- * Patterns: HMAC SHA-512, idempotence on paystackReference, always 200 OK.
+ * Patterns: HMAC SHA-512, atomic idempotence on paystackReference, 500 on transient failures.
  */
 
 import { NextResponse } from "next/server";
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     workerLogger.warn("Paystack webhook error processing event", { event: event.event, error });
-    // Still return 200 — we don't want Paystack to retry indefinitely
+    return NextResponse.json({ status: "retry" }, { status: 500 });
   }
 
   return NextResponse.json({ status: "ok" }, { status: 200 });
@@ -126,171 +126,176 @@ async function handleChargeSuccess(data: PaystackWebhookData) {
   const reference = data.reference;
   if (!reference) return;
 
-  const existingByRef = await db.subscriptionPayment.findUnique({
-    where: { paystackReference: reference },
-  });
+  await db.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${reference}))`;
 
-  if (existingByRef?.status === "success") {
-    return; // Already processed
-  }
-
-  // Resolve tenantId and plan from webhook metadata or from our existing row (Paystack may not echo metadata)
-  const tenantId =
-    (data.metadata?.tenantId as string | undefined) ?? existingByRef?.tenantId ?? null;
-  let planId = ((data.metadata?.plan ?? existingByRef?.plan) as PlanId | undefined) ?? undefined;
-
-  if (!tenantId) {
-    workerLogger.warn("Paystack charge.success: no tenantId in metadata or existing payment", {
-      reference,
-    });
-    return;
-  }
-
-  const amount = data.amount ?? 0;
-  const successData = {
-    status: "success" as const,
-    channel: data.authorization?.channel ?? data.channel ?? null,
-    cardLast4: data.authorization?.last4 ?? null,
-    ...(planId && { plan: planId }),
-    amount: Math.round(amount / 100), // Paystack sends in subunits → FCFA
-    metadata: (data.metadata as Record<string, string | number | boolean> | undefined) ?? undefined,
-  };
-
-  if (existingByRef) {
-    await db.subscriptionPayment.update({
+    const existingByRef = await tx.subscriptionPayment.findUnique({
       where: { paystackReference: reference },
-      data: successData,
-    });
-  } else {
-    // Reference not in DB: may be a different ref than the one we got at init → reconcile with pending to avoid duplicate
-    const since = new Date(Date.now() - PENDING_PAYMENT_LOOKBACK_MS);
-    const pending = await db.subscriptionPayment.findFirst({
-      where: {
-        tenantId,
-        status: "pending",
-        createdAt: { gte: since },
-        ...(planId && { plan: planId }),
-      },
-      orderBy: { createdAt: "desc" },
     });
 
-    if (pending) {
-      if (!planId && pending.plan) planId = pending.plan as PlanId;
-      await db.subscriptionPayment.update({
-        where: { id: pending.id },
-        data: {
-          paystackReference: reference,
-          ...successData,
-          ...(planId && { plan: planId }),
-        },
-      });
-    } else {
-      await db.subscriptionPayment.create({
-        data: {
-          tenantId,
-          paystackReference: reference,
-          type: "subscription",
-          plan: planId ?? null,
-          amount: Math.round(amount / 100),
-          status: "success",
-          channel: data.authorization?.channel ?? data.channel ?? null,
-          cardLast4: data.authorization?.last4 ?? null,
-          metadata: (data.metadata as Record<string, string | number | boolean> | undefined) ?? undefined,
-        },
-      });
+    if (existingByRef?.status === "success") {
+      return; // Already processed
     }
-  }
 
-  // Update tenant subscription
-  if (planId && (planId === "starter" || planId === "pro")) {
-    const planConfig = getPlanConfig(planId);
+    // Resolve tenantId and plan from webhook metadata or from our existing row (Paystack may not echo metadata)
+    const tenantId =
+      (data.metadata?.tenantId as string | undefined) ?? existingByRef?.tenantId ?? null;
+    let planId = ((data.metadata?.plan ?? existingByRef?.plan) as PlanId | undefined) ?? undefined;
 
-    /**
-     * ── LE PLAN ACCORDÉ DOIT CORRESPONDRE AU MONTANT ENCAISSÉ ────────────────
-     *
-     * Les droits du plan étaient octroyés sur la seule foi de `metadata.plan`,
-     * sans jamais confronter `data.amount` au prix. La signature HMAC protège
-     * l'entrée, et `metadata` est bien posée par notre code à l'initialisation —
-     * mais accorder un plan payant est l'écriture la plus sensible de
-     * l'application, et rien ne vérifiait que l'argent correspondait.
-     *
-     * Un écart signifie que le plan et le paiement ont divergé quelque part :
-     * changement de tarif dans le tableau de bord Paystack, réconciliation qui a
-     * rapproché la mauvaise ligne en attente, montant partiel. On enregistre
-     * alors le paiement — il a bien eu lieu, la ligne doit exister — mais on
-     * n'élève pas le compte, et la trace part dans les journaux pour arbitrage
-     * humain.
-     *
-     * On tolère un montant *supérieur* : proratisation, frais ou arrondi de
-     * Paystack ne doivent pas priver une cliente de ce qu'elle a payé.
-     * ────────────────────────────────────────────────────────────────────────
-     */
-    const expectedSubunits = Math.round(planConfig.price * 100);
-    if (amount < expectedSubunits) {
-      workerLogger.error(
-        "Paystack charge.success : montant inférieur au prix du plan — droits non accordés",
-        new Error("paystack_amount_mismatch"),
-        {
-          reference,
-          tenantId,
-          plan: planId,
-          receivedSubunits: amount,
-          expectedSubunits,
-        },
-      );
+    if (!tenantId) {
+      workerLogger.warn("Paystack charge.success: no tenantId in metadata or existing payment", {
+        reference,
+      });
       return;
     }
 
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // +30 days
+    const amount = data.amount ?? 0;
+    const successData = {
+      status: "success" as const,
+      channel: data.authorization?.channel ?? data.channel ?? null,
+      cardLast4: data.authorization?.last4 ?? null,
+      ...(planId && { plan: planId }),
+      amount: Math.round(amount / 100), // Paystack sends in subunits → FCFA
+      metadata: (data.metadata as Record<string, string | number | boolean> | undefined) ?? undefined,
+    };
 
-    // Detect renewal: tenant already has an active paid subscription
-    const currentTenant = await db.tenant.findUnique({
-      where: { id: tenantId },
-      select: { subscriptionPlan: true, subscriptionStatus: true },
-    });
-    const isRenewal =
-      currentTenant != null &&
-      currentTenant.subscriptionPlan !== "free" &&
-      (currentTenant.subscriptionStatus === "active" ||
-        currentTenant.subscriptionStatus === "non_renewing");
+    if (existingByRef) {
+      await tx.subscriptionPayment.update({
+        where: { paystackReference: reference },
+        data: successData,
+      });
+    } else {
+      // Reference not in DB: may be a different ref than the one we got at init → reconcile with pending to avoid duplicate
+      const since = new Date(Date.now() - PENDING_PAYMENT_LOOKBACK_MS);
+      const pending = await tx.subscriptionPayment.findFirst({
+        where: {
+          tenantId,
+          status: "pending",
+          type: "subscription",
+          createdAt: { gte: since },
+          ...(planId && { plan: planId }),
+        },
+        orderBy: { createdAt: "desc" },
+      });
 
-    await db.tenant.update({
-      where: { id: tenantId },
-      data: {
-        subscriptionPlan: planId,
-        subscriptionStatus: "active",
-        subscriptionExpiresAt: expiresAt,
-        cycleStartedAt: now, // Reset cycle → usage counters reset (dynamic COUNT from this date)
-        // Prochaine échéance de renouvellement des crédits, lue par le cron
-        // `credits-monthly-reset`. Sans elle, les crédits ne se rechargeraient
-        // qu'au prochain paiement Paystack.
-        usageResetDate: expiresAt,
-        // Reset credits on upgrade/renewal
-        creditsTotalMonthly: planConfig.entitlements.creditsTotalMonthly,
-        creditsBalance: planConfig.entitlements.creditsTotalMonthly,
-        lowCreditsAlerted: false,
-        // Store authorization for future charges
-        paystackAuthorizationCode: data.authorization?.authorization_code ?? undefined,
-        // Entitlements from plan config
-        maxConfirmedOrdersPerMonth: planConfig.entitlements.maxConfirmedOrdersPerMonth,
-        maxProofsPerMonth: planConfig.entitlements.maxProofsPerMonth,
-        maxAgents: planConfig.entitlements.maxAgents,
-        overagePerOrderCents: planConfig.entitlements.overagePerOrderCents,
-        hasExportCsv: planConfig.entitlements.hasExportCsv,
-        hasAdvancedExports: planConfig.entitlements.hasAdvancedExports,
-        hasNotificationsOutside24h: planConfig.entitlements.hasNotificationsOutside24h,
-        hasDepositRecommended: planConfig.entitlements.hasDepositRecommended,
-        hasAdvancedFilters: planConfig.entitlements.hasAdvancedFilters,
-        hasPrioritySupport: planConfig.entitlements.hasPrioritySupport,
-        hasAI: planConfig.entitlements.hasAI,
-        showBranding: planConfig.entitlements.showBranding,
-        showUpgradeBanner: planConfig.entitlements.showUpgradeBanner,
-        // On first subscription (not renewal), auto-enable deposit if plan recommends it
-        ...(!isRenewal && planConfig.entitlements.hasDepositRecommended ? { requireDeposit: true } : {}),
-      },
-    });
-  }
+      if (pending) {
+        if (!planId && pending.plan) planId = pending.plan as PlanId;
+        await tx.subscriptionPayment.update({
+          where: { id: pending.id },
+          data: {
+            paystackReference: reference,
+            ...successData,
+            ...(planId && { plan: planId }),
+          },
+        });
+      } else {
+        await tx.subscriptionPayment.create({
+          data: {
+            tenantId,
+            paystackReference: reference,
+            type: "subscription",
+            plan: planId ?? null,
+            amount: Math.round(amount / 100),
+            status: "success",
+            channel: data.authorization?.channel ?? data.channel ?? null,
+            cardLast4: data.authorization?.last4 ?? null,
+            metadata: (data.metadata as Record<string, string | number | boolean> | undefined) ?? undefined,
+          },
+        });
+      }
+    }
+
+    // Update tenant subscription
+    if (planId && (planId === "starter" || planId === "pro")) {
+      const planConfig = getPlanConfig(planId);
+
+      /**
+       * ── LE PLAN ACCORDÉ DOIT CORRESPONDRE AU MONTANT ENCAISSÉ ────────────────
+       *
+       * Les droits du plan étaient octroyés sur la seule foi de `metadata.plan`,
+       * sans jamais confronter `data.amount` au prix. La signature HMAC protège
+       * l'entrée, et `metadata` est bien posée par notre code à l'initialisation —
+       * mais accorder un plan payant est l'écriture la plus sensible de
+       * l'application, et rien ne vérifiait que l'argent correspondait.
+       *
+       * Un écart signifie que le plan et le paiement ont divergé quelque part :
+       * changement de tarif dans le tableau de bord Paystack, réconciliation qui a
+       * rapproché la mauvaise ligne en attente, montant partiel. On enregistre
+       * alors le paiement — il a bien eu lieu, la ligne doit exister — mais on
+       * n'élève pas le compte, et la trace part dans les journaux pour arbitrage
+       * humain.
+       *
+       * On tolère un montant *supérieur* : proratisation, frais ou arrondi de
+       * Paystack ne doivent pas priver une cliente de ce qu'elle a payé.
+       * ────────────────────────────────────────────────────────────────────────
+       */
+      const expectedSubunits = Math.round(planConfig.price * 100);
+      if (amount < expectedSubunits) {
+        workerLogger.error(
+          "Paystack charge.success : montant inférieur au prix du plan — droits non accordés",
+          new Error("paystack_amount_mismatch"),
+          {
+            reference,
+            tenantId,
+            plan: planId,
+            receivedSubunits: amount,
+            expectedSubunits,
+          },
+        );
+        return;
+      }
+
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // +30 days
+
+      // Detect renewal: tenant already has an active paid subscription
+      const currentTenant = await tx.tenant.findUnique({
+        where: { id: tenantId },
+        select: { subscriptionPlan: true, subscriptionStatus: true },
+      });
+      const isRenewal =
+        currentTenant != null &&
+        currentTenant.subscriptionPlan !== "free" &&
+        (currentTenant.subscriptionStatus === "active" ||
+          currentTenant.subscriptionStatus === "non_renewing");
+
+      await tx.tenant.update({
+        where: { id: tenantId },
+        data: {
+          subscriptionPlan: planId,
+          subscriptionStatus: "active",
+          subscriptionExpiresAt: expiresAt,
+          cycleStartedAt: now, // Reset cycle → usage counters reset (dynamic COUNT from this date)
+          // Prochaine échéance de renouvellement des crédits, lue par le cron
+          // `credits-monthly-reset`. Sans elle, les crédits ne se rechargeraient
+          // qu'au prochain paiement Paystack.
+          usageResetDate: expiresAt,
+          // Reset credits on upgrade/renewal
+          creditsTotalMonthly: planConfig.entitlements.creditsTotalMonthly,
+          creditsBalance: planConfig.entitlements.creditsTotalMonthly,
+          lowCreditsAlerted: false,
+          // Store authorization for future charges
+          paystackAuthorizationCode: data.authorization?.authorization_code ?? undefined,
+          // Entitlements from plan config
+          maxConfirmedOrdersPerMonth: planConfig.entitlements.maxConfirmedOrdersPerMonth,
+          maxProofsPerMonth: planConfig.entitlements.maxProofsPerMonth,
+          maxAgents: planConfig.entitlements.maxAgents,
+          overagePerOrderCents: planConfig.entitlements.overagePerOrderCents,
+          hasExportCsv: planConfig.entitlements.hasExportCsv,
+          hasAdvancedExports: planConfig.entitlements.hasAdvancedExports,
+          hasNotificationsOutside24h: planConfig.entitlements.hasNotificationsOutside24h,
+          hasDepositRecommended: planConfig.entitlements.hasDepositRecommended,
+          hasAdvancedFilters: planConfig.entitlements.hasAdvancedFilters,
+          hasPrioritySupport: planConfig.entitlements.hasPrioritySupport,
+          hasAI: planConfig.entitlements.hasAI,
+          showBranding: planConfig.entitlements.showBranding,
+          showUpgradeBanner: planConfig.entitlements.showUpgradeBanner,
+          // On first subscription (not renewal), auto-enable deposit if plan recommends it
+          ...(!isRenewal && planConfig.entitlements.hasDepositRecommended ? { requireDeposit: true } : {}),
+        },
+      });
+    }
+  });
 }
 
 /**
@@ -300,50 +305,54 @@ async function handleCreditsTopup(data: PaystackWebhookData) {
   const reference = data.reference;
   if (!reference) return;
 
-  // Idempotence
-  const existing = await db.subscriptionPayment.findUnique({
-    where: { paystackReference: reference },
-  });
-  if (existing?.status === "success") return;
+  await db.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${reference}))`;
 
-  const tenantId = data.metadata?.tenantId as string | undefined;
-  const creditsAmount = data.metadata?.creditsAmount as number | undefined;
-
-  if (!tenantId || !creditsAmount || creditsAmount <= 0) {
-    workerLogger.warn("handleCreditsTopup: missing tenantId or creditsAmount", { reference });
-    return;
-  }
-
-  const amount = Math.round((data.amount ?? 0) / 100); // subunits → FCFA
-  const channel = data.authorization?.channel ?? data.channel ?? null;
-  const cardLast4 = data.authorization?.last4 ?? null;
-
-  if (existing) {
-    await db.subscriptionPayment.update({
+    // Idempotence
+    const existing = await tx.subscriptionPayment.findUnique({
       where: { paystackReference: reference },
-      data: { status: "success", amount, channel, cardLast4 },
     });
-  } else {
-    await db.subscriptionPayment.create({
-      data: {
-        tenantId,
-        paystackReference: reference,
-        type: "credits_topup",
-        amount,
-        status: "success",
-        channel,
-        cardLast4,
-        metadata: data.metadata as Record<string, string | number | boolean> | undefined,
-      },
-    });
-  }
+    if (existing?.status === "success") return;
 
-  await db.tenant.update({
-    where: { id: tenantId },
-    data: { creditsBonus: { increment: creditsAmount } },
+    const tenantId = data.metadata?.tenantId as string | undefined;
+    const creditsAmount = data.metadata?.creditsAmount as number | undefined;
+
+    if (!tenantId || !creditsAmount || creditsAmount <= 0) {
+      workerLogger.warn("handleCreditsTopup: missing tenantId or creditsAmount", { reference });
+      return;
+    }
+
+    const amount = Math.round((data.amount ?? 0) / 100); // subunits → FCFA
+    const channel = data.authorization?.channel ?? data.channel ?? null;
+    const cardLast4 = data.authorization?.last4 ?? null;
+
+    if (existing) {
+      await tx.subscriptionPayment.update({
+        where: { paystackReference: reference },
+        data: { status: "success", amount, channel, cardLast4 },
+      });
+    } else {
+      await tx.subscriptionPayment.create({
+        data: {
+          tenantId,
+          paystackReference: reference,
+          type: "credits_topup",
+          amount,
+          status: "success",
+          channel,
+          cardLast4,
+          metadata: data.metadata as Record<string, string | number | boolean> | undefined,
+        },
+      });
+    }
+
+    await tx.tenant.update({
+      where: { id: tenantId },
+      data: { creditsBonus: { increment: creditsAmount } },
+    });
+
+    workerLogger.info("Credits topup applied", { tenantId, creditsAmount, reference });
   });
-
-  workerLogger.info("Credits topup applied", { tenantId, creditsAmount, reference });
 }
 
 /**

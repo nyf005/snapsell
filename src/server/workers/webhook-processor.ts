@@ -1,3 +1,4 @@
+import { cancelActiveReservations } from "~/server/reservation/cancel";
 import { handleSellerMessage } from "./seller-message";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
@@ -82,6 +83,30 @@ export async function processWebhookJob(
       messageType,
       liveSessionId: liveSessionId ?? null,
     });
+
+    // One order per reservation; confirm every item shown in the address recap.
+    const confirmCart = async (requireDeposit: boolean) => {
+      const reservations = await db.reservation.findMany({
+        where: { tenantId, clientPhone: clientPhoneE164, status: "address_collected" },
+        orderBy: { createdAt: "asc" },
+      });
+      const confirmed: string[] = [];
+      let failed = 0;
+      for (const reservation of reservations) {
+        const result = await createOrderFromReservation(tenantId, reservation.id, requireDeposit, clientPhoneE164, correlationId);
+        if (result.success) confirmed.push(result.order.orderNumber);
+        else failed++;
+      }
+      if (confirmed.length) await db.conversationState.deleteMany({ where: { tenantId, phone: clientPhoneE164 } });
+      await writeToOutbox({ tenantId, to: clientPhoneE164, correlationId, purpose: "order_confirmation",
+        ...(requireDeposit ? botMsg.client.orderWithDepositInteractive(15) : botMsg.client.orderConfirmedInteractive()),
+        body: confirmed.length
+          ? `Commande${confirmed.length > 1 ? "s" : ""} enregistrée${confirmed.length > 1 ? "s" : ""} : ${confirmed.join(", ")}.` +
+            (requireDeposit ? " Les acomptes attendus sont indiqués pour chaque commande." : "") +
+            (failed ? " Certains articles n’ont pas pu être confirmés. Vérifiez leur disponibilité avant de renvoyer leur code." : "")
+          : botMsg.client.orderFailed(),
+      });
+    };
 
     /**
      * ── LE STOP PASSE AVANT LE CONTRÔLE DE CRÉDIT ─────────────────────────────
@@ -234,14 +259,15 @@ export async function processWebhookJob(
       const changing = isChangeRequest(body) || hasTrustedAIIntent(aiAnalysis, "CHANGE_REQUEST");
       const question = isConversationQuestion(body) || hasTrustedAIIntent(aiAnalysis, "QUESTION") || hasTrustedAIIntent(aiAnalysis, "FAQ");
       if (changing || question) {
-        const category = getTrustedAIFaqCategory(aiAnalysis) ?? detectFaqIntent(body);
+        const category = detectFaqIntent(body) ?? getTrustedAIFaqCategory(aiAnalysis);
         const answer = !changing && category ? ({ delivery: tenant?.faqDelivery, payment: tenant?.faqPayment, location: tenant?.faqLocation, availability: tenant?.faqAvailability })[category] : null;
         // Do not promise an exception (payment tomorrow, cancellation, etc.) based on a generic FAQ.
         if (answer && !/\b(?:demain|plus tard|annul|chang|modifi)/i.test(body)) {
           await writeToOutbox({ tenantId, to: clientPhoneE164, body: answer, correlationId });
         } else {
-          await setHandedOff(tenantId, clientPhoneE164, true);
-          await writeToOutbox({ tenantId, to: clientPhoneE164, body: botMsg.client.handedOff(), correlationId });
+          if (changing) await setHandedOff(tenantId, clientPhoneE164, true);
+          await writeToOutbox({ tenantId, to: clientPhoneE164,
+            body: changing ? botMsg.client.handedOff() : "Je n’ai pas de réponse à cette question. Vous pouvez envoyer un code article ou demander à parler à la boutique.", correlationId });
         }
         return buildEnrichedMessage();
       }
@@ -275,6 +301,7 @@ export async function processWebhookJob(
           unknown.push(code);
           continue;
         }
+        if (result.hasVariants) { failed.push(`${code} (envoyez ce code pour choisir la variante)`); continue; }
         const reservation = await createReservation(tenantId, null, null, clientPhoneE164, correlationId, { catalogueItemId: result.id, quantity });
         if (reservation.success) {
           reserved.push({
@@ -314,7 +341,6 @@ export async function processWebhookJob(
       }
 
       if (unknown.length > 0) {
-        await setHandedOff(tenantId, clientPhoneE164, true);
         await writeToOutbox({
           tenantId,
           to: clientPhoneE164,
@@ -333,9 +359,7 @@ export async function processWebhookJob(
         await db.messagingConsent.upsert({ where: { tenantId_phone_scope: { tenantId, phone: clientPhoneE164, scope: "order_updates" } }, create: { tenantId, phone: clientPhoneE164, scope: "order_updates", sourceMessageId: providerMessageId }, update: { sourceMessageId: providerMessageId, grantedAt: new Date() } });
         await writeToOutbox({ tenantId, to: clientPhoneE164, body: "Vous recevrez les mises à jour de vos commandes sur WhatsApp. Envoyez STOP pour ne plus recevoir de messages.", correlationId });
       } else if (interactiveReplyId === "cancel_order") {
-        const active = await getActiveReservationForClient(tenantId, clientPhoneE164);
-        if (active)
-          await db.reservation.update({ where: { id: active.id }, data: { status: "expired" } });
+        await cancelActiveReservations(tenantId, clientPhoneE164);
         await db.conversationState.deleteMany({ where: { tenantId, phone: clientPhoneE164 } });
         await writeToOutbox({
           tenantId,
@@ -356,38 +380,12 @@ export async function processWebhookJob(
             correlationId,
           });
         } else {
-          const res = await createOrderFromReservation(
-            tenantId,
-            active.id,
-            tenant?.requireDeposit ?? false,
-            clientPhoneE164,
-            correlationId,
-          );
-          if (res.success) {
-            await db.conversationState.deleteMany({ where: { tenantId, phone: clientPhoneE164 } });
-            await writeToOutbox({
-              tenantId,
-              to: clientPhoneE164,
-              correlationId,
-              purpose: "order_confirmation",
-              ...(tenant?.requireDeposit
-                ? botMsg.client.orderWithDepositInteractive(15)
-                : botMsg.client.orderConfirmedInteractive()),
-            });
-          } else {
-            await writeToOutbox({
-              tenantId,
-              to: clientPhoneE164,
-              body: botMsg.client.orderFailed(),
-              correlationId,
-            });
-          }
+          await confirmCart(tenant?.requireDeposit ?? false);
         }
       } else if (interactiveReplyId.startsWith("retry_code:")) {
         const code = interactiveReplyId.slice("retry_code:".length).toUpperCase();
         const item = await findOrderableItemByCode(tenantId, code);
         if (!item) {
-          await setHandedOff(tenantId, clientPhoneE164, true);
           await writeToOutbox({
             tenantId,
             to: clientPhoneE164,
@@ -410,14 +408,14 @@ export async function processWebhookJob(
           if (item.hasVariants)
             await startVariantSelection(tenantId, clientPhoneE164, item, 1, correlationId);
           else {
-            await createReservation(tenantId, session?.id ?? null, null, clientPhoneE164, correlationId, {
+            const reservation = await createReservation(tenantId, session?.id ?? null, null, clientPhoneE164, correlationId, {
               catalogueItemId: item.id,
               liveSessionId: session?.id ?? null,
             });
             await writeToOutbox({
               tenantId,
               to: clientPhoneE164,
-              body: botMsg.client.reserved(code),
+              body: reservation.success ? botMsg.client.reserved(code) : botMsg.client.exhausted(),
               correlationId,
             });
           }
@@ -430,6 +428,18 @@ export async function processWebhookJob(
           body: botMsg.client.handedOff(),
           correlationId,
         });
+      } else if (interactiveReplyId === "send_address") {
+        await writeToOutbox({ tenantId, to: clientPhoneE164, body: botMsg.client.addressStillNeeded(), correlationId });
+      } else if (interactiveReplyId === "leave_message") {
+        await setHandedOff(tenantId, clientPhoneE164, true);
+        await writeToOutbox({ tenantId, to: clientPhoneE164, body: "Écrivez votre message ici. La boutique pourra le consulter et vous répondre.", correlationId });
+      } else if (interactiveReplyId === "view_catalogue") {
+        const items = await db.catalogueItem.findMany({ where: { tenantId, availableQty: { gt: 0 } }, take: 20, orderBy: { createdAt: "desc" } });
+        const available = items.filter(item => item.availableQty > item.reservedQty);
+        const text = available.length
+          ? available.map(item => `${item.code} — ${item.name ?? "Article"} — ${formatXof(item.amount)}`).join("\n") + "\nEnvoyez le code de l’article souhaité."
+          : "Aucun article disponible pour le moment. Revenez un peu plus tard.";
+        await writeToOutbox({ tenantId, to: clientPhoneE164, body: text, correlationId });
       } else if (interactiveReplyId === "send_proof") {
         await writeToOutbox({
           tenantId,
@@ -446,7 +456,7 @@ export async function processWebhookJob(
           tenantId,
           to: clientPhoneE164,
           body: order
-            ? botMsg.client.orderStatus(order.orderNumber)
+            ? botMsg.client.orderStatus(order.orderNumber, order.status)
             : botMsg.client.noOrderYet(),
           correlationId,
         });
@@ -533,7 +543,6 @@ export async function processWebhookJob(
         const item = await findOrderableItemByCode(tenantId, clientCodeIntent.code);
 
         if (!item) {
-          await setHandedOff(tenantId, clientPhoneE164, true);
           await writeToOutbox({
             tenantId,
             to: clientPhoneE164,
@@ -629,9 +638,9 @@ export async function processWebhookJob(
             const displayPrice = amount ? formatXof(amount) : "—";
             const displayDelivery =
               deliveryFee.amount !== null ? formatXof(deliveryFee.amount) : null;
-            const displayTotal = amount
-              ? formatXof(amount * quantity + (deliveryFee.amount ?? 0))
-              : "—";
+            const cartItems = collect.reservation.items ?? [collect.reservation.item];
+            const displayTotal = cartItems.every(item => item.amount != null)
+              ? formatXof(cartItems.reduce((sum, item) => sum + item.amount! * item.quantity, 0) + (deliveryFee.amount ?? 0)) : "—";
             const label = `${code}${variantLabel ? ` [${variantLabel}]` : ""}${
               quantity > 1 ? ` (x${quantity})` : ""
             }`;
@@ -640,8 +649,8 @@ export async function processWebhookJob(
               to: clientPhoneE164,
               correlationId,
               ...botMsg.client.recapInteractive(
-                label,
-                displayPrice,
+                cartItems.length > 1 ? cartItems.map(item => `${item.code}${item.variantLabel ? ` [${item.variantLabel}]` : ""} (x${item.quantity})`).join(", ") : label,
+                cartItems.length > 1 ? "Voir le total des articles" : displayPrice,
                 displayTotal,
                 trimmedBody,
                 displayDelivery,
@@ -651,34 +660,7 @@ export async function processWebhookJob(
             return buildEnrichedMessage(liveSessionId);
           }
         } else if (isConfirmOui(body) && active?.status === "address_collected") {
-          const order = await createOrderFromReservation(
-            tenantId,
-            active.id,
-            tenant?.requireDeposit ?? false,
-            clientPhoneE164,
-            correlationId,
-          );
-          if (order.success) {
-            await db.conversationState.deleteMany({ where: { tenantId, phone: clientPhoneE164 } });
-            await writeToOutbox({
-              tenantId,
-              to: clientPhoneE164,
-              correlationId,
-              purpose: "order_confirmation",
-              ...(tenant?.requireDeposit
-                ? botMsg.client.orderWithDepositInteractive(15)
-                : botMsg.client.orderConfirmedInteractive()),
-            });
-            return buildEnrichedMessage(liveSessionId);
-          }
-          // Un « oui » resté sans réponse laissait la cliente sans savoir si sa
-          // commande était passée.
-          await writeToOutbox({
-            tenantId,
-            to: clientPhoneE164,
-            body: botMsg.client.orderFailed(),
-            correlationId,
-          });
+          await confirmCart(tenant?.requireDeposit ?? false);
           return buildEnrichedMessage(liveSessionId);
         }
 
@@ -729,7 +711,7 @@ export async function processWebhookJob(
               to: clientPhoneE164,
               correlationId,
               ...(recentOrder
-                ? { body: botMsg.client.orderStatus(recentOrder.orderNumber) }
+                ? { body: botMsg.client.orderStatus(recentOrder.orderNumber, recentOrder.status) }
                 : botMsg.client.fallbackInteractive()),
             });
           }

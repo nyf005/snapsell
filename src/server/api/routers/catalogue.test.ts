@@ -236,8 +236,9 @@ describe("catalogueRouter", () => {
 
       expect(result.quantity).toBe(8);
       expect(db.catalogueItem.update).toHaveBeenCalledWith({
-        where: { id: validCuid },
+        where: { id: validCuid, tenantId: "tenant-1", reservedQty: { lte: 8 } },
         data: {
+          syncedToMeta: false,
           quantity: 8,
           availableQty: 8, // 5 + (8 - 5) = 8
         },
@@ -284,8 +285,8 @@ describe("catalogueRouter", () => {
 
       expect(result.code).toBe("B2");
       expect(db.catalogueItem.update).toHaveBeenCalledWith({
-        where: { id: validCuid },
-        data: { code: "B2" },
+        where: { id: validCuid, tenantId: "tenant-1" },
+        data: { code: "B2", syncedToMeta: false },
       });
     });
 

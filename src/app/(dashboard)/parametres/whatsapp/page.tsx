@@ -17,7 +17,7 @@ export default async function WhatsAppParametresPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/login?callbackUrl=%2Fparametres%2Fwhatsapp");
   }
 
   if (!canManageGrid(session.user.role as string)) {

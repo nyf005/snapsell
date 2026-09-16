@@ -84,7 +84,7 @@ export async function reserveUnits(
     await tx.$executeRaw(
       Prisma.sql`
         UPDATE ${Prisma.raw(tableName)}
-        SET reserved_qty = reserved_qty + ${quantity}, updated_at = NOW()
+        SET reserved_qty = reserved_qty + ${quantity} ${tableName === "catalogue_items" ? Prisma.sql`, synced_to_meta = false` : Prisma.empty}, updated_at = NOW()
         WHERE id = ${itemId} AND tenant_id = ${tenantId}
       `,
     );
@@ -94,7 +94,7 @@ export async function reserveUnits(
       await tx.$executeRaw(
         Prisma.sql`
           UPDATE catalogue_items
-          SET reserved_qty = reserved_qty + ${quantity}, updated_at = NOW()
+          SET reserved_qty = reserved_qty + ${quantity}, synced_to_meta = false, updated_at = NOW()
           WHERE id = ${row.catalogue_item_id} AND tenant_id = ${tenantId}
         `,
       );
@@ -154,7 +154,7 @@ export async function releaseReservation(
     await tx.$executeRaw(
       Prisma.sql`
         UPDATE ${Prisma.raw(tableName)}
-        SET reserved_qty = reserved_qty - ${quantity}, updated_at = NOW()
+        SET reserved_qty = reserved_qty - ${quantity} ${tableName === "catalogue_items" ? Prisma.sql`, synced_to_meta = false` : Prisma.empty}, updated_at = NOW()
         WHERE id = ${itemId} AND tenant_id = ${tenantId}
       `,
     );
@@ -164,7 +164,7 @@ export async function releaseReservation(
       await tx.$executeRaw(
         Prisma.sql`
           UPDATE catalogue_items
-          SET reserved_qty = reserved_qty - ${quantity}, updated_at = NOW()
+          SET reserved_qty = reserved_qty - ${quantity}, synced_to_meta = false, updated_at = NOW()
           WHERE id = ${row.catalogue_item_id} AND tenant_id = ${tenantId}
         `,
       );
@@ -223,7 +223,7 @@ async function executeConfirmation(
   await tx.$executeRaw(
     Prisma.sql`
       UPDATE ${Prisma.raw(tableName)}
-      SET reserved_qty = reserved_qty - ${quantity}, available_qty = available_qty - ${quantity}, updated_at = NOW()
+      SET reserved_qty = reserved_qty - ${quantity}, available_qty = available_qty - ${quantity}, quantity = available_qty - ${quantity} ${tableName === "catalogue_items" ? Prisma.sql`, synced_to_meta = false` : Prisma.empty}, updated_at = NOW()
       WHERE id = ${itemId} AND tenant_id = ${tenantId}
     `,
   );
@@ -236,7 +236,8 @@ async function executeConfirmation(
         SET 
           reserved_qty = reserved_qty - ${quantity}, 
           available_qty = available_qty - ${quantity},
-          quantity = quantity - ${quantity},
+          quantity = available_qty - ${quantity},
+          synced_to_meta = false,
           updated_at = NOW()
         WHERE id = ${row.catalogue_item_id} AND tenant_id = ${tenantId}
       `,

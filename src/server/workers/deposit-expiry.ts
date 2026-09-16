@@ -4,6 +4,7 @@
  * les annule et notifie le client.
  */
 
+import { adjustReservationStock } from "~/server/reservation/stock";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { writeToOutbox } from "~/server/messaging/outbox";
@@ -22,12 +23,14 @@ export async function runDepositExpiryJob(): Promise<DepositExpiryRunResult> {
   const expired = await db.order.findMany({
     where: {
       depositStatus: "deposit_pending",
+      status: "confirmed_pending_deposit",
+      paymentProofs: { none: { status: "pending" } },
       depositExpiresAt: { lte: now },
     },
     take: BATCH_LIMIT,
     orderBy: { depositExpiresAt: "asc" },
     include: {
-      reservation: { select: { clientPhone: true, correlationId: true } },
+      reservation: true,
     },
   });
 
@@ -35,21 +38,21 @@ export async function runDepositExpiryJob(): Promise<DepositExpiryRunResult> {
 
   for (const order of expired) {
     // Mise à jour atomique — vérifie que le statut n'a pas changé entre temps
-    const updated = await db.order.updateMany({
-      where: {
-        id: order.id,
-        depositStatus: "deposit_pending",
-      },
-      data: {
-        status: "cancelled",
-        depositStatus: "deposit_rejected",
-      },
+    const updated = await db.$transaction(async (tx) => {
+      // Serialize with receipt submission and review, then re-read pending proofs.
+      const locked = await tx.order.updateMany({
+        where: { id: order.id, status: "confirmed_pending_deposit", depositStatus: "deposit_pending", depositExpiresAt: { lte: now } },
+        data: { updatedAt: now },
+      });
+      if (!locked.count || await tx.paymentProof.count({ where: { orderId: order.id, status: "pending" } })) return false;
+      await tx.order.update({ where: { id: order.id }, data: { status: "cancelled", depositStatus: "deposit_rejected" } });
+      await adjustReservationStock(tx, order.reservation, "restore");
+      return true;
     });
-
-    if (updated.count === 0) continue; // Déjà traité par un concurrent
+    if (!updated) continue;
     expiredCount += 1;
 
-    const correlationId = order.reservation?.correlationId ?? `deposit-expiry-${order.id}`;
+    const correlationId = `order:${order.id}:deposit-expired`;
 
     await logEvent({
       tenantId: order.tenantId,

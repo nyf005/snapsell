@@ -26,6 +26,7 @@ vi.mock("~/server/db", () => ({
       sans jamais exercer le chemin qu'ils prétendaient couvrir.
     */
     messageOut: {
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
       upsert: vi.fn(),
     },
     whatsAppContact: {
@@ -407,6 +408,34 @@ describe("POST /api/webhooks/meta — inbound", () => {
       body,
     }));
   }
+
+  it("handles messages and delivery statuses separately for each tenant in one batch", async () => {
+    const entry = (id: string) => ({ id: `WABA-${id}`, changes: [{ field: "messages", value: {
+      messaging_product: "whatsapp", metadata: { display_phone_number: "15551234567", phone_number_id: id },
+      messages: [{ from: "22891234567", id: `wamid.${id}`, timestamp: "1710000000", type: "text", text: { body: "A12" } }],
+      statuses: [{ id: `sent.${id}`, status: "delivered", timestamp: "1710000000", recipient_id: "22891234567" }],
+    } }] });
+    vi.mocked(dbMock.db.tenant.findUnique).mockImplementation(((args: any) => Promise.resolve({ id: `tenant-${args.where.metaPhoneNumberId}`, metaPhoneNumberId: args.where.metaPhoneNumberId, metaAccessToken: "tok" })) as never);
+    vi.mocked(dbMock.db.messageIn.findUnique).mockResolvedValue(null);
+    vi.mocked(dbMock.db.messageIn.create).mockImplementation(((args: any) => Promise.resolve({ id: `saved-${args.data.providerMessageId}`, ...args.data })) as never);
+    vi.mocked(adapterModule.MetaCloudAdapter).mockImplementation(function () {
+      return {
+        parseInboundBatch: async (request: Request) => {
+          const payload = await request.json();
+          return payload.entry.flatMap((e: any) => e.changes.flatMap((c: any) => c.value.messages.map((m: any) => ({ tenantId: null, providerMessageId: m.id, from: `+${m.from}`, body: m.text.body, correlationId: m.id }))));
+        },
+        parseStatusUpdates: (payload: any) => payload.entry.flatMap((e: any) => e.changes.flatMap((c: any) => c.value.statuses.map((status: any) => ({ providerMessageId: status.id, status: status.status })))),
+      } as never;
+    });
+    const body = JSON.stringify({ object: "whatsapp_business_account", entry: [entry("one"), entry("two")] });
+    expect((await callPOST(body, signPayload(body, "test-app-secret"))).status).toBe(200);
+    expect(mockWebhookLoggerError.mock.calls).toEqual([]);
+    for (const id of ["one", "two"]) {
+      expect(dbMock.db.messageOut.updateMany).toHaveBeenCalledWith({ where: { tenantId: `tenant-${id}`, providerMessageId: `sent.${id}` }, data: { status: "delivered" } });
+      expect(dbMock.db.messageIn.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ tenantId: `tenant-${id}`, providerMessageId: `wamid.${id}`, from: "+22891234567" }) }));
+    }
+    expect(queueMock.boss.send).toHaveBeenCalledTimes(2);
+  });
 
   it("single message text → 200 + persist + enqueue", async () => {
     const payload = makeMetaPayload([

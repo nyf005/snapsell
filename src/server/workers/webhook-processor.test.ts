@@ -65,6 +65,7 @@ vi.mock("~/server/db", () => {
       findFirst: vi.fn().mockResolvedValue(null),
     },
     reservation: {
+      findMany: vi.fn(async () => { const { getActiveReservationForClient } = await import("~/server/reservation/service"); const r = await getActiveReservationForClient("tenant-1", "+33612345678"); return r ? [r] : []; }),
       findFirst: vi.fn().mockResolvedValue(null),
     },
   };
@@ -1030,7 +1031,7 @@ describe("webhook-processor", () => {
       expect(createReservation).not.toHaveBeenCalled();
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Je ne reconnais pas encore cet article. La boutique va te répondre directement.",
+          body: "Je ne trouve pas cet article. Vérifiez le code et renvoyez-le, ou demandez à parler à la boutique.",
           to: from,
           correlationId: "corr-uk",
         }),
@@ -1069,7 +1070,7 @@ describe("webhook-processor", () => {
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       expect(writeToOutbox).toHaveBeenCalledWith(
         expect.objectContaining({
-          body: "Je ne reconnais pas encore cet article. La boutique va te répondre directement.",
+          body: "Je ne trouve pas cet article. Vérifiez le code et renvoyez-le, ou demandez à parler à la boutique.",
           correlationId: "corr-typo",
         }),
       );
@@ -1161,7 +1162,7 @@ describe("webhook-processor", () => {
       const outboxCalls = vi.mocked(writeToOutbox).mock.calls;
       const bodies = outboxCalls.map((c) => c[0].body);
       expect(bodies).not.toContain("Oh non, cet article vient d'être épuisé 😔");
-      expect(bodies.some((b) => b?.includes("boutique va te répondre"))).toBe(true);
+      expect(bodies.some((b) => b?.includes("Vérifiez le code"))).toBe(true);
     });
 
     it("Story 8.1: when client sends address and has reserved reservation, collects address and sends récap + OUI", async () => {
@@ -1450,7 +1451,7 @@ describe("webhook-processor", () => {
           tenantId,
           to: from,
           correlationId: "corr-oui",
-          body: expect.stringContaining("Commande confirmée"),
+          body: expect.stringContaining("Commande enregistrée"),
         }),
       );
     });
@@ -1534,7 +1535,7 @@ describe("webhook-processor", () => {
           tenantId,
           to: from,
           correlationId: "corr-oui",
-          body: expect.stringContaining("preuve de paiement"),
+          body: expect.stringContaining("acomptes attendus"),
         }),
       );
     });
@@ -2971,7 +2972,7 @@ describe("webhook-processor", () => {
       const { writeToOutbox } = await import("~/server/messaging/outbox");
       // Le message de confirmation doit être texte uniquement (pas de photo en double)
       const confirmCall = vi.mocked(writeToOutbox).mock.calls.find(
-        (c) => (c[0] as { body: string }).body.includes("Commande confirmée"),
+        (c) => (c[0] as { body: string }).body.includes("Commande enregistrée"),
       );
       expect(confirmCall).toBeDefined();
       expect(confirmCall?.[0]).not.toHaveProperty("mediaUrl");
@@ -3478,7 +3479,8 @@ describe("Priorité des intentions dans une conversation", () => {
     vi.mocked(analyzeInboundIntent).mockResolvedValue({ intent: "QUESTION", confidence: 0.95, entities: {} });
     await run("ça arrive avant samedi");
     expect(collectAddress).not.toHaveBeenCalled();
-    expect(db.conversationState.upsert).toHaveBeenCalled();
+    expect(db.conversationState.upsert).not.toHaveBeenCalled();
+    expect(writeToOutbox).toHaveBeenCalled();
   });
   it.each([{ mediaUrl: "image" }, { interactiveReplyId: "send_proof" }, { orderPayload: { catalogId: "catalog", items: [{ productRetailerId: "A12", quantity: 1, itemPrice: 100, currency: "XOF" }] } }])("reste silencieux pendant une reprise humaine pour %j", async extra => {
     vi.mocked(db.conversationState.findUnique).mockResolvedValue({ handedOff: true, updatedAt: new Date() } as never);

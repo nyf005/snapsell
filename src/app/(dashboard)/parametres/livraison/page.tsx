@@ -16,7 +16,7 @@ export default async function LivraisonPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/login?callbackUrl=%2Fparametres%2Flivraison");
   }
 
   if (!canManageGrid(session.user.role as string)) {

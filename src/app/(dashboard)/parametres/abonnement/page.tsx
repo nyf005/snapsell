@@ -17,7 +17,7 @@ export default async function AbonnementPage() {
 
   // AC #5: Non-OWNER/MANAGER → redirect to dashboard
   if (!session?.user) {
-    redirect("/login");
+    redirect("/login?callbackUrl=%2Fparametres%2Fabonnement");
   }
 
   if (!canManageGrid(session.user.role as string)) {

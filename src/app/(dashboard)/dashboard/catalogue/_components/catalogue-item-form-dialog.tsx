@@ -1,5 +1,6 @@
 "use client";
 
+import { francsToCents, centsToFrancs } from "~/lib/money";
 import { UnsavedChangesDialog } from "~/components/ui/unsaved-changes-dialog";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, ImagePlus, RefreshCw, Trash2, Upload } from "lucide-react";
@@ -176,11 +177,11 @@ export function CatalogueItemFormDialog({
       setCode(item.code);
       setName(item.name ?? "");
       setQuantity(item.quantity.toString());
-      setAmountCents(item.amount !== null ? (item.amount / 100).toString() : "");
+      setAmountCents(item.amount !== null ? centsToFrancs(item.amount).toString() : "");
       setShowVariants(false);
     } else {
       resetForm();
-      if (template) { setName(template.name ?? ""); setAmountCents(template.amount != null ? String(template.amount / 100) : ""); }
+      if (template) { setName(template.name ?? ""); setAmountCents(template.amount != null ? String(centsToFrancs(template.amount)) : ""); }
       setShowVariants(true);
     }
 
@@ -267,7 +268,7 @@ export function CatalogueItemFormDialog({
         setError({ title: "Le prix doit être un nombre positif" });
         return;
       }
-      amountValue = parsed * 100;
+      amountValue = francsToCents(parsed);
     }
 
     if (showVariants && variantDraft && !variantDraft.isValid) {

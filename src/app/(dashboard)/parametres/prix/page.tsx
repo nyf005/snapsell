@@ -15,7 +15,7 @@ export default async function PrixPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/login?callbackUrl=%2Fparametres%2Fprix");
   }
 
   if (!canManageGrid(session.user.role as string)) {

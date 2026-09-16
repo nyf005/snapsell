@@ -93,12 +93,13 @@ describe("proofs router", () => {
     vi.clearAllMocks();
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
       const tx = {
-        paymentProof: { update: mockProofUpdate },
+        paymentProof: { update: mockProofUpdate, updateMany: mockProofUpdate },
         order: { update: mockOrderUpdate, updateMany: mockOrderUpdateMany },
       };
       return fn(tx);
     });
     mockOrderUpdateMany.mockResolvedValue({ count: 1 });
+    mockProofUpdate.mockResolvedValue({ count: 1 });
   });
 
   describe("listPending", () => {
@@ -356,7 +357,7 @@ describe("proofs router", () => {
   });
 
   describe("reject", () => {
-    it("updates proof and order deposit_rejected, logs event, writes outbox message", async () => {
+    it("rejects proof, reopens the deposit deadline, logs event and notifies", async () => {
       mockProofFindFirst.mockResolvedValue(pendingProofWithOrder);
 
       const ctx = await createTRPCContext({

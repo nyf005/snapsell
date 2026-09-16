@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+const orderPayloadSchema = z.object({
+  catalogId: z.string(),
+  items: z.array(z.object({
+    productRetailerId: z.string().min(1),
+    quantity: z.coerce.number().finite().positive(),
+    itemPrice: z.coerce.number().finite().nonnegative(),
+    currency: z.string(),
+  })),
+});
+
 /**
  * Schéma Zod pour validation du message entrant normalisé
  * Utilisé avant enqueue dans pg-boss
@@ -13,6 +23,8 @@ export const inboundMessageSchema = z.object({
   mediaUrl: z.string().url().optional(),
   correlationId: z.string().min(1),
   interactiveReplyId: z.string().optional(),
+  providerSentAt: z.string().datetime().optional(),
+  orderPayload: orderPayloadSchema.optional(),
 });
 
 /**
@@ -27,6 +39,8 @@ export const inboundMessageForQueueSchema = z.object({
   mediaUrl: z.string().url().optional(),
   correlationId: z.string().min(1),
   interactiveReplyId: z.string().optional(),
+  providerSentAt: z.string().datetime().optional(),
+  orderPayload: orderPayloadSchema.optional(),
 });
 
 export type InboundMessageInput = z.infer<typeof inboundMessageSchema>;
@@ -46,6 +60,15 @@ export const metaWebhookMessageSchema = z.object({
     button_reply: z.object({ id: z.string(), title: z.string() }).optional(),
     list_reply: z.object({ id: z.string(), title: z.string(), description: z.string().optional() }).optional(),
   }).passthrough().optional(),
+  order: z.object({
+    catalog_id: z.string().optional(),
+    product_items: z.array(z.object({
+      product_retailer_id: z.string(),
+      quantity: z.coerce.number().finite().positive(),
+      item_price: z.coerce.number().finite().nonnegative(),
+      currency: z.string(),
+    })).optional(),
+  }).optional(),
   button: z.object({ text: z.string().optional(), payload: z.string().optional() }).passthrough().optional(),
   image: z.object({ mime_type: z.string(), sha256: z.string(), id: z.string(), caption: z.string().optional() }).optional(),
   video: z.object({ mime_type: z.string(), sha256: z.string(), id: z.string(), caption: z.string().optional() }).optional(),

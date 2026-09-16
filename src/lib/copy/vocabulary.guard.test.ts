@@ -184,7 +184,7 @@ describe("Vocabulaire — cohérence de la table", () => {
 
 /**
  * ─────────────────────────────────────────────────────────────────────────────
- * BALAYAGE DU CODE SOURCE — `describe.skip`, à activer en phase 4.
+ * BALAYAGE DU CODE SOURCE — actif depuis la phase 4.
  *
  * Le mécanisme est écrit et vérifié. Il retire les commentaires avant analyse,
  * pour que `vocabulary.ts` et l'en-tête de `glossary.ts` puissent **citer** les

@@ -29,11 +29,11 @@ grep -E "^(DATABASE_URL|META_|ENCRYPTION_KEY|QSTASH_|AI_)" .env
 | `META_APP_SECRET` | Vérification de la signature HMAC-SHA256 du webhook |
 | `META_VERIFY_TOKEN` | Challenge de vérification Meta (requête GET) |
 | `ENCRYPTION_KEY` | 64 caractères hex — déchiffrement de `metaAccessToken` |
-| `QSTASH_TOKEN` + `NEXT_PUBLIC_APP_URL` | **Ensemble**, pour que l'envoi sortant parte réellement |
+| `QSTASH_TOKEN` + `NEXT_PUBLIC_APP_URL` | **Ensemble**, pour l'envoi via QStash ; requis en production, facultatifs en développement avec le worker pg-boss |
 
 > ℹ️ Il n'y a **pas** de variable de provider WhatsApp : les credentials Meta (`metaPhoneNumberId`, `metaAccessToken`) sont stockés **par tenant en base**, via **Paramètres → Connexion WhatsApp**.
 
-⚠️ **Sans `QSTASH_TOKEN` + `NEXT_PUBLIC_APP_URL`**, `enqueueOutboxSend()` bascule sur la queue pg-boss `outbox-send` que **rien ne consomme** : les messages restent en `pending` sans erreur. C'est normal en dev, mais empêche de tester l'envoi sortant de bout en bout.
+**En développement, si `QSTASH_TOKEN` ou `NEXT_PUBLIC_APP_URL` manque**, `publishOutboxMessage()` publie dans la queue pg-boss `outbox-send`. `scripts/start-worker.ts` démarre alors `startOutboxSenderWorker()` pour la consommer : l'envoi sortant peut être testé avec le worker lancé sur la même base et les credentials Meta du tenant configurés. **En production**, cette configuration incomplète provoque une erreur de publication ; le message reste en `pending` pour reprise après correction de la configuration.
 
 ### 2. Base de données
 
@@ -311,14 +311,16 @@ SELECT payload FROM event_log ORDER BY created_at DESC LIMIT 20;
 
 ## 🧪 Tests Story 2.4 : Envoi sortant (outbox)
 
-L'envoi sortant ne tourne **pas** dans le worker. Chemin réel :
+Avec QStash configuré, l'envoi sortant passe par les routes HTTP :
 
 ```
 writeToOutbox()  →  INSERT messages_out (pending)
-  └─ enqueueOutboxSend()  →  QStash publish
+  └─ publishOutboxMessage()  →  QStash publish
        └─ POST /api/qstash/outbox-send  →  Meta Cloud API
        └─ échec ×5  →  POST /api/qstash/outbox-dlq  →  dead_letter_jobs
 ```
+
+En développement sans configuration QStash complète, `publishOutboxMessage()` publie dans pg-boss `outbox-send`, consommée par `startOutboxSenderWorker()` dans le processus worker. Ce repli est désactivé en production.
 
 ### Test 4.1 : Message écrit dans l'outbox
 
@@ -339,7 +341,7 @@ LIMIT 10;
 
 Si `status` reste `pending` :
 
-1. `QSTASH_TOKEN` ou `NEXT_PUBLIC_APP_URL` manquant → bascule silencieuse sur pg-boss sans consommateur
+1. `QSTASH_TOKEN` ou `NEXT_PUBLIC_APP_URL` manquant : en développement, vérifier que le worker est lancé sur la même base et affiche `Outbox sender worker started (pg-boss)` ; en production, compléter les deux variables pour permettre la publication
 2. Console QStash : le message a-t-il été publié ? statut `DELIVERED` ?
 3. Logs de `/api/qstash/outbox-send` : un **401** = clés de signature absentes/incorrectes, un **503** = config incomplète en production
 4. `last_error = "meta_config_missing"` → le tenant n'a pas ses credentials Meta

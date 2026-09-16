@@ -2,26 +2,31 @@ import { test, expect, type Page } from "@playwright/test";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/index.js";
 import { hash } from "bcrypt";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 const url = new URL(process.env.DATABASE_URL ?? "");
 if (!["localhost", "127.0.0.1"].includes(url.hostname) || !url.pathname.endsWith("_test")) {
   throw new Error("DATABASE_URL doit désigner la base locale de test");
 }
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: url.toString() }) });
-const email = `browser-${randomUUID()}@example.test`;
+let email = `browser-${randomUUID()}@example.test`;
 const password = "BrowserTest123!";
 let tenantId: string;
 
-test.beforeAll(async () => {
+// Independent visitors: one suite must not consume a shared IP's login allowance.
+test.beforeEach(async ({ context }, testInfo) => {
+  const bytes = createHash("sha256").update(testInfo.testId).digest();
+  const ip = `198.18.${bytes[0]}.${bytes[1]}`;
+  await context.setExtraHTTPHeaders({ "x-forwarded-for": ip, "x-real-ip": ip });
+  email = `browser-${randomUUID()}@example.test`;
   const tenant = await db.tenant.create({ data: { name: "Boutique navigateur" } });
   tenantId = tenant.id;
   await db.user.create({ data: { tenantId, email, passwordHash: await hash(password, 10), role: "OWNER" } });
 });
-test.afterAll(async () => {
+test.afterEach(async () => {
   if (tenantId) await db.tenant.delete({ where: { id: tenantId } });
-  await db.$disconnect();
 });
+test.afterAll(async () => { await db.$disconnect(); });
 
 async function login(page: Page) {
   await page.goto("/login");
@@ -324,4 +329,14 @@ test("les interrupteurs et le champ acompte restent lisibles", async ({ page }, 
   await page.getByRole("button", { name: "Enregistrer la règle" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Règle d’acompte enregistrée" })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("deposit-layout.png"), fullPage: true });
+});
+
+
+test("connexion depuis un lien profond conserve la destination et ses filtres", async ({ page }) => {
+  await page.goto("/dashboard/orders?queue=in_progress");
+  await expect(page).toHaveURL(/callbackUrl=/);
+  await page.getByLabel("Adresse email", { exact: true }).fill(email);
+  await page.getByLabel("Mot de passe", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Se connecter", exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard\/orders\?queue=in_progress$/);
 });

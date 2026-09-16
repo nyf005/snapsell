@@ -1,22 +1,23 @@
+import { MAX_AMOUNT_CENTS } from "~/lib/money";
 import { z } from "zod";
 import { idSchema } from "~/lib/validations/common";
 
 /** Création d'un article catalogue (dashboard) */
 export const createCatalogueItemInputSchema = z.object({
-  code: z.string().trim().min(1, "Code requis"),
+  code: z.string().trim().regex(/^[A-Za-z]+[0-9]+$/, "Utilisez des lettres suivies de chiffres, par exemple A12"),
   name: z.string().trim().max(200).nullable().optional(),
   quantity: z.number().int().min(1, "Quantité doit être >= 1"),
-  amount: z.number().int().nullable().optional(),
+  amount: z.number().int().min(0).max(MAX_AMOUNT_CENTS).nullable().optional(),
   mediaStorageKey: z.string().nullable().optional(),
 });
 
 /** Mise à jour d'un article catalogue (dashboard) */
 export const updateCatalogueItemInputSchema = z.object({
   id: idSchema,
-  code: z.string().trim().min(1, "Code requis").optional(),
+  code: z.string().trim().regex(/^[A-Za-z]+[0-9]+$/, "Utilisez des lettres suivies de chiffres, par exemple A12").optional(),
   name: z.string().trim().max(200).nullable().optional(),
   quantity: z.number().int().min(0, "Quantité doit être >= 0").optional(),
-  amount: z.number().int().nullable().optional(),
+  amount: z.number().int().min(0).max(MAX_AMOUNT_CENTS).nullable().optional(),
   mediaStorageKey: z.string().nullable().optional(),
 });
 

@@ -261,6 +261,7 @@ export type CollectAddressResult =
       reservation: {
         id: string;
         item: CollectAddressItemInfo;
+        items?: CollectAddressItemInfo[];
         /** Commune extraite de l'adresse — sert à calculer les frais de livraison. */
         addressCommune: string | null;
       };
@@ -300,18 +301,30 @@ export async function collectAddress(
   // Story 12.x: Extraire les composantes d'adresse via IA
   const extracted = await extractAddressComponents(trimmed);
 
-  const updated = await db.reservation.update({
-    where: { id: reservation.id },
-    data: {
-      address: trimmed,
-      addressRaw: trimmed,
-      addressCity: extracted.city ?? null,
-      addressCommune: extracted.commune ?? null,
-      addressZone: extracted.zone ?? null,
-      addressDetails: extracted.details ?? null,
-      status: "address_collected",
-    },
+  const collected = await db.$transaction(async (tx) => {
+    const candidates = await tx.reservation.findMany({
+      where: { tenantId, clientPhone, status: { in: [...ACTIVE_STATUSES] }, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+      include: { liveItem: true, catalogueItem: true, variant: true },
+      orderBy: { id: "asc" },
+    });
+    const items: CollectAddressItemInfo[] = [];
+    for (const candidate of candidates) {
+      const changed = await tx.reservation.updateMany({
+        where: { id: candidate.id, tenantId, status: { in: [...ACTIVE_STATUSES] }, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+        data: { address: trimmed, addressRaw: trimmed, addressCity: extracted.city ?? null,
+          addressCommune: extracted.commune ?? null, addressZone: extracted.zone ?? null,
+          addressDetails: extracted.details ?? null, status: "address_collected" },
+      });
+      if (!changed.count) continue;
+      const product = candidate.catalogueItem ?? candidate.liveItem;
+      items.push({ code: product?.code ?? "?", amount: product?.amount ?? null,
+        quantity: candidate.quantity, variantLabel: candidate.variant?.label ?? null,
+        mediaStorageKey: product?.mediaStorageKey, catalogueItemId: candidate.catalogueItemId });
+    }
+    return items;
   });
+  if (!collected.length) return { success: false, reason: "no_reservation" };
+  const updated = { ...reservation, addressCommune: extracted.commune ?? null };
 
   // Story 8.1: item info depuis catalogueItem ou liveItem
   // Story 9.4: inclure catalogueItemId et mediaStorageKey pour photo WhatsApp
@@ -338,6 +351,7 @@ export async function collectAddress(
     reservation: {
       id: reservation.id,
       item,
+      items: collected,
       addressCommune: updated.addressCommune,
     },
   };

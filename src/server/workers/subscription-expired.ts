@@ -14,7 +14,7 @@ export async function runSubscriptionExpiredJob(): Promise<SubscriptionExpiredRu
     where: {
       subscriptionPlan: { not: "free" },
       subscriptionExpiresAt: { lt: now },
-      subscriptionStatus: { in: ["active", "non_renewing"] },
+      subscriptionStatus: { in: ["active", "non_renewing", "attention"] },
     },
     select: { id: true, subscriptionPlan: true },
   });
@@ -23,8 +23,8 @@ export async function runSubscriptionExpiredJob(): Promise<SubscriptionExpiredRu
 
   for (const tenant of expiredTenants) {
     const freePlan = SUBSCRIPTION_PLANS.free;
-    await db.tenant.update({
-      where: { id: tenant.id },
+    await db.tenant.updateMany({
+      where: { id: tenant.id, subscriptionExpiresAt: { lt: now }, subscriptionStatus: { in: ["active", "non_renewing", "attention"] } },
       data: {
         subscriptionStatus: "cancelled",
         subscriptionPlan: "free",

@@ -8,8 +8,9 @@
  *   - crons métier: reservation-ttl, close-sessions, deposit-expiry, meta-catalogue-sync,
  *     subscription-expired, credits-monthly-reset
  *
- * Toujours externalisé:
- *   - outbox-sender: Remplacé par QStash + /api/qstash/outbox-send (Option A)
+ * Envoi sortant:
+ *   - QStash + /api/qstash/outbox-send lorsque QStash est configuré (requis en production)
+ *   - outbox-sender via pg-boss hors production si la configuration QStash est incomplète
  *
  * Usage:
  *   tsx scripts/start-worker.ts

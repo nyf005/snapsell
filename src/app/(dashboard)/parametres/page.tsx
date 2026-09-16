@@ -15,7 +15,7 @@ export default async function ParametresPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/login?callbackUrl=%2Fparametres");
   }
 
   // On garde l'URL et on explique, plutôt que de rediriger sans un mot.

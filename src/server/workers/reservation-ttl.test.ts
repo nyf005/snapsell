@@ -150,7 +150,7 @@ describe("reservation-ttl (Story 4.3 + 9.1)", () => {
         interactive: expect.objectContaining({
           type: "buttons",
         }),
-        correlationId: "corr-w",
+        correlationId: "waitlist:w1:promoted",
       }),
     );
   });
@@ -376,7 +376,7 @@ describe("runReservationReminderJob (Story 4.4)", () => {
         tenantId: "t1",
         to: "+33612345678",
         body: expect.stringContaining("2 min"),
-        correlationId: "corr-rem-1",
+        correlationId: "reservation:res-rem-1:reminder",
       }),
     );
     expect(logReservationReminderSent).toHaveBeenCalledWith(

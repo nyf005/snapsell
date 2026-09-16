@@ -67,6 +67,12 @@ export async function getOrCreateCurrentSession(
     };
   }
 
+  // Retire stale active rows before the unique active-session index is checked.
+  await db.liveSession.updateMany({
+    where: { tenantId, status: LiveSessionStatus.active,
+      lastActivityAt: { lte: new Date(Date.now() - getInactivityWindowMinutes() * 60 * 1000) } },
+    data: { status: LiveSessionStatus.closed },
+  });
   try {
     const created = await db.liveSession.create({
       data: {

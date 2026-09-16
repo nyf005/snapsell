@@ -32,7 +32,10 @@ vi.mock("~/server/db", () => ({
       findFirst: mockOrderFindFirst,
       update: vi.fn(),
     },
-    $transaction: (...args: unknown[]) => mockTransaction(...args),
+    $transaction: (fn: (tx: unknown) => unknown) => mockTransaction((tx: { order: Record<string, unknown> }) => fn({
+      ...tx, order: { ...tx.order, updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
+      catalogueItem: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
+    })),
   },
 }));
 
@@ -138,7 +141,7 @@ describe("orders router", () => {
         reservationId: "res-1",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33612345678" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33612345678" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
       mockTransaction.mockImplementation(
@@ -668,7 +671,7 @@ describe("orders router", () => {
         reservationId: "res-1",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33612345678" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33612345678" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
 
@@ -729,7 +732,7 @@ describe("orders router", () => {
         reservationId: "res-2",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33698765432" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33698765432" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
       const updatedOrder = { ...order, status: "delivered" as const, updatedAt: new Date() };
@@ -762,7 +765,7 @@ describe("orders router", () => {
         reservationId: "res-3",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33611111111" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33611111111" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
       const updatedOrder = { ...order, status: "cancelled" as const, updatedAt: new Date() };
@@ -795,7 +798,7 @@ describe("orders router", () => {
         reservationId: "res-4",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33622222222" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33622222222" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
       const updatedOrder = { ...order, status: "delivered" as const, updatedAt: new Date() };
@@ -827,7 +830,7 @@ describe("orders router", () => {
         reservationId: "res-1",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33612345678" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33612345678" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
 
@@ -895,7 +898,7 @@ describe("orders router", () => {
         reservationId: "res-p",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33612345678" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33612345678" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
       const updatedOrder = { ...order, status: "preparing" as const, updatedAt: new Date() };
@@ -935,7 +938,7 @@ describe("orders router", () => {
         reservationId: "res-d",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33698765432" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33698765432" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
       const updatedOrder = { ...order, status: "in_delivery" as const, updatedAt: new Date() };
@@ -981,7 +984,7 @@ describe("orders router", () => {
         reservationId: "res-l",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33611111111" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33611111111" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
       const updatedOrder = { ...order, status: "delivered" as const, updatedAt: new Date() };
@@ -1025,7 +1028,7 @@ describe("orders router", () => {
         reservationId: "res-c",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33622222222" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33622222222" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
       const updatedOrder = { ...order, status: "cancelled" as const, updatedAt: new Date() };
@@ -1069,7 +1072,7 @@ describe("orders router", () => {
         reservationId: "res-cf",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33633333333" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33633333333" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
       const updatedOrder = { ...order, status: "cancelled" as const, updatedAt: new Date() };
@@ -1110,7 +1113,7 @@ describe("orders router", () => {
         reservationId: "res-cp",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33644444444" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33644444444" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
       const updatedOrder = { ...order, status: "cancelled" as const, updatedAt: new Date() };
@@ -1151,7 +1154,7 @@ describe("orders router", () => {
         reservationId: "res-cd",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33655555555" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33655555555" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
       const updatedOrder = { ...order, status: "cancelled" as const, updatedAt: new Date() };
@@ -1192,7 +1195,7 @@ describe("orders router", () => {
         reservationId: "res-bad",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33600000000" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33600000000" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
 
@@ -1226,7 +1229,7 @@ describe("orders router", () => {
         reservationId: "res-bad2",
         createdAt: new Date(),
         updatedAt: new Date(),
-        reservation: { clientPhone: "+33600000001" },
+        reservation: { tenantId: "tenant-1", quantity: 1, catalogueItemId: "item-1", liveItemId: null, variantId: null, clientPhone: "+33600000001" },
       };
       mockOrderFindFirst.mockResolvedValue(order);
 

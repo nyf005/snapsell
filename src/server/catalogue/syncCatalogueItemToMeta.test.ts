@@ -2,6 +2,7 @@
  * Tests pour syncCatalogueItemToMeta — synchro catalogue vers Meta Commerce Manager
  */
 
+import { encrypt } from "~/lib/crypto";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { db } from "~/server/db";
 
@@ -48,6 +49,7 @@ const mockItem = {
   name: "Robe fleurie",
   amount: 500000,
   availableQty: 5,
+  reservedQty: 0,
   mediaStorageKey: "tenants/t1/items/i1/photo",
   metaProductId: null,
   syncedToMeta: false,
@@ -63,6 +65,16 @@ describe("syncCatalogueItemToMeta", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(db.itemVariant.findMany).mockResolvedValue([]);
+  });
+
+  it("decrypts stored credentials before sending the bearer token", async () => {
+    vi.mocked(db.catalogueItem.findUnique).mockResolvedValue(mockItem as never);
+    vi.mocked(db.tenant.findUnique).mockResolvedValue({ ...mockTenant, metaAccessToken: encrypt("plain-secret") } as never);
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id: "meta-id" }) });
+    await syncCatalogueItemToMeta(TENANT_ID, ITEM_ID);
+    expect(fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+      headers: expect.objectContaining({ Authorization: "Bearer plain-secret" }),
+    }));
   });
 
   it("retourne sync_disabled si META_CATALOG_SYNC_ENABLED !== true", async () => {

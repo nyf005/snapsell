@@ -3,6 +3,7 @@
  * Isolation tenant: tenantId depuis ctx.session.user.tenantId (protectedProcedure).
  */
 
+import { canReplaceVariants } from "~/server/catalogue/guardVariantReplacement";
 import { TRPCError } from "@trpc/server";
 import { Prisma } from "../../../../generated/prisma";
 import { db } from "~/server/db";
@@ -156,22 +157,22 @@ export const catalogueRouter = createTRPCRouter({
         if (input.quantity < existing.reservedQty) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: `Impossible de réduire la quantité à ${input.quantity} : ${existing.reservedQty} réservation(s) active(s).`,
+            message: `Impossible de réduire la quantité à ${input.quantity} : ${existing.reservedQty} réservation(s) ou commande(s) liée(s).`,
           });
         }
-        const delta = input.quantity - existing.quantity;
         updateData.quantity = input.quantity;
-        updateData.availableQty = Math.max(0, existing.availableQty + delta);
+        updateData.availableQty = input.quantity;
       }
 
       if (input.name !== undefined) updateData.name = input.name;
       if (input.amount !== undefined) updateData.amount = input.amount;
       if (input.mediaStorageKey !== undefined) updateData.mediaStorageKey = input.mediaStorageKey;
 
+      updateData.syncedToMeta = false;
       let updated;
       try {
         updated = await db.catalogueItem.update({
-          where: { id: input.id },
+          where: { id: input.id, tenantId, ...(input.quantity !== undefined ? { reservedQty: { lte: input.quantity } } : {}) },
           data: updateData,
         });
       } catch (error) {
@@ -184,10 +185,9 @@ export const catalogueRouter = createTRPCRouter({
         throw error;
       }
 
-      // Si le stock vient de tomber à 0 et que l'article était synced, marquer out of stock sur Meta.
-      if (updated.availableQty === 0 && existing.syncedToMeta && existing.metaProductId) {
-        void unsyncCatalogueItemFromMeta(tenantId, input.id, "out_of_stock").catch(() => {
-          // Fire-and-forget non-bloquant.
+      if (existing.metaProductId) {
+        await syncCatalogueItemToMeta(tenantId, input.id).catch(() => {
+          // syncedToMeta stays false; the catalogue sync worker will retry.
         });
       }
 
@@ -211,14 +211,13 @@ export const catalogueRouter = createTRPCRouter({
       const activeReservations = await db.reservation.count({
         where: {
           catalogueItemId: input.id,
-          status: { in: ["reserved", "address_collected"] },
         },
       });
 
       if (activeReservations > 0) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Impossible de supprimer un article avec des réservations actives.",
+          message: "Cet article est lié à des réservations ou commandes. Conservez-le pour préserver leur historique.",
         });
       }
 
@@ -293,18 +292,22 @@ export const catalogueRouter = createTRPCRouter({
 
       const activeReservations = await db.reservation.count({
         where: {
-          variant: { catalogueItemId: input.catalogueItemId },
-          status: { in: ["reserved", "address_collected"] },
+          tenantId,
+          catalogueItemId: input.catalogueItemId,
+          OR: [{ status: { in: ["reserved", "address_collected"] } }, { variantId: { not: null }, order: { isNot: null } }],
         },
       });
       if (activeReservations > 0) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: `Impossible de modifier les variantes : ${activeReservations} réservation(s) active(s).`,
+          message: `Impossible de modifier les variantes : ${activeReservations} réservation(s) ou commande(s) liée(s).`,
         });
       }
 
       return db.$transaction(async (tx) => {
+        if (!await canReplaceVariants(tx, tenantId, input.catalogueItemId)) {
+          throw new TRPCError({ code: "CONFLICT", message: "Cet article est lié à des réservations ou commandes. Ses variantes doivent être conservées." });
+        }
         await tx.itemVariant.deleteMany({
           where: { catalogueItemId: input.catalogueItemId, tenantId },
         });
@@ -348,8 +351,9 @@ export const catalogueRouter = createTRPCRouter({
 
       const activeReservations = await db.reservation.count({
         where: {
-          variant: { catalogueItemId: input.catalogueItemId },
-          status: { in: ["reserved", "address_collected"] },
+          tenantId,
+          catalogueItemId: input.catalogueItemId,
+          OR: [{ status: { in: ["reserved", "address_collected"] } }, { variantId: { not: null }, order: { isNot: null } }],
         },
       });
       if (activeReservations > 0) {
@@ -360,6 +364,9 @@ export const catalogueRouter = createTRPCRouter({
       }
 
       await db.$transaction(async (tx) => {
+        if (!await canReplaceVariants(tx, tenantId, input.catalogueItemId)) {
+          throw new TRPCError({ code: "CONFLICT", message: "Cet article est lié à des réservations ou commandes. Ses variantes doivent être conservées." });
+        }
         await tx.itemVariant.deleteMany({ where: { catalogueItemId: input.catalogueItemId, tenantId } });
         await tx.catalogueItem.update({
           where: { id: input.catalogueItemId },

@@ -48,21 +48,19 @@ export async function createPaymentProof(
     throw new ProofsQuotaExceededError(tenantId, proofsQuota.currentUsage, proofsQuota.quota);
   }
 
-  const order = await db.order.findFirst({
-    where: { id: orderId, tenantId, depositStatus: "deposit_pending" },
-  });
-  if (!order || order.depositStatus !== "deposit_pending") return null;
   if (!payload.mediaStorageKey && !payload.textPayload) return null;
-
-  const proof = await db.paymentProof.create({
-    data: {
-      orderId,
-      tenantId,
-      mediaStorageKey: payload.mediaStorageKey ?? null,
-      textPayload: payload.textPayload ?? null,
-      status: "pending",
-      correlationId,
-    },
+  return db.$transaction(async (tx) => {
+    const order = await tx.order.updateMany({
+      where: { id: orderId, tenantId, status: "confirmed_pending_deposit", depositStatus: "deposit_pending" },
+      data: { updatedAt: new Date() },
+    });
+    if (!order.count) return null;
+    const existing = await tx.paymentProof.findFirst({ where: { orderId, tenantId, correlationId } });
+    if (existing) return { id: existing.id };
+    const proof = await tx.paymentProof.create({
+      data: { orderId, tenantId, mediaStorageKey: payload.mediaStorageKey ?? null,
+        textPayload: payload.textPayload ?? null, status: "pending", correlationId },
+    });
+    return { id: proof.id };
   });
-  return { id: proof.id };
 }

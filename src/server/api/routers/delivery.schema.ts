@@ -1,3 +1,4 @@
+import { MAX_AMOUNT_CENTS } from "~/lib/money";
 import { z } from "zod";
 
 /**
@@ -17,7 +18,7 @@ const communeNameSchema = z
 export const upsertDeliveryZoneInputSchema = z.object({
   id: z.string().optional(), // si fourni = update
   name: z.string().trim().min(1, "Le nom de la zone est requis").max(100),
-  amount: z.number().int().min(0, "Le montant ne peut pas être négatif"),
+  amount: z.number().int().min(0, "Le montant ne peut pas être négatif").max(MAX_AMOUNT_CENTS),
   /**
    * Plafonné, comme les autres tableaux d'entrée du projet — variantes à 100,
    * dimensions à 3, traitement en masse des preuves à 100, des commandes à 200.
@@ -34,7 +35,7 @@ export const deleteDeliveryZoneInputSchema = z.object({
 
 export const upsertDeliveryFeeCommuneInputSchema = z.object({
   communeName: communeNameSchema,
-  amount: z.number().int().min(0, "Le montant ne peut pas être négatif"),
+  amount: z.number().int().min(0, "Le montant ne peut pas être négatif").max(MAX_AMOUNT_CENTS),
 });
 
 export const deleteDeliveryFeeCommuneInputSchema = z.object({

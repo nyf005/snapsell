@@ -203,8 +203,8 @@ export class MetaCloudAdapter implements MessagingProvider {
                     catalogId: order.catalog_id ?? "",
                     items: order.product_items.map((i) => ({
                       productRetailerId: i.product_retailer_id,
-                      quantity: i.quantity,
-                      itemPrice: i.item_price,
+                      quantity: Number(i.quantity),
+                      itemPrice: Number(i.item_price),
                       currency: i.currency,
                     })),
                   },

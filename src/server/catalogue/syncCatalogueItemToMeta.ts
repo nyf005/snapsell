@@ -8,6 +8,7 @@
  * Erreurs Meta gérées : 400, 401, 403, 429 (retry x3)
  */
 
+import { decrypt } from "~/lib/crypto";
 import { db } from "~/server/db";
 import { workerLogger } from "~/lib/logger";
 import { env } from "~/env.js";
@@ -85,8 +86,9 @@ export async function syncCatalogueItemToMeta(
   // Résoudre l'URL image : proxy permanent si R2, placeholder si configuré, sinon erreur.
   let imageUrl: string | null = null;
   if (item.mediaStorageKey) {
-    const appUrl = env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-    imageUrl = `${appUrl}/api/media/${item.mediaStorageKey}`;
+    const appUrl = env.NEXT_PUBLIC_APP_URL;
+    if (!appUrl || !/^https:\/\//.test(appUrl)) return { success: false, reason: "image_url_failed" };
+    imageUrl = `${appUrl.replace(/\/$/, "")}/api/media/${item.mediaStorageKey.split("/").map(encodeURIComponent).join("/")}`;
   } else if (env.CATALOGUE_PLACEHOLDER_IMAGE_URL) {
     imageUrl = env.CATALOGUE_PLACEHOLDER_IMAGE_URL;
   }
@@ -121,7 +123,7 @@ export async function syncCatalogueItemToMeta(
     name: item.name,
     price: item.amount ?? 0,
     currency: "XOF",
-    availability: item.availableQty > 0 ? "in stock" : "out of stock",
+    availability: item.availableQty - item.reservedQty > 0 ? "in stock" : "out of stock",
     image_url: imageUrl,
     ...(description ? { description } : {}),
   };
@@ -134,12 +136,15 @@ export async function syncCatalogueItemToMeta(
   const result = await callMetaCommerceApi(
     isUpdate ? "POST" : "POST",
     url,
-    tenant.metaAccessToken,
+    decrypt(tenant.metaAccessToken),
     payload,
     catalogueItemId,
   );
 
-  if (!result.success) return result;
+  if (!result.success) {
+    await db.catalogueItem.update({ where: { id: catalogueItemId }, data: { syncedToMeta: false } });
+    return result;
+  }
 
   const metaProductId: string = isUpdate
     ? item.metaProductId!
@@ -207,7 +212,7 @@ export async function unsyncCatalogueItemFromMeta(
     const result = await callMetaCommerceApi(
       "DELETE",
       url,
-      tenant.metaAccessToken,
+      decrypt(tenant.metaAccessToken),
       undefined,
       catalogueItemId,
     );
@@ -216,7 +221,7 @@ export async function unsyncCatalogueItemFromMeta(
     const result = await callMetaCommerceApi(
       "POST",
       url,
-      tenant.metaAccessToken,
+      decrypt(tenant.metaAccessToken),
       { availability: "out of stock" },
       catalogueItemId,
     );
@@ -248,7 +253,7 @@ export async function syncPendingCatalogueItems(
       syncedToMeta: false,
       name: { not: null },
       mediaStorageKey: { not: null },
-      availableQty: { gt: 0 },
+
     },
     select: { id: true },
     take: 50, // limite par batch pour éviter le timeout

@@ -1,3 +1,4 @@
+import { adjustReservationStock } from "~/server/reservation/stock";
 import { OrderStatus } from "../../../generated/prisma";
 import { db } from "~/server/db";
 import { logOrderStatusChanged } from "~/server/events/eventLog";
@@ -144,7 +145,7 @@ export async function updateOrderStatus(opts: {
 
   const order = await db.order.findFirst({
     where: { id: orderId, tenantId },
-    include: { reservation: { select: { clientPhone: true } } },
+    include: { reservation: true },
   });
 
   if (!order) {
@@ -162,15 +163,17 @@ export async function updateOrderStatus(opts: {
   const correlationId = `${correlationIdPrefix}-${order.id}-${Date.now()}`;
   
   const updated = await db.$transaction(async (tx) => {
-    const o = await tx.order.update({
-      where: { id: orderId },
+    const claimed = await tx.order.updateMany({
+      where: { id: orderId, tenantId, status: from },
       data: { status: newStatus },
     });
-    await logOrderStatusChanged(tenantId, order.id, correlationId, {
-      from,
-      to: newStatus,
-    });
-    return o;
+    if (!claimed.count) return null;
+    if (newStatus === "cancelled") await adjustReservationStock(tx, order.reservation, "restore");
+    return { orderNumber: order.orderNumber, id: order.id };
+  });
+  if (!updated) return { ok: false, error: "La commande a changé. Actualisez puis réessayez." };
+  await logOrderStatusChanged(tenantId, order.id, correlationId, { from, to: newStatus }).catch((err) => {
+    workerLogger.warn("Order status event log failed", { orderId, err });
   });
 
   // Notification WhatsApp si nécessaire

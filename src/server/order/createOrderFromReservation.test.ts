@@ -22,8 +22,8 @@ const mockTxQueryRaw = vi.fn();
 let nextOrderSeq = 1;
 
 const mockTx = {
-  reservation: { update: mockTxReservationUpdate },
-  order: { create: mockTxOrderCreate },
+  reservation: { updateMany: mockTxReservationUpdate },
+  order: { create: mockTxOrderCreate, findUnique: vi.fn().mockResolvedValue(null) },
   $queryRaw: mockTxQueryRaw,
 };
 
@@ -79,7 +79,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       vi.mocked(confirmReservation).mockResolvedValue({ success: true });
 
       // Default: tx mocks for INSIDE transaction
-      mockTxReservationUpdate.mockResolvedValue({} as never);
+      mockTxReservationUpdate.mockResolvedValue({ count: 1 } as never);
       mockTxQueryRaw.mockImplementation(() => Promise.resolve([{ order_seq: nextOrderSeq++ }]));
       mockTxOrderCreate.mockResolvedValue({
         id: "order-1",
@@ -144,7 +144,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
 
       // Opérations critiques utilisent tx (pas db)
       expect(mockTxReservationUpdate).toHaveBeenCalledWith({
-        where: { id: reservationId },
+        where: { id: reservationId, tenantId, status: "address_collected", OR: [{ expiresAt: null }, { expiresAt: { gt: expect.any(Date) } }] },
         data: { status: "confirmed" },
       });
       expect(mockTxOrderCreate).toHaveBeenCalledWith({
@@ -201,8 +201,8 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       expect(writeToOutbox).toHaveBeenCalledWith({
         tenantId,
         to: clientPhone,
-        body: "⏳ *Commande en attente d’acompte.*\n\nEnvoie la preuve de paiement ici dans les *15 minutes* 📸\n\nL’article reste réservé pendant ce délai.",
-        correlationId,
+        body: "Commande SS-0001 — ⏳ *Commande en attente d’acompte.*\n\nEnvoie la preuve de paiement ici dans les *15 minutes* 📸\n\nL’article reste réservé pendant ce délai.",
+        correlationId: "order:order-1:deposit-request",
       });
       expect(logDepositRequested).toHaveBeenCalledWith(tenantId, "order-1", correlationId, {
         deposit_expires_minutes: 15,
@@ -262,8 +262,8 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
         },
       });
       expect(db.order.findUnique).toHaveBeenCalledTimes(2);
-      expect(db.order.findUnique).toHaveBeenNthCalledWith(1, { where: { reservationId } });
-      expect(db.order.findUnique).toHaveBeenNthCalledWith(2, { where: { reservationId } });
+      expect(db.order.findUnique).toHaveBeenNthCalledWith(1, { where: { reservationId, tenantId } });
+      expect(db.order.findUnique).toHaveBeenNthCalledWith(2, { where: { reservationId, tenantId } });
     });
 
     // --- NOUVEAUX TESTS : Transaction globale rollback (AC#1, AC#5) ---
@@ -295,12 +295,8 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
         createOrderFromReservation(tenantId, reservationId, false, clientPhone, correlationId),
       ).rejects.toThrow("reservation update failed");
 
-      // confirmReservation was called (in same tx → sera rollback)
-      expect(confirmReservation).toHaveBeenCalledWith(tenantId, "item-1", 1, {
-        correlationId,
-        tx: mockTx,
-        table: "live_items",
-      });
+      // Claiming the reservation failed before stock was touched.
+      expect(confirmReservation).not.toHaveBeenCalled();
       // order.create jamais atteint
       expect(mockTxOrderCreate).not.toHaveBeenCalled();
       // Aucun effet de bord post-transaction (pas de logEvent, pas de logOrderCreated)
@@ -373,7 +369,7 @@ describe("Story TECH: Transaction globale confirmation → création Order", () 
       expect(result).toEqual({ success: false, reason: "confirm_failed" });
       // Aucune opération post-transaction
       expect(mockTxOrderCreate).not.toHaveBeenCalled();
-      expect(mockTxReservationUpdate).not.toHaveBeenCalled();
+      expect(mockTxReservationUpdate).toHaveBeenCalledTimes(1);
       expect(logEvent).not.toHaveBeenCalled();
       expect(logOrderCreated).not.toHaveBeenCalled();
     });

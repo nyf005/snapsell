@@ -70,7 +70,7 @@ export const botMsg = {
       `🔍 *Code ${code} introuvable.*\n\nVérifie le code affiché pendant le live, puis renvoie-le.`,
 
     unknownArticleHandedOff: () =>
-      `Je ne reconnais pas encore cet article. La boutique va te répondre directement.`,
+      "Je ne trouve pas cet article. Vérifiez le code et renvoyez-le, ou demandez à parler à la boutique.",
 
     codeSuggestion: (code: string) =>
       `🔍 *Code introuvable.*\n\nTu voulais dire *${code}* ?`,
@@ -83,8 +83,10 @@ export const botMsg = {
     fallback: () =>
       `Je n’ai pas reconnu ce message.\n\nEnvoie le code de l’article, par exemple *A12*, ou demande de l’aide.`,
 
-    orderStatus: (orderNumber: string) =>
-      `✅ *Commande ${orderNumber} confirmée.*\n\nÉcris-nous ici pour suivre ta commande.`,
+    orderStatus: (orderNumber: string, status: string = "confirmed") => {
+      const label = ({ confirmed: "confirmée", confirmed_pending_deposit: "en attente d’acompte", preparing: "en préparation", in_delivery: "en livraison", delivered: "livrée", cancelled: "annulée" } as Record<string, string>)[status] ?? "en cours de traitement";
+      return `Commande *${orderNumber}* : ${label}.`;
+    },
 
     // --- Order status notifications ---
 
@@ -143,7 +145,7 @@ export const botMsg = {
         type: "buttons",
         header: "⏳ Expiration proche",
         buttons: [
-          { id: "send_proof", title: "Envoyer l’adresse" },
+          { id: "send_address", title: "Envoyer l’adresse" },
           { id: "cancel_order", title: "Annuler" },
         ],
       } satisfies InteractivePayload,
@@ -207,7 +209,7 @@ export const botMsg = {
         type: "buttons",
         header: "🎉 Place libérée !",
         buttons: [
-          { id: "send_proof", title: "Envoyer l’adresse" },
+          { id: "send_address", title: "Envoyer l’adresse" },
           { id: "cancel_order", title: "Libérer l’article" },
         ],
       } satisfies InteractivePayload,

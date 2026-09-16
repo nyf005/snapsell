@@ -11,11 +11,14 @@ import { logReservationStarted } from "~/server/events/eventLog";
 
 vi.mock("~/server/db", () => ({
   db: {
+    $transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(db)),
     tenant: { findUnique: vi.fn() },
     reservation: {
       findFirst: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      findMany: vi.fn(async () => { const r = await db.reservation.findFirst(); return r ? [r] : []; }),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
   },
 }));
@@ -324,11 +327,13 @@ describe("reservation/service (Story 4.1)", () => {
         success: true,
         reservation: {
           id: "res-1",
-          item: { code: "A12", amount: 5000, quantity: 1, variantLabel: null, mediaStorageKey: undefined, catalogueItemId: undefined },
+          item: { code: "A12", amount: 5000, quantity: 1, variantLabel: null },
+          items: [{ code: "A12", amount: 5000, quantity: 1, variantLabel: null, mediaStorageKey: undefined, catalogueItemId: undefined }],
+          addressCommune: null,
         },
       });
-      expect(db.reservation.update).toHaveBeenCalledWith({
-        where: { id: "res-1" },
+      expect(db.reservation.updateMany).toHaveBeenCalledWith({
+        where: { id: "res-1", tenantId, status: { in: ["reserved", "address_collected"] }, OR: [{ expiresAt: null }, { expiresAt: { gt: expect.any(Date) } }] },
         data: expect.objectContaining({
           address: "12 rue de la Paix, Cocody",
           status: "address_collected",

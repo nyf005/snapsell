@@ -1,3 +1,4 @@
+import { canReplaceVariants } from "~/server/catalogue/guardVariantReplacement";
 /**
  * Flow de configuration des variantes côté vendeur via WhatsApp (Option B).
  *
@@ -143,6 +144,7 @@ type ConfigOutcome =
   | { kind: "not_in_state" }
   | { kind: "cancelled" }
   | { kind: "parse_error" }
+  | { kind: "stock_in_use" }
   | { kind: "saved"; code: string; summary: string; count: number };
 
 export async function handleSellerVariantConfigReply(
@@ -199,6 +201,8 @@ export async function handleSellerVariantConfigReply(
         metadata.dimensions.length > 0
           ? metadata.dimensions
           : Array.from({ length: segCount }, (_, i) => `Dim${i + 1}`);
+
+      if (!await canReplaceVariants(tx, tenantId, metadata.itemId)) return { kind: "stock_in_use" };
 
       // Supprimer anciennes variantes
       await tx.itemVariant.deleteMany({ where: { catalogueItemId: metadata.itemId, tenantId } });
@@ -264,6 +268,11 @@ export async function handleSellerVariantConfigReply(
         body: "❌ Configuration des variantes annulée.",
         correlationId,
       });
+      return true;
+
+    case "stock_in_use":
+      await writeToOutbox({ tenantId, to: sellerPhone, correlationId,
+        body: "Cet article est lié à des réservations ou commandes. Conservez ses variantes et utilisez un nouveau code pour un autre article." });
       return true;
 
     case "parse_error":

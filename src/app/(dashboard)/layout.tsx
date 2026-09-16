@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { canManageGrid, isOpsUser } from "~/lib/rbac";
@@ -16,7 +17,8 @@ export default async function DashboardLayout({
 }) {
   const session = await auth();
   if (!session?.user) {
-    redirect("/login");
+    const path = (await headers()).get("x-snapsell-path") ?? "/dashboard";
+    redirect(`/login?callbackUrl=${encodeURIComponent(path)}`);
   }
 
   // Un user OPS n'a pas de tenant → le rediriger vers la console ops

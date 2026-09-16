@@ -1,5 +1,6 @@
 "use client";
 
+import { francsToCents, centsToFrancs } from "~/lib/money";
 import { DepositSettings } from "./deposit-settings";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -355,14 +356,14 @@ export function PricingGridContent() {
                     className="pl-8"
                     placeholder="0"
                     value={
-                      addForm.amount === 0 ? "" : (addForm.amount / 100).toString()
+                      addForm.amount === 0 ? "" : centsToFrancs(addForm.amount).toString()
                     }
                     onChange={(e) => {
                       const v = e.target.value.replace(/[^0-9]/g, "");
                       const num = parseInt(v, 10);
                       setAddForm((f) => ({
                         ...f,
-                        amount: Number.isNaN(num) ? 0 : num * 100,
+                        amount: Number.isNaN(num) ? 0 : francsToCents(num),
                       }));
                     }}
                   />
@@ -440,14 +441,14 @@ export function PricingGridContent() {
                     className="pl-8"
                     placeholder="0"
                     value={
-                      editForm.amount === 0 ? "" : (editForm.amount / 100).toString()
+                      editForm.amount === 0 ? "" : centsToFrancs(editForm.amount).toString()
                     }
                     onChange={(e) => {
                       const v = e.target.value.replace(/[^0-9]/g, "");
                       const num = parseInt(v, 10);
                       setEditForm((f) => ({
                         ...f,
-                        amount: Number.isNaN(num) ? 0 : num * 100,
+                        amount: Number.isNaN(num) ? 0 : francsToCents(num),
                       }));
                     }}
                   />

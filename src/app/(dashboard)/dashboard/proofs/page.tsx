@@ -6,7 +6,7 @@ export default async function ProofsPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/login?callbackUrl=%2Fdashboard%2Fproofs");
   }
 
   return <ProofsListContent />;

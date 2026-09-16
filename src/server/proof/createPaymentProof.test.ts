@@ -6,6 +6,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { db } from "~/server/db";
 import { createPaymentProof, ProofsQuotaExceededError } from "./createPaymentProof";
 
 const mockOrderFindFirst = vi.hoisted(() => vi.fn());
@@ -14,8 +15,9 @@ const mockCheckProofsQuota = vi.hoisted(() => vi.fn());
 
 vi.mock("~/server/db", () => ({
   db: {
-    order: { findFirst: mockOrderFindFirst },
-    paymentProof: { create: mockPaymentProofCreate },
+    $transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(db)),
+    order: { updateMany: mockOrderFindFirst },
+    paymentProof: { create: mockPaymentProofCreate, findFirst: vi.fn().mockResolvedValue(null) },
   },
 }));
 
@@ -58,7 +60,7 @@ describe("createPaymentProof", () => {
   });
 
   it("returns null when order not found", async () => {
-    mockOrderFindFirst.mockResolvedValue(null);
+    mockOrderFindFirst.mockResolvedValue({ count: 0 });
 
     const result = await createPaymentProof(
       tenantId,
@@ -72,11 +74,7 @@ describe("createPaymentProof", () => {
   });
 
   it("returns null when order is not in deposit_pending", async () => {
-    mockOrderFindFirst.mockResolvedValue({
-      id: orderId,
-      tenantId,
-      depositStatus: "deposit_approved",
-    });
+    mockOrderFindFirst.mockResolvedValue({ count: 0 });
 
     const result = await createPaymentProof(
       tenantId,
@@ -90,11 +88,7 @@ describe("createPaymentProof", () => {
   });
 
   it("returns null when payload has neither mediaStorageKey nor textPayload", async () => {
-    mockOrderFindFirst.mockResolvedValue({
-      id: orderId,
-      tenantId,
-      depositStatus: "deposit_pending",
-    });
+    mockOrderFindFirst.mockResolvedValue({ count: 1 });
 
     const result = await createPaymentProof(
       tenantId,
@@ -108,11 +102,7 @@ describe("createPaymentProof", () => {
   });
 
   it("creates proof with textPayload and returns id", async () => {
-    mockOrderFindFirst.mockResolvedValue({
-      id: orderId,
-      tenantId,
-      depositStatus: "deposit_pending",
-    });
+    mockOrderFindFirst.mockResolvedValue({ count: 1 });
     mockPaymentProofCreate.mockResolvedValue({
       id: "proof-1",
       orderId,
@@ -146,11 +136,7 @@ describe("createPaymentProof", () => {
   });
 
   it("creates proof with mediaStorageKey and returns id", async () => {
-    mockOrderFindFirst.mockResolvedValue({
-      id: orderId,
-      tenantId,
-      depositStatus: "deposit_pending",
-    });
+    mockOrderFindFirst.mockResolvedValue({ count: 1 });
     mockPaymentProofCreate.mockResolvedValue({
       id: "proof-2",
       orderId,
@@ -184,11 +170,7 @@ describe("createPaymentProof", () => {
   });
 
   it("creates proof with both textPayload and mediaStorageKey", async () => {
-    mockOrderFindFirst.mockResolvedValue({
-      id: orderId,
-      tenantId,
-      depositStatus: "deposit_pending",
-    });
+    mockOrderFindFirst.mockResolvedValue({ count: 1 });
     mockPaymentProofCreate.mockResolvedValue({
       id: "proof-3",
       orderId,

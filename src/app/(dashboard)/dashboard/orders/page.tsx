@@ -20,7 +20,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/login?callbackUrl=%2Fdashboard%2Forders");
   }
 
   const canManageRole = canManageGrid(session.user.role as string);

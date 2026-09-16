@@ -56,11 +56,27 @@ async function approveProofAndConfirmOrder(
     });
     if (updated.count === 0) return false;
 
-    await tx.paymentProof.update({
-      where: { id: proofId },
+    const reviewed = await tx.paymentProof.updateMany({
+      where: { id: proofId, orderId, status: "pending" },
       data: { status: "approved", reviewedAt: new Date() },
     });
+    if (!reviewed.count) throw new TRPCError({ code: "CONFLICT", message: "Cette preuve a déjà été traitée." });
     return true;
+  });
+}
+
+async function rejectProofAndReopenDeposit(proofId: string, orderId: string): Promise<void> {
+  await db.$transaction(async (tx) => {
+    const claimed = await tx.order.updateMany({
+      where: { id: orderId, status: "confirmed_pending_deposit", depositStatus: "deposit_pending" },
+      data: { depositExpiresAt: new Date(Date.now() + 15 * 60 * 1000) },
+    });
+    if (!claimed.count) throw new TRPCError({ code: "CONFLICT", message: "La commande a changé. Actualisez avant de traiter la preuve." });
+    const reviewed = await tx.paymentProof.updateMany({
+      where: { id: proofId, orderId, status: "pending" },
+      data: { status: "rejected", reviewedAt: new Date() },
+    });
+    if (!reviewed.count) throw new TRPCError({ code: "CONFLICT", message: "Cette preuve a déjà été traitée." });
   });
 }
 
@@ -243,16 +259,7 @@ export const proofsRouter = createTRPCRouter({
       }
 
       const correlationId = `proof-${proof.id}-reject-${Date.now()}`;
-      await db.$transaction(async (tx) => {
-        await tx.paymentProof.update({
-          where: { id: input.proofId },
-          data: { status: "rejected", reviewedAt: new Date() },
-        });
-        await tx.order.update({
-          where: { id: proof.orderId },
-          data: { depositStatus: "deposit_rejected" },
-        });
-      });
+      await rejectProofAndReopenDeposit(input.proofId, proof.orderId);
 
       await logDepositRejected(
         tenantId,
@@ -400,7 +407,7 @@ export const proofsRouter = createTRPCRouter({
             });
             await tx.order.update({
               where: { id: proof.orderId },
-              data: { depositStatus: "deposit_rejected" },
+              data: { depositStatus: "deposit_pending", depositExpiresAt: new Date(Date.now() + 15 * 60 * 1000) },
             });
           });
           await logDepositRejected(
