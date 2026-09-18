@@ -72,9 +72,9 @@ const SITUATIONS: { id: Situation; title: string; description: string; icon: Luc
   { id: "provider", title: "Mon numéro est connecté à un autre logiciel", description: "Je souhaite préparer son transfert vers SnapSell.", icon: Link2 },
 ];
 
-function ConnectionProgress({ step }: { step: 1 | 2 }) {
+function ConnectionProgress({ step, className }: { step: 1 | 2; className?: string }) {
   return (
-    <ol aria-label="Connexion WhatsApp" className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs sm:text-sm">
+    <ol aria-label="Connexion WhatsApp" className={cn("mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs sm:text-sm", className)}>
       {["Votre situation", "Connexion"].map((label, index) => (
         <li key={label} aria-current={step === index + 1 ? "step" : undefined} className={cn("flex items-center gap-3", step === index + 1 ? "font-semibold text-foreground" : "text-muted-foreground")}>
           {index > 0 && <ArrowRight aria-hidden="true" className="size-3 shrink-0 text-muted-foreground" />}
@@ -149,7 +149,7 @@ export function WhatsAppConnectionGuide({
             ))}
           </div>
         </fieldset>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <p className="text-sm leading-6 text-muted-foreground">Rien ne sera modifié avant votre confirmation dans la fenêtre Meta.</p>
           <Button type="button" disabled={busy || choice === null} onClick={() => setSelectedMode(choice)} className="min-h-11 w-full sm:ml-auto sm:w-auto">
             Continuer <ArrowRight className="size-4" aria-hidden="true" />
@@ -212,8 +212,8 @@ export function WhatsAppConnectionGuide({
 
   return (
     <div className="pt-1">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <ConnectionProgress step={2} />
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <ConnectionProgress step={2} className="mb-0" />
         <Button type="button" variant="ghost" size="sm" className="ml-auto min-h-11" onClick={() => setSelectedMode(null)} disabled={busy}>
           <ArrowLeft className="size-4" aria-hidden="true" /> Changer de choix
         </Button>
@@ -224,18 +224,19 @@ export function WhatsAppConnectionGuide({
       </p>
       <h3 className="mt-3 text-base font-semibold text-foreground">{connection.title}</h3>
       <p className="mt-1 max-w-[65ch] text-sm leading-6 text-muted-foreground">{connection.description}</p>
-      <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6">
+      <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-6">
         {connection.items.map((item) => <li key={item}>{item}</li>)}
       </ul>
 
       {selectedMode === "coexistence" && (
-        <div className="mt-4 max-w-[65ch] space-y-2 text-sm leading-6 text-muted-foreground">
-          <p>Sur téléphone, choisissez « Utiliser plutôt un code d’accès » dans Meta, puis confirmez ce code dans le message Facebook Business de WhatsApp Business. Sur ordinateur, scannez le QR avec votre téléphone.</p>
-          <p>Le partage de vos anciennes discussions est facultatif ; leur récupération peut prendre quelques minutes.</p>
+        <div className="mt-3 max-w-[65ch] space-y-2 text-sm leading-6 text-muted-foreground">
+          <p><strong className="font-medium text-foreground">Vous faites la connexion sur votre téléphone ?</strong>{" "}Quand Meta affiche le QR code, appuyez sur « Utiliser plutôt un code d’accès » et copiez le code. Ouvrez ensuite WhatsApp Business, puis le message de « Facebook Business », et suivez les instructions pour saisir ce code. Revenez dans le navigateur pour terminer.</p>
+          <p><strong className="font-medium text-foreground">Vous faites la connexion sur un ordinateur ?</strong>{" "}Gardez le QR code affiché sur l’ordinateur. Sur votre téléphone, ouvrez WhatsApp Business et suivez les instructions de connexion pour scanner ce QR code.</p>
+          <p><strong className="font-medium text-foreground">Vos anciennes discussions</strong>{" "}Meta vous proposera de les partager avec SnapSell. Vous pouvez refuser et continuer la connexion. Si vous acceptez, leur import dans SnapSell peut se poursuivre pendant plusieurs minutes après la connexion.</p>
         </div>
       )}
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <p className="text-sm leading-6 text-muted-foreground">Une fenêtre Meta va s’ouvrir. Terminez la connexion, puis revenez ici.</p>
         <Button type="button" onClick={() => onConnect(selectedMode)} disabled={busy} className="min-h-11 w-full font-semibold sm:ml-auto sm:w-auto">
           <MessageCircle className="size-4" aria-hidden="true" />

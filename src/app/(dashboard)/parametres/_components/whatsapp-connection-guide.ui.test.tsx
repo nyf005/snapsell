@@ -37,8 +37,8 @@ describe("préparation WhatsApp", () => {
     fireEvent.click(screen.getByRole("button", { name: "J’ai installé WhatsApp Business" }));
     expect(connect).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Continuer chez Meta" })).toBeEnabled();
-    expect(screen.getByText(/Sur téléphone, choisissez/)).toBeVisible();
-    expect(screen.getByText(/Le partage de vos anciennes discussions est facultatif/)).toBeVisible();
+    expect(screen.getByText(/Vous faites la connexion sur votre téléphone/)).toBeVisible();
+    expect(screen.getByText(/Vous pouvez refuser et continuer la connexion/)).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Continuer chez Meta" }));
     expect(connect).toHaveBeenCalledExactlyOnceWith("coexistence");
   });

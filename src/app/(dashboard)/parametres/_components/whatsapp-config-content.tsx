@@ -564,14 +564,14 @@ export function WhatsAppConfigContent({
 
         {isConnected && <AssistantControl />}
 
-        <Card className="border-border shadow-sm">
+        <Card className="gap-0 border-border shadow-sm">
           <CardHeader className="border-b border-border pb-6">
             <CardTitle className="text-xl">{isConnected ? "Votre numéro WhatsApp" : "Connectez votre WhatsApp"}</CardTitle>
             <CardDescription className="text-sm">
               Recevez les codes de vos ventes et envoyez les confirmations à votre clientèle.
             </CardDescription>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="px-6 pb-0 pt-4">
             {/* Carte d'état : un seul bouton, un seul chemin.
                 L'ancien parcours en deux étapes numérotées demandait de coller trois
                 identifiants Meta ; il vit désormais sous « Configuration avancée ». */}
