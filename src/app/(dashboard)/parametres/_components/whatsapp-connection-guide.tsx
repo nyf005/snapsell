@@ -223,13 +223,13 @@ export function WhatsAppConnectionGuide({
         {connection.choice}
       </p>
       <h3 className="mt-3 text-base font-semibold text-foreground">{connection.title}</h3>
-      <p className="mt-1 max-w-[65ch] text-sm leading-6 text-muted-foreground">{connection.description}</p>
+      <p className="mt-1 text-sm leading-6 text-muted-foreground">{connection.description}</p>
       <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-6">
         {connection.items.map((item) => <li key={item}>{item}</li>)}
       </ul>
 
       {selectedMode === "coexistence" && (
-        <div className="mt-3 max-w-[65ch] space-y-2 text-sm leading-6 text-muted-foreground">
+        <div className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
           <p><strong className="font-medium text-foreground">Vous faites la connexion sur votre téléphone ?</strong>{" "}Quand Meta affiche le QR code, appuyez sur « Utiliser plutôt un code d’accès » et copiez le code. Ouvrez ensuite WhatsApp Business, puis le message de « Facebook Business », et suivez les instructions pour saisir ce code. Revenez dans le navigateur pour terminer.</p>
           <p><strong className="font-medium text-foreground">Vous faites la connexion sur un ordinateur ?</strong>{" "}Gardez le QR code affiché sur l’ordinateur. Sur votre téléphone, ouvrez WhatsApp Business et suivez les instructions de connexion pour scanner ce QR code.</p>
           <p><strong className="font-medium text-foreground">Vos anciennes discussions</strong>{" "}Meta vous proposera de les partager avec SnapSell. Vous pouvez refuser et continuer la connexion. Si vous acceptez, leur import dans SnapSell peut se poursuivre pendant plusieurs minutes après la connexion.</p>

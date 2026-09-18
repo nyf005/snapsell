@@ -46,7 +46,7 @@ export function WhatsAppConnectionHelp() {
           {topic ? (
             <div aria-live="polite" className="space-y-3">
               <h4 className="text-sm font-medium">{topic.title}</h4>
-              <p className="max-w-[60ch] text-sm leading-6 text-muted-foreground">{topic.answer}</p>
+              <p className="text-sm leading-6 text-muted-foreground">{topic.answer}</p>
               <div className="flex flex-wrap items-center gap-2">
                 <Button type="button" variant="outline" className="min-h-11" onClick={() => setSelected(null)}>
                   <ArrowLeft className="size-4" aria-hidden="true" /> Autre problème

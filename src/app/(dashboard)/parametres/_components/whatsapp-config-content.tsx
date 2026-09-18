@@ -581,7 +581,7 @@ export function WhatsAppConfigContent({
                   <p className="text-sm font-semibold text-foreground">
                     {isConnected ? ui.whatsapp.connectedTitle : ui.whatsapp.disconnectedTitle}
                   </p>
-                  <p className="max-w-[60ch] text-xs leading-5 text-muted-foreground">
+                  <p className="text-xs leading-5 text-muted-foreground">
                     {isConnected && (serverBusinessPhoneNumber ?? serverPhoneNumberId)
                       ? ui.whatsapp.connectedDetail(
                           serverBusinessPhoneNumber ?? serverPhoneNumberId ?? "",
