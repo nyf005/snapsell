@@ -566,17 +566,17 @@ export function WhatsAppConfigContent({
 
         <Card className="border-border shadow-sm">
           <CardHeader className="border-b border-border pb-6">
-            <CardTitle className="text-xl">Votre numéro WhatsApp</CardTitle>
+            <CardTitle className="text-xl">{isConnected ? "Votre numéro WhatsApp" : "Connectez votre WhatsApp"}</CardTitle>
             <CardDescription className="text-sm">
-              Le numéro qui reçoit les codes et envoie les confirmations.
+              Recevez les codes de vos ventes et envoyez les confirmations à votre clientèle.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             {/* Carte d'état : un seul bouton, un seul chemin.
                 L'ancien parcours en deux étapes numérotées demandait de coller trois
                 identifiants Meta ; il vit désormais sous « Configuration avancée ». */}
-            <div className="rounded-xl border border-border bg-muted/40 p-4 sm:p-5">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              {(isConnected || !isCoexistenceEnabled) && <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0 space-y-1">
                   <p className="text-sm font-semibold text-foreground">
                     {isConnected ? ui.whatsapp.connectedTitle : ui.whatsapp.disconnectedTitle}
@@ -612,20 +612,8 @@ export function WhatsAppConfigContent({
                     </Button>
                   )}
                 </div>
-              </div>
+              </div>}
 
-              {/**
-                * ── DEUX PORTES, ET LA BONNE EN PREMIER ──────────────────────
-                *
-                * Un seul bouton menait au parcours « nouveau numéro ». C'est la
-                * mauvaise porte pour la majorité des boutiques, dont le numéro
-                * sert déjà dans l'application WhatsApp Business : Meta leur
-                * demandait alors de supprimer ce compte, donc de perdre
-                * historique et contacts. Beaucoup abandonnaient là.
-                *
-                * Le choix est désormais posé avant d'ouvrir quoi que ce soit, et
-                * le cas courant est mis en avant.
-                */}
               {isCoexistenceEnabled && (
                 <WhatsAppConnectionGuide
                   isConnected={isConnected}

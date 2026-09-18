@@ -8,13 +8,11 @@ import {
   MessageCircle,
   Plus,
   Smartphone,
+  Link2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Stepper } from "~/components/ui/stepper";
-import type { StepperItem } from "~/components/ui/stepper";
 import { cn } from "~/lib/utils";
 import type { MetaSignupMode } from "./meta-embedded-signup-sdk";
 
@@ -35,7 +33,6 @@ const MODES: Record<
   {
     icon: LucideIcon;
     choice: string;
-    recommended: boolean;
     title: string;
     description: string;
     items: readonly string[];
@@ -44,7 +41,6 @@ const MODES: Record<
   coexistence: {
     icon: Smartphone,
     choice: "Numéro WhatsApp Business actuel",
-    recommended: true,
     title: "Gardez votre numéro et votre application",
     description:
       "SnapSell se connecte à votre compte actuel. Vous continuez à utiliser WhatsApp Business comme aujourd’hui.",
@@ -58,7 +54,6 @@ const MODES: Record<
   cloud_api: {
     icon: Plus,
     choice: "Nouveau numéro",
-    recommended: false,
     title: "Préparez votre nouveau numéro",
     description:
       "Meta va créer la connexion WhatsApp de ce numéro pour SnapSell.",
@@ -70,12 +65,27 @@ const MODES: Record<
   },
 };
 
-function guideSteps(step: 1 | 2 | 3): StepperItem[] {
-  return ["Votre situation", "Préparation", "Meta", "Résultat"].map((label, index) => ({
-    id: String(index + 1),
-    label,
-    state: index + 1 === step ? "current" : index + 1 < step ? "done" : "upcoming",
-  }));
+type Situation = MetaSignupMode | "personal" | "provider";
+
+const SITUATIONS: { id: Situation; title: string; description: string; icon: LucideIcon }[] = [
+  { id: "coexistence", title: "J’utilise WhatsApp Business", description: "Je garde mon numéro et mon application pour discuter avec ma clientèle.", icon: Smartphone },
+  { id: "personal", title: "J’utilise WhatsApp personnel", description: "Je souhaite utiliser mon numéro personnel pour mon activité.", icon: MessageCircle },
+  { id: "cloud_api", title: "Je souhaite connecter un nouveau numéro", description: "Ce numéro n’est encore relié à aucun compte WhatsApp.", icon: Plus },
+  { id: "provider", title: "Mon numéro est connecté à un autre logiciel", description: "Je souhaite préparer son transfert vers SnapSell.", icon: Link2 },
+];
+
+function ConnectionProgress({ step }: { step: 1 | 2 | 3 }) {
+  return (
+    <ol aria-label="Connexion WhatsApp" className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs sm:text-sm">
+      {["Votre situation", "Préparation", "Connexion"].map((label, index) => (
+        <li key={label} aria-current={step === index + 1 ? "step" : undefined} className={cn("flex items-center gap-3", step === index + 1 ? "font-semibold text-foreground" : "text-muted-foreground")}>
+          {index > 0 && <ArrowRight aria-hidden="true" className="size-3 shrink-0 text-muted-foreground" />}
+          <span>{index + 1}. {label}</span>
+          <span className="sr-only">{index + 1 < step ? "terminée" : index + 1 === step ? "étape en cours" : "à venir"}</span>
+        </li>
+      ))}
+    </ol>
+  );
 }
 
 /**
@@ -88,13 +98,15 @@ export function WhatsAppConnectionGuide({
   actionLabel,
   onConnect,
 }: WhatsAppConnectionGuideProps) {
-  const [selectedMode, setSelectedMode] = useState<MetaSignupMode | "personal" | "provider" | null>(null);
+  const [selectedMode, setSelectedMode] = useState<Situation | null>(null);
+  const [choice, setChoice] = useState<Situation | null>(null);
   const [ready, setReady] = useState(false);
   const [isChangingConnection, setIsChangingConnection] = useState(false);
 
   useEffect(() => {
     if (isConnected) {
       setSelectedMode(null);
+      setChoice(null);
       setReady(false);
       setIsChangingConnection(false);
     }
@@ -103,7 +115,7 @@ export function WhatsAppConnectionGuide({
   if (isConnected && !isChangingConnection) {
     return (
       <div className="mt-4 border-t border-border pt-4">
-        <p className="mb-2 text-sm text-muted-foreground">Étape 4 sur 4 · Résultat</p>
+        <p className="mb-2 text-sm text-muted-foreground">Connexion terminée</p>
         <p className="mb-3 text-sm">Votre numéro est connecté. Si une récupération des anciennes discussions a été demandée, son état apparaît séparément.</p>
         <Button
           type="button"
@@ -119,89 +131,34 @@ export function WhatsAppConnectionGuide({
 
   if (selectedMode === null) {
     return (
-      <div className="mt-5 border-t border-border pt-5">
-        <Stepper
-          items={guideSteps(1)}
-          label="Connexion WhatsApp"
-          className="mb-4 w-full"
-        />
-        <p className="mb-2 text-sm text-muted-foreground">Étape 1 sur 4 · Votre situation</p>
-        <h3 className="text-base font-semibold text-foreground">
-          Quel WhatsApp utilisez-vous pour vendre ?
-        </h3>
-        <p className="mt-1 max-w-[60ch] text-sm leading-6 text-muted-foreground">
-          Choisissez votre situation. Rien ne sera modifié avant votre confirmation
-          dans la fenêtre Meta.
-        </p>
-
-        <div className="mt-4 space-y-3">
-          {(["coexistence", "cloud_api"] as const).map((mode) => {
-            const meta = MODES[mode];
-            const Icon = meta.icon;
-
-            return (
-              <button
-                key={mode}
-                type="button"
-                disabled={busy}
-                onClick={() => setSelectedMode(mode)}
-                className={cn(
-                  "group flex min-h-20 w-full items-center gap-4 rounded-lg border bg-background p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                  meta.recommended
-                    ? "border-primary/40 shadow-sm hover:border-primary hover:bg-primary/5"
-                    : "border-border hover:bg-muted/40",
-                )}
-              >
-                <span
-                  className={cn(
-                    "flex size-10 shrink-0 items-center justify-center rounded-full",
-                    meta.recommended
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  <Icon className="size-5" aria-hidden="true" />
-                </span>
+      <div className="pt-1">
+        <ConnectionProgress step={1} />
+        <fieldset disabled={busy}>
+          <legend className="text-base font-semibold text-foreground">Quelle est votre situation ?</legend>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">Choisissez le cas qui correspond au numéro à connecter.</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {SITUATIONS.map(({ id, title, description, icon: Icon }) => (
+              <label key={id} className={cn(
+                "relative flex items-start gap-3 rounded-lg border p-4 transition-colors motion-reduce:transition-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background",
+                choice === id ? "border-primary bg-primary/5" : "border-border bg-background hover:border-primary/40 hover:bg-muted/30",
+                busy ? "cursor-not-allowed opacity-60" : "cursor-pointer",
+              )}>
+                <Icon className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
                 <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold text-foreground">
-                      {mode === "coexistence"
-                        ? "Oui, je garde mon numéro actuel"
-                        : "Non, j’utilise un nouveau numéro"}
-                    </span>
-                    {meta.recommended && (
-                      <Badge variant="secondary" className="text-xs">
-                        Recommandé
-                      </Badge>
-                    )}
-                  </span>
-                  <span className="mt-1 block text-sm leading-5 text-muted-foreground">
-                    {mode === "coexistence"
-                      ? "L’application, les contacts et les conversations restent disponibles."
-                      : "Ce numéro ne doit être relié à aucun compte WhatsApp."}
-                  </span>
+                  <span className="block text-sm font-semibold text-foreground">{title}</span>
+                  <span className="mt-1 block text-sm leading-6 text-muted-foreground">{description}</span>
                 </span>
-                <ArrowRight
-                  className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
-                  aria-hidden="true"
-                />
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="mt-3 flex flex-col items-start gap-2">
-          <Button type="button" variant="outline" disabled={busy} className="h-auto min-h-11 w-full whitespace-normal py-3 justify-start" onClick={() => setSelectedMode("personal")}>
-            J’utilise WhatsApp personnel
-          </Button>
-          <Button type="button" variant="outline" disabled={busy} className="h-auto min-h-11 w-full whitespace-normal py-3 justify-start text-left" onClick={() => setSelectedMode("provider")}>
-            Mon numéro est connecté à un autre logiciel
+                <input type="radio" name="whatsapp-situation" value={id} checked={choice === id} onChange={() => setChoice(id)} aria-label={title} className="mt-0.5 size-4 shrink-0 accent-primary" />
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="max-w-[48ch] text-sm leading-6 text-muted-foreground">Rien ne sera modifié avant votre confirmation dans la fenêtre Meta.</p>
+          <Button type="button" disabled={busy || choice === null} onClick={() => setSelectedMode(choice)} className="min-h-11 w-full sm:w-auto">
+            Continuer <ArrowRight className="size-4" aria-hidden="true" />
           </Button>
         </div>
-        <details className="mt-4 text-sm leading-6">
-          <summary className="min-h-11 cursor-pointer py-2 font-medium">Je ne sais pas quelle application j’utilise</summary>
-          <p>WhatsApp Business porte un B dans sa bulle. WhatsApp personnel porte un combiné téléphonique. Vérifiez aussi le nom de l’application sur votre téléphone. Si un autre logiciel gère déjà vos messages, choisissez ce cas avant de continuer.</p>
-        </details>
 
         {isConnected && (
           <Button
@@ -221,6 +178,7 @@ export function WhatsAppConnectionGuide({
     const personal = selectedMode === "personal";
     return (
       <section className="mt-5 space-y-4 border-t border-border pt-5" aria-label="Préparer votre connexion">
+        <ConnectionProgress step={2} />
         <Button type="button" variant="ghost" disabled={busy} onClick={() => { setSelectedMode(null); setReady(false); }}>
           <ArrowLeft className="size-4" aria-hidden="true" /> Changer de choix
         </Button>
@@ -257,11 +215,11 @@ export function WhatsAppConnectionGuide({
   const ChoiceIcon = preparation.icon;
 
   return (
-    <div className="mt-5 border-t border-border pt-5">
+    <div className="pt-1">
       {/* Sur mobile, le rail garde sa ligne : partagée avec le retour, les deux
           libellés se réduisaient à une initiale. */}
       <div className="mb-4 flex flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
-        <Stepper items={guideSteps(ready ? 3 : 2)} label="Connexion WhatsApp" className="w-full" />
+        <ConnectionProgress step={ready ? 3 : 2} />
         <Button
           type="button"
           variant="ghost"
@@ -274,18 +232,13 @@ export function WhatsAppConnectionGuide({
         </Button>
       </div>
 
-      <p className="mb-3 text-sm text-muted-foreground">Étape {ready ? 3 : 2} sur 4 · {ready ? "Connexion Meta" : "Préparation"}</p>
+      <p className="mb-3 text-sm text-muted-foreground">Étape {ready ? 3 : 2} sur 3 · {ready ? "Connexion Meta" : "Préparation"}</p>
       {/* Le choix reste sous les yeux : plus besoin de revenir en arrière pour en douter. */}
       <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-muted/50 py-1 pl-2 pr-3 text-xs font-medium text-foreground">
         <ChoiceIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
         <span>
           {preparation.choice}
-          {preparation.recommended && (
-            <span className="hidden text-muted-foreground sm:inline">
-              {" "}
-              — recommandé
-            </span>
-          )}
+
         </span>
       </p>
 

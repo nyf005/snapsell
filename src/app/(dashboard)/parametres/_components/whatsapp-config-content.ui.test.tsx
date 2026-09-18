@@ -166,7 +166,7 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
     expect(screen.getByRole("button", { name: "Connecter WhatsApp" })).toBeEnabled();
     expect(screen.getByText("WhatsApp n’est pas connecté")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Avant de commencer" })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Je suis bloqué chez Meta" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByRole("button", { name: "Un problème avec Meta ?" })).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByText("Quel portefeuille business choisir ?")).not.toBeInTheDocument();
   });
 
@@ -489,14 +489,14 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     render(<WhatsAppConfigContent />);
 
     expect(
-      screen.getByRole("button", { name: /Oui, je garde mon numéro actuel/ }),
+      screen.getByRole("radio", { name: /J’utilise WhatsApp Business/ }),
     ).toBeEnabled();
     expect(
-      screen.getByRole("button", { name: /Non, j’utilise un nouveau numéro/ }),
+      screen.getByRole("radio", { name: /Je souhaite connecter un nouveau numéro/ }),
     ).toBeEnabled();
     const rail = screen.getByRole("list", { name: "Connexion WhatsApp" });
     const stops = within(rail).getAllByRole("listitem");
-    expect(stops).toHaveLength(4);
+    expect(stops).toHaveLength(3);
     expect(stops[0]).toHaveAttribute("aria-current", "step");
     expect(stops[0]).toHaveTextContent("Votre situation");
     expect(stops[1]).toHaveTextContent("Préparation");
@@ -510,8 +510,9 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     render(<WhatsAppConfigContent />);
 
     fireEvent.click(
-      screen.getByRole("button", { name: /Oui, je garde mon numéro actuel/ }),
+      screen.getByRole("radio", { name: /J’utilise WhatsApp Business/ }),
     );
+    fireEvent.click(screen.getByRole("button", { name: "Continuer" }));
     expect(mockStartSignup).not.toHaveBeenCalled();
 
     const stops = within(
@@ -544,8 +545,9 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
 
     render(<WhatsAppConfigContent />);
     fireEvent.click(
-      screen.getByRole("button", { name: /Oui, je garde mon numéro actuel/ }),
+      screen.getByRole("radio", { name: /J’utilise WhatsApp Business/ }),
     );
+    fireEvent.click(screen.getByRole("button", { name: "Continuer" }));
     if (screen.queryByRole("button", { name: "Tout est prêt, continuer" })) {
       fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
     }
@@ -586,8 +588,9 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
 
     render(<WhatsAppConfigContent />);
     fireEvent.click(
-      screen.getByRole("button", { name: /Oui, je garde mon numéro actuel/ }),
+      screen.getByRole("radio", { name: /J’utilise WhatsApp Business/ }),
     );
+    fireEvent.click(screen.getByRole("button", { name: "Continuer" }));
     if (screen.queryByRole("button", { name: "Tout est prêt, continuer" })) {
       fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
     }
@@ -619,8 +622,9 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     render(<WhatsAppConfigContent />);
 
     fireEvent.click(
-      screen.getByRole("button", { name: /Non, j’utilise un nouveau numéro/ }),
+      screen.getByRole("radio", { name: /Je souhaite connecter un nouveau numéro/ }),
     );
+    fireEvent.click(screen.getByRole("button", { name: "Continuer" }));
     expect(mockStartSignup).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
     fireEvent.click(

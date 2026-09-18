@@ -33,7 +33,7 @@ export function WhatsAppConnectionHelp() {
     <section className="mt-5 w-full min-w-0 border-t border-border pt-3" aria-label="Aide à la connexion Meta">
       {!open ? (
         <Button type="button" variant="ghost" className="min-h-11 whitespace-normal text-left" aria-expanded={false} onClick={() => setOpen(true)}>
-          <CircleHelp className="size-4 shrink-0" aria-hidden="true" /> Je suis bloqué chez Meta
+          <CircleHelp className="size-4 shrink-0" aria-hidden="true" /> Un problème avec Meta ?
         </Button>
       ) : (
         <div className="space-y-3">

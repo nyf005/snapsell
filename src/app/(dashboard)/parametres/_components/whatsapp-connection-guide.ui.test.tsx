@@ -11,9 +11,28 @@ function setup(busy = false) {
 }
 
 describe("préparation WhatsApp", () => {
+  it("attend une sélection et une confirmation, puis conserve le choix au retour", () => {
+    const connect = setup();
+    const next = screen.getByRole("button", { name: "Continuer" });
+    expect(next).toBeDisabled();
+    expect(screen.getAllByRole("radio")).toHaveLength(4);
+    fireEvent.click(screen.getByRole("radio", { name: "J’utilise WhatsApp Business" }));
+    expect(next).toBeEnabled();
+    expect(screen.getByRole("group", { name: "Quelle est votre situation ?" })).toBeVisible();
+    expect(connect).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("radio", { name: "Je souhaite connecter un nouveau numéro" }));
+    expect(screen.getByRole("radio", { name: "J’utilise WhatsApp Business" })).not.toBeChecked();
+    fireEvent.click(next);
+    expect(screen.getByText("Préparez votre nouveau numéro")).toBeVisible();
+    expect(connect).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Changer de choix" }));
+    expect(screen.getByRole("radio", { name: "Je souhaite connecter un nouveau numéro" })).toBeChecked();
+  });
+
   it("prépare le transfert personnel sans lancer Meta, puis ouvre la coexistence", () => {
     const connect = setup();
-    fireEvent.click(screen.getByRole("button", { name: "J’utilise WhatsApp personnel" }));
+    fireEvent.click(screen.getByRole("radio", { name: "J’utilise WhatsApp personnel" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuer" }));
     expect(screen.getByText(/sans supprimer votre compte/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "J’ai installé WhatsApp Business" }));
     expect(connect).not.toHaveBeenCalled();
@@ -27,7 +46,8 @@ describe("préparation WhatsApp", () => {
 
   it("permet de choisir un numéro séparé après le parcours personnel", () => {
     const connect = setup();
-    fireEvent.click(screen.getByRole("button", { name: "J’utilise WhatsApp personnel" }));
+    fireEvent.click(screen.getByRole("radio", { name: "J’utilise WhatsApp personnel" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuer" }));
     fireEvent.click(screen.getByRole("button", { name: "Utiliser un nouveau numéro" }));
     fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
     fireEvent.click(screen.getByRole("button", { name: "Continuer chez Meta" }));
@@ -36,16 +56,20 @@ describe("préparation WhatsApp", () => {
 
   it("oriente les migrations vers l’aide sans lancer une nouvelle connexion", () => {
     const connect = setup();
-    fireEvent.click(screen.getByRole("button", { name: "Mon numéro est connecté à un autre logiciel" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Mon numéro est connecté à un autre logiciel" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuer" }));
     expect(screen.getByRole("link", { name: "Contacter l’assistance" }).getAttribute("href")).toBe("/aide");
     expect(screen.queryByRole("button", { name: "Continuer chez Meta" })).toBeNull();
     expect(connect).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Changer de choix" }));
-    expect(screen.getByRole("button", { name: "J’utilise WhatsApp personnel" })).toBeTruthy();
+    expect(screen.getByRole("radio", { name: "J’utilise WhatsApp personnel" })).toBeTruthy();
   });
 
   it("bloque les changements de situation pendant une connexion", () => {
     setup(true);
+    for (const radio of screen.getAllByRole("radio")) {
+      expect(radio).toBeDisabled();
+    }
     for (const button of screen.getAllByRole("button")) {
       expect(button.hasAttribute("disabled")).toBe(true);
     }

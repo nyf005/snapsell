@@ -7,7 +7,7 @@ afterEach(cleanup);
 it("affiche un problème à la fois et permet de revenir ou fermer", () => {
   render(<WhatsAppConnectionHelp />);
   expect(screen.queryByText(/Votre prochaine étape/)).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: "Je suis bloqué chez Meta" }));
+  fireEvent.click(screen.getByRole("button", { name: "Un problème avec Meta ?" }));
   expect(screen.queryByText(/utilisez-le avec un compte/)).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "Quel portefeuille business choisir ?" }));
   expect(screen.getByText(/utilisez-le avec un compte/)).toBeInTheDocument();
@@ -17,6 +17,6 @@ it("affiche un problème à la fois et permet de revenir ou fermer", () => {
   expect(screen.getByText(/attendez sa confirmation/)).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Fermer" }));
   expect(screen.queryByText(/attendez sa confirmation/)).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: "Je suis bloqué chez Meta" }));
+  fireEvent.click(screen.getByRole("button", { name: "Un problème avec Meta ?" }));
   expect(screen.getByText("Qu’est-ce qui vous bloque ?")).toBeInTheDocument();
 });
