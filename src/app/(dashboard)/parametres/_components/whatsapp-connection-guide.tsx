@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -96,6 +96,7 @@ export function WhatsAppConnectionGuide({
   actionLabel,
   onConnect,
 }: WhatsAppConnectionGuideProps) {
+  const situationId = useId();
   const [selectedMode, setSelectedMode] = useState<Situation | null>(null);
   const [choice, setChoice] = useState<Situation | null>(null);
   const [isChangingConnection, setIsChangingConnection] = useState(false);
@@ -134,7 +135,7 @@ export function WhatsAppConnectionGuide({
           <p className="mt-1 text-sm leading-6 text-muted-foreground">Choisissez le cas qui correspond au numéro à connecter.</p>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {SITUATIONS.map(({ id, title, description, icon: Icon }) => (
-              <label key={id} className={cn(
+              <label key={id} htmlFor={`${situationId}-${id}`} className={cn(
                 "relative flex items-start gap-3 rounded-lg border p-4 transition-colors motion-reduce:transition-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background",
                 choice === id ? "border-primary bg-primary/5" : "border-border bg-background hover:border-primary/40 hover:bg-muted/30",
                 busy ? "cursor-not-allowed opacity-60" : "cursor-pointer",
@@ -144,7 +145,7 @@ export function WhatsAppConnectionGuide({
                   <span className="block text-sm font-semibold text-foreground">{title}</span>
                   <span className="mt-1 block text-sm leading-6 text-muted-foreground">{description}</span>
                 </span>
-                <input type="radio" name="whatsapp-situation" value={id} checked={choice === id} onChange={() => setChoice(id)} aria-label={title} className="mt-0.5 size-4 shrink-0 accent-primary" />
+                <input id={`${situationId}-${id}`} type="radio" name={situationId} value={id} checked={choice === id} onChange={() => setChoice(id)} aria-label={title} className="mt-0.5 size-4 shrink-0 accent-primary" />
               </label>
             ))}
           </div>
