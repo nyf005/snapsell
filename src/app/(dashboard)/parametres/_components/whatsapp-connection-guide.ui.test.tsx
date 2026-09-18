@@ -37,10 +37,8 @@ describe("préparation WhatsApp", () => {
     fireEvent.click(screen.getByRole("button", { name: "J’ai installé WhatsApp Business" }));
     expect(connect).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Continuer chez Meta" })).toBeEnabled();
-    const help = screen.getByText("Comment se connecter et retrouver mes discussions ?").closest("details");
-    expect(help).not.toHaveAttribute("open");
-    fireEvent.click(screen.getByText("Comment se connecter et retrouver mes discussions ?"));
-    expect(screen.getByText(/lorsque Meta affiche le QR code/)).toBeVisible();
+    expect(screen.getByText(/Sur téléphone, choisissez/)).toBeVisible();
+    expect(screen.getByText(/Le partage de vos anciennes discussions est facultatif/)).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Continuer chez Meta" }));
     expect(connect).toHaveBeenCalledExactlyOnceWith("coexistence");
   });

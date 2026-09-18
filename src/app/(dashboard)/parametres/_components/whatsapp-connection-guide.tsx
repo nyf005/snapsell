@@ -229,14 +229,10 @@ export function WhatsAppConnectionGuide({
       </ul>
 
       {selectedMode === "coexistence" && (
-        <details className="mt-4 text-sm leading-6">
-          <summary className="min-h-11 cursor-pointer rounded-md py-3 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Comment se connecter et retrouver mes discussions ?</summary>
-          <div className="max-w-[65ch] space-y-3 pb-3 text-muted-foreground">
-            <p>Sur ce téléphone, lorsque Meta affiche le QR code, choisissez « Utiliser plutôt un code d’accès ». Copiez-le, puis ouvrez le message Facebook Business dans WhatsApp Business pour confirmer la connexion.</p>
-            <p>Depuis un ordinateur, scannez le QR avec votre téléphone en suivant les instructions de WhatsApp Business.</p>
-            <p>Le partage de vos anciennes discussions est facultatif. Leur récupération peut prendre plusieurs minutes après la connexion.</p>
-          </div>
-        </details>
+        <div className="mt-4 max-w-[65ch] space-y-2 text-sm leading-6 text-muted-foreground">
+          <p>Sur téléphone, choisissez « Utiliser plutôt un code d’accès » dans Meta, puis confirmez ce code dans le message Facebook Business de WhatsApp Business. Sur ordinateur, scannez le QR avec votre téléphone.</p>
+          <p>Le partage de vos anciennes discussions est facultatif ; leur récupération peut prendre quelques minutes.</p>
+        </div>
       )}
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
