@@ -133,7 +133,7 @@ export function AssistantControl({
               {title.replace("Assistant ", "")}
             </Badge>
           </div>
-          {!(compact && isActive) && <p className="mt-1 max-w-[65ch] text-sm leading-5 text-muted-foreground">
+          {!(compact && isActive) && <p className="mt-1 text-sm leading-5 text-muted-foreground">
             {detail}
           </p>}
         </div>
@@ -177,7 +177,7 @@ export function AssistantControl({
                 <p className="text-sm font-semibold text-foreground">
                   Répondre uniquement pour les articles enregistrés
                 </p>
-                <p className="mt-1 max-w-[65ch] text-sm leading-5 text-muted-foreground">
+                <p className="mt-1 text-sm leading-5 text-muted-foreground">
                   Un article inconnu ne sera jamais annoncé comme disponible ou épuisé. La conversation vous sera transmise.
                 </p>
               </div>

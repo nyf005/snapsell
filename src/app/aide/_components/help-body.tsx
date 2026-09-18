@@ -40,12 +40,12 @@ function HelpBlockView({ block }: { block: HelpBlock }) {
   switch (block.kind) {
     case "text":
       return (
-        <p className="max-w-[68ch] text-base leading-7 text-foreground">{block.text}</p>
+        <p className="text-base leading-7 text-foreground">{block.text}</p>
       );
 
     case "steps":
       return (
-        <ol className="max-w-[68ch] space-y-3">
+        <ol className="space-y-3">
           {block.steps.map((step, i) => (
             <li key={i} className="flex gap-3">
               <span
@@ -62,7 +62,7 @@ function HelpBlockView({ block }: { block: HelpBlock }) {
 
     case "table":
       return (
-        <dl className="max-w-[68ch] overflow-hidden rounded-xl border border-border">
+        <dl className="overflow-hidden rounded-xl border border-border">
           <div className="hidden border-b border-border bg-surface-subtle sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
             {block.head.map((label) => (
               <p
@@ -94,7 +94,7 @@ function HelpBlockView({ block }: { block: HelpBlock }) {
 
     case "note":
       return (
-        <div className="flex max-w-[68ch] gap-3 rounded-xl border border-border bg-surface-subtle p-4">
+        <div className="flex gap-3 rounded-xl border border-border bg-surface-subtle p-4">
           <Info className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
           <p className="text-sm leading-6 text-muted-foreground">
             <span className="sr-only">À noter : </span>
@@ -105,7 +105,7 @@ function HelpBlockView({ block }: { block: HelpBlock }) {
 
     case "warning":
       return (
-        <div className="flex max-w-[68ch] gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+        <div className="flex gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
           <AlertTriangle
             className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400"
             aria-hidden="true"
@@ -131,7 +131,7 @@ function HelpBlockView({ block }: { block: HelpBlock }) {
     case "chat":
       return (
         <div
-          className="max-w-[68ch] space-y-3 rounded-xl border border-border bg-surface-subtle p-4"
+          className="space-y-3 rounded-xl border border-border bg-surface-subtle p-4"
           role="group"
           aria-label="Exemple de conversation WhatsApp"
         >

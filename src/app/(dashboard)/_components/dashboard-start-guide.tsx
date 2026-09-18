@@ -80,7 +80,7 @@ export function DashboardStartGuide(props: DashboardStartGuideProps) {
             {priority.eyebrow}
           </p>
           <h2 className="mt-1 text-lg font-bold text-foreground">{priority.title}</h2>
-          <p className="mt-1 max-w-[58ch] text-sm leading-6 text-muted-foreground">
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
             {priority.description}
           </p>
         </div>

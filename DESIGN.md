@@ -36,6 +36,7 @@ Les couleurs sont définies en OKLCH dans les tokens globaux.
 - Mobile first : contenu empilé, actions principales visibles, détails secondaires repliables.
 - Desktop : sidebar, zones de travail larges et tableaux denses mais lisibles.
 - Les cartes sont réservées aux regroupements actionnables ou comparables. Les sections utilisent d’abord espace, alignement et séparateurs.
+- Dans les cartes et panneaux produit, le texte utilise toute la largeur disponible, sans limite interne en `ch` ou `max-w-prose`. Le texte reste aligné à gauche ; les actions conservent leur espace. Les largeurs des formulaires, dialogues et cellules de tableau restent adaptées à leur fonction.
 
 ## Navigation
 

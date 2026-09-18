@@ -363,7 +363,7 @@ function TechnicalDetails({
             >
               Corriger les identifiants Meta
             </h3>
-            <p className="mt-1 max-w-[65ch] text-sm leading-6 text-muted-foreground">
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
               Réservé aux interventions techniques. Meta valide les valeurs avant
               l’enregistrement et SnapSell journalise les champs modifiés.
             </p>
@@ -648,7 +648,7 @@ function GuidedDiagnostic({ diagnostic }: { diagnostic: Diagnostic }) {
           <legend className="text-lg font-semibold text-foreground">
             Quel problème rencontre la boutique ?
           </legend>
-          <p className="mt-1 max-w-[65ch] text-sm leading-6 text-muted-foreground">
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
             Choisissez la situation la plus proche. Le diagnostic n’effectue aucune
             modification sans votre accord.
           </p>
@@ -694,7 +694,7 @@ function GuidedDiagnostic({ diagnostic }: { diagnostic: Diagnostic }) {
             >
               {SUPPORT_ISSUES.find((item) => item.id === issue)?.title}
             </h3>
-            <p className="mt-1 max-w-[65ch] text-sm leading-6 text-muted-foreground">
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
               {diagnosis?.summary}
             </p>
           </div>
@@ -744,7 +744,7 @@ function GuidedDiagnostic({ diagnostic }: { diagnostic: Diagnostic }) {
                 >
                   {diagnosis.title}
                 </h3>
-                <p className="mt-2 max-w-[65ch] text-sm leading-6 text-muted-foreground sm:text-base">
+                <p className="mt-2 text-sm leading-6 text-muted-foreground sm:text-base">
                   {diagnosis.summary}
                 </p>
               </div>
@@ -921,7 +921,7 @@ export function OpsWhatsAppSupportContent() {
               Assistance WhatsApp
             </h1>
           </div>
-          <p className="mt-2 max-w-[65ch] text-base leading-6 text-muted-foreground">
+          <p className="mt-2 text-base leading-6 text-muted-foreground">
             Sélectionnez une boutique, décrivez son problème et suivez la prochaine
             action recommandée.
           </p>

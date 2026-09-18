@@ -176,7 +176,7 @@ export function OpsEventLogsContent() {
                   Console Ops – Logs d&apos;événements
                 </h1>
               </div>
-              <p className="max-w-2xl text-muted-foreground">
+              <p className="text-muted-foreground">
                 Consultez les logs d&apos;événements pour diagnostiquer les
                 incidents. Filtrez par tenant et correlationId pour obtenir le
                 film complet d&apos;un incident.

@@ -72,7 +72,7 @@ export function WelcomeCard({ role }: { role: string }) {
           <Compass className="size-5 text-primary" aria-hidden="true" />
           Bienvenue dans l’équipe
         </h2>
-        <p className="mt-1 max-w-[65ch] text-sm leading-6 text-muted-foreground">
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">
           Votre rôle est « {roleLabel(role)} ». Trois articles suffisent pour savoir quoi
           faire, et pourquoi.
         </p>

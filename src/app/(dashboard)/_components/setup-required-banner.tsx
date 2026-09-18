@@ -29,7 +29,7 @@ export function SetupRequiredBanner() {
         <MessageCircleOff className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
         <div className="min-w-0">
           <p className="font-semibold text-foreground">{ui.notConnected.title}</p>
-          <p className="mt-0.5 max-w-[60ch] text-sm leading-5 text-muted-foreground">
+          <p className="mt-0.5 text-sm leading-5 text-muted-foreground">
             {ui.notConnected.detail}
           </p>
         </div>

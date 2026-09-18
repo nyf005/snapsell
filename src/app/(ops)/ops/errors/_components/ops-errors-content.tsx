@@ -178,7 +178,7 @@ export function OpsErrorsContent() {
                 Console Ops – File d&apos;erreurs
               </h1>
             </div>
-            <p className="max-w-2xl text-muted-foreground">
+            <p className="text-muted-foreground">
               Consultez les jobs en échec (DLQ) et les envois échoués pour
               diagnostiquer les incidents.
             </p>

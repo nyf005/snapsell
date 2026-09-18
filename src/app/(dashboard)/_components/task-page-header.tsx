@@ -68,7 +68,7 @@ export function TaskPageHeader({
         className,
       )}
     >
-      <div className="min-w-0 max-w-3xl">
+      <div className="min-w-0 flex-1">
         {parent && parent.href !== href && <Link href={parent.href} className="mb-1 inline-flex min-h-11 items-center text-sm text-muted-foreground hover:text-primary">← Retour à {parent.label}</Link>}
         <div className="flex flex-wrap items-center gap-3"><h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
           {item.label}
@@ -76,7 +76,7 @@ export function TaskPageHeader({
         {topic && <HelpHint compact slug={topic.slug} />}
         </div>
         {text ? (
-          <div className="mt-1 max-w-[65ch] text-sm leading-6 text-muted-foreground">
+          <div className="mt-1 text-sm leading-6 text-muted-foreground">
             {text}
           </div>
         ) : null}

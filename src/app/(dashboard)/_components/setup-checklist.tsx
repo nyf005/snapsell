@@ -131,7 +131,7 @@ export function SetupChecklist({ steps, doneCount, totalCount, compact = false }
           <div className="min-w-0">
             <p className="mb-1 text-xs font-medium text-primary">Prochaine étape<span className="text-muted-foreground"> · {current.required ? "Indispensable" : "Recommandé"}</span></p>
             <h3 className="text-lg font-semibold">{meta.title}</h3>
-            {!compact && <p className="mt-1 max-w-prose text-sm text-muted-foreground">{meta.description}</p>}
+            {!compact && <p className="mt-1 text-sm text-muted-foreground">{meta.description}</p>}
           </div>
           <Link href={meta.href} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">{meta.action}<ArrowRight className="size-4" aria-hidden="true" /></Link>
         </div>
