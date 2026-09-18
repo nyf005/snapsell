@@ -165,9 +165,9 @@ describe("WhatsAppConfigContent — chemin unique de connexion", () => {
 
     expect(screen.getByRole("button", { name: "Connecter WhatsApp" })).toBeEnabled();
     expect(screen.getByText("WhatsApp n’est pas connecté")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Avant de commencer" })).toBeInTheDocument();
-    expect(screen.getByText(/Préparez votre accès administrateur à ce portefeuille/)).toBeInTheDocument();
-    expect(screen.getByText(/attendez sa confirmation avant de relancer la connexion/)).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Avant de commencer" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Je suis bloqué chez Meta" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("Quel portefeuille business choisir ?")).not.toBeInTheDocument();
   });
 
   it("masque les identifiants Meta pour une boutique ordinaire", () => {
@@ -496,7 +496,7 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     ).toBeEnabled();
     const rail = screen.getByRole("list", { name: "Connexion WhatsApp" });
     const stops = within(rail).getAllByRole("listitem");
-    expect(stops).toHaveLength(2);
+    expect(stops).toHaveLength(4);
     expect(stops[0]).toHaveAttribute("aria-current", "step");
     expect(stops[0]).toHaveTextContent("Votre situation");
     expect(stops[1]).toHaveTextContent("Préparation");
@@ -524,6 +524,9 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
       screen.getByText(/Numéro WhatsApp Business actuel/),
     ).toBeInTheDocument();
 
+    if (screen.queryByRole("button", { name: "Tout est prêt, continuer" })) {
+      fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
+    }
     fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
 
     await waitFor(() => expect(mockStartSignup).toHaveBeenCalled());
@@ -543,6 +546,9 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     fireEvent.click(
       screen.getByRole("button", { name: /Oui, je garde mon numéro actuel/ }),
     );
+    if (screen.queryByRole("button", { name: "Tout est prêt, continuer" })) {
+      fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
+    }
     fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
 
     expect(mockStartSignup).toHaveBeenCalledTimes(1);
@@ -555,7 +561,7 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
       screen.getByRole("button", { name: "Terminez dans Meta…" }),
     ).toBeDisabled();
     expect(
-      screen.getByText(/Le parcours est toujours en cours dans Meta/),
+      screen.getByText(/Votre connexion n’est pas encore terminée/),
     ).toBeVisible();
 
     fireEvent.click(screen.getByRole("button", { name: "Terminez dans Meta…" }));
@@ -582,6 +588,9 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     fireEvent.click(
       screen.getByRole("button", { name: /Oui, je garde mon numéro actuel/ }),
     );
+    if (screen.queryByRole("button", { name: "Tout est prêt, continuer" })) {
+      fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
+    }
     fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
     await act(async () => {
       vi.advanceTimersByTime(12_000);
@@ -593,6 +602,9 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     expect(firstSignal?.aborted).toBe(true);
     expect(screen.getByRole("button", { name: "Continuer avec Meta" })).toBeEnabled();
 
+    if (screen.queryByRole("button", { name: "Tout est prêt, continuer" })) {
+      fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
+    }
     fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
     expect(mockStartSignup).toHaveBeenCalledTimes(2);
 
@@ -610,6 +622,7 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
       screen.getByRole("button", { name: /Non, j’utilise un nouveau numéro/ }),
     );
     expect(mockStartSignup).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
     fireEvent.click(
       screen.getByRole("button", { name: "Déclarer ce numéro avec Meta" }),
     );

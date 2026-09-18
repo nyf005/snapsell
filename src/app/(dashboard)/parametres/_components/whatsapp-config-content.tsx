@@ -1,5 +1,7 @@
 "use client";
 
+import { WhatsAppConnectionHelp } from "./whatsapp-connection-help";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Eye, EyeOff, Info, KeyRound, Phone, Plus, Trash2 } from "lucide-react";
@@ -260,7 +262,9 @@ export function WhatsAppConfigContent({
   })();
 
   const contactsNotice =
-    data?.contactsSyncStatus === "failed"
+    data?.contactsSyncStatus === "requested"
+      ? "Récupération de vos contacts en cours."
+      : data?.contactsSyncStatus === "failed"
       ? "Vos contacts n’ont pas pu être récupérés : les noms de votre clientèle n’apparaîtront pas."
       : null;
 
@@ -276,7 +280,7 @@ export function WhatsAppConfigContent({
   /** Même progression d'état sur tous les boutons de connexion. */
   const signupButtonLabel = (idleLabel: string) =>
     connectEmbedded.isPending
-      ? "Connexion en cours…"
+      ? "Vérification de la connexion…"
       : embeddedSignupState === "loading"
         ? embeddedSignupSlow
           ? "Terminez dans Meta…"
@@ -571,19 +575,6 @@ export function WhatsAppConfigContent({
             {/* Carte d'état : un seul bouton, un seul chemin.
                 L'ancien parcours en deux étapes numérotées demandait de coller trois
                 identifiants Meta ; il vit désormais sous « Configuration avancée ». */}
-            {!isConnected && (
-              <section aria-labelledby="whatsapp-before-start" className="mb-4 space-y-3 rounded-xl border border-border p-4 sm:p-5">
-                <h3 id="whatsapp-before-start" className="text-sm font-semibold">Avant de commencer</h3>
-                <div className="space-y-1 text-sm leading-6">
-                  <p className="font-medium">Vous avez déjà un portefeuille business Meta ?</p>
-                  <p className="text-muted-foreground">Préparez votre accès administrateur à ce portefeuille. Si Meta vous propose de le sélectionner, utilisez-le pour éviter une création inutile.</p>
-                </div>
-                <div className="space-y-1 text-sm leading-6">
-                  <p className="font-medium">Vous avez atteint votre limite de création ?</p>
-                  <p className="text-muted-foreground">Réglez ce point dans Meta avant de continuer. Si une suppression est en cours, attendez sa confirmation avant de relancer la connexion.</p>
-                </div>
-              </section>
-            )}
             <div className="rounded-xl border border-border bg-muted/40 p-4 sm:p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0 space-y-1">
@@ -654,12 +645,17 @@ export function WhatsAppConfigContent({
                 />
               )}
 
+              {!isConnected && <WhatsAppConnectionHelp />}
+
               {embeddedSignupSlow && embeddedSignupState === "loading" && (
                 <Alert className="mt-3">
                   <AlertDescription className="space-y-3">
                     <p>
-                      Le parcours est toujours en cours dans Meta. Terminez la
-                      validation et le scan du QR sans fermer cet onglet SnapSell.
+                      Votre connexion n’est pas encore terminée. Suivez les étapes
+                      dans Meta, puis revenez dans SnapSell. Si Meta affiche un QR
+                      code sur ce téléphone, choisissez « Utiliser plutôt un code
+                      d’accès » et poursuivez dans WhatsApp Business. Gardez cet
+                      onglet SnapSell ouvert.
                     </p>
                     <Button
                       type="button"

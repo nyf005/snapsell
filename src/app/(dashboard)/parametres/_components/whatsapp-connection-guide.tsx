@@ -1,10 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
-  Check,
   MessageCircle,
   Plus,
   Smartphone,
@@ -70,19 +70,12 @@ const MODES: Record<
   },
 };
 
-function guideSteps(step: 1 | 2): StepperItem[] {
-  return [
-    {
-      id: "situation",
-      label: "Votre situation",
-      state: step === 1 ? "current" : "done",
-    },
-    {
-      id: "preparation",
-      label: "Préparation",
-      state: step === 1 ? "upcoming" : "current",
-    },
-  ];
+function guideSteps(step: 1 | 2 | 3): StepperItem[] {
+  return ["Votre situation", "Préparation", "Meta", "Résultat"].map((label, index) => ({
+    id: String(index + 1),
+    label,
+    state: index + 1 === step ? "current" : index + 1 < step ? "done" : "upcoming",
+  }));
 }
 
 /**
@@ -95,12 +88,14 @@ export function WhatsAppConnectionGuide({
   actionLabel,
   onConnect,
 }: WhatsAppConnectionGuideProps) {
-  const [selectedMode, setSelectedMode] = useState<MetaSignupMode | null>(null);
+  const [selectedMode, setSelectedMode] = useState<MetaSignupMode | "personal" | "provider" | null>(null);
+  const [ready, setReady] = useState(false);
   const [isChangingConnection, setIsChangingConnection] = useState(false);
 
   useEffect(() => {
     if (isConnected) {
       setSelectedMode(null);
+      setReady(false);
       setIsChangingConnection(false);
     }
   }, [isConnected]);
@@ -108,6 +103,8 @@ export function WhatsAppConnectionGuide({
   if (isConnected && !isChangingConnection) {
     return (
       <div className="mt-4 border-t border-border pt-4">
+        <p className="mb-2 text-sm text-muted-foreground">Étape 4 sur 4 · Résultat</p>
+        <p className="mb-3 text-sm">Votre numéro est connecté. Si une récupération des anciennes discussions a été demandée, son état apparaît séparément.</p>
         <Button
           type="button"
           variant="outline"
@@ -126,11 +123,11 @@ export function WhatsAppConnectionGuide({
         <Stepper
           items={guideSteps(1)}
           label="Connexion WhatsApp"
-          showLabels
-          className="mb-4"
+          className="mb-4 w-full"
         />
+        <p className="mb-2 text-sm text-muted-foreground">Étape 1 sur 4 · Votre situation</p>
         <h3 className="text-base font-semibold text-foreground">
-          Ce numéro est-il déjà utilisé dans WhatsApp Business ?
+          Quel WhatsApp utilisez-vous pour vendre ?
         </h3>
         <p className="mt-1 max-w-[60ch] text-sm leading-6 text-muted-foreground">
           Choisissez votre situation. Rien ne sera modifié avant votre confirmation
@@ -146,6 +143,7 @@ export function WhatsAppConnectionGuide({
               <button
                 key={mode}
                 type="button"
+                disabled={busy}
                 onClick={() => setSelectedMode(mode)}
                 className={cn(
                   "group flex min-h-20 w-full items-center gap-4 rounded-lg border bg-background p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -192,6 +190,19 @@ export function WhatsAppConnectionGuide({
           })}
         </div>
 
+        <div className="mt-3 flex flex-col items-start gap-2">
+          <Button type="button" variant="outline" disabled={busy} className="h-auto min-h-11 w-full whitespace-normal py-3 justify-start" onClick={() => setSelectedMode("personal")}>
+            J’utilise WhatsApp personnel
+          </Button>
+          <Button type="button" variant="outline" disabled={busy} className="h-auto min-h-11 w-full whitespace-normal py-3 justify-start text-left" onClick={() => setSelectedMode("provider")}>
+            Mon numéro est connecté à un autre logiciel
+          </Button>
+        </div>
+        <details className="mt-4 text-sm leading-6">
+          <summary className="min-h-11 cursor-pointer py-2 font-medium">Je ne sais pas quelle application j’utilise</summary>
+          <p>WhatsApp Business porte un B dans sa bulle. WhatsApp personnel porte un combiné téléphonique. Vérifiez aussi le nom de l’application sur votre téléphone. Si un autre logiciel gère déjà vos messages, choisissez ce cas avant de continuer.</p>
+        </details>
+
         {isConnected && (
           <Button
             type="button"
@@ -206,6 +217,42 @@ export function WhatsAppConnectionGuide({
     );
   }
 
+  if (selectedMode === "personal" || selectedMode === "provider") {
+    const personal = selectedMode === "personal";
+    return (
+      <section className="mt-5 space-y-4 border-t border-border pt-5" aria-label="Préparer votre connexion">
+        <Button type="button" variant="ghost" disabled={busy} onClick={() => { setSelectedMode(null); setReady(false); }}>
+          <ArrowLeft className="size-4" aria-hidden="true" /> Changer de choix
+        </Button>
+        <h3 className="text-base font-semibold">{personal ? "Passez d’abord à WhatsApp Business" : "Préparons le changement de logiciel"}</h3>
+        {personal ? (
+          <>
+            <p className="text-sm leading-6">Pour garder votre numéro et discuter depuis votre téléphone, transférez votre compte vers WhatsApp Business avant de connecter SnapSell.</p>
+            <ol className="list-decimal space-y-2 pl-5 text-sm leading-6">
+              <li>Sauvegardez vos discussions dans WhatsApp personnel.</li>
+              <li>Installez l’application officielle WhatsApp Business depuis l’App Store ou Google Play.</li>
+              <li>Utilisez le même numéro et suivez le transfert proposé, sans supprimer votre compte WhatsApp.</li>
+              <li>Vérifiez vos discussions et complétez votre profil professionnel.</li>
+            </ol>
+            <p className="text-sm leading-6">Ce numéro sera utilisé dans WhatsApp Business. Pour conserver un WhatsApp personnel séparé, utilisez un autre numéro pour votre activité.</p>
+            <a className="inline-block min-h-11 py-2 text-sm text-primary underline" href="https://faq.whatsapp.com/3059780464322392/" target="_blank" rel="noopener noreferrer">Lire le guide officiel WhatsApp (nouvel onglet)</a>
+            <p className="text-sm text-muted-foreground">Meta vérifiera ensuite si votre compte peut être connecté. Le transfert ne garantit pas une connexion immédiate.</p>
+            <div className="flex flex-col gap-2">
+              <Button type="button" disabled={busy} className="h-auto min-h-11 whitespace-normal py-3" onClick={() => setSelectedMode("coexistence")}>J’ai installé WhatsApp Business</Button>
+              <Button type="button" variant="outline" disabled={busy} className="h-auto min-h-11 whitespace-normal py-3" onClick={() => setSelectedMode("cloud_api")}>Utiliser un nouveau numéro</Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-sm leading-6">Contactez l’assistance avec le nom du logiciel actuel. Nous vérifierons comment connecter votre numéro à SnapSell et ce qui peut être conservé.</p>
+            <p className="text-sm leading-6">Gardez votre connexion actuelle active jusqu’à ce que les étapes du transfert soient confirmées.</p>
+            <Button asChild className="min-h-11"><Link href="/aide">Contacter l’assistance</Link></Button>
+          </>
+        )}
+      </section>
+    );
+  }
+
   const preparation = MODES[selectedMode];
   const ChoiceIcon = preparation.icon;
 
@@ -214,12 +261,12 @@ export function WhatsAppConnectionGuide({
       {/* Sur mobile, le rail garde sa ligne : partagée avec le retour, les deux
           libellés se réduisaient à une initiale. */}
       <div className="mb-4 flex flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
-        <Stepper items={guideSteps(2)} label="Connexion WhatsApp" showLabels />
+        <Stepper items={guideSteps(ready ? 3 : 2)} label="Connexion WhatsApp" className="w-full" />
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => setSelectedMode(null)}
+          onClick={() => { setSelectedMode(null); setReady(false); }}
           disabled={busy}
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
@@ -227,6 +274,7 @@ export function WhatsAppConnectionGuide({
         </Button>
       </div>
 
+      <p className="mb-3 text-sm text-muted-foreground">Étape {ready ? 3 : 2} sur 4 · {ready ? "Connexion Meta" : "Préparation"}</p>
       {/* Le choix reste sous les yeux : plus besoin de revenir en arrière pour en douter. */}
       <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-muted/50 py-1 pl-2 pr-3 text-xs font-medium text-foreground">
         <ChoiceIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -242,24 +290,47 @@ export function WhatsAppConnectionGuide({
       </p>
 
       <h3 className="mt-3 text-base font-semibold text-foreground">
-        {preparation.title}
+        {ready ? "Connectez votre compte avec Meta" : preparation.title}
       </h3>
       <p className="mt-1 max-w-[60ch] text-sm leading-6 text-muted-foreground">
-        {preparation.description}
+        {ready ? "Autorisez SnapSell à connecter votre numéro, puis revenez ici pour vérifier le résultat." : preparation.description}
       </p>
 
-      <ul className="mt-4 space-y-3">
-        {preparation.items.map((item) => (
-          <li key={item} className="flex gap-3 text-sm leading-5 text-foreground">
-            <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-success/15 text-success">
-              <Check className="size-3" aria-hidden="true" />
-            </span>
-            {item}
-          </li>
-        ))}
-      </ul>
+      {!ready ? (
+        <>
+          <ol className="mt-5 space-y-4">
+            {preparation.items.slice(0, 3).map((item, index) => (
+              <li key={item} className="flex gap-3 text-sm leading-6">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium" aria-hidden="true">{index + 1}</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ol>
+          <Button type="button" className="mt-6 min-h-11 w-full sm:w-auto" disabled={busy} onClick={() => setReady(true)}>
+            Tout est prêt, continuer <ArrowRight className="size-4" aria-hidden="true" />
+          </Button>
+        </>
+      ) : (
+        <div className="mt-5 space-y-4 text-sm leading-6">
+          {selectedMode === "coexistence" ? (
+            <>
+              <h4 className="font-semibold">Sur ce téléphone, utilisez le code d’accès</h4>
+              <ol className="list-decimal space-y-2 pl-5">
+                <li>Lorsque Meta affiche le QR code, choisissez « Utiliser plutôt un code d’accès » et copiez le code.</li>
+                <li>Ouvrez WhatsApp Business, puis le message Facebook Business pour confirmer la connexion avec ce code.</li>
+                <li>Terminez dans le navigateur, puis revenez dans SnapSell.</li>
+              </ol>
+              <p className="text-muted-foreground">Depuis un ordinateur, scannez le QR avec votre téléphone en suivant les instructions de WhatsApp Business.</p>
+              <p>Meta vous proposera de partager vos anciennes discussions. Leur récupération est facultative et peut prendre plusieurs minutes après la connexion.</p>
+            </>
+          ) : (
+            <p>Suivez les instructions de Meta et vérifiez votre nouveau numéro avec le code reçu par SMS ou appel. Revenez ensuite dans SnapSell.</p>
+          )}
+          </div>
+      )}
 
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+      {ready && (
+        <div className="mt-5 flex flex-col items-start gap-3">
         <Button
           type="button"
           onClick={() => onConnect(selectedMode)}
@@ -272,7 +343,11 @@ export function WhatsAppConnectionGuide({
         <p className="text-xs leading-5 text-muted-foreground">
           Une fenêtre Meta sécurisée va s’ouvrir par-dessus SnapSell.
         </p>
-      </div>
+        <Button type="button" variant="ghost" disabled={busy} onClick={() => setReady(false)} className="min-h-11">
+          <ArrowLeft className="size-4" aria-hidden="true" /> Revoir la préparation
+        </Button>
+        </div>
+      )}
     </div>
   );
 }
