@@ -496,10 +496,10 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     ).toBeEnabled();
     const rail = screen.getByRole("list", { name: "Connexion WhatsApp" });
     const stops = within(rail).getAllByRole("listitem");
-    expect(stops).toHaveLength(3);
+    expect(stops).toHaveLength(2);
     expect(stops[0]).toHaveAttribute("aria-current", "step");
     expect(stops[0]).toHaveTextContent("Votre situation");
-    expect(stops[1]).toHaveTextContent("Préparation");
+    expect(stops[1]).toHaveTextContent("Connexion");
   });
 
   it("prépare puis demande la Coexistence pour le numéro déjà utilisé", async () => {
@@ -525,9 +525,6 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
       screen.getByText(/Numéro WhatsApp Business actuel/),
     ).toBeInTheDocument();
 
-    if (screen.queryByRole("button", { name: "Tout est prêt, continuer" })) {
-      fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
-    }
     fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
 
     await waitFor(() => expect(mockStartSignup).toHaveBeenCalled());
@@ -548,9 +545,6 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
       screen.getByRole("radio", { name: /J’utilise WhatsApp Business/ }),
     );
     fireEvent.click(screen.getByRole("button", { name: "Continuer" }));
-    if (screen.queryByRole("button", { name: "Tout est prêt, continuer" })) {
-      fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
-    }
     fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
 
     expect(mockStartSignup).toHaveBeenCalledTimes(1);
@@ -591,9 +585,6 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
       screen.getByRole("radio", { name: /J’utilise WhatsApp Business/ }),
     );
     fireEvent.click(screen.getByRole("button", { name: "Continuer" }));
-    if (screen.queryByRole("button", { name: "Tout est prêt, continuer" })) {
-      fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
-    }
     fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
     await act(async () => {
       vi.advanceTimersByTime(12_000);
@@ -605,9 +596,6 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     expect(firstSignal?.aborted).toBe(true);
     expect(screen.getByRole("button", { name: "Continuer avec Meta" })).toBeEnabled();
 
-    if (screen.queryByRole("button", { name: "Tout est prêt, continuer" })) {
-      fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
-    }
     fireEvent.click(screen.getByRole("button", { name: "Continuer avec Meta" }));
     expect(mockStartSignup).toHaveBeenCalledTimes(2);
 
@@ -626,7 +614,6 @@ describe("WhatsAppConfigContent — choix du parcours de connexion", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: "Continuer" }));
     expect(mockStartSignup).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
     fireEvent.click(
       screen.getByRole("button", { name: "Déclarer ce numéro avec Meta" }),
     );

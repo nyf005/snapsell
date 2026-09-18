@@ -23,7 +23,7 @@ describe("préparation WhatsApp", () => {
     fireEvent.click(screen.getByRole("radio", { name: "Je souhaite connecter un nouveau numéro" }));
     expect(screen.getByRole("radio", { name: "J’utilise WhatsApp Business" })).not.toBeChecked();
     fireEvent.click(next);
-    expect(screen.getByText("Préparez votre nouveau numéro")).toBeVisible();
+    expect(screen.getByText("Connectez votre nouveau numéro")).toBeVisible();
     expect(connect).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Changer de choix" }));
     expect(screen.getByRole("radio", { name: "Je souhaite connecter un nouveau numéro" })).toBeChecked();
@@ -36,10 +36,11 @@ describe("préparation WhatsApp", () => {
     expect(screen.getByText(/sans supprimer votre compte/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "J’ai installé WhatsApp Business" }));
     expect(connect).not.toHaveBeenCalled();
-    expect(screen.queryByRole("button", { name: "Continuer chez Meta" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
-    expect(connect).not.toHaveBeenCalled();
-    expect(screen.getByText(/Lorsque Meta affiche le QR code/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Continuer chez Meta" })).toBeEnabled();
+    const help = screen.getByText("Comment se connecter et retrouver mes discussions ?").closest("details");
+    expect(help).not.toHaveAttribute("open");
+    fireEvent.click(screen.getByText("Comment se connecter et retrouver mes discussions ?"));
+    expect(screen.getByText(/lorsque Meta affiche le QR code/)).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Continuer chez Meta" }));
     expect(connect).toHaveBeenCalledExactlyOnceWith("coexistence");
   });
@@ -49,7 +50,6 @@ describe("préparation WhatsApp", () => {
     fireEvent.click(screen.getByRole("radio", { name: "J’utilise WhatsApp personnel" }));
     fireEvent.click(screen.getByRole("button", { name: "Continuer" }));
     fireEvent.click(screen.getByRole("button", { name: "Utiliser un nouveau numéro" }));
-    fireEvent.click(screen.getByRole("button", { name: "Tout est prêt, continuer" }));
     fireEvent.click(screen.getByRole("button", { name: "Continuer chez Meta" }));
     expect(connect).toHaveBeenCalledExactlyOnceWith("cloud_api");
   });
