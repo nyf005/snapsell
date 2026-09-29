@@ -244,22 +244,16 @@ describe("settings router — setWhatsAppConfig (Meta)", () => {
     expect(mockTenantUpdate).not.toHaveBeenCalled();
   });
 
-  it("skips Meta API validation when metaAccessToken is null AND aucun token stocké", async () => {
+  it("refuse un numéro sans jeton fourni ou stocké", async () => {
     mockTenantFindFirst.mockResolvedValue(null);
     mockTenantFindUnique.mockResolvedValue({ metaAccessToken: null, metaWabaId: null });
-    mockTenantUpdate.mockResolvedValue({});
     mockGetProviderForTenant.mockResolvedValue(null);
-
     const caller = await makeCaller(ownerSession);
-    await caller.settings.setWhatsAppConfig({
-      metaPhoneNumberId: "123456",
-      metaWabaId: null,
-      metaAccessToken: null,
-    });
-
+    await expect(caller.settings.setWhatsAppConfig({
+      metaPhoneNumberId: "123456", metaWabaId: null, metaAccessToken: null,
+    })).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(mockFetch).not.toHaveBeenCalled();
-    const updateCall = mockTenantUpdate.mock.calls[0]![0] as { data: Record<string, unknown> };
-    expect(updateCall.data).not.toHaveProperty("metaAccessToken");
+    expect(mockTenantUpdate).not.toHaveBeenCalled();
   });
 
   it("rejects AGENT role with FORBIDDEN", async () => {

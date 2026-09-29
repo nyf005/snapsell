@@ -366,7 +366,10 @@ export const settingsRouter = createTRPCRouter({
         }
       }
 
-      if (phoneId != null && tokenToValidate != null) {
+      if (phoneId != null) {
+        if (tokenToValidate == null) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Un jeton Meta valide est requis pour associer un numéro." });
+        }
         await validateMetaCredentials({
           phoneId,
           wabaId: wabaIdToValidate,

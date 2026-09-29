@@ -81,6 +81,31 @@ describe.skipIf(!shouldRun)("runCreditsMonthlyResetJob", () => {
     vi.clearAllMocks();
   });
 
+  it.each(["downgrade", "renewal", "initialization"])("n’écrase pas un changement concurrent : %s", async (kind) => {
+    const tenant = await makeTenant({ plan: "starter", creditsBalance: 12,
+      usageResetDate: kind === "initialization" ? null : daysFromNow(-1),
+      cycleStartedAt: new Date(),
+    });
+    const original = db.tenant.findMany.bind(db.tenant);
+    const future = daysFromNow(20);
+    const spy = vi.spyOn(db.tenant, "findMany").mockImplementationOnce((args) => {
+      const run = async () => {
+      const snapshot = await original(args);
+      await db.tenant.update({ where: { id: tenant.id }, data: {
+        subscriptionPlan: kind === "downgrade" ? "free" : "starter",
+        creditsBalance: 37, usageResetDate: future, cycleStartedAt: new Date(),
+      } });
+      return snapshot;
+      };
+      // Le mock est seulement attendu avec await, sans API transaction Prisma.
+      return run() as ReturnType<typeof db.tenant.findMany>;
+    });
+    try { await runCreditsMonthlyResetJob(); } finally { spy.mockRestore(); }
+    const after = await db.tenant.findUniqueOrThrow({ where: { id: tenant.id } });
+    expect(after.creditsBalance).toBe(37);
+    expect(after.usageResetDate).toEqual(future);
+  });
+
   it("recharge un tenant dont l'échéance est passée, selon son plan courant", async () => {
     const tenant = await makeTenant({
       plan: "starter",

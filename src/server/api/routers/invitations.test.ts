@@ -47,6 +47,7 @@ vi.mock("~/server/subscription/usage", () => ({
 describe("invitations router", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUserFindUnique.mockResolvedValue(null);
     mockHash.mockResolvedValue("hashed-password");
     mockCheckRateLimit.mockReturnValue(true);
     mockCheckAgentsQuota.mockResolvedValue({
@@ -65,6 +66,13 @@ describe("invitations router", () => {
         role: "MANAGER",
       },
     };
+
+    it("refuse de créer une invitation pour un compte OPS", async () => {
+      mockUserFindUnique.mockResolvedValue({ role: "OPS" });
+      const caller = createCaller(await createTRPCContext({ headers: new Headers(), session: mockSession as any }));
+      await expect(caller.invitations.createInvitation({ email: "ops@example.com" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+      expect(mockTransaction).not.toHaveBeenCalled();
+    });
 
     it("creates invitation successfully for Owner", async () => {
       const ownerSession = {
@@ -87,6 +95,7 @@ describe("invitations router", () => {
 
       mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
         const mockTx = {
+          $queryRaw: vi.fn().mockResolvedValue([]),
           invitation: {
             findFirst: vi.fn().mockResolvedValue(null),
             create: createInvitationMock,
@@ -181,6 +190,7 @@ describe("invitations router", () => {
 
       mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
         const mockTx = {
+          $queryRaw: vi.fn().mockResolvedValue([]),
           invitation: {
             findFirst: vi.fn().mockResolvedValue(null),
             create: vi.fn().mockResolvedValue(mockInvitation),
@@ -274,6 +284,7 @@ describe("invitations router", () => {
 
       mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
         const mockTx = {
+          $queryRaw: vi.fn().mockResolvedValue([]),
           invitation: {
             findFirst: vi.fn().mockResolvedValue(existingInvitation),
             create: vi.fn(),
@@ -540,6 +551,14 @@ describe("invitations router", () => {
   });
 
   describe("acceptInvitation", () => {
+    it.each([null, { user: { id: "attacker", email: "manager@example.com", tenantId: "tenant-1", role: "OWNER" } }])("rejects an OPS invitation even with an issuer-held token (%j)", async (session) => {
+      mockInvitationFindFirst.mockResolvedValue({ id: "inv-ops", tenantId: "tenant-1", email: "ops@example.com", role: "AGENT", consumedAt: null, expiresAt: new Date(Date.now() + 60_000) });
+      mockUserFindUnique.mockResolvedValue({ id: "ops", email: "ops@example.com", role: "OPS", tenantId: null });
+      const caller = createCaller(await createTRPCContext({ headers: new Headers(), session: session as any }));
+      await expect(caller.invitations.acceptInvitation({ token: "issuer-held-token" })).rejects.toMatchObject({ code: "FORBIDDEN" });
+      expect(mockTransaction).not.toHaveBeenCalled();
+    });
+
     it("throws FORBIDDEN when agents quota exceeded on accept", async () => {
       const mockInvitation = {
         id: "inv-1",
@@ -599,14 +618,12 @@ describe("invitations router", () => {
 
       mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
         const mockTx = {
+          $queryRaw: vi.fn().mockResolvedValue([]),
           user: {
             create: vi.fn().mockResolvedValue(mockNewUser),
           },
           invitation: {
-            update: vi.fn().mockResolvedValue({
-              ...mockInvitation,
-              consumedAt: new Date(),
-            }),
+            updateMany: vi.fn().mockResolvedValue({ count: 1 }),
           },
         };
         return fn(mockTx);
@@ -658,7 +675,7 @@ describe("invitations router", () => {
 
       const ctx = await createTRPCContext({
         headers: new Headers(),
-        session: null,
+        session: { user: { ...existingUser, role: "AGENT" }, expires: "2099-01-01" } as any,
       });
       const caller = createCaller(ctx);
 
@@ -703,7 +720,7 @@ describe("invitations router", () => {
 
       const ctx = await createTRPCContext({
         headers: new Headers(),
-        session: null,
+        session: { user: { ...existingUser, role: "AGENT" }, expires: "2099-01-01" } as any,
       });
       const caller = createCaller(ctx);
 
@@ -747,22 +764,56 @@ describe("invitations router", () => {
 
       const orphanUser = {
         id: "user-orphan",
+        role: "AGENT",
+        tokenVersion: 0,
         tenantId: null,
         email: "agent@example.com",
       };
 
       function mockRejoinTransaction() {
-        const userUpdate = vi.fn().mockResolvedValue(orphanUser);
-        const invitationUpdate = vi.fn().mockResolvedValue(orphanInvitation);
+        const userUpdate = vi.fn().mockResolvedValue({ count: 1 });
+        const invitationUpdate = vi.fn().mockResolvedValue({ count: 1 });
         mockTransaction.mockImplementation(
           async (fn: (tx: unknown) => Promise<unknown>) =>
             fn({
-              user: { update: userUpdate },
-              invitation: { update: invitationUpdate },
+              $queryRaw: vi.fn().mockResolvedValue([]),
+              user: { updateMany: userUpdate },
+              invitation: { updateMany: invitationUpdate },
             }),
         );
         return { userUpdate, invitationUpdate };
       }
+
+      it.each([null, { user: { ...orphanUser, id: "issuer" }, expires: "2099-01-01" }])("refuse une acceptation sans identité du destinataire (%j)", async (session) => {
+        mockInvitationFindFirst.mockResolvedValue(orphanInvitation);
+        mockUserFindUnique.mockResolvedValue(orphanUser);
+        const { userUpdate, invitationUpdate } = mockRejoinTransaction();
+        const caller = createCaller(await createTRPCContext({ headers: new Headers(), session: session as any }));
+        await expect(caller.invitations.acceptInvitation({ token: "valid-token" })).rejects.toMatchObject({ code: session ? "FORBIDDEN" : "UNAUTHORIZED" });
+        expect(userUpdate).not.toHaveBeenCalled();
+        expect(invitationUpdate).not.toHaveBeenCalled();
+      });
+
+      it.each(["consommée", "expirée"])("ne rattache pas le compte si l’invitation devient %s avant l’écriture", async () => {
+        mockInvitationFindFirst.mockResolvedValue(orphanInvitation);
+        mockUserFindUnique.mockResolvedValue(orphanUser);
+        const { userUpdate, invitationUpdate } = mockRejoinTransaction();
+        invitationUpdate.mockResolvedValue({ count: 0 });
+        const caller = createCaller(await createTRPCContext({ headers: new Headers(), session: { user: orphanUser } as any }));
+        await expect(caller.invitations.acceptInvitation({ token: "valid-token" })).rejects.toMatchObject({ code: "NOT_FOUND" });
+        expect(userUpdate).not.toHaveBeenCalled();
+        expect(invitationUpdate).toHaveBeenCalledWith({ where: { id: orphanInvitation.id, consumedAt: null, expiresAt: { gt: expect.any(Date) } }, data: { consumedAt: expect.any(Date) } });
+      });
+
+      it("fait échouer la transaction si le compte n’est plus éligible", async () => {
+        mockInvitationFindFirst.mockResolvedValue(orphanInvitation);
+        mockUserFindUnique.mockResolvedValue(orphanUser);
+        const { userUpdate } = mockRejoinTransaction();
+        userUpdate.mockResolvedValue({ count: 0 });
+        const caller = createCaller(await createTRPCContext({ headers: new Headers(), session: { user: orphanUser } as any }));
+        await expect(caller.invitations.acceptInvitation({ token: "valid-token" })).rejects.toMatchObject({ code: "CONFLICT" });
+        expect(userUpdate).toHaveBeenCalledWith(expect.objectContaining({ where: { id: orphanUser.id, email: orphanUser.email, tenantId: null, role: { not: "OPS" }, tokenVersion: 0 } }));
+      });
 
       it("rattache le compte à la boutique qui invite", async () => {
         mockInvitationFindFirst.mockResolvedValue(orphanInvitation);
@@ -771,7 +822,7 @@ describe("invitations router", () => {
 
         const ctx = await createTRPCContext({
           headers: new Headers(),
-          session: null,
+          session: { user: orphanUser, expires: "2099-01-01" } as any,
         });
         const caller = createCaller(ctx);
 
@@ -787,7 +838,7 @@ describe("invitations router", () => {
         });
 
         expect(userUpdate).toHaveBeenCalledWith({
-          where: { id: "user-orphan" },
+          where: { id: "user-orphan", email: orphanUser.email, tenantId: null, role: { not: "OPS" }, tokenVersion: 0 },
           data: {
             tenantId: "tenant-1",
             role: "MANAGER",
@@ -809,7 +860,7 @@ describe("invitations router", () => {
 
         const ctx = await createTRPCContext({
           headers: new Headers(),
-          session: null,
+          session: { user: orphanUser, expires: "2099-01-01" } as any,
         });
         const caller = createCaller(ctx);
 
@@ -831,7 +882,7 @@ describe("invitations router", () => {
 
         const ctx = await createTRPCContext({
           headers: new Headers(),
-          session: null,
+          session: { user: orphanUser, expires: "2099-01-01" } as any,
         });
         const caller = createCaller(ctx);
 

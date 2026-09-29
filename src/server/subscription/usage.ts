@@ -17,6 +17,7 @@
  */
 
 import { db } from "~/server/db";
+import type { Prisma } from "../../../generated/prisma";
 
 /**
  * Get the start of the current billing cycle for a tenant.
@@ -101,8 +102,8 @@ async function countProofsThisCycle(
  * ensembles coïncidaient ; retirer un rôle de l'attribuable aurait alors cessé de
  * facturer les membres concernés.
  */
-async function countOccupiedSeats(tenantId: string): Promise<number> {
-  return db.user.count({
+async function countOccupiedSeats(tenantId: string, client: Prisma.TransactionClient = db): Promise<number> {
+  return client.user.count({
     where: {
       tenantId,
       role: { not: "OWNER" },
@@ -212,12 +213,12 @@ export async function checkProofsQuota(tenantId: string): Promise<ProofsQuotaChe
  * Check if a tenant can add another agent (invitation or accept).
  * - currentCount >= maxAgents: not allowed
  */
-export async function checkAgentsQuota(tenantId: string): Promise<AgentsQuotaCheckResult> {
-  const tenant = await db.tenant.findUniqueOrThrow({
+export async function checkAgentsQuota(tenantId: string, client: Prisma.TransactionClient = db): Promise<AgentsQuotaCheckResult> {
+  const tenant = await client.tenant.findUniqueOrThrow({
     where: { id: tenantId },
     select: { maxAgents: true },
   });
-  const currentCount = await countOccupiedSeats(tenantId);
+  const currentCount = await countOccupiedSeats(tenantId, client);
   return {
     allowed: currentCount < tenant.maxAgents,
     currentCount,

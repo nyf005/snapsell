@@ -5,7 +5,7 @@ import { marketing } from "~/lib/copy/marketing";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
-import { signIn } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
@@ -22,7 +22,8 @@ function InviteAcceptContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
 
-  // Note: isExistingAccount retiré car le serveur gère automatiquement ce cas
+  const { data: session, status: sessionStatus } = useSession();
+  const loginHref = `/login?callbackUrl=${encodeURIComponent(`/invite/accept?token=${encodeURIComponent(token)}`)}`;
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -100,7 +101,10 @@ function InviteAcceptContent() {
     },
     onError: (e) => {
       const errorCode = e.data?.code as string | undefined;
-      if (errorCode === "CONFLICT") {
+      if (errorCode === "UNAUTHORIZED") {
+        router.push(loginHref);
+
+      } else if (errorCode === "CONFLICT") {
         // Gestion améliorée : message clair avec bouton pour se connecter
         const conflictMessage = formatErrorText(e, "auth");
         setError(conflictMessage);
@@ -125,6 +129,7 @@ function InviteAcceptContent() {
    * réclamer un, sous peine de laisser croire qu'il sera pris en compte.
    */
   const isRejoin = invitation?.hasExistingAccount === true;
+  const isRecipient = session?.user?.email?.trim().toLowerCase() === invitation?.email;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,6 +140,12 @@ function InviteAcceptContent() {
     }
 
     if (isRejoin) {
+      if (sessionStatus === "loading") return;
+      if (!isRecipient) {
+        if (session) void signOut({ callbackUrl: loginHref });
+        else router.push(loginHref);
+        return;
+      }
       acceptInvitation.mutate({ token });
       return;
     }
@@ -212,7 +223,7 @@ function InviteAcceptContent() {
         </h1>
         <p className="text-muted-foreground">
           {isRejoin
-            ? "Un compte existe déjà avec cette adresse. Confirmez pour rejoindre l’équipe, puis connectez-vous avec votre mot de passe habituel."
+            ? "Un compte existe déjà avec cette adresse. Connectez-vous avec ce compte, puis confirmez pour rejoindre l’équipe."
             : "Vous avez reçu une invitation comme agent. Complétez votre inscription ci-dessous pour accéder au tableau de bord."}
         </p>
       </div>
@@ -309,9 +320,9 @@ function InviteAcceptContent() {
         <Button
           type="submit"
           className="h-14 w-full rounded-lg text-lg font-bold shadow-lg shadow-primary/20 hover:bg-primary/90"
-          disabled={acceptInvitation.isPending}
+          disabled={acceptInvitation.isPending || (isRejoin && sessionStatus === "loading")}
         >
-          {acceptInvitation.isPending ? "En cours…" : "Rejoindre l'équipe"}
+          {acceptInvitation.isPending ? "En cours…" : isRejoin && !isRecipient ? "Se connecter avec le compte invité" : "Rejoindre l'équipe"}
         </Button>
 
         <p className="px-4 text-center text-xs text-muted-foreground">
@@ -329,7 +340,7 @@ function InviteAcceptContent() {
 
       <div className="flex items-center justify-center gap-2 pt-4 text-sm">
         <span className="text-muted-foreground">Vous avez déjà un compte ?</span>
-        <Link href="/login" className="font-bold text-primary hover:underline">
+        <Link href={loginHref} className="font-bold text-primary hover:underline">
           Se connecter
         </Link>
       </div>

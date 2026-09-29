@@ -2,7 +2,9 @@ import { TRPCError } from "@trpc/server";
 import crypto from "node:crypto";
 import { hash } from "bcrypt";
 
-import { canManageGrid } from "~/lib/rbac";
+import type { Prisma } from "../../../../generated/prisma";
+
+import { isAssignableRole, canManageGrid } from "~/lib/rbac";
 import { checkRateLimit } from "~/lib/rate-limit";
 import { createLogger } from "~/lib/logger";
 import { db } from "~/server/db";
@@ -70,6 +72,25 @@ function validateInvitation(inv: { consumedAt: Date | null; expiresAt: Date } | 
   }
 }
 
+async function claimInvitation(tx: Prisma.TransactionClient, id: string) {
+  const claim = await tx.invitation.updateMany({
+    where: { id, consumedAt: null, expiresAt: { gt: new Date() } },
+    data: { consumedAt: new Date() },
+  });
+  if (claim.count !== 1) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "Invitation introuvable ou expirée." });
+  }
+}
+
+async function lockAvailableSeat(tx: Prisma.TransactionClient, tenantId: string) {
+  // Des jetons différents doivent partager le même verrou de quota.
+  await tx.$queryRaw`SELECT id FROM tenants WHERE id = ${tenantId} FOR UPDATE`;
+  const quota = await checkAgentsQuota(tenantId, tx);
+  if (!quota.allowed) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Limite de membres atteinte pour cette boutique." });
+  }
+}
+
 export const invitationsRouter = createTRPCRouter({
   createInvitation: protectedProcedure
     .input(createInvitationInputSchema)
@@ -86,6 +107,13 @@ export const invitationsRouter = createTRPCRouter({
           code: "BAD_REQUEST",
           message: "Tenant non identifié.",
         });
+      }
+
+      const recipient = await db.user.findUnique({
+        where: { email: input.email }, select: { role: true },
+      });
+      if (recipient?.role === "OPS") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Ce compte ne peut pas rejoindre une boutique." });
       }
 
       // Rate limiting : max 10 invitations par heure par tenant
@@ -234,11 +262,14 @@ export const invitationsRouter = createTRPCRouter({
 
   acceptInvitation: publicProcedure
     .input(acceptInvitationInputSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const inv = await db.invitation.findFirst({
         where: { tokenHash: hashToken(input.token) },
       });
       validateInvitation(inv);
+      if (!isAssignableRole(inv!.role)) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Rôle d’invitation non autorisé." });
+      }
 
       // Limite de sièges selon l'abonnement (Story 7A.2)
       const agentsQuota = await checkAgentsQuota(inv!.tenantId);
@@ -254,12 +285,18 @@ export const invitationsRouter = createTRPCRouter({
       });
 
       if (existingUser) {
+        // Le créateur connaît le jeton : il ne prouve pas l'identité du destinataire.
+        if (existingUser.role === "OPS") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Ce compte ne peut pas rejoindre une boutique." });
+        }
+        if (!ctx.session?.user) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Connectez-vous avec le compte invité pour accepter." });
+        }
+        if (ctx.session.user.id !== existingUser.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Connectez-vous avec le compte invité pour accepter." });
+        }
         if (existingUser.tenantId === inv!.tenantId) {
           // Utilisateur déjà membre du tenant → refuser l'invitation avec message clair
-          await db.invitation.update({
-            where: { id: inv!.id },
-            data: { consumedAt: new Date() },
-          });
           logInvitationAction("accept", {
             tenantId: inv!.tenantId,
             email: inv!.email,
@@ -272,42 +309,23 @@ export const invitationsRouter = createTRPCRouter({
           });
         }
 
-        /**
-         * ── RETIRER PUIS RÉINTÉGRER QUELQU'UN DEVAIT REDEVENIR POSSIBLE ───────
-         *
-         * `team.removeMember` ne supprime pas le compte : il met `tenantId` à
-         * `null` pour préserver l'historique. La personne se retrouve donc sans
-         * boutique — et toute réinvitation tombait ici, sur le refus « un compte
-         * existe déjà pour un autre tenant ». Ce n'était pourtant pas le cas :
-         * elle n'appartenait à aucun. Retirer quelqu'un par erreur était sans
-         * retour, et la seule issue passait par la base de données.
-         *
-         * Un compte orphelin est donc rattaché à la boutique qui l'invite.
-         *
-         * Son mot de passe n'est jamais touché — ni ici, ni ailleurs dans ce
-         * chemin. C'est la garantie qui rend l'opération sûre : sans elle, qui
-         * émet une invitation vers l'adresse d'un compte orphelin pourrait en
-         * redéfinir le mot de passe et s'en emparer. La personne se reconnecte
-         * avec ses identifiants habituels.
-         *
-         * `tokenVersion` est incrémenté pour la même raison qu'ailleurs : un
-         * jeton émis avant le rattachement porte encore `tenantId: null`.
-         * ────────────────────────────────────────────────────────────────────
-         */
+        // Le destinataire authentifié peut réintégrer une équipe, sans changer
+        // ses identifiants. Les conditions sont revérifiées au moment d'écrire.
         if (existingUser.tenantId === null) {
           await db.$transaction(async (tx) => {
-            await tx.user.update({
-              where: { id: existingUser.id },
+            await lockAvailableSeat(tx, inv!.tenantId);
+            await claimInvitation(tx, inv!.id);
+            const updated = await tx.user.updateMany({
+              where: { id: existingUser.id, email: inv!.email, tenantId: null, role: { not: "OPS" }, tokenVersion: existingUser.tokenVersion },
               data: {
                 tenantId: inv!.tenantId,
                 role: inv!.role,
                 tokenVersion: { increment: 1 },
               },
             });
-            await tx.invitation.update({
-              where: { id: inv!.id },
-              data: { consumedAt: new Date() },
-            });
+            if (updated.count !== 1) {
+              throw new TRPCError({ code: "CONFLICT", message: "Ce compte a changé. Rechargez l’invitation." });
+            }
           });
 
           logInvitationAction("accept", {
@@ -353,6 +371,8 @@ export const invitationsRouter = createTRPCRouter({
 
       const passwordHash = await hash(input.password, 10);
       const user = await db.$transaction(async (tx) => {
+        await lockAvailableSeat(tx, inv!.tenantId);
+        await claimInvitation(tx, inv!.id);
         const newUser = await tx.user.create({
           data: {
             tenantId: inv!.tenantId,
@@ -361,10 +381,6 @@ export const invitationsRouter = createTRPCRouter({
             passwordHash,
             role: inv!.role,
           },
-        });
-        await tx.invitation.update({
-          where: { id: inv!.id },
-          data: { consumedAt: new Date() },
         });
         return newUser;
       });

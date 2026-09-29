@@ -90,11 +90,16 @@ export async function runCreditsMonthlyResetJob(): Promise<CreditsMonthlyResetRu
         // entier — toutes les boutiques suivantes perdraient leur recharge du
         // mois. Même raisonnement que pour le plan inconnu, plus bas.
         const initialized = await db.tenant.updateMany({
-          where: { id: tenant.id },
+          where: {
+            id: tenant.id,
+            subscriptionPlan: tenant.subscriptionPlan,
+            usageResetDate: tenant.usageResetDate,
+            cycleStartedAt: tenant.cycleStartedAt,
+          },
           data: { usageResetDate: nextReset },
         });
         if (initialized.count === 0) {
-          workerLogger.info("[cron:credits-monthly-reset] Boutique disparue, ignorée", {
+          workerLogger.info("[cron:credits-monthly-reset] Boutique modifiée ou disparue, ignorée", {
             tenantId: tenant.id,
           });
           continue;
@@ -133,7 +138,12 @@ export async function runCreditsMonthlyResetJob(): Promise<CreditsMonthlyResetRu
     // Même garde que ci-dessus : une boutique disparue ne doit pas emporter
     // la recharge de toutes les suivantes.
     const renewed = await db.tenant.updateMany({
-      where: { id: tenant.id },
+      where: {
+            id: tenant.id,
+            subscriptionPlan: tenant.subscriptionPlan,
+            usageResetDate: tenant.usageResetDate,
+            cycleStartedAt: tenant.cycleStartedAt,
+          },
       data: {
         creditsBalance: creditsTotalMonthly,
         creditsTotalMonthly,
@@ -143,7 +153,7 @@ export async function runCreditsMonthlyResetJob(): Promise<CreditsMonthlyResetRu
       },
     });
     if (renewed.count === 0) {
-      workerLogger.info("[cron:credits-monthly-reset] Boutique disparue, ignorée", {
+      workerLogger.info("[cron:credits-monthly-reset] Boutique modifiée ou disparue, ignorée", {
         tenantId: tenant.id,
       });
       continue;

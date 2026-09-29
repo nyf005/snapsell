@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-29",
+  "purpose": "Planification et reprise durable de la clôture de l’audit de sécurité",
+  "status": "local_fixes_verified_audit_partial",
+  "repository": "/Users/fabricendri/Developer/SnapSell",
+  "baseRevision": "ebadb8fe10c37e8a9ed75225d3e325f72257f70d",
+  "previousScan": {
+    "id": "72ea95b0-d4af-4919-887c-318545c0c012",
+    "status": "sealed_partial",
+    "finding": "csf_316cf4ade09079939e4efe60"
+  },
+  "nextAction": {
+    "lot": "F/G",
+    "action": "Vérifier CI et révision effectivement déployée après push; poursuivre checklist REMAINING.md. Ne pas rouvrir le scan scellé."
+  },
+  "batches": [
+    {
+      "id": "A",
+      "status": "reviewed_with_operational_limits"
+    },
+    {
+      "id": "B",
+      "status": "reviewed_with_lifecycle_limits"
+    },
+    {
+      "id": "C",
+      "status": "reviewed_focused_surfaces"
+    },
+    {
+      "id": "D",
+      "status": "fixes_verified_postgresql"
+    },
+    {
+      "id": "E",
+      "status": "dependency_and_config_pass_completed_limited_secret_scan"
+    },
+    {
+      "id": "F",
+      "status": "production_not_verified"
+    },
+    {
+      "id": "G",
+      "status": "partial_report_published"
+    }
+  ],
+  "localFix": {
+    "status": "fixes_verified_in_this_commit_deployment_unverified",
+    "committed": true,
+    "deployed": false,
+    "preserveFiles": [
+      "src/server/api/routers/invitations.ts",
+      "src/server/api/routers/invitations.test.ts",
+      "src/app/(auth)/invite/accept/page.tsx",
+      "src/app/(auth)/invite/accept/page.ui.test.tsx",
+      "src/server/messaging/providers/meta/signup-attempt.ts",
+      "src/server/messaging/providers/meta/credentials.ts",
+      "src/server/workers/outbox-recovery.ts",
+      "src/server/api/routers/delivery.ts",
+      "src/server/api/routers/onboarding.ts",
+      ".github/workflows/ci.yml",
+      "src/server/api/routers/settings.ts",
+      "src/server/api/routers/ops.ts",
+      "src/server/messaging/providers/meta/embedded-signup.ts",
+      "src/server/subscription/usage.ts",
+      "src/server/api/routers/settings.test.ts",
+      "src/server/api/routers/invitations.integration.test.ts",
+      "src/server/workers/credits-monthly-reset.ts",
+      "src/server/workers/credits-monthly-reset.integration.test.ts",
+      "package-lock.json"
+    ],
+    "verification": {
+      "serverTests": {
+        "count": 52,
+        "status": "passed_previous_turn",
+        "command": "npx vitest run src/server/api/routers/invitations.test.ts src/server/api/routers/invitations.schema.test.ts src/server/auth-revocation.test.ts"
+      },
+      "uiTests": {
+        "count": 3,
+        "status": "passed_previous_turn",
+        "command": "npx vitest run --config vitest.config.ui.ts 'src/app/(auth)/invite/accept/page.ui.test.tsx'"
+      },
+      "typecheck": "passed_previous_turn",
+      "targetedLint": "passed_previous_turn",
+      "diffCheck": "passed_previous_turn",
+      "databaseConcurrency": "3 invitation PostgreSQL cases passed; 12 credit reset integration cases passed",
+      "production": "not_tested"
+    }
+  },
+  "preparatoryInspection": {
+    "fullyRead": [
+      "src/server/messaging/providers/meta/signup-attempt.ts",
+      "src/server/messaging/providers/meta/credentials.ts",
+      "src/server/workers/outbox-recovery.ts",
+      "src/server/api/routers/delivery.ts",
+      "src/server/api/routers/onboarding.ts",
+      ".github/workflows/ci.yml"
+    ],
+    "partiallyRead": [
+      "src/server/api/routers/settings.ts",
+      "src/server/api/routers/ops.ts",
+      "src/server/messaging/providers/meta/embedded-signup.ts"
+    ],
+    "coverageMeaning": "Lecture préparatoire au plan, pas certification ni lot clos. Aucun nouveau constat de vulnérabilité validé."
+  },
+  "fileHashes": {
+    "src/server/api/routers/invitations.ts": "a33118109f00a6064bfe11265d2f21ba9e0337d7ef783fe7582f3e7a0fa236db",
+    "src/server/api/routers/invitations.test.ts": "7c577801a4327450b58b2eff45cbf40de95458cd0723a372a6b65b976ca45511",
+    "src/app/(auth)/invite/accept/page.tsx": "4492437176c280cfcc056a23ebf4f235368b7c5409923db499e242a39621b101",
+    "src/app/(auth)/invite/accept/page.ui.test.tsx": "451dc41becb8c28be6a5547401e8a32e4da36018a64f0c44a073f2597e5f8596",
+    "src/server/messaging/providers/meta/signup-attempt.ts": "d4587359c2e2df8a55974cf3b867b09de9365e5817240448b06cbe66d3f2adbf",
+    "src/server/messaging/providers/meta/credentials.ts": "8a38715cc1bb3387b137e171f97be31999fc5115e40cd244de27d3f865d1369e",
+    "src/server/workers/outbox-recovery.ts": "c7d67ef10cce4d80c2e5f89bfcd69dd2c517f8562b79ef1c148b69cc6a591186",
+    "src/server/api/routers/delivery.ts": "e252c273fc8bb5509f8ac844624f29af153339b5a5fb94c789663d8c683e8dc0",
+    "src/server/api/routers/onboarding.ts": "5b9fc34962d654d117c735fde27ded07833537a5bd71cc451056c68fbc707d8f",
+    ".github/workflows/ci.yml": "48114625405238bbcb1d6bc964f90ac58e4d230238f747499a75ff7be5b609a6",
+    "src/server/api/routers/settings.ts": "2996ca19d26eb1a85c6e0b4346602780feec2cb28350df58db20e36b7fbfe5f8",
+    "src/server/api/routers/ops.ts": "806d8b8678fb5dbeb4eef6b75acca54d6390e7c54d83b2969a64c0b519fe8c6c",
+    "src/server/messaging/providers/meta/embedded-signup.ts": "b803a579c316b0afdba3f8d772046f0c0e1fe5326cb56d0de0b51c2233caa282",
+    "src/server/subscription/usage.ts": "97fe0efb6b2748f69b5162e4a39a0456189b18b4e8ea121e193fe330a80eafb2",
+    "src/server/api/routers/settings.test.ts": "cf803291e928f7af8a0a12b5216211701a98e7cf4c26cd4ec52b46505ae1c695",
+    "src/server/api/routers/invitations.integration.test.ts": "1e328f36790fa73018404ef05eb910ab1caedcf151f1e0b9ae26d2f2bb9e68b2",
+    "src/server/workers/credits-monthly-reset.ts": "8890a2e39486dacfa4f599ccd425bfd30e0e80380a096a56b238922861ce9d0a",
+    "src/server/workers/credits-monthly-reset.integration.test.ts": "315503809708eb9fb7a3ccc8552b90bc43f864411559fb4c0e3f489b13e30ffb",
+    "package-lock.json": "459638e933e6df98945e084e8d24b3e95ddff1473d4a42e0eb97a3b41c951a78"
+  },
+  "blockers": [],
+  "historicalInterruptions": [
+    "Les agents complémentaires du premier audit ont échoué faute de crédits ; leurs tâches restent ouvertes."
+  ],
+  "resumeProtocol": [
+    "Lire ce fichier et PLAN.md.",
+    "Comparer HEAD, git status et fileHashes. Préserver le correctif local.",
+    "Réexaminer uniquement les preuves affectées par des modifications.",
+    "Enregistrer in_progress et nextAction avant travail, puis chaque résultat achevé.",
+    "Quota renouvelé ne signifie pas reprise automatique : attendre une relance utilisateur."
+  ],
+  "unresolved": [
+    "Configuration de production, droits DB/R2, présence des secrets et révision déployée non inspectés.",
+    "Email support auto-déclaré reste un mécanisme faible; association phone désormais soumise à propriété Meta.",
+    "Couverture du dépôt partielle, pas de certification exhaustive."
+  ],
+  "activeScan": {
+    "id": "5305e269-a456-420f-8e48-a2ad52758bd3",
+    "directory": "/Users/fabricendri/.codex/state/plugins/codex-security/scans/SnapSell/ebadb8fe10c37e8a9ed75225d3e325f72257f70d_20260929T131748Z_csx6ljem",
+    "phase": "reporting",
+    "status": "sealed_partial",
+    "report": "/Users/fabricendri/.codex/state/plugins/codex-security/scans/SnapSell/ebadb8fe10c37e8a9ed75225d3e325f72257f70d_20260929T131748Z_csx6ljem/report.md"
+  },
+  "resumeVerification": {
+    "revisionUnchanged": true,
+    "trackedHashesUnchanged": true
+  },
+  "auditProgress": {
+    "invitationSeatRace": {
+      "status": "fixed_and_verified_postgresql",
+      "severity": "medium",
+      "test": "1 passed, 29 skipped; two distinct invitations accepted for one remaining seat",
+      "artifact": "artifacts/invitations-concurrency.test.ts",
+      "postgresql": "3 concurrent scenarios passed"
+    },
+    "packetB": "reviewed; tokenless phone binding fixed; support provisioning and reconnect lifecycle remain to verify",
+    "packetC": "reviewed focused workers; stale credit snapshot corrected and tested",
+    "dependencyVersions": {
+      "next": "15.5.25",
+      "react": "19.2.4",
+      "next-auth": "5.0.0-beta.32",
+      "pg-boss": "12.13.0"
+    },
+    "sourceChanges": "Invitation identity/quota, Meta phone validation, monthly credits CAS, undici update and tests",
+    "fixes": {
+      "seatQuota": "tenant row lock + tx quota; 3 PostgreSQL race tests passed",
+      "phoneOwnership": "reject non-null phone without valid token; settings 31 tests passed",
+      "monthlyCredits": "conditional plan/cycle updates; 12 integration tests passed including 3 stale snapshot regressions",
+      "dependency": "undici 7.29.0 -> 7.30.0; npm audit zero known vulnerabilities",
+      "review": "independent read-only patch reviewer: no concrete bypass/regression",
+      "typecheck": "passed",
+      "lint": "passed targeted",
+      "ui": "3 passed",
+      "fullSuite": "1440 passed; 3 mock failures corrected, affected 12 tests then passed. Final tsc and targeted lint passed."
+    },
+    "secretScan": "854 tracked files, limited private-key/live-key patterns, no matches; no history/env scan"
+  }
+}
