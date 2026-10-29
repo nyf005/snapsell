@@ -30,7 +30,7 @@
     "@aws-sdk/s3-request-presigner": "^3.988.0",
     "@prisma/adapter-pg": "^7.4.1",
     "@prisma/client": "^7.9.1",
-    "@sentry/nextjs": "^10.38.0",
+    "@sentry/nextjs": "^10.75.2",
     "@t3-oss/env-nextjs": "^0.12.0",
     "@tanstack/react-query": "^5.69.0",
     "@trpc/client": "^11.0.0",
